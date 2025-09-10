@@ -3,7 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import Dict, Any, List, Optional
+from typing import Any, Optional
 from jinja2 import Environment
 
 from .import_serializer import FileImportSerializer
@@ -68,8 +68,8 @@ class TestName:
 class TestCase:
     def __init__(
         self,
-        operation_groups: List[OperationGroup],
-        params: Dict[str, Any],
+        operation_groups: list[OperationGroup],
+        params: dict[str, Any],
         operation: OperationType,
         *,
         async_mode: bool = False,
@@ -125,7 +125,7 @@ class Test(TestName):
         code_model: CodeModel,
         client_name: str,
         operation_group: OperationGroup,
-        testcases: List[TestCase],
+        testcases: list[TestCase],
         test_class_name: str,
         *,
         async_mode: bool = False,
@@ -143,7 +143,7 @@ class TestGeneralSerializer(BaseSerializer):
         return ".aio" if self.async_mode else ""
 
     @property
-    def test_names(self) -> List[TestName]:
+    def test_names(self) -> list[TestName]:
         return [TestName(self.code_model, c.name, async_mode=self.async_mode) for c in self.code_model.clients]
 
     def add_import_client(self, imports: FileImport) -> None:
@@ -215,7 +215,7 @@ class TestSerializer(TestGeneralSerializer):
         return FileImportSerializer(imports, self.async_mode)
 
     @property
-    def breadth_search_operation_group(self) -> List[List[OperationGroup]]:
+    def breadth_search_operation_group(self) -> list[list[OperationGroup]]:
         result = []
         queue = [[self.operation_group]]
         while queue:
@@ -239,7 +239,7 @@ class TestSerializer(TestGeneralSerializer):
             return param_type.target_model_subtype((ModelType,))
         return None
 
-    def get_operation_params(self, operation: OperationType) -> Dict[str, Any]:
+    def get_operation_params(self, operation: OperationType) -> dict[str, Any]:
         operation_params = {}
         required_params = [p for p in operation.parameters.method if not p.optional]
         for param in required_params:

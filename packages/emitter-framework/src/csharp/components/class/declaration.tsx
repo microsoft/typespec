@@ -1,7 +1,7 @@
-import { type Children, For } from "@alloy-js/core";
+import { For, type Children } from "@alloy-js/core";
 import * as cs from "@alloy-js/csharp";
 import { Method } from "@alloy-js/csharp";
-import type { Interface, Model } from "@typespec/compiler";
+import { isVoidType, type Interface, type Model } from "@typespec/compiler";
 import { useTsp } from "../../../core/index.js";
 import { Property } from "../property/property.jsx";
 import { TypeExpression } from "../type-expression.jsx";
@@ -41,6 +41,12 @@ export function ClassDeclaration(props: ClassDeclarationProps): Children {
         {...props}
         name={className}
         refkey={refkeys}
+        baseType={
+          props.baseType ??
+          (props.type.kind === "Model" && props.type.baseModel ? (
+            <TypeExpression type={props.type.baseModel} />
+          ) : undefined)
+        }
         doc={getDocComments($, props.type)}
       >
         {props.type.kind === "Model" && (
@@ -53,8 +59,12 @@ export function ClassDeclaration(props: ClassDeclarationProps): Children {
 }
 
 function ClassProperties(props: ClassPropertiesProps): Children {
+  // Ignore 'void' type properties which is not valid in csharp
+  const properties = Array.from(props.type.properties.entries()).filter(
+    ([_, p]) => !isVoidType(p.type),
+  );
   return (
-    <For each={props.type.properties.entries()} hardline>
+    <For each={properties} doubleHardline>
       {([name, property]) => <Property type={property} jsonAttributes={props.jsonAttributes} />}
     </For>
   );

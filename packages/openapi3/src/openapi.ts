@@ -278,6 +278,30 @@ function createOAPIEmitter(
 
   return { emitOpenAPI, getOpenAPI };
 
+  /**
+   * Check if an HTTP operation or its container (interface/namespace) is deprecated
+   */
+  function isOperationDeprecated(httpOp: HttpOperation): boolean {
+    if (isDeprecated(program, httpOp.operation)) {
+      return true;
+    }
+
+    if (isDeprecated(program, httpOp.container)) {
+      return true;
+    }
+
+    // Check parent namespaces recursively
+    let current = httpOp.container.namespace;
+    while (current && current.name !== "") {
+      if (isDeprecated(program, current)) {
+        return true;
+      }
+      current = current.namespace;
+    }
+
+    return false;
+  }
+
   async function emitOpenAPI() {
     const services = await getOpenAPI();
     // first, emit diagnostics
@@ -748,7 +772,7 @@ function createOAPIEmitter(
     for (const op of operations) {
       applyExternalDocs(op.operation, oai3Operation);
       attachExtensions(program, op.operation, oai3Operation);
-      if (isDeprecated(program, op.operation)) {
+      if (isOperationDeprecated(op)) {
         oai3Operation.deprecated = true;
       }
     }
@@ -847,7 +871,7 @@ function createOAPIEmitter(
     if (authReference) {
       oai3Operation.security = getEndpointSecurity(authReference);
     }
-    if (isDeprecated(program, op)) {
+    if (isOperationDeprecated(operation)) {
       oai3Operation.deprecated = true;
     }
     attachExtensions(program, op, oai3Operation);
@@ -1193,6 +1217,9 @@ function createOAPIEmitter(
             schema = { ...schema, description: doc };
           }
         }
+
+        // Attach any OpenAPI extensions from the part property
+        attachExtensions(program, part.property, schema);
       }
 
       properties[partName] = schema;

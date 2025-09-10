@@ -1,0 +1,25 @@
+openapi: 3.0.0
+info:
+  title: (title)
+  version: 0.0.0
+paths:
+  /:
+    get:
+      parameters: []
+      responses:
+        "200":
+          description: The request has succeeded.
+        4XX:
+          description: Client error
+        5XX:
+          description: Server error
+  /foo:
+    put:
+      parameters: []
+      responses:
+        "200":
+          description: The request has succeeded.
+        4XX:
+          description: Client error
+        5XX:
+          description: Server error

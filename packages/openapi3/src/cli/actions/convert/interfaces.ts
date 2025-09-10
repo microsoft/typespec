@@ -5,6 +5,7 @@ export interface TypeSpecProgram {
   serviceInfo: TypeSpecServiceInfo;
   namespaces: Record<string, TypeSpecNamespace>;
   types: TypeSpecDataTypes[];
+  tags: TypeSpecTagMetadata[];
   augmentations: TypeSpecAugmentation[];
   operations: TypeSpecOperation[];
   servers: TypeSpecServer[];
@@ -22,11 +23,23 @@ export interface TypeSpecServerVariable {
   enum?: string[];
 }
 
+export interface TypeSpecTagMetadata {
+  name: string;
+  description?: string;
+  externalDocs?: TypeSpecExternalDocs;
+}
+
+export interface TypeSpecExternalDocs {
+  url: string;
+  description?: string;
+}
+
 export interface TypeSpecDeclaration {
   name: string;
   doc?: string;
   decorators: TypeSpecDecorator[];
   scope: string[];
+  fixmes?: string[];
 }
 
 export interface TypeSpecNamespace {
@@ -89,6 +102,15 @@ export interface TypeSpecModel extends TypeSpecDeclaration {
   type?: OpenAPI3Schema["type"];
 
   spread?: string[];
+
+  /**
+   * Whether the model is referenced as a multipart request body and needs to be emitted as a set of http parts
+   */
+  isModelReferencedAsMultipartRequestBody?: boolean;
+  /**
+   * The encoding information to use, if any, for the multipart request body.
+   */
+  encoding?: Record<string, OpenAPI3Encoding>;
 }
 
 export interface TypeSpecAlias extends Pick<TypeSpecDeclaration, "name" | "doc" | "scope"> {

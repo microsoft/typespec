@@ -7,7 +7,7 @@ import logging
 import json
 from collections import namedtuple
 import re
-from typing import List, Any, Union, Optional
+from typing import Any, Optional, Union
 from pathlib import Path
 from packaging.version import parse as parse_version
 from jinja2 import PackageLoader, Environment, FileSystemLoader, StrictUndefined
@@ -28,7 +28,6 @@ from .model_init_serializer import ModelInitSerializer
 from .model_serializer import DpgModelSerializer, MsrestModelSerializer
 from .operations_init_serializer import OperationsInitSerializer
 from .operation_groups_serializer import OperationGroupsSerializer
-from .metadata_serializer import MetadataSerializer
 from .request_builders_serializer import RequestBuildersSerializer
 from .patch_serializer import PatchSerializer
 from .sample_serializer import SampleSerializer
@@ -99,7 +98,7 @@ class JinjaSerializer(ReaderAndWriter):
         return self.code_model.options["show-operations"] and bool(self.code_model.has_operations)
 
     @property
-    def serialize_loop(self) -> List[AsyncInfo]:
+    def serialize_loop(self) -> list[AsyncInfo]:
         sync_loop = AsyncInfo(async_mode=False, async_path="")
         async_loop = AsyncInfo(async_mode=True, async_path="aio/")
         return [sync_loop, async_loop] if self.has_aio_folder else [sync_loop]
@@ -149,10 +148,7 @@ class JinjaSerializer(ReaderAndWriter):
                     self._serialize_and_write_package_files()
 
                 # write apiview-properties.json
-                if (
-                    self.code_model.options.get("emit-cross-language-definition-file")
-                    and not self.code_model.options["multiapi"]
-                ):
+                if self.code_model.options.get("emit-cross-language-definition-file"):
                     self.write_file(
                         self._root_of_sdk / Path("apiview-properties.json"),
                         general_serializer.serialize_cross_language_definition_file(),
@@ -208,8 +204,6 @@ class JinjaSerializer(ReaderAndWriter):
                 self._serialize_and_write_operations_folder(
                     client_namespace_type.operation_groups, env=env, namespace=client_namespace
                 )
-                if self.code_model.options["multiapi"]:
-                    self._serialize_and_write_metadata(env=env, namespace=client_namespace)
 
             # if there are only operations under this namespace, we need to add general __init__.py into `aio` folder
             # to make sure all generated files could be packed into .zip/.whl/.tgz package
@@ -277,7 +271,7 @@ class JinjaSerializer(ReaderAndWriter):
             )
 
     def _serialize_and_write_models_folder(
-        self, env: Environment, namespace: str, models: List[ModelType], enums: List[EnumType]
+        self, env: Environment, namespace: str, models: list[ModelType], enums: list[EnumType]
     ) -> None:
         # Write the models folder
         models_path = self.code_model.get_generation_dir(namespace) / "models"
@@ -320,7 +314,7 @@ class JinjaSerializer(ReaderAndWriter):
         self,
         env: Environment,
         rest_path: Path,
-        request_builders: List[Union[RequestBuilder, OverloadedRequestBuilder]],
+        request_builders: list[Union[RequestBuilder, OverloadedRequestBuilder]],
     ) -> None:
         group_name = request_builders[0].group_name
         output_path = rest_path / Path(group_name) if group_name else rest_path
@@ -345,7 +339,7 @@ class JinjaSerializer(ReaderAndWriter):
         )
 
     def _serialize_and_write_operations_folder(
-        self, operation_groups: List[OperationGroup], env: Environment, namespace: str
+        self, operation_groups: list[OperationGroup], env: Environment, namespace: str
     ) -> None:
         operations_folder_name = self.code_model.operations_folder_name(namespace)
         generation_path = self.code_model.get_generation_dir(namespace)
@@ -414,7 +408,7 @@ class JinjaSerializer(ReaderAndWriter):
     def _serialize_client_and_config_files(
         self,
         namespace: str,
-        clients: List[Client],
+        clients: list[Client],
         env: Environment,
     ) -> None:
         generation_path = self.code_model.get_generation_dir(namespace)
@@ -491,11 +485,7 @@ class JinjaSerializer(ReaderAndWriter):
 
         # write the empty py.typed file
         pytyped_value = "# Marker file for PEP 561."
-        # TODO: remove this when we remove legacy multiapi generation
-        if self.code_model.options["multiapi"]:
-            self.write_file(self.code_model.get_generation_dir(namespace) / Path("py.typed"), pytyped_value)
-        else:
-            self.write_file(root_dir / Path("py.typed"), pytyped_value)
+        self.write_file(root_dir / Path("py.typed"), pytyped_value)
 
         # write _validation.py
         if any(og for client in self.code_model.clients for og in client.operation_groups if og.need_validation):
@@ -511,22 +501,16 @@ class JinjaSerializer(ReaderAndWriter):
                 TypesSerializer(code_model=self.code_model, env=env).serialize(),
             )
 
-    def _serialize_and_write_metadata(self, env: Environment, namespace: str) -> None:
-        metadata_serializer = MetadataSerializer(self.code_model, env)
-        self.write_file(
-            self.code_model.get_generation_dir(namespace) / Path("_metadata.json"), metadata_serializer.serialize()
-        )
-
     # pylint: disable=line-too-long
     @property
     def sample_additional_folder(self) -> Path:
         # For special package, we need to additional folder when generate samples.
-        # For example, azure-mgmt-resource is combined by multiple modules, and each module is multiapi package.
+        # For example, azure-mgmt-resource is combined by multiple modules, and each module is a package.
         # one of namespace is "azure.mgmt.resource.resources.v2020_01_01", then additional folder is "resources"
         # so that we could avoid conflict when generate samples.
         # python config: https://github.com/Azure/azure-rest-api-specs/blob/main/specification/resources/resource-manager/readme.python.md
         # generated SDK: https://github.com/Azure/azure-sdk-for-python/tree/main/sdk/resources/azure-mgmt-resource/generated_samples
-        namespace_config = get_namespace_config(self.code_model.namespace, self.code_model.options["multiapi"])
+        namespace_config = get_namespace_config(self.code_model.namespace)
         num_of_namespace = namespace_config.count(".") + 1
         num_of_package_namespace = (
             get_namespace_from_package_name(self.code_model.options.get("package-name", "")).count(".") + 1
@@ -540,11 +524,6 @@ class JinjaSerializer(ReaderAndWriter):
         for client in self.code_model.clients:
             for op_group in client.operation_groups:
                 for operation in op_group.operations:
-                    if (
-                        self.code_model.options["multiapi"]
-                        and operation.api_versions[0] != self.code_model.options["default-api-version"]
-                    ):
-                        continue
                     samples = operation.yaml_data.get("samples")
                     if not samples or operation.name.startswith("_"):
                         continue
@@ -584,10 +563,6 @@ class JinjaSerializer(ReaderAndWriter):
 
         for client in self.code_model.clients:
             for og in client.operation_groups:
-                if self.code_model.options["multiapi"] and any(
-                    o.api_versions[0] != self.code_model.options["default-api-version"] for o in og.operations
-                ):
-                    continue
                 test_serializer = TestSerializer(self.code_model, env, client=client, operation_group=og)
                 for async_mode in (True, False):
                     try:

@@ -3,7 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import Any, Dict, List, TYPE_CHECKING, Optional, cast
+from typing import Any, TYPE_CHECKING, Optional, cast
 
 from .base import BaseType
 from .imports import FileImport, ImportType, TypingSection
@@ -24,7 +24,7 @@ class EnumValue(BaseType):
 
     def __init__(
         self,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         code_model: "CodeModel",
         enum_type: "EnumType",
         value_type: BaseType,
@@ -94,7 +94,7 @@ class EnumValue(BaseType):
         return file_import
 
     @classmethod
-    def from_yaml(cls, yaml_data: Dict[str, Any], code_model: "CodeModel") -> "EnumValue":
+    def from_yaml(cls, yaml_data: dict[str, Any], code_model: "CodeModel") -> "EnumValue":
         """Constructs an EnumValue from yaml data.
 
         :param yaml_data: the yaml data from which we will construct this object
@@ -127,9 +127,9 @@ class EnumType(BaseType):
 
     def __init__(
         self,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         code_model: "CodeModel",
-        values: List["EnumValue"],
+        values: list["EnumValue"],
         value_type: BaseType,
     ) -> None:
         super().__init__(yaml_data=yaml_data, code_model=code_model)
@@ -219,12 +219,12 @@ class EnumType(BaseType):
     def instance_check_template(self) -> str:
         return self.value_type.instance_check_template
 
-    def fill_instance_from_yaml(self, yaml_data: Dict[str, Any], code_model: "CodeModel") -> None:
+    def fill_instance_from_yaml(self, yaml_data: dict[str, Any], code_model: "CodeModel") -> None:
         for value in yaml_data["values"]:
             self.values.append(EnumValue.from_yaml(value, code_model))
 
     @classmethod
-    def from_yaml(cls, yaml_data: Dict[str, Any], code_model: "CodeModel") -> "EnumType":
+    def from_yaml(cls, yaml_data: dict[str, Any], code_model: "CodeModel") -> "EnumType":
         raise ValueError(
             "You shouldn't call from_yaml for EnumType to avoid recursion. "
             "Please initial a blank EnumType, then call .fill_instance_from_yaml on the created type."

@@ -43,7 +43,7 @@ dependencies = [
     {% else %}
     "isodate>={{ VERSION_MAP['isodate'] }}",
     {% endif %}
-    {% if options.get('azure_arm') %}
+    {% if options.get('azure-arm') %}
     "azure-mgmt-core>={{ VERSION_MAP['azure-mgmt-core'] }}",
     {% elif code_model.is_azure_flavor %}
     "azure-core>={{ VERSION_MAP['azure-core'] }}",

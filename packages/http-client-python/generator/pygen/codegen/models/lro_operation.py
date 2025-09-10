@@ -3,7 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import Any, Dict, Optional, List, TYPE_CHECKING, TypeVar, Union
+from typing import Any, Optional, TYPE_CHECKING, TypeVar, Union
 from .imports import FileImport
 from .operation import OperationBase, Operation
 from .response import LROPagingResponse, LROResponse, Response
@@ -22,16 +22,16 @@ LROResponseType = TypeVar("LROResponseType", bound=Union[LROResponse, LROPagingR
 class LROOperationBase(OperationBase[LROResponseType]):
     def __init__(
         self,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         code_model: "CodeModel",
         client: "Client",
         name: str,
         request_builder: RequestBuilder,
         parameters: ParameterList,
-        responses: List[LROResponseType],
-        exceptions: List[Response],
+        responses: list[LROResponseType],
+        exceptions: list[Response],
         *,
-        overloads: Optional[List[Operation]] = None,
+        overloads: Optional[list[Operation]] = None,
     ) -> None:
         super().__init__(
             code_model=code_model,
@@ -46,7 +46,7 @@ class LROOperationBase(OperationBase[LROResponseType]):
         )
         if not self.name.lstrip("_").startswith("begin"):
             self.name = ("_begin" if self.internal else "begin_") + self.name
-        self.lro_options: Dict[str, Any] = self.yaml_data.get("lroOptions", {})
+        self.lro_options: dict[str, Any] = self.yaml_data.get("lroOptions", {})
         self._initial_operation: Optional["OperationType"] = None
 
     @property

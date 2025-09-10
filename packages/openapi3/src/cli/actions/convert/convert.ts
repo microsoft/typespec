@@ -23,7 +23,7 @@ export async function convertOpenAPI3Document(
       }
     : {};
   await parser.bundle(document as any, bundleOptions);
-  const context = createContext(parser, document);
+  const context = createContext(parser, document, console);
   const program = transform(context);
   const content = generateMain(program, context);
   try {

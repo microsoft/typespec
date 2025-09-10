@@ -1,5 +1,4 @@
 using System.IO;
-using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.TypeSpec.Generator.Tests.Common;
@@ -88,6 +87,61 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             var inputDuration = inputType as InputDurationType;
             Assert.IsNotNull(inputDuration);
             Assert.AreEqual(DurationKnownEncoding.Constant, inputDuration!.Encode);
+        }
+
+        [Test]
+        public void LoadsDynamicModel()
+        {
+            var directory = Helpers.GetAssetFileOrDirectoryPath(false);
+            // this tspCodeModel.json contains a partial part of the full tspCodeModel.json
+            var content = File.ReadAllText(Path.Combine(directory, "tspCodeModel.json"));
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true,
+                Converters =
+                {
+                    new JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
+                    new InputTypeConverter(referenceHandler),
+                    new InputDecoratorInfoConverter(),
+                    new InputModelTypeConverter(referenceHandler),
+                },
+            };
+            var inputType = JsonSerializer.Deserialize<InputType>(content, options);
+
+            Assert.IsNotNull(inputType);
+
+            var inputModel = inputType as InputModelType;
+            Assert.IsNotNull(inputModel);
+            Assert.IsTrue(inputModel!.IsDynamicModel);
+        }
+
+        [Test]
+        public void LoadsModelWithNoneUsageAndAddsJson()
+        {
+            var directory = Helpers.GetAssetFileOrDirectoryPath(false);
+            // this tspCodeModel.json contains a partial part of the full tspCodeModel.json
+            var content = File.ReadAllText(Path.Combine(directory, "tspCodeModel.json"));
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true,
+                Converters =
+                {
+                    new JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
+                    new InputTypeConverter(referenceHandler),
+                    new InputDecoratorInfoConverter(),
+                    new InputModelTypeConverter(referenceHandler),
+                },
+            };
+            var inputType = JsonSerializer.Deserialize<InputType>(content, options);
+
+            Assert.IsNotNull(inputType);
+
+            var inputModel = inputType as InputModelType;
+            Assert.IsNotNull(inputModel);
+
+            Assert.IsTrue(inputModel!.Usage.HasFlag(InputModelTypeUsage.Json));
         }
     }
 }

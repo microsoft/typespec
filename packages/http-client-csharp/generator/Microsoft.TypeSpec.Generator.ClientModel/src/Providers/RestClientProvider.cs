@@ -98,8 +98,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private ScmMethodProvider BuildCreateRequestMethod(InputServiceMethod serviceMethod, bool isNextLinkRequest = false)
         {
-            var pipelineField = ClientProvider.PipelineProperty.ToApi<ClientPipelineApi>();
-
             var options = ScmKnownParameters.RequestOptions;
             var parameters = GetMethodParameters(serviceMethod, MethodType.CreateRequest);
             if (isNextLinkRequest)
@@ -117,56 +115,55 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ScmCodeModelGenerator.Instance.TypeFactory.HttpMessageApi.HttpMessageType,
                 null,
                 [.. parameters, options]);
-            var paramMap = new Dictionary<string, ParameterProvider>(signature.Parameters.ToDictionary(p => p.Name));
 
-            foreach (var param in ClientProvider.ClientParameters)
-            {
-                paramMap[param.Name] = param;
-            }
-
-            var classifier = GetClassifier(operation);
+            // Build message and all request modifications
+            var messageStatements = BuildMessage(serviceMethod, signature, isNextLinkRequest);
 
             return new ScmMethodProvider(
                 signature,
-                new MethodBodyStatements(
-                [
-                    Declare("message", pipelineField.CreateMessage(options.ToApi<HttpRequestOptionsApi>(), classifier).ToApi<HttpMessageApi>(), out HttpMessageApi message),
-                    message.ApplyResponseClassifier(classifier.ToApi<StatusCodeClassifierApi>()),
-                    Declare("request", message.Request().ToApi<HttpRequestApi>(), out HttpRequestApi request),
-                    request.SetMethod(operation.HttpMethod),
-                    BuildRequest(serviceMethod, request, paramMap, signature, isNextLinkRequest: isNextLinkRequest),
-                    message.ApplyRequestOptions(options.ToApi<HttpRequestOptionsApi>()),
-                    Return(message)
-                ]),
+                messageStatements,
                 this,
                 xmlDocProvider: XmlDocProvider.Empty,
                 serviceMethod: serviceMethod);
         }
 
-        private MethodBodyStatement BuildRequest(
+        private MethodBodyStatements BuildMessage(
             InputServiceMethod serviceMethod,
-            HttpRequestApi request,
-            Dictionary<string, ParameterProvider> paramMap,
             MethodSignature signature,
             bool isNextLinkRequest = false)
         {
-            InputPagingServiceMethod? pagingServiceMethod = serviceMethod as InputPagingServiceMethod;
+            // Create required components
+            var pipelineField = ClientProvider.PipelineProperty.ToApi<ClientPipelineApi>();
+            var options = ScmKnownParameters.RequestOptions;
             var operation = serviceMethod.Operation;
-            var declareUri = Declare("uri", New.Instance(request.UriBuilderType), out ScopedApi uri);
+            var classifier = GetClassifier(operation);
+
+            var paramMap = new Dictionary<string, ParameterProvider>(signature.Parameters.ToDictionary(p => p.Name));
+            foreach (var param in ClientProvider.ClientParameters)
+            {
+                paramMap[param.Name] = param;
+            }
+
+            InputPagingServiceMethod? pagingServiceMethod = serviceMethod as InputPagingServiceMethod;
+            var uriBuilderType =
+                ScmCodeModelGenerator.Instance.TypeFactory.HttpRequestApi.ToExpression().UriBuilderType;
+            var declareUri = Declare("uri", New.Instance(uriBuilderType), out ScopedApi uri);
+
             // For next request methods, handle URI differently
             var nextLink = isNextLinkRequest
                 ? pagingServiceMethod?.PagingMetadata.NextLink
                 : null;
 
+            var statements = new List<MethodBodyStatement>();
+
             if (isNextLinkRequest && nextLink != null)
             {
-                List<MethodBodyStatement> nextLinkBodyStatements =
-                [
+                statements.AddRange([
                     declareUri,
                     uri.Reset(ScmKnownParameters.NextPage.AsExpression()).Terminate()
-                ];
+                ]);
 
-                // handle reinjected parameters
+                // handle reinjected parameters for URI
                 if (nextLink.ReInjectedParameters?.Count > 0)
                 {
                     // map of the reinjected parameter name to its' corresponding parameter in the method signature
@@ -182,28 +179,67 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                     if (reinjectedParamsMap.Count > 0)
                     {
-                        nextLinkBodyStatements.AddRange(AppendQueryParameters(uri, operation, reinjectedParamsMap));
-                        nextLinkBodyStatements.Add(request.SetUri(uri));
-                        nextLinkBodyStatements.AddRange(AppendHeaderParameters(request, operation, reinjectedParamsMap));
-                        return nextLinkBodyStatements;
+                        statements.AddRange(AppendQueryParameters(uri, operation, reinjectedParamsMap));
                     }
                 }
-
-                nextLinkBodyStatements.Add(request.SetUri(uri));
-                nextLinkBodyStatements.AddRange(AppendHeaderParameters(request, operation, paramMap, isNextLink: true));
-                return nextLinkBodyStatements;
+            }
+            else
+            {
+                statements.AddRange([
+                    declareUri,
+                    uri.Reset(ClientProvider.EndpointField).Terminate()
+                ]);
+                statements.AddRange(AppendPathParameters(uri, operation, paramMap));
+                statements.AddRange(AppendQueryParameters(uri, operation, paramMap));
             }
 
-            return new MethodBodyStatements(
-            [
-                declareUri,
-                uri.Reset(ClientProvider.EndpointField).Terminate(),
-                .. AppendPathParameters(uri, operation, paramMap),
-                .. AppendQueryParameters(uri, operation, paramMap),
-                request.SetUri(uri),
-                .. AppendHeaderParameters(request, operation, paramMap),
-                .. GetSetContent(request, signature.Parameters)
+            // Create the message
+            statements.AddRange([.. pipelineField.CreateMessage(options.ToApi<HttpRequestOptionsApi>(), uri, Literal(operation.HttpMethod), classifier, out HttpMessageApi message, out HttpRequestApi request)]);
+
+            // Handle request modifications
+            if (isNextLinkRequest && nextLink != null)
+            {
+                // handle reinjected parameters for headers
+                if (nextLink.ReInjectedParameters?.Count > 0)
+                {
+                    // map of the reinjected parameter name to its' corresponding parameter in the method signature
+                    var reinjectedParamsMap = new Dictionary<string, ParameterProvider>(nextLink.ReInjectedParameters.Count);
+                    foreach (var param in nextLink.ReInjectedParameters)
+                    {
+                        var reinjectedParameter = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(param);
+                        if (reinjectedParameter != null && paramMap.TryGetValue(reinjectedParameter.Name, out var paramInSignature))
+                        {
+                            reinjectedParamsMap[param.Name] = paramInSignature;
+                        }
+                    }
+
+                    if (reinjectedParamsMap.Count > 0)
+                    {
+                        statements.AddRange(AppendHeaderParameters(request, operation, reinjectedParamsMap));
+                    }
+                    else
+                    {
+                        statements.AddRange(AppendHeaderParameters(request, operation, paramMap, isNextLink: true));
+                    }
+                }
+                else
+                {
+                    statements.AddRange(AppendHeaderParameters(request, operation, paramMap, isNextLink: true));
+                }
+            }
+            else
+            {
+                statements.AddRange(AppendHeaderParameters(request, operation, paramMap));
+                statements.AddRange(GetSetContent(request, signature.Parameters));
+            }
+
+            // Apply request options and return message
+            statements.AddRange([
+                message.ApplyRequestOptions(options.ToApi<HttpRequestOptionsApi>()),
+                Return(message)
             ]);
+
+            return new MethodBodyStatements(statements);
         }
 
         private IReadOnlyList<MethodBodyStatement> GetSetContent(HttpRequestApi request, IReadOnlyList<ParameterProvider> parameters)
@@ -324,74 +360,101 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (inputParameter is not InputQueryParameter inputQueryParameter)
                     continue;
 
-                string? format;
-                ValueExpression? valueExpression;
-                GetParamInfo(paramMap, operation, inputQueryParameter, out var paramType, out format, out valueExpression);
-                if (valueExpression == null)
+                var queryStatement = BuildQueryParameterStatement(uri, inputQueryParameter, paramMap, operation);
+                if (queryStatement != null)
                 {
-                    continue;
+                    statements.Add(queryStatement);
                 }
-                var convertToStringExpression = TypeFormattersSnippets.ConvertToString(valueExpression, Literal(format));
-                ValueExpression toStringExpression = paramType?.Equals(typeof(string)) == true ? valueExpression : convertToStringExpression;
-                MethodBodyStatement statement;
-
-                if (paramType?.IsCollection == true)
-                {
-                    var delimiter = inputQueryParameter.ArraySerializationDelimiter;
-
-                    if (inputQueryParameter.Type is InputDictionaryType)
-                    {
-                        if (inputQueryParameter.Explode)
-                        {
-                            statement = new ForEachStatement("param", valueExpression.AsDictionary(paramType),
-                                out KeyValuePairExpression item)
-                            {
-                                uri.AppendQuery(item.Key, item.Value, true).Terminate()
-                            };
-                        }
-                        else
-                        {
-                            statement = new[]
-                            {
-                                Declare("list", New.List<object>(), out var list),
-                                new ForEachStatement("param", valueExpression.AsDictionary(paramType), out KeyValuePairExpression item)
-                                {
-                                    list.Add(item.Key),
-                                    list.Add(item.Value)
-                                },
-                                uri.AppendQueryDelimited(Literal(inputQueryParameter.SerializedName), list, format, true)
-                                    .Terminate()
-                            };
-                        }
-                    }
-                    else if (!inputQueryParameter.Explode)
-                    {
-                        statement = uri.AppendQueryDelimited(Literal(inputQueryParameter.SerializedName), valueExpression, format, true, delimiter: delimiter).Terminate();
-                    }
-                    else
-                    {
-                        statement = new ForEachStatement("param", valueExpression.As(paramType), out VariableExpression item)
-                        {
-                            uri.AppendQuery(Literal(inputQueryParameter.SerializedName), item, true).Terminate()
-                        };
-                    }
-                }
-                else
-                {
-                    statement = uri.AppendQuery(Literal(inputQueryParameter.SerializedName), toStringExpression, true)
-                        .Terminate();
-                }
-
-                if (!inputQueryParameter.IsRequired || paramType?.IsNullable == true ||
-                    (paramType is { IsValueType: false, IsFrameworkType: true } && paramType.FrameworkType != typeof(string)))
-                {
-                    statement = BuildQueryOrHeaderOrPathParameterNullCheck(paramType, valueExpression, statement);
-                }
-
-                statements.Add(statement);
             }
 
             return statements;
+        }
+
+        private static MethodBodyStatement? BuildQueryParameterStatement(
+            ScopedApi uri,
+            InputQueryParameter inputQueryParameter,
+            Dictionary<string, ParameterProvider> paramMap,
+            InputOperation operation)
+        {
+            GetParamInfo(paramMap, operation, inputQueryParameter, out var paramType, out var format, out var valueExpression);
+            if (valueExpression == null)
+            {
+                return null;
+            }
+
+            var statement = BuildAppendQueryStatement(uri, inputQueryParameter, paramType, valueExpression, format);
+
+            // Apply null check if needed
+            if (!inputQueryParameter.IsRequired || paramType?.IsNullable == true ||
+                (paramType is { IsValueType: false, IsFrameworkType: true } && paramType.FrameworkType != typeof(string)))
+            {
+                statement = BuildQueryOrHeaderOrPathParameterNullCheck(paramType, valueExpression, statement);
+            }
+
+            return statement;
+        }
+
+        private static MethodBodyStatement BuildAppendQueryStatement(
+            ScopedApi uri,
+            InputQueryParameter inputQueryParameter,
+            CSharpType? paramType,
+            ValueExpression valueExpression,
+            string? format)
+        {
+            // Handle non-collection parameters
+            if (paramType?.IsCollection != true)
+            {
+                var toStringExpression = paramType?.Equals(typeof(string)) == true
+                    ? valueExpression
+                    : TypeFormattersSnippets.ConvertToString(valueExpression, Literal(format));
+
+                return uri.AppendQuery(Literal(inputQueryParameter.SerializedName), toStringExpression, true).Terminate();
+            }
+
+            var delimiter = inputQueryParameter.ArraySerializationDelimiter;
+            if (inputQueryParameter.Type is InputDictionaryType)
+            {
+                if (inputQueryParameter.Explode)
+                {
+                    var forEachStatement = new ForEachStatement(
+                        "param",
+                        valueExpression.AsDictionary(paramType),
+                        out KeyValuePairExpression item);
+                    var convertedItem = paramType.ElementType.IsEnum
+                        ? paramType.ElementType.ToSerial(item)
+                        : item.Value;
+                    forEachStatement.Add(uri.AppendQuery(item.Key, convertedItem, true).Terminate());
+                    return forEachStatement;
+                }
+                else
+                {
+                    return new MethodBodyStatement[]
+                    {
+                        Declare("list", New.List<object>(), out var list),
+                        new ForEachStatement("param", valueExpression.AsDictionary(paramType), out KeyValuePairExpression item)
+                        {
+                            list.Add(item.Key),
+                            list.Add(item.Value)
+                        },
+                        uri.AppendQueryDelimited(Literal(inputQueryParameter.SerializedName), list, format, true).Terminate()
+                    };
+                }
+            }
+
+            // Array handling
+            if (!inputQueryParameter.Explode)
+            {
+                return uri.AppendQueryDelimited(Literal(inputQueryParameter.SerializedName), valueExpression, format, true, delimiter: delimiter).Terminate();
+            }
+            else
+            {
+                var forEachStatement = new ForEachStatement("param", valueExpression.As(paramType), out VariableExpression item);
+                var convertedItem = paramType.ElementType.IsEnum
+                    ? paramType.ElementType.ToSerial(item)
+                    : item;
+                forEachStatement.Add(uri.AppendQuery(Literal(inputQueryParameter.SerializedName), convertedItem, true).Terminate());
+                return forEachStatement;
+            }
         }
 
         private static IfStatement BuildQueryOrHeaderOrPathParameterNullCheck(
