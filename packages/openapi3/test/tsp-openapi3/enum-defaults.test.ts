@@ -63,15 +63,11 @@ describe("enum default values", () => {
     strictEqual(
       tsp.includes("= ToolChoiceOptions.auto"),
       true,
-      "Default value should reference enum member ToolChoiceOptions.auto"
+      "Default value should reference enum member ToolChoiceOptions.auto",
     );
-    
+
     // Should NOT contain the raw string default
-    strictEqual(
-      tsp.includes('= "auto"'),
-      false,
-      "Default value should not be raw string auto"
-    );
+    strictEqual(tsp.includes('= "auto"'), false, "Default value should not be raw string auto");
   });
 
   it("should handle the original issue example", async () => {
@@ -135,14 +131,14 @@ describe("enum default values", () => {
     strictEqual(
       tsp.includes("= ToolChoiceOptions.auto"),
       true,
-      "Should generate ToolChoiceOptions.auto for the default value"
+      "Should generate ToolChoiceOptions.auto for the default value",
     );
 
     // Should include the proper model name from the issue
     strictEqual(
       tsp.includes("model RealtimeResponseCreateParams"),
       true,
-      "Should generate the correct model name"
+      "Should generate the correct model name",
     );
   });
 
@@ -162,14 +158,10 @@ describe("enum default values", () => {
     strictEqual(
       tsp.includes("enum SimpleEnum {"),
       true,
-      "Simple enum should be generated as enum declaration"
+      "Simple enum should be generated as enum declaration",
     );
-    
+
     // Should not contain any default value
-    strictEqual(
-      tsp.includes("= "),
-      false,
-      "Simple enum should not have default values"
-    );
+    strictEqual(tsp.includes("= "), false, "Simple enum should not have default values");
   });
 });

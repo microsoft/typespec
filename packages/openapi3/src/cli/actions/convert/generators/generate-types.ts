@@ -156,7 +156,7 @@ export class SchemaToExpressionGenerator {
     // Check if this is a union type (anyOf or oneOf) with a default value that might match an enum member
     if (context && schema.default !== undefined && (schema.anyOf?.length || schema.oneOf?.length)) {
       const unionMembers = schema.anyOf || schema.oneOf || [];
-      
+
       // Try to find an enum reference that contains this default value
       for (const member of unionMembers) {
         if ("$ref" in member) {
