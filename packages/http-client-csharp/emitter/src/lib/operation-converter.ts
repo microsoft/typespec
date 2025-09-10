@@ -902,7 +902,7 @@ function getResponseType(
   }
 
   // handle union enum response types by defaulting to the enum value type in the case of anonymous union enum types
-  if ( type.kind === "enum" && type.isUnionAsEnum && type.isGeneratedName) {
+  if (type.kind === "enum" && type.isUnionAsEnum && type.isGeneratedName) {
     return fromSdkType(sdkContext, type.valueType);
   }
 
