@@ -1,7 +1,14 @@
 import { type Children } from "@alloy-js/core";
 import * as cs from "@alloy-js/csharp";
 import { Attribute } from "@alloy-js/csharp";
-import { getProperty, type ModelProperty, resolveEncodedName, type Type } from "@typespec/compiler";
+import {
+  getEncode,
+  getProperty,
+  type ModelProperty,
+  type Program,
+  resolveEncodedName,
+  type Type,
+} from "@typespec/compiler";
 import { useTsp } from "../../../core/index.js";
 import { TypeExpression } from "../type-expression.jsx";
 import { getDocComments } from "../utils/doc-comments.jsx";
@@ -17,8 +24,8 @@ export interface PropertyProps {
  * Create a C# property declaration from a TypeSpec property type.
  */
 export function Property(props: PropertyProps): Children {
-  const result = preprocessPropertyType(props.type);
   const { $ } = useTsp();
+  const result = preprocessPropertyType($.program, props.type);
 
   let overrideType: "" | "override" | "new" = "";
   let isVirtual = false;
@@ -27,7 +34,7 @@ export function Property(props: PropertyProps): Children {
       const base = props.type.model.baseModel;
       const baseProperty = getProperty(base, props.type.name);
       if (baseProperty) {
-        const baseResult = preprocessPropertyType(baseProperty);
+        const baseResult = preprocessPropertyType($.program, baseProperty);
         if (baseResult.nullable === result.nullable && baseResult.type === result.type) {
           overrideType = "override";
         } else {
@@ -43,7 +50,7 @@ export function Property(props: PropertyProps): Children {
       isVirtual = props.type.model.derivedModels.some((derived) => {
         const derivedProperty = derived.properties.get(props.type.name);
         if (derivedProperty) {
-          const derivedResult = preprocessPropertyType(derivedProperty);
+          const derivedResult = preprocessPropertyType($.program, derivedProperty);
           return derivedResult.nullable === result.nullable && derivedResult.type === result.type;
         }
       });
@@ -78,8 +85,12 @@ function JsonNameAttribute(props: JsonNameAttributeProps): Children {
   return <Attribute name="System.Text.Json.JsonPropertyName" args={[JSON.stringify(jsonName)]} />;
 }
 
-function preprocessPropertyType(prop: ModelProperty): { type: Type; nullable: boolean } {
-  const type = prop.type;
+function preprocessPropertyType(
+  program: Program,
+  prop: ModelProperty,
+): { type: Type; nullable: boolean } {
+  const encode = getEncode(program, prop);
+  const type = encode?.type ?? prop.type;
 
   if (type.kind === "Union") {
     const innerType = getNullableUnionInnerType(type);
