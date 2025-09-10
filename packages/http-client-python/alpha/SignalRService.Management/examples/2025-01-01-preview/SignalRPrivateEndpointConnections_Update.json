@@ -1,0 +1,52 @@
+{
+  "parameters": {
+    "api-version": "2025-01-01-preview",
+    "parameters": {
+      "properties": {
+        "privateEndpoint": {},
+        "privateLinkServiceConnectionState": {
+          "actionsRequired": "None",
+          "status": "Approved"
+        }
+      }
+    },
+    "privateEndpointConnectionName": "mysignalrservice.1fa229cd-bf3f-47f0-8c49-afb36723997e",
+    "resourceGroupName": "myResourceGroup",
+    "resourceName": "mySignalRService",
+    "subscriptionId": "00000000-0000-0000-0000-000000000000"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "name": "mysignalrservice.1fa229cd-bf3f-47f0-8c49-afb36723997e",
+        "type": "Microsoft.SignalRService/SignalR/privateEndpointConnections",
+        "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/myResourceGroup/providers/Microsoft.SignalRService/SignalR/mySignalRService/privateEndpointConnections/mysignalrservice.1fa229cd-bf3f-47f0-8c49-afb36723997e",
+        "properties": {
+          "groupIds": ["signalr"],
+          "privateEndpoint": {
+            "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/myResourceGroup/providers/Microsoft.Network/privateEndpoints/myPrivateEndpoint"
+          },
+          "privateLinkServiceConnectionState": {
+            "actionsRequired": "None",
+            "status": "Approved"
+          },
+          "provisioningState": "Succeeded"
+        },
+        "systemData": {
+          "createdAt": "2015-02-03T04:05:06Z",
+          "createdBy": "string",
+          "createdByType": "User",
+          "lastModifiedAt": "2015-02-03T04:05:06Z",
+          "lastModifiedBy": "string",
+          "lastModifiedByType": "User"
+        }
+      },
+      "headers": {
+        "Azure-AsyncOperation": "https://management.azure.com/subscriptions/subid/providers/Microsoft.SignalRService/...pathToOperationResult...",
+        "Location": "https://management.azure.com/subscriptions/subid/providers/Microsoft.SignalRService/...pathToOperationResult..."
+      }
+    }
+  },
+  "operationId": "SignalRPrivateEndpointConnections_Update",
+  "title": "SignalRPrivateEndpointConnections_Update"
+}

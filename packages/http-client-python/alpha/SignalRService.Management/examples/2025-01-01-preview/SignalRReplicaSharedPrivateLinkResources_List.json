@@ -1,0 +1,31 @@
+{
+  "parameters": {
+    "api-version": "2025-01-01-preview",
+    "replicaName": "mySignalRService-eastus",
+    "resourceGroupName": "myResourceGroup",
+    "resourceName": "mySignalRService",
+    "subscriptionId": "00000000-0000-0000-0000-000000000000"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "value": [
+          {
+            "name": "upstream",
+            "type": "Microsoft.SignalRService/SignalR/privateEndpointConnections",
+            "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/myResourceGroup/providers/Microsoft.SignalRService/SignalR/mySignalRService/privateEndpointConnections/upstream",
+            "properties": {
+              "groupId": "sites",
+              "privateLinkResourceId": "/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/myResourceGroup/providers/Microsoft.Web/sites/myWebApp",
+              "provisioningState": "Succeeded",
+              "requestMessage": "Please approve",
+              "status": "Approved"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "operationId": "SignalRReplicaSharedPrivateLinkResources_List",
+  "title": "SignalRReplicaSharedPrivateLinkResources_List"
+}

@@ -1,0 +1,3076 @@
+namespace: azure.mgmt.placeholder
+clients:
+  - name: MonitorClient
+    description: ""
+    parameters:
+      - &ref_1
+        optional: true
+        description: Service host
+        clientName: base_url
+        inOverload: false
+        isApiVersion: false
+        isContinuationToken: false
+        type: &ref_0
+          type: string
+        apiVersions:
+          - 2025-03-01-preview
+        wireName: endpoint
+        location: endpointPath
+        implementation: Client
+        clientDefaultValue: https://management.azure.com
+        skipUrlEncoding: true
+      - optional: false
+        description: Credential used to authenticate requests to the service.
+        clientName: credential
+        inOverload: false
+        isApiVersion: false
+        isContinuationToken: false
+        type: &ref_45
+          type: OAuth2
+          policy:
+            type: BearerTokenCredentialPolicy
+            credentialScopes:
+              - user_impersonation
+            flows: []
+        apiVersions:
+          - 2025-03-01-preview
+        implementation: Client
+        location: credential
+      - optional: false
+        description: The API version to use for this operation.
+        clientName: api_version
+        inOverload: false
+        isApiVersion: true
+        isContinuationToken: false
+        type: &ref_2
+          type: constant
+          value: 2025-03-01-preview
+          valueType: *ref_0
+        apiVersions:
+          - 2025-03-01-preview
+        implementation: Client
+        clientDefaultValue: 2025-03-01-preview
+        location: query
+        wireName: api-version
+        in_docstring: false
+    operationGroups:
+      - name: Slis
+        className: Slis
+        propertyName: Slis
+        operations:
+          - url: >-
+              /providers/Microsoft.Management/serviceGroups/{serviceGroupName}/providers/Microsoft.Monitor/slis/{sliName}
+            method: GET
+            parameters:
+              - *ref_1
+              - optional: false
+                description: The name of the service group.
+                clientName: service_group_name
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_0
+                apiVersions:
+                  - 2025-03-01-preview
+                wireName: serviceGroupName
+                location: path
+                implementation: Method
+                skipUrlEncoding: false
+              - optional: false
+                description: The API version to use for this operation.
+                clientName: api_version
+                inOverload: false
+                isApiVersion: true
+                isContinuationToken: false
+                type: *ref_2
+                apiVersions:
+                  - 2025-03-01-preview
+                wireName: api-version
+                location: query
+                implementation: Client
+                explode: false
+                clientDefaultValue: 2025-03-01-preview
+              - optional: false
+                description: Name of the SLI that is given by the user.
+                clientName: sli_name
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_0
+                apiVersions:
+                  - 2025-03-01-preview
+                wireName: sliName
+                location: path
+                implementation: Method
+                skipUrlEncoding: false
+              - optional: false
+                description: ""
+                clientName: accept
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: &ref_19
+                  type: constant
+                  value: application/json
+                  valueType: *ref_0
+                apiVersions:
+                  - 2025-03-01-preview
+                wireName: Accept
+                location: header
+                implementation: Method
+                explode: false
+            responses:
+              - headers: []
+                statusCodes:
+                  - 200
+                discriminator: basic
+                type: &ref_20
+                  type: model
+                  name: Sli
+                  description: Represents an SLI resource within the ProviderHub.
+                  parents:
+                    - &ref_26
+                      type: model
+                      name: ProxyResource
+                      description: Proxy Resource
+                      parents:
+                        - &ref_27
+                          type: model
+                          name: Resource
+                          description: Resource
+                          parents: []
+                          discriminatedSubtypes: {}
+                          properties:
+                            - clientName: id
+                              wireName: id
+                              type: *ref_0
+                              optional: true
+                              description: >-
+                                Fully qualified resource ID for the resource. Ex
+                                -
+                                /subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/{resourceProviderNamespace}/{resourceType}/{resourceName}
+                              addedOn: v3
+                              apiVersions:
+                                - v3
+                                - v4
+                                - v5
+                                - v6
+                              visibility:
+                                - read
+                              isDiscriminator: false
+                              flatten: false
+                            - clientName: name
+                              wireName: name
+                              type: *ref_0
+                              optional: true
+                              description: The name of the resource
+                              addedOn: v3
+                              apiVersions:
+                                - v3
+                                - v4
+                                - v5
+                                - v6
+                              visibility:
+                                - read
+                              isDiscriminator: false
+                              flatten: false
+                            - clientName: type
+                              wireName: type
+                              type: *ref_0
+                              optional: true
+                              description: >-
+                                The type of the resource. E.g.
+                                "Microsoft.Compute/virtualMachines" or
+                                "Microsoft.Storage/storageAccounts"
+                              addedOn: v3
+                              apiVersions:
+                                - v3
+                                - v4
+                                - v5
+                                - v6
+                              visibility:
+                                - read
+                              isDiscriminator: false
+                              flatten: false
+                            - clientName: system_data
+                              wireName: systemData
+                              type: &ref_28
+                                type: model
+                                name: SystemData
+                                description: >-
+                                  Metadata pertaining to creation and last
+                                  modification of the resource.
+                                parents: []
+                                discriminatedSubtypes: {}
+                                properties:
+                                  - clientName: created_by
+                                    wireName: createdBy
+                                    type: *ref_0
+                                    optional: true
+                                    description: The identity that created the resource.
+                                    addedOn: v3
+                                    apiVersions:
+                                      - v3
+                                      - v4
+                                      - v5
+                                      - v6
+                                    visibility:
+                                      - read
+                                      - create
+                                      - update
+                                      - delete
+                                      - query
+                                    isDiscriminator: false
+                                    flatten: false
+                                  - clientName: created_by_type
+                                    wireName: createdByType
+                                    type: &ref_3
+                                      name: createdByType
+                                      snakeCaseName: created_by_type
+                                      description: >-
+                                        The kind of entity that created the
+                                        resource.
+                                      internal: false
+                                      type: enum
+                                      valueType: *ref_0
+                                      values:
+                                        - name: USER
+                                          value: User
+                                          description: The entity was created by a user.
+                                          enumType: *ref_3
+                                          type: enumvalue
+                                          valueType: *ref_0
+                                        - name: APPLICATION
+                                          value: Application
+                                          description: >-
+                                            The entity was created by an
+                                            application.
+                                          enumType: *ref_3
+                                          type: enumvalue
+                                          valueType: *ref_0
+                                        - name: MANAGED_IDENTITY
+                                          value: ManagedIdentity
+                                          description: >-
+                                            The entity was created by a managed
+                                            identity.
+                                          enumType: *ref_3
+                                          type: enumvalue
+                                          valueType: *ref_0
+                                        - name: KEY
+                                          value: Key
+                                          description: The entity was created by a key.
+                                          enumType: *ref_3
+                                          type: enumvalue
+                                          valueType: *ref_0
+                                      xmlMetadata: {}
+                                      crossLanguageDefinitionId: >-
+                                        Azure.ResourceManager.CommonTypes.createdByType
+                                      clientNamespace: azure.mgmt.placeholder
+                                    optional: true
+                                    description: >-
+                                      The type of identity that created the
+                                      resource.
+                                    addedOn: v3
+                                    apiVersions:
+                                      - v3
+                                      - v4
+                                      - v5
+                                      - v6
+                                    visibility:
+                                      - read
+                                      - create
+                                      - update
+                                      - delete
+                                      - query
+                                    isDiscriminator: false
+                                    flatten: false
+                                  - clientName: created_at
+                                    wireName: createdAt
+                                    type: &ref_4
+                                      type: utcDateTime
+                                      encode: rfc3339
+                                      wireType: *ref_0
+                                    optional: true
+                                    description: The timestamp of resource creation (UTC).
+                                    addedOn: v3
+                                    apiVersions:
+                                      - v3
+                                      - v4
+                                      - v5
+                                      - v6
+                                    visibility:
+                                      - read
+                                      - create
+                                      - update
+                                      - delete
+                                      - query
+                                    isDiscriminator: false
+                                    flatten: false
+                                  - clientName: last_modified_by
+                                    wireName: lastModifiedBy
+                                    type: *ref_0
+                                    optional: true
+                                    description: >-
+                                      The identity that last modified the
+                                      resource.
+                                    addedOn: v3
+                                    apiVersions:
+                                      - v3
+                                      - v4
+                                      - v5
+                                      - v6
+                                    visibility:
+                                      - read
+                                      - create
+                                      - update
+                                      - delete
+                                      - query
+                                    isDiscriminator: false
+                                    flatten: false
+                                  - clientName: last_modified_by_type
+                                    wireName: lastModifiedByType
+                                    type: *ref_3
+                                    optional: true
+                                    description: >-
+                                      The type of identity that last modified
+                                      the resource.
+                                    addedOn: v3
+                                    apiVersions:
+                                      - v3
+                                      - v4
+                                      - v5
+                                      - v6
+                                    visibility:
+                                      - read
+                                      - create
+                                      - update
+                                      - delete
+                                      - query
+                                    isDiscriminator: false
+                                    flatten: false
+                                  - clientName: last_modified_at
+                                    wireName: lastModifiedAt
+                                    type: *ref_4
+                                    optional: true
+                                    description: >-
+                                      The timestamp of resource last
+                                      modification (UTC)
+                                    addedOn: v3
+                                    apiVersions:
+                                      - v3
+                                      - v4
+                                      - v5
+                                      - v6
+                                    visibility:
+                                      - read
+                                      - create
+                                      - update
+                                      - delete
+                                      - query
+                                    isDiscriminator: false
+                                    flatten: false
+                                snakeCaseName: system_data
+                                base: dpg
+                                internal: false
+                                crossLanguageDefinitionId: Azure.ResourceManager.CommonTypes.SystemData
+                                usage: 260
+                                isXml: false
+                                clientNamespace: azure.mgmt.placeholder
+                              optional: true
+                              description: >-
+                                Azure Resource Manager metadata containing
+                                createdBy and modifiedBy information.
+                              addedOn: v3
+                              apiVersions:
+                                - v3
+                                - v4
+                                - v5
+                                - v6
+                              visibility:
+                                - read
+                              isDiscriminator: false
+                              flatten: false
+                          snakeCaseName: resource
+                          base: dpg
+                          internal: false
+                          crossLanguageDefinitionId: Azure.ResourceManager.CommonTypes.Resource
+                          usage: 262
+                          isXml: false
+                          clientNamespace: azure.mgmt.placeholder
+                      discriminatedSubtypes: {}
+                      properties: []
+                      snakeCaseName: proxy_resource
+                      base: dpg
+                      internal: false
+                      crossLanguageDefinitionId: Azure.ResourceManager.CommonTypes.ProxyResource
+                      usage: 262
+                      isXml: false
+                      clientNamespace: azure.mgmt.placeholder
+                  discriminatedSubtypes: {}
+                  properties:
+                    - clientName: properties
+                      wireName: properties
+                      type: &ref_29
+                        type: model
+                        name: SliResource
+                        description: Defines the root level properties of an SLI resource.
+                        parents: []
+                        discriminatedSubtypes: {}
+                        properties:
+                          - clientName: provisioning_state
+                            wireName: provisioningState
+                            type: &ref_5
+                              name: ProvisioningState
+                              snakeCaseName: provisioning_state
+                              description: >-
+                                Represents the provisioning state of the SLI
+                                resource.
+                              internal: false
+                              type: enum
+                              valueType: *ref_0
+                              values:
+                                - name: SUCCEEDED
+                                  value: Succeeded
+                                  description: Resource has been created.
+                                  enumType: *ref_5
+                                  type: enumvalue
+                                  valueType: *ref_0
+                                - name: FAILED
+                                  value: Failed
+                                  description: Resource creation failed.
+                                  enumType: *ref_5
+                                  type: enumvalue
+                                  valueType: *ref_0
+                                - name: CANCELED
+                                  value: Canceled
+                                  description: Resource creation was canceled.
+                                  enumType: *ref_5
+                                  type: enumvalue
+                                  valueType: *ref_0
+                              xmlMetadata: {}
+                              crossLanguageDefinitionId: Microsoft.Monitor.ProvisioningState
+                              clientNamespace: azure.mgmt.placeholder
+                            optional: true
+                            description: >-
+                              Indicates the provisioning status of the last
+                              operation.
+                            apiVersions:
+                              - 2025-03-01-preview
+                            visibility:
+                              - read
+                            isDiscriminator: false
+                            flatten: false
+                          - clientName: description
+                            wireName: description
+                            type: *ref_0
+                            optional: false
+                            description: >-
+                              A user-provided description of the SLI, with a
+                              maximum length of 1000 characters.
+                            apiVersions:
+                              - 2025-03-01-preview
+                            visibility:
+                              - read
+                              - create
+                              - update
+                              - delete
+                              - query
+                            isDiscriminator: false
+                            flatten: false
+                          - clientName: category
+                            wireName: category
+                            type: &ref_6
+                              name: Category
+                              snakeCaseName: category
+                              description: Defines the category of an SLI
+                              internal: false
+                              type: enum
+                              valueType: *ref_0
+                              values:
+                                - name: AVAILABILITY
+                                  value: Availability
+                                  description: Indicates availability-related metrics.
+                                  enumType: *ref_6
+                                  type: enumvalue
+                                  valueType: *ref_0
+                                - name: LATENCY
+                                  value: Latency
+                                  description: Indicates latency-related metrics.
+                                  enumType: *ref_6
+                                  type: enumvalue
+                                  valueType: *ref_0
+                              xmlMetadata: {}
+                              crossLanguageDefinitionId: Microsoft.Monitor.Category
+                              clientNamespace: azure.mgmt.placeholder
+                            optional: false
+                            description: >-
+                              Specifies the category of the SLI, used to
+                              classify signals such as Availability and Latency.
+                            apiVersions:
+                              - 2025-03-01-preview
+                            visibility:
+                              - read
+                              - create
+                              - update
+                              - delete
+                              - query
+                            isDiscriminator: false
+                            flatten: false
+                          - clientName: evaluation_type
+                            wireName: evaluationType
+                            type: &ref_7
+                              name: EvaluationType
+                              snakeCaseName: evaluation_type
+                              description: Specifies how the SLI is evaluated.
+                              internal: false
+                              type: enum
+                              valueType: *ref_0
+                              values:
+                                - name: WINDOW_BASED
+                                  value: WindowBased
+                                  description: Evaluates SLI based on time windows.
+                                  enumType: *ref_7
+                                  type: enumvalue
+                                  valueType: *ref_0
+                                - name: REQUEST_BASED
+                                  value: RequestBased
+                                  description: Evaluates SLI based on request counts.
+                                  enumType: *ref_7
+                                  type: enumvalue
+                                  valueType: *ref_0
+                              xmlMetadata: {}
+                              crossLanguageDefinitionId: Microsoft.Monitor.EvaluationType
+                              clientNamespace: azure.mgmt.placeholder
+                            optional: false
+                            description: >-
+                              Determines how the SLI is evaluated—either based
+                              on request counts or time windows.
+                            apiVersions:
+                              - 2025-03-01-preview
+                            visibility:
+                              - read
+                              - create
+                              - update
+                              - delete
+                              - query
+                            isDiscriminator: false
+                            flatten: false
+                          - clientName: execution_state
+                            wireName: executionState
+                            type: &ref_30
+                              type: model
+                              name: ExecutionState
+                              description: >-
+                                Represents the current execution state of an
+                                SLI.
+                              parents: []
+                              discriminatedSubtypes: {}
+                              properties:
+                                - clientName: state
+                                  wireName: state
+                                  type: *ref_0
+                                  optional: false
+                                  description: The execution state value.
+                                  apiVersions:
+                                    - 2025-03-01-preview
+                                  visibility:
+                                    - read
+                                    - create
+                                    - update
+                                    - delete
+                                    - query
+                                  isDiscriminator: false
+                                  flatten: false
+                                - clientName: message
+                                  wireName: message
+                                  type: *ref_0
+                                  optional: true
+                                  description: >-
+                                    A descriptive message related to the
+                                    execution state.
+                                  apiVersions:
+                                    - 2025-03-01-preview
+                                  visibility:
+                                    - read
+                                    - create
+                                    - update
+                                    - delete
+                                    - query
+                                  isDiscriminator: false
+                                  flatten: false
+                              snakeCaseName: execution_state
+                              base: dpg
+                              internal: false
+                              crossLanguageDefinitionId: Microsoft.Monitor.ExecutionState
+                              usage: 260
+                              isXml: false
+                              clientNamespace: azure.mgmt.placeholder
+                            optional: false
+                            description: >-
+                              Indicates the current execution status of the SLI
+                              resource in ARM responses.
+                            apiVersions:
+                              - 2025-03-01-preview
+                            visibility:
+                              - read
+                            isDiscriminator: false
+                            flatten: false
+                          - clientName: destination_amw_accounts
+                            wireName: destinationAmwAccounts
+                            type: &ref_46
+                              type: list
+                              elementType: &ref_31
+                                type: model
+                                name: AmwAccount
+                                description: >-
+                                  Represents an Azure Monitor Workspace (AMW)
+                                  account used for emitting metrics.
+                                parents: []
+                                discriminatedSubtypes: {}
+                                properties:
+                                  - clientName: resource_id
+                                    wireName: resourceId
+                                    type: *ref_0
+                                    optional: false
+                                    description: >-
+                                      The ARM resource ID of the account where
+                                      metrics are emitted.
+                                    apiVersions:
+                                      - 2025-03-01-preview
+                                    visibility:
+                                      - read
+                                      - create
+                                      - update
+                                      - delete
+                                      - query
+                                    isDiscriminator: false
+                                    flatten: false
+                                  - clientName: identity
+                                    wireName: identity
+                                    type: *ref_0
+                                    optional: false
+                                    description: >-
+                                      The ARM resource ID of the managed
+                                      identity with access to the source
+                                      account.
+                                    apiVersions:
+                                      - 2025-03-01-preview
+                                    visibility:
+                                      - read
+                                      - create
+                                      - update
+                                      - delete
+                                      - query
+                                    isDiscriminator: false
+                                    flatten: false
+                                snakeCaseName: amw_account
+                                base: dpg
+                                internal: false
+                                crossLanguageDefinitionId: Microsoft.Monitor.AmwAccount
+                                usage: 262
+                                isXml: false
+                                clientNamespace: azure.mgmt.placeholder
+                            optional: false
+                            description: Destination AMW accounts.
+                            apiVersions:
+                              - 2025-03-01-preview
+                            visibility:
+                              - read
+                              - create
+                              - update
+                              - delete
+                              - query
+                            isDiscriminator: false
+                            flatten: false
+                          - clientName: destination_metrics
+                            wireName: destinationMetrics
+                            type: &ref_47
+                              type: list
+                              elementType: &ref_32
+                                type: model
+                                name: Metric
+                                description: >-
+                                  Defines a metric in the destination AMW
+                                  account.
+                                parents: []
+                                discriminatedSubtypes: {}
+                                properties:
+                                  - clientName: metric_namespace
+                                    wireName: metricNamespace
+                                    type: *ref_0
+                                    optional: false
+                                    description: The namespace of the metric.
+                                    apiVersions:
+                                      - 2025-03-01-preview
+                                    visibility:
+                                      - read
+                                      - create
+                                      - update
+                                      - delete
+                                      - query
+                                    isDiscriminator: false
+                                    flatten: false
+                                  - clientName: metric_name
+                                    wireName: metricName
+                                    type: *ref_0
+                                    optional: false
+                                    description: The name of the metric.
+                                    apiVersions:
+                                      - 2025-03-01-preview
+                                    visibility:
+                                      - read
+                                      - create
+                                      - update
+                                      - delete
+                                      - query
+                                    isDiscriminator: false
+                                    flatten: false
+                                snakeCaseName: metric
+                                base: dpg
+                                internal: false
+                                crossLanguageDefinitionId: Microsoft.Monitor.Metric
+                                usage: 260
+                                isXml: false
+                                clientNamespace: azure.mgmt.placeholder
+                            optional: false
+                            description: >-
+                              The destination Azure Monitor Workspace (AMW)
+                              accounts where the SLI emits metrics.
+                            apiVersions:
+                              - 2025-03-01-preview
+                            visibility:
+                              - read
+                            isDiscriminator: false
+                            flatten: false
+                          - clientName: baseline_properties
+                            wireName: baselineProperties
+                            type: &ref_33
+                              type: model
+                              name: BaselineProperties
+                              description: Defines the properties of a baseline.
+                              parents: []
+                              discriminatedSubtypes: {}
+                              properties:
+                                - clientName: baseline
+                                  wireName: baseline
+                                  type: &ref_34
+                                    type: model
+                                    name: Baseline
+                                    description: >-
+                                      Defines the target parameters for a Slo
+                                      baseline.
+                                    parents: []
+                                    discriminatedSubtypes: {}
+                                    properties:
+                                      - clientName: value
+                                        wireName: value
+                                        type: &ref_15
+                                          type: float
+                                        optional: false
+                                        description: >-
+                                          The user-defined or Azure-defined target
+                                          value used for comparison against the
+                                          SLI value.
+                                        apiVersions:
+                                          - 2025-03-01-preview
+                                        visibility:
+                                          - read
+                                          - create
+                                          - update
+                                          - delete
+                                          - query
+                                        isDiscriminator: false
+                                        flatten: false
+                                      - clientName: evaluation_period_days
+                                        wireName: evaluationPeriodDays
+                                        type: &ref_13
+                                          type: integer
+                                        optional: false
+                                        description: >-
+                                          The time frame (in days) used for SLI
+                                          evaluation.
+                                        apiVersions:
+                                          - 2025-03-01-preview
+                                        visibility:
+                                          - read
+                                          - create
+                                          - update
+                                          - delete
+                                          - query
+                                        isDiscriminator: false
+                                        flatten: false
+                                      - clientName: evaluation_calculation_type
+                                        wireName: evaluationCalculationType
+                                        type: &ref_8
+                                          name: EvaluationCalculationType
+                                          snakeCaseName: evaluation_calculation_type
+                                          description: >-
+                                            Specifies the method for evaluation
+                                            calculation.
+                                          internal: false
+                                          type: enum
+                                          valueType: *ref_0
+                                          values:
+                                            - name: CALENDAR_DAYS
+                                              value: CalendarDays
+                                              description: >-
+                                                Calculates evaluation based on a fixed
+                                                calendar period.
+                                              enumType: *ref_8
+                                              type: enumvalue
+                                              valueType: *ref_0
+                                            - name: ROLLING_DAYS
+                                              value: RollingDays
+                                              description: >-
+                                                Calculates evaluation using a rolling
+                                                time window.
+                                              enumType: *ref_8
+                                              type: enumvalue
+                                              valueType: *ref_0
+                                          xmlMetadata: {}
+                                          crossLanguageDefinitionId: >-
+                                            Microsoft.Monitor.EvaluationCalculationType
+                                          clientNamespace: azure.mgmt.placeholder
+                                        optional: false
+                                        description: >-
+                                          Specifies how evaluation is calculated,
+                                          either based on calendar days or a
+                                          rolling window.
+                                        apiVersions:
+                                          - 2025-03-01-preview
+                                        visibility:
+                                          - read
+                                          - create
+                                          - update
+                                          - delete
+                                          - query
+                                        isDiscriminator: false
+                                        flatten: false
+                                      - clientName: enable_alert
+                                        wireName: enableAlert
+                                        type: &ref_48
+                                          type: boolean
+                                        optional: false
+                                        description: >-
+                                          A flag to determine whether alert is
+                                          enabled.
+                                        apiVersions:
+                                          - 2025-03-01-preview
+                                        visibility:
+                                          - read
+                                          - create
+                                          - update
+                                          - delete
+                                          - query
+                                        isDiscriminator: false
+                                        flatten: false
+                                    snakeCaseName: baseline
+                                    base: dpg
+                                    internal: false
+                                    crossLanguageDefinitionId: Microsoft.Monitor.Baseline
+                                    usage: 262
+                                    isXml: false
+                                    clientNamespace: azure.mgmt.placeholder
+                                  optional: false
+                                  description: >-
+                                    Defines the baseline target, which is
+                                    compared against the SLI value to determine
+                                    compliance.
+                                  apiVersions:
+                                    - 2025-03-01-preview
+                                  visibility:
+                                    - read
+                                    - create
+                                    - update
+                                    - delete
+                                    - query
+                                  isDiscriminator: false
+                                  flatten: false
+                              snakeCaseName: baseline_properties
+                              base: dpg
+                              internal: false
+                              crossLanguageDefinitionId: Microsoft.Monitor.BaselineProperties
+                              usage: 262
+                              isXml: false
+                              clientNamespace: azure.mgmt.placeholder
+                            optional: false
+                            description: Defines the SLO baseline associated with the SLI.
+                            apiVersions:
+                              - 2025-03-01-preview
+                            visibility:
+                              - read
+                              - create
+                              - update
+                              - delete
+                              - query
+                            isDiscriminator: false
+                            flatten: false
+                          - clientName: streaming_rule_id
+                            wireName: streamingRuleId
+                            type: *ref_0
+                            optional: false
+                            description: >-
+                              The streaming rule Id associated with the Sli
+                              resource.
+                            apiVersions:
+                              - 2025-03-01-preview
+                            visibility:
+                              - read
+                            isDiscriminator: false
+                            flatten: false
+                          - clientName: streaming_rule_last_updated_timestamp
+                            wireName: streamingRuleLastUpdatedTimestamp
+                            type: *ref_0
+                            optional: false
+                            description: >-
+                              The streaming rule last updated timestamp
+                              associated with the Sli resource.
+                            apiVersions:
+                              - 2025-03-01-preview
+                            visibility:
+                              - read
+                            isDiscriminator: false
+                            flatten: false
+                          - clientName: sli_properties
+                            wireName: sliProperties
+                            type: &ref_35
+                              type: model
+                              name: SliProperties
+                              description: Defines the properties of an SLI.
+                              parents: []
+                              discriminatedSubtypes: {}
+                              properties:
+                                - clientName: good_signals
+                                  wireName: goodSignals
+                                  type: &ref_14
+                                    type: model
+                                    name: Signal
+                                    description: >-
+                                      Represents a signal model used in SLI
+                                      calculations.
+                                    parents: []
+                                    discriminatedSubtypes: {}
+                                    properties:
+                                      - clientName: signal_sources
+                                        wireName: signalSources
+                                        type: &ref_51
+                                          type: list
+                                          elementType: &ref_36
+                                            type: model
+                                            name: SignalSource
+                                            description: Represents a signal source used in SLIs.
+                                            parents: []
+                                            discriminatedSubtypes: {}
+                                            properties:
+                                              - clientName: signal_source_id
+                                                wireName: signalSourceId
+                                                type: *ref_0
+                                                optional: false
+                                                description: Unique identifier for the signal source.
+                                                apiVersions:
+                                                  - 2025-03-01-preview
+                                                visibility:
+                                                  - read
+                                                  - create
+                                                  - update
+                                                  - delete
+                                                  - query
+                                                isDiscriminator: false
+                                                flatten: false
+                                              - clientName: source_amw_account_managed_identity
+                                                wireName: sourceAmwAccountManagedIdentity
+                                                type: *ref_0
+                                                optional: false
+                                                description: >-
+                                                  Managed identity for authenticating the
+                                                  signal source.
+                                                apiVersions:
+                                                  - 2025-03-01-preview
+                                                visibility:
+                                                  - read
+                                                  - create
+                                                  - update
+                                                  - delete
+                                                  - query
+                                                isDiscriminator: false
+                                                flatten: false
+                                              - clientName: source_amw_account_resource_id
+                                                wireName: sourceAmwAccountResourceId
+                                                type: *ref_0
+                                                optional: false
+                                                description: Resource ID of the source AMW account.
+                                                apiVersions:
+                                                  - 2025-03-01-preview
+                                                visibility:
+                                                  - read
+                                                  - create
+                                                  - update
+                                                  - delete
+                                                  - query
+                                                isDiscriminator: false
+                                                flatten: false
+                                              - clientName: metric_namespace
+                                                wireName: metricNamespace
+                                                type: *ref_0
+                                                optional: false
+                                                description: Namespace of the metric.
+                                                apiVersions:
+                                                  - 2025-03-01-preview
+                                                visibility:
+                                                  - read
+                                                  - create
+                                                  - update
+                                                  - delete
+                                                  - query
+                                                isDiscriminator: false
+                                                flatten: false
+                                              - clientName: metric_name
+                                                wireName: metricName
+                                                type: *ref_0
+                                                optional: false
+                                                description: Name of the metric.
+                                                apiVersions:
+                                                  - 2025-03-01-preview
+                                                visibility:
+                                                  - read
+                                                  - create
+                                                  - update
+                                                  - delete
+                                                  - query
+                                                isDiscriminator: false
+                                                flatten: false
+                                              - clientName: filters
+                                                wireName: filters
+                                                type: &ref_49
+                                                  type: list
+                                                  elementType: &ref_37
+                                                    type: model
+                                                    name: Condition
+                                                    description: Represents a filtering condition.
+                                                    parents: []
+                                                    discriminatedSubtypes: {}
+                                                    properties:
+                                                      - clientName: dimension_name
+                                                        wireName: dimensionName
+                                                        type: *ref_0
+                                                        optional: true
+                                                        description: Dimension name used in filtering.
+                                                        apiVersions:
+                                                          - 2025-03-01-preview
+                                                        visibility:
+                                                          - read
+                                                          - create
+                                                          - update
+                                                          - delete
+                                                          - query
+                                                        isDiscriminator: false
+                                                        flatten: false
+                                                      - clientName: scalar_function
+                                                        wireName: scalarFunction
+                                                        type: &ref_9
+                                                          name: ScalarFunction
+                                                          snakeCaseName: scalar_function
+                                                          description: >-
+                                                            Defines scalar functions used in
+                                                            filtering.
+                                                          internal: false
+                                                          type: enum
+                                                          valueType: *ref_0
+                                                          values:
+                                                            - name: MAX
+                                                              value: max
+                                                              description: Maximum value.
+                                                              enumType: *ref_9
+                                                              type: enumvalue
+                                                              valueType: *ref_0
+                                                            - name: MIN
+                                                              value: min
+                                                              description: Minimum value.
+                                                              enumType: *ref_9
+                                                              type: enumvalue
+                                                              valueType: *ref_0
+                                                            - name: AVG
+                                                              value: avg
+                                                              description: Average value.
+                                                              enumType: *ref_9
+                                                              type: enumvalue
+                                                              valueType: *ref_0
+                                                            - name: SUM
+                                                              value: sum
+                                                              description: Summation.
+                                                              enumType: *ref_9
+                                                              type: enumvalue
+                                                              valueType: *ref_0
+                                                          xmlMetadata: {}
+                                                          crossLanguageDefinitionId: Microsoft.Monitor.ScalarFunction
+                                                          clientNamespace: azure.mgmt.placeholder
+                                                        optional: true
+                                                        description: Scalar function applied for filtering.
+                                                        apiVersions:
+                                                          - 2025-03-01-preview
+                                                        visibility:
+                                                          - read
+                                                          - create
+                                                          - update
+                                                          - delete
+                                                          - query
+                                                        isDiscriminator: false
+                                                        flatten: false
+                                                      - clientName: sampling_type
+                                                        wireName: samplingType
+                                                        type: &ref_10
+                                                          name: SamplingType
+                                                          snakeCaseName: sampling_type
+                                                          description: Defines the available sampling types.
+                                                          internal: false
+                                                          type: enum
+                                                          valueType: *ref_0
+                                                          values:
+                                                            - name: MAX
+                                                              value: max
+                                                              description: Maximum value.
+                                                              enumType: *ref_10
+                                                              type: enumvalue
+                                                              valueType: *ref_0
+                                                            - name: MIN
+                                                              value: min
+                                                              description: Minimum value.
+                                                              enumType: *ref_10
+                                                              type: enumvalue
+                                                              valueType: *ref_0
+                                                            - name: AVG
+                                                              value: avg
+                                                              description: Average value.
+                                                              enumType: *ref_10
+                                                              type: enumvalue
+                                                              valueType: *ref_0
+                                                            - name: SUM
+                                                              value: sum
+                                                              description: Summation.
+                                                              enumType: *ref_10
+                                                              type: enumvalue
+                                                              valueType: *ref_0
+                                                          xmlMetadata: {}
+                                                          crossLanguageDefinitionId: Microsoft.Monitor.SamplingType
+                                                          clientNamespace: azure.mgmt.placeholder
+                                                        optional: true
+                                                        description: Defines the sampling type.
+                                                        apiVersions:
+                                                          - 2025-03-01-preview
+                                                        visibility:
+                                                          - read
+                                                          - create
+                                                          - update
+                                                          - delete
+                                                          - query
+                                                        isDiscriminator: false
+                                                        flatten: false
+                                                      - clientName: operator
+                                                        wireName: operator
+                                                        type: &ref_11
+                                                          name: ConditionOperator
+                                                          snakeCaseName: condition_operator
+                                                          description: >-
+                                                            Defines operators used in filter
+                                                            conditions.
+                                                          internal: false
+                                                          type: enum
+                                                          valueType: *ref_0
+                                                          values:
+                                                            - name: EQUAL
+                                                              value: "=="
+                                                              description: Equal to.
+                                                              enumType: *ref_11
+                                                              type: enumvalue
+                                                              valueType: *ref_0
+                                                            - name: NOT_EQUAL
+                                                              value: "!="
+                                                              description: Not equal to.
+                                                              enumType: *ref_11
+                                                              type: enumvalue
+                                                              valueType: *ref_0
+                                                            - name: LESS_THAN
+                                                              value: <
+                                                              description: Less than.
+                                                              enumType: *ref_11
+                                                              type: enumvalue
+                                                              valueType: *ref_0
+                                                            - name: LESS_THAN_OR_EQUAL
+                                                              value: <=
+                                                              description: Less than or equal to.
+                                                              enumType: *ref_11
+                                                              type: enumvalue
+                                                              valueType: *ref_0
+                                                            - name: GREATER_THAN
+                                                              value: ">"
+                                                              description: Greater than.
+                                                              enumType: *ref_11
+                                                              type: enumvalue
+                                                              valueType: *ref_0
+                                                            - name: GREATER_THAN_OR_EQUAL
+                                                              value: ">="
+                                                              description: Greater than or equal to.
+                                                              enumType: *ref_11
+                                                              type: enumvalue
+                                                              valueType: *ref_0
+                                                            - name: IN
+                                                              value: "@in"
+                                                              description: In operator.
+                                                              enumType: *ref_11
+                                                              type: enumvalue
+                                                              valueType: *ref_0
+                                                            - name: NOT_IN
+                                                              value: "!in"
+                                                              description: Not in.
+                                                              enumType: *ref_11
+                                                              type: enumvalue
+                                                              valueType: *ref_0
+                                                            - name: STARTS_WITH
+                                                              value: startswith
+                                                              description: Starts with.
+                                                              enumType: *ref_11
+                                                              type: enumvalue
+                                                              valueType: *ref_0
+                                                            - name: NOT_STARTS_WITH
+                                                              value: "!startswith"
+                                                              description: Does not start with.
+                                                              enumType: *ref_11
+                                                              type: enumvalue
+                                                              valueType: *ref_0
+                                                            - name: CONTAINS
+                                                              value: contains
+                                                              description: Contains the value.
+                                                              enumType: *ref_11
+                                                              type: enumvalue
+                                                              valueType: *ref_0
+                                                            - name: NOT_CONTAINS
+                                                              value: "!contains"
+                                                              description: Does not contain the value.
+                                                              enumType: *ref_11
+                                                              type: enumvalue
+                                                              valueType: *ref_0
+                                                          xmlMetadata: {}
+                                                          crossLanguageDefinitionId: Microsoft.Monitor.ConditionOperator
+                                                          clientNamespace: azure.mgmt.placeholder
+                                                        optional: false
+                                                        description: >-
+                                                          Operator used in the filtering
+                                                          condition.
+                                                        apiVersions:
+                                                          - 2025-03-01-preview
+                                                        visibility:
+                                                          - read
+                                                          - create
+                                                          - update
+                                                          - delete
+                                                          - query
+                                                        isDiscriminator: false
+                                                        flatten: false
+                                                      - clientName: value
+                                                        wireName: value
+                                                        type: *ref_0
+                                                        optional: false
+                                                        description: Value used in filtering.
+                                                        apiVersions:
+                                                          - 2025-03-01-preview
+                                                        visibility:
+                                                          - read
+                                                          - create
+                                                          - update
+                                                          - delete
+                                                          - query
+                                                        isDiscriminator: false
+                                                        flatten: false
+                                                    snakeCaseName: condition
+                                                    base: dpg
+                                                    internal: false
+                                                    crossLanguageDefinitionId: Microsoft.Monitor.Condition
+                                                    usage: 262
+                                                    isXml: false
+                                                    clientNamespace: azure.mgmt.placeholder
+                                                optional: false
+                                                description: Filters applied to modify signal values.
+                                                apiVersions:
+                                                  - 2025-03-01-preview
+                                                visibility:
+                                                  - read
+                                                  - create
+                                                  - update
+                                                  - delete
+                                                  - query
+                                                isDiscriminator: false
+                                                flatten: false
+                                              - clientName: spatial_aggregation
+                                                wireName: spatialAggregation
+                                                type: &ref_38
+                                                  type: model
+                                                  name: SpatialAggregation
+                                                  description: >-
+                                                    Represents the spatial aggregation
+                                                    model.
+                                                  parents: []
+                                                  discriminatedSubtypes: {}
+                                                  properties:
+                                                    - clientName: type
+                                                      wireName: type
+                                                      type: &ref_12
+                                                        name: AggregationType
+                                                        snakeCaseName: aggregation_type
+                                                        description: Defines the available aggregation types.
+                                                        internal: false
+                                                        type: enum
+                                                        valueType: *ref_0
+                                                        values:
+                                                          - name: AVERAGE
+                                                            value: Average
+                                                            description: Average value.
+                                                            enumType: *ref_12
+                                                            type: enumvalue
+                                                            valueType: *ref_0
+                                                          - name: MIN
+                                                            value: Min
+                                                            description: Minimum value.
+                                                            enumType: *ref_12
+                                                            type: enumvalue
+                                                            valueType: *ref_0
+                                                          - name: MAX
+                                                            value: Max
+                                                            description: Maximum value.
+                                                            enumType: *ref_12
+                                                            type: enumvalue
+                                                            valueType: *ref_0
+                                                          - name: SUM
+                                                            value: Sum
+                                                            description: Summation.
+                                                            enumType: *ref_12
+                                                            type: enumvalue
+                                                            valueType: *ref_0
+                                                          - name: COUNT
+                                                            value: Count
+                                                            description: Count of occurrences.
+                                                            enumType: *ref_12
+                                                            type: enumvalue
+                                                            valueType: *ref_0
+                                                        xmlMetadata: {}
+                                                        crossLanguageDefinitionId: Microsoft.Monitor.AggregationType
+                                                        clientNamespace: azure.mgmt.placeholder
+                                                      optional: false
+                                                      description: Type of spatial aggregation.
+                                                      apiVersions:
+                                                        - 2025-03-01-preview
+                                                      visibility:
+                                                        - read
+                                                        - create
+                                                        - update
+                                                        - delete
+                                                        - query
+                                                      isDiscriminator: false
+                                                      flatten: false
+                                                    - clientName: dimensions
+                                                      wireName: dimensions
+                                                      type: &ref_50
+                                                        type: list
+                                                        elementType: *ref_0
+                                                      optional: false
+                                                      description: >-
+                                                        Dimensions considered for spatial
+                                                        aggregation.
+                                                      apiVersions:
+                                                        - 2025-03-01-preview
+                                                      visibility:
+                                                        - read
+                                                        - create
+                                                        - update
+                                                        - delete
+                                                        - query
+                                                      isDiscriminator: false
+                                                      flatten: false
+                                                  snakeCaseName: spatial_aggregation
+                                                  base: dpg
+                                                  internal: false
+                                                  crossLanguageDefinitionId: Microsoft.Monitor.SpatialAggregation
+                                                  usage: 262
+                                                  isXml: false
+                                                  clientNamespace: azure.mgmt.placeholder
+                                                optional: false
+                                                description: >-
+                                                  Defines how measurements are aggregated
+                                                  across multiple time series.
+                                                apiVersions:
+                                                  - 2025-03-01-preview
+                                                visibility:
+                                                  - read
+                                                  - create
+                                                  - update
+                                                  - delete
+                                                  - query
+                                                isDiscriminator: false
+                                                flatten: false
+                                              - clientName: temporal_aggregation
+                                                wireName: temporalAggregation
+                                                type: &ref_39
+                                                  type: model
+                                                  name: TemporalAggregation
+                                                  description: >-
+                                                    Represents temporal aggregation
+                                                    settings.
+                                                  parents: []
+                                                  discriminatedSubtypes: {}
+                                                  properties:
+                                                    - clientName: type
+                                                      wireName: type
+                                                      type: *ref_12
+                                                      optional: false
+                                                      description: Type of temporal aggregation.
+                                                      apiVersions:
+                                                        - 2025-03-01-preview
+                                                      visibility:
+                                                        - read
+                                                        - create
+                                                        - update
+                                                        - delete
+                                                        - query
+                                                      isDiscriminator: false
+                                                      flatten: false
+                                                    - clientName: window_size_minutes
+                                                      wireName: windowSizeMinutes
+                                                      type: *ref_13
+                                                      optional: false
+                                                      description: >-
+                                                        Time window size for aggregation, in
+                                                        minutes.
+                                                      apiVersions:
+                                                        - 2025-03-01-preview
+                                                      visibility:
+                                                        - read
+                                                        - create
+                                                        - update
+                                                        - delete
+                                                        - query
+                                                      isDiscriminator: false
+                                                      flatten: false
+                                                  snakeCaseName: temporal_aggregation
+                                                  base: dpg
+                                                  internal: false
+                                                  crossLanguageDefinitionId: Microsoft.Monitor.TemporalAggregation
+                                                  usage: 262
+                                                  isXml: false
+                                                  clientNamespace: azure.mgmt.placeholder
+                                                optional: true
+                                                description: >-
+                                                  Defines how measurements are aggregated
+                                                  over a specific time window within the
+                                                  same time series.
+                                                apiVersions:
+                                                  - 2025-03-01-preview
+                                                visibility:
+                                                  - read
+                                                  - create
+                                                  - update
+                                                  - delete
+                                                  - query
+                                                isDiscriminator: false
+                                                flatten: false
+                                            snakeCaseName: signal_source
+                                            base: dpg
+                                            internal: false
+                                            crossLanguageDefinitionId: Microsoft.Monitor.SignalSource
+                                            usage: 262
+                                            isXml: false
+                                            clientNamespace: azure.mgmt.placeholder
+                                        optional: false
+                                        description: Sources of metrics used for SLIs.
+                                        apiVersions:
+                                          - 2025-03-01-preview
+                                        visibility:
+                                          - read
+                                          - create
+                                          - update
+                                          - delete
+                                          - query
+                                        isDiscriminator: false
+                                        flatten: false
+                                      - clientName: signal_formula
+                                        wireName: signalFormula
+                                        type: *ref_0
+                                        optional: false
+                                        description: >-
+                                          Mathematical formula used to combine
+                                          multiple metrics.
+                                        apiVersions:
+                                          - 2025-03-01-preview
+                                        visibility:
+                                          - read
+                                          - create
+                                          - update
+                                          - delete
+                                          - query
+                                        isDiscriminator: false
+                                        flatten: false
+                                    snakeCaseName: signal
+                                    base: dpg
+                                    internal: false
+                                    crossLanguageDefinitionId: Microsoft.Monitor.Signal
+                                    usage: 262
+                                    isXml: false
+                                    clientNamespace: azure.mgmt.placeholder
+                                  optional: true
+                                  description: >-
+                                    Represents good signals used in
+                                    request-based SLI calculations.
+                                  apiVersions:
+                                    - 2025-03-01-preview
+                                  visibility:
+                                    - read
+                                    - create
+                                    - update
+                                    - delete
+                                    - query
+                                  isDiscriminator: false
+                                  flatten: false
+                                - clientName: total_signals
+                                  wireName: totalSignals
+                                  type: *ref_14
+                                  optional: true
+                                  description: >-
+                                    Represents total signals used in
+                                    request-based SLI calculations.
+                                  apiVersions:
+                                    - 2025-03-01-preview
+                                  visibility:
+                                    - read
+                                    - create
+                                    - update
+                                    - delete
+                                    - query
+                                  isDiscriminator: false
+                                  flatten: false
+                                - clientName: signals
+                                  wireName: signals
+                                  type: *ref_14
+                                  optional: true
+                                  description: >-
+                                    Signals used for window-based SLI
+                                    calculations.
+                                  apiVersions:
+                                    - 2025-03-01-preview
+                                  visibility:
+                                    - read
+                                    - create
+                                    - update
+                                    - delete
+                                    - query
+                                  isDiscriminator: false
+                                  flatten: false
+                                - clientName: window_uptime_criteria
+                                  wireName: windowUptimeCriteria
+                                  type: &ref_40
+                                    type: model
+                                    name: WindowUptimeCriteria
+                                    description: >-
+                                      Represents criteria for determining uptime
+                                      in window-based SLIs.
+                                    parents: []
+                                    discriminatedSubtypes: {}
+                                    properties:
+                                      - clientName: target
+                                        wireName: target
+                                        type: *ref_15
+                                        optional: false
+                                        description: >-
+                                          Threshold value used to determine
+                                          uptime.
+                                        apiVersions:
+                                          - 2025-03-01-preview
+                                        visibility:
+                                          - read
+                                          - create
+                                          - update
+                                          - delete
+                                          - query
+                                        isDiscriminator: false
+                                        flatten: false
+                                      - clientName: comparator
+                                        wireName: comparator
+                                        type: &ref_16
+                                          name: WindowUptimeCriteriaComparator
+                                          snakeCaseName: window_uptime_criteria_comparator
+                                          description: >-
+                                            Defines comparison operators for window
+                                            uptime criteria.
+                                          internal: false
+                                          type: enum
+                                          valueType: *ref_0
+                                          values:
+                                            - name: LT
+                                              value: lt
+                                              description: Less than the target value.
+                                              enumType: *ref_16
+                                              type: enumvalue
+                                              valueType: *ref_0
+                                            - name: GT
+                                              value: gt
+                                              description: Greater than the target value.
+                                              enumType: *ref_16
+                                              type: enumvalue
+                                              valueType: *ref_0
+                                            - name: LTE
+                                              value: lte
+                                              description: Less than or equal to the target value.
+                                              enumType: *ref_16
+                                              type: enumvalue
+                                              valueType: *ref_0
+                                            - name: GTE
+                                              value: gte
+                                              description: >-
+                                                Greater than or equal to the target
+                                                value.
+                                              enumType: *ref_16
+                                              type: enumvalue
+                                              valueType: *ref_0
+                                          xmlMetadata: {}
+                                          crossLanguageDefinitionId: >-
+                                            Microsoft.Monitor.WindowUptimeCriteriaComparator
+                                          clientNamespace: azure.mgmt.placeholder
+                                        optional: false
+                                        description: >-
+                                          Comparison operator used for uptime
+                                          evaluation.
+                                        apiVersions:
+                                          - 2025-03-01-preview
+                                        visibility:
+                                          - read
+                                          - create
+                                          - update
+                                          - delete
+                                          - query
+                                        isDiscriminator: false
+                                        flatten: false
+                                    snakeCaseName: window_uptime_criteria
+                                    base: dpg
+                                    internal: false
+                                    crossLanguageDefinitionId: Microsoft.Monitor.WindowUptimeCriteria
+                                    usage: 262
+                                    isXml: false
+                                    clientNamespace: azure.mgmt.placeholder
+                                  optional: true
+                                  description: >-
+                                    Defines the uptime criteria for window-based
+                                    SLIs.
+                                  apiVersions:
+                                    - 2025-03-01-preview
+                                  visibility:
+                                    - read
+                                    - create
+                                    - update
+                                    - delete
+                                    - query
+                                  isDiscriminator: false
+                                  flatten: false
+                              snakeCaseName: sli_properties
+                              base: dpg
+                              internal: false
+                              crossLanguageDefinitionId: Microsoft.Monitor.SliProperties
+                              usage: 262
+                              isXml: false
+                              clientNamespace: azure.mgmt.placeholder
+                            optional: false
+                            description: >-
+                              Defines the SLI properties associated with the
+                              SLI.
+                            apiVersions:
+                              - 2025-03-01-preview
+                            visibility:
+                              - read
+                              - create
+                              - update
+                              - delete
+                              - query
+                            isDiscriminator: false
+                            flatten: false
+                        snakeCaseName: sli_resource
+                        base: dpg
+                        internal: false
+                        crossLanguageDefinitionId: Microsoft.Monitor.SliResource
+                        usage: 262
+                        isXml: false
+                        clientNamespace: azure.mgmt.placeholder
+                      optional: true
+                      description: The resource-specific properties for this resource.
+                      addedOn: 1.0-preview.1
+                      apiVersions:
+                        - 1.0-preview.1
+                      visibility:
+                        - read
+                        - create
+                        - update
+                        - delete
+                        - query
+                      isDiscriminator: false
+                      flatten: false
+                    - clientName: identity
+                      wireName: identity
+                      type: &ref_41
+                        type: model
+                        name: ManagedServiceIdentity
+                        description: >-
+                          Managed service identity (system assigned and/or user
+                          assigned identities)
+                        parents: []
+                        discriminatedSubtypes: {}
+                        properties:
+                          - clientName: principal_id
+                            wireName: principalId
+                            type: *ref_0
+                            optional: true
+                            description: >-
+                              The service principal ID of the system assigned
+                              identity. This property will only be provided for
+                              a system assigned identity.
+                            addedOn: v3
+                            apiVersions:
+                              - v3
+                              - v4
+                              - v5
+                              - v6
+                            visibility:
+                              - read
+                            isDiscriminator: false
+                            flatten: false
+                          - clientName: tenant_id
+                            wireName: tenantId
+                            type: *ref_0
+                            optional: true
+                            description: >-
+                              The tenant ID of the system assigned identity.
+                              This property will only be provided for a system
+                              assigned identity.
+                            addedOn: v3
+                            apiVersions:
+                              - v3
+                              - v4
+                              - v5
+                              - v6
+                            visibility:
+                              - read
+                            isDiscriminator: false
+                            flatten: false
+                          - clientName: type
+                            wireName: type
+                            type: &ref_17
+                              name: ManagedServiceIdentityType
+                              snakeCaseName: managed_service_identity_type
+                              description: >-
+                                Type of managed service identity (where both
+                                SystemAssigned and UserAssigned types are
+                                allowed).
+                              internal: false
+                              type: enum
+                              valueType: *ref_0
+                              values:
+                                - name: NONE
+                                  value: None
+                                  description: No managed identity.
+                                  enumType: *ref_17
+                                  type: enumvalue
+                                  valueType: *ref_0
+                                - name: SYSTEM_ASSIGNED
+                                  value: SystemAssigned
+                                  description: System assigned managed identity.
+                                  enumType: *ref_17
+                                  type: enumvalue
+                                  valueType: *ref_0
+                                - name: USER_ASSIGNED
+                                  value: UserAssigned
+                                  description: User assigned managed identity.
+                                  enumType: *ref_17
+                                  type: enumvalue
+                                  valueType: *ref_0
+                                - name: SYSTEM_ASSIGNED_USER_ASSIGNED
+                                  value: SystemAssigned,UserAssigned
+                                  description: System and user assigned managed identity.
+                                  enumType: *ref_17
+                                  type: enumvalue
+                                  valueType: *ref_0
+                              xmlMetadata: {}
+                              crossLanguageDefinitionId: >-
+                                Azure.ResourceManager.CommonTypes.ManagedServiceIdentityType
+                              clientNamespace: azure.mgmt.placeholder
+                            optional: false
+                            description: >-
+                              The type of managed identity assigned to this
+                              resource.
+                            addedOn: v3
+                            apiVersions:
+                              - v3
+                              - v4
+                              - v5
+                              - v6
+                            visibility:
+                              - read
+                              - create
+                              - update
+                              - delete
+                              - query
+                            isDiscriminator: false
+                            flatten: false
+                          - clientName: user_assigned_identities
+                            wireName: userAssignedIdentities
+                            type: &ref_52
+                              type: dict
+                              elementType: &ref_42
+                                type: model
+                                name: UserAssignedIdentity
+                                description: User assigned identity properties
+                                parents: []
+                                discriminatedSubtypes: {}
+                                properties:
+                                  - clientName: principal_id
+                                    wireName: principalId
+                                    type: *ref_0
+                                    optional: true
+                                    description: The principal ID of the assigned identity.
+                                    addedOn: v3
+                                    apiVersions:
+                                      - v3
+                                      - v4
+                                      - v5
+                                      - v6
+                                    visibility:
+                                      - read
+                                    isDiscriminator: false
+                                    flatten: false
+                                  - clientName: client_id
+                                    wireName: clientId
+                                    type: *ref_0
+                                    optional: true
+                                    description: The client ID of the assigned identity.
+                                    addedOn: v3
+                                    apiVersions:
+                                      - v3
+                                      - v4
+                                      - v5
+                                      - v6
+                                    visibility:
+                                      - read
+                                    isDiscriminator: false
+                                    flatten: false
+                                snakeCaseName: user_assigned_identity
+                                base: dpg
+                                internal: false
+                                crossLanguageDefinitionId: >-
+                                  Azure.ResourceManager.CommonTypes.UserAssignedIdentity
+                                usage: 262
+                                isXml: false
+                                clientNamespace: azure.mgmt.placeholder
+                            optional: true
+                            description: >-
+                              The identities assigned to this resource by the
+                              user.
+                            addedOn: v3
+                            apiVersions:
+                              - v3
+                              - v4
+                              - v5
+                              - v6
+                            visibility:
+                              - read
+                              - create
+                              - update
+                              - delete
+                              - query
+                            isDiscriminator: false
+                            flatten: false
+                        snakeCaseName: managed_service_identity
+                        base: dpg
+                        internal: false
+                        crossLanguageDefinitionId: >-
+                          Azure.ResourceManager.CommonTypes.ManagedServiceIdentity
+                        usage: 262
+                        isXml: false
+                        clientNamespace: azure.mgmt.placeholder
+                      optional: true
+                      description: >-
+                        The managed service identities assigned to this
+                        resource.
+                      addedOn: 1.0-preview.1
+                      apiVersions:
+                        - 1.0-preview.1
+                      visibility:
+                        - read
+                        - create
+                        - update
+                        - delete
+                        - query
+                      isDiscriminator: false
+                      flatten: false
+                  snakeCaseName: sli
+                  base: dpg
+                  internal: false
+                  crossLanguageDefinitionId: Microsoft.Monitor.Sli
+                  usage: 262
+                  isXml: false
+                  clientNamespace: azure.mgmt.placeholder
+                contentTypes:
+                  - application/json
+                defaultContentType: application/json
+            exceptions:
+              - headers: []
+                statusCodes:
+                  - default
+                discriminator: basic
+                type: &ref_22
+                  type: model
+                  name: ErrorResponse
+                  description: Error response
+                  parents: []
+                  discriminatedSubtypes: {}
+                  properties:
+                    - clientName: error
+                      wireName: error
+                      type: &ref_18
+                        type: model
+                        name: ErrorDetail
+                        description: The error detail.
+                        parents: []
+                        discriminatedSubtypes: {}
+                        properties:
+                          - clientName: code
+                            wireName: code
+                            type: *ref_0
+                            optional: true
+                            description: The error code.
+                            addedOn: v3
+                            apiVersions:
+                              - v3
+                              - v4
+                              - v5
+                              - v6
+                            visibility:
+                              - read
+                            isDiscriminator: false
+                            flatten: false
+                          - clientName: message
+                            wireName: message
+                            type: *ref_0
+                            optional: true
+                            description: The error message.
+                            addedOn: v3
+                            apiVersions:
+                              - v3
+                              - v4
+                              - v5
+                              - v6
+                            visibility:
+                              - read
+                            isDiscriminator: false
+                            flatten: false
+                          - clientName: target
+                            wireName: target
+                            type: *ref_0
+                            optional: true
+                            description: The error target.
+                            addedOn: v3
+                            apiVersions:
+                              - v3
+                              - v4
+                              - v5
+                              - v6
+                            visibility:
+                              - read
+                            isDiscriminator: false
+                            flatten: false
+                          - clientName: details
+                            wireName: details
+                            type: &ref_53
+                              type: list
+                              elementType: *ref_18
+                            optional: true
+                            description: The error details.
+                            addedOn: v3
+                            apiVersions:
+                              - v3
+                              - v4
+                              - v5
+                              - v6
+                            visibility:
+                              - read
+                            isDiscriminator: false
+                            flatten: false
+                          - clientName: additional_info
+                            wireName: additionalInfo
+                            type: &ref_54
+                              type: list
+                              elementType: &ref_43
+                                type: model
+                                name: ErrorAdditionalInfo
+                                description: The resource management error additional info.
+                                parents: []
+                                discriminatedSubtypes: {}
+                                properties:
+                                  - clientName: type
+                                    wireName: type
+                                    type: *ref_0
+                                    optional: true
+                                    description: The additional info type.
+                                    addedOn: v3
+                                    apiVersions:
+                                      - v3
+                                      - v4
+                                      - v5
+                                      - v6
+                                    visibility:
+                                      - read
+                                    isDiscriminator: false
+                                    flatten: false
+                                  - clientName: info
+                                    wireName: info
+                                    type: &ref_44
+                                      type: any
+                                    optional: true
+                                    description: The additional info.
+                                    addedOn: v3
+                                    apiVersions:
+                                      - v3
+                                      - v4
+                                      - v5
+                                      - v6
+                                    visibility:
+                                      - read
+                                    isDiscriminator: false
+                                    flatten: false
+                                snakeCaseName: error_additional_info
+                                base: dpg
+                                internal: false
+                                crossLanguageDefinitionId: >-
+                                  Azure.ResourceManager.CommonTypes.ErrorAdditionalInfo
+                                usage: 1280
+                                isXml: false
+                                clientNamespace: azure.mgmt.placeholder
+                            optional: true
+                            description: The error additional info.
+                            addedOn: v3
+                            apiVersions:
+                              - v3
+                              - v4
+                              - v5
+                              - v6
+                            visibility:
+                              - read
+                            isDiscriminator: false
+                            flatten: false
+                        snakeCaseName: error_detail
+                        base: dpg
+                        internal: false
+                        crossLanguageDefinitionId: Azure.ResourceManager.CommonTypes.ErrorDetail
+                        usage: 1280
+                        isXml: false
+                        clientNamespace: azure.mgmt.placeholder
+                      optional: true
+                      description: The error object.
+                      addedOn: v3
+                      apiVersions:
+                        - v3
+                        - v4
+                        - v5
+                        - v6
+                      visibility:
+                        - read
+                        - create
+                        - update
+                        - delete
+                        - query
+                      isDiscriminator: false
+                      flatten: false
+                  snakeCaseName: error_response
+                  base: dpg
+                  internal: false
+                  crossLanguageDefinitionId: Azure.ResourceManager.CommonTypes.ErrorResponse
+                  usage: 1280
+                  isXml: false
+                  clientNamespace: azure.mgmt.placeholder
+                contentTypes:
+                  - application/json
+                defaultContentType: application/json
+            groupName: Slis
+            discriminator: basic
+            isOverload: false
+            overloads: []
+            apiVersions:
+              - 2025-03-01-preview
+            wantTracing: true
+            exposeStreamKeyword: true
+            crossLanguageDefinitionId: Microsoft.Monitor.Slis.get
+            samples:
+              "0":
+                operationId: Slis_Get
+                title: GetSli
+                parameters:
+                  api-version: 2025-03-01-preview
+                  sliName: testSli
+                  serviceGroupName: testSG
+                responses:
+                  "200":
+                    body:
+                      id: >-
+                        /providers/Microsoft.Management/ServiceGroups/testSG/providers/Microsoft.Monitor/slis/testSli
+                      name: testSli
+                      type: Microsoft.Monitor/slis
+                      properties:
+                        description: >-
+                          Measures the performance characteristics of the
+                          GetContosoUsers() API.
+                        category: Latency
+                        evaluationType: WindowBased
+                        provisioningState: Succeeded
+                        streamingRuleId: "123"
+                        streamingRuleLastUpdatedTimestamp: "2025-03-01T00:00:00Z"
+                        executionState:
+                          message: ""
+                          state: Succeeded
+                        destinationAmwAccounts:
+                          - resourceId: >-
+                              /subscriptions/<subId>/resourcegroups/<rgId>/providers/microsoft.monitor/accounts/<dest>
+                            identity: >-
+                              /subscriptions/<subId>/resourcegroups/<rgId>/providers/Microsoft.ManagedIdentity/userAssignedIdentities/<idName>
+                        destinationMetrics:
+                          - metricNamespace: ContosoMetricsOut
+                            metricName: Get API Latency:Uptime
+                          - metricNamespace: ContosoMetricsOut
+                            metricName: Get API Latency:Downtime
+                          - metricNamespace: ContosoMetricsOut
+                            metricName: Get API Latency:Value
+                        baselineProperties:
+                          baseline:
+                            value: 99
+                            evaluationPeriodDays: 30
+                            evaluationCalculationType: CalendarDays
+                            enableAlert: true
+                        sliProperties:
+                          windowUptimeCriteria:
+                            target: 95
+                            comparator: ">="
+                          signals:
+                            signalSources:
+                              - signalSourceId: A
+                                sourceAmwAccountManagedIdentity: sourceAccountIdentity
+                                sourceAmwAccountResourceId: /source/Account/Resource
+                                metricNamespace: ContosoMetricsWest
+                                metricName: Stamp1Latency
+                                filters:
+                                  - dimensionName: ApiName
+                                    operator: "=="
+                                    value: GetContosoUsers
+                                spatialAggregation:
+                                  type: Average
+                                  dimensions:
+                                    - Region
+                                    - ResponseCode
+                                temporalAggregation:
+                                  type: Average
+                                  windowSizeMinutes: 5
+                              - signalSourceId: B
+                                sourceAmwAccountManagedIdentity: sourceAccountIdentity
+                                sourceAmwAccountResourceId: /source/Account/Resource
+                                metricNamespace: ContosoMetricsEast
+                                metricName: Stamp2Latency
+                                filters:
+                                  - dimensionName: ApiName
+                                    operator: "=="
+                                    value: GetContosoUsers
+                                spatialAggregation:
+                                  type: Average
+                                  dimensions:
+                                    - Region
+                                    - ResponseCode
+                                temporalAggregation:
+                                  type: Average
+                                  windowSizeMinutes: 5
+                            signalFormula: (A + B) /2
+                x-ms-original-file: 2025-03-01-preview/Slis_Get.json
+            internal: false
+            abstract: false
+            name: get
+            description: Gets an SLI resource.
+            clientNamespace: azure.mgmt.placeholder
+          - url: >-
+              /providers/Microsoft.Management/serviceGroups/{serviceGroupName}/providers/Microsoft.Monitor/slis/{sliName}
+            method: PUT
+            parameters:
+              - *ref_1
+              - optional: false
+                description: The name of the service group.
+                clientName: service_group_name
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_0
+                apiVersions:
+                  - 2025-03-01-preview
+                wireName: serviceGroupName
+                location: path
+                implementation: Method
+                skipUrlEncoding: false
+              - optional: false
+                description: The API version to use for this operation.
+                clientName: api_version
+                inOverload: false
+                isApiVersion: true
+                isContinuationToken: false
+                type: *ref_2
+                apiVersions:
+                  - 2025-03-01-preview
+                wireName: api-version
+                location: query
+                implementation: Client
+                explode: false
+                clientDefaultValue: 2025-03-01-preview
+              - optional: false
+                description: Name of the SLI that is given by the user.
+                clientName: sli_name
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_0
+                apiVersions:
+                  - 2025-03-01-preview
+                wireName: sliName
+                location: path
+                implementation: Method
+                skipUrlEncoding: false
+              - optional: false
+                description: >-
+                  Body parameter's content type. Known values are
+                  application/json
+                clientName: content_type
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: &ref_24
+                  type: string
+                apiVersions: &ref_21
+                  - 2025-03-01-preview
+                wireName: Content-Type
+                location: header
+                implementation: Method
+                explode: false
+                clientDefaultValue: application/json
+              - optional: false
+                description: ""
+                clientName: accept
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_19
+                apiVersions:
+                  - 2025-03-01-preview
+                wireName: Accept
+                location: header
+                implementation: Method
+                explode: false
+            bodyParameter:
+              optional: false
+              description: Resource create parameters.
+              clientName: resource
+              inOverload: false
+              isApiVersion: false
+              isContinuationToken: false
+              type: *ref_20
+              apiVersions: *ref_21
+              contentTypes:
+                - application/json
+              location: body
+              wireName: resource
+              implementation: Method
+              defaultContentType: application/json
+            responses:
+              - headers: []
+                statusCodes:
+                  - 200
+                discriminator: basic
+                type: *ref_20
+                contentTypes:
+                  - application/json
+                defaultContentType: application/json
+              - headers: []
+                statusCodes:
+                  - 201
+                discriminator: basic
+                type: *ref_20
+                contentTypes:
+                  - application/json
+                defaultContentType: application/json
+            exceptions:
+              - headers: []
+                statusCodes:
+                  - default
+                discriminator: basic
+                type: *ref_22
+                contentTypes:
+                  - application/json
+                defaultContentType: application/json
+            groupName: Slis
+            discriminator: basic
+            isOverload: false
+            overloads: []
+            apiVersions:
+              - 2025-03-01-preview
+            wantTracing: true
+            exposeStreamKeyword: true
+            crossLanguageDefinitionId: Microsoft.Monitor.Slis.createOrUpdate
+            samples:
+              "0":
+                operationId: Slis_CreateOrUpdate
+                title: CreateSli
+                parameters:
+                  api-version: 2025-03-01-preview
+                  sliName: testSli
+                  serviceGroupName: testSG
+                  resource:
+                    properties:
+                      description: >-
+                        Measures the performance characteristics of the
+                        GetContosoUsers() API.
+                      category: Latency
+                      evaluationType: WindowBased
+                      destinationAmwAccounts:
+                        - resourceId: >-
+                            /subscriptions/<subId>/resourcegroups/<rgId>/providers/microsoft.monitor/accounts/<dest>
+                          identity: >-
+                            /subscriptions/<subId>/resourcegroups/<rgId>/providers/Microsoft.ManagedIdentity/userAssignedIdentities/<idName>
+                      baselineProperties:
+                        baseline:
+                          value: 99
+                          evaluationPeriodDays: 30
+                          evaluationCalculationType: CalendarDays
+                          enableAlert: true
+                      sliProperties:
+                        windowUptimeCriteria:
+                          target: 95
+                          comparator: ">="
+                        signals:
+                          signalSources:
+                            - signalSourceId: A
+                              sourceAmwAccountManagedIdentity: sourceAccountIdentity
+                              sourceAmwAccountResourceId: /source/Account/Resource
+                              metricNamespace: ContosoMetricsWest
+                              metricName: Stamp1Latency
+                              filters:
+                                - dimensionName: ApiName
+                                  operator: "=="
+                                  value: GetContosoUsers
+                              spatialAggregation:
+                                type: Average
+                                dimensions:
+                                  - Region
+                                  - ResponseCode
+                              temporalAggregation:
+                                type: Average
+                                windowSizeMinutes: 5
+                            - signalSourceId: B
+                              sourceAmwAccountManagedIdentity: sourceAccountIdentity
+                              sourceAmwAccountResourceId: /source/Account/Resource
+                              metricNamespace: ContosoMetricsEast
+                              metricName: Stamp2Latency
+                              filters:
+                                - dimensionName: ApiName
+                                  operator: "=="
+                                  value: GetContosoUsers
+                              spatialAggregation:
+                                type: Average
+                                dimensions:
+                                  - Region
+                                  - ResponseCode
+                              temporalAggregation:
+                                type: Average
+                                windowSizeMinutes: 5
+                          signalFormula: (A + B) /2
+                responses:
+                  "200":
+                    body:
+                      id: >-
+                        /providers/Microsoft.Management/ServiceGroups/testSG/providers/Microsoft.Monitor/slis/testSli
+                      name: testSli
+                      type: Microsoft.Monitor/testSli
+                      properties:
+                        description: >-
+                          Measures the performance characteristics of the
+                          GetContosoUsers() API.
+                        category: Latency
+                        evaluationType: WindowBased
+                        provisioningState: Succeeded
+                        streamingRuleId: "123"
+                        streamingRuleLastUpdatedTimestamp: "2025-03-01T00:00:00Z"
+                        executionState:
+                          message: ""
+                          state: Succeeded
+                        destinationAmwAccounts:
+                          - resourceId: >-
+                              /subscriptions/<subId>/resourcegroups/<rgId>/providers/microsoft.monitor/accounts/<dest>
+                            identity: >-
+                              /subscriptions/<subId>/resourcegroups/<rgId>/providers/Microsoft.ManagedIdentity/userAssignedIdentities/<idName>
+                        destinationMetrics:
+                          - metricNamespace: ContosoMetricsOut
+                            metricName: Get API Latency:Uptime
+                          - metricNamespace: ContosoMetricsOut
+                            metricName: Get API Latency:Downtime
+                          - metricNamespace: ContosoMetricsOut
+                            metricName: Get API Latency:Value
+                        baselineProperties:
+                          baseline:
+                            value: 99
+                            evaluationPeriodDays: 30
+                            evaluationCalculationType: CalendarDays
+                            enableAlert: true
+                        sliProperties:
+                          windowUptimeCriteria:
+                            target: 95
+                            comparator: ">="
+                          signals:
+                            signalSources:
+                              - signalSourceId: A
+                                sourceAmwAccountManagedIdentity: sourceAccountIdentity
+                                sourceAmwAccountResourceId: /source/Account/Resource
+                                metricNamespace: ContosoMetricsWest
+                                metricName: Stamp1Latency
+                                filters:
+                                  - dimensionName: ApiName
+                                    operator: "=="
+                                    value: GetContosoUsers
+                                spatialAggregation:
+                                  type: Average
+                                  dimensions:
+                                    - Region
+                                    - ResponseCode
+                                temporalAggregation:
+                                  type: Average
+                                  windowSizeMinutes: 5
+                              - signalSourceId: B
+                                sourceAmwAccountManagedIdentity: sourceAccountIdentity
+                                sourceAmwAccountResourceId: /source/Account/Resource
+                                metricNamespace: ContosoMetricsEast
+                                metricName: Stamp2Latency
+                                filters:
+                                  - dimensionName: ApiName
+                                    operator: "=="
+                                    value: GetContosoUsers
+                                spatialAggregation:
+                                  type: Average
+                                  dimensions:
+                                    - Region
+                                    - ResponseCode
+                                temporalAggregation:
+                                  type: Average
+                                  windowSizeMinutes: 5
+                            signalFormula: (A + B) /2
+                  "201":
+                    body:
+                      id: >-
+                        /providers/Microsoft.Management/ServiceGroups/testSG/providers/Microsoft.Monitor/slis/testSli
+                      name: testSli
+                      type: Microsoft.Monitor/testSli
+                      properties:
+                        description: >-
+                          Measures the performance characteristics of the
+                          GetContosoUsers() API.
+                        category: Latency
+                        evaluationType: WindowBased
+                        provisioningState: Succeeded
+                        streamingRuleId: "123"
+                        streamingRuleLastUpdatedTimestamp: "2025-03-01T00:00:00Z"
+                        executionState:
+                          message: ""
+                          state: Succeeded
+                        destinationAmwAccounts:
+                          - resourceId: >-
+                              /subscriptions/<subId>/resourcegroups/<rgId>/providers/microsoft.monitor/accounts/<dest>
+                            identity: >-
+                              /subscriptions/<subId>/resourcegroups/<rgId>/providers/Microsoft.ManagedIdentity/userAssignedIdentities/<idName>
+                        destinationMetrics:
+                          - metricNamespace: ContosoMetricsOut
+                            metricName: Get API Latency:Uptime
+                          - metricNamespace: ContosoMetricsOut
+                            metricName: Get API Latency:Downtime
+                          - metricNamespace: ContosoMetricsOut
+                            metricName: Get API Latency:Value
+                        baselineProperties:
+                          baseline:
+                            value: 99
+                            evaluationPeriodDays: 30
+                            evaluationCalculationType: CalendarDays
+                            enableAlert: true
+                        sliProperties:
+                          windowUptimeCriteria:
+                            target: 95
+                            comparator: ">="
+                          signals:
+                            signalSources:
+                              - signalSourceId: A
+                                sourceAmwAccountManagedIdentity: sourceAccountIdentity
+                                sourceAmwAccountResourceId: /source/Account/Resource
+                                metricNamespace: ContosoMetricsWest
+                                metricName: Stamp1Latency
+                                filters:
+                                  - dimensionName: ApiName
+                                    operator: "=="
+                                    value: GetContosoUsers
+                                spatialAggregation:
+                                  type: Average
+                                  dimensions:
+                                    - Region
+                                    - ResponseCode
+                                temporalAggregation:
+                                  type: Average
+                                  windowSizeMinutes: 5
+                              - signalSourceId: B
+                                sourceAmwAccountManagedIdentity: sourceAccountIdentity
+                                sourceAmwAccountResourceId: /source/Account/Resource
+                                metricNamespace: ContosoMetricsEast
+                                metricName: Stamp2Latency
+                                filters:
+                                  - dimensionName: ApiName
+                                    operator: "=="
+                                    value: GetContosoUsers
+                                spatialAggregation:
+                                  type: Average
+                                  dimensions:
+                                    - Region
+                                    - ResponseCode
+                                temporalAggregation:
+                                  type: Average
+                                  windowSizeMinutes: 5
+                            signalFormula: (A + B) /2
+                x-ms-original-file: 2025-03-01-preview/Slis_CreateOrUpdate.json
+            internal: false
+            abstract: false
+            name: create_or_update
+            description: Creates or updates an SLI resource.
+            clientNamespace: azure.mgmt.placeholder
+          - url: >-
+              /providers/Microsoft.Management/serviceGroups/{serviceGroupName}/providers/Microsoft.Monitor/slis/{sliName}
+            method: DELETE
+            parameters:
+              - *ref_1
+              - optional: false
+                description: The name of the service group.
+                clientName: service_group_name
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_0
+                apiVersions:
+                  - 2025-03-01-preview
+                wireName: serviceGroupName
+                location: path
+                implementation: Method
+                skipUrlEncoding: false
+              - optional: false
+                description: The API version to use for this operation.
+                clientName: api_version
+                inOverload: false
+                isApiVersion: true
+                isContinuationToken: false
+                type: *ref_2
+                apiVersions:
+                  - 2025-03-01-preview
+                wireName: api-version
+                location: query
+                implementation: Client
+                explode: false
+                clientDefaultValue: 2025-03-01-preview
+              - optional: false
+                description: Name of the SLI that is given by the user.
+                clientName: sli_name
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_0
+                apiVersions:
+                  - 2025-03-01-preview
+                wireName: sliName
+                location: path
+                implementation: Method
+                skipUrlEncoding: false
+            responses:
+              - headers: []
+                statusCodes:
+                  - 200
+                discriminator: basic
+                defaultContentType: application/json
+              - headers: []
+                statusCodes:
+                  - 204
+                discriminator: basic
+                defaultContentType: application/json
+            exceptions:
+              - headers: []
+                statusCodes:
+                  - default
+                discriminator: basic
+                type: *ref_22
+                contentTypes:
+                  - application/json
+                defaultContentType: application/json
+            groupName: Slis
+            discriminator: basic
+            isOverload: false
+            overloads: []
+            apiVersions:
+              - 2025-03-01-preview
+            wantTracing: true
+            exposeStreamKeyword: true
+            crossLanguageDefinitionId: Microsoft.Monitor.Slis.delete
+            samples:
+              "0":
+                operationId: Slis_Delete
+                title: DeleteSli
+                parameters:
+                  api-version: 2025-03-01-preview
+                  sliName: testSli
+                  serviceGroupName: testSG
+                responses:
+                  "200": {}
+                  "204": {}
+                x-ms-original-file: 2025-03-01-preview/Slis_Delete.json
+            internal: false
+            abstract: false
+            name: delete
+            description: Deletes an SLI resource.
+            clientNamespace: azure.mgmt.placeholder
+          - url: >-
+              /providers/Microsoft.Management/serviceGroups/{serviceGroupName}/providers/Microsoft.Monitor/slis
+            method: GET
+            parameters:
+              - *ref_1
+              - optional: false
+                description: The name of the service group.
+                clientName: service_group_name
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_0
+                apiVersions:
+                  - 2025-03-01-preview
+                wireName: serviceGroupName
+                location: path
+                implementation: Method
+                skipUrlEncoding: false
+              - optional: false
+                description: The API version to use for this operation.
+                clientName: api_version
+                inOverload: false
+                isApiVersion: true
+                isContinuationToken: false
+                type: *ref_2
+                apiVersions:
+                  - 2025-03-01-preview
+                wireName: api-version
+                location: query
+                implementation: Client
+                explode: false
+                clientDefaultValue: 2025-03-01-preview
+              - optional: false
+                description: ""
+                clientName: accept
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_19
+                apiVersions:
+                  - 2025-03-01-preview
+                wireName: Accept
+                location: header
+                implementation: Method
+                explode: false
+            responses:
+              - headers: []
+                statusCodes:
+                  - 200
+                discriminator: basic
+                type: &ref_23
+                  type: list
+                  elementType: *ref_20
+                contentTypes:
+                  - application/json
+                defaultContentType: application/json
+                resultProperty: value
+            exceptions:
+              - headers: []
+                statusCodes:
+                  - default
+                discriminator: basic
+                type: *ref_22
+                contentTypes:
+                  - application/json
+                defaultContentType: application/json
+            groupName: Slis
+            discriminator: paging
+            isOverload: false
+            overloads: []
+            apiVersions:
+              - 2025-03-01-preview
+            wantTracing: true
+            exposeStreamKeyword: false
+            crossLanguageDefinitionId: Microsoft.Monitor.Slis.listByParent
+            samples:
+              "0":
+                operationId: Slis_ListByParent
+                title: SlisListByParent
+                parameters:
+                  api-version: 2025-03-01-preview
+                  serviceGroupName: testSG
+                responses:
+                  "200":
+                    body:
+                      value:
+                        - id: >-
+                            /providers/Microsoft.Management/ServiceGroups/testSG/providers/Microsoft.Monitor/slis/testSli
+                          name: testSli
+                          type: Microsoft.Monitor/slis
+                          properties:
+                            description: >-
+                              Measures the performance characteristics of the
+                              GetContosoUsers() API.
+                            category: Latency
+                            evaluationType: WindowBased
+                            provisioningState: Succeeded
+                            streamingRuleId: "123"
+                            streamingRuleLastUpdatedTimestamp: "2025-03-01T00:00:00Z"
+                            executionState:
+                              message: ""
+                              state: Succeeded
+                            destinationAmwAccounts:
+                              - resourceId: >-
+                                  /subscriptions/<subId>/resourcegroups/<rgId>/providers/microsoft.monitor/accounts/<dest>
+                                identity: >-
+                                  /subscriptions/<subId>/resourcegroups/<rgId>/providers/Microsoft.ManagedIdentity/userAssignedIdentities/<idName>
+                            destinationMetrics:
+                              - metricNamespace: ContosoMetricsOut
+                                metricName: Get API Latency:Uptime
+                              - metricNamespace: ContosoMetricsOut
+                                metricName: Get API Latency:Downtime
+                              - metricNamespace: ContosoMetricsOut
+                                metricName: Get API Latency:Value
+                            baselineProperties:
+                              baseline:
+                                value: 99
+                                evaluationPeriodDays: 30
+                                evaluationCalculationType: CalendarDays
+                                enableAlert: true
+                            sliProperties:
+                              windowUptimeCriteria:
+                                target: 95
+                                comparator: ">="
+                              signals:
+                                signalSources:
+                                  - signalSourceId: A
+                                    sourceAmwAccountManagedIdentity: sourceAccountIdentity
+                                    sourceAmwAccountResourceId: /source/Account/Resource
+                                    metricNamespace: ContosoMetricsWest
+                                    metricName: Stamp1Latency
+                                    filters:
+                                      - dimensionName: ApiName
+                                        operator: "=="
+                                        value: GetContosoUsers
+                                    spatialAggregation:
+                                      type: Average
+                                      dimensions:
+                                        - Region
+                                        - ResponseCode
+                                    temporalAggregation:
+                                      type: Average
+                                      windowSizeMinutes: 5
+                                  - signalSourceId: B
+                                    sourceAmwAccountManagedIdentity: sourceAccountIdentity
+                                    sourceAmwAccountResourceId: /source/Account/Resource
+                                    metricNamespace: ContosoMetricsEast
+                                    metricName: Stamp2Latency
+                                    filters:
+                                      - dimensionName: ApiName
+                                        operator: "=="
+                                        value: GetContosoUsers
+                                    spatialAggregation:
+                                      type: Average
+                                      dimensions:
+                                        - Region
+                                        - ResponseCode
+                                    temporalAggregation:
+                                      type: Average
+                                      windowSizeMinutes: 5
+                                signalFormula: (A + B) /2
+                      nextLink: https://microsoft.com/a
+                x-ms-original-file: 2025-03-01-preview/Slis_ListByParent.json
+            internal: false
+            name: list_by_parent
+            itemName: value
+            nextLinkName: nextLink
+            nextLinkReInjectedParameters: []
+            itemType: *ref_23
+            description: Lists all SLI resources under a parent resource.
+            continuationToken: {}
+            clientNamespace: azure.mgmt.placeholder
+          - url: >-
+              /providers/Microsoft.Management/serviceGroups/{serviceGroupName}/providers/Microsoft.Monitor/slis/{sliName}/signalPreview
+            method: POST
+            parameters:
+              - *ref_1
+              - optional: false
+                description: The name of the service group.
+                clientName: service_group_name
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_0
+                apiVersions:
+                  - 2025-03-01-preview
+                wireName: serviceGroupName
+                location: path
+                implementation: Method
+                skipUrlEncoding: false
+              - optional: false
+                description: The API version to use for this operation.
+                clientName: api_version
+                inOverload: false
+                isApiVersion: true
+                isContinuationToken: false
+                type: *ref_2
+                apiVersions:
+                  - 2025-03-01-preview
+                wireName: api-version
+                location: query
+                implementation: Client
+                explode: false
+                clientDefaultValue: 2025-03-01-preview
+              - optional: false
+                description: Name of the SLI that is given by the user.
+                clientName: sli_name
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_0
+                apiVersions:
+                  - 2025-03-01-preview
+                wireName: sliName
+                location: path
+                implementation: Method
+                skipUrlEncoding: false
+              - optional: false
+                description: >-
+                  Body parameter's content type. Known values are
+                  application/json
+                clientName: content_type
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_24
+                apiVersions: &ref_25
+                  - 2025-03-01-preview
+                wireName: Content-Type
+                location: header
+                implementation: Method
+                explode: false
+                clientDefaultValue: application/json
+            bodyParameter:
+              optional: false
+              description: The content of the action request
+              clientName: body
+              inOverload: false
+              isApiVersion: false
+              isContinuationToken: false
+              type: *ref_14
+              apiVersions: *ref_25
+              contentTypes:
+                - application/json
+              location: body
+              wireName: body
+              implementation: Method
+              defaultContentType: application/json
+            responses:
+              - headers: []
+                statusCodes:
+                  - 204
+                discriminator: basic
+                defaultContentType: application/json
+            exceptions:
+              - headers: []
+                statusCodes:
+                  - default
+                discriminator: basic
+                type: *ref_22
+                contentTypes:
+                  - application/json
+                defaultContentType: application/json
+            groupName: Slis
+            discriminator: basic
+            isOverload: false
+            overloads: []
+            apiVersions:
+              - 2025-03-01-preview
+            wantTracing: true
+            exposeStreamKeyword: true
+            crossLanguageDefinitionId: Microsoft.Monitor.Slis.signalPreview
+            samples:
+              "0":
+                operationId: Slis_SignalPreview
+                title: SignalPreview
+                parameters:
+                  api-version: 2025-03-01-preview
+                  sliName: testSli
+                  serviceGroupName: testSG
+                  body:
+                    signalSources:
+                      - signalSourceId: A
+                        sourceAmwAccountManagedIdentity: sourceAccountIdentity
+                        sourceAmwAccountResourceId: /source/Account/Resource
+                        metricNamespace: ContosoMetricsWest
+                        metricName: Stamp1Latency
+                        filters:
+                          - dimensionName: ApiName
+                            operator: "=="
+                            value: GetContosoUsers
+                        spatialAggregation:
+                          type: Average
+                          dimensions:
+                            - Region
+                            - ResponseCode
+                        temporalAggregation:
+                          type: Average
+                          windowSizeMinutes: 5
+                      - signalSourceId: B
+                        sourceAmwAccountManagedIdentity: sourceAccountIdentity
+                        sourceAmwAccountResourceId: /source/Account/Resource
+                        metricNamespace: ContosoMetricsEast
+                        metricName: Stamp2Latency
+                        filters:
+                          - dimensionName: ApiName
+                            operator: "=="
+                            value: GetContosoUsers
+                        spatialAggregation:
+                          type: Average
+                          dimensions:
+                            - Region
+                            - ResponseCode
+                        temporalAggregation:
+                          type: Average
+                          windowSizeMinutes: 5
+                    signalFormula: (A + B) /2
+                responses:
+                  "204": {}
+                x-ms-original-file: 2025-03-01-preview/Slis_SignalPreview.json
+            internal: false
+            abstract: false
+            name: signal_preview
+            description: Returns preview data for the signal.
+            clientNamespace: azure.mgmt.placeholder
+        clientNamespace: azure.mgmt.placeholder
+    url: "{endpoint}"
+    apiVersions:
+      - 2025-03-01-preview
+    arm: true
+    clientNamespace: azure.mgmt.placeholder
+types:
+  - *ref_20
+  - *ref_26
+  - *ref_27
+  - *ref_28
+  - *ref_3
+  - *ref_29
+  - *ref_5
+  - *ref_6
+  - *ref_7
+  - *ref_30
+  - *ref_31
+  - *ref_32
+  - *ref_33
+  - *ref_34
+  - *ref_8
+  - *ref_35
+  - *ref_14
+  - *ref_36
+  - *ref_37
+  - *ref_9
+  - *ref_10
+  - *ref_11
+  - *ref_38
+  - *ref_12
+  - *ref_39
+  - *ref_40
+  - *ref_16
+  - *ref_41
+  - *ref_17
+  - *ref_42
+  - *ref_22
+  - *ref_18
+  - *ref_43
+  - type: model
+    name: SliListResult
+    description: The response of a Sli list operation.
+    parents: []
+    discriminatedSubtypes: {}
+    properties:
+      - clientName: value
+        wireName: value
+        type: *ref_23
+        optional: false
+        description: The Sli items on this page
+        addedOn: 1.0-preview.1
+        apiVersions:
+          - 1.0-preview.1
+          - 1.0-preview.2
+        visibility:
+          - read
+          - create
+          - update
+          - delete
+          - query
+        isDiscriminator: false
+        flatten: false
+      - clientName: next_link
+        wireName: nextLink
+        type: *ref_0
+        optional: true
+        description: The link to the next page of items
+        addedOn: 1.0-preview.1
+        apiVersions:
+          - 1.0-preview.1
+          - 1.0-preview.2
+        visibility:
+          - read
+          - create
+          - update
+          - delete
+          - query
+        isDiscriminator: false
+        flatten: false
+    snakeCaseName: sli_list_result
+    base: dpg
+    internal: false
+    crossLanguageDefinitionId: Azure.ResourceManager.ResourceListResult
+    usage: 0
+    isXml: false
+    clientNamespace: azure.mgmt.placeholder
+  - *ref_24
+  - type: any-object
+  - *ref_44
+  - *ref_0
+  - *ref_45
+  - *ref_2
+  - type: utcDateTime
+    encode: rfc3339
+  - *ref_4
+  - *ref_46
+  - *ref_47
+  - *ref_15
+  - *ref_13
+  - *ref_48
+  - *ref_49
+  - *ref_50
+  - *ref_51
+  - *ref_52
+  - *ref_53
+  - *ref_54
+  - *ref_19
+  - *ref_23
+crossLanguagePackageId: Microsoft.Monitor
+metadata:
+  apiVersion: 2025-03-01-preview

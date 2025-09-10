@@ -1,0 +1,53 @@
+{
+  "parameters": {
+    "api-version": "2025-01-01-preview",
+    "parameters": {
+      "properties": {
+        "groupId": "sites",
+        "privateLinkResourceId": "/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/myResourceGroup/providers/Microsoft.Web/sites/myWebApp",
+        "requestMessage": "Please approve"
+      }
+    },
+    "replicaName": "mySignalRService-eastus",
+    "resourceGroupName": "myResourceGroup",
+    "resourceName": "mySignalRService",
+    "sharedPrivateLinkResourceName": "upstream",
+    "subscriptionId": "00000000-0000-0000-0000-000000000000"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "name": "upstream",
+        "type": "Microsoft.SignalRService/SignalR/privateEndpointConnections",
+        "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/myResourceGroup/providers/Microsoft.SignalRService/SignalR/mySignalRService/privateEndpointConnections/upstream",
+        "properties": {
+          "groupId": "sites",
+          "privateLinkResourceId": "/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/myResourceGroup/providers/Microsoft.Web/sites/myWebApp",
+          "provisioningState": "Succeeded",
+          "requestMessage": "Please approve",
+          "status": "Approved"
+        }
+      }
+    },
+    "201": {
+      "body": {
+        "name": "upstream",
+        "type": "Microsoft.SignalRService/SignalR/privateEndpointConnections",
+        "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/myResourceGroup/providers/Microsoft.SignalRService/SignalR/mySignalRService/privateEndpointConnections/upstream",
+        "properties": {
+          "groupId": "sites",
+          "privateLinkResourceId": "/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/myResourceGroup/providers/Microsoft.Web/sites/myWebApp",
+          "provisioningState": "Succeeded",
+          "requestMessage": "Please approve",
+          "status": "Approved"
+        }
+      },
+      "headers": {
+        "Azure-AsyncOperation": "https://management.azure.com/subscriptions/subid/providers/Microsoft.SignalRService/...pathToOperationResult...",
+        "Location": "https://management.azure.com/subscriptions/subid/providers/Microsoft.SignalRService/...pathToOperationResult..."
+      }
+    }
+  },
+  "operationId": "SignalRReplicaSharedPrivateLinkResources_CreateOrUpdate",
+  "title": "SignalRReplicaSharedPrivateLinkResources_CreateOrUpdate"
+}

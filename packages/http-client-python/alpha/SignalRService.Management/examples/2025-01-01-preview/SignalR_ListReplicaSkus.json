@@ -1,0 +1,61 @@
+{
+  "parameters": {
+    "api-version": "2025-01-01-preview",
+    "replicaName": "mySignalRService-eastus",
+    "resourceGroupName": "myResourceGroup",
+    "resourceName": "mySignalRService",
+    "subscriptionId": "00000000-0000-0000-0000-000000000000"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "value": [
+          {
+            "capacity": {
+              "default": 1,
+              "allowedValues": [1],
+              "maximum": 1,
+              "minimum": 0,
+              "scaleType": "Manual"
+            },
+            "resourceType": "Microsoft.SignalRService/SignalR/replicas",
+            "sku": {
+              "name": "Free_F1",
+              "tier": "Free"
+            }
+          },
+          {
+            "capacity": {
+              "default": 1,
+              "allowedValues": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+              "maximum": 100,
+              "minimum": 0,
+              "scaleType": "Manual"
+            },
+            "resourceType": "Microsoft.SignalRService/SignalR/replicas",
+            "sku": {
+              "name": "Standard_S1",
+              "tier": "Standard"
+            }
+          },
+          {
+            "capacity": {
+              "default": 1,
+              "allowedValues": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+              "maximum": 100,
+              "minimum": 0,
+              "scaleType": "Automatic"
+            },
+            "resourceType": "Microsoft.SignalRService/SignalR/replicas",
+            "sku": {
+              "name": "Premium_P1",
+              "tier": "Standard"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "operationId": "SignalR_ListReplicaSkus",
+  "title": "SignalR_ListReplicaSkus"
+}

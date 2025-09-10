@@ -1,0 +1,22 @@
+{
+  "parameters": {
+    "api-version": "2025-01-01-preview",
+    "location": "eastus",
+    "parameters": {
+      "name": "mySignalRService",
+      "type": "Microsoft.SignalRService/SignalR"
+    },
+    "subscriptionId": "00000000-0000-0000-0000-000000000000"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "message": "The name is already taken. Please try a different name.",
+        "nameAvailable": false,
+        "reason": "AlreadyExists"
+      }
+    }
+  },
+  "operationId": "SignalR_CheckNameAvailability",
+  "title": "SignalR_CheckNameAvailability"
+}

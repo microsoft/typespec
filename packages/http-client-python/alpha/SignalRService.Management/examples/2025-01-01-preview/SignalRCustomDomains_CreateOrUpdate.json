@@ -1,0 +1,38 @@
+{
+  "parameters": {
+    "name": "myDomain",
+    "api-version": "2025-01-01-preview",
+    "parameters": {
+      "properties": {
+        "customCertificate": {
+          "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/myResourceGroup/providers/Microsoft.SignalRService/SignalR/mySignalRService/customCertificates/myCert"
+        },
+        "domainName": "example.com"
+      }
+    },
+    "resourceGroupName": "myResourceGroup",
+    "resourceName": "mySignalRService",
+    "subscriptionId": "00000000-0000-0000-0000-000000000000"
+  },
+  "responses": {
+    "201": {
+      "body": {
+        "name": "myDomain",
+        "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/myResourceGroup/providers/Microsoft.SignalRService/SignalR/mySignalRService/customDomains/myDomain",
+        "properties": {
+          "customCertificate": {
+            "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/myResourceGroup/providers/Microsoft.SignalRService/SignalR/mySignalRService/customCertificates/myCert"
+          },
+          "domainName": "example.com",
+          "provisioningState": "Succeeded"
+        }
+      },
+      "headers": {
+        "Azure-AsyncOperation": "https://management.azure.com/subscriptions/subid/providers/Microsoft.SignalRService/...pathToOperationResult...",
+        "Location": "https://management.azure.com/subscriptions/subid/providers/Microsoft.SignalRService/...pathToOperationResult..."
+      }
+    }
+  },
+  "operationId": "SignalRCustomDomains_CreateOrUpdate",
+  "title": "SignalRCustomDomains_CreateOrUpdate"
+}

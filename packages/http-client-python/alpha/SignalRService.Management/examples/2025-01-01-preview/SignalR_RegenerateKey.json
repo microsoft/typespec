@@ -1,0 +1,25 @@
+{
+  "parameters": {
+    "api-version": "2025-01-01-preview",
+    "parameters": {
+      "keyType": "Primary"
+    },
+    "resourceGroupName": "myResourceGroup",
+    "resourceName": "mySignalRService",
+    "subscriptionId": "00000000-0000-0000-0000-000000000000"
+  },
+  "responses": {
+    "200": {
+      "body": {}
+    },
+    "202": {
+      "body": {},
+      "headers": {
+        "Azure-AsyncOperation": "https://management.azure.com/subscriptions/subid/providers/Microsoft.SignalRService/...pathToOperationResult...",
+        "Location": "https://management.azure.com/subscriptions/subid/providers/Microsoft.SignalRService/...pathToOperationResult..."
+      }
+    }
+  },
+  "operationId": "SignalR_RegenerateKey",
+  "title": "SignalR_RegenerateKey"
+}

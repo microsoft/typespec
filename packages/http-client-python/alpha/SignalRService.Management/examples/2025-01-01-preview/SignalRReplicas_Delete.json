@@ -1,0 +1,15 @@
+{
+  "parameters": {
+    "api-version": "2025-01-01-preview",
+    "replicaName": "mySignalRService-eastus",
+    "resourceGroupName": "myResourceGroup",
+    "resourceName": "mySignalRService",
+    "subscriptionId": "00000000-0000-0000-0000-000000000000"
+  },
+  "responses": {
+    "200": {},
+    "204": {}
+  },
+  "operationId": "SignalRReplicas_Delete",
+  "title": "SignalRReplicas_Delete"
+}

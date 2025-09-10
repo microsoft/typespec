@@ -1,0 +1,21 @@
+{
+  "parameters": {
+    "api-version": "2025-01-01-preview",
+    "privateEndpointConnectionName": "mysignalrservice.1fa229cd-bf3f-47f0-8c49-afb36723997e",
+    "resourceGroupName": "myResourceGroup",
+    "resourceName": "mySignalRService",
+    "subscriptionId": "00000000-0000-0000-0000-000000000000"
+  },
+  "responses": {
+    "200": {},
+    "202": {
+      "headers": {
+        "Azure-AsyncOperation": "https://management.azure.com/subscriptions/subid/providers/Microsoft.SignalRService/...pathToOperationResult...",
+        "Location": "https://management.azure.com/subscriptions/subid/providers/Microsoft.SignalRService/...pathToOperationResult..."
+      }
+    },
+    "204": {}
+  },
+  "operationId": "SignalRPrivateEndpointConnections_Delete",
+  "title": "SignalRPrivateEndpointConnections_Delete"
+}

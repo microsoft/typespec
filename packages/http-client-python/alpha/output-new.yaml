@@ -1,0 +1,916 @@
+namespace: azure.mgmt.placeholder
+clients:
+  - name: StandardClient
+    description: Illustrates bodies templated with Azure Core with long-running operation
+    parameters:
+      - &ref_1
+        optional: true
+        description: Service host
+        clientName: endpoint
+        inOverload: false
+        isApiVersion: false
+        isContinuationToken: false
+        type: &ref_0
+          type: string
+        apiVersions: &ref_32
+          - 2022-12-01-preview
+        wireName: endpoint
+        location: endpointPath
+        implementation: Client
+        clientDefaultValue: http://localhost:3000
+        skipUrlEncoding: true
+      - optional: false
+        description: The API version to use for this operation.
+        clientName: api_version
+        inOverload: false
+        isApiVersion: true
+        isContinuationToken: false
+        type: &ref_2
+          type: constant
+          value: 2022-12-01-preview
+          valueType: *ref_0
+        apiVersions:
+          - 2022-12-01-preview
+        implementation: Client
+        clientDefaultValue: 2022-12-01-preview
+        location: query
+        wireName: api-version
+        in_docstring: false
+    operationGroups:
+      - name: ""
+        className: ""
+        propertyName: ""
+        operations:
+          - &ref_15
+            url: /azure/core/lro/standard/users/{name}
+            method: PUT
+            parameters:
+              - *ref_1
+              - optional: false
+                description: The API version to use for this operation.
+                clientName: api_version
+                inOverload: false
+                isApiVersion: true
+                isContinuationToken: false
+                type: *ref_2
+                apiVersions: &ref_5
+                  - 2022-12-01-preview
+                wireName: api-version
+                location: query
+                implementation: Client
+                explode: false
+                clientDefaultValue: 2022-12-01-preview
+              - optional: false
+                description: The name of user.
+                clientName: name
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_0
+                apiVersions: &ref_6
+                  - 2022-12-01-preview
+                wireName: name
+                location: path
+                implementation: Method
+                skipUrlEncoding: false
+              - optional: false
+                description: >-
+                  Body parameter's content type. Known values are
+                  application/json
+                clientName: content_type
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: &ref_7
+                  type: string
+                apiVersions: &ref_3
+                  - 2022-12-01-preview
+                wireName: Content-Type
+                location: header
+                implementation: Method
+                explode: false
+                clientDefaultValue: application/json
+              - optional: false
+                description: ""
+                clientName: accept
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: &ref_8
+                  type: constant
+                  value: application/json
+                  valueType: *ref_0
+                apiVersions: &ref_9
+                  - 2022-12-01-preview
+                wireName: Accept
+                location: header
+                implementation: Method
+                explode: false
+            bodyParameter:
+              optional: false
+              description: The resource instance.
+              clientName: resource
+              inOverload: false
+              isApiVersion: false
+              isContinuationToken: false
+              type: &ref_4
+                type: model
+                name: User
+                description: Details about a user.
+                parents: []
+                discriminatedSubtypes: {}
+                properties:
+                  - clientName: name
+                    wireName: name
+                    type: *ref_0
+                    optional: false
+                    description: The name of user.
+                    apiVersions:
+                      - 2022-12-01-preview
+                    visibility:
+                      - read
+                    isDiscriminator: false
+                    flatten: false
+                  - clientName: role
+                    wireName: role
+                    type: *ref_0
+                    optional: false
+                    description: The role of user
+                    apiVersions:
+                      - 2022-12-01-preview
+                    visibility:
+                      - read
+                      - create
+                      - update
+                      - delete
+                      - query
+                    isDiscriminator: false
+                    flatten: false
+                snakeCaseName: user
+                base: dpg
+                internal: false
+                crossLanguageDefinitionId: _Specs_.Azure.Core.Lro.Standard.User
+                usage: 10502
+                isXml: false
+                clientNamespace: azure.mgmt.placeholder
+                referredByOperationType: 2
+              apiVersions: *ref_3
+              contentTypes: &ref_10
+                - application/json
+              location: body
+              wireName: resource
+              implementation: Method
+              defaultContentType: application/json
+            responses:
+              - headers:
+                  - type: *ref_0
+                    wireName: Operation-Location
+                statusCodes:
+                  - 201
+                discriminator: basic
+                type: *ref_4
+                contentTypes: &ref_11
+                  - application/json
+                defaultContentType: application/json
+              - headers:
+                  - type: *ref_0
+                    wireName: Operation-Location
+                statusCodes:
+                  - 200
+                discriminator: basic
+                type: *ref_4
+                contentTypes: &ref_12
+                  - application/json
+                defaultContentType: application/json
+            exceptions:
+              - headers:
+                  - type: *ref_0
+                    wireName: x-ms-error-code
+                statusCodes:
+                  - default
+                discriminator: basic
+                contentTypes: &ref_13
+                  - application/json
+                defaultContentType: application/json
+            groupName: ""
+            discriminator: basic
+            isOverload: false
+            overloads: []
+            apiVersions: &ref_14
+              - 2022-12-01-preview
+            wantTracing: false
+            exposeStreamKeyword: false
+            crossLanguageDefinitionId: _Specs_.Azure.Core.Lro.Standard.createOrReplace
+            samples: {}
+            internal: false
+            name: _create_or_replace_initial
+            isLroInitialOperation: true
+            description: Creates or replaces a User
+            summary: Adds a user or replaces a user's fields.
+            clientNamespace: azure.mgmt.placeholder
+          - url: /azure/core/lro/standard/users/{name}
+            method: PUT
+            parameters:
+              - *ref_1
+              - optional: false
+                description: The API version to use for this operation.
+                clientName: api_version
+                inOverload: false
+                isApiVersion: true
+                isContinuationToken: false
+                type: *ref_2
+                apiVersions: *ref_5
+                wireName: api-version
+                location: query
+                implementation: Client
+                explode: false
+                clientDefaultValue: 2022-12-01-preview
+              - optional: false
+                description: The name of user.
+                clientName: name
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_0
+                apiVersions: *ref_6
+                wireName: name
+                location: path
+                implementation: Method
+                skipUrlEncoding: false
+              - optional: false
+                description: >-
+                  Body parameter's content type. Known values are
+                  application/json
+                clientName: content_type
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_7
+                apiVersions: *ref_3
+                wireName: Content-Type
+                location: header
+                implementation: Method
+                explode: false
+                clientDefaultValue: application/json
+              - optional: false
+                description: ""
+                clientName: accept
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_8
+                apiVersions: *ref_9
+                wireName: Accept
+                location: header
+                implementation: Method
+                explode: false
+            bodyParameter:
+              optional: false
+              description: The resource instance.
+              clientName: resource
+              inOverload: false
+              isApiVersion: false
+              isContinuationToken: false
+              type: *ref_4
+              apiVersions: *ref_3
+              contentTypes: *ref_10
+              location: body
+              wireName: resource
+              implementation: Method
+              defaultContentType: application/json
+            responses:
+              - headers:
+                  - type: *ref_0
+                    wireName: Operation-Location
+                statusCodes:
+                  - 201
+                discriminator: basic
+                type: *ref_4
+                contentTypes: *ref_11
+                defaultContentType: application/json
+              - headers:
+                  - type: *ref_0
+                    wireName: Operation-Location
+                statusCodes:
+                  - 200
+                discriminator: basic
+                type: *ref_4
+                contentTypes: *ref_12
+                defaultContentType: application/json
+            exceptions:
+              - headers:
+                  - type: *ref_0
+                    wireName: x-ms-error-code
+                statusCodes:
+                  - default
+                discriminator: basic
+                contentTypes: *ref_13
+                defaultContentType: application/json
+            groupName: ""
+            discriminator: lro
+            isOverload: false
+            overloads: []
+            apiVersions: *ref_14
+            wantTracing: true
+            exposeStreamKeyword: false
+            crossLanguageDefinitionId: _Specs_.Azure.Core.Lro.Standard.createOrReplace
+            samples: {}
+            internal: false
+            name: create_or_replace
+            initialOperation: *ref_15
+            description: Creates or replaces a User
+            summary: Adds a user or replaces a user's fields.
+            clientNamespace: azure.mgmt.placeholder
+          - &ref_22
+            url: /azure/core/lro/standard/users/{name}
+            method: DELETE
+            parameters:
+              - *ref_1
+              - optional: false
+                description: The API version to use for this operation.
+                clientName: api_version
+                inOverload: false
+                isApiVersion: true
+                isContinuationToken: false
+                type: *ref_2
+                apiVersions: &ref_16
+                  - 2022-12-01-preview
+                wireName: api-version
+                location: query
+                implementation: Client
+                explode: false
+                clientDefaultValue: 2022-12-01-preview
+              - optional: false
+                description: The name of user.
+                clientName: name
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_0
+                apiVersions: &ref_17
+                  - 2022-12-01-preview
+                wireName: name
+                location: path
+                implementation: Method
+                skipUrlEncoding: false
+              - optional: false
+                description: ""
+                clientName: accept
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_8
+                apiVersions: &ref_18
+                  - 2022-12-01-preview
+                wireName: Accept
+                location: header
+                implementation: Method
+                explode: false
+            responses:
+              - headers:
+                  - type: *ref_0
+                    wireName: Operation-Location
+                statusCodes:
+                  - 202
+                discriminator: basic
+                contentTypes: &ref_19
+                  - application/json
+                defaultContentType: application/json
+            exceptions:
+              - headers:
+                  - type: *ref_0
+                    wireName: x-ms-error-code
+                statusCodes:
+                  - default
+                discriminator: basic
+                contentTypes: &ref_20
+                  - application/json
+                defaultContentType: application/json
+            groupName: ""
+            discriminator: basic
+            isOverload: false
+            overloads: []
+            apiVersions: &ref_21
+              - 2022-12-01-preview
+            wantTracing: false
+            exposeStreamKeyword: false
+            crossLanguageDefinitionId: _Specs_.Azure.Core.Lro.Standard.delete
+            samples: {}
+            internal: false
+            name: _delete_initial
+            isLroInitialOperation: true
+            description: Deletes a User
+            summary: Deletes a user.
+            clientNamespace: azure.mgmt.placeholder
+          - url: /azure/core/lro/standard/users/{name}
+            method: DELETE
+            parameters:
+              - *ref_1
+              - optional: false
+                description: The API version to use for this operation.
+                clientName: api_version
+                inOverload: false
+                isApiVersion: true
+                isContinuationToken: false
+                type: *ref_2
+                apiVersions: *ref_16
+                wireName: api-version
+                location: query
+                implementation: Client
+                explode: false
+                clientDefaultValue: 2022-12-01-preview
+              - optional: false
+                description: The name of user.
+                clientName: name
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_0
+                apiVersions: *ref_17
+                wireName: name
+                location: path
+                implementation: Method
+                skipUrlEncoding: false
+              - optional: false
+                description: ""
+                clientName: accept
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_8
+                apiVersions: *ref_18
+                wireName: Accept
+                location: header
+                implementation: Method
+                explode: false
+            responses:
+              - headers:
+                  - type: *ref_0
+                    wireName: Operation-Location
+                statusCodes:
+                  - 202
+                discriminator: basic
+                contentTypes: *ref_19
+                defaultContentType: application/json
+            exceptions:
+              - headers:
+                  - type: *ref_0
+                    wireName: x-ms-error-code
+                statusCodes:
+                  - default
+                discriminator: basic
+                contentTypes: *ref_20
+                defaultContentType: application/json
+            groupName: ""
+            discriminator: lro
+            isOverload: false
+            overloads: []
+            apiVersions: *ref_21
+            wantTracing: true
+            exposeStreamKeyword: false
+            crossLanguageDefinitionId: _Specs_.Azure.Core.Lro.Standard.delete
+            samples: {}
+            internal: false
+            name: delete
+            initialOperation: *ref_22
+            description: Deletes a User
+            summary: Deletes a user.
+            clientNamespace: azure.mgmt.placeholder
+          - &ref_31
+            url: /azure/core/lro/standard/users/{name}:export
+            method: POST
+            parameters:
+              - *ref_1
+              - optional: false
+                description: The API version to use for this operation.
+                clientName: api_version
+                inOverload: false
+                isApiVersion: true
+                isContinuationToken: false
+                type: *ref_2
+                apiVersions: &ref_23
+                  - 2022-12-01-preview
+                wireName: api-version
+                location: query
+                implementation: Client
+                explode: false
+                clientDefaultValue: 2022-12-01-preview
+              - optional: false
+                description: The name of user.
+                clientName: name
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_0
+                apiVersions: &ref_24
+                  - 2022-12-01-preview
+                wireName: name
+                location: path
+                implementation: Method
+                skipUrlEncoding: false
+              - optional: false
+                description: The format of the data.
+                clientName: format
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_0
+                apiVersions: &ref_25
+                  - 2022-12-01-preview
+                wireName: format
+                location: query
+                implementation: Method
+                explode: false
+              - optional: false
+                description: ""
+                clientName: accept
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_8
+                apiVersions: &ref_26
+                  - 2022-12-01-preview
+                wireName: Accept
+                location: header
+                implementation: Method
+                explode: false
+            responses:
+              - headers:
+                  - type: *ref_0
+                    wireName: Operation-Location
+                statusCodes:
+                  - 202
+                discriminator: basic
+                type: &ref_27
+                  type: model
+                  name: ExportedUser
+                  description: The exported user data.
+                  parents: []
+                  discriminatedSubtypes: {}
+                  properties:
+                    - clientName: name
+                      wireName: name
+                      type: *ref_0
+                      optional: false
+                      description: The name of user.
+                      apiVersions:
+                        - 2022-12-01-preview
+                      visibility:
+                        - read
+                        - create
+                        - update
+                        - delete
+                        - query
+                      isDiscriminator: false
+                      flatten: false
+                    - clientName: resource_uri
+                      wireName: resourceUri
+                      type: *ref_0
+                      optional: false
+                      description: The exported URI.
+                      apiVersions:
+                        - 2022-12-01-preview
+                      visibility:
+                        - read
+                        - create
+                        - update
+                        - delete
+                        - query
+                      isDiscriminator: false
+                      flatten: false
+                  snakeCaseName: exported_user
+                  base: dpg
+                  internal: false
+                  crossLanguageDefinitionId: _Specs_.Azure.Core.Lro.Standard.ExportedUser
+                  usage: 14596
+                  isXml: false
+                  clientNamespace: azure.mgmt.placeholder
+                contentTypes: &ref_28
+                  - application/json
+                defaultContentType: application/json
+                resultProperty: result
+            exceptions:
+              - headers:
+                  - type: *ref_0
+                    wireName: x-ms-error-code
+                statusCodes:
+                  - default
+                discriminator: basic
+                contentTypes: &ref_29
+                  - application/json
+                defaultContentType: application/json
+            groupName: ""
+            discriminator: basic
+            isOverload: false
+            overloads: []
+            apiVersions: &ref_30
+              - 2022-12-01-preview
+            wantTracing: false
+            exposeStreamKeyword: false
+            crossLanguageDefinitionId: _Specs_.Azure.Core.Lro.Standard.export
+            samples: {}
+            internal: false
+            name: _export_initial
+            isLroInitialOperation: true
+            description: Exports a User
+            summary: Exports a user.
+            clientNamespace: azure.mgmt.placeholder
+          - url: /azure/core/lro/standard/users/{name}:export
+            method: POST
+            parameters:
+              - *ref_1
+              - optional: false
+                description: The API version to use for this operation.
+                clientName: api_version
+                inOverload: false
+                isApiVersion: true
+                isContinuationToken: false
+                type: *ref_2
+                apiVersions: *ref_23
+                wireName: api-version
+                location: query
+                implementation: Client
+                explode: false
+                clientDefaultValue: 2022-12-01-preview
+              - optional: false
+                description: The name of user.
+                clientName: name
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_0
+                apiVersions: *ref_24
+                wireName: name
+                location: path
+                implementation: Method
+                skipUrlEncoding: false
+              - optional: false
+                description: The format of the data.
+                clientName: format
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_0
+                apiVersions: *ref_25
+                wireName: format
+                location: query
+                implementation: Method
+                explode: false
+              - optional: false
+                description: ""
+                clientName: accept
+                inOverload: false
+                isApiVersion: false
+                isContinuationToken: false
+                type: *ref_8
+                apiVersions: *ref_26
+                wireName: Accept
+                location: header
+                implementation: Method
+                explode: false
+            responses:
+              - headers:
+                  - type: *ref_0
+                    wireName: Operation-Location
+                statusCodes:
+                  - 202
+                discriminator: basic
+                type: *ref_27
+                contentTypes: *ref_28
+                defaultContentType: application/json
+                resultProperty: result
+            exceptions:
+              - headers:
+                  - type: *ref_0
+                    wireName: x-ms-error-code
+                statusCodes:
+                  - default
+                discriminator: basic
+                contentTypes: *ref_29
+                defaultContentType: application/json
+            groupName: ""
+            discriminator: lro
+            isOverload: false
+            overloads: []
+            apiVersions: *ref_30
+            wantTracing: true
+            exposeStreamKeyword: false
+            crossLanguageDefinitionId: _Specs_.Azure.Core.Lro.Standard.export
+            samples: {}
+            internal: false
+            name: export
+            initialOperation: *ref_31
+            description: Exports a User
+            summary: Exports a user.
+            clientNamespace: azure.mgmt.placeholder
+        clientNamespace: azure.mgmt.placeholder
+    url: "{endpoint}"
+    apiVersions: *ref_32
+    arm: false
+    clientNamespace: azure.mgmt.placeholder
+types:
+  - *ref_4
+  - type: model
+    name: OperationStatusError
+    description: Provides status details for long running operations.
+    parents: []
+    discriminatedSubtypes: {}
+    properties:
+      - clientName: id
+        wireName: id
+        type: *ref_0
+        optional: false
+        description: The unique ID of the operation.
+        addedOn: 1.0-preview.1
+        apiVersions:
+          - 1.0-preview.1
+          - 1.0-preview.2
+        visibility:
+          - read
+          - create
+          - update
+          - delete
+          - query
+        isDiscriminator: false
+        flatten: false
+      - clientName: status
+        wireName: status
+        type: &ref_33
+          name: OperationState
+          snakeCaseName: operation_state
+          description: Enum describing allowed operation states.
+          internal: false
+          type: enum
+          valueType: *ref_0
+          values:
+            - name: NOT_STARTED
+              value: NotStarted
+              description: The operation has not started.
+              enumType: *ref_33
+              type: enumvalue
+              valueType: *ref_0
+            - name: RUNNING
+              value: Running
+              description: The operation is in progress.
+              enumType: *ref_33
+              type: enumvalue
+              valueType: *ref_0
+            - name: SUCCEEDED
+              value: Succeeded
+              description: The operation has completed successfully.
+              enumType: *ref_33
+              type: enumvalue
+              valueType: *ref_0
+            - name: FAILED
+              value: Failed
+              description: The operation has failed.
+              enumType: *ref_33
+              type: enumvalue
+              valueType: *ref_0
+            - name: CANCELED
+              value: Canceled
+              description: The operation has been canceled by the user.
+              enumType: *ref_33
+              type: enumvalue
+              valueType: *ref_0
+          xmlMetadata: {}
+          crossLanguageDefinitionId: Azure.Core.Foundations.OperationState
+          clientNamespace: azure.mgmt.placeholder
+        optional: false
+        description: The status of the operation
+        addedOn: 1.0-preview.1
+        apiVersions:
+          - 1.0-preview.1
+          - 1.0-preview.2
+        visibility:
+          - read
+          - create
+          - update
+          - delete
+          - query
+        isDiscriminator: false
+        flatten: false
+      - clientName: error
+        wireName: error
+        type:
+          type: sdkcore
+          name: ODataV4Format
+          submodule: exceptions
+        optional: true
+        description: Error object that describes the error when status is "Failed".
+        addedOn: 1.0-preview.1
+        apiVersions:
+          - 1.0-preview.1
+          - 1.0-preview.2
+        visibility:
+          - read
+          - create
+          - update
+          - delete
+          - query
+        isDiscriminator: false
+        flatten: false
+    snakeCaseName: operation_status_error
+    base: dpg
+    internal: false
+    crossLanguageDefinitionId: Azure.Core.Foundations.OperationStatus
+    usage: 6400
+    isXml: false
+    clientNamespace: azure.mgmt.placeholder
+    referredByOperationType: 2
+  - *ref_33
+  - type: model
+    name: ResourceOperationStatusUserExportedUserError
+    description: Provides status details for long running operations.
+    parents: []
+    discriminatedSubtypes: {}
+    properties:
+      - clientName: id
+        wireName: id
+        type: *ref_0
+        optional: false
+        description: The unique ID of the operation.
+        addedOn: 1.0-preview.1
+        apiVersions:
+          - 1.0-preview.1
+          - 1.0-preview.2
+        visibility:
+          - read
+          - create
+          - update
+          - delete
+          - query
+        isDiscriminator: false
+        flatten: false
+      - clientName: status
+        wireName: status
+        type: *ref_33
+        optional: false
+        description: The status of the operation
+        addedOn: 1.0-preview.1
+        apiVersions:
+          - 1.0-preview.1
+          - 1.0-preview.2
+        visibility:
+          - read
+          - create
+          - update
+          - delete
+          - query
+        isDiscriminator: false
+        flatten: false
+      - clientName: error
+        wireName: error
+        type:
+          type: sdkcore
+          name: ODataV4Format
+          submodule: exceptions
+        optional: true
+        description: Error object that describes the error when status is "Failed".
+        addedOn: 1.0-preview.1
+        apiVersions:
+          - 1.0-preview.1
+          - 1.0-preview.2
+        visibility:
+          - read
+          - create
+          - update
+          - delete
+          - query
+        isDiscriminator: false
+        flatten: false
+      - clientName: result
+        wireName: result
+        type: *ref_27
+        optional: true
+        description: The result of the operation.
+        addedOn: 1.0-preview.1
+        apiVersions:
+          - 1.0-preview.1
+          - 1.0-preview.2
+        visibility:
+          - read
+          - create
+          - update
+          - delete
+          - query
+        isDiscriminator: false
+        flatten: false
+    snakeCaseName: resource_operation_status_user_exported_user_error
+    base: dpg
+    internal: false
+    crossLanguageDefinitionId: Azure.Core.ResourceOperationStatus
+    usage: 2304
+    isXml: false
+    clientNamespace: azure.mgmt.placeholder
+    referredByOperationType: 2
+  - *ref_27
+  - *ref_7
+  - type: any-object
+  - type: any
+  - *ref_0
+  - *ref_2
+  - *ref_8
+crossLanguagePackageId: _Specs_.Azure.Core.Lro.Standard
+metadata:
+  apiVersion: 2022-12-01-preview

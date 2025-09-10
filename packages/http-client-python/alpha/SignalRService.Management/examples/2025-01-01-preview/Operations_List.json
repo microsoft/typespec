@@ -1,0 +1,27 @@
+{
+  "parameters": {
+    "api-version": "2025-01-01-preview"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "nextLink": "https://management.azure.com/subscriptions/subid/providers/Microsoft.SignalRService?$skipToken=opaqueString",
+        "value": [
+          {
+            "name": "Microsoft.SignalRService/SignalR/read",
+            "display": {
+              "description": "View the resource settings and configurations in the management portal or through API",
+              "operation": "Manage SignalR (read-only)",
+              "provider": "Microsoft.SignalRService",
+              "resource": "SignalR"
+            },
+            "isDataAction": false,
+            "properties": {}
+          }
+        ]
+      }
+    }
+  },
+  "operationId": "Operations_List",
+  "title": "Operations_List"
+}

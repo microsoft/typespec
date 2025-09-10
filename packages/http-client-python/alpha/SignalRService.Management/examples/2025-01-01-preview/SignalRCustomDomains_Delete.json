@@ -1,0 +1,21 @@
+{
+  "parameters": {
+    "name": "example",
+    "api-version": "2025-01-01-preview",
+    "resourceGroupName": "myResourceGroup",
+    "resourceName": "mySignalRService",
+    "subscriptionId": "00000000-0000-0000-0000-000000000000"
+  },
+  "responses": {
+    "200": {},
+    "202": {
+      "headers": {
+        "Azure-AsyncOperation": "https://management.azure.com/subscriptions/subid/providers/Microsoft.SignalRService/...pathToOperationResult...",
+        "Location": "https://management.azure.com/subscriptions/subid/providers/Microsoft.SignalRService/...pathToOperationResult..."
+      }
+    },
+    "204": {}
+  },
+  "operationId": "SignalRCustomDomains_Delete",
+  "title": "SignalRCustomDomains_Delete"
+}

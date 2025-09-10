@@ -1,0 +1,46 @@
+{
+  "parameters": {
+    "api-version": "2025-01-01-preview",
+    "certificateName": "myCert",
+    "parameters": {
+      "properties": {
+        "keyVaultBaseUri": "https://myvault.keyvault.azure.net/",
+        "keyVaultSecretName": "mycert",
+        "keyVaultSecretVersion": "bb6a44b2743f47f68dad0d6cc9756432"
+      }
+    },
+    "resourceGroupName": "myResourceGroup",
+    "resourceName": "mySignalRService",
+    "subscriptionId": "00000000-0000-0000-0000-000000000000"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "name": "myCert",
+        "type": "Microsoft.SignalRService/SignalR/customCertificates",
+        "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/myResourceGroup/providers/Microsoft.SignalRService/SignalR/mySignalRService/customCertificates/myCert",
+        "properties": {
+          "keyVaultBaseUri": "https://myvault.keyvault.azure.net/",
+          "keyVaultSecretName": "mycert",
+          "keyVaultSecretVersion": "bb6a44b2743f47f68dad0d6cc9756432",
+          "provisioningState": "Succeeded"
+        }
+      }
+    },
+    "201": {
+      "body": {
+        "name": "myCert",
+        "type": "Microsoft.SignalRService/SignalR/customCertificates",
+        "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/myResourceGroup/providers/Microsoft.SignalRService/SignalR/mySignalRService/customCertificates/myCert",
+        "properties": {
+          "keyVaultBaseUri": "https://myvault.keyvault.azure.net/",
+          "keyVaultSecretName": "mycert",
+          "keyVaultSecretVersion": "bb6a44b2743f47f68dad0d6cc9756432",
+          "provisioningState": "Succeeded"
+        }
+      }
+    }
+  },
+  "operationId": "SignalRCustomCertificates_CreateOrUpdate",
+  "title": "SignalRCustomCertificates_CreateOrUpdate"
+}

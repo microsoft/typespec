@@ -1,0 +1,91 @@
+{
+  "parameters": {
+    "api-version": "2025-01-01-preview",
+    "parameters": {
+      "location": "eastus",
+      "properties": {
+        "resourceStopped": "false"
+      },
+      "sku": {
+        "name": "Premium_P1",
+        "capacity": 1,
+        "tier": "Premium"
+      },
+      "tags": {
+        "key1": "value1"
+      }
+    },
+    "replicaName": "mySignalRService-eastus",
+    "resourceGroupName": "myResourceGroup",
+    "resourceName": "mySignalRService",
+    "subscriptionId": "00000000-0000-0000-0000-000000000000"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "name": "mySignalRService-eastus",
+        "type": "Microsoft.SignalRService/SignalR",
+        "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/myResourceGroup/providers/Microsoft.SignalRService/SignalR/mySignalRService/replicas/mySignalRService-eastus",
+        "location": "eastus",
+        "properties": {
+          "provisioningState": "Succeeded",
+          "regionEndpointEnabled": "Enabled",
+          "resourceStopped": "false"
+        },
+        "sku": {
+          "name": "Premium_P1",
+          "capacity": 1,
+          "size": "P1",
+          "tier": "Premium"
+        },
+        "systemData": {
+          "createdAt": "2015-02-03T04:05:06Z",
+          "createdBy": "string",
+          "createdByType": "User",
+          "lastModifiedAt": "2015-02-03T04:05:06Z",
+          "lastModifiedBy": "string",
+          "lastModifiedByType": "User"
+        },
+        "tags": {
+          "key1": "value1"
+        }
+      }
+    },
+    "201": {
+      "body": {
+        "name": "mySignalRService-eastus",
+        "type": "Microsoft.SignalRService/SignalR",
+        "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourcegroups/myResourceGroup/providers/Microsoft.SignalRService/SignalR/mySignalRService/replicas/mySignalRService-eastus",
+        "location": "eastus",
+        "properties": {
+          "provisioningState": "Succeeded",
+          "regionEndpointEnabled": "Enabled",
+          "resourceStopped": "false"
+        },
+        "sku": {
+          "name": "Premium_P1",
+          "capacity": 1,
+          "size": "P1",
+          "tier": "Premium"
+        },
+        "systemData": {
+          "createdAt": "2015-02-03T04:05:06Z",
+          "createdBy": "string",
+          "createdByType": "User",
+          "lastModifiedAt": "2015-02-03T04:05:06Z",
+          "lastModifiedBy": "string",
+          "lastModifiedByType": "User"
+        },
+        "tags": {
+          "key1": "value1"
+        }
+      },
+      "headers": {
+        "Azure-AsyncOperation": "https://management.azure.com/subscriptions/subid/providers/Microsoft.SignalRService/...pathToOperationResult...",
+        "Location": "https://management.azure.com/subscriptions/subid/providers/Microsoft.SignalRService/...pathToOperationResult..."
+      }
+    }
+  },
+  "operationId": "SignalRReplicas_CreateOrUpdate",
+  "title": "SignalRReplicas_CreateOrUpdate"
+}
