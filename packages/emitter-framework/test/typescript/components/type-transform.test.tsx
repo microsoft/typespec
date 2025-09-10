@@ -1,8 +1,9 @@
+import { Tester } from "#test/test-host.js";
 import { code, Output } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { SourceFile } from "@alloy-js/typescript";
 import type { Model } from "@typespec/compiler";
-import type { BasicTestRunner } from "@typespec/compiler/testing";
+import { t, type TesterInstance } from "@typespec/compiler/testing";
 import { beforeEach, describe, expect, it } from "vitest";
 import {
   ArraySerializer,
@@ -16,27 +17,26 @@ import {
   TypeTransformDeclaration,
 } from "../../../src/typescript/components/type-transform.js";
 import { TypeDeclaration } from "../../../src/typescript/index.js";
-import { createEmitterFrameworkTestRunner } from "../test-host.js";
 
 describe.skip("Typescript Type Transform", () => {
-  let testRunner: BasicTestRunner;
+  let testRunner: TesterInstance;
   const namePolicy = ts.createTSNamePolicy();
   beforeEach(async () => {
-    testRunner = await createEmitterFrameworkTestRunner();
+    testRunner = await Tester.createInstance();
   });
   describe("Model Transforms", () => {
     describe("ModelTransformExpression", () => {
       it("should render a transform expression to client", async () => {
-        const spec = `
+        const spec = t.code`
           namespace DemoService;
-          @test model Widget {
+          @test model ${t.model("Widget")} {
             id: string;
             birth_year: int32;
             color: "blue" | "red";
           }
           `;
 
-        const { Widget } = (await testRunner.compile(spec)) as { Widget: Model };
+        const { Widget } = await testRunner.compile(spec);
 
         expect(
           <Output namePolicy={namePolicy}>
@@ -62,16 +62,16 @@ describe.skip("Typescript Type Transform", () => {
       });
 
       it("should render a transform expression to wire", async () => {
-        const spec = `
+        const spec = t.code`
           namespace DemoService;
-          @test model Widget {
+          @test model ${t.model("Widget")} {
             id: string;
             birth_year: int32;
             color: "blue" | "red";
           }
           `;
 
-        const { Widget } = (await testRunner.compile(spec)) as { Widget: Model };
+        const { Widget } = await testRunner.compile(spec);
 
         expect(
           <Output namePolicy={namePolicy}>
@@ -97,9 +97,9 @@ describe.skip("Typescript Type Transform", () => {
       });
 
       it("should render a transform expression that contains a utcDateTime to client", async () => {
-        const spec = `
+        const spec = t.code`
           namespace DemoService;
-          @test model Widget {
+          @test model ${t.model("Widget")} {
             id: string;
             birth_date: utcDateTime;
             color: "blue" | "red";
@@ -139,9 +139,9 @@ describe.skip("Typescript Type Transform", () => {
 
     describe("TypeTransformDeclaration", () => {
       it("should render a transform functions for a model containing array", async () => {
-        const spec = `
+        const spec = t.code`
           namespace DemoService;
-          @test model Widget {
+          @test model ${t.model("Widget")} {
             id: string;
             my_color: "blue" | "red";
             simple?: string[];
@@ -151,7 +151,7 @@ describe.skip("Typescript Type Transform", () => {
           }
           `;
 
-        const { Widget } = (await testRunner.compile(spec)) as { Widget: Model };
+        const { Widget } = await testRunner.compile(spec);
 
         expect(
           <Output namePolicy={namePolicy}>
@@ -198,9 +198,9 @@ describe.skip("Typescript Type Transform", () => {
          `);
       });
       it("should render a transform functions for a model containing record", async () => {
-        const spec = `
+        const spec = t.code`
           namespace DemoService;
-          @test model Widget {
+          @test model ${t.model("Widget")} {
             id: string;
             my_color: "blue" | "red";
             simple: Record<string>;
@@ -209,7 +209,7 @@ describe.skip("Typescript Type Transform", () => {
           }
           `;
 
-        const { Widget } = (await testRunner.compile(spec)) as { Widget: Model };
+        const { Widget } = await testRunner.compile(spec);
 
         expect(
           <Output namePolicy={namePolicy}>
@@ -253,15 +253,15 @@ describe.skip("Typescript Type Transform", () => {
          `);
       });
       it("should render a transform functions for a model", async () => {
-        const spec = `
+        const spec = t.code`
           namespace DemoService;
-          @test model Widget {
+          @test model ${t.model("Widget")} {
             id: string;
             my_color: "blue" | "red";
           }
           `;
 
-        const { Widget } = (await testRunner.compile(spec)) as { Widget: Model };
+        const { Widget } = await testRunner.compile(spec);
 
         expect(
           <Output namePolicy={namePolicy}>
@@ -293,14 +293,14 @@ describe.skip("Typescript Type Transform", () => {
     });
     describe("Calling a model transform functions", () => {
       it("should collapse a model with single property", async () => {
-        const spec = `
+        const spec = t.code`
           namespace DemoService;
-          @test model Widget {
+          @test model ${t.model("Widget")} {
             id: string;
           }
           `;
 
-        const { Widget } = (await testRunner.compile(spec)) as { Widget: Model };
+        const { Widget } = await testRunner.compile(spec);
 
         expect(
           <Output namePolicy={namePolicy}>
@@ -318,15 +318,15 @@ describe.skip("Typescript Type Transform", () => {
       });
 
       it("should call  transform functions for a model", async () => {
-        const spec = `
+        const spec = t.code`
           namespace DemoService;
-          @test model Widget {
+          @test model ${t.model("Widget")} {
             id: string;
             my_color: "blue" | "red";
           }
           `;
 
-        const { Widget } = (await testRunner.compile(spec)) as { Widget: Model };
+        const { Widget } = await testRunner.compile(spec);
 
         expect(
           <Output namePolicy={namePolicy}>
@@ -356,20 +356,20 @@ describe.skip("Typescript Type Transform", () => {
 
   describe("Discriminated Model Transforms", () => {
     it("should handle a discriminated union", async () => {
-      const { Pet, Cat, Dog } = (await testRunner.compile(`
+      const { Pet, Cat, Dog } = await testRunner.compile(t.code`
         @discriminator("kind")
-        @test model Pet {
+        @test model ${t.model("Pet")} {
           kind: string;
         }
 
-        @test model Cat extends Pet {
+        @test model ${t.model("Cat")} extends Pet {
           kind: "cat";
         }
 
-        @test model Dog extends Pet {
+        @test model ${t.model("Dog")} extends Pet {
           kind: "dog";
         }
-      `)) as { Pet: Model; Cat: Model; Dog: Model };
+      `);
 
       expect(
         <Output namePolicy={namePolicy}>
@@ -436,21 +436,21 @@ describe.skip("Typescript Type Transform", () => {
   });
   describe("Discriminated Union Transforms", () => {
     it("should handle a discriminated union", async () => {
-      const { Pet, Cat, Dog } = (await testRunner.compile(`
+      const { Pet, Cat, Dog } = await testRunner.compile(t.code`
         @discriminator("kind")
-        @test union Pet {
+        @test union ${t.union("Pet")}{
           cat: Cat;
           dog: Dog;
         }
 
-        @test model Cat  {
+        @test model ${t.model("Cat")} {
           kind: "cat";
         }
 
-        @test model Dog {
+        @test model ${t.model("Dog")} {
           kind: "dog";
         }
-      `)) as { Pet: Model; Cat: Model; Dog: Model };
+      `);
 
       expect(
         <Output namePolicy={namePolicy}>

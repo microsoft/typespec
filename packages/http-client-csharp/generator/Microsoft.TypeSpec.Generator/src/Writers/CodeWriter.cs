@@ -186,14 +186,6 @@ namespace Microsoft.TypeSpec.Generator
 
             using (WriteXmlDocs(method.XmlDocs))
             {
-                if (method.Attributes.Count > 0)
-                {
-                    foreach (var attr in method.Attributes)
-                    {
-                        attr.Write(this);
-                    }
-                }
-
                 if (method.BodyStatements is { } body)
                 {
                     foreach (var suppression in method.Suppressions)
@@ -235,14 +227,6 @@ namespace Microsoft.TypeSpec.Generator
 
             using (WriteXmlDocs(ctor.XmlDocs))
             {
-                if (ctor.Attributes.Count > 0)
-                {
-                    foreach (var attr in ctor.Attributes)
-                    {
-                        attr.Write(this);
-                    }
-                }
-
                 if (ctor.BodyStatements is { } body)
                 {
                     foreach (var suppression in ctor.Suppressions)

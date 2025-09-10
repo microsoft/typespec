@@ -41,6 +41,12 @@ export function ClassDeclaration(props: ClassDeclarationProps): Children {
         {...props}
         name={className}
         refkey={refkeys}
+        baseType={
+          props.baseType ??
+          (props.type.kind === "Model" && props.type.baseModel ? (
+            <TypeExpression type={props.type.baseModel} />
+          ) : undefined)
+        }
         doc={getDocComments($, props.type)}
       >
         {props.type.kind === "Model" && (
@@ -58,7 +64,7 @@ function ClassProperties(props: ClassPropertiesProps): Children {
     ([_, p]) => !isVoidType(p.type),
   );
   return (
-    <For each={properties} hardline>
+    <For each={properties} doubleHardline>
       {([name, property]) => <Property type={property} jsonAttributes={props.jsonAttributes} />}
     </For>
   );

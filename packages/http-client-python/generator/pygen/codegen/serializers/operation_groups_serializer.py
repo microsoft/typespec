@@ -66,6 +66,11 @@ class OperationGroupsSerializer(BaseSerializer):
                     serialize_namespace_type=NamespaceType.OPERATION,
                 )
             )
+        # put here since one operation file only need one self-defined list type
+        if self.code_model.has_operation_named_list:
+            # if there is a function named `list` we have to make sure there's no conflict with the built-in `list`
+            # not doing for dict or set yet, though we might have to later
+            imports.define_mypy_type("List", "list")
 
         template = self.env.get_or_select_template("operation_groups_container.py.jinja2")
 
