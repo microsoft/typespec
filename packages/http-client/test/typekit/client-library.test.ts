@@ -1,12 +1,18 @@
-import { t } from "@typespec/compiler/testing";
+import { t, type TesterInstance } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/typekit";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import "../../src/typekit/index.js";
 import { Tester } from "../test-host.js";
 
+let runner: TesterInstance;
+
+beforeEach(async () => {
+  runner = await Tester.createInstance();
+});
+
 describe("listNamespaces", () => {
   it("basic", async () => {
-    const { program } = await Tester.compile(t.code`
+    const { program } = await runner.compile(`
       @service(#{
         title: "Widget Service",
       })
@@ -20,7 +26,7 @@ describe("listNamespaces", () => {
 
   it("nested", async () => {
     // we only want to return the top level namespaces
-    const { program } = await Tester.compile(t.code`
+    const { program } = await runner.compile(`
       @service(#{
         title: "Widget Service",
       })
@@ -48,7 +54,7 @@ describe("listNamespaces", () => {
 
 describe("listClients", () => {
   it("should only get clients for defined namespaces in the spec", async () => {
-    const { program } = await Tester.compile(t.code`
+    const { program } = await runner.compile(`
            op foo(): void;
           `);
     const tk = $(program);
@@ -62,7 +68,7 @@ describe("listClients", () => {
   });
 
   it("should get the client", async () => {
-    const { DemoService, program } = await Tester.compile(t.code`
+    const { DemoService, program } = await runner.compile(t.code`
       @service(#{
         title: "Widget Service",
       })
@@ -75,12 +81,12 @@ describe("listClients", () => {
     expect(responses[0].name).toEqual("DemoServiceClient");
   });
   it("get subclients", async () => {
-    const { DemoService, program } = await Tester.compile(t.code`
+    const { DemoService, program } = await runner.compile(t.code`
       @service(#{
         title: "Widget Service",
       })
       namespace ${t.namespace("DemoService")} {
-        namespace ${t.namespace("NestedService")} {};
+        namespace NestedService {};
       }
       `);
     const tk = $(program);

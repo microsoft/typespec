@@ -1,18 +1,24 @@
 import { StringLiteral, StringValue, Union } from "@typespec/compiler";
-import { t } from "@typespec/compiler/testing";
+import { t, type TesterInstance } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/typekit";
 import { ok } from "assert";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import "../../src/typekit/index.js";
 import { Tester } from "../test-host.js";
 
+let runner: TesterInstance;
+
+beforeEach(async () => {
+  runner = await Tester.createInstance();
+});
+
 describe("isSameConstructor", () => {
   it("should return true for the same client", async () => {
-    const { DemoService, program } = await Tester.compile(t.code`
+    const { DemoService, program } = await runner.compile(t.code`
       @service(#{
         title: "Widget Service",
       })
-      namespace ${t.namespace("DemoService")};
+      @test namespace ${t.namespace("DemoService")};
       `);
     const tk = $(program);
 
@@ -22,13 +28,13 @@ describe("isSameConstructor", () => {
   });
 
   it("should return false for the clients with different constructors", async () => {
-    const { DemoService, SubClient, program } = await Tester.compile(t.code`
+    const { DemoService, SubClient, program } = await runner.compile(t.code`
       @service(#{
         title: "Widget Service",
       })
-      namespace ${t.namespace("DemoService")} {
+      @test namespace ${t.namespace("DemoService")} {
         @useAuth(ApiKeyAuth<ApiKeyLocation.header, "x-ms-api-key">)
-        namespace ${t.namespace("SubClient")} {
+        @test namespace ${t.namespace("SubClient")} {
         }
       }
       `);
@@ -41,13 +47,13 @@ describe("isSameConstructor", () => {
   });
 
   it.skip("should return true when subclient doesn't override the client params", async () => {
-    const { DemoService, SubClient, program } = await Tester.compile(t.code`
+    const { DemoService, SubClient, program } = await runner.compile(t.code`
       @service(#{
         title: "Widget Service",
       })
       @useAuth(ApiKeyAuth<ApiKeyLocation.header, "x-ms-api-key">)
-      namespace ${t.namespace("DemoService")} {
-        namespace ${t.namespace("SubClient")} {
+      @test namespace ${t.namespace("DemoService")} {
+        @test namespace ${t.namespace("SubClient")} {
         }
       }
       `);
@@ -60,11 +66,11 @@ describe("isSameConstructor", () => {
   });
 
   it("should return false for the clients with different constructor", async () => {
-    const { DemoService, SubClient, program } = await Tester.compile(t.code`
+    const { DemoService, SubClient, program } = await runner.compile(t.code`
       @service(#{
         title: "Widget Service",
       })
-      namespace ${t.namespace("DemoService")} {
+      @test namespace ${t.namespace("DemoService")} {
         @test namespace ${t.namespace("SubClient")} {
         }
       }
@@ -80,7 +86,7 @@ describe("isSameConstructor", () => {
 
 describe("getClient", () => {
   it("should get a client from the globalNamespace", async () => {
-    const { program } = await Tester.compile(t.code`
+    const { program } = await runner.compile(t.code`
        op foo(): void;
       `);
     const tk = $(program);
@@ -92,11 +98,11 @@ describe("getClient", () => {
   });
 
   it("should get the client", async () => {
-    const { DemoService, program } = await Tester.compile(t.code`
+    const { DemoService, program } = await runner.compile(t.code`
       @service(#{
         title: "Widget Service",
       })
-      namespace ${t.namespace("DemoService")};
+      @test namespace ${t.namespace("DemoService")};
       `);
     const tk = $(program);
 
@@ -108,11 +114,11 @@ describe("getClient", () => {
   });
 
   it("should preserve client object identity", async () => {
-    const { DemoService, program } = await Tester.compile(t.code`
+    const { DemoService, program } = await runner.compile(t.code`
       @service(#{
         title: "Widget Service",
       })
-      namespace ${t.namespace("DemoService")};
+      @test namespace ${t.namespace("DemoService")};
       `);
     const tk = $(program);
 
@@ -122,17 +128,17 @@ describe("getClient", () => {
   });
 
   it("should get a flattened list of clients", async () => {
-    const { DemoService, BarBaz, program } = await Tester.compile(t.code`
+    const { DemoService, BarBaz, program } = await runner.compile(t.code`
       @service(#{
         title: "Widget Service",
       })
-      namespace ${t.namespace("DemoService")} {
-        namespace Foo {
-           namespace FooBaz {}
+      @test namespace ${t.namespace("DemoService")} {
+        @test namespace Foo {
+           @test namespace FooBaz {}
         }
 
         @test namespace Bar {
-           interface ${t.interface("BarBaz")} {}
+           @test interface ${t.interface("BarBaz")} {}
         }
       }
       `);
@@ -150,11 +156,11 @@ describe("getClient", () => {
 describe("getConstructor", () => {
   describe("credential parameter", () => {
     it("none", async () => {
-      const { DemoService, program } = await Tester.compile(t.code`
+      const { DemoService, program } = await runner.compile(t.code`
         @service(#{
           title: "Widget Service",
         })
-        namespace ${t.namespace("DemoService")};
+        @test namespace ${t.namespace("DemoService")};
         `);
       const tk = $(program);
 
@@ -168,12 +174,12 @@ describe("getConstructor", () => {
       expect(tk.scalar.isString(params[0].type)).toBeTruthy();
     });
     it("apikey", async () => {
-      const { DemoService, program } = await Tester.compile(t.code`
+      const { DemoService, program } = await runner.compile(t.code`
         @service(#{
           title: "Widget Service",
         })
         @useAuth(ApiKeyAuth<ApiKeyLocation.header, "x-ms-api-key">)
-        namespace ${t.namespace("DemoService")};
+        @test namespace ${t.namespace("DemoService")};
         `);
       const tk = $(program);
 
@@ -198,7 +204,7 @@ describe("getConstructor", () => {
        * - A single constructor with an endpoint parameter that is required
        * - A single constructor with a credential parameter that is required.
        */
-      const { DemoService, program } = await Tester.compile(t.code`
+      const { DemoService, program } = await runner.compile(t.code`
         @service(#{
           title: "Widget Service",
         })
@@ -207,7 +213,7 @@ describe("getConstructor", () => {
           authorizationUrl: "https://login.microsoftonline.com/common/oauth2/authorize";
           scopes: ["https://security.microsoft.com/.default"];
         }]>)
-        namespace ${t.namespace("DemoService")};
+        @test namespace ${t.namespace("DemoService")};
         `);
       const tk = $(program);
 
@@ -227,11 +233,11 @@ describe("getConstructor", () => {
   });
   describe("endpoint", () => {
     it("no servers", async () => {
-      const { DemoService, program } = await Tester.compile(t.code`
+      const { DemoService, program } = await runner.compile(t.code`
         @service(#{
           title: "Widget Service",
         })
-        namespace ${t.namespace("DemoService")};
+        @test namespace ${t.namespace("DemoService")};
         `);
       const tk = $(program);
 
@@ -245,12 +251,12 @@ describe("getConstructor", () => {
       expect(tk.scalar.isString(params[0].type)).toBeTruthy();
     });
     it("one server, no params", async () => {
-      const { DemoService, program } = await Tester.compile(t.code`
+      const { DemoService, program } = await runner.compile(t.code`
         @server("https://example.com", "The service endpoint")
         @service(#{
           title: "Widget Service",
         })
-        namespace ${t.namespace("DemoService")};
+        @test namespace ${t.namespace("DemoService")};
         `);
       const tk = $(program);
 
@@ -272,12 +278,12 @@ describe("getConstructor", () => {
        *  - The endpoint default value is the url template https://example.com/{name}/foo
        *  - There is a required name parameter of type string
        */
-      const { DemoService, program } = await Tester.compile(t.code`
+      const { DemoService, program } = await runner.compile(t.code`
         @server("https://example.com/{name}/foo", "My service url", { name: string })
         @service(#{
           title: "Widget Service",
         })
-        namespace ${t.namespace("DemoService")};
+        @test namespace ${t.namespace("DemoService")};
         `);
       const tk = $(program);
 
@@ -315,12 +321,12 @@ describe("getConstructor", () => {
        *  - A constructor parameter named endpoint which maps to the template variable that is required but has a default value
        *  - A constructor parameter named _endpoint (due to collission) which has a default value which is the url template https://{endpoint}/foo
        */
-      const { DemoService, program } = await Tester.compile(t.code`
+      const { DemoService, program } = await runner.compile(t.code`
         @server("https://{endpoint}/foo", "My service url", { endpoint: string })
         @service(#{
           title: "Widget Service",
         })
-        namespace ${t.namespace("DemoService")};
+        @test namespace ${t.namespace("DemoService")};
         `);
       const tk = $(program);
 
@@ -356,13 +362,13 @@ describe("getConstructor", () => {
        *  - The endpoint parameter has a type of union including the 2 clientDefaultValues plus string.
        */
 
-      const { DemoService, program } = await Tester.compile(t.code`
+      const { DemoService, program } = await runner.compile(t.code`
         @server("https://example.com", "The service endpoint")
         @server("https://example.org", "The service endpoint")
         @service(#{
           title: "Widget Service",
         })
-        namespace ${t.namespace("DemoService")};
+        @test namespace ${t.namespace("DemoService")};
         `);
       const tk = $(program);
       const client = tk.clientLibrary.listClients(DemoService)[0];
@@ -393,11 +399,11 @@ describe("getConstructor", () => {
 
 describe("isPubliclyInitializable", () => {
   it("namespace", async () => {
-    const { DemoService, program } = await Tester.compile(t.code`
+    const { DemoService, program } = await runner.compile(t.code`
       @service(#{
         title: "Widget Service",
       })
-      namespace ${t.namespace("DemoService")};
+      @test namespace ${t.namespace("DemoService")};
       `);
     const tk = $(program);
 
@@ -407,11 +413,11 @@ describe("isPubliclyInitializable", () => {
     expect(tk.client.isPubliclyInitializable(responses[0])).toBeTruthy();
   });
   it("nested namespace", async () => {
-    const { DemoService, program } = await Tester.compile(t.code`
+    const { DemoService, program } = await runner.compile(t.code`
       @service(#{
         title: "Widget Service",
       })
-      namespace ${t.namespace("DemoService")} {
+      @test namespace ${t.namespace("DemoService")} {
         namespace NestedService {};
       }
       `);
@@ -428,11 +434,11 @@ describe("isPubliclyInitializable", () => {
     expect(tk.client.isPubliclyInitializable(subclients[0])).toBeTruthy();
   });
   it("nested interface", async () => {
-    const { DemoService, program } = await Tester.compile(t.code`
+    const { DemoService, program } = await runner.compile(t.code`
       @service(#{
         title: "Widget Service",
       })
-      namespace ${t.namespace("DemoService")} {
+      @test namespace ${t.namespace("DemoService")} {
         interface NestedInterface {};
       }
       `);
@@ -452,7 +458,7 @@ describe("isPubliclyInitializable", () => {
 
 describe("listServiceOperations", () => {
   it("should list only operations defined in the spec", async () => {
-    const { program } = await Tester.compile(t.code`
+    const { program } = await runner.compile(t.code`
       op foo(): void;
      `);
     const tk = $(program);
@@ -467,11 +473,11 @@ describe("listServiceOperations", () => {
   });
 
   it("no operations", async () => {
-    const { DemoService, program } = await Tester.compile(t.code`
+    const { DemoService, program } = await runner.compile(t.code`
       @service(#{
         title: "Widget Service",
       })
-      namespace ${t.namespace("DemoService")};
+      @test namespace ${t.namespace("DemoService")};
       `);
     const tk = $(program);
     const client = tk.clientLibrary.listClients(DemoService)[0];
@@ -479,14 +485,14 @@ describe("listServiceOperations", () => {
     expect(operations).toHaveLength(0);
   });
   it("nested namespace", async () => {
-    const { DemoService, NestedService, program } = await Tester.compile(t.code`
+    const { DemoService, NestedService, program } = await runner.compile(t.code`
       @service(#{
         title: "Widget Service",
       })
-       namespace ${t.namespace("DemoService")} {
+      @test namespace ${t.namespace("DemoService")} {
         @route("demo")
         op demoServiceOp(): void;
-        namespace ${t.namespace("NestedService")} {
+        @test namespace ${t.namespace("NestedService")} {
           @route("nested")
           op nestedServiceOp(): void;
         };
