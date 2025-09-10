@@ -136,11 +136,46 @@ export class SchemaToExpressionGenerator {
       type += ` | null`;
     }
 
-    if (schema.default) {
-      type += ` = ${typeof schema.default === "object" ? normalizeObjectValueToTSValueExpression(schema.default) : JSON.stringify(schema.default)}`;
+    if (schema.default !== undefined) {
+      const defaultValue = this.generateDefaultValue(schema, callingScope, context);
+      type += ` = ${defaultValue}`;
     }
 
     return type;
+  }
+
+  private generateDefaultValue(
+    schema: OpenAPI3Schema,
+    callingScope: string[],
+    context?: Context,
+  ): string {
+    if (typeof schema.default === "object") {
+      return normalizeObjectValueToTSValueExpression(schema.default);
+    }
+
+    // Check if this is a union type (anyOf or oneOf) with a default value that might match an enum member
+    if (context && schema.default !== undefined && (schema.anyOf?.length || schema.oneOf?.length)) {
+      const unionMembers = schema.anyOf || schema.oneOf || [];
+      
+      // Try to find an enum reference that contains this default value
+      for (const member of unionMembers) {
+        if ("$ref" in member) {
+          const refSchema = context.getSchemaByRef(member.$ref);
+          if (refSchema?.enum && refSchema.type === "string" && !refSchema.nullable) {
+            // This is an enum type, check if the default value matches any enum member
+            if (refSchema.enum.includes(schema.default)) {
+              const enumRefName = this.getRefName(member.$ref, callingScope);
+              // Convert the default value to a valid identifier for the enum member
+              const memberName = printIdentifier(schema.default as string, "disallow-reserved");
+              return `${enumRefName}.${memberName}`;
+            }
+          }
+        }
+      }
+    }
+
+    // Fall back to the original logic for other cases
+    return JSON.stringify(schema.default);
   }
 
   private getAllOfType(schema: OpenAPI3Schema, callingScope: string[]): string {
