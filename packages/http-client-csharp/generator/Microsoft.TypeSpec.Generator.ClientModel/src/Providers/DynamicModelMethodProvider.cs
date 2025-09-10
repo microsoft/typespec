@@ -183,7 +183,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 bool hasNestedCollection = currentType.ElementType.IsCollection;
 
-                if (currentType.IsList)
+                if (currentType.IsList || currentType.IsArray)
                 {
                     statements.Add(new IfStatement(Not(currentSlice.Invoke(
                         "TryGetIndex",
