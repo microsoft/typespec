@@ -221,7 +221,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             => IsReadOnlyDictionary || IsReadWriteDictionary;
 
         private bool TypeIsCollection()
-            => IsFrameworkType && (IsDictionary || IsList);
+            => IsFrameworkType && (IsDictionary || IsList || IsArray);
 
         private bool TypeContainsBinaryData()
         {
