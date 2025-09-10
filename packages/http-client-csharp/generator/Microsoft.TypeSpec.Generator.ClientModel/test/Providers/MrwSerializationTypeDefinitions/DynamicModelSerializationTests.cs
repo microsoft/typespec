@@ -185,6 +185,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                                 InputFactory.Property("a1", InputPrimitiveType.String, isRequired: true)
                             ])))),
                     InputFactory.Property("p5",
+                        InputFactory.Array(InputFactory.Array(InputFactory.Array(InputFactory.Model(
+                            "dynamicArray",
+                            isDynamic: true,
+                            properties:
+                            [
+                                InputFactory.Property("a1", InputPrimitiveType.String, isRequired: true)
+                            ]))))),
+                    InputFactory.Property("p6",
                         InputFactory.Dictionary(InputFactory.Array(InputFactory.Model(
                             "dynamicDictionary",
                             isDynamic: true,

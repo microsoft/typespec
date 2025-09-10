@@ -67,8 +67,28 @@ namespace Sample
             {
                 int propertyLength = "p5"u8.Length;
                 global::System.ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed))
+                {
+                    return false;
+                }
+                currentSlice = currentSlice.Slice(bytesConsumed);
+                if (!currentSlice.TryGetIndex(out int index0, out int bytesConsumed0))
+                {
+                    return false;
+                }
+                currentSlice = currentSlice.Slice(bytesConsumed0);
+                if (!currentSlice.TryGetIndex(out int index1, out int bytesConsumed1))
+                {
+                    return false;
+                }
+                return P5[index][index0][index1].Patch.TryGetEncodedValue([.. "$"u8, .. currentSlice.Slice(bytesConsumed1)], out value);
+            }
+            if (local.StartsWith("p6"u8))
+            {
+                int propertyLength = "p6"u8.Length;
+                global::System.ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
                 string key = currentSlice.GetFirstPropertyName(out int i);
-                if (!P5.TryGetValue(key, out global::System.Collections.Generic.IList<global::Sample.Models.DynamicDictionary> item))
+                if (!P6.TryGetValue(key, out global::System.Collections.Generic.IList<global::Sample.Models.DynamicDictionary> item))
                 {
                     return false;
                 }
@@ -142,8 +162,29 @@ namespace Sample
             {
                 int propertyLength = "p5"u8.Length;
                 global::System.ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                if (!currentSlice.TryGetIndex(out int index, out int bytesConsumed))
+                {
+                    return false;
+                }
+                currentSlice = currentSlice.Slice(bytesConsumed);
+                if (!currentSlice.TryGetIndex(out int index0, out int bytesConsumed0))
+                {
+                    return false;
+                }
+                currentSlice = currentSlice.Slice(bytesConsumed0);
+                if (!currentSlice.TryGetIndex(out int index1, out int bytesConsumed1))
+                {
+                    return false;
+                }
+                P5[index][index0][index1].Patch.Set([.. "$"u8, .. currentSlice.Slice(bytesConsumed1)], value);
+                return true;
+            }
+            if (local.StartsWith("p6"u8))
+            {
+                int propertyLength = "p6"u8.Length;
+                global::System.ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
                 string key = currentSlice.GetFirstPropertyName(out int i);
-                if (!P5.TryGetValue(key, out global::System.Collections.Generic.IList<global::Sample.Models.DynamicDictionary> item))
+                if (!P6.TryGetValue(key, out global::System.Collections.Generic.IList<global::Sample.Models.DynamicDictionary> item))
                 {
                     return false;
                 }
