@@ -7,8 +7,10 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 
 namespace SampleTypeSpec
 {
@@ -20,22 +22,53 @@ namespace SampleTypeSpec
 
         /// <summary> Initializes a new instance of <see cref="DynamicModel"/>. </summary>
         /// <param name="name"></param>
-        /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
-        public DynamicModel(string name)
+        /// <param name="foo"></param>
+        /// <param name="listFoo"></param>
+        /// <param name="listOfListFoo"></param>
+        /// <param name="dictionaryFoo"></param>
+        /// <param name="dictionaryListFoo"></param>
+        /// <param name="listOfDictionaryFoo"></param>
+        /// <exception cref="ArgumentNullException"> <paramref name="name"/>, <paramref name="foo"/>, <paramref name="listFoo"/>, <paramref name="listOfListFoo"/>, <paramref name="dictionaryFoo"/>, <paramref name="dictionaryListFoo"/> or <paramref name="listOfDictionaryFoo"/> is null. </exception>
+        public DynamicModel(string name, AnotherDynamicModel foo, IEnumerable<AnotherDynamicModel> listFoo, IEnumerable<IList<AnotherDynamicModel>> listOfListFoo, IDictionary<string, AnotherDynamicModel> dictionaryFoo, IDictionary<string, IList<AnotherDynamicModel>> dictionaryListFoo, IEnumerable<IDictionary<string, AnotherDynamicModel>> listOfDictionaryFoo)
         {
             Argument.AssertNotNull(name, nameof(name));
+            Argument.AssertNotNull(foo, nameof(foo));
+            Argument.AssertNotNull(listFoo, nameof(listFoo));
+            Argument.AssertNotNull(listOfListFoo, nameof(listOfListFoo));
+            Argument.AssertNotNull(dictionaryFoo, nameof(dictionaryFoo));
+            Argument.AssertNotNull(dictionaryListFoo, nameof(dictionaryListFoo));
+            Argument.AssertNotNull(listOfDictionaryFoo, nameof(listOfDictionaryFoo));
 
             Name = name;
+            Foo = foo;
+            ListFoo = listFoo.ToList();
+            ListOfListFoo = listOfListFoo.ToList();
+            DictionaryFoo = dictionaryFoo;
+            DictionaryListFoo = dictionaryListFoo;
+            ListOfDictionaryFoo = listOfDictionaryFoo.ToList();
         }
 
         /// <summary> Initializes a new instance of <see cref="DynamicModel"/>. </summary>
         /// <param name="name"></param>
+        /// <param name="foo"></param>
+        /// <param name="listFoo"></param>
+        /// <param name="listOfListFoo"></param>
+        /// <param name="dictionaryFoo"></param>
+        /// <param name="dictionaryListFoo"></param>
+        /// <param name="listOfDictionaryFoo"></param>
         /// <param name="patch"></param>
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        internal DynamicModel(string name, in JsonPatch patch)
+        internal DynamicModel(string name, AnotherDynamicModel foo, IList<AnotherDynamicModel> listFoo, IList<IList<AnotherDynamicModel>> listOfListFoo, IDictionary<string, AnotherDynamicModel> dictionaryFoo, IDictionary<string, IList<AnotherDynamicModel>> dictionaryListFoo, IList<IDictionary<string, AnotherDynamicModel>> listOfDictionaryFoo, in JsonPatch patch)
         {
             Name = name;
+            Foo = foo;
+            ListFoo = listFoo;
+            ListOfListFoo = listOfListFoo;
+            DictionaryFoo = dictionaryFoo;
+            DictionaryListFoo = dictionaryListFoo;
+            ListOfDictionaryFoo = listOfDictionaryFoo;
             _patch = patch;
+            _patch.SetPropagators(PropagateSet, PropagateGet, null);
         }
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
 
@@ -46,5 +79,23 @@ namespace SampleTypeSpec
 
         /// <summary> Gets the Name. </summary>
         public string Name { get; }
+
+        /// <summary> Gets the Foo. </summary>
+        public AnotherDynamicModel Foo { get; }
+
+        /// <summary> Gets the ListFoo. </summary>
+        public IList<AnotherDynamicModel> ListFoo { get; }
+
+        /// <summary> Gets the ListOfListFoo. </summary>
+        public IList<IList<AnotherDynamicModel>> ListOfListFoo { get; }
+
+        /// <summary> Gets the DictionaryFoo. </summary>
+        public IDictionary<string, AnotherDynamicModel> DictionaryFoo { get; }
+
+        /// <summary> Gets the DictionaryListFoo. </summary>
+        public IDictionary<string, IList<AnotherDynamicModel>> DictionaryListFoo { get; }
+
+        /// <summary> Gets the ListOfDictionaryFoo. </summary>
+        public IList<IDictionary<string, AnotherDynamicModel>> ListOfDictionaryFoo { get; }
     }
 }

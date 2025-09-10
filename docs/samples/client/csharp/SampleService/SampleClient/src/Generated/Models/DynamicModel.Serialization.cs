@@ -38,6 +38,76 @@ namespace SampleTypeSpec
             }
             writer.WritePropertyName("name"u8);
             writer.WriteStringValue(Name);
+            writer.WritePropertyName("foo"u8);
+            writer.WriteObjectValue(Foo, options);
+            writer.WritePropertyName("listFoo"u8);
+            writer.WriteStartArray();
+            foreach (AnotherDynamicModel item in ListFoo)
+            {
+                writer.WriteObjectValue(item, options);
+            }
+            writer.WriteEndArray();
+            writer.WritePropertyName("listOfListFoo"u8);
+            writer.WriteStartArray();
+            foreach (IList<AnotherDynamicModel> item in ListOfListFoo)
+            {
+                if (item == null)
+                {
+                    writer.WriteNullValue();
+                    continue;
+                }
+                writer.WriteStartArray();
+                foreach (AnotherDynamicModel item0 in item)
+                {
+                    writer.WriteObjectValue(item0, options);
+                }
+                writer.WriteEndArray();
+            }
+            writer.WriteEndArray();
+            writer.WritePropertyName("dictionaryFoo"u8);
+            writer.WriteStartObject();
+            foreach (var item in DictionaryFoo)
+            {
+                writer.WritePropertyName(item.Key);
+                writer.WriteObjectValue(item.Value, options);
+            }
+            writer.WriteEndObject();
+            writer.WritePropertyName("dictionaryListFoo"u8);
+            writer.WriteStartObject();
+            foreach (var item in DictionaryListFoo)
+            {
+                writer.WritePropertyName(item.Key);
+                if (item.Value == null)
+                {
+                    writer.WriteNullValue();
+                    continue;
+                }
+                writer.WriteStartArray();
+                foreach (AnotherDynamicModel item0 in item.Value)
+                {
+                    writer.WriteObjectValue(item0, options);
+                }
+                writer.WriteEndArray();
+            }
+            writer.WriteEndObject();
+            writer.WritePropertyName("listOfDictionaryFoo"u8);
+            writer.WriteStartArray();
+            foreach (IDictionary<string, AnotherDynamicModel> item in ListOfDictionaryFoo)
+            {
+                if (item == null)
+                {
+                    writer.WriteNullValue();
+                    continue;
+                }
+                writer.WriteStartObject();
+                foreach (var item0 in item)
+                {
+                    writer.WritePropertyName(item0.Key);
+                    writer.WriteObjectValue(item0.Value, options);
+                }
+                writer.WriteEndObject();
+            }
+            writer.WriteEndArray();
             if (options.Format != "W" && _additionalBinaryDataProperties != null)
             {
                 foreach (var item in _additionalBinaryDataProperties)
@@ -81,6 +151,12 @@ namespace SampleTypeSpec
                 return null;
             }
             string name = default;
+            AnotherDynamicModel foo = default;
+            IList<AnotherDynamicModel> listFoo = default;
+            IList<IList<AnotherDynamicModel>> listOfListFoo = default;
+            IDictionary<string, AnotherDynamicModel> dictionaryFoo = default;
+            IDictionary<string, IList<AnotherDynamicModel>> dictionaryListFoo = default;
+            IList<IDictionary<string, AnotherDynamicModel>> listOfDictionaryFoo = default;
             IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
@@ -89,12 +165,111 @@ namespace SampleTypeSpec
                     name = prop.Value.GetString();
                     continue;
                 }
+                if (prop.NameEquals("foo"u8))
+                {
+                    foo = AnotherDynamicModel.DeserializeAnotherDynamicModel(prop.Value, options);
+                    continue;
+                }
+                if (prop.NameEquals("listFoo"u8))
+                {
+                    List<AnotherDynamicModel> array = new List<AnotherDynamicModel>();
+                    foreach (var item in prop.Value.EnumerateArray())
+                    {
+                        array.Add(AnotherDynamicModel.DeserializeAnotherDynamicModel(item, options));
+                    }
+                    listFoo = array;
+                    continue;
+                }
+                if (prop.NameEquals("listOfListFoo"u8))
+                {
+                    List<IList<AnotherDynamicModel>> array = new List<IList<AnotherDynamicModel>>();
+                    foreach (var item in prop.Value.EnumerateArray())
+                    {
+                        if (item.ValueKind == JsonValueKind.Null)
+                        {
+                            array.Add(null);
+                        }
+                        else
+                        {
+                            List<AnotherDynamicModel> array0 = new List<AnotherDynamicModel>();
+                            foreach (var item0 in item.EnumerateArray())
+                            {
+                                array0.Add(AnotherDynamicModel.DeserializeAnotherDynamicModel(item0, options));
+                            }
+                            array.Add(array0);
+                        }
+                    }
+                    listOfListFoo = array;
+                    continue;
+                }
+                if (prop.NameEquals("dictionaryFoo"u8))
+                {
+                    Dictionary<string, AnotherDynamicModel> dictionary = new Dictionary<string, AnotherDynamicModel>();
+                    foreach (var prop0 in prop.Value.EnumerateObject())
+                    {
+                        dictionary.Add(prop0.Name, AnotherDynamicModel.DeserializeAnotherDynamicModel(prop0.Value, options));
+                    }
+                    dictionaryFoo = dictionary;
+                    continue;
+                }
+                if (prop.NameEquals("dictionaryListFoo"u8))
+                {
+                    Dictionary<string, IList<AnotherDynamicModel>> dictionary = new Dictionary<string, IList<AnotherDynamicModel>>();
+                    foreach (var prop0 in prop.Value.EnumerateObject())
+                    {
+                        if (prop0.Value.ValueKind == JsonValueKind.Null)
+                        {
+                            dictionary.Add(prop0.Name, null);
+                        }
+                        else
+                        {
+                            List<AnotherDynamicModel> array = new List<AnotherDynamicModel>();
+                            foreach (var item in prop0.Value.EnumerateArray())
+                            {
+                                array.Add(AnotherDynamicModel.DeserializeAnotherDynamicModel(item, options));
+                            }
+                            dictionary.Add(prop0.Name, array);
+                        }
+                    }
+                    dictionaryListFoo = dictionary;
+                    continue;
+                }
+                if (prop.NameEquals("listOfDictionaryFoo"u8))
+                {
+                    List<IDictionary<string, AnotherDynamicModel>> array = new List<IDictionary<string, AnotherDynamicModel>>();
+                    foreach (var item in prop.Value.EnumerateArray())
+                    {
+                        if (item.ValueKind == JsonValueKind.Null)
+                        {
+                            array.Add(null);
+                        }
+                        else
+                        {
+                            Dictionary<string, AnotherDynamicModel> dictionary = new Dictionary<string, AnotherDynamicModel>();
+                            foreach (var prop0 in item.EnumerateObject())
+                            {
+                                dictionary.Add(prop0.Name, AnotherDynamicModel.DeserializeAnotherDynamicModel(prop0.Value, options));
+                            }
+                            array.Add(dictionary);
+                        }
+                    }
+                    listOfDictionaryFoo = array;
+                    continue;
+                }
                 if (options.Format != "W")
                 {
                     additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
                 }
             }
-            return new DynamicModel(name, additionalBinaryDataProperties);
+            return new DynamicModel(
+                name,
+                foo,
+                listFoo,
+                listOfListFoo,
+                dictionaryFoo,
+                dictionaryListFoo,
+                listOfDictionaryFoo,
+                additionalBinaryDataProperties);
         }
 
         /// <param name="options"> The client options for reading and writing models. </param>

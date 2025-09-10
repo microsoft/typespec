@@ -6,6 +6,7 @@
 #nullable disable
 
 using System;
+using System.Buffers.Text;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -331,9 +332,9 @@ namespace SampleTypeSpec
                 bool patchContains;
 #if NET8_0_OR_GREATER
                 int bytesWritten = global::System.Text.Encoding.UTF8.GetBytes(item.Key, buffer);
-                patchContains = (bytesWritten == maxPropertyNameLength) ? patch.ContainsChildOf(prefix, global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : patch.ContainsChildOf(prefix, buffer.Slice(0, bytesWritten));
+                patchContains = (bytesWritten == maxPropertyNameLength) ? patch.Contains(prefix, global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : patch.Contains(prefix, buffer.Slice(0, bytesWritten));
 #else
-                patchContains = patch.ContainsChildOf(prefix, Encoding.UTF8.GetBytes(item.Key));
+                patchContains = patch.Contains(prefix, Encoding.UTF8.GetBytes(item.Key));
 #endif
                 if (!patchContains)
                 {
@@ -354,6 +355,36 @@ namespace SampleTypeSpec
 #else
             return BinaryData.FromString(element.GetRawText());
 #endif
+        }
+
+        public static bool TryGetIndex(this ReadOnlySpan<byte> indexSlice, out int index, out int bytesConsumed)
+        {
+            index = -1;
+            bytesConsumed = 0;
+
+            if (indexSlice.IsEmpty || indexSlice[0] != '[')
+            {
+                return false;
+            }
+
+            indexSlice = indexSlice.Slice(1);
+            if (indexSlice.IsEmpty || indexSlice[0] == '-')
+            {
+                return false;
+            }
+
+            int indexEnd = indexSlice.Slice(1).IndexOf((byte)']');
+            if (indexEnd < 0)
+            {
+                return false;
+            }
+
+            return Utf8Parser.TryParse(indexSlice.Slice(0, indexEnd + 1), out index, out bytesConsumed);
+        }
+
+        public static ReadOnlySpan<byte> GetRemainder(this ReadOnlySpan<byte> jsonPath, int index)
+        {
+            return index >= jsonPath.Length ? ReadOnlySpan<byte>.Empty : jsonPath[index] == '.' ? jsonPath.Slice(index) : jsonPath.Slice(index + 2);
         }
     }
 }

@@ -40,9 +40,9 @@ namespace Sample
                 bool patchContains;
 #if NET8_0_OR_GREATER
                 int bytesWritten = global::System.Text.Encoding.UTF8.GetBytes(item.Key, buffer);
-                patchContains = (bytesWritten == maxPropertyNameLength) ? patch.ContainsChildOf(prefix, global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : patch.ContainsChildOf(prefix, buffer.Slice(0, bytesWritten));
+                patchContains = (bytesWritten == maxPropertyNameLength) ? patch.Contains(prefix, global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : patch.Contains(prefix, buffer.Slice(0, bytesWritten));
 #else
-                patchContains = patch.ContainsChildOf(prefix, global::System.Text.Encoding.UTF8.GetBytes(item.Key));
+                patchContains = patch.Contains(prefix, global::System.Text.Encoding.UTF8.GetBytes(item.Key));
 #endif
                 if (!patchContains)
                 {

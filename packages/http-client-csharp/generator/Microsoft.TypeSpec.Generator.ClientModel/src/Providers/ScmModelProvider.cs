@@ -7,10 +7,12 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
@@ -24,10 +26,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
 
         internal const string ScmEvaluationTypeDiagnosticId = "SCME0001";
-        internal const string ScmEvaluationTypeSuppressionJustification = "Type is for evaluation purposes only and is subject to change or removal in future updates.";
+
+        internal const string ScmEvaluationTypeSuppressionJustification =
+            "Type is for evaluation purposes only and is subject to change or removal in future updates.";
+
         internal const string JsonPatchPropertyName = "Patch";
         internal bool IsDynamicModel { get; }
         internal bool HasDynamicModelSupport { get; }
+
+        internal bool HasDynamicProperties => _hasDynamicProperties ??= BuildHasDynamicProperties();
+        private bool? _hasDynamicProperties;
+
+        internal static SuppressionStatement JsonPatchSuppression = new SuppressionStatement(null,
+            Literal(ScmEvaluationTypeDiagnosticId),
+            ScmEvaluationTypeSuppressionJustification);
 
         public ScmModelProvider(InputModelType inputModel) : base(inputModel)
         {
@@ -112,6 +124,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         }
 
                         updatedBody.Add(JsonPatchField.Assign(JsonPatchProperty!.AsParameter).Terminate());
+                        if (HasDynamicProperties)
+                        {
+#pragma warning disable SCME0001
+                            updatedBody.Add(JsonPatchField.As<JsonPatch>().SetPropagators(new MemberExpression(null, "PropagateSet"), new MemberExpression(null, "PropagateGet")));
+#pragma warning restore SCME0001
+                        }
+
                         constructor.Update(bodyStatements: updatedBody);
                     }
                 }
@@ -235,6 +254,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             FullConstructor.Signature.Update(parameters: updatedParameters);
+        }
+
+        private bool BuildHasDynamicProperties()
+        {
+            if (Properties.Any(p =>
+                    ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(p.Type, out var provider) &&
+                    provider is ScmModelProvider { IsDynamicModel: true }))
+            {
+                return true;
+            }
+
+            return Properties
+                .Where(p => p.Type.IsCollection)
+                .Any(p => ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(
+                              p.Type.GetNestedElementType(),
+                              out var provider) &&
+                          provider is ScmModelProvider { IsDynamicModel: true });
         }
     }
 }

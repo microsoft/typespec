@@ -5,6 +5,8 @@ using System;
 using System.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Snippets;
+using Microsoft.TypeSpec.Generator.Statements;
+using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
 {
@@ -12,7 +14,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
     {
 #pragma warning disable SCME0001
         public static ScopedApi<bool> TryGetJson(
-            ValueExpression patch,
+            this ScopedApi<JsonPatch> patch,
             ValueExpression jsonPath,
             out ScopedApi<ReadOnlyMemory<byte>> patchedJson)
         {
@@ -21,13 +23,49 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
             return result;
         }
 
-        public static ScopedApi<bool> ContainsChildOf(
-            ValueExpression patch,
+        public static ScopedApi<bool> TryGetEncodedValue(
+            this ScopedApi<JsonPatch> patch,
+            ValueExpression jsonPath,
+            VariableExpression encodedValue)
+        => patch.Invoke(nameof(JsonPatch.TryGetEncodedValue), [jsonPath, new VariableExpression(encodedValue.Type, encodedValue.Declaration, IsOut: true)]).As<bool>();
+
+        public static ScopedApi<bool> Contains(
+            this ScopedApi<JsonPatch> patch,
             ValueExpression prefix,
             ValueExpression property)
         {
-            return patch.Invoke(nameof(JsonPatch.ContainsChildOf), [prefix, property]).As<bool>();
+            return patch.Invoke(nameof(JsonPatch.Contains), [prefix, property]).As<bool>();
+        }
+
+        public static MethodBodyStatement Set(
+            this ScopedApi<JsonPatch> patch,
+            ValueExpression jsonPath,
+            ValueExpression value)
+        {
+            return patch.Invoke(nameof(JsonPatch.Set), [jsonPath, value]).Terminate();
+        }
+
+        public static MethodBodyStatement SetPropagators(
+            this ScopedApi<JsonPatch> patch,
+            ValueExpression propagateSet,
+            ValueExpression propagateGet)
+        {
+            return patch.Invoke(nameof(JsonPatch.SetPropagators), [propagateSet, propagateGet, Null]).Terminate();
         }
 #pragma warning restore SCME0001
+
+        public static ValueExpression GetRemainder(
+            ValueExpression jsonPath,
+            ValueExpression index)
+        {
+            return jsonPath.Invoke("GetRemainder", [index]);
+        }
+
+        public static ValueExpression GetFirstPropertyName(
+            ValueExpression jsonPath,
+            ValueExpression bytesConsumed)
+        {
+            return jsonPath.Invoke("GetFirstPropertyName", [bytesConsumed]);
+        }
     }
 }
