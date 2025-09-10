@@ -2,41 +2,38 @@
 
 ---
 
-- The directory is under `packages/http-client-java`. For example, root is folder `<repository-root>/packages/http-client-java`, directory `generator/http-client-generator-test` is folder `<repository-root>/packages/http-client-java/generator/http-client-generator-test`.
-- Always use absolute path when change directory.
+- The directories mentioned in this instruction are relative to `<repository-root>/packages/http-client-java`. For example, the root is the folder `<repository-root>/packages/http-client-java`; the directory `generator/http-client-generator-test` refers to `<repository-root>/packages/http-client-java/generator/http-client-generator-test`.
+- Always use absolute paths when changing directories or running scripts.
 
-# Update Node.JS Package for Latest Dependencies
-
-Steps:
-
-1. Run `ncu -u` on "package.json" in root, and on the 2 "package.json" in `generator/http-client-generator-clientcore-test` and `generator/http-client-generator-test` folders.
-2. Update package versions in `peerDependencies` (keep the semver range) in root "package.json", according to the corresponding package versions in `devDependencies`.
-3. Update package versions in `override` (keep the semver range) in the other 2 "package.json", according to the corresponding package versions in root "package.json".
-4. Save the files, and run `npm install` in root, so that "package-lock.json" would be updated.
-5. Commit the changes on the "package.json" and "package-lock.json" files to git.
-6. If there is update to `http-specs` or `azure-http-specs` lib, run `Generate.ps1` in "generator/http-client-generator-test". Commit the changes in "generator/http-client-generator-test" to git.
-7. If there is update to `http-specs` lib, run `Generate.ps1` in "generator/http-client-generator-clientcore-test". Commit the changes in "generator/http-client-generator-clientcore-test" to git.
-
-# Prepare for Minor/Patch Release
+# Update Node.js packages for latest dependencies
 
 Steps:
 
-1. Bump minor/patch version of `@typespec/http-client-java` in the 3 "package.json".
-2. Save the file, and run `npm install` in root, so that "package-lock.json" would be updated.
+1. Run `ncu -u` on `package.json` in the root and on the two `package.json` files in `generator/http-client-generator-clientcore-test` and `generator/http-client-generator-test`.
+2. Update package versions in `peerDependencies` (keep the semver ranges) in the root `package.json` to match the corresponding package versions listed in `devDependencies`.
+3. Update package versions in `override` (keep the semver ranges) in the other two `package.json` files to match the corresponding package versions in the root `package.json`.
+4. Save the files and run `npm install` in the root so that `package-lock.json` is updated.
+5. Commit the changes to `package.json` and `package-lock.json`.
+6. If there is an update to the `http-specs` or `azure-http-specs` libraries, run `Generate.ps1` in `generator/http-client-generator-test` and commit the generated changes in that folder.
+7. If there is an update to the `http-specs` library, run `Generate.ps1` in `generator/http-client-generator-clientcore-test` and commit the generated changes in that folder.
 
-The [publish to NPM](https://dev.azure.com/azure-sdk/internal/_build?definitionId=7294) would be automatically triggered, after the PR is merged.
+# Prepare for minor/patch release
 
-# Add End2End Test Case
+Steps:
 
-The typical task is to `add e2e test case for <package>, scenario is <url-to-tsp-file>`.
+1. Bump the minor or patch version of `@typespec/http-client-java` in the three `package.json` files.
+2. Save the files and run `npm install` in the root so that `package-lock.json` is updated.
 
-The source files to test are under `generator/http-client-generator-test/src/main/java/<package>`.
-Read the `Builder` and `Client` Java file to understand the client structure, and APIs.
-Read the Java files under `generator/http-client-generator-test/src/main/java/<package>/models` to understand the classes that be used in the APIs.
+The publish workflow (to NPM) will be automatically triggered after the PR is merged: https://dev.azure.com/azure-sdk/internal/_build?definitionId=7294
 
-Read the `<url-to-tsp-file>` to understand the scenario for the test case. This TypeSpec file contains the expected HTTP request and response in `@scenarioDoc`.
-Also try read the `client.tsp` in the same folder (replace `main.tsp` with `client.tsp` in the URL). This file is optional, ignore it if there is no such file.
+# Add end-to-end (e2e) test case
 
-Read a few existing test cases in `generator/http-client-generator-test/src/test/java/` to understand how to write the test case.
+Typical task: `add e2e test case for <package>, scenario is <url-to-tsp-file>`.
 
-Then, add a test case in `generator/http-client-generator-test/src/test/java/<package>/` with the name `<scenario>Tests.java`.
+1. The source files for the generated client under test are located in `generator/http-client-generator-test/src/main/java/<package>`.
+2. Read the `Builder` and `Client` Java files to understand the client structure and available APIs.
+3. Read the Java model classes under `generator/http-client-generator-test/src/main/java/<package>/models` to understand the data types used by the APIs.
+4. Read the TypeSpec file at the given `<url-to-tsp-file>` to understand the scenario. The TypeSpec file contains the expected HTTP request and response in the `@scenarioDoc` decorator.
+5. Optionally, check for a `client.tsp` in the same folder (replace `main.tsp` with `client.tsp` in the URL). Use it if present.
+6. Review a few existing test cases in `generator/http-client-generator-test/src/test/java/` to learn the test structure and patterns used. Do not read file under `**/generated` folder.
+7. Add a new test class in `generator/http-client-generator-test/src/test/java/<package>/` named `<Scenario>Tests.java`, following existing conventions. The test class should not extend other class.
