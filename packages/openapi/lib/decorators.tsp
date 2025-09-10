@@ -111,7 +111,7 @@ model License {
 
 /**
  * Specify OpenAPI additional information.
- * The service `title` and `version` are already specified using `@service`.
+ * The service `title` is already specified using `@service`.
  * @param additionalInfo Additional information
  */
 extern dec info(target: Namespace, additionalInfo: valueof AdditionalInfo);

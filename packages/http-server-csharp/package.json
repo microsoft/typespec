@@ -1,6 +1,6 @@
 {
   "name": "@typespec/http-server-csharp",
-  "version": "0.58.0-alpha.19",
+  "version": "0.58.0-alpha.20",
   "author": "Microsoft Corporation",
   "description": "TypeSpec service code generator for c-sharp",
   "homepage": "https://typespec.io",
@@ -72,7 +72,7 @@
   },
   "devDependencies": {
     "@types/cross-spawn": "~6.0.6",
-    "@types/node": "~24.1.0",
+    "@types/node": "~24.3.0",
     "@types/yargs": "~17.0.33",
     "@typespec/compiler": "workspace:^",
     "@typespec/http": "workspace:^",
@@ -91,9 +91,9 @@
     "globby": "~14.1.0",
     "inquirer": "^12.5.0",
     "ora": "^8.1.1",
-    "p-limit": "^6.2.0",
+    "p-limit": "^7.1.1",
     "pathe": "^2.0.3",
-    "typescript": "~5.8.2",
+    "typescript": "~5.9.2",
     "vitest": "^3.1.2"
   }
 }

@@ -13,7 +13,6 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.Simplification;
-using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Utilities;
@@ -103,6 +102,7 @@ namespace Microsoft.TypeSpec.Generator
         public async IAsyncEnumerable<(string Name, string Text)> GetGeneratedFilesAsync()
         {
             List<Task<Document>> documents = new List<Task<Document>>();
+            var memberRemover = new MemberRemoverRewriter();
             foreach (Document document in _project.Documents)
             {
                 if (!IsGeneratedDocument(document))
@@ -110,16 +110,16 @@ namespace Microsoft.TypeSpec.Generator
                     continue;
                 }
 
-                documents.Add(ProcessDocument(document));
+                documents.Add(ProcessDocument(document, memberRemover));
             }
             var docs = await Task.WhenAll(documents);
 
+            LoggingHelpers.LogElapsedTime("Roslyn post processing complete");
+
             foreach (var doc in docs)
             {
-                var processed = doc;
-
-                var text = await processed.GetSyntaxTreeAsync();
-                yield return (processed.Name, text!.ToString());
+                var text = await doc.GetTextAsync();
+                yield return (doc.Name, text.ToString());
             }
 
             foreach (var (file, content) in PlainFiles)
@@ -128,24 +128,24 @@ namespace Microsoft.TypeSpec.Generator
             }
         }
 
-        private async Task<Document> ProcessDocument(Document document)
+        private async Task<Document> ProcessDocument(Document document, MemberRemoverRewriter memberRemover)
         {
-            var syntaxTree = await document.GetSyntaxTreeAsync();
-            var compilation = await GetCompilationAsync();
-            if (syntaxTree != null)
-            {
-                var semanticModel = compilation.GetSemanticModel(syntaxTree);
-                var modelRemoveRewriter = new MemberRemoverRewriter(_project, semanticModel);
-                var root = await syntaxTree.GetRootAsync();
-                root = modelRemoveRewriter.Visit(root);
+            var root = await document.GetSyntaxRootAsync();
+            var semanticModel = await document.GetSemanticModelAsync();
 
-                foreach (var rewriter in CodeModelGenerator.Instance.Rewriters)
-                {
-                    rewriter.SemanticModel = semanticModel;
-                    root = rewriter.Visit(root);
-                }
-                document = document.WithSyntaxRoot(root);
+            if (semanticModel == null || root == null)
+            {
+                return document;
             }
+
+            root = memberRemover.Visit(root);
+
+            foreach (var rewriter in CodeModelGenerator.Instance.Rewriters)
+            {
+                rewriter.SemanticModel = semanticModel;
+                root = rewriter.Visit(root);
+            }
+            document = document.WithSyntaxRoot(root);
 
             document = await Simplifier.ReduceAsync(document);
 

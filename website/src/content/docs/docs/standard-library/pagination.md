@@ -1,5 +1,7 @@
 ---
 title: Pagination
+description: Standard library reference to using built-in pagination patterns
+llmstxt: true
 ---
 
 TypeSpec provide built-in support for some of the common pagination pattern used.

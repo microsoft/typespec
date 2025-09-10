@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -10,6 +11,7 @@ namespace Microsoft.TypeSpec.Generator.Input
 {
     internal sealed class InputModelTypeConverter : JsonConverter<InputModelType>
     {
+        private const string DynamicModelDecorator = "TypeSpec.HttpClient.CSharp.@dynamicModel";
         private readonly TypeSpecReferenceHandler _referenceHandler;
 
         public InputModelTypeConverter(TypeSpecReferenceHandler referenceHandler)
@@ -105,7 +107,10 @@ namespace Microsoft.TypeSpec.Generator.Input
             model.Summary = summary;
             model.Doc = doc;
             var parsedUsage = Enum.TryParse<InputModelTypeUsage>(usageString, ignoreCase: true, out var usage) ? usage : InputModelTypeUsage.None;
-            model.Usage = parsedUsage;
+
+            // All models are given a usage of JSON so that they can be persisted regardless of whether
+            // they are used in requests or responses.
+            model.Usage = parsedUsage | InputModelTypeUsage.Json;
             model.DiscriminatorValue = discriminatorValue;
             model.DiscriminatorProperty = discriminatorProperty;
             model.AdditionalProperties = additionalProperties;
@@ -127,6 +132,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             if (decorators != null)
             {
                 model.Decorators = decorators;
+                model.IsDynamicModel = model.Decorators.Any(d => d.Name.Equals(DynamicModelDecorator));
             }
 
             // if this model has a base, it means this model is a derived model of the base model, add it into the list.

@@ -1,5 +1,18 @@
 # @typespec/http-specs
 
+## 0.1.0-alpha.26
+
+### Features
+
+- [#8200](https://github.com/microsoft/typespec/pull/8200) Add spector scenario for nextLink defined as string
+- [#8255](https://github.com/microsoft/typespec/pull/8255) Enhanced body-optionality scenario to validate Content-Type header presence/absence based on optional body parameters
+- [#7651](https://github.com/microsoft/typespec/pull/7651) Add Spector scenario for simple pagination without nextlink or continuationToken. This covers basic pagination patterns using only @pageItems decorator without any continuation mechanism.
+
+### Bump dependencies
+
+- [#8317](https://github.com/microsoft/typespec/pull/8317) Upgrade dependencies
+
+
 ## 0.1.0-alpha.25
 
 ### Bump dependencies

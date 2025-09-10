@@ -14,6 +14,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSe
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Client;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.TypeSpecMetadata;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.mgmt.FluentGen;
@@ -24,7 +25,7 @@ import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import com.microsoft.typespec.http.client.generator.model.EmitterOptions;
 import com.microsoft.typespec.http.client.generator.util.FileUtil;
 import com.microsoft.typespec.http.client.generator.util.MetadataUtil;
-import java.io.File;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -122,7 +123,8 @@ public class TypeSpecFluentPlugin extends FluentGen {
 
         if (emitterOptions.getIncludeApiViewProperties() == Boolean.TRUE) {
             TypeSpecMetadata metadata = new TypeSpecMetadata(FluentUtils.getArtifactId(), emitterOptions.getFlavor(),
-                apiVersion, collectCrossLanguageDefinitions(client));
+                apiVersion, collectCrossLanguageDefinitions(client),
+                FileUtil.filterForJavaSourceFiles(javaPackage.getJavaFiles().stream().map(JavaFile::getFilePath)));
             javaPackage.addTypeSpecMetadata(metadata);
         }
 
@@ -131,8 +133,8 @@ public class TypeSpecFluentPlugin extends FluentGen {
 
     @Override
     public void writeFile(String fileName, String content, List<Object> sourceMap) {
-        File outputFile = FileUtil.writeToFile(emitterOptions.getOutputDir(), fileName, content);
-        LOGGER.info("Write file: {}", outputFile.getAbsolutePath());
+        Path outputFile = FileUtil.writeToFile(emitterOptions.getOutputDir(), fileName, content);
+        LOGGER.info("Write file: {}", outputFile.toAbsolutePath());
     }
 
     @Override

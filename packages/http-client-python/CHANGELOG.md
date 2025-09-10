@@ -1,5 +1,47 @@
 # Change Log - @typespec/http-client-python
 
+## 0.17.0
+
+### Features
+
+- [#8130](https://github.com/microsoft/typespec/pull/8130) DPG model supports multi-layer discriminator.
+
+### Bump dependencies
+
+- [#8407](https://github.com/microsoft/typespec/pull/8407) bump tsp
+
+### Bug Fixes
+
+- [#8339](https://github.com/microsoft/typespec/pull/8339) fail installation when fail to create virtual environment
+- [#8376](https://github.com/microsoft/typespec/pull/8376) fix black for windows os
+- [#8395](https://github.com/microsoft/typespec/pull/8395) Fix line break across OS
+- [#8359](https://github.com/microsoft/typespec/pull/8359) Fix import of typing `List` for ARM SDK
+- [#8349](https://github.com/microsoft/typespec/pull/8349) Fix dependencies of pyproject.toml for ARM SDK
+- [#8319](https://github.com/microsoft/typespec/pull/8319) Add imports for readonly and constant props for msrest model generation
+
+
+## 0.16.0
+
+### Deprecations
+
+- [#8311](https://github.com/microsoft/typespec/pull/8311) Deprecate multiapi
+
+### Features
+
+- [#8209](https://github.com/microsoft/typespec/pull/8209) Add keyword only signature `cloud_setting` into ARM client
+- [#7824](https://github.com/microsoft/typespec/pull/7824) Upgrade typing for dict, list, set, and tuple to be from stdlib
+
+### Bump dependencies
+
+- [#8233](https://github.com/microsoft/typespec/pull/8233) Upgrade azure-http-specs version.
+
+### Bug Fixes
+
+- [#8189](https://github.com/microsoft/typespec/pull/8189) fix to keep some existing parts of pyproject.toml
+- [#8248](https://github.com/microsoft/typespec/pull/8248) Generated model which is not only used in paging response
+- [#8250](https://github.com/microsoft/typespec/pull/8250) don't send content-type when no request body
+
+
 ## 0.15.2
 
 ### Bug Fixes

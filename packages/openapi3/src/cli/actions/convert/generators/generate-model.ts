@@ -1,5 +1,5 @@
 import { printIdentifier } from "@typespec/compiler";
-import { OpenAPI3Schema, Refable } from "../../../../types.js";
+import { OpenAPI3Encoding, OpenAPI3Schema, Refable } from "../../../../types.js";
 import {
   TypeSpecAlias,
   TypeSpecDataTypes,
@@ -13,7 +13,12 @@ import { Context } from "../utils/context.js";
 import { getDecoratorsForSchema } from "../utils/decorators.js";
 import { generateDocs } from "../utils/docs.js";
 import { generateDecorators } from "./generate-decorators.js";
-import { getTypeSpecPrimitiveFromSchema } from "./generate-types.js";
+import {
+  getTypeSpecPrimitiveFromSchema,
+  isReferencedEnumType,
+  isReferencedUnionType,
+  SchemaToExpressionGenerator,
+} from "./generate-types.js";
 
 export function generateDataType(type: TypeSpecDataTypes, context: Context): string {
   switch (type.kind) {
@@ -98,8 +103,11 @@ function generateUnion(union: TypeSpecUnion, context: Context): string {
 
     const memberSchema = "$ref" in member ? context.getSchemaByRef(member.$ref)! : member;
 
-    const value = (memberSchema.properties?.[union.schema.discriminator.propertyName] as any)
-      ?.enum?.[0];
+    const value =
+      (union.schema.discriminator?.mapping && "$ref" in member
+        ? Object.entries(union.schema.discriminator.mapping).find((x) => x[1] === member.$ref)?.[0]
+        : undefined) ??
+      (memberSchema.properties?.[union.schema.discriminator.propertyName] as any)?.enum?.[0];
     // checking whether the value is using an invalid character as an identifier
     const valueIdentifier = value ? printIdentifier(value, "disallow-reserved") : "";
     return value ? `${value === valueIdentifier ? value : valueIdentifier}: ` : "";
@@ -159,7 +167,15 @@ function generateModel(model: TypeSpecModel, context: Context): string {
   }
 
   definitions.push(
-    ...model.properties.map((prop) => generateModelProperty(prop, model.scope, context)),
+    ...model.properties.map((prop) =>
+      generateModelProperty(
+        prop,
+        model.scope,
+        context,
+        model.isModelReferencedAsMultipartRequestBody,
+        model.encoding,
+      ),
+    ),
   );
 
   if (model.additionalProperties) {
@@ -177,17 +193,26 @@ export function generateModelProperty(
   prop: TypeSpecModelProperty,
   containerScope: string[],
   context: Context,
+  isModelReferencedAsMultipartRequestBody?: boolean,
+  encoding?: Record<string, OpenAPI3Encoding>,
 ): string {
+  const propertyType = context.generateTypeFromRefableSchema(prop.schema, containerScope);
+
   // Decorators will be a combination of top-level (parameters) and
   // schema-level decorators.
-  const decorators = generateDecorators([
-    ...prop.decorators,
-    ...getDecoratorsForSchema(prop.schema),
-  ]).join(" ");
+  const decorators = generateDecorators(
+    [...prop.decorators, ...getDecoratorsForSchema(prop.schema)],
+    isModelReferencedAsMultipartRequestBody
+      ? SchemaToExpressionGenerator.decoratorNamesToExcludeForParts
+      : [],
+  ).join(" ");
+
+  const isEnumType = isReferencedEnumType(prop.schema, context);
+  const isUnionType = isReferencedUnionType(prop.schema, context);
 
   const doc = prop.doc ? generateDocs(prop.doc) : "";
 
-  return `${doc}${decorators} ${prop.name}${prop.isOptional ? "?" : ""}: ${context.generateTypeFromRefableSchema(prop.schema, containerScope)};`;
+  return `${doc}${decorators} ${prop.name}${prop.isOptional ? "?" : ""}: ${context.getPartType(propertyType, prop.name, isModelReferencedAsMultipartRequestBody ?? false, encoding, isEnumType, isUnionType)};`;
 }
 
 export function generateModelExpression(
