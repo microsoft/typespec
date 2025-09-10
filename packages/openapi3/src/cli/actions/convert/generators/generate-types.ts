@@ -107,6 +107,8 @@ export class SchemaToExpressionGenerator {
       type = this.generateArrayType(schema, callingScope);
     } else if (schema.type === "boolean") {
       type = "boolean";
+    } else if ((schema as any).type === "null") {
+      type = "null";
     } else if (schema.type === "integer") {
       type = getIntegerType(schema);
     } else if (schema.type === "number") {
@@ -378,6 +380,8 @@ export function isReferencedUnionType(
 export function getTypeSpecPrimitiveFromSchema(schema: OpenAPI3Schema): string | undefined {
   if (schema.type === "boolean") {
     return "boolean";
+  } else if ((schema as any).type === "null") {
+    return "null";
   } else if (schema.type === "integer") {
     return getIntegerType(schema);
   } else if (schema.type === "number") {

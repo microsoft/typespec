@@ -312,6 +312,43 @@ function validateTargetingAString(
   return valid;
 }
 
+/**
+ * Get the actual type from a Type or ModelProperty for array validation
+ */
+function getTypeForArrayValidation(target: Type | ModelProperty): Type {
+  if (target.kind === "ModelProperty") {
+    return target.type;
+  } else {
+    return target.kind === "Model" ? target : (target as any).type;
+  }
+}
+
+/**
+ * Validate the given target is an array type or a union containing at least an array type.
+ */
+function validateTargetingAnArray(
+  context: DecoratorContext,
+  target: Type | ModelProperty,
+  decoratorName: string,
+) {
+  const targetType = getTypeForArrayValidation(target);
+  const valid = isTypeIn(
+    targetType,
+    (x) => x.kind === "Model" && isArrayModelType(context.program, x),
+  );
+  if (!valid) {
+    reportDiagnostic(context.program, {
+      code: "decorator-wrong-target",
+      format: {
+        decorator: decoratorName,
+        to: `non Array type`,
+      },
+      target: context.decoratorTarget,
+    });
+  }
+  return valid;
+}
+
 // -- @error decorator ----------------------
 
 const [getErrorState, setErrorState] = useStateSet<Model>(createStateSymbol("error"));
@@ -569,15 +606,8 @@ export const $minItems: MinItemsDecorator = (
 ) => {
   validateDecoratorUniqueOnNode(context, target, $minItems);
 
-  if (!isArrayModelType(context.program, target.kind === "Model" ? target : (target as any).type)) {
-    reportDiagnostic(context.program, {
-      code: "decorator-wrong-target",
-      format: {
-        decorator: "@minItems",
-        to: `non Array type`,
-      },
-      target: context.decoratorTarget,
-    });
+  if (!validateTargetingAnArray(context, target, "@minItems")) {
+    return;
   }
 
   if (!validateRange(context, minItems, getMaxItemsAsNumeric(context.program, target))) {
@@ -596,15 +626,8 @@ export const $maxItems: MaxItemsDecorator = (
 ) => {
   validateDecoratorUniqueOnNode(context, target, $maxItems);
 
-  if (!isArrayModelType(context.program, target.kind === "Model" ? target : (target as any).type)) {
-    reportDiagnostic(context.program, {
-      code: "decorator-wrong-target",
-      format: {
-        decorator: "@maxItems",
-        to: `non Array type`,
-      },
-      target: context.decoratorTarget,
-    });
+  if (!validateTargetingAnArray(context, target, "@maxItems")) {
+    return;
   }
   if (!validateRange(context, getMinItemsAsNumeric(context.program, target), maxItems)) {
     return;

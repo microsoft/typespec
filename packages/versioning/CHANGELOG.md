@@ -1,5 +1,16 @@
 # Change Log - @typespec/versioning
 
+## 0.74.0
+
+### Bump dependencies
+
+- [#8317](https://github.com/microsoft/typespec/pull/8317) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8327](https://github.com/microsoft/typespec/pull/8327) Skip validating versioning in template declaration as information could be missing
+
+
 ## 0.73.0
 
 ### Features
