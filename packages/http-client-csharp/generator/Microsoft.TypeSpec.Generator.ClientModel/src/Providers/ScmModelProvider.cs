@@ -34,7 +34,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         internal bool IsDynamicModel { get; }
         internal bool HasDynamicModelSupport { get; }
 
-        internal bool HasDynamicProperties { get; }
+        internal bool HasDynamicProperties => _hasDynamicProperties ??= BuildHasDynamicProperties();
+        private bool? _hasDynamicProperties;
 
         internal static SuppressionStatement JsonPatchSuppression = new SuppressionStatement(null,
             Literal(ScmEvaluationTypeDiagnosticId),
@@ -44,7 +45,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             IsDynamicModel = inputModel.IsDynamicModel;
             HasDynamicModelSupport = ComputeHasDynamicModelSupport();
-            HasDynamicProperties = BuildHasDynamicProperties();
         }
 
         protected override FieldProvider[] BuildFields()
