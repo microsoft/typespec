@@ -133,7 +133,10 @@ namespace Microsoft.TypeSpec.Generator.Input
             if (decorators != null)
             {
                 model.Decorators = decorators;
-                model.IsDynamicModel = model.Decorators.Any(d => d.Name.Equals(DynamicModelDecorator));
+                if (model.Decorators.Any(d => d.Name.Equals(DynamicModelDecorator)))
+                {
+                    MarkModelsAsDynamicRecursive(model);
+                }
             }
 
             // if this model has a base, it means this model is a derived model of the base model, add it into the list.
@@ -143,6 +146,37 @@ namespace Microsoft.TypeSpec.Generator.Input
             }
 
             return model;
+        }
+
+        private static void MarkModelsAsDynamicRecursive(InputType inputType)
+        {
+            if (inputType is InputModelType modelType)
+            {
+                modelType.IsDynamicModel = true;
+                foreach (var property in modelType.Properties)
+                {
+                    if (property.Type is InputModelType propertyType)
+                    {
+                        MarkModelsAsDynamicRecursive(propertyType);
+                    }
+                    else if (property.Type is InputArrayType arrayType)
+                    {
+                        MarkModelsAsDynamicRecursive(arrayType.ValueType);
+                    }
+                    else if (property.Type is InputDictionaryType dictionaryType)
+                    {
+                        MarkModelsAsDynamicRecursive(dictionaryType.ValueType);
+                    }
+                }
+            }
+            else if (inputType is InputArrayType arrayType)
+            {
+                MarkModelsAsDynamicRecursive(arrayType.ValueType);
+            }
+            else if (inputType is InputDictionaryType dictionaryType)
+            {
+                MarkModelsAsDynamicRecursive(dictionaryType.ValueType);
+            }
         }
     }
 }
