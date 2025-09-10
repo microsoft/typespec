@@ -13,9 +13,9 @@
   },
   "dependencies": {
     "@typespec/spector": "0.1.0-alpha.18",
-    "@typespec/spec-api": "0.1.0-alpha.8",
-    "@typespec/http-specs": "0.1.0-alpha.25",
-    "@azure-tools/azure-http-specs": "0.1.0-alpha.27",
+    "@typespec/spec-api": "0.1.0-alpha.9",
+    "@typespec/http-specs": "0.1.0-alpha.26",
+    "@azure-tools/azure-http-specs": "0.1.0-alpha.28",
     "@typespec/http-client-java": "file:../../typespec-http-client-java-0.4.3.tgz",
     "@typespec/http-client-java-tests": "file:"
   },
