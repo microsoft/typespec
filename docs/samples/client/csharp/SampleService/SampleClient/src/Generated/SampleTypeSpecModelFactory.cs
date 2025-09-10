@@ -172,10 +172,38 @@ namespace SampleTypeSpec
 
         /// <summary> A sample dynamic model. </summary>
         /// <param name="name"></param>
+        /// <param name="foo"></param>
+        /// <param name="listFoo"></param>
+        /// <param name="listOfListFoo"></param>
+        /// <param name="dictionaryFoo"></param>
+        /// <param name="dictionaryListFoo"></param>
+        /// <param name="listOfDictionaryFoo"></param>
         /// <returns> A new <see cref="SampleTypeSpec.DynamicModel"/> instance for mocking. </returns>
-        public static DynamicModel DynamicModel(string name = default)
+        public static DynamicModel DynamicModel(string name = default, AnotherDynamicModel foo = default, IEnumerable<AnotherDynamicModel> listFoo = default, IEnumerable<IList<AnotherDynamicModel>> listOfListFoo = default, IDictionary<string, AnotherDynamicModel> dictionaryFoo = default, IDictionary<string, IList<AnotherDynamicModel>> dictionaryListFoo = default, IEnumerable<IDictionary<string, AnotherDynamicModel>> listOfDictionaryFoo = default)
         {
-            return new DynamicModel(name, additionalBinaryDataProperties: null);
+            listFoo ??= new ChangeTrackingList<AnotherDynamicModel>();
+            listOfListFoo ??= new ChangeTrackingList<IList<AnotherDynamicModel>>();
+            dictionaryFoo ??= new ChangeTrackingDictionary<string, AnotherDynamicModel>();
+            dictionaryListFoo ??= new ChangeTrackingDictionary<string, IList<AnotherDynamicModel>>();
+            listOfDictionaryFoo ??= new ChangeTrackingList<IDictionary<string, AnotherDynamicModel>>();
+
+            return new DynamicModel(
+                name,
+                foo,
+                listFoo.ToList(),
+                listOfListFoo.ToList(),
+                dictionaryFoo,
+                dictionaryListFoo,
+                listOfDictionaryFoo.ToList(),
+                additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> Another sample dynamic model. </summary>
+        /// <param name="bar"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.AnotherDynamicModel"/> instance for mocking. </returns>
+        public static AnotherDynamicModel AnotherDynamicModel(string bar = default)
+        {
+            return new AnotherDynamicModel(bar, additionalBinaryDataProperties: null);
         }
     }
 }

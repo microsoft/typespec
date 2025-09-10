@@ -291,7 +291,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodBodyStatement[] BuildGetValuesFromPages()
         {
-            var items = GetPropertyExpression(Paging.ItemPropertySegments, PageParameter.AsExpression());
+            var items = GetPropertyExpression(Paging.ItemPropertySegments, PageParameter.AsVariable());
             return
             IsAsync ?
                 [
@@ -322,7 +322,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             switch (NextPageLocation)
             {
                 case InputResponseLocation.Body:
-                    var resultExpression = GetPropertyExpression(nextPagePropertySegments!, PageParameter.AsExpression());
+                    var resultExpression = GetPropertyExpression(nextPagePropertySegments!, PageParameter.AsVariable());
                     return
                     [
                         Declare(nextPageVariable, resultExpression),

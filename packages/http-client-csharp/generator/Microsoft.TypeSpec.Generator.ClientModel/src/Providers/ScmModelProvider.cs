@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -25,15 +26,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
 
         internal const string ScmEvaluationTypeDiagnosticId = "SCME0001";
-        internal const string ScmEvaluationTypeSuppressionJustification = "Type is for evaluation purposes only and is subject to change or removal in future updates.";
+
+        internal const string ScmEvaluationTypeSuppressionJustification =
+            "Type is for evaluation purposes only and is subject to change or removal in future updates.";
+
         internal const string JsonPatchPropertyName = "Patch";
         internal bool IsDynamicModel { get; }
         internal bool HasDynamicModelSupport { get; }
+
+        internal bool HasDynamicProperties { get; }
+
+        internal static SuppressionStatement JsonPatchSuppression = new SuppressionStatement(null,
+            Literal(ScmEvaluationTypeDiagnosticId),
+            ScmEvaluationTypeSuppressionJustification);
 
         public ScmModelProvider(InputModelType inputModel) : base(inputModel)
         {
             IsDynamicModel = inputModel.IsDynamicModel;
             HasDynamicModelSupport = ComputeHasDynamicModelSupport();
+            HasDynamicProperties = BuildHasDynamicProperties();
         }
 
         protected override FieldProvider[] BuildFields()
@@ -65,47 +76,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return [JsonPatchProperty, .. base.BuildProperties()];
-        }
-
-        protected override MethodProvider[] BuildMethods()
-        {
-            if (!IsDynamicModel)
-            {
-                return base.BuildMethods();
-            }
-
-            return [BuildPropagateSetMethod(), BuildPropagateGetMethod(), .. base.BuildMethods()];
-        }
-
-        private MethodProvider BuildPropagateGetMethod()
-        {
-            var jsonPathParameter = new ParameterProvider("jsonPath", $"", typeof(ReadOnlySpan<byte>));
-#pragma warning disable SCME0001
-            var valueParameter = new ParameterProvider("value", $"", typeof(JsonPatch.EncodedValue), isOut: true);
-#pragma warning restore SCME0001
-
-            var signature = new MethodSignature(
-                "PropagateGet",
-                $"",
-                MethodSignatureModifiers.Private,
-                typeof(bool),
-                $"",
-                [jsonPathParameter, valueParameter]);
-
-            var complexProperties = Properties.Where(p => p.Type.IsComplex && !p.Type.IsCollection).ToArray();
-
-            var bodyStatements = new MethodBodyStatement[]
-            {
-                Declare("local", typeof(ReadOnlySpan<byte>), jsonPathParameter.Invoke("SliceToStartOfPropertyName"), out var localVariable),
-                valueParameter.Assign(Default).Terminate(),
-                MethodBodyStatement.EmptyLine,
-
-            };
-        }
-
-        private MethodProvider BuildPropagateSetMethod()
-        {
-            throw new NotImplementedException();
         }
 
         protected override ConstructorProvider[] BuildConstructors()
@@ -154,6 +124,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         }
 
                         updatedBody.Add(JsonPatchField.Assign(JsonPatchProperty!.AsParameter).Terminate());
+                        if (HasDynamicProperties)
+                        {
+#pragma warning disable SCME0001
+                            updatedBody.Add(JsonPatchField.As<JsonPatch>().SetPropagators(new MemberExpression(null, "PropagateSet"), new MemberExpression(null, "PropagateGet")));
+#pragma warning restore SCME0001
+                        }
+
                         constructor.Update(bodyStatements: updatedBody);
                     }
                 }
@@ -277,6 +254,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             FullConstructor.Signature.Update(parameters: updatedParameters);
+        }
+
+        private bool BuildHasDynamicProperties()
+        {
+            if (Properties.Any(p =>
+                    ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(p.Type, out var provider) &&
+                    provider is ScmModelProvider { IsDynamicModel: true }))
+            {
+                return true;
+            }
+
+            return Properties
+                .Where(p => p.Type.IsCollection)
+                .Any(p => ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(
+                              p.Type.GetNestedElementType(),
+                              out var provider) &&
+                          provider is ScmModelProvider { IsDynamicModel: true });
         }
     }
 }

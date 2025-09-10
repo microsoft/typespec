@@ -337,7 +337,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             var method = methods.SingleOrDefault(m => m.Signature.Name == "SliceToStartOfPropertyName");
             Assert.IsNotNull(method);
 
-            var writer = new TypeProviderWriter(new FilteredMethods(definition, method!.Signature.Name));
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(definition, name => name == method!.Signature.Name));
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
@@ -354,7 +354,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             var method = methods.SingleOrDefault(m => m.Signature.Name == "GetUtf8Bytes");
             Assert.IsNotNull(method);
 
-            var writer = new TypeProviderWriter(new FilteredMethods(definition, method!.Signature.Name));
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(definition, name => name == method!.Signature.Name));
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
@@ -371,7 +371,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             var method = methods.SingleOrDefault(m => m.Signature.Name == "GetFirstPropertyName");
             Assert.IsNotNull(method);
 
-            var writer = new TypeProviderWriter(new FilteredMethods(definition, method!.Signature.Name));
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(definition, name => name == method!.Signature.Name));
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
@@ -388,30 +388,43 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             var method = methods.SingleOrDefault(m => m.Signature.Name == "WriteDictionaryWithPatch");
             Assert.IsNotNull(method);
 
-            var writer = new TypeProviderWriter(new FilteredMethods(definition, method!.Signature.Name));
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(definition, name => name == method!.Signature.Name));
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
-        private class FilteredMethods : TypeProvider
+        [Test]
+        public void ValidateTryGetIndex()
         {
-            private readonly string _method;
-            private readonly TypeProvider _provider;
+            MockHelpers.LoadMockGenerator(inputModels: () => [InputFactory.Model("dynamicModel", isDynamic: true)]);
 
-            public FilteredMethods(TypeProvider provider, string methodName)
-            {
-                _provider = provider;
-                _method = methodName;
-            }
+            var definition = new ModelSerializationExtensionsDefinition();
+            var methods = definition.Methods;
 
-            protected override MethodProvider[] BuildMethods()
-            {
-                return _provider.Methods.Where(m => m.Signature.Name == _method).ToArray();
-            }
+            Assert.IsNotNull(methods);
+            var method = methods.SingleOrDefault(m => m.Signature.Name == "TryGetIndex");
+            Assert.IsNotNull(method);
 
-            protected override string BuildRelativeFilePath() => _provider.RelativeFilePath;
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(definition, name => name == method!.Signature.Name));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
 
-            protected override string BuildName() => _provider.Name;
+        [Test]
+        public void ValidateGetRemainder()
+        {
+            MockHelpers.LoadMockGenerator(inputModels: () => [InputFactory.Model("dynamicModel", isDynamic: true)]);
+
+            var definition = new ModelSerializationExtensionsDefinition();
+            var methods = definition.Methods;
+
+            Assert.IsNotNull(methods);
+            var method = methods.SingleOrDefault(m => m.Signature.Name == "GetRemainder");
+            Assert.IsNotNull(method);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(definition, name => name == method!.Signature.Name));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
     }
 }

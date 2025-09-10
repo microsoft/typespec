@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Buffers.Text;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -576,7 +577,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 BuildSliceToStartOfPropertyNameMethodProvider(),
                 BuildGetFirstPropertyNameMethodProvider(),
                 BuildWriteDictionaryWithPatchMethodProvider(),
-                BuildGetUtf8BytesMethodProvider()
+                BuildGetUtf8BytesMethodProvider(),
+                BuildTryGetIndexMethodProvider(),
+                BuildGetRemainderMethodProvider()
             ];
         }
 
@@ -592,7 +595,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 Description: null,
                 ReturnDescription: null);
 
-            var declareLocal = Declare("local", typeof(ReadOnlySpan<byte>), jsonPathParameter.AsExpression(),
+            var declareLocal = Declare("local", typeof(ReadOnlySpan<byte>), jsonPathParameter.AsVariable(),
                 out var local);
             var indexable = new IndexableExpression(local);
             var body = new MethodBodyStatement[]
@@ -629,7 +632,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 Description: null,
                 ReturnDescription: null);
 
-            var declareLocal = Declare("local", typeof(ReadOnlySpan<byte>), jsonPathParameter.AsExpression(),
+            var declareLocal = Declare("local", typeof(ReadOnlySpan<byte>), jsonPathParameter.AsVariable(),
                 out var local);
             var bytesConsumedInt = bytesConsumedParameter.As<int>();
             var indexable = new IndexableExpression(local);
@@ -692,7 +695,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ReturnDescription: null,
                 GenericArguments: [tArg]);
             var jsonWriter = writerParameter.As<Utf8JsonWriter>();
-            var patchExpression = patchParameter.AsExpression(includeRef: false);
+#pragma warning disable SCME0001
+            var patchExpression = patchParameter.AsVariable().As<JsonPatch>();
+#pragma warning restore SCME0001
 
             var body = new MethodBodyStatement[]
             {
@@ -713,7 +718,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 new ForEachStatement("item", dictionaryParameter.As<IDictionary<string, object>>(), out var item)
                 {
                     new IfStatement(getPatchFromItemParameter.NotEqual(Null)
-                        .And(JsonPatchSnippets.TryGetJson(getPatchFromItemParameter.InvokeLambda(item.Property("Value")),
+#pragma warning disable SCME0001
+                        .And(getPatchFromItemParameter.InvokeLambda(item.Property("Value")).As<JsonPatch>().TryGetJson(
+#pragma warning restore SCME0001
                             LiteralU8("$"), out var patchedJson)))
                     {
                         new IfStatement(Not(patchedJson.IsEmpty()))
@@ -734,19 +741,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                                 out var bytesWritten),
                             patchContains.Assign(
                                 new TernaryConditionalExpression(bytesWritten.Equal(maxPropertyNameLength),
-                                    JsonPatchSnippets.ContainsChildOf(
-                                        patchExpression,
-                                        prefixParameter,
+                                    patchExpression.Contains(prefixParameter,
                                         Utf8Snippets.GetBytes(item.Property("Key").As<string>())),
-                                    JsonPatchSnippets.ContainsChildOf(
-                                        patchExpression,
-                                        prefixParameter,
+                                    patchExpression.Contains(prefixParameter,
                                         ReadOnlySpanSnippets.Slice(buffer, Int(0), bytesWritten)))).Terminate(),
                         },
                         patchContains.Assign(
-                            JsonPatchSnippets.ContainsChildOf(
-                                patchExpression,
-                                prefixParameter,
+                            patchExpression.Contains(prefixParameter,
                                 Utf8Snippets.GetBytes(item.Property("Key").As<string>()))).Terminate()
                     ),
                     new IfStatement(Not(patchContains))
@@ -763,7 +764,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 jsonWriter.WriteEndObject()
             };
 
-            return new MethodProvider(signature, body, this, XmlDocProvider.Empty, suppressions: [new SuppressionStatement(null, Literal(ScmModelProvider.ScmEvaluationTypeDiagnosticId), ScmModelProvider.ScmEvaluationTypeSuppressionJustification)]);
+            return new MethodProvider(signature, body, this, XmlDocProvider.Empty, suppressions: [ScmModelProvider.JsonPatchSuppression]);
         }
 
         private MethodProvider BuildGetUtf8BytesMethodProvider()
@@ -782,6 +783,84 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 new IfElsePreprocessorStatement("NET9_0_OR_GREATER",
                     Return(New.Instance<BinaryData>(Static(typeof(JsonMarshal)).Invoke(nameof(JsonMarshal.GetRawUtf8Value), elementParameter).Invoke("ToArray"))),
                     Return(BinaryDataSnippets.FromString(elementParameter.As<JsonElement>().GetRawText()))),
+            };
+
+            return new MethodProvider(signature, body, this, XmlDocProvider.Empty);
+        }
+
+        private MethodProvider BuildTryGetIndexMethodProvider()
+        {
+            var indexSliceParameter =
+                new ParameterProvider("indexSlice", FormattableStringHelpers.Empty, typeof(ReadOnlySpan<byte>));
+            var indexParameter =
+                new ParameterProvider("index", FormattableStringHelpers.Empty, typeof(int), isOut: true);
+            var bytesConsumedParameter = new ParameterProvider("bytesConsumed", FormattableStringHelpers.Empty,
+                typeof(int), isOut: true);
+
+            var signature = new MethodSignature(
+                Name: "TryGetIndex",
+                Modifiers: _methodModifiers,
+                Parameters: [indexSliceParameter, indexParameter, bytesConsumedParameter],
+                ReturnType: typeof(bool),
+                Description: null,
+                ReturnDescription: null);
+
+            var indexable = new IndexableExpression(indexSliceParameter);
+
+            var body = new MethodBodyStatement[]
+            {
+                indexParameter.AsVariable().Assign(Int(-1)).Terminate(), bytesConsumedParameter.AsVariable().Assign(Int(0)).Terminate(),
+                MethodBodyStatement.EmptyLine,
+                new IfStatement(ReadOnlySpanSnippets.IsEmpty(indexable).Or(indexable[Int(0)].NotEqual(Literal('['))))
+                {
+                    Return(False)
+                },
+                MethodBodyStatement.EmptyLine,
+                indexable.Assign(ReadOnlySpanSnippets.Slice(indexable, Int(1))).Terminate(),
+                new IfStatement(ReadOnlySpanSnippets.IsEmpty(indexable).Or(indexable[Int(0)].Equal(Literal('-'))))
+                {
+                    Return(False)
+                },
+                MethodBodyStatement.EmptyLine, Declare("indexEnd", typeof(int),
+                    ReadOnlySpanSnippets.Slice(indexable, Int(1)).Invoke("IndexOf", Literal(']').CastTo(typeof(byte))), out var indexEnd),
+                new IfStatement(indexEnd.LessThan(Int(0))) { Return(False) }, MethodBodyStatement.EmptyLine, Return(
+                    Static(typeof(Utf8Parser)).Invoke(
+                        "TryParse",
+                        [
+                            ReadOnlySpanSnippets.Slice(indexable, Int(0), indexEnd.As<int>().Add(Int(1))),
+                            indexParameter.AsArgument(),
+                            bytesConsumedParameter.AsArgument()
+                        ]))
+            };
+
+            return new MethodProvider(signature, body, this, XmlDocProvider.Empty);
+        }
+
+        private MethodProvider BuildGetRemainderMethodProvider()
+        {
+            var jsonPathParameter =
+                new ParameterProvider("jsonPath", FormattableStringHelpers.Empty, typeof(ReadOnlySpan<byte>));
+            var indexParameter = new ParameterProvider("index", FormattableStringHelpers.Empty, typeof(int));
+
+            var signature = new MethodSignature(
+                Name: "GetRemainder",
+                Modifiers: _methodModifiers,
+                Parameters: [jsonPathParameter, indexParameter],
+                ReturnType: typeof(ReadOnlySpan<byte>),
+                Description: null,
+                ReturnDescription: null);
+            var index = indexParameter.As<int>();
+            var indexable = new IndexableExpression(jsonPathParameter);
+            var body = new MethodBodyStatement[]
+            {
+                Return(new TernaryConditionalExpression(
+                    index.GreaterThanOrEqual(
+                        ReadOnlySpanSnippets.Length(jsonPathParameter)),
+                    ReadOnlySpanSnippets.Empty(),
+                    new TernaryConditionalExpression(
+                        indexable[index].Equal(Literal('.')),
+                        ReadOnlySpanSnippets.Slice(jsonPathParameter, index),
+                        ReadOnlySpanSnippets.Slice(jsonPathParameter, index.Add(Int(2))))))
             };
 
             return new MethodProvider(signature, body, this, XmlDocProvider.Empty);

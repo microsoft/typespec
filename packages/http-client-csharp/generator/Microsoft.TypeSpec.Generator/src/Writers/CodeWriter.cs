@@ -361,7 +361,7 @@ namespace Microsoft.TypeSpec.Generator
             if (property is IndexPropertyProvider indexer)
             {
                 indexerScope = AmbientScope();
-                Append($"{indexer.Name}[{indexer.IndexerParameter.Type} {indexer.IndexerParameter.AsExpression().Declaration}]");
+                Append($"{indexer.Name}[{indexer.IndexerParameter.Type} {indexer.IndexerParameter.AsVariable().Declaration}]");
             }
             else
             {
@@ -488,7 +488,7 @@ namespace Microsoft.TypeSpec.Generator
             AppendRawIf("ref ", parameter.IsRef);
             AppendRawIf("params ", parameter.IsParams);
 
-            Append($"{parameter.Type} {parameter.AsExpression().Declaration}");
+            Append($"{parameter.Type} {parameter.AsVariable().Declaration}");
             if (parameter.DefaultValue != null)
             {
                 AppendRaw(" = ");

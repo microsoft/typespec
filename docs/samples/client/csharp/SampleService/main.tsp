@@ -273,6 +273,18 @@ model RoundTripModel {
 @dynamicModel
 model DynamicModel {
   name: string;
+  foo: AnotherDynamicModel;
+  listFoo: AnotherDynamicModel[];
+  listOfListFoo: AnotherDynamicModel[][];
+  dictionaryFoo: Record<AnotherDynamicModel>;
+  dictionaryListFoo: Record<AnotherDynamicModel[]>;
+  listOfDictionaryFoo: Record<AnotherDynamicModel>[];
+}
+
+@doc("Another sample dynamic model.")
+@dynamicModel
+model AnotherDynamicModel {
+  bar: string;
 }
 
 union DaysOfWeekExtensibleEnum {
