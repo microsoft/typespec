@@ -201,6 +201,20 @@ describe("compiler: range limiting decorators", () => {
       strictEqual(getMaxItems(runner.program, itemsProp), 10);
     });
 
+    it("applies @minItems and @maxItems decorators on nullable arrays", async () => {
+      const { Foo } = (await runner.compile(`
+        @test model Foo {
+          @minItems(2)
+          @maxItems(10)
+          items: int32[] | null;
+        }
+      `)) as { Foo: Model };
+      const itemsProp = Foo.properties.get("items")!;
+
+      strictEqual(getMinItems(runner.program, itemsProp), 2);
+      strictEqual(getMaxItems(runner.program, itemsProp), 10);
+    });
+
     it("emit diagnostic if @minItems used on non array", async () => {
       const diagnostics = await runner.diagnose(`
       @test model Foo {

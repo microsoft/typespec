@@ -117,7 +117,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                     new string[] { "bool" },
                     new string[]
                     {
-                        "case (global::System.Text.Json.JsonValueKind.True || global::System.Text.Json.JsonValueKind.False):",
+                        "case (global::System.Text.Json.JsonValueKind.True or global::System.Text.Json.JsonValueKind.False):",
                         "additionalProperties.Add(prop.Name, prop.Value.GetBoolean());"
                     });
                 // float additional properties

@@ -4062,6 +4062,7 @@ def test_additional_properties_serialization():
 
     assert json.loads(json.dumps(model, cls=SdkJSONEncoder)) == value
 
+
 class Animal(Model):
     __mapping__: dict[str, Model] = {}
     kind: str = rest_discriminator(name="kind")
@@ -4071,7 +4072,7 @@ class Animal(Model):
         super().__init__(*args, **kwargs)
 
 
-class AnotherPet(Animal, discriminator='pet'):
+class AnotherPet(Animal, discriminator="pet"):
     __mapping__: dict[str, Model] = {}
     kind: Literal["pet"] = rest_discriminator(name="kind")
     trained: bool = rest_field()
@@ -4081,7 +4082,7 @@ class AnotherPet(Animal, discriminator='pet'):
         self.kind = "pet"
 
 
-class AnotherDog(AnotherPet, discriminator='dog'):
+class AnotherDog(AnotherPet, discriminator="dog"):
     kind: Literal["dog"] = rest_discriminator(name="kind")
     breed: str = rest_field()
 
@@ -4091,22 +4092,13 @@ class AnotherDog(AnotherPet, discriminator='dog'):
 
 
 def test_multi_layer_discriminator():
-    pet = {
-      "kind": "pet",
-      "name": "Buddy",
-      "trained": True
-    }
-    
-    dog = {
-      "kind": "dog",
-      "name": "Rex",
-      "trained": True,
-      "breed": "German Shepherd"
-    }
-    
+    pet = {"kind": "pet", "name": "Buddy", "trained": True}
+
+    dog = {"kind": "dog", "name": "Rex", "trained": True, "breed": "German Shepherd"}
+
     model_pet = AnotherPet(pet)
     assert model_pet == pet
-    
+
     model_dog = AnotherDog(dog)
     assert model_dog == dog
 

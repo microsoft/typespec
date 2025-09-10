@@ -41,7 +41,10 @@ async def test_update_pet_as_animal(client: HierarchyBuildingClient):
 @pytest.mark.asyncio
 async def test_update_dog_as_animal(client: HierarchyBuildingClient):
     resp = Dog(name="Rex", trained=True, breed="German Shepherd")
-    assert await client.animal_operations.update_dog_as_animal(Dog(name="Rex", trained=True, breed="German Shepherd")) == resp
+    assert (
+        await client.animal_operations.update_dog_as_animal(Dog(name="Rex", trained=True, breed="German Shepherd"))
+        == resp
+    )
 
 
 @pytest.mark.asyncio

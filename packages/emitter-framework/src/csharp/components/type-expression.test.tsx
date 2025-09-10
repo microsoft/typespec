@@ -1,17 +1,17 @@
+import { Tester } from "#test/test-host.js";
 import { type Children } from "@alloy-js/core";
 import { SourceFile } from "@alloy-js/csharp";
-import type { Model, ModelProperty } from "@typespec/compiler";
-import type { BasicTestRunner } from "@typespec/compiler/testing";
+import type { ModelProperty } from "@typespec/compiler";
+import { t, type TesterInstance } from "@typespec/compiler/testing";
 import { beforeEach, describe, expect, it } from "vitest";
-import { createEmitterFrameworkTestRunner } from "../../../test/typescript/test-host.js";
 import { Output } from "../../core/index.js";
 import { ClassDeclaration } from "./class/declaration.js";
 import { TypeExpression } from "./type-expression.jsx";
 
-let runner: BasicTestRunner;
+let runner: TesterInstance;
 
 beforeEach(async () => {
-  runner = await createEmitterFrameworkTestRunner();
+  runner = await Tester.createInstance();
 });
 
 function Wrapper(props: { children: Children }) {
@@ -73,12 +73,12 @@ describe("Record map to IDictionary", () => {
   });
 
   it("for models", async () => {
-    const { test, Pet } = (await runner.compile(`
+    const { test, Pet } = await runner.compile(t.code`
       model Test {
-        @test test: Record<Pet>;
+         ${t.modelProperty("test")}: Record<Pet>;
       }
-      @test model Pet {}
-    `)) as { test: ModelProperty; Pet: Model };
+      @test model ${t.model("Pet")} {}
+    `);
 
     expect(
       <Wrapper>
@@ -98,11 +98,11 @@ describe("Record map to IDictionary", () => {
 
 describe("Nullable union", () => {
   it("nullable boolean", async () => {
-    const { Pet } = (await runner.compile(`
-      @test model Pet {
+    const { Pet } = await runner.compile(t.code`
+      @test model ${t.model("Pet")} {
         @test name: boolean | null;
       }
-    `)) as { Pet: Model };
+    `);
 
     expect(
       <Wrapper>
@@ -119,14 +119,14 @@ describe("Nullable union", () => {
 
 describe("Literal types", () => {
   it("literal types (string, int, double, bool)", async () => {
-    const { Pet } = (await runner.compile(`
-      @test model Pet {
+    const { Pet } = await runner.compile(t.code`
+      @test model ${t.model("Pet")} {
         @test boolName: true;
         @test intName: 42;
         @test doubleName: 3.14;
         @test stringName: "Hello";
       }
-    `)) as { Pet: Model };
+    `);
 
     expect(
       <Wrapper>
@@ -136,8 +136,11 @@ describe("Literal types", () => {
       class Pet
       {
           public required bool boolName { get; set; }
+
           public required int intName { get; set; }
+
           public required double doubleName { get; set; }
+      
           public required string stringName { get; set; }
       }
     `);

@@ -1,5 +1,16 @@
 # Change Log - @typespec/json-schema
 
+## 1.4.0
+
+### Bump dependencies
+
+- [#8317](https://github.com/microsoft/typespec/pull/8317) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8365](https://github.com/microsoft/typespec/pull/8365) Fix: Json Schema crashing trying to render template declaration
+
+
 ## 1.3.0
 
 ### Bump dependencies
