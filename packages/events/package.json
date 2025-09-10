@@ -1,6 +1,6 @@
 {
   "name": "@typespec/events",
-  "version": "0.73.0",
+  "version": "0.74.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library providing events bindings",
   "homepage": "https://typespec.io",
@@ -45,7 +45,7 @@
     "test-official": "vitest run --coverage --reporter=junit --reporter=default --no-file-parallelism",
     "lint": "eslint . --ext .ts --max-warnings=0",
     "lint:fix": "eslint . --fix --ext .ts",
-    "regen-docs": "tspd doc .  --enable-experimental  --output-dir ../../website/src/content/docs/docs/libraries/events/reference"
+    "regen-docs": "tspd doc .  --enable-experimental --llmstxt --output-dir ../../website/src/content/docs/docs/libraries/events/reference"
   },
   "files": [
     "lib/*.tsp",

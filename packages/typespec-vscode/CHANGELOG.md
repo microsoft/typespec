@@ -1,5 +1,16 @@
 # Change Log - typespec-vscode
 
+## 1.4.0
+
+### Features
+
+- [#7691](https://github.com/microsoft/typespec/pull/7691) Prefill all available emitter options as comments when adding a new emitter
+
+### Bump dependencies
+
+- [#8317](https://github.com/microsoft/typespec/pull/8317) Upgrade dependencies
+
+
 ## 1.3.0
 
 ### Features

@@ -1,6 +1,7 @@
 import {
   getNamespaceFullName,
   getTypeName,
+  isTemplateDeclaration,
   isTemplateInstance,
   isType,
   navigateProgram,
@@ -63,6 +64,10 @@ export function $onValidate(program: Program) {
         if (isTemplateInstance(model)) {
           return;
         }
+        // Decorators are not run on declaration so can't validate reference
+        if (isTemplateDeclaration(model)) {
+          return;
+        }
         addNamespaceDependency(model.namespace, model.sourceModel);
         addNamespaceDependency(model.namespace, model.baseModel);
         for (const prop of model.properties.values()) {
@@ -94,6 +99,10 @@ export function $onValidate(program: Program) {
         if (isTemplateInstance(union)) {
           return;
         }
+        // Decorators are not run on declaration so can't validate reference
+        if (isTemplateDeclaration(union)) {
+          return;
+        }
         if (union.namespace === undefined) {
           return;
         }
@@ -105,6 +114,10 @@ export function $onValidate(program: Program) {
       operation: (op) => {
         // If this is an instantiated type we don't want to keep the mapping.
         if (isTemplateInstance(op)) {
+          return;
+        }
+        // Decorators are not run on declaration so can't validate reference
+        if (isTemplateDeclaration(op)) {
           return;
         }
 
@@ -137,6 +150,10 @@ export function $onValidate(program: Program) {
         }
       },
       interface: (iface) => {
+        // Decorators are not run on declaration so can't validate reference
+        if (isTemplateDeclaration(iface)) {
+          return;
+        }
         for (const source of iface.sourceInterfaces) {
           validateReference(program, iface, source);
         }

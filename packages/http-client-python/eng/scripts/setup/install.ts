@@ -11,8 +11,7 @@ async function main() {
       environmentVariable: "AUTOREST_PYTHON_EXE",
     });
   } catch (error) {
-    // Python not found - use Pyodide
-    console.log("No Python found on your local environment. We will use Pyodide instead."); // eslint-disable-line no-console
+    console.log(`Ran into the following error when setting up your local environment: ${error}`); // eslint-disable-line no-console
     return;
   }
 
