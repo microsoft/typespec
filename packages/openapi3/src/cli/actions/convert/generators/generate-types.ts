@@ -161,14 +161,16 @@ export class SchemaToExpressionGenerator {
       for (const member of unionMembers) {
         if ("$ref" in member) {
           const refSchema = context.getSchemaByRef(member.$ref);
-          if (refSchema?.enum && refSchema.type === "string" && !refSchema.nullable) {
-            // This is an enum type, check if the default value matches any enum member
-            if (refSchema.enum.includes(schema.default)) {
-              const enumRefName = this.getRefName(member.$ref, callingScope);
-              // Convert the default value to a valid identifier for the enum member
-              const memberName = printIdentifier(schema.default as string, "disallow-reserved");
-              return `${enumRefName}.${memberName}`;
-            }
+          // This is an enum type, check if the default value matches any enum member
+          if (
+            refSchema?.enum &&
+            refSchema.type === "string" &&
+            refSchema.enum.includes(schema.default)
+          ) {
+            const enumRefName = this.getRefName(member.$ref, callingScope);
+            // Convert the default value to a valid identifier for the enum member
+            const memberName = printIdentifier(schema.default as string, "disallow-reserved");
+            return `${enumRefName}.${memberName}`;
           }
         }
       }
