@@ -100,7 +100,7 @@
     "@storybook/cli": "^9.0.12",
     "@storybook/react-vite": "^9.0.12",
     "@types/debounce": "~1.2.4",
-    "@types/node": "~24.3.0",
+    "@types/node": "~24.3.1",
     "@types/react": "~18.3.11",
     "@types/react-dom": "~18.3.0",
     "@types/swagger-ui-dist": "~3.30.5",

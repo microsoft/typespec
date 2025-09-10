@@ -58,7 +58,7 @@
     "@typespec/http": "workspace:^"
   },
   "devDependencies": {
-    "@types/node": "~24.3.0",
+    "@types/node": "~24.3.1",
     "@typespec/compiler": "workspace:^",
     "@typespec/http": "workspace:^",
     "@typespec/library-linter": "workspace:^",
