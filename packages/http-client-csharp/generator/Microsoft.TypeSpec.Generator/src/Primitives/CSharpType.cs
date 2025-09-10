@@ -221,7 +221,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             => IsReadOnlyDictionary || IsReadWriteDictionary;
 
         private bool TypeIsCollection()
-            => IsFrameworkType && (IsDictionary || IsList || IsArray);
+            => IsFrameworkType && (IsDictionary || IsList);
 
         private bool TypeContainsBinaryData()
         {
@@ -235,7 +235,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
 
         public CSharpType GetNestedElementType()
         {
-            return IsCollection ? ElementType.GetNestedElementType() : this;
+            return IsCollection || IsArray ? ElementType.GetNestedElementType() : this;
         }
 
         /// <summary>
