@@ -63,6 +63,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             bool isDiscriminator = false;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
             InputSerializationOptions? serializationOptions = null;
+            bool isFlattened = false;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
@@ -81,7 +82,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString("serializedName", ref serializedName)
                     || reader.TryReadBoolean("isApiVersion", ref isApiVersion)
                     || reader.TryReadComplexType("defaultValue", options, ref defaultValue)
-                    || reader.TryReadComplexType("serializationOptions", options, ref serializationOptions);
+                    || reader.TryReadComplexType("serializationOptions", options, ref serializationOptions)
+                    || reader.TryReadBoolean("flatten", ref isFlattened);
 
                 if (!isKnownProperty)
                 {
@@ -103,6 +105,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             property.SerializedName = serializedName ?? serializationOptions?.Json?.Name ?? name;
             property.IsApiVersion = isApiVersion;
             property.DefaultValue = defaultValue;
+            property.IsFlattened = isFlattened;
 
             return property;
         }

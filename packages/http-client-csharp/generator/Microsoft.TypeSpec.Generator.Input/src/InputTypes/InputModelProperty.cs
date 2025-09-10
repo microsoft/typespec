@@ -35,6 +35,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         public bool IsDiscriminator { get; internal set; }
         public InputSerializationOptions? SerializationOptions { get; internal set; }
         public bool IsHttpMetadata { get; internal set; }
+        public bool IsFlattened { get; internal set; }
 
         /// <summary>
         /// Updates the properties of the input model property.
@@ -49,6 +50,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         /// <param name="isDiscriminator">The new discriminator status for the property.</param>
         /// <param name="serializedName">The new serialized name for the property.</param>
         /// <param name="serializationOptions">The new serialization options for the property.</param>
+        /// <param name="isFlattened">The new flattened status for the property.</param>
         public void Update(
             string? name = null,
             string? summary = null,
@@ -60,7 +62,8 @@ namespace Microsoft.TypeSpec.Generator.Input
             bool? isDiscriminator = null,
             string? serializedName = null,
             bool? isHttpMetadata = null,
-            InputSerializationOptions? serializationOptions = null)
+            InputSerializationOptions? serializationOptions = null,
+            bool? isFlattened = null)
         {
             if (name != null)
             {
@@ -115,6 +118,10 @@ namespace Microsoft.TypeSpec.Generator.Input
             if (serializationOptions != null)
             {
                 SerializationOptions = serializationOptions;
+            }
+            if (isFlattened.HasValue)
+            {
+                IsFlattened = isFlattened.Value;
             }
         }
     }
