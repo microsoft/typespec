@@ -36,6 +36,7 @@
     "@alloy-js/typescript": "^0.20.0",
     "@types/node": "~24.3.0",
     "@typespec/compiler": "workspace:^",
+    "@typespec/tspd": "workspace:^",
     "@typespec/emitter-framework": "workspace:^",
     "@typespec/http": "workspace:^",
     "@typespec/library-linter": "workspace:^",
