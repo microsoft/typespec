@@ -27,7 +27,7 @@ Set-StrictMode -Version 3.0
 
 # Define the list of dependencies to inject
 $InjectedDependencies = @(
-    '@azure-tools/typespec-azure-core'
+    '@azure-tools/typespec-azure-core',
     '@azure-tools/typespec-azure-rulesets',
     '@azure-tools/typespec-azure-resource-manager',
     '@azure-tools/typespec-autorest'
@@ -61,12 +61,12 @@ try {
     $tcgc = '@azure-tools/typespec-client-generator-core'
 
     # Get the version of tcgc from devDependencies
-    if (-not $packageJson.devDependencies -or -not $packageJson.devDependencies.$tcgc) {
+    if (-not $packageJson.devDependencies -or -not $packageJson.devDependencies[$tcgc]) {
         Write-Error "Could not find $tcgc in devDependencies"
         exit 1
     }
 
-    $tcgcVersion = $packageJson.devDependencies.$tcgc
+    $tcgcVersion = $packageJson.devDependencies[$tcgc]
     Write-Host "Using version $tcgcVersion for injected dependencies"
 
     # Inject the required dependencies with the same version
