@@ -215,6 +215,7 @@ words:
   - repr
   - respecify
   - rjust
+  - rollup
   - rpaas
   - rsplit
   - rstrip
