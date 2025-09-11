@@ -136,7 +136,7 @@ export class SchemaToExpressionGenerator {
       type += ` | null`;
     }
 
-    if (schema.default !== undefined) {
+    if (schema.default) {
       const defaultValue = this.generateDefaultValue(schema, callingScope, context);
       type += ` = ${defaultValue}`;
     }
