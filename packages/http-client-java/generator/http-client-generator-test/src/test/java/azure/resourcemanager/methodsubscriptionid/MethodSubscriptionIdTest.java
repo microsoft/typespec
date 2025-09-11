@@ -44,36 +44,17 @@ public class MethodSubscriptionIdTest {
 
         // The key test: verify that get operation requires subscriptionId as method parameter
         // This validates that @clientLocation decorator moved subscriptionId to method level
-        try {
-            SubscriptionResource1 resource
-                = manager.twoSubscriptionResourcesMethodLevelSubscriptionResource1Operations()
-                    .get(TEST_SUBSCRIPTION_ID, SUBSCRIPTION_RESOURCE_1_NAME);
+        SubscriptionResource1 resource = manager.twoSubscriptionResourcesMethodLevelSubscriptionResource1Operations()
+            .get(TEST_SUBSCRIPTION_ID, SUBSCRIPTION_RESOURCE_1_NAME);
 
-            // If we get a response, verify the structure looks correct
-            if (resource != null) {
-                Assertions.assertNotNull(resource.name());
-                Assertions.assertNotNull(resource.type());
-            }
-        } catch (Exception e) {
-            // Expected for mock scenarios where the backend doesn't exist
-            // The key point is that the method signature exists and accepts subscriptionId parameter
-            Assertions.assertTrue(e.getMessage().contains("connection")
-                || e.getMessage().contains("mock")
-                || e.getMessage().contains("localhost")
-                || e.getMessage().contains("refused"));
-        }
+        // Verify the resource structure
+        Assertions.assertNotNull(resource);
+        Assertions.assertNotNull(resource.name());
+        Assertions.assertNotNull(resource.type());
 
         // Test delete operation also requires subscriptionId as method parameter
-        try {
-            manager.twoSubscriptionResourcesMethodLevelSubscriptionResource1Operations()
-                .deleteByResourceGroup(TEST_SUBSCRIPTION_ID, SUBSCRIPTION_RESOURCE_1_NAME);
-        } catch (Exception e) {
-            // Expected for mock scenarios
-            Assertions.assertTrue(e.getMessage().contains("connection")
-                || e.getMessage().contains("mock")
-                || e.getMessage().contains("localhost")
-                || e.getMessage().contains("refused"));
-        }
+        manager.twoSubscriptionResourcesMethodLevelSubscriptionResource1Operations()
+            .deleteByResourceGroup(TEST_SUBSCRIPTION_ID, SUBSCRIPTION_RESOURCE_1_NAME);
 
         // Verify that define() method exists for resource creation (builder pattern)
         Assertions.assertNotNull(manager.twoSubscriptionResourcesMethodLevelSubscriptionResource1Operations()
@@ -85,33 +66,15 @@ public class MethodSubscriptionIdTest {
         // Test Scenario 1: Two subscription resources with method-level subscriptionId
         // SubscriptionResource2 operations should require subscriptionId as method parameter
 
-        try {
-            SubscriptionResource2 resource
-                = manager.twoSubscriptionResourcesMethodLevelSubscriptionResource2Operations()
-                    .get(TEST_SUBSCRIPTION_ID, SUBSCRIPTION_RESOURCE_2_NAME);
+        SubscriptionResource2 resource = manager.twoSubscriptionResourcesMethodLevelSubscriptionResource2Operations()
+            .get(TEST_SUBSCRIPTION_ID, SUBSCRIPTION_RESOURCE_2_NAME);
 
-            if (resource != null) {
-                Assertions.assertNotNull(resource.name());
-                Assertions.assertNotNull(resource.type());
-            }
-        } catch (Exception e) {
-            // Expected for mock scenarios
-            Assertions.assertTrue(e.getMessage().contains("connection")
-                || e.getMessage().contains("mock")
-                || e.getMessage().contains("localhost")
-                || e.getMessage().contains("refused"));
-        }
+        Assertions.assertNotNull(resource);
+        Assertions.assertNotNull(resource.name());
+        Assertions.assertNotNull(resource.type());
 
-        try {
-            manager.twoSubscriptionResourcesMethodLevelSubscriptionResource2Operations()
-                .deleteByResourceGroup(TEST_SUBSCRIPTION_ID, SUBSCRIPTION_RESOURCE_2_NAME);
-        } catch (Exception e) {
-            // Expected for mock scenarios
-            Assertions.assertTrue(e.getMessage().contains("connection")
-                || e.getMessage().contains("mock")
-                || e.getMessage().contains("localhost")
-                || e.getMessage().contains("refused"));
-        }
+        manager.twoSubscriptionResourcesMethodLevelSubscriptionResource2Operations()
+            .deleteByResourceGroup(TEST_SUBSCRIPTION_ID, SUBSCRIPTION_RESOURCE_2_NAME);
 
         // Verify builder pattern works
         Assertions.assertNotNull(manager.twoSubscriptionResourcesMethodLevelSubscriptionResource2Operations()
@@ -122,32 +85,15 @@ public class MethodSubscriptionIdTest {
     public void testMixedSubscriptionPlacementSubscriptionResourceOperations() {
         // Test Scenario 2: Mixed placement - subscription resource with method-level subscriptionId
 
-        try {
-            SubscriptionResource resource = manager.mixedSubscriptionPlacementSubscriptionResourceOperations()
-                .get(TEST_SUBSCRIPTION_ID, SUBSCRIPTION_RESOURCE_NAME);
+        SubscriptionResource resource = manager.mixedSubscriptionPlacementSubscriptionResourceOperations()
+            .get(TEST_SUBSCRIPTION_ID, SUBSCRIPTION_RESOURCE_NAME);
 
-            if (resource != null) {
-                Assertions.assertNotNull(resource.name());
-                Assertions.assertNotNull(resource.type());
-            }
-        } catch (Exception e) {
-            // Expected for mock scenarios
-            Assertions.assertTrue(e.getMessage().contains("connection")
-                || e.getMessage().contains("mock")
-                || e.getMessage().contains("localhost")
-                || e.getMessage().contains("refused"));
-        }
+        Assertions.assertNotNull(resource);
+        Assertions.assertNotNull(resource.name());
+        Assertions.assertNotNull(resource.type());
 
-        try {
-            manager.mixedSubscriptionPlacementSubscriptionResourceOperations()
-                .deleteByResourceGroup(TEST_SUBSCRIPTION_ID, SUBSCRIPTION_RESOURCE_NAME);
-        } catch (Exception e) {
-            // Expected for mock scenarios
-            Assertions.assertTrue(e.getMessage().contains("connection")
-                || e.getMessage().contains("mock")
-                || e.getMessage().contains("localhost")
-                || e.getMessage().contains("refused"));
-        }
+        manager.mixedSubscriptionPlacementSubscriptionResourceOperations()
+            .deleteByResourceGroup(TEST_SUBSCRIPTION_ID, SUBSCRIPTION_RESOURCE_NAME);
 
         // Verify builder pattern works
         Assertions.assertNotNull(
@@ -159,36 +105,19 @@ public class MethodSubscriptionIdTest {
         // Test Scenario 2: Mixed placement - resource group resource with client-level subscriptionId
         // This resource should NOT require subscriptionId as method parameter (uses client-level)
 
-        try {
-            // Key test: getByResourceGroup does NOT take subscriptionId parameter
-            // The subscriptionId comes from the client-level (manager configuration)
-            ResourceGroupResource resource = manager.mixedSubscriptionPlacementResourceGroupResourceOperations()
-                .getByResourceGroup(RESOURCE_GROUP_NAME, RESOURCE_GROUP_RESOURCE_NAME);
+        // Key test: getByResourceGroup does NOT take subscriptionId parameter
+        // The subscriptionId comes from the client-level (manager configuration)
+        ResourceGroupResource resource = manager.mixedSubscriptionPlacementResourceGroupResourceOperations()
+            .getByResourceGroup(RESOURCE_GROUP_NAME, RESOURCE_GROUP_RESOURCE_NAME);
 
-            if (resource != null) {
-                Assertions.assertNotNull(resource.name());
-                Assertions.assertNotNull(resource.type());
-                Assertions.assertNotNull(resource.region());
-            }
-        } catch (Exception e) {
-            // Expected for mock scenarios
-            Assertions.assertTrue(e.getMessage().contains("connection")
-                || e.getMessage().contains("mock")
-                || e.getMessage().contains("localhost")
-                || e.getMessage().contains("refused"));
-        }
+        Assertions.assertNotNull(resource);
+        Assertions.assertNotNull(resource.name());
+        Assertions.assertNotNull(resource.type());
+        Assertions.assertNotNull(resource.region());
 
-        try {
-            // Key test: deleteByResourceGroup does NOT take subscriptionId parameter
-            manager.mixedSubscriptionPlacementResourceGroupResourceOperations()
-                .deleteByResourceGroup(RESOURCE_GROUP_NAME, RESOURCE_GROUP_RESOURCE_NAME);
-        } catch (Exception e) {
-            // Expected for mock scenarios
-            Assertions.assertTrue(e.getMessage().contains("connection")
-                || e.getMessage().contains("mock")
-                || e.getMessage().contains("localhost")
-                || e.getMessage().contains("refused"));
-        }
+        // Key test: deleteByResourceGroup does NOT take subscriptionId parameter
+        manager.mixedSubscriptionPlacementResourceGroupResourceOperations()
+            .deleteByResourceGroup(RESOURCE_GROUP_NAME, RESOURCE_GROUP_RESOURCE_NAME);
 
         // Verify builder pattern - should require region and resource group
         Assertions.assertNotNull(manager.mixedSubscriptionPlacementResourceGroupResourceOperations()
@@ -202,30 +131,18 @@ public class MethodSubscriptionIdTest {
         // This test validates the key behavior: method signatures are correct for parameter placement
 
         // Subscription resources should have subscriptionId as method parameter
-        try {
-            // These calls demonstrate that subscriptionId is required as method parameter
-            manager.twoSubscriptionResourcesMethodLevelSubscriptionResource1Operations()
-                .get(TEST_SUBSCRIPTION_ID, SUBSCRIPTION_RESOURCE_1_NAME);
-        } catch (Exception e) {
-            // Should fail on connection, not on missing parameters
-            Assertions.assertFalse(e.getMessage().contains("Parameter subscriptionId is required"));
-        }
+        // These calls demonstrate that subscriptionId is required as method parameter
+        SubscriptionResource1 resource1 = manager.twoSubscriptionResourcesMethodLevelSubscriptionResource1Operations()
+            .get(TEST_SUBSCRIPTION_ID, SUBSCRIPTION_RESOURCE_1_NAME);
+        Assertions.assertNotNull(resource1);
 
-        try {
-            manager.mixedSubscriptionPlacementSubscriptionResourceOperations()
-                .get(TEST_SUBSCRIPTION_ID, SUBSCRIPTION_RESOURCE_NAME);
-        } catch (Exception e) {
-            // Should fail on connection, not on missing parameters
-            Assertions.assertFalse(e.getMessage().contains("Parameter subscriptionId is required"));
-        }
+        SubscriptionResource resource2 = manager.mixedSubscriptionPlacementSubscriptionResourceOperations()
+            .get(TEST_SUBSCRIPTION_ID, SUBSCRIPTION_RESOURCE_NAME);
+        Assertions.assertNotNull(resource2);
 
         // Resource group resources should NOT require subscriptionId as method parameter
-        try {
-            manager.mixedSubscriptionPlacementResourceGroupResourceOperations()
-                .getByResourceGroup(RESOURCE_GROUP_NAME, RESOURCE_GROUP_RESOURCE_NAME);
-        } catch (Exception e) {
-            // Should fail on connection, not on missing parameters
-            Assertions.assertFalse(e.getMessage().contains("Parameter subscriptionId is required"));
-        }
+        ResourceGroupResource resource3 = manager.mixedSubscriptionPlacementResourceGroupResourceOperations()
+            .getByResourceGroup(RESOURCE_GROUP_NAME, RESOURCE_GROUP_RESOURCE_NAME);
+        Assertions.assertNotNull(resource3);
     }
 }
