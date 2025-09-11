@@ -146,13 +146,69 @@ describe("Union types with multiple defaults", () => {
       true,
       "Expected union type 'bar: string | string[] | numeric' but got: " + tsp,
     );
-    
+
     // Should have exactly one default value
     const defaultMatches = tsp.match(/bar:.*= "life"/g);
     strictEqual(
       defaultMatches?.length === 1,
       true,
       "Expected exactly one default value for union property. Got: " + tsp,
+    );
+  });
+
+  it("should handle the exact scenario from issue #8433", async () => {
+    // This is the exact OpenAPI spec from the issue
+    const tsp = await convertOpenAPI3Document({
+      openapi: "3.0.0",
+      info: {
+        title: "(title)",
+        version: "0.0.0",
+      },
+      tags: [],
+      paths: {},
+      components: {
+        schemas: {
+          Foo: {
+            type: "object",
+            required: ["bar"],
+            properties: {
+              bar: {
+                anyOf: [
+                  {
+                    type: "string",
+                    default: "life",
+                  },
+                  {
+                    type: "array",
+                    items: {
+                      type: "string",
+                    },
+                    default: ["life"],
+                  },
+                  {
+                    type: "number",
+                    default: 42,
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+    });
+
+    // Should generate valid TypeSpec syntax
+    strictEqual(
+      tsp.includes('bar: string | string[] | numeric = "life";'),
+      true,
+      "Expected 'bar: string | string[] | numeric = \"life\";' but got: " + tsp,
+    );
+
+    // Should NOT generate the invalid syntax mentioned in the issue
+    strictEqual(
+      tsp.includes('string = "life"| string[]'),
+      false,
+      "Should not contain the invalid syntax from the issue. Got: " + tsp,
     );
   });
 });

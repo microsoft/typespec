@@ -137,7 +137,7 @@ export class SchemaToExpressionGenerator {
     }
 
     // Check for default value - either at top level or from union members
-    if (schema.default !== undefined || (schema.anyOf?.length || schema.oneOf?.length)) {
+    if (schema.default !== undefined || schema.anyOf?.length || schema.oneOf?.length) {
       const defaultValue = this.generateDefaultValue(schema, callingScope, context);
       if (defaultValue && defaultValue !== "undefined") {
         type += ` = ${defaultValue}`;
@@ -188,7 +188,7 @@ export class SchemaToExpressionGenerator {
     // If this is a union type without a top-level default, find the first default from members
     if (schema.anyOf?.length || schema.oneOf?.length) {
       const unionMembers = schema.anyOf || schema.oneOf || [];
-      
+
       for (const member of unionMembers) {
         if ("$ref" in member === false && member.default !== undefined) {
           // Found a member with a default value, use it for the union
@@ -258,15 +258,15 @@ export class SchemaToExpressionGenerator {
     }
 
     if (strippedSchema.anyOf) {
-      strippedSchema.anyOf = strippedSchema.anyOf.map(item => this.stripDefaultsFromSchema(item));
+      strippedSchema.anyOf = strippedSchema.anyOf.map((item) => this.stripDefaultsFromSchema(item));
     }
 
     if (strippedSchema.oneOf) {
-      strippedSchema.oneOf = strippedSchema.oneOf.map(item => this.stripDefaultsFromSchema(item));
+      strippedSchema.oneOf = strippedSchema.oneOf.map((item) => this.stripDefaultsFromSchema(item));
     }
 
     if (strippedSchema.allOf) {
-      strippedSchema.allOf = strippedSchema.allOf.map(item => this.stripDefaultsFromSchema(item));
+      strippedSchema.allOf = strippedSchema.allOf.map((item) => this.stripDefaultsFromSchema(item));
     }
 
     if (strippedSchema.properties) {
@@ -277,8 +277,13 @@ export class SchemaToExpressionGenerator {
       strippedSchema.properties = strippedProperties;
     }
 
-    if (strippedSchema.additionalProperties && typeof strippedSchema.additionalProperties === 'object') {
-      strippedSchema.additionalProperties = this.stripDefaultsFromSchema(strippedSchema.additionalProperties);
+    if (
+      strippedSchema.additionalProperties &&
+      typeof strippedSchema.additionalProperties === "object"
+    ) {
+      strippedSchema.additionalProperties = this.stripDefaultsFromSchema(
+        strippedSchema.additionalProperties,
+      );
     }
 
     return strippedSchema;
