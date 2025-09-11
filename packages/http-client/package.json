@@ -4,7 +4,7 @@
   "type": "module",
   "main": "dist/src/index.js",
   "license": "MIT",
-   "tspMain": "./lib/main.tsp",
+  "tspMain": "./lib/main.tsp",
   "exports": {
     ".": {
       "typespec": "./lib/main.tsp",

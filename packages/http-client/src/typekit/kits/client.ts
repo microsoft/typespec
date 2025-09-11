@@ -29,7 +29,7 @@ import { getStringValue } from "../../utils/helpers.js";
 import { NameKit } from "./utils.js";
 
 interface ClientKit extends NameKit<InternalClient> {
-   /**
+  /**
    * Get the feature lifecycle value for a given type
    * @param type The type to get the feature lifecycle for
    * @param options The options to use when getting the feature lifecycle
@@ -111,7 +111,7 @@ export const clientOperationCache = new Map<InternalClient, HttpOperation[]>();
 
 defineKit<TypekitExtension>({
   client: {
-     getFeatureLifecycle: createDiagnosable(function (type, options) {
+    getFeatureLifecycle: createDiagnosable(function (type, options) {
       return getClientFeatureLifecycle(this.program, type, options);
     }),
     getParent(client) {
