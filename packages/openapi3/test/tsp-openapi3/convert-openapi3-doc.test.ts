@@ -83,6 +83,80 @@ it("converts an OpenAPI 3 document with an empty schema to a valid TypeSpec repr
   );
 });
 
+describe("Union types with multiple defaults", () => {
+  it("should select first default for union types with multiple defaults", async () => {
+    const tsp = await convertOpenAPI3Document({
+      openapi: "3.0.0",
+      info: {
+        title: "Test Service",
+        version: "0.0.0",
+      },
+      paths: {},
+      components: {
+        schemas: {
+          Foo: {
+            type: "object",
+            required: ["bar"],
+            properties: {
+              bar: {
+                anyOf: [
+                  {
+                    type: "string",
+                    default: "life",
+                  },
+                  {
+                    type: "array",
+                    items: {
+                      type: "string",
+                      default: "life",
+                    },
+                  },
+                  {
+                    type: "number",
+                    default: 42,
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+    });
+
+    // Should NOT contain multiple defaults like: bar: string = "life" | string[] = ["life"] | numeric = 42
+    strictEqual(
+      tsp.includes('= "life"| string[]'),
+      false,
+      "Should not contain multiple defaults concatenated. Got: " + tsp,
+    );
+    strictEqual(
+      tsp.includes('= #["life"]'),
+      false,
+      "Should not contain array default concatenated. Got: " + tsp,
+    );
+    strictEqual(
+      tsp.includes("= 42,"),
+      false,
+      "Should not contain number default concatenated. Got: " + tsp,
+    );
+
+    // Should contain a single default for the union
+    strictEqual(
+      tsp.includes("bar: string | string[] | numeric"),
+      true,
+      "Expected union type 'bar: string | string[] | numeric' but got: " + tsp,
+    );
+    
+    // Should have exactly one default value
+    const defaultMatches = tsp.match(/bar:.*= "life"/g);
+    strictEqual(
+      defaultMatches?.length === 1,
+      true,
+      "Expected exactly one default value for union property. Got: " + tsp,
+    );
+  });
+});
+
 describe("OpenAPI 3.1 anyOf with null conversion", () => {
   it("should convert anyOf with ref + null to proper union with null", async () => {
     const tsp = await convertOpenAPI3Document({
