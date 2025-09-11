@@ -906,16 +906,32 @@ function getResponseType(
     return fromSdkType(sdkContext, type.valueType);
   }
 
-  // recursively unwrap union types to get the first non-union variant type
-  if (type.kind === "union" && type.isGeneratedName && type.variantTypes.length > 0) {
-    let currentType = type.variantTypes[0];
+  // recursively unwrap union types to get the first non-union variant type using breadth-first search
+  if (type.kind === "union" && type.isGeneratedName && type.variantTypes?.length > 0) {
+    const queue = [...type.variantTypes];
+    const visited = new Set<SdkType>();
 
-    // Keep unwrapping unions until we find a non-union type
-    while (currentType.kind === "union" && currentType.variantTypes.length > 0) {
-      currentType = currentType.variantTypes[0];
+    while (queue.length > 0) {
+      const currentType = queue.shift();
+
+      if (!currentType || visited.has(currentType)) {
+        continue;
+      }
+      visited.add(currentType);
+
+      // If we find a non-union type, return it immediately
+      if (currentType.kind !== "union") {
+        return fromSdkType(sdkContext, currentType);
+      }
+
+      // Add all variants to queue for breadth-first processing
+      if (currentType.variantTypes?.length > 0) {
+        queue.push(...currentType.variantTypes);
+      }
     }
 
-    return fromSdkType(sdkContext, currentType);
+    // Fallback to first variant if no non-union found
+    return fromSdkType(sdkContext, type.variantTypes[0]);
   }
 
   return fromSdkType(sdkContext, type);

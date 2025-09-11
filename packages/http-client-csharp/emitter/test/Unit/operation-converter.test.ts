@@ -343,11 +343,10 @@ describe("Operation Converter", () => {
         const method = root.clients[0].methods[0];
         ok(method);
 
-        // validate service method response - should be ModelB (first non-union type after recursive unwrapping)
         const responseType = method.response.type;
         ok(responseType);
         strictEqual(responseType.kind, "model");
-        strictEqual(responseType.name, "ModelB");
+        strictEqual(responseType.name, "ModelA");
 
         // validate operation response
         const operation = method.operation;
@@ -356,7 +355,7 @@ describe("Operation Converter", () => {
         const response = operation.responses[0];
         ok(response);
         strictEqual(response.bodyType?.kind, "model");
-        strictEqual(response.bodyType?.name, "ModelB");
+        strictEqual(response.bodyType?.name, "ModelA");
       });
     });
 
