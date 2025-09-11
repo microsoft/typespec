@@ -3,10 +3,17 @@
 
 package azure.resourcemanager.methodsubscriptionid;
 
+import azure.resourcemanager.methodsubscriptionid.fluent.models.SubscriptionResource1Inner;
+import azure.resourcemanager.methodsubscriptionid.fluent.models.SubscriptionResource2Inner;
+import azure.resourcemanager.methodsubscriptionid.fluent.models.SubscriptionResourceInner;
 import azure.resourcemanager.methodsubscriptionid.models.ResourceGroupResource;
+import azure.resourcemanager.methodsubscriptionid.models.ResourceGroupResourceProperties;
 import azure.resourcemanager.methodsubscriptionid.models.SubscriptionResource;
 import azure.resourcemanager.methodsubscriptionid.models.SubscriptionResource1;
+import azure.resourcemanager.methodsubscriptionid.models.SubscriptionResource1Properties;
 import azure.resourcemanager.methodsubscriptionid.models.SubscriptionResource2;
+import azure.resourcemanager.methodsubscriptionid.models.SubscriptionResource2Properties;
+import azure.resourcemanager.methodsubscriptionid.models.SubscriptionResourceProperties;
 import com.azure.core.management.Region;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -56,9 +63,12 @@ public class MethodSubscriptionIdTest {
         manager.twoSubscriptionResourcesMethodLevelSubscriptionResource1Operations()
             .deleteByResourceGroup(TEST_SUBSCRIPTION_ID, SUBSCRIPTION_RESOURCE_1_NAME);
 
-        // Verify that define() method exists for resource creation (builder pattern)
-        Assertions.assertNotNull(manager.twoSubscriptionResourcesMethodLevelSubscriptionResource1Operations()
-            .define(SUBSCRIPTION_RESOURCE_1_NAME));
+        // TODO: resource define does not take subscriptionId parameter - this is a bug in codegen
+        // Verify PUT
+        manager.serviceClient()
+            .getTwoSubscriptionResourcesMethodLevelSubscriptionResource1Operations()
+            .put(TEST_SUBSCRIPTION_ID, SUBSCRIPTION_RESOURCE_1_NAME, new SubscriptionResource1Inner().withProperties(
+                new SubscriptionResource1Properties().withDescription("Valid subscription resource 1")));
     }
 
     @Test
@@ -76,9 +86,12 @@ public class MethodSubscriptionIdTest {
         manager.twoSubscriptionResourcesMethodLevelSubscriptionResource2Operations()
             .deleteByResourceGroup(TEST_SUBSCRIPTION_ID, SUBSCRIPTION_RESOURCE_2_NAME);
 
-        // Verify builder pattern works
-        Assertions.assertNotNull(manager.twoSubscriptionResourcesMethodLevelSubscriptionResource2Operations()
-            .define(SUBSCRIPTION_RESOURCE_2_NAME));
+        // TODO: resource define does not take subscriptionId parameter - this is a bug in codegen
+        // Verify PUT
+        manager.serviceClient()
+            .getTwoSubscriptionResourcesMethodLevelSubscriptionResource2Operations()
+            .put(TEST_SUBSCRIPTION_ID, SUBSCRIPTION_RESOURCE_2_NAME, new SubscriptionResource2Inner()
+                .withProperties(new SubscriptionResource2Properties().withConfigValue("test-config")));
     }
 
     @Test
@@ -95,9 +108,12 @@ public class MethodSubscriptionIdTest {
         manager.mixedSubscriptionPlacementSubscriptionResourceOperations()
             .deleteByResourceGroup(TEST_SUBSCRIPTION_ID, SUBSCRIPTION_RESOURCE_NAME);
 
-        // Verify builder pattern works
-        Assertions.assertNotNull(
-            manager.mixedSubscriptionPlacementSubscriptionResourceOperations().define(SUBSCRIPTION_RESOURCE_NAME));
+        // TODO: resource define does not take subscriptionId parameter - this is a bug in codegen
+        // Verify PUT
+        manager.serviceClient()
+            .getMixedSubscriptionPlacementSubscriptionResourceOperations()
+            .put(TEST_SUBSCRIPTION_ID, RESOURCE_GROUP_RESOURCE_NAME, new SubscriptionResourceInner()
+                .withProperties(new SubscriptionResourceProperties().withSubscriptionSetting("test-sub-setting")));
     }
 
     @Test
@@ -119,30 +135,12 @@ public class MethodSubscriptionIdTest {
         manager.mixedSubscriptionPlacementResourceGroupResourceOperations()
             .deleteByResourceGroup(RESOURCE_GROUP_NAME, RESOURCE_GROUP_RESOURCE_NAME);
 
-        // Verify builder pattern - should require region and resource group
-        Assertions.assertNotNull(manager.mixedSubscriptionPlacementResourceGroupResourceOperations()
+        // Verify PUT
+        manager.mixedSubscriptionPlacementResourceGroupResourceOperations()
             .define(RESOURCE_GROUP_RESOURCE_NAME)
             .withRegion(Region.US_EAST)
-            .withExistingResourceGroup(RESOURCE_GROUP_NAME));
-    }
-
-    @Test
-    public void testMethodSignatureValidation() {
-        // This test validates the key behavior: method signatures are correct for parameter placement
-
-        // Subscription resources should have subscriptionId as method parameter
-        // These calls demonstrate that subscriptionId is required as method parameter
-        SubscriptionResource1 resource1 = manager.twoSubscriptionResourcesMethodLevelSubscriptionResource1Operations()
-            .get(TEST_SUBSCRIPTION_ID, SUBSCRIPTION_RESOURCE_1_NAME);
-        Assertions.assertNotNull(resource1);
-
-        SubscriptionResource resource2 = manager.mixedSubscriptionPlacementSubscriptionResourceOperations()
-            .get(TEST_SUBSCRIPTION_ID, SUBSCRIPTION_RESOURCE_NAME);
-        Assertions.assertNotNull(resource2);
-
-        // Resource group resources should NOT require subscriptionId as method parameter
-        ResourceGroupResource resource3 = manager.mixedSubscriptionPlacementResourceGroupResourceOperations()
-            .getByResourceGroup(RESOURCE_GROUP_NAME, RESOURCE_GROUP_RESOURCE_NAME);
-        Assertions.assertNotNull(resource3);
+            .withExistingResourceGroup(RESOURCE_GROUP_NAME)
+            .withProperties(new ResourceGroupResourceProperties().withResourceGroupSetting("test-setting"))
+            .create();
     }
 }
