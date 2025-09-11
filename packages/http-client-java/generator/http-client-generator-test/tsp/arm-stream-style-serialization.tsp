@@ -11,6 +11,7 @@ using TypeSpec.Versioning;
 using Azure.Core;
 using Azure.ResourceManager;
 using Azure.ClientGenerator.Core;
+using Azure.ClientGenerator.Core.Legacy;
 
 @armProviderNamespace
 @service(#{ title: "ArmStreamStyleSerialization" })

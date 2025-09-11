@@ -62,6 +62,34 @@ public final class ServerDrivenPaginationClient {
     }
 
     /**
+     * The linkString operation.
+     * 
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<Pet> linkString() {
+        return linkString(RequestContext.none());
+    }
+
+    /**
+     * The linkString operation.
+     * 
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<Pet> linkString(RequestContext requestContext) {
+        return this.serviceClient.linkString(requestContext);
+    }
+
+    /**
      * The nestedLink operation.
      * 
      * @throws HttpResponseException thrown if the service returns an error.
