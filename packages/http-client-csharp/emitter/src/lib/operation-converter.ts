@@ -906,5 +906,17 @@ function getResponseType(
     return fromSdkType(sdkContext, type.valueType);
   }
 
+  // recursively unwrap union types to get the first non-union variant type
+  if (type.kind === "union" && type.isGeneratedName && type.variantTypes.length > 0) {
+    let currentType = type.variantTypes[0];
+
+    // Keep unwrapping unions until we find a non-union type
+    while (currentType.kind === "union" && currentType.variantTypes.length > 0) {
+      currentType = currentType.variantTypes[0];
+    }
+
+    return fromSdkType(sdkContext, currentType);
+  }
+
   return fromSdkType(sdkContext, type);
 }
