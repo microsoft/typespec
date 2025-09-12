@@ -29,6 +29,7 @@ azure-mgmt-core==1.6.0
 -e ./generated/azure-resource-manager-non-resource
 -e ./generated/azure-resource-manager-operation-templates
 -e ./generated/azure-resource-manager-resources
+-e ./generated/azure-resource-manager-method-subscription-id
 -e ./generated/client-namespace
 -e ./generated/azure-payload-pageable
 -e ./generated/client-naming
