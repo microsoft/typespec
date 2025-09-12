@@ -13,7 +13,7 @@ export async function convertAction(host: CliHost, args: ConvertCliArgs) {
   const fullPath = resolvePath(process.cwd(), args.path);
   const parser = new OpenAPIParser();
   const model = await parser.bundle(fullPath);
-  const context = createContext(parser, model as OpenAPI3Document, console);
+  const context = createContext(parser, model as OpenAPI3Document, console, args.namespace);
   const program = transform(context);
   let mainTsp: string;
   try {

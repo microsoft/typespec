@@ -10,6 +10,7 @@ import {
   SdkHttpResponse,
   SdkMethodParameter,
   SdkModelPropertyType,
+  SdkNamespace,
   SdkServiceMethod,
   SdkType,
 } from "@azure-tools/typespec-client-generator-core";
@@ -24,6 +25,7 @@ import {
   InputLiteralType,
   InputMethodParameter,
   InputModelProperty,
+  InputNamespace,
   InputType,
 } from "./type/input-type.js";
 import { OperationResponse } from "./type/operation-response.js";
@@ -65,6 +67,7 @@ class SdkTypeCache {
   types: Map<SdkType, InputType>;
   constants: Map<SdkConstantType, InputLiteralType>;
   crossLanguageDefinitionIds: Map<string, Type | undefined>;
+  namespaces: Map<string, InputNamespace>;
 
   constructor() {
     this.clients = new Map<SdkClientType<SdkHttpOperation>, InputClient>();
@@ -77,6 +80,7 @@ class SdkTypeCache {
     this.types = new Map<SdkType, InputType>();
     this.constants = new Map<SdkConstantType, InputLiteralType>();
     this.crossLanguageDefinitionIds = new Map<string, Type | undefined>();
+    this.namespaces = new Map<string, InputNamespace>();
   }
 
   updateSdkClientReferences(sdkClient: SdkClientType<SdkHttpOperation>, inputClient: InputClient) {
@@ -137,5 +141,13 @@ class SdkTypeCache {
 
   updateConstantCache(sdkType: SdkConstantType, type: InputLiteralType) {
     this.constants.set(sdkType, type);
+  }
+
+  updateNamespaceCache(
+    sdkNamespace: SdkNamespace<SdkHttpOperation>,
+    inputNamespace: InputNamespace,
+  ) {
+    this.namespaces.set(sdkNamespace.fullName, inputNamespace);
+    this.crossLanguageDefinitionIds.set(sdkNamespace.fullName, sdkNamespace.__raw);
   }
 }

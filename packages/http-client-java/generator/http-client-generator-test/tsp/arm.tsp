@@ -12,6 +12,7 @@ using Azure.Core;
 using Azure.ResourceManager;
 using TypeSpec.OpenAPI;
 using Azure.ClientGenerator.Core;
+using Azure.ClientGenerator.Core.Legacy;
 
 @armProviderNamespace
 @service(#{ title: "ArmResource" })

@@ -1,5 +1,12 @@
 # Changelog - @typespec/streams
 
+## 0.74.0
+
+### Bump dependencies
+
+- [#8317](https://github.com/microsoft/typespec/pull/8317) Upgrade dependencies
+
+
 ## 0.73.0
 
 ### Bump dependencies

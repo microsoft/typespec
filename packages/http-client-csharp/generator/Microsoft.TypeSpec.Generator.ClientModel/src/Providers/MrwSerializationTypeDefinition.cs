@@ -1104,7 +1104,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         break;
                     case JsonValueKind.True:
                         switchCases.Add(new SwitchCaseStatement(
-                            BoolSnippets.Or(JsonValueKindSnippets.True.As<bool>(), JsonValueKindSnippets.False), statements));
+                            JsonValueKindSnippets.True.As<bool>().OrPattern(JsonValueKindSnippets.False), statements));
                         break;
                     case JsonValueKind.Number:
                         statements.Add(Break);

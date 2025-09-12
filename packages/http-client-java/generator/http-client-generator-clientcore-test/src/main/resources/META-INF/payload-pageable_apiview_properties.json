@@ -1,10 +1,12 @@
 {
   "flavor": "generic", 
   "CrossLanguageDefinitionId": {
+    "payload.pageable.PageableClient": "Payload.Pageable",
     "payload.pageable.PageableClientBuilder": "Payload.Pageable",
     "payload.pageable.Pet": "Payload.Pageable.Pet",
     "payload.pageable.ServerDrivenPaginationClient": "Payload.Pageable.ServerDrivenPagination",
     "payload.pageable.ServerDrivenPaginationContinuationTokenClient": "Payload.Pageable.ServerDrivenPagination.ContinuationToken",
+    "payload.pageable.implementation.ListWithoutContinuationResponse": "Payload.Pageable.listWithoutContinuation.Response.anonymous",
     "payload.pageable.implementation.RequestHeaderResponseHeaderResponse": "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestHeaderResponseHeader.Response.anonymous",
     "payload.pageable.implementation.RequestQueryResponseHeaderResponse": "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestQueryResponseHeader.Response.anonymous",
     "payload.pageable.serverdrivenpagination.NestedLinkResponseNestedItems": "Payload.Pageable.ServerDrivenPagination.nestedLink.Response.nestedItems.anonymous",
@@ -18,6 +20,7 @@
     "payload.pageable.serverdrivenpagination.continuationtoken.implementation.RequestQueryNestedResponseBodyResponse": "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestQueryNestedResponseBody.Response.anonymous",
     "payload.pageable.serverdrivenpagination.continuationtoken.implementation.RequestQueryResponseBodyResponse": "Payload.Pageable.ServerDrivenPagination.ContinuationToken.requestQueryResponseBody.Response.anonymous",
     "payload.pageable.serverdrivenpagination.implementation.LinkResponse": "Payload.Pageable.ServerDrivenPagination.link.Response.anonymous",
+    "payload.pageable.serverdrivenpagination.implementation.LinkStringResponse": "Payload.Pageable.ServerDrivenPagination.linkString.Response.anonymous",
     "payload.pageable.serverdrivenpagination.implementation.NestedLinkResponse": "Payload.Pageable.ServerDrivenPagination.nestedLink.Response.anonymous"
   }
 }
