@@ -3,6 +3,8 @@
 
 package azure.clientgenerator.core.clientlocation;
 
+import azure.clientgenerator.core.clientlocation.movemethodparametertoclient.models.Blob;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public final class ClientLocationClientTests {
@@ -40,5 +42,23 @@ public final class ClientLocationClientTests {
         ClientLocationClient rootClient = new ClientLocationClientBuilder().buildClient();
         // getHealthStatus moved to root client
         rootClient.getHealthStatus();
+    }
+
+    @Test
+    public void testMoveMethodParameterToClient() {
+        MoveMethodParameterToBlobOperationsClient blobClient
+            = new ClientLocationClientBuilder().buildMoveMethodParameterToBlobOperationsClient();
+
+        // Test the scenario: GET /blob?storageAccount=testaccount&container=testcontainer&blob=testblob.txt
+        // Expected response: {"id": "blob-001", "name": "testblob.txt", "size": 1024, "path":
+        // "/testcontainer/testblob.txt"}
+        Blob blob = blobClient.getBlob("testaccount", "testcontainer", "testblob.txt");
+
+        // Verify the Blob model structure
+        Assertions.assertNotNull(blob);
+        Assertions.assertNotNull(blob.getId());
+        Assertions.assertNotNull(blob.getName());
+        Assertions.assertTrue(blob.getSize() > 0);
+        Assertions.assertNotNull(blob.getPath());
     }
 }
