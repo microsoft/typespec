@@ -1663,6 +1663,7 @@ export class CodeModelBuilder {
       }),
     );
     parameters.forEach((it, index) => {
+      // use required/optional from the group property, if available
       const optional = groupProperties?.at(index)?.optional ?? !it.required;
       optionBagSchema.add(
         new GroupProperty(it.language.default.name, it.language.default.description, it.schema, {
