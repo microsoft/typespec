@@ -35,6 +35,14 @@ const SecondResponse = {
   }),
 };
 
+const FirstResponseWithLink = {
+  status: 200,
+  body: json({
+    pets: FirstPage,
+    next: dyn`${dynItem("baseUrl")}/payload/pageable/server-driven-pagination/link/nextPage`,
+  }),
+};
+
 const FirstResponseTokenInHeader = {
   status: 200,
   body: json({
@@ -99,21 +107,23 @@ Scenarios.Payload_Pageable_ServerDrivenPagination_link = passOnSuccess([
   {
     uri: "/payload/pageable/server-driven-pagination/link",
     method: "get",
-    request: {},
-    response: {
-      status: 200,
-      body: json({
-        pets: FirstPage,
-        next: dyn`${dynItem("baseUrl")}/payload/pageable/server-driven-pagination/link/nextPage`,
-      }),
+    request: { headers: { accept: "application/json" } },
+    response: FirstResponseWithLink,
+    handler: (req: MockRequest) => {
+      req.expect.containsHeader("accept", "application/json");
+      return FirstResponseWithLink;
     },
     kind: "MockApiDefinition",
   },
   {
     uri: "/payload/pageable/server-driven-pagination/link/nextPage",
     method: "get",
-    request: {},
+    request: { headers: { accept: "application/json" } },
     response: SecondResponse,
+    handler: (req: MockRequest) => {
+      req.expect.containsHeader("accept", "application/json");
+      return SecondResponse;
+    },
     kind: "MockApiDefinition",
   },
 ]);
