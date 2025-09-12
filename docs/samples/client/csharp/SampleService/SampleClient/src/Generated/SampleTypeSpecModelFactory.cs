@@ -172,6 +172,13 @@ namespace SampleTypeSpec
 
         /// <summary> A sample dynamic model. </summary>
         /// <param name="name"></param>
+        /// <param name="optionalUnknown"></param>
+        /// <param name="optionalInt"></param>
+        /// <param name="optionalNullableList"></param>
+        /// <param name="requiredNullableList"></param>
+        /// <param name="optionalNullableDictionary"></param>
+        /// <param name="requiredNullableDictionary"></param>
+        /// <param name="primitiveDictionary"></param>
         /// <param name="foo"></param>
         /// <param name="listFoo"></param>
         /// <param name="listOfListFoo"></param>
@@ -179,8 +186,13 @@ namespace SampleTypeSpec
         /// <param name="dictionaryListFoo"></param>
         /// <param name="listOfDictionaryFoo"></param>
         /// <returns> A new <see cref="SampleTypeSpec.DynamicModel"/> instance for mocking. </returns>
-        public static DynamicModel DynamicModel(string name = default, AnotherDynamicModel foo = default, IEnumerable<AnotherDynamicModel> listFoo = default, IEnumerable<IList<AnotherDynamicModel>> listOfListFoo = default, IDictionary<string, AnotherDynamicModel> dictionaryFoo = default, IDictionary<string, IList<AnotherDynamicModel>> dictionaryListFoo = default, IEnumerable<IDictionary<string, AnotherDynamicModel>> listOfDictionaryFoo = default)
+        public static DynamicModel DynamicModel(string name = default, BinaryData optionalUnknown = default, int? optionalInt = default, IEnumerable<int> optionalNullableList = default, IEnumerable<int> requiredNullableList = default, IDictionary<string, int> optionalNullableDictionary = default, IDictionary<string, int> requiredNullableDictionary = default, IDictionary<string, int> primitiveDictionary = default, AnotherDynamicModel foo = default, IEnumerable<AnotherDynamicModel> listFoo = default, IEnumerable<IList<AnotherDynamicModel>> listOfListFoo = default, IDictionary<string, AnotherDynamicModel> dictionaryFoo = default, IDictionary<string, IList<AnotherDynamicModel>> dictionaryListFoo = default, IEnumerable<IDictionary<string, AnotherDynamicModel>> listOfDictionaryFoo = default)
         {
+            optionalNullableList ??= new ChangeTrackingList<int>();
+            requiredNullableList ??= new ChangeTrackingList<int>();
+            optionalNullableDictionary ??= new ChangeTrackingDictionary<string, int>();
+            requiredNullableDictionary ??= new ChangeTrackingDictionary<string, int>();
+            primitiveDictionary ??= new ChangeTrackingDictionary<string, int>();
             listFoo ??= new ChangeTrackingList<AnotherDynamicModel>();
             listOfListFoo ??= new ChangeTrackingList<IList<AnotherDynamicModel>>();
             dictionaryFoo ??= new ChangeTrackingDictionary<string, AnotherDynamicModel>();
@@ -189,6 +201,13 @@ namespace SampleTypeSpec
 
             return new DynamicModel(
                 name,
+                optionalUnknown,
+                optionalInt,
+                optionalNullableList.ToList(),
+                requiredNullableList.ToList(),
+                optionalNullableDictionary,
+                requiredNullableDictionary,
+                primitiveDictionary,
                 foo,
                 listFoo.ToList(),
                 listOfListFoo.ToList(),
