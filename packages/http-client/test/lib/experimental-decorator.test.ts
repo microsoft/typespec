@@ -1,12 +1,18 @@
-import { expectDiagnostics, t, TesterInstance } from "@typespec/compiler/testing";
+import { resolvePath } from "@typespec/compiler";
+import { createTester, expectDiagnostics, t, TesterInstance } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/typekit";
-import { beforeEach, expect, it } from "vitest";
+import { beforeAll, expect, it } from "vitest";
 import "../../src/typekit/index.js";
-import { Tester } from "../test-host.js";
 
 let runner: TesterInstance;
 
-beforeEach(async () => {
+beforeAll(async () => {
+  const Tester = createTester(resolvePath(import.meta.dirname, "../.."), {
+    libraries: ["@typespec/http", "@typespec/http-client"],
+  })
+    .importLibraries()
+    .using("Http", "HttpClient");
+
   runner = await Tester.createInstance();
 });
 
