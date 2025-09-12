@@ -23,9 +23,9 @@ namespace Microsoft.TypeSpec.Generator.Snippets
             }
         }
 
-        public static ValueExpression Deserialize(this CSharpType type, ValueExpression element, ValueExpression? options = null)
+        public static ValueExpression Deserialize(this CSharpType type, ValueExpression element, ValueExpression data, ValueExpression? options)
         {
-            var arguments = options == null ? new[] { element } : new[] { element, options };
+            var arguments = options == null ? new[] { element } : new[] { element, data, options };
             return Static(type).Invoke($"Deserialize{type.Name}", arguments);
         }
 

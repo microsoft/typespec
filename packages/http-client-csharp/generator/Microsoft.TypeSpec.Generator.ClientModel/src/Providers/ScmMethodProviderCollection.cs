@@ -144,11 +144,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         :
                         new[]
                         {
-                            UsingDeclare("document", result.GetRawResponse().Content().Parse(), out var jsonDocument),
+                            Declare("data", result.GetRawResponse().Content(), out var data),
+                            UsingDeclare("document", data.Parse(), out var jsonDocument),
                             Declare("element", jsonDocument.RootElement(), out var jsonElement),
-                            Return(result.FromValue(ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(
+                            Return(result.FromValue(
+                                ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(
                                 responseBodyType.FrameworkType,
                                 jsonElement,
+                                data,
                                 ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition.WireOptionsField.As<ModelReaderWriterOptions>(),
                                 SerializationFormat.Default),
                                 result.GetRawResponse()))

@@ -127,12 +127,13 @@ namespace SampleTypeSpec
                 throw new FormatException($"The model {nameof(DynamicModel)} does not support reading '{format}' format.");
             }
             using JsonDocument document = JsonDocument.ParseValue(ref reader);
-            return DeserializeDynamicModel(document.RootElement, options);
+            return DeserializeDynamicModel(document.RootElement, null, options);
         }
 
         /// <param name="element"> The JSON element to deserialize. </param>
+        /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        internal static DynamicModel DeserializeDynamicModel(JsonElement element, ModelReaderWriterOptions options)
+        internal static DynamicModel DeserializeDynamicModel(JsonElement element, BinaryData data, ModelReaderWriterOptions options)
         {
             if (element.ValueKind == JsonValueKind.Null)
             {
@@ -157,7 +158,7 @@ namespace SampleTypeSpec
                 }
                 if (prop.NameEquals("foo"u8))
                 {
-                    foo = AnotherDynamicModel.DeserializeAnotherDynamicModel(prop.Value, options);
+                    foo = AnotherDynamicModel.DeserializeAnotherDynamicModel(prop.Value, data, options);
                     continue;
                 }
                 if (prop.NameEquals("listFoo"u8))
@@ -165,7 +166,7 @@ namespace SampleTypeSpec
                     List<AnotherDynamicModel> array = new List<AnotherDynamicModel>();
                     foreach (var item in prop.Value.EnumerateArray())
                     {
-                        array.Add(AnotherDynamicModel.DeserializeAnotherDynamicModel(item, options));
+                        array.Add(AnotherDynamicModel.DeserializeAnotherDynamicModel(item, data, options));
                     }
                     listFoo = array;
                     continue;
@@ -184,7 +185,7 @@ namespace SampleTypeSpec
                             List<AnotherDynamicModel> array0 = new List<AnotherDynamicModel>();
                             foreach (var item0 in item.EnumerateArray())
                             {
-                                array0.Add(AnotherDynamicModel.DeserializeAnotherDynamicModel(item0, options));
+                                array0.Add(AnotherDynamicModel.DeserializeAnotherDynamicModel(item0, data, options));
                             }
                             array.Add(array0);
                         }
@@ -197,7 +198,7 @@ namespace SampleTypeSpec
                     Dictionary<string, AnotherDynamicModel> dictionary = new Dictionary<string, AnotherDynamicModel>();
                     foreach (var prop0 in prop.Value.EnumerateObject())
                     {
-                        dictionary.Add(prop0.Name, AnotherDynamicModel.DeserializeAnotherDynamicModel(prop0.Value, options));
+                        dictionary.Add(prop0.Name, AnotherDynamicModel.DeserializeAnotherDynamicModel(prop0.Value, data, options));
                     }
                     dictionaryFoo = dictionary;
                     continue;
@@ -216,7 +217,7 @@ namespace SampleTypeSpec
                             List<AnotherDynamicModel> array = new List<AnotherDynamicModel>();
                             foreach (var item in prop0.Value.EnumerateArray())
                             {
-                                array.Add(AnotherDynamicModel.DeserializeAnotherDynamicModel(item, options));
+                                array.Add(AnotherDynamicModel.DeserializeAnotherDynamicModel(item, data, options));
                             }
                             dictionary.Add(prop0.Name, array);
                         }
@@ -238,7 +239,7 @@ namespace SampleTypeSpec
                             Dictionary<string, AnotherDynamicModel> dictionary = new Dictionary<string, AnotherDynamicModel>();
                             foreach (var prop0 in item.EnumerateObject())
                             {
-                                dictionary.Add(prop0.Name, AnotherDynamicModel.DeserializeAnotherDynamicModel(prop0.Value, options));
+                                dictionary.Add(prop0.Name, AnotherDynamicModel.DeserializeAnotherDynamicModel(prop0.Value, data, options));
                             }
                             array.Add(dictionary);
                         }
@@ -288,7 +289,7 @@ namespace SampleTypeSpec
                 case "J":
                     using (JsonDocument document = JsonDocument.Parse(data))
                     {
-                        return DeserializeDynamicModel(document.RootElement, options);
+                        return DeserializeDynamicModel(document.RootElement, data, options);
                     }
                 default:
                     throw new FormatException($"The model {nameof(DynamicModel)} does not support reading '{options.Format}' format.");

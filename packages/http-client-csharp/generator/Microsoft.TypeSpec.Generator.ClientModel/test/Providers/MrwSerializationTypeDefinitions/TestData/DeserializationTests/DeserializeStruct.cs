@@ -12,7 +12,7 @@ namespace Sample.Models
 {
     public readonly partial struct TestModel : global::System.ClientModel.Primitives.IJsonModel<global::Sample.Models.TestModel>, global::System.ClientModel.Primitives.IJsonModel<object>
     {
-        internal static global::Sample.Models.TestModel DeserializeTestModel(global::System.Text.Json.JsonElement element, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        internal static global::Sample.Models.TestModel DeserializeTestModel(global::System.Text.Json.JsonElement element, global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
             if ((element.ValueKind == global::System.Text.Json.JsonValueKind.Null))
             {

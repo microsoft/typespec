@@ -55,12 +55,13 @@ namespace SampleTypeSpec
                 throw new FormatException($"The model {nameof(AnotherDynamicModel)} does not support reading '{format}' format.");
             }
             using JsonDocument document = JsonDocument.ParseValue(ref reader);
-            return DeserializeAnotherDynamicModel(document.RootElement, options);
+            return DeserializeAnotherDynamicModel(document.RootElement, null, options);
         }
 
         /// <param name="element"> The JSON element to deserialize. </param>
+        /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        internal static AnotherDynamicModel DeserializeAnotherDynamicModel(JsonElement element, ModelReaderWriterOptions options)
+        internal static AnotherDynamicModel DeserializeAnotherDynamicModel(JsonElement element, BinaryData data, ModelReaderWriterOptions options)
         {
             if (element.ValueKind == JsonValueKind.Null)
             {
@@ -111,7 +112,7 @@ namespace SampleTypeSpec
                 case "J":
                     using (JsonDocument document = JsonDocument.Parse(data))
                     {
-                        return DeserializeAnotherDynamicModel(document.RootElement, options);
+                        return DeserializeAnotherDynamicModel(document.RootElement, data, options);
                     }
                 default:
                     throw new FormatException($"The model {nameof(AnotherDynamicModel)} does not support reading '{options.Format}' format.");

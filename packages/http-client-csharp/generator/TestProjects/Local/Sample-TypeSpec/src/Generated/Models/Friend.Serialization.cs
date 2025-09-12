@@ -73,12 +73,13 @@ namespace SampleTypeSpec.Models.Custom
                 throw new FormatException($"The model {nameof(Friend)} does not support reading '{format}' format.");
             }
             using JsonDocument document = JsonDocument.ParseValue(ref reader);
-            return DeserializeFriend(document.RootElement, options);
+            return DeserializeFriend(document.RootElement, null, options);
         }
 
         /// <param name="element"> The JSON element to deserialize. </param>
+        /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        internal static Friend DeserializeFriend(JsonElement element, ModelReaderWriterOptions options)
+        internal static Friend DeserializeFriend(JsonElement element, BinaryData data, ModelReaderWriterOptions options)
         {
             if (element.ValueKind == JsonValueKind.Null)
             {
@@ -131,7 +132,7 @@ namespace SampleTypeSpec.Models.Custom
                 case "J":
                     using (JsonDocument document = JsonDocument.Parse(data))
                     {
-                        return DeserializeFriend(document.RootElement, options);
+                        return DeserializeFriend(document.RootElement, data, options);
                     }
                 default:
                     throw new FormatException($"The model {nameof(Friend)} does not support reading '{options.Format}' format.");
@@ -155,8 +156,9 @@ namespace SampleTypeSpec.Models.Custom
         public static explicit operator Friend(ClientResult result)
         {
             using PipelineResponse response = result.GetRawResponse();
-            using JsonDocument document = JsonDocument.Parse(response.Content);
-            return DeserializeFriend(document.RootElement, ModelSerializationExtensions.WireOptions);
+            BinaryData data = response.Content;
+            using JsonDocument document = JsonDocument.Parse(data);
+            return DeserializeFriend(document.RootElement, data, ModelSerializationExtensions.WireOptions);
         }
     }
 }

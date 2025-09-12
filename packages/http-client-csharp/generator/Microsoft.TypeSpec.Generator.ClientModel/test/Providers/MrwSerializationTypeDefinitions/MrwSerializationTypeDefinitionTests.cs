@@ -7,7 +7,6 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
-using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
@@ -17,7 +16,6 @@ using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
-using Moq;
 using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializationTypeDefinitions
@@ -26,11 +24,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
     {
         internal static (ModelProvider Model, MrwSerializationTypeDefinition Serialization) CreateModelAndSerialization(InputModelType inputModel, bool isRootInput = true, bool isRootOutput = true)
         {
-            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
             var generator = MockHelpers.LoadMockGenerator(
                 inputModels: () => [inputModel],
                 createSerializationsCore: (inputType, typeProvider) =>
                     inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, (typeProvider as ModelProvider)!)]: []);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
             if (isRootInput)
             {
                 generator.Object.TypeFactory.RootInputModels.Add(inputModel);
@@ -576,9 +574,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var signature = deserializationMethod?.Signature;
             Assert.IsNotNull(signature);
             Assert.AreEqual($"Deserialize{model.Name}", signature?.Name);
-            Assert.AreEqual(2, signature?.Parameters.Count);
+            Assert.AreEqual(3, signature?.Parameters.Count);
             Assert.AreEqual(new CSharpType(typeof(JsonElement)), signature?.Parameters[0].Type);
-            Assert.AreEqual(new CSharpType(typeof(ModelReaderWriterOptions)), signature?.Parameters[1].Type);
+            Assert.AreEqual(new CSharpType(typeof(BinaryData)), signature?.Parameters[1].Type);
+            Assert.AreEqual(new CSharpType(typeof(ModelReaderWriterOptions)), signature?.Parameters[2].Type);
             Assert.AreEqual(model.Type, signature?.ReturnType);
             Assert.AreEqual(MethodSignatureModifiers.Internal | MethodSignatureModifiers.Static, signature?.Modifiers);
 
@@ -619,9 +618,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var signature = deserializationMethod?.Signature;
             Assert.IsNotNull(signature);
             Assert.AreEqual($"Deserialize{model.Name}", signature?.Name);
-            Assert.AreEqual(2, signature?.Parameters.Count);
+            Assert.AreEqual(3, signature?.Parameters.Count);
             Assert.AreEqual(new CSharpType(typeof(JsonElement)), signature?.Parameters[0].Type);
-            Assert.AreEqual(new CSharpType(typeof(ModelReaderWriterOptions)), signature?.Parameters[1].Type);
+            Assert.AreEqual(new CSharpType(typeof(BinaryData)), signature?.Parameters[1].Type);
+            Assert.AreEqual(new CSharpType(typeof(ModelReaderWriterOptions)), signature?.Parameters[2].Type);
             Assert.AreEqual(model.Type, signature?.ReturnType);
             Assert.AreEqual(MethodSignatureModifiers.Internal | MethodSignatureModifiers.Static, signature?.Modifiers);
 
@@ -827,6 +827,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var expr = MrwSerializationTypeDefinition.DeserializeJsonValueCore(
                 type,
                 new ScopedApi<JsonElement>(new VariableExpression(typeof(JsonElement), "foo")),
+                new ScopedApi<BinaryData>(new VariableExpression(typeof(BinaryData), "data")),
                 new ScopedApi<ModelReaderWriterOptions>(new VariableExpression(typeof(ModelReaderWriterOptions), "options")),
                 format);
             return expr.ToDisplayString();

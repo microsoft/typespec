@@ -62,7 +62,7 @@ namespace Sample.Models
                 throw new global::System.FormatException($"The model {nameof(global::Sample.Models.MockInputModel)} does not support reading '{format}' format.");
             }
             using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.ParseValue(ref reader);
-            return global::Sample.Models.MockInputModel.DeserializeMockInputModel(document.RootElement, options);
+            return global::Sample.Models.MockInputModel.DeserializeMockInputModel(document.RootElement, null, options);
         }
 
         global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.MockInputModel>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
@@ -89,7 +89,7 @@ namespace Sample.Models
                 case "J":
                     using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(data))
                     {
-                        return global::Sample.Models.MockInputModel.DeserializeMockInputModel(document.RootElement, options);
+                        return global::Sample.Models.MockInputModel.DeserializeMockInputModel(document.RootElement, data, options);
                     }
                 default:
                     throw new global::System.FormatException($"The model {nameof(global::Sample.Models.MockInputModel)} does not support reading '{options.Format}' format.");

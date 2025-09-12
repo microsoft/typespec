@@ -205,9 +205,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
         public virtual ValueExpression DeserializeJsonValue(
             Type valueType,
             ScopedApi<JsonElement> element,
+            ScopedApi<BinaryData> data,
             ScopedApi<ModelReaderWriterOptions> mrwOptionsParameter,
             SerializationFormat format)
-            => MrwSerializationTypeDefinition.DeserializeJsonValueCore(valueType, element, mrwOptionsParameter, format);
+            => MrwSerializationTypeDefinition.DeserializeJsonValueCore(valueType, element, data, mrwOptionsParameter, format);
 
         public virtual MethodBodyStatement SerializeJsonValue(
             Type valueType,

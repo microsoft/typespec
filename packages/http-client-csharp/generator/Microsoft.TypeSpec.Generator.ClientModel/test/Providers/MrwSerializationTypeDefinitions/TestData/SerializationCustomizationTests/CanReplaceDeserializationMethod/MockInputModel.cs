@@ -12,7 +12,7 @@ namespace Sample.Models
     /// <summary></summary>
     public partial class MockInputModel : IJsonModel<MockInputModel>
     {
-        internal static MockInputModel DeserializeMockInputModel(JsonElement element, ModelReaderWriterOptions options)
+        internal static MockInputModel DeserializeMockInputModel(JsonElement element, BinaryData data, ModelReaderWriterOptions options)
         {
             if ((element.ValueKind == JsonValueKind.Null))
             {
