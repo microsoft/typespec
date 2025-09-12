@@ -33,6 +33,16 @@ export interface InputClient extends DecoratedType {
   children?: InputClient[];
 }
 
+/**
+ * The input namespace type for the CSharp emitter.
+ * @beta
+ */
+export interface InputNamespace extends DecoratedType {
+  name: string;
+  fullName: string;
+  namespaces: InputNamespace[];
+}
+
 interface DecoratedType {
   decorators?: DecoratorInfo[];
 }

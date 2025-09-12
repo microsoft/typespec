@@ -324,7 +324,7 @@ function fromSdkServiceMethodResponse(
   methodResponse: SdkMethodResponse,
 ): InputServiceMethodResponse {
   return {
-    type: methodResponse.type ? fromSdkType(sdkContext, methodResponse.type) : undefined,
+    type: getResponseType(sdkContext, methodResponse.type),
     resultSegments: methodResponse.resultSegments?.map((segment) =>
       getResponseSegmentName(segment),
     ),
@@ -594,7 +594,7 @@ export function fromSdkHttpOperationResponse(
   const range = sdkResponse.statusCodes;
   retVar = {
     statusCodes: toStatusCodesArray(range),
-    bodyType: sdkResponse.type ? fromSdkType(sdkContext, sdkResponse.type) : undefined,
+    bodyType: getResponseType(sdkContext, sdkResponse.type),
     headers: fromSdkServiceResponseHeaders(sdkContext, sdkResponse.headers),
     isErrorResponse:
       sdkResponse.type !== undefined && isErrorModel(sdkContext.program, sdkResponse.type.__raw!),
@@ -891,4 +891,48 @@ function getArraySerializationDelimiter(
 ): string | undefined {
   const format = getCollectionFormat(p);
   return format ? collectionFormatToDelimMap[format] : undefined;
+}
+
+function getResponseType(
+  sdkContext: CSharpEmitterContext,
+  type: SdkType | undefined,
+): InputType | undefined {
+  if (!type) {
+    return undefined;
+  }
+
+  // handle union enum response types by defaulting to the enum value type in the case of anonymous union enum types
+  if (type.kind === "enum" && type.isUnionAsEnum && type.isGeneratedName) {
+    return fromSdkType(sdkContext, type.valueType);
+  }
+
+  // recursively unwrap union types to get the first non-union variant type using breadth-first search
+  if (type.kind === "union" && type.isGeneratedName && type.variantTypes?.length > 0) {
+    const queue = [...type.variantTypes];
+    const visited = new Set<SdkType>();
+
+    while (queue.length > 0) {
+      const currentType = queue.shift();
+
+      if (!currentType || visited.has(currentType)) {
+        continue;
+      }
+      visited.add(currentType);
+
+      // If we find a non-union type, return it immediately
+      if (currentType.kind !== "union") {
+        return fromSdkType(sdkContext, currentType);
+      }
+
+      // Add all variants to queue for breadth-first processing
+      if (currentType.variantTypes?.length > 0) {
+        queue.push(...currentType.variantTypes);
+      }
+    }
+
+    // Fallback to first variant if no non-union found
+    return fromSdkType(sdkContext, type.variantTypes[0]);
+  }
+
+  return fromSdkType(sdkContext, type);
 }

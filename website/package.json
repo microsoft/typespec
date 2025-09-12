@@ -22,7 +22,7 @@
     "@docsearch/css": "^3.9.0",
     "@docsearch/js": "^3.9.0",
     "@expressive-code/core": "^0.41.2",
-    "@fluentui/react-components": "~9.69.0",
+    "@fluentui/react-components": "~9.70.0",
     "@fluentui/react-icons": "^2.0.292",
     "@typespec/compiler": "workspace:^",
     "@typespec/playground": "workspace:^",
