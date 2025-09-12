@@ -13,6 +13,7 @@ import {
   EnumStatementNode,
   FileLibraryMetadata,
   FunctionDeclarationStatementNode,
+  FunctionImplementations,
   FunctionParameterNode,
   InterfaceStatementNode,
   IntersectionExpressionNode,
@@ -133,7 +134,7 @@ export function createBinder(program: Program): Binder {
 
     for (const [key, member] of Object.entries(sourceFile.esmExports)) {
       let name: string;
-      let kind: "decorator" | "function";
+      let kind: "decorator" | "function" | "template";
       if (key === "$flags") {
         const context = getLocationContext(program, sourceFile);
         if (context.type === "library" || context.type === "project") {
@@ -148,6 +149,19 @@ export function createBinder(program: Program): Binder {
               "decorator",
               decoratorName,
               decorator,
+              sourceFile,
+            );
+          }
+        }
+      } else if (key === "$functions") {
+        const value: FunctionImplementations = member as any;
+        for (const [namespaceName, functions] of Object.entries(value)) {
+          for (const [functionName, fn] of Object.entries(functions)) {
+            bindFunctionImplementation(
+              namespaceName === "" ? [] : namespaceName.split("."),
+              "function",
+              functionName,
+              fn,
               sourceFile,
             );
           }

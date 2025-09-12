@@ -15,6 +15,7 @@ Value extends StringValue ? string
   : Value extends EnumValue ? EnumMember
   : Value extends NullValue ? null
   : Value extends ScalarValue ? Value
+  : Value extends UnknownValue ? null
   : Value
 
 /**
@@ -51,6 +52,10 @@ export interface DecoratorApplication {
 export interface DecoratorFunction {
   (program: DecoratorContext, target: any, ...customArgs: any[]): void;
   namespace?: string;
+}
+
+export interface FunctionImplementation {
+  (program: Program, ...args: any[]): Type | Value;
 }
 
 export interface BaseType {
@@ -131,7 +136,8 @@ export type Type =
   | TemplateParameter
   | Tuple
   | Union
-  | UnionVariant;
+  | UnionVariant
+  | FunctionType;
 
 export type StdTypes = {
   // Models
@@ -166,7 +172,8 @@ export interface IndeterminateEntity {
     | BooleanLiteral
     | EnumMember
     | UnionVariant
-    | NullType;
+    | NullType
+    | UnknownType;
 }
 
 export interface IntrinsicType extends BaseType {
@@ -320,7 +327,8 @@ export type Value =
   | ObjectValue
   | ArrayValue
   | EnumValue
-  | NullValue;
+  | NullValue
+  | UnknownValue;
 
 /** @internal */
 export type ValueWithTemplate = Value | TemplateValue;
@@ -386,6 +394,9 @@ export interface EnumValue extends BaseValue {
 export interface NullValue extends BaseValue {
   valueKind: "NullValue";
   value: null;
+}
+export interface UnknownValue extends BaseValue {
+  valueKind: "UnknownValue";
 }
 
 /**
@@ -576,6 +587,13 @@ export interface Namespace extends BaseType, DecoratedType {
    * Order is implementation-defined and may change.
    */
   decoratorDeclarations: Map<string, Decorator>;
+
+  /**
+   * The functions declared in the namespace.
+   *
+   * Order is implementation-defined and may change.
+   */
+  functionDeclarations: Map<string, FunctionType>;
 }
 
 export type LiteralType = StringLiteral | NumericLiteral | BooleanLiteral;
@@ -685,6 +703,16 @@ export interface Decorator extends BaseType {
   target: MixedFunctionParameter;
   parameters: MixedFunctionParameter[];
   implementation: (...args: unknown[]) => void;
+}
+
+export interface FunctionType extends BaseType {
+  kind: "Function";
+  node?: FunctionDeclarationStatementNode;
+  name: string;
+  namespace?: Namespace;
+  parameters: MixedFunctionParameter[];
+  returnType: MixedParameterConstraint;
+  implementation: (...args: unknown[]) => unknown;
 }
 
 export interface FunctionParameterBase extends BaseType {
@@ -2309,6 +2337,12 @@ export interface DecoratorImplementations {
   };
 }
 
+export interface FunctionImplementations {
+  readonly [namespace: string]: {
+    readonly [name: string]: FunctionImplementation;
+  };
+}
+
 export interface PackageFlags {}
 
 export interface LinterDefinition {
@@ -2453,6 +2487,10 @@ export interface DecoratorContext {
     target: T,
     ...args: A
   ): R;
+}
+
+export interface TemplateContext {
+  program: Program;
 }
 
 export interface EmitContext<TOptions extends object = Record<string, never>> {

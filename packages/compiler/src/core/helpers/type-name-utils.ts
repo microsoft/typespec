@@ -82,6 +82,8 @@ function getValuePreview(value: Value, options?: TypeNameOptions): string {
       return "null";
     case "ScalarValue":
       return `${getTypeName(value.type, options)}.${value.value.name}(${value.value.args.map((x) => getValuePreview(x, options)).join(", ")}})`;
+    case "UnknownValue":
+      return "unknown";
   }
 }
 
