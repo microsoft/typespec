@@ -61,12 +61,12 @@ try {
     $tcgc = '@azure-tools/typespec-client-generator-core'
 
     # Get the version of tcgc from devDependencies
-    if (-not $packageJson.devDependencies -or -not $packageJson.devDependencies[$tcgc]) {
+    if (-not $packageJson.devDependencies -or -not $packageJson.devDependencies.PSObject.Properties[$tcgc]) {
         Write-Error "Could not find $tcgc in devDependencies"
         exit 1
     }
 
-    $tcgcVersion = $packageJson.devDependencies[$tcgc]
+    $tcgcVersion = $packageJson.devDependencies.PSObject.Properties[$tcgc].Value
     Write-Host "Using version $tcgcVersion for injected dependencies"
 
     # Inject the required dependencies with the same version
