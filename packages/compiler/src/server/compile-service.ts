@@ -152,20 +152,21 @@ export function createCompileService({
     // otherwise, obtain the `typespec.lsp.emit` configuration from clientConfigsProvider
     if (additionalOptions?.emit === undefined) {
       const configEmits = clientConfigsProvider?.config?.lsp?.emit;
+      const CONFIG_DEFAULTS = "<config:defaults>";
       if (configEmits) {
-        if (configEmits.find((e) => e === "*")) {
-          // keep the emits in tspconfig only when user configs "*", and append other emits from vscode settings if there is any
+        if (configEmits.find((e) => e === CONFIG_DEFAULTS)) {
+          // keep the emits in tspconfig only when user configs "<config:defaults>", and append other emits from vscode settings if there is any
           options.emit = distinctArray(
-            [...(options.emit ?? []), ...configEmits.filter((e) => e !== "*")],
+            [...(options.emit ?? []), ...configEmits.filter((e) => e !== CONFIG_DEFAULTS)],
             (s) => s,
           );
         } else {
-          // use the configured emits if no "*" is found
+          // use the configured emits if no "<config:defaults>" is found
           options.emit = configEmits;
         }
       } else {
         // by default, exclude emits from compile which are not useful in most case but may cause perf issue
-        // User can set [*] to opt-in
+        // User can set ['<config:defaults>'] to opt-in
         options.emit = [];
       }
     }
