@@ -1,6 +1,6 @@
 import { isDefined } from "../../utils/misc.js";
 import { isTemplateInstance, isType, isValue } from "../type-utils.js";
-import {
+import type {
   Entity,
   Enum,
   Interface,
@@ -179,7 +179,7 @@ function getModelName(model: Model, options: TypeNameOptions | undefined) {
   } else if ((model.node as ModelStatementNode)?.templateParameters?.length > 0) {
     // template
     const params = (model.node as ModelStatementNode).templateParameters.map((t) =>
-      getIdentifierName(t.id.sv, options),
+      getIdentifierName(t.id.sv, options, (t as any).rawText),
     );
     return `${modelName}<${params.join(", ")}>`;
   } else {
@@ -227,6 +227,11 @@ function getInterfaceName(iface: Interface, options: TypeNameOptions | undefined
     interfaceName += `<${iface.templateMapper.args
       .map((x) => getEntityName(x, options))
       .join(", ")}>`;
+  } else if (iface.node && iface.node.templateParameters.length > 0) {
+    const params = iface.node.templateParameters.map((t) =>
+      getIdentifierName(t.id.sv, options, (t as any).rawText),
+    );
+    interfaceName += `<${params.join(", ")}>`;
   }
   return `${getNamespacePrefix(iface.namespace, options)}${interfaceName}`;
 }
@@ -248,8 +253,12 @@ function getOperationName(op: Operation, options: TypeNameOptions | undefined) {
   }
 }
 
-function getIdentifierName(name: string, options: TypeNameOptions | undefined) {
-  return options?.printable ? printIdentifier(name) : name;
+function getIdentifierName(
+  name: string,
+  options: TypeNameOptions | undefined,
+  nodeIncludeRawText?: string,
+) {
+  return nodeIncludeRawText ?? (options?.printable ? printIdentifier(name) : name);
 }
 
 function getStringTemplateName(type: StringTemplate): string {

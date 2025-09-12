@@ -13,11 +13,13 @@ import {
   Interface,
   Model,
   ModelProperty,
+  Node,
   Operation,
   StringTemplate,
   Sym,
   SyntaxKind,
   Type,
+  TypeSpecScriptNode,
   UnionVariant,
   Value,
 } from "../core/types.js";
@@ -28,10 +30,6 @@ interface GetSymbolSignatureOptions {
    * Whether to include the body in the signature. Only support Model and Interface type now
    */
   includeBody: boolean;
-  /**
-   * Whether to use formatted template parameters (including default values)
-   */
-  useFormattedTemplateParameters?: boolean;
 }
 
 /** @internal */
@@ -45,17 +43,17 @@ export async function getSymbolSignature(
   const decl = getSymNode(sym);
   switch (decl?.kind) {
     case SyntaxKind.AliasStatement:
-      return fence(`alias ${getAliasSignature(decl)}`);
+      return fence(`alias ${await getAliasSignature(decl)}`);
   }
   const entity = sym.type ?? program.checker.getTypeOrValueForNode(decl);
-  return await getEntitySignature(sym, entity, options);
+  return getEntitySignature(sym, entity, options);
 }
 
-async function getEntitySignature(
+function getEntitySignature(
   sym: Sym,
   entity: Type | Value | null,
   options: GetSymbolSignatureOptions,
-): Promise<string> {
+): string {
   if (entity === null) {
     return "(error)";
   }
@@ -63,10 +61,10 @@ async function getEntitySignature(
     return fence(`const ${sym.name}: ${getTypeName(entity.type)}`);
   }
 
-  return await getTypeSignature(entity, options);
+  return getTypeSignature(entity, options);
 }
 
-async function getTypeSignature(type: Type, options: GetSymbolSignatureOptions): Promise<string> {
+function getTypeSignature(type: Type, options: GetSymbolSignatureOptions): string {
   switch (type.kind) {
     case "Scalar":
     case "Enum":
@@ -76,7 +74,7 @@ async function getTypeSignature(type: Type, options: GetSymbolSignatureOptions):
     case "Interface":
       return fence(getInterfaceSignature(type, options.includeBody));
     case "Model":
-      return fence(await getModelSignature(type, options));
+      return fence(getModelSignature(type, options.includeBody));
     case "ScalarConstructor":
       return fence(`init ${getTypeSignature(type.scalar, options)}.${type.name}`);
     case "Decorator":
@@ -130,7 +128,7 @@ function getOperationSignature(type: Operation, includeQualifier: boolean = true
   })}(${parameters.join(", ")}): ${getPrintableTypeName(type.returnType)}`;
 }
 
-function getInterfaceSignature(type: Interface, includeBody: boolean) {
+function getInterfaceSignature(type: Interface, includeBody: boolean): string {
   if (includeBody) {
     const INDENT = "  ";
     const opDesc = Array.from(type.operations).map(
@@ -138,16 +136,26 @@ function getInterfaceSignature(type: Interface, includeBody: boolean) {
     );
     return `${type.kind.toLowerCase()} ${getPrintableTypeName(type)} {\n${opDesc.join("\n")}\n}`;
   } else {
-    return `${type.kind.toLowerCase()} ${getPrintableTypeName(type)}`;
+    if (
+      type.node &&
+      type.node.kind === SyntaxKind.InterfaceStatement &&
+      type.node.templateParameters
+    ) {
+      type.node.templateParameters.forEach((t) => {
+        if (t.default) {
+          (t as any).rawText = getRawText(t);
+        }
+      });
+    }
   }
+
+  return `${type.kind.toLowerCase()} ${getPrintableTypeName(type)}`;
 }
 
 /**
  * All properties from 'extends' and 'is' will be included if includeBody is true.
  */
-async function getModelSignature(type: Model, options: GetSymbolSignatureOptions): Promise<string> {
-  const { includeBody, useFormattedTemplateParameters } = options;
-
+function getModelSignature(type: Model, includeBody: boolean): string {
   if (includeBody) {
     const propDesc = [];
     const INDENT = "  ";
@@ -156,17 +164,16 @@ async function getModelSignature(type: Model, options: GetSymbolSignatureOptions
     }
     return `${type.kind.toLowerCase()} ${getPrintableTypeName(type)}{\n${propDesc.map((d) => `${d};`).join("\n")}\n}`;
   } else {
-    if (useFormattedTemplateParameters && type.node) {
-      const formatted = await printTypeSpecNode(type.node);
-      // Extract the head of the model declaration (excluding body)
-      const match = formatted.match(/^(model\s+[^{]+)/);
-      if (match && match.length === 2) {
-        return match[1].trim();
-      }
+    if (type.node && type.node.kind === SyntaxKind.ModelStatement && type.node.templateParameters) {
+      type.node.templateParameters.forEach((t) => {
+        if (t.default) {
+          (t as any).rawText = getRawText(t);
+        }
+      });
     }
-
-    return `${type.kind.toLowerCase()} ${getPrintableTypeName(type)}`;
   }
+
+  return `${type.kind.toLowerCase()} ${getPrintableTypeName(type)}`;
 }
 
 function getFunctionParameterSignature(parameter: FunctionParameter) {
@@ -208,9 +215,17 @@ function getEnumMemberSignature(member: EnumMember) {
     : `${ns}${printIdentifier(member.name, "allow-reserved")}: ${value}`;
 }
 
-function getAliasSignature(alias: AliasStatementNode) {
+async function getAliasSignature(alias: AliasStatementNode): Promise<string> {
   const fullName = getFullyQualifiedSymbolName(alias.symbol);
-  const args = alias.templateParameters.map((t) => t.id.sv);
+  const args = await Promise.all(
+    alias.templateParameters.map(async (t, index) => {
+      if (t.default) {
+        (t.default as any).rawText = getRawText(t.default);
+      }
+      return await printTypeSpecNode(t);
+    }),
+  );
+
   return args.length === 0 ? fullName : `${fullName}<${args.join(", ")}>`;
 }
 
@@ -239,4 +254,25 @@ function getPrintableTypeName(type: Type): string {
 
 function fence(code: string) {
   return `\`\`\`typespec\n${code}\n\`\`\``;
+}
+
+function getTypeSpecScript(node: Node): TypeSpecScriptNode | undefined {
+  let current: Node = node;
+  while (current.parent) {
+    current = current.parent;
+  }
+  return current.kind === SyntaxKind.TypeSpecScript ? current : undefined;
+}
+
+function getRawText(node: Node): string {
+  if ("rawText" in node) {
+    return (node as any).rawText as string;
+  }
+
+  const scriptNode = getTypeSpecScript(node);
+  if (!scriptNode) {
+    return "";
+  }
+
+  return scriptNode.file.text.slice(node.pos, node.end);
 }
