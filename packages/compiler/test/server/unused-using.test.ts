@@ -8,7 +8,7 @@ it("hint by default", async () => {
   testHost.addOrUpdateDocument("./sub.tsp", "namespace Foo; model FooModel {};");
   const mainFile = testHost.addOrUpdateDocument("./main.tsp", 'import "./sub.tsp";\nusing Foo;');
 
-  await testHost.server.compile(mainFile);
+  await testHost.server.compile(mainFile, undefined, { mode: "full" });
   const diags = testHost.getDiagnostics("main.tsp");
   strictEqual(diags.length, 1);
   strictEqual(diags[0].code, "@typespec/compiler/unused-using");
@@ -25,7 +25,7 @@ it("warning if enable === true", async () => {
   testHost.addOrUpdateDocument("./sub.tsp", "namespace Foo; model FooModel {};");
   const mainFile = testHost.addOrUpdateDocument("./main.tsp", 'import "./sub.tsp";\nusing Foo;');
 
-  await testHost.server.compile(mainFile);
+  await testHost.server.compile(mainFile, undefined, { mode: "full" });
   const diags = testHost.getDiagnostics("main.tsp");
   strictEqual(diags.length, 1);
   strictEqual(diags[0].code, "@typespec/compiler/unused-using");
@@ -42,7 +42,7 @@ it("nothing if enable === false", async () => {
   testHost.addOrUpdateDocument("./sub.tsp", "namespace Foo; model FooModel {};");
   const mainFile = testHost.addOrUpdateDocument("./main.tsp", 'import "./sub.tsp";\nusing Foo;');
 
-  await testHost.server.compile(mainFile);
+  await testHost.server.compile(mainFile, undefined, { mode: "full" });
   const diags = testHost.getDiagnostics("main.tsp");
   strictEqual(diags.length, 0);
 });
@@ -56,7 +56,7 @@ it("nothing if disabled", async () => {
   testHost.addOrUpdateDocument("./sub.tsp", "namespace Foo; model FooModel {};");
   const mainFile = testHost.addOrUpdateDocument("./main.tsp", 'import "./sub.tsp";\nusing Foo;');
 
-  await testHost.server.compile(mainFile);
+  await testHost.server.compile(mainFile, undefined, { mode: "full" });
   const diags = testHost.getDiagnostics("main.tsp");
   strictEqual(diags.length, 0);
 });
