@@ -52,6 +52,6 @@
     "vitest": "^3.1.2"
   },
   "dependencies": {
-    "monaco-editor-core": "^0.52.2"
+    "monaco-editor-core": "^0.53.0"
   }
 }

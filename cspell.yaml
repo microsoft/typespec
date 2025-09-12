@@ -129,6 +129,8 @@ words:
   - LINUXOS
   - LINUXVMIMAGE
   - ljust
+  - llms
+  - llmstxt
   - lmazuel
   - lropaging
   - lstrip
@@ -136,6 +138,7 @@ words:
   - MACVMIMAGE
   - MACVMIMAGEM
   - mday
+  - methodsubscriptionid
   - mgmt
   - mgmtplane
   - mocharc
@@ -213,6 +216,7 @@ words:
   - repr
   - respecify
   - rjust
+  - rollup
   - rpaas
   - rsplit
   - rstrip

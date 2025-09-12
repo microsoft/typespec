@@ -9,6 +9,7 @@ export function generateServiceInformation(
   serviceInfo: TypeSpecServiceInfo,
   servers: TypeSpecServer[] = [],
   tags: TypeSpecTagMetadata[] = [],
+  namespaceName?: string,
 ): string {
   const definitions: string[] = [];
 
@@ -32,7 +33,10 @@ export function generateServiceInformation(
     definitions.push(generateTags(tags));
   }
 
-  definitions.push(`namespace ${generateNamespaceName(name)};`);
+  // Use provided namespace name, or fall back to generating from service name
+  const namespace =
+    (namespaceName && generateNamespaceName(namespaceName)) || generateNamespaceName(name);
+  definitions.push(`namespace ${namespace};`);
 
   return definitions.join("\n");
 }

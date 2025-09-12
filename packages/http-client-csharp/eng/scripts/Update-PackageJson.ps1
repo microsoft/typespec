@@ -27,6 +27,7 @@ Set-StrictMode -Version 3.0
 
 # Define the list of dependencies to inject
 $InjectedDependencies = @(
+    '@azure-tools/typespec-azure-core',
     '@azure-tools/typespec-azure-rulesets',
     '@azure-tools/typespec-azure-resource-manager',
     '@azure-tools/typespec-autorest'
@@ -57,20 +58,21 @@ try {
     }
 
     $packageJson = Get-Content $PackageJsonPath -Raw | ConvertFrom-Json
+    $tcgc = '@azure-tools/typespec-client-generator-core'
 
-    # Get the version of @azure-tools/typespec-azure-core from devDependencies
-    if (-not $packageJson.devDependencies -or -not $packageJson.devDependencies.'@azure-tools/typespec-azure-core') {
-        Write-Error "Could not find @azure-tools/typespec-azure-core in devDependencies"
+    # Get the version of tcgc from devDependencies
+    if (-not $packageJson.devDependencies -or -not $packageJson.devDependencies[$tcgc]) {
+        Write-Error "Could not find $tcgc in devDependencies"
         exit 1
     }
 
-    $azureCoreVersion = $packageJson.devDependencies.'@azure-tools/typespec-azure-core'
-    Write-Host "Using version $azureCoreVersion for injected dependencies"
+    $tcgcVersion = $packageJson.devDependencies[$tcgc]
+    Write-Host "Using version $tcgcVersion for injected dependencies"
 
     # Inject the required dependencies with the same version
     Write-Host "Injecting required dependencies..."
     foreach ($dependency in $InjectedDependencies) {
-        $packageJson.devDependencies | Add-Member -Type NoteProperty -Name $dependency -Value $azureCoreVersion -Force
+        $packageJson.devDependencies | Add-Member -Type NoteProperty -Name $dependency -Value $tcgcVersion -Force
     }
 
     # Create array of all peerDependencies plus the injected dependencies

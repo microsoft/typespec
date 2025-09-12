@@ -2,6 +2,7 @@ import {
   Experimental_ComponentOverrides,
   Experimental_ComponentOverridesConfig,
 } from "#core/index.js";
+import { Tester } from "#test/test-host.js";
 import { FunctionDeclaration } from "#typescript/index.js";
 import { For, List, type Children } from "@alloy-js/core";
 import { d } from "@alloy-js/core/testing";
@@ -10,7 +11,6 @@ import type { Namespace } from "@typespec/compiler";
 import { expect, it } from "vitest";
 import { Output } from "../../../src/core/components/output.jsx";
 import { InterfaceDeclaration } from "../../../src/typescript/components/interface-declaration.jsx";
-import { Tester } from "../../test-host.js";
 
 it("uses overridden component", async () => {
   const { program } = await Tester.compile(`
