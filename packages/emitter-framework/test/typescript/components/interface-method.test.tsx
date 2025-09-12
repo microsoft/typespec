@@ -1,21 +1,22 @@
+import { Tester } from "#test/test-host.js";
+import { getProgram } from "#test/utils.js";
 import { InterfaceDeclaration, SourceFile } from "@alloy-js/typescript";
 import type { Operation } from "@typespec/compiler";
-import type { BasicTestRunner } from "@typespec/compiler/testing";
+import { t, type TesterInstance } from "@typespec/compiler/testing";
 import { beforeEach, describe, expect, it } from "vitest";
 import { Output } from "../../../src/core/components/output.jsx";
 import { InterfaceMethod } from "../../../src/typescript/components/interface-method.jsx";
-import { createEmitterFrameworkTestRunner, getProgram } from "../test-host.js";
 
 describe("interface methods with a `type` prop", () => {
-  let runner: BasicTestRunner;
+  let runner: TesterInstance;
 
   beforeEach(async () => {
-    runner = await createEmitterFrameworkTestRunner();
+    runner = await Tester.createInstance();
   });
 
   it("creates a interface method", async () => {
-    const { getName } = (await runner.compile(`
-      @test op getName(id: string): string;
+    const { getName } = (await runner.compile(t.code`
+      @test op ${t.op("getName")}(id: string): string;
     `)) as { getName: Operation };
 
     expect(
@@ -34,9 +35,9 @@ describe("interface methods with a `type` prop", () => {
   });
 
   it("creates an async interface function", async () => {
-    const { getName } = (await runner.compile(`
-      @test op getName(id: string): string;
-    `)) as { getName: Operation };
+    const { getName } = await runner.compile(t.code`
+      @test op ${t.op("getName")}(id: string): string;
+    `);
 
     expect(
       <Output program={runner.program}>
@@ -54,9 +55,9 @@ describe("interface methods with a `type` prop", () => {
   });
 
   it("can append extra parameters with raw params provided", async () => {
-    const { getName } = (await runner.compile(`
-      @test op getName(id: string): string;
-    `)) as { getName: Operation };
+    const { getName } = await runner.compile(t.code`
+      @test op ${t.op("getName")}(id: string): string;
+    `);
 
     expect(
       <Output program={runner.program}>
@@ -78,9 +79,9 @@ describe("interface methods with a `type` prop", () => {
   });
 
   it("can prepend extra parameters with raw params provided", async () => {
-    const { getName } = (await runner.compile(`
-      @test op getName(id: string): string;
-    `)) as { getName: Operation };
+    const { getName } = await runner.compile(t.code`
+      @test op ${t.op("getName")}(id: string): string;
+    `);
 
     expect(
       <Output program={runner.program}>
@@ -102,9 +103,9 @@ describe("interface methods with a `type` prop", () => {
   });
 
   it("can replace parameters with raw params provided", async () => {
-    const { getName } = (await runner.compile(`
-      @test op getName(id: string): string;
-    `)) as { getName: Operation };
+    const { getName } = await runner.compile(t.code`
+      @test op ${t.op("getName")}(id: string): string;
+    `);
 
     expect(
       <Output program={runner.program}>
@@ -129,9 +130,9 @@ describe("interface methods with a `type` prop", () => {
   });
 
   it("can override return type", async () => {
-    const { getName } = (await runner.compile(`
-      @test op getName(id: string): string;
-    `)) as { getName: Operation };
+    const { getName } = await runner.compile(t.code`
+      @test op ${t.op("getName")}(id: string): string;
+    `);
 
     expect(
       <Output program={runner.program}>
@@ -149,9 +150,9 @@ describe("interface methods with a `type` prop", () => {
   });
 
   it("can override method name", async () => {
-    const { getName } = (await runner.compile(`
-      @test op getName(id: string): string;
-    `)) as { getName: Operation };
+    const { getName } = await runner.compile(t.code`
+      @test op ${t.op("getName")}(id: string): string;
+    `);
 
     expect(
       <Output program={runner.program}>

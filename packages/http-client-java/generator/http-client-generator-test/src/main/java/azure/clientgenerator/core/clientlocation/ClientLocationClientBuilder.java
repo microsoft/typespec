@@ -47,12 +47,14 @@ import java.util.Objects;
         MoveToExistingSubUserOperationsClient.class,
         MoveToNewSubProductOperationsClient.class,
         MoveToRootResourceOperationsClient.class,
+        MoveMethodParameterToBlobOperationsClient.class,
         ArchiveOperationsClient.class,
         ClientLocationAsyncClient.class,
         MoveToExistingSubAdminOperationsAsyncClient.class,
         MoveToExistingSubUserOperationsAsyncClient.class,
         MoveToNewSubProductOperationsAsyncClient.class,
         MoveToRootResourceOperationsAsyncClient.class,
+        MoveMethodParameterToBlobOperationsAsyncClient.class,
         ArchiveOperationsAsyncClient.class })
 public final class ClientLocationClientBuilder implements HttpTrait<ClientLocationClientBuilder>,
     ConfigurationTrait<ClientLocationClientBuilder>, EndpointTrait<ClientLocationClientBuilder> {
@@ -329,6 +331,17 @@ public final class ClientLocationClientBuilder implements HttpTrait<ClientLocati
     }
 
     /**
+     * Builds an instance of MoveMethodParameterToBlobOperationsAsyncClient class.
+     * 
+     * @return an instance of MoveMethodParameterToBlobOperationsAsyncClient.
+     */
+    @Generated
+    public MoveMethodParameterToBlobOperationsAsyncClient buildMoveMethodParameterToBlobOperationsAsyncClient() {
+        return new MoveMethodParameterToBlobOperationsAsyncClient(
+            buildInnerClient().getMoveMethodParameterToBlobOperations());
+    }
+
+    /**
      * Builds an instance of ArchiveOperationsAsyncClient class.
      * 
      * @return an instance of ArchiveOperationsAsyncClient.
@@ -386,6 +399,17 @@ public final class ClientLocationClientBuilder implements HttpTrait<ClientLocati
     @Generated
     public MoveToRootResourceOperationsClient buildMoveToRootResourceOperationsClient() {
         return new MoveToRootResourceOperationsClient(buildInnerClient().getMoveToRootResourceOperations());
+    }
+
+    /**
+     * Builds an instance of MoveMethodParameterToBlobOperationsClient class.
+     * 
+     * @return an instance of MoveMethodParameterToBlobOperationsClient.
+     */
+    @Generated
+    public MoveMethodParameterToBlobOperationsClient buildMoveMethodParameterToBlobOperationsClient() {
+        return new MoveMethodParameterToBlobOperationsClient(
+            buildInnerClient().getMoveMethodParameterToBlobOperations());
     }
 
     /**

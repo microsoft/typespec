@@ -137,6 +137,20 @@ public final class ClientLocationClientImpl {
     }
 
     /**
+     * The MoveMethodParameterToBlobOperationsImpl object to access its operations.
+     */
+    private final MoveMethodParameterToBlobOperationsImpl moveMethodParameterToBlobOperations;
+
+    /**
+     * Gets the MoveMethodParameterToBlobOperationsImpl object to access its operations.
+     * 
+     * @return the MoveMethodParameterToBlobOperationsImpl object.
+     */
+    public MoveMethodParameterToBlobOperationsImpl getMoveMethodParameterToBlobOperations() {
+        return this.moveMethodParameterToBlobOperations;
+    }
+
+    /**
      * The ArchiveOperationsImpl object to access its operations.
      */
     private final ArchiveOperationsImpl archiveOperations;
@@ -185,6 +199,7 @@ public final class ClientLocationClientImpl {
         this.moveToExistingSubUserOperations = new MoveToExistingSubUserOperationsImpl(this);
         this.moveToNewSubProductOperations = new MoveToNewSubProductOperationsImpl(this);
         this.moveToRootResourceOperations = new MoveToRootResourceOperationsImpl(this);
+        this.moveMethodParameterToBlobOperations = new MoveMethodParameterToBlobOperationsImpl(this);
         this.archiveOperations = new ArchiveOperationsImpl(this);
         this.service
             = RestProxy.create(ClientLocationClientService.class, this.httpPipeline, this.getSerializerAdapter());
