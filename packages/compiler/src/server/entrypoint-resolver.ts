@@ -13,28 +13,17 @@ export async function resolveEntrypointFile(
   fileSystemCache: FileSystemCache | undefined,
   log: (log: ServerLog) => void,
 ): Promise<string | undefined> {
-  let defaultEntrypoint: string | undefined;
   const options = { allowFileNotFound: true };
 
   const pathStat = await doIO(() => host.stat(path), path, logMainFileSearchDiagnostic, options);
   const isFilePath = pathStat?.isFile() ?? false;
   let dir = isFilePath ? getDirectoryPath(path) : path;
 
-  while (true) {
-    // Check for client provided entrypoints (highest priority)
-    if (entrypoints && entrypoints.length > 0) {
-      for (const entrypoint of entrypoints) {
-        const candidate = await existingFile(dir, entrypoint);
-        if (candidate) {
-          log({
-            level: "debug",
-            message: `main file found using client provided entrypoint: ${candidate}`,
-          });
-          return candidate;
-        }
-      }
-    }
+  if (!entrypoints) {
+    entrypoints = ["main.tsp"];
+  }
 
+  while (true) {
     let pkg: any;
     const pkgPath = joinPaths(dir, "package.json");
     const cached = await fileSystemCache?.get(pkgPath);
@@ -59,12 +48,15 @@ export async function resolveEntrypointFile(
       }
     }
 
-    // If there is no configuration, null is passed in vscode while undefined is passed in the compiler.
-    if (
-      !defaultEntrypoint &&
-      (entrypoints === null || entrypoints === undefined || entrypoints.length === 0)
-    ) {
-      defaultEntrypoint = await existingFile(dir, "main.tsp");
+    for (const entrypoint of entrypoints) {
+      const candidate = await existingFile(dir, entrypoint);
+      if (candidate) {
+        log({
+          level: "debug",
+          message: `main file found using client provided entrypoint: ${candidate}`,
+        });
+        return candidate;
+      }
     }
 
     const parentDir = getDirectoryPath(dir);
@@ -73,11 +65,6 @@ export async function resolveEntrypointFile(
     }
 
     dir = parentDir;
-  }
-
-  if (defaultEntrypoint) {
-    log({ level: "debug", message: `entrypoint file found as ${defaultEntrypoint}` });
-    return defaultEntrypoint;
   }
 
   log({ level: "debug", message: `reached directory root, using '${path}' as main file` });
