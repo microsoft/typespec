@@ -1565,7 +1565,7 @@ export class CodeModelBuilder {
     for (const sdkMethodParameter of sdkMethod.parameters) {
       let httpOperationParameter = getHttpOperationParameter(sdkMethod, sdkMethodParameter);
       if (httpOperationParameter) {
-        const opParameter = findOperationParameter(httpOperationParameter);
+        let opParameter = findOperationParameter(httpOperationParameter);
         if (opParameter) {
           // handle difference of parameter, between REST and SDK
           if (opParameter.required !== !sdkMethodParameter.optional) {
@@ -1577,6 +1577,8 @@ export class CodeModelBuilder {
               // set path parameter as required
               opParameter.required = !sdkMethodParameter.optional;
             }
+
+            opParameter = clonedOpParameter;
           }
 
           request.signatureParameters.push(opParameter);
