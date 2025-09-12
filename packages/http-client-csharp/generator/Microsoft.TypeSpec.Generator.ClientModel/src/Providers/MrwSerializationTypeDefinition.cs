@@ -194,16 +194,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // using PipelineResponse response = result.GetRawResponse();
             var responseDeclaration = UsingDeclare("response", ScmCodeModelGenerator.Instance.TypeFactory.HttpResponseApi.HttpResponseType, result.ToApi<ClientResponseApi>().GetRawResponse(), out var response);
             // using JsonDocument document = JsonDocument.Parse(response.Content);
+            var data = Declare("data", typeof(BinaryData), response.Property(nameof(HttpResponseApi.Content)), out var dataVariable);
             var document = UsingDeclare(
                 "document",
                 typeof(JsonDocument),
-                response.Property(nameof(HttpResponseApi.Content)).As<BinaryData>().Parse(),
+                dataVariable.As<BinaryData>().Parse(),
                 out var docVariable);
-            // return DeserializeT(doc.RootElement, ModelSerializationExtensions.WireOptions);
-            var deserialize = Return(_model.Type.Deserialize(docVariable.As<JsonDocument>().RootElement(), ModelSerializationExtensionsSnippets.Wire));
+            // return DeserializeT(doc.RootElement, data, ModelSerializationExtensions.WireOptions);
+            var deserialize = Return(_model.Type.Deserialize(docVariable.As<JsonDocument>().RootElement(), dataVariable, ModelSerializationExtensionsSnippets.Wire));
             var methodBody = new MethodBodyStatement[]
             {
                 responseDeclaration,
+                data,
                 document,
                 deserialize
             };
@@ -438,7 +440,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // using var document = JsonDocument.ParseValue(ref reader);
                 UsingDeclare("document", typeof(JsonDocument), JsonDocumentSnippets.ParseValue(_utf8JsonReaderParameter.AsArgument()), out var docVariable),
                 // return DeserializeT(doc.RootElement, options);
-                Return(typeForDeserialize.Deserialize(JsonDocumentSnippets.RootElement(docVariable.As<JsonDocument>()), _mrwOptionsParameterSnippet))
+                Return(typeForDeserialize.Deserialize(JsonDocumentSnippets.RootElement(docVariable.As<JsonDocument>()), Null, _mrwOptionsParameterSnippet))
             };
 
             // T JsonModelCreateCore(ref reader, ModelReaderWriterOptions options)
@@ -461,7 +463,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // internal static T DeserializeT(JsonElement element, ModelReaderWriterOptions options)
             return new MethodProvider
             (
-              new MethodSignature(methodName, null, signatureModifiers, _model.Type, null, [_jsonElementDeserializationParam, _serializationOptionsParameter]),
+              new MethodSignature(methodName, null, signatureModifiers, _model.Type, null, [_jsonElementDeserializationParam, _dataParameter, _serializationOptionsParameter]),
               _inputModel.DiscriminatedSubtypes.Count > 0 ? BuildDiscriminatedModelDeserializationMethodBody() : BuildDeserializationMethodBody(),
               this
             );
@@ -482,7 +484,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             [
                 new IfStatement(_jsonElementParameterSnippet.ValueKindEqualsNull()) { Return(Null) },
                 deserializeDiscriminatedModelsConditions,
-                Return(unknownVariant.Type.Deserialize(_jsonElementParameterSnippet, _serializationOptionsParameter))
+                Return(unknownVariant.Type.Deserialize(_jsonElementParameterSnippet, _dataParameter, _serializationOptionsParameter))
             ];
         }
 
@@ -516,7 +518,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 cases[index++] = new SwitchCaseStatement(
                     Literal(model.DiscriminatorValue!),
-                    Return(model.Type.Deserialize(_jsonElementParameterSnippet, _serializationOptionsParameter)));
+                    Return(model.Type.Deserialize(_jsonElementParameterSnippet, _dataParameter, _serializationOptionsParameter)));
             }
             return cases;
         }
@@ -622,7 +624,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Build the deserialization statements for each property
             ForEachStatement deserializePropertiesForEachStatement = new("prop", _jsonElementParameterSnippet.EnumerateObject(), out var prop)
             {
-                BuildDeserializePropertiesStatements(prop.As<JsonProperty>())
+                BuildDeserializePropertiesStatements(prop.As<JsonProperty>(), _dataParameter.As<BinaryData>())
             };
 
             var valueKindEqualsNullReturn = _isStruct ? Return(Default) : Return(Null);
@@ -720,7 +722,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     new UsingScopeStatement(typeof(JsonDocument), "document", JsonDocumentSnippets.Parse(_dataParameter), out var jsonDocumentVar)
                     {
-                        Return(typeForDeserialize.Deserialize(jsonDocumentVar.As<JsonDocument>().RootElement(), _serializationOptionsParameter))
+                        Return(typeForDeserialize.Deserialize(jsonDocumentVar.As<JsonDocument>().RootElement(), _dataParameter, _serializationOptionsParameter))
                     },
                });
             var typeOfT = _persistableModelTInterface.Arguments[0];
@@ -788,7 +790,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return propertyProvider.AsVariableExpression;
         }
 
-        private List<MethodBodyStatement> BuildDeserializePropertiesStatements(ScopedApi<JsonProperty> jsonProperty)
+        private List<MethodBodyStatement> BuildDeserializePropertiesStatements(ScopedApi<JsonProperty> jsonProperty, ScopedApi<BinaryData> data)
         {
             List<MethodBodyStatement> propertyDeserializationStatements = [];
             Dictionary<JsonValueKind, List<MethodBodyStatement>> additionalPropsValueKindBodyStatements = [];
@@ -821,7 +823,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     // handle additional properties
                     if (parameter.Property != null && parameter.Property != _additionalBinaryDataProperty.Value && parameter.Property.IsAdditionalProperties)
                     {
-                        AddAdditionalPropertiesValueKindStatements(additionalPropsValueKindBodyStatements, parameter.Property, jsonProperty);
+                        AddAdditionalPropertiesValueKindStatements(additionalPropsValueKindBodyStatements, parameter.Property, jsonProperty, data);
                         continue;
                     }
 
@@ -839,7 +841,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     var propertyExpression = parameter.Property?.AsVariableExpression ?? parameter.Field?.AsVariableExpression;
                     var checkIfJsonPropEqualsName = new IfStatement(jsonProperty.NameEquals(propertySerializationName))
                     {
-                        DeserializeProperty(propertyName!, propertyType!, wireInfo, propertyExpression!, jsonProperty, serializationAttributes)
+                        DeserializeProperty(propertyName!, propertyType!, wireInfo, propertyExpression!, jsonProperty, data, serializationAttributes)
                     };
                     propertyDeserializationStatements.Add(checkIfJsonPropEqualsName);
                 }
@@ -876,14 +878,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (_additionalBinaryDataProperty.Value != null)
             {
                 var binaryDataDeserializationValue = ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(
-                    _additionalBinaryDataProperty.Value.Type.ElementType.FrameworkType, jsonProperty.Value(), _mrwOptionsParameterSnippet, SerializationFormat.Default);
+                    _additionalBinaryDataProperty.Value.Type.ElementType.FrameworkType, jsonProperty.Value(), _dataParameter.As<BinaryData>(), _mrwOptionsParameterSnippet, SerializationFormat.Default);
                 propertyDeserializationStatements.Add(
                     _additionalBinaryDataProperty.Value.AsVariableExpression.AsDictionary(_additionalBinaryDataProperty.Value.Type).Add(jsonProperty.Name(), binaryDataDeserializationValue));
             }
             else if (rawBinaryData != null)
             {
                 var elementType = rawBinaryData.Type.Arguments[1].FrameworkType;
-                var rawDataDeserializationValue = ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(elementType, jsonProperty.Value(), _mrwOptionsParameterSnippet, SerializationFormat.Default);
+                var rawDataDeserializationValue = ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(elementType, jsonProperty.Value(), _dataParameter.As<BinaryData>(), _mrwOptionsParameterSnippet, SerializationFormat.Default);
                 propertyDeserializationStatements.Add(new IfStatement(_isNotEqualToWireConditionSnippet)
                 {
                     rawBinaryData.AsVariableExpression.AsDictionary(rawBinaryData.Type).Add(jsonProperty.Name(), rawDataDeserializationValue)
@@ -896,7 +898,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private void AddAdditionalPropertiesValueKindStatements(
             Dictionary<JsonValueKind, List<MethodBodyStatement>> additionalPropsValueKindBodyStatements,
             PropertyProvider additionalPropertiesProperty,
-            ScopedApi<JsonProperty> jsonProperty)
+            ScopedApi<JsonProperty> jsonProperty,
+            ScopedApi<BinaryData> data)
         {
             DictionaryExpression additionalPropsDict = additionalPropertiesProperty.AsVariableExpression.AsDictionary(additionalPropertiesProperty.Type);
             var valueType = additionalPropertiesProperty.Type.ElementType;
@@ -909,7 +912,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     case Type t when t == typeof(string):
                         AddStatements(JsonValueKind.String,
                         [
-                            DeserializeValue(valueType, jsonProperty.Value(), SerializationFormat.Default, out ValueExpression stringValue),
+                            DeserializeValue(valueType, jsonProperty.Value(), data, SerializationFormat.Default, out ValueExpression stringValue),
                             additionalPropsDict.Add(jsonProperty.Name(), stringValue),
                             Continue
                         ]);
@@ -917,7 +920,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     case Type t when t == typeof(bool):
                         AddStatements(JsonValueKind.True,
                         [
-                            DeserializeValue(valueType, jsonProperty.Value(), SerializationFormat.Default, out ValueExpression boolValue),
+                            DeserializeValue(valueType, jsonProperty.Value(), data, SerializationFormat.Default, out ValueExpression boolValue),
                             additionalPropsDict.Add(jsonProperty.Name(), boolValue),
                             Continue
                         ]);
@@ -1084,7 +1087,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var valueKind = valueType.IsList ? JsonValueKind.Array : JsonValueKind.Object;
                 AddStatements(valueKind,
                 [
-                    DeserializeValue(valueType, jsonProperty.Value(), SerializationFormat.Default, out ValueExpression value),
+                    DeserializeValue(valueType, jsonProperty.Value(), data, SerializationFormat.Default, out ValueExpression value),
                     additionalPropsDict.Add(jsonProperty.Name(), value),
                     Continue
                 ]);
@@ -1145,6 +1148,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             PropertyWireInformation wireInfo,
             VariableExpression variableExpression,
             ScopedApi<JsonProperty> jsonProperty,
+            ScopedApi<BinaryData> data,
             IEnumerable<AttributeStatement> serializationAttributes)
         {
             bool useCustomDeserializationHook = false;
@@ -1152,7 +1156,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var propertyVarReference = variableExpression;
             var deserializationStatements = new MethodBodyStatement[2]
             {
-                DeserializeValue(propertyType, jsonProperty.Value(), serializationFormat, out ValueExpression value),
+                DeserializeValue(propertyType, jsonProperty.Value(), data, serializationFormat, out ValueExpression value),
                 propertyVarReference.Assign(value).Terminate()
             };
 
@@ -1233,6 +1237,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private MethodBodyStatement DeserializeValue(
             CSharpType valueType,
             ScopedApi<JsonElement> jsonElement,
+            ScopedApi<BinaryData> data,
             SerializationFormat serializationFormat,
             out ValueExpression value)
         {
@@ -1251,7 +1256,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                              NullCheckCollectionItemIfRequired(valueType.ElementType, item, item.Assign(Null).Terminate(),
                                 new MethodBodyStatement[]
                                 {
-                                    DeserializeValue(valueType.ElementType, item, serializationFormat, out ValueExpression deserializedArrayElement),
+                                    DeserializeValue(valueType.ElementType, item, data, serializationFormat, out ValueExpression deserializedArrayElement),
                                     new IndexableExpression(arrayVar)[index].Assign(deserializedArrayElement).Terminate(),
                                 }),
                             index.Increment().Terminate()
@@ -1268,7 +1273,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     {
                        NullCheckCollectionItemIfRequired(valueType.ElementType, arrayItem, listVariable.Add(Null), new MethodBodyStatement[]
                         {
-                            DeserializeValue(valueType.ElementType, arrayItem, serializationFormat, out ValueExpression deserializedListElement),
+                            DeserializeValue(valueType.ElementType, arrayItem, data, serializationFormat, out ValueExpression deserializedListElement),
                             listVariable.Add(deserializedListElement),
                         })
                     })
@@ -1283,7 +1288,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     Declare("dictionary", New.Dictionary(valueType.Arguments[0], valueType.Arguments[1]), out var dictionary),
                     ForEachStatement.Create("prop", jsonElement.EnumerateObject(), out ScopedApi<JsonProperty> prop).Add(new MethodBodyStatement[]
                     {
-                        CreateDeserializeDictionaryValueStatement(valueType.ElementType, dictionary, prop, serializationFormat)
+                        CreateDeserializeDictionaryValueStatement(valueType.ElementType, dictionary, prop, data, serializationFormat)
                     })
                 };
                 value = dictionary;
@@ -1291,32 +1296,33 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             else
             {
-                value = CreateDeserializeValueExpression(valueType, serializationFormat, jsonElement);
+                value = CreateDeserializeValueExpression(valueType, serializationFormat, jsonElement, data);
                 return MethodBodyStatement.Empty;
             }
         }
 
-        private ValueExpression CreateDeserializeValueExpression(CSharpType valueType, SerializationFormat serializationFormat, ScopedApi<JsonElement> jsonElement) =>
+        private ValueExpression CreateDeserializeValueExpression(CSharpType valueType, SerializationFormat serializationFormat, ScopedApi<JsonElement> jsonElement, ScopedApi<BinaryData> data) =>
             valueType switch
             {
                 { IsFrameworkType: true } when valueType.FrameworkType == typeof(Nullable<>) =>
-                    ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(valueType.Arguments[0].FrameworkType, jsonElement, _mrwOptionsParameterSnippet, serializationFormat),
+                    ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(valueType.Arguments[0].FrameworkType, jsonElement, _dataParameter.As<BinaryData>(), _mrwOptionsParameterSnippet, serializationFormat),
                 { IsFrameworkType: true } =>
-                    ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(valueType.FrameworkType, jsonElement, _mrwOptionsParameterSnippet, serializationFormat),
+                    ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(valueType.FrameworkType, jsonElement, _dataParameter.As<BinaryData>(), _mrwOptionsParameterSnippet, serializationFormat),
                 { IsEnum: true } =>
-                    valueType.ToEnum(ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(valueType.UnderlyingEnumType!, jsonElement, _mrwOptionsParameterSnippet, serializationFormat)),
-                _ => valueType.Deserialize(jsonElement, _mrwOptionsParameterSnippet)
+                    valueType.ToEnum(ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(valueType.UnderlyingEnumType!, jsonElement, _dataParameter.As<BinaryData>(), _mrwOptionsParameterSnippet, serializationFormat)),
+                _ => valueType.Deserialize(jsonElement, data, _mrwOptionsParameterSnippet)
             };
 
         private MethodBodyStatement CreateDeserializeDictionaryValueStatement(
             CSharpType dictionaryItemType,
             DictionaryExpression dictionary,
             ScopedApi<JsonProperty> property,
+            ScopedApi<BinaryData> data,
             SerializationFormat serializationFormat)
         {
             var deserializeValueBlock = new MethodBodyStatement[]
             {
-                DeserializeValue(dictionaryItemType, property.Value(), serializationFormat, out var value),
+                DeserializeValue(dictionaryItemType, property.Value(), data, serializationFormat, out var value),
                 dictionary.Add(property.Name(), value)
             };
 
@@ -1685,6 +1691,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         internal static ValueExpression DeserializeJsonValueCore(
             Type valueType,
             ScopedApi<JsonElement> element,
+            ScopedApi<BinaryData> data,
             ScopedApi<ModelReaderWriterOptions> mrwOptions,
             SerializationFormat format)
         {
@@ -1743,7 +1750,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     DiagnosticCodes.UnsupportedSerialization,
                     $"Deserialization of type {valueType.Name} is not supported.",
                     severity: EmitterDiagnosticSeverity.Warning);
-                return new CSharpType(valueType).Deserialize(element);
+                return new CSharpType(valueType).Deserialize(element, data, mrwOptions);
             }
 
             return exp;
