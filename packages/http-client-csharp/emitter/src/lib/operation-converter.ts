@@ -901,37 +901,9 @@ function getResponseType(
     return undefined;
   }
 
-  // handle union enum response types by defaulting to the enum value type in the case of anonymous union enum types
+  // handle anonymous union enum response types by defaulting to the enum value type in the case of
   if (type.kind === "enum" && type.isUnionAsEnum && type.isGeneratedName) {
     return fromSdkType(sdkContext, type.valueType);
-  }
-
-  // recursively unwrap union types to get the first non-union variant type using breadth-first search
-  if (type.kind === "union" && type.isGeneratedName && type.variantTypes?.length > 0) {
-    const queue = [...type.variantTypes];
-    const visited = new Set<SdkType>();
-
-    while (queue.length > 0) {
-      const currentType = queue.shift();
-
-      if (!currentType || visited.has(currentType)) {
-        continue;
-      }
-      visited.add(currentType);
-
-      // If we find a non-union type, return it immediately
-      if (currentType.kind !== "union") {
-        return fromSdkType(sdkContext, currentType);
-      }
-
-      // Add all variants to queue for breadth-first processing
-      if (currentType.variantTypes?.length > 0) {
-        queue.push(...currentType.variantTypes);
-      }
-    }
-
-    // Fallback to first variant if no non-union found
-    return fromSdkType(sdkContext, type.variantTypes[0]);
   }
 
   return fromSdkType(sdkContext, type);

@@ -253,7 +253,7 @@ describe("Operation Converter", () => {
     });
 
     describe("With union model response type", () => {
-      it("should convert the first response type variant", async () => {
+      it("should use union response type", async () => {
         const program = await typeSpecCompile(
           `
           model ServerEventSessionAvatarConnecting {
@@ -286,8 +286,7 @@ describe("Operation Converter", () => {
         // validate service method response
         const responseType = method.response.type;
         ok(responseType);
-        strictEqual(responseType.kind, "model");
-        strictEqual(responseType.name, "ServerEventSessionAvatarConnecting");
+        strictEqual(responseType.kind, "union");
 
         // validate operation response
         const operation = method.operation;
@@ -295,67 +294,7 @@ describe("Operation Converter", () => {
         strictEqual(operation.responses.length, 1);
         const response = operation.responses[0];
         ok(response);
-        strictEqual(response.bodyType?.kind, "model");
-        strictEqual(response.bodyType?.name, "ServerEventSessionAvatarConnecting");
-      });
-    });
-
-    describe("With nested union response type", () => {
-      it("should recursively unwrap nested union types to get first non-union variant", async () => {
-        const program = await typeSpecCompile(
-          `
-          model ModelA {
-            valueA: string;
-          }
-
-          model ModelB {
-            valueB: int32;
-          }
-
-          model ModelC {
-            valueC: boolean;
-          }
-
-          // Inner union: ModelB | ModelC
-          union InnerUnion {
-            modelB: ModelB,
-            modelC: ModelC,
-          }
-
-          // Outer union: InnerUnion | ModelA
-          union NestedUnion {
-            inner: InnerUnion,
-            modelA: ModelA,
-          }
-
-          @route("/test")
-          op operationWithNestedUnionResponse(): NestedUnion;
-          `,
-          runner,
-        );
-        const context = createEmitterContext(program);
-        const sdkContext = await createCSharpSdkContext(context);
-        const root = createModel(sdkContext);
-
-        strictEqual(root.clients.length, 1);
-        strictEqual(root.clients[0].methods.length, 1);
-
-        const method = root.clients[0].methods[0];
-        ok(method);
-
-        const responseType = method.response.type;
-        ok(responseType);
-        strictEqual(responseType.kind, "model");
-        strictEqual(responseType.name, "ModelA");
-
-        // validate operation response
-        const operation = method.operation;
-        ok(operation);
-        strictEqual(operation.responses.length, 1);
-        const response = operation.responses[0];
-        ok(response);
-        strictEqual(response.bodyType?.kind, "model");
-        strictEqual(response.bodyType?.name, "ModelA");
+        strictEqual(response.bodyType?.kind, "union");
       });
     });
 
