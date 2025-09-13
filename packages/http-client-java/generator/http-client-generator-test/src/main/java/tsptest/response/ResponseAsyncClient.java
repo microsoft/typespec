@@ -359,6 +359,30 @@ public final class ResponseAsyncClient {
     }
 
     /**
+     * The getUnionResponse operation.
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * BinaryData
+     * }
+     * </pre>
+     * 
+     * @param accept The accept parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the response body along with {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<BinaryData>> getUnionResponseWithResponse(String accept, RequestOptions requestOptions) {
+        return this.serviceClient.getUnionResponseWithResponseAsync(accept, requestOptions);
+    }
+
+    /**
      * The getBinary operation.
      * 
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -604,6 +628,26 @@ public final class ResponseAsyncClient {
         RequestOptions requestOptions = new RequestOptions();
         return getPlusJsonResponseWithResponse(requestOptions).flatMap(FluxUtil::toMono)
             .map(protocolMethodData -> protocolMethodData.toObject(Resource.class));
+    }
+
+    /**
+     * The getUnionResponse operation.
+     * 
+     * @param accept The accept parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<BinaryData> getUnionResponse(String accept) {
+        // Generated convenience method for getUnionResponseWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return getUnionResponseWithResponse(accept, requestOptions).flatMap(FluxUtil::toMono);
     }
 
     @Generated
