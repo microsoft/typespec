@@ -80,7 +80,8 @@ async function createTesterFs(base: string, options: TesterOptions) {
     );
     if (resolved.type === "module") {
       const virtualPath = computeRelativePath(lib, resolved.mainFile);
-      fs.addJsFile(virtualPath, host.getJsImport(resolved.mainFile));
+      fs.addJsFile(virtualPath, await host.getJsImport(resolved.mainFile));
+
       fs.add(
         resolvePath("node_modules", lib, "package.json"),
         (resolved.manifest as any).file.text,
