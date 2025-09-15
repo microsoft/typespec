@@ -4,4 +4,4 @@ packages:
   - "@typespec/http-client"
 ---
 
-Introduce @experimental decorator to tag client features as unstable
+Introduce `@experimental` decorator to tag client features as unstable
