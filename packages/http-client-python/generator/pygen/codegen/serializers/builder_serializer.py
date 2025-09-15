@@ -1384,7 +1384,11 @@ class _PagingOperationSerializer(_OperationSerializer[PagingOperationType]):
             elif self.code_model.options["models-mode"] == "msrest":
                 cont_token_property = f"deserialized.{next_link_name} or None"
             else:
-                cont_token_property = f'deserialized.get("{next_link_name}") or None'
+                next_link_name_array = next_link_name.split(".")
+                access = (
+                    "".join([f'.get("{i}", {{}})' for i in next_link_name_array[:-1]]) + f'.get("{next_link_name_array[-1]}")'
+                )
+                cont_token_property = f"deserialized{access} or None"
         list_type = "AsyncList" if self.async_mode else "iter"
         retval.append(f"    return {cont_token_property}, {list_type}(list_of_elem)")
         return retval
