@@ -9,6 +9,7 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Text;
 using System.Text.Json;
 
 namespace SampleTypeSpec
@@ -25,6 +26,14 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         void IJsonModel<DynamicModel>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
+#pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+            if (Patch.Contains("$"u8))
+            {
+                writer.WriteRawValue(Patch.GetJson("$"u8));
+                return;
+            }
+#pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+
             writer.WriteStartObject();
             JsonModelWriteCore(writer, options);
             writer.WriteEndObject();
@@ -39,78 +48,329 @@ namespace SampleTypeSpec
             {
                 throw new FormatException($"The model {nameof(DynamicModel)} does not support writing '{format}' format.");
             }
-            writer.WritePropertyName("name"u8);
-            writer.WriteStringValue(Name);
-            writer.WritePropertyName("foo"u8);
-            writer.WriteObjectValue(Foo, options);
-            writer.WritePropertyName("listFoo"u8);
-            writer.WriteStartArray();
-            foreach (AnotherDynamicModel item in ListFoo)
+#pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+            if (!Patch.Contains("$.name"u8))
             {
-                writer.WriteObjectValue(item, options);
+                writer.WritePropertyName("name"u8);
+                writer.WriteStringValue(Name);
             }
-            writer.WriteEndArray();
-            writer.WritePropertyName("listOfListFoo"u8);
-            writer.WriteStartArray();
-            foreach (IList<AnotherDynamicModel> item in ListOfListFoo)
+            if (Optional.IsDefined(OptionalUnknown) && !Patch.Contains("$.optionalUnknown"u8))
             {
-                if (item == null)
+                writer.WritePropertyName("optionalUnknown"u8);
+#if NET6_0_OR_GREATER
+                writer.WriteRawValue(OptionalUnknown);
+#else
+                using (JsonDocument document = JsonDocument.Parse(OptionalUnknown))
                 {
-                    writer.WriteNullValue();
-                    continue;
+                    JsonSerializer.Serialize(writer, document.RootElement);
                 }
+#endif
+            }
+            if (Optional.IsDefined(OptionalInt) && !Patch.Contains("$.optionalInt"u8))
+            {
+                writer.WritePropertyName("optionalInt"u8);
+                writer.WriteNumberValue(OptionalInt.Value);
+            }
+            if (Patch.Contains("$.optionalNullableList"u8))
+            {
+                writer.WritePropertyName("optionalNullableList"u8);
+                writer.WriteRawValue(Patch.GetJson("$.optionalNullableList"u8));
+            }
+            else if (Optional.IsCollectionDefined(OptionalNullableList))
+            {
+                writer.WritePropertyName("optionalNullableList"u8);
                 writer.WriteStartArray();
-                foreach (AnotherDynamicModel item0 in item)
+                for (int i = 0; i < OptionalNullableList.Count; i++)
                 {
-                    writer.WriteObjectValue(item0, options);
+                    if (Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.optionalNullableList[{i}]")))
+                    {
+                        continue;
+                    }
+                    writer.WriteNumberValue(OptionalNullableList[i]);
                 }
+                Patch.WriteTo(writer, "$.optionalNullableList"u8);
                 writer.WriteEndArray();
             }
-            writer.WriteEndArray();
-            writer.WritePropertyName("dictionaryFoo"u8);
-            writer.WriteStartObject();
-            foreach (var item in DictionaryFoo)
+            else
             {
-                writer.WritePropertyName(item.Key);
-                writer.WriteObjectValue(item.Value, options);
+                writer.WriteNull("optionalNullableList"u8);
             }
-            writer.WriteEndObject();
-            writer.WritePropertyName("dictionaryListFoo"u8);
-            writer.WriteStartObject();
-            foreach (var item in DictionaryListFoo)
+            if (Patch.Contains("$.requiredNullableList"u8))
             {
-                writer.WritePropertyName(item.Key);
-                if (item.Value == null)
-                {
-                    writer.WriteNullValue();
-                    continue;
-                }
+                writer.WritePropertyName("requiredNullableList"u8);
+                writer.WriteRawValue(Patch.GetJson("$.requiredNullableList"u8));
+            }
+            else if (Optional.IsCollectionDefined(RequiredNullableList))
+            {
+                writer.WritePropertyName("requiredNullableList"u8);
                 writer.WriteStartArray();
-                foreach (AnotherDynamicModel item0 in item.Value)
+                for (int i = 0; i < RequiredNullableList.Count; i++)
                 {
-                    writer.WriteObjectValue(item0, options);
+                    if (Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.requiredNullableList[{i}]")))
+                    {
+                        continue;
+                    }
+                    writer.WriteNumberValue(RequiredNullableList[i]);
                 }
+                Patch.WriteTo(writer, "$.requiredNullableList"u8);
                 writer.WriteEndArray();
             }
-            writer.WriteEndObject();
-            writer.WritePropertyName("listOfDictionaryFoo"u8);
-            writer.WriteStartArray();
-            foreach (IDictionary<string, AnotherDynamicModel> item in ListOfDictionaryFoo)
+            else
             {
-                if (item == null)
-                {
-                    writer.WriteNullValue();
-                    continue;
-                }
+                writer.WriteNull("requiredNullableList"u8);
+            }
+            if (Optional.IsCollectionDefined(OptionalNullableDictionary) && !Patch.Contains("$.optionalNullableDictionary"u8))
+            {
+                writer.WritePropertyName("optionalNullableDictionary"u8);
                 writer.WriteStartObject();
-                foreach (var item0 in item)
+#if NET8_0_OR_GREATER
+                global::System.Span<byte> buffer = stackalloc byte[256];
+#endif
+                foreach (var item in OptionalNullableDictionary)
                 {
-                    writer.WritePropertyName(item0.Key);
-                    writer.WriteObjectValue(item0.Value, options);
+#if NET8_0_OR_GREATER
+                    int bytesWritten = global::System.Text.Encoding.UTF8.GetBytes(item.Key.AsSpan(), buffer);
+                    bool patchContains = (bytesWritten == 256) ? Patch.Contains("$.optionalNullableDictionary"u8, global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains("$.optionalNullableDictionary"u8, buffer.Slice(0, bytesWritten));
+#else
+                    bool patchContains = Patch.Contains("$.optionalNullableDictionary"u8, Encoding.UTF8.GetBytes(item.Key));
+#endif
+                    if (!patchContains)
+                    {
+                        writer.WritePropertyName(item.Key);
+                        writer.WriteNumberValue(item.Value);
+                    }
                 }
+
+                Patch.WriteTo(writer, "$.optionalNullableDictionary"u8);
                 writer.WriteEndObject();
             }
-            writer.WriteEndArray();
+            if (Optional.IsCollectionDefined(RequiredNullableDictionary) && !Patch.Contains("$.requiredNullableDictionary"u8))
+            {
+                writer.WritePropertyName("requiredNullableDictionary"u8);
+                writer.WriteStartObject();
+#if NET8_0_OR_GREATER
+                global::System.Span<byte> buffer = stackalloc byte[256];
+#endif
+                foreach (var item in RequiredNullableDictionary)
+                {
+#if NET8_0_OR_GREATER
+                    int bytesWritten = global::System.Text.Encoding.UTF8.GetBytes(item.Key.AsSpan(), buffer);
+                    bool patchContains = (bytesWritten == 256) ? Patch.Contains("$.requiredNullableDictionary"u8, global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains("$.requiredNullableDictionary"u8, buffer.Slice(0, bytesWritten));
+#else
+                    bool patchContains = Patch.Contains("$.requiredNullableDictionary"u8, Encoding.UTF8.GetBytes(item.Key));
+#endif
+                    if (!patchContains)
+                    {
+                        writer.WritePropertyName(item.Key);
+                        writer.WriteNumberValue(item.Value);
+                    }
+                }
+
+                Patch.WriteTo(writer, "$.requiredNullableDictionary"u8);
+                writer.WriteEndObject();
+            }
+            else
+            {
+                writer.WriteNull("requiredNullableDictionary"u8);
+            }
+            if (!Patch.Contains("$.primitiveDictionary"u8))
+            {
+                writer.WritePropertyName("primitiveDictionary"u8);
+                writer.WriteStartObject();
+#if NET8_0_OR_GREATER
+                global::System.Span<byte> buffer = stackalloc byte[256];
+#endif
+                foreach (var item in PrimitiveDictionary)
+                {
+#if NET8_0_OR_GREATER
+                    int bytesWritten = global::System.Text.Encoding.UTF8.GetBytes(item.Key.AsSpan(), buffer);
+                    bool patchContains = (bytesWritten == 256) ? Patch.Contains("$.primitiveDictionary"u8, global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains("$.primitiveDictionary"u8, buffer.Slice(0, bytesWritten));
+#else
+                    bool patchContains = Patch.Contains("$.primitiveDictionary"u8, Encoding.UTF8.GetBytes(item.Key));
+#endif
+                    if (!patchContains)
+                    {
+                        writer.WritePropertyName(item.Key);
+                        writer.WriteNumberValue(item.Value);
+                    }
+                }
+
+                Patch.WriteTo(writer, "$.primitiveDictionary"u8);
+                writer.WriteEndObject();
+            }
+            if (!Patch.Contains("$.foo"u8))
+            {
+                writer.WritePropertyName("foo"u8);
+                writer.WriteObjectValue(Foo, options);
+            }
+            if (Patch.Contains("$.listFoo"u8))
+            {
+                writer.WritePropertyName("listFoo"u8);
+                writer.WriteRawValue(Patch.GetJson("$.listFoo"u8));
+            }
+            else
+            {
+                writer.WritePropertyName("listFoo"u8);
+                writer.WriteStartArray();
+                for (int i = 0; i < ListFoo.Count; i++)
+                {
+                    if (ListFoo[i].Patch.IsRemoved("$"u8))
+                    {
+                        continue;
+                    }
+                    writer.WriteObjectValue(ListFoo[i], options);
+                }
+                Patch.WriteTo(writer, "$.listFoo"u8);
+                writer.WriteEndArray();
+            }
+            if (Patch.Contains("$.listOfListFoo"u8))
+            {
+                writer.WritePropertyName("listOfListFoo"u8);
+                writer.WriteRawValue(Patch.GetJson("$.listOfListFoo"u8));
+            }
+            else
+            {
+                writer.WritePropertyName("listOfListFoo"u8);
+                writer.WriteStartArray();
+                for (int i = 0; i < ListOfListFoo.Count; i++)
+                {
+                    if (Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.listOfListFoo[{i}]")))
+                    {
+                        continue;
+                    }
+                    if (ListOfListFoo[i] == null)
+                    {
+                        writer.WriteNullValue();
+                        continue;
+                    }
+                    writer.WriteStartArray();
+                    for (int i0 = 0; i0 < ListOfListFoo[i].Count; i0++)
+                    {
+                        if (ListOfListFoo[i][i0].Patch.IsRemoved("$"u8))
+                        {
+                            continue;
+                        }
+                        writer.WriteObjectValue(ListOfListFoo[i][i0], options);
+                    }
+                    Patch.WriteTo(writer, "$.listOfListFoo"u8);
+                    writer.WriteEndArray();
+                }
+                Patch.WriteTo(writer, "$.listOfListFoo"u8);
+                writer.WriteEndArray();
+            }
+            if (!Patch.Contains("$.dictionaryFoo"u8))
+            {
+                writer.WritePropertyName("dictionaryFoo"u8);
+                writer.WriteStartObject();
+#if NET8_0_OR_GREATER
+                global::System.Span<byte> buffer = stackalloc byte[256];
+#endif
+                foreach (var item in DictionaryFoo)
+                {
+#if NET8_0_OR_GREATER
+                    int bytesWritten = global::System.Text.Encoding.UTF8.GetBytes(item.Key.AsSpan(), buffer);
+                    bool patchContains = (bytesWritten == 256) ? Patch.Contains("$.dictionaryFoo"u8, global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains("$.dictionaryFoo"u8, buffer.Slice(0, bytesWritten));
+#else
+                    bool patchContains = Patch.Contains("$.dictionaryFoo"u8, Encoding.UTF8.GetBytes(item.Key));
+#endif
+                    if (!patchContains)
+                    {
+                        writer.WritePropertyName(item.Key);
+                        writer.WriteObjectValue(item.Value, options);
+                    }
+                }
+
+                Patch.WriteTo(writer, "$.dictionaryFoo"u8);
+                writer.WriteEndObject();
+            }
+            if (!Patch.Contains("$.dictionaryListFoo"u8))
+            {
+                writer.WritePropertyName("dictionaryListFoo"u8);
+                writer.WriteStartObject();
+#if NET8_0_OR_GREATER
+                global::System.Span<byte> buffer = stackalloc byte[256];
+#endif
+                foreach (var item in DictionaryListFoo)
+                {
+#if NET8_0_OR_GREATER
+                    int bytesWritten = global::System.Text.Encoding.UTF8.GetBytes(item.Key.AsSpan(), buffer);
+                    bool patchContains = (bytesWritten == 256) ? Patch.Contains("$.dictionaryListFoo"u8, global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains("$.dictionaryListFoo"u8, buffer.Slice(0, bytesWritten));
+#else
+                    bool patchContains = Patch.Contains("$.dictionaryListFoo"u8, Encoding.UTF8.GetBytes(item.Key));
+#endif
+                    if (!patchContains)
+                    {
+                        writer.WritePropertyName(item.Key);
+                        if (item.Value == null)
+                        {
+                            writer.WriteNullValue();
+                            continue;
+                        }
+                        writer.WriteStartArray();
+                        for (int i = 0; i < item.Value.Count; i++)
+                        {
+                            if (item.Value[i].Patch.IsRemoved("$"u8))
+                            {
+                                continue;
+                            }
+                            writer.WriteObjectValue(item.Value[i], options);
+                        }
+                        Patch.WriteTo(writer, "$.dictionaryListFoo"u8);
+                        writer.WriteEndArray();
+                    }
+                }
+
+                Patch.WriteTo(writer, "$.dictionaryListFoo"u8);
+                writer.WriteEndObject();
+            }
+            if (Patch.Contains("$.listOfDictionaryFoo"u8))
+            {
+                writer.WritePropertyName("listOfDictionaryFoo"u8);
+                writer.WriteRawValue(Patch.GetJson("$.listOfDictionaryFoo"u8));
+            }
+            else
+            {
+                writer.WritePropertyName("listOfDictionaryFoo"u8);
+                writer.WriteStartArray();
+                for (int i = 0; i < ListOfDictionaryFoo.Count; i++)
+                {
+                    if (Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.listOfDictionaryFoo[{i}]")))
+                    {
+                        continue;
+                    }
+                    if (ListOfDictionaryFoo[i] == null)
+                    {
+                        writer.WriteNullValue();
+                        continue;
+                    }
+                    writer.WriteStartObject();
+#if NET8_0_OR_GREATER
+                    global::System.Span<byte> buffer = stackalloc byte[256];
+#endif
+                    foreach (var item in ListOfDictionaryFoo[i])
+                    {
+#if NET8_0_OR_GREATER
+                        int bytesWritten = global::System.Text.Encoding.UTF8.GetBytes(item.Key.AsSpan(), buffer);
+                        bool patchContains = (bytesWritten == 256) ? Patch.Contains("$.listOfDictionaryFoo"u8, global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains("$.listOfDictionaryFoo"u8, buffer.Slice(0, bytesWritten));
+#else
+                        bool patchContains = Patch.Contains("$.listOfDictionaryFoo"u8, Encoding.UTF8.GetBytes(item.Key));
+#endif
+                        if (!patchContains)
+                        {
+                            writer.WritePropertyName(item.Key);
+                            writer.WriteObjectValue(item.Value, options);
+                        }
+                    }
+
+                    Patch.WriteTo(writer, "$.listOfDictionaryFoo"u8);
+                    writer.WriteEndObject();
+                }
+                Patch.WriteTo(writer, "$.listOfDictionaryFoo"u8);
+                writer.WriteEndArray();
+            }
+
+            Patch.WriteTo(writer);
+#pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
         }
 
         /// <param name="reader"> The JSON reader. </param>
@@ -140,6 +400,13 @@ namespace SampleTypeSpec
                 return null;
             }
             string name = default;
+            BinaryData optionalUnknown = default;
+            int? optionalInt = default;
+            IList<int> optionalNullableList = default;
+            IList<int> requiredNullableList = default;
+            IDictionary<string, int> optionalNullableDictionary = default;
+            IDictionary<string, int> requiredNullableDictionary = default;
+            IDictionary<string, int> primitiveDictionary = default;
             AnotherDynamicModel foo = default;
             IList<AnotherDynamicModel> listFoo = default;
             IList<IList<AnotherDynamicModel>> listOfListFoo = default;
@@ -154,6 +421,92 @@ namespace SampleTypeSpec
                 if (prop.NameEquals("name"u8))
                 {
                     name = prop.Value.GetString();
+                    continue;
+                }
+                if (prop.NameEquals("optionalUnknown"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        continue;
+                    }
+                    optionalUnknown = BinaryData.FromString(prop.Value.GetRawText());
+                    continue;
+                }
+                if (prop.NameEquals("optionalInt"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        continue;
+                    }
+                    optionalInt = prop.Value.GetInt32();
+                    continue;
+                }
+                if (prop.NameEquals("optionalNullableList"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        continue;
+                    }
+                    List<int> array = new List<int>();
+                    foreach (var item in prop.Value.EnumerateArray())
+                    {
+                        array.Add(item.GetInt32());
+                    }
+                    optionalNullableList = array;
+                    continue;
+                }
+                if (prop.NameEquals("requiredNullableList"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        requiredNullableList = new ChangeTrackingList<int>();
+                        continue;
+                    }
+                    List<int> array = new List<int>();
+                    foreach (var item in prop.Value.EnumerateArray())
+                    {
+                        array.Add(item.GetInt32());
+                    }
+                    requiredNullableList = array;
+                    continue;
+                }
+                if (prop.NameEquals("optionalNullableDictionary"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        continue;
+                    }
+                    Dictionary<string, int> dictionary = new Dictionary<string, int>();
+                    foreach (var prop0 in prop.Value.EnumerateObject())
+                    {
+                        dictionary.Add(prop0.Name, prop0.Value.GetInt32());
+                    }
+                    optionalNullableDictionary = dictionary;
+                    continue;
+                }
+                if (prop.NameEquals("requiredNullableDictionary"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        requiredNullableDictionary = new ChangeTrackingDictionary<string, int>();
+                        continue;
+                    }
+                    Dictionary<string, int> dictionary = new Dictionary<string, int>();
+                    foreach (var prop0 in prop.Value.EnumerateObject())
+                    {
+                        dictionary.Add(prop0.Name, prop0.Value.GetInt32());
+                    }
+                    requiredNullableDictionary = dictionary;
+                    continue;
+                }
+                if (prop.NameEquals("primitiveDictionary"u8))
+                {
+                    Dictionary<string, int> dictionary = new Dictionary<string, int>();
+                    foreach (var prop0 in prop.Value.EnumerateObject())
+                    {
+                        dictionary.Add(prop0.Name, prop0.Value.GetInt32());
+                    }
+                    primitiveDictionary = dictionary;
                     continue;
                 }
                 if (prop.NameEquals("foo"u8))
@@ -250,6 +603,13 @@ namespace SampleTypeSpec
             }
             return new DynamicModel(
                 name,
+                optionalUnknown,
+                optionalInt,
+                optionalNullableList ?? new ChangeTrackingList<int>(),
+                requiredNullableList,
+                optionalNullableDictionary ?? new ChangeTrackingDictionary<string, int>(),
+                requiredNullableDictionary,
+                primitiveDictionary,
                 foo,
                 listFoo,
                 listOfListFoo,

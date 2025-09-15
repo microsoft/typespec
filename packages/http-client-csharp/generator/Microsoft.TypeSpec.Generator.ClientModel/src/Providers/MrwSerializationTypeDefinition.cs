@@ -54,6 +54,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private readonly InputModelType _inputModel;
         private readonly FieldProvider? _rawDataField;
         private readonly Lazy<PropertyProvider?> _additionalBinaryDataProperty;
+        private readonly Lazy<PropertyProvider?> _jsonPatchProperty;
         private readonly bool _isStruct;
         private ConstructorProvider? _serializationConstructor;
         // Flag to determine if the model should override the serialization methods
@@ -63,6 +64,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         public MrwSerializationTypeDefinition(InputModelType inputModel, ModelProvider modelProvider)
         {
             _model = modelProvider;
+            _jsonPatchProperty = new(GetBaseJsonPatchProperty);
             _inputModel = inputModel;
             _isStruct = _model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct);
             // Initialize the serialization interfaces
@@ -598,9 +600,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private MethodBodyStatement[] BuildJsonModelWriteMethodBody(MethodProvider jsonModelWriteCoreMethod)
         {
             var coreMethodSignature = jsonModelWriteCoreMethod.Signature;
+            List<MethodBodyStatement>? rootJsonPatchStatements = null;
+
+            if (_jsonPatchProperty.Value != null)
+            {
+#pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+                IfStatement condition = new(_jsonPatchProperty.Value.As<JsonPatch>().Contains(LiteralU8("$")))
+                {
+                    _utf8JsonWriterSnippet.WriteRawValue(_jsonPatchProperty.Value.As<JsonPatch>().GetJson(LiteralU8("$"))),
+                    Return()
+                };
+#pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+
+                rootJsonPatchStatements =
+                [
+                    new SuppressionStatement(
+                        condition,
+                        Literal(ScmModelProvider.ScmEvaluationTypeDiagnosticId),
+                        ScmModelProvider.ScmEvaluationTypeSuppressionJustification),
+                    MethodBodyStatement.EmptyLine
+                ];
+            }
 
             return
             [
+                rootJsonPatchStatements ?? MethodBodyStatement.Empty,
                 _utf8JsonWriterSnippet.WriteStartObject(),
                 This.Invoke(coreMethodSignature.Name, [.. coreMethodSignature.Parameters]).Terminate(),
                 _utf8JsonWriterSnippet.WriteEndObject(),
@@ -609,12 +633,33 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodBodyStatement[] BuildJsonModelWriteCoreMethodBody()
         {
+            List<MethodBodyStatement> writePropertiesStatements =
+            [
+                CreateWritePropertiesStatements(),
+                CreateWriteAdditionalPropertiesStatement(),
+            ];
+
+            if (_jsonPatchProperty.Value != null)
+            {
+#pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+                writePropertiesStatements.AddRange(
+                    MethodBodyStatement.EmptyLine,
+                    _jsonPatchProperty.Value.As<JsonPatch>().WriteTo( _utf8JsonWriterSnippet).Terminate());
+#pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+                writePropertiesStatements =
+                [
+                    new SuppressionStatement(
+                        writePropertiesStatements,
+                        Literal(ScmModelProvider.ScmEvaluationTypeDiagnosticId),
+                        ScmModelProvider.ScmEvaluationTypeSuppressionJustification)
+                ];
+            }
+
             return
             [
                 CreateValidateJsonFormat(_persistableModelTInterface, WriteAction),
                 CallBaseJsonModelWriteCore(),
-                CreateWritePropertiesStatements(),
-                CreateWriteAdditionalPropertiesStatement(),
+                writePropertiesStatements,
                 CreateWriteAdditionalRawDataStatement()
             ];
         }
@@ -1357,6 +1402,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 this);
         }
 
+        private PropertyProvider? GetBaseJsonPatchProperty()
+        {
+            if (_model is not ScmModelProvider scmModelProvider)
+            {
+                return null;
+            }
+
+            if (scmModelProvider.JsonPatchProperty != null)
+            {
+                return scmModelProvider.JsonPatchProperty;
+            }
+
+            var baseModelProvider = scmModelProvider.BaseModelProvider;
+            while (baseModelProvider != null)
+            {
+                if (baseModelProvider is ScmModelProvider baseScmModelProvider && baseScmModelProvider.JsonPatchProperty != null)
+                {
+                    return baseScmModelProvider.JsonPatchProperty;
+                }
+                baseModelProvider = baseModelProvider.BaseModelProvider;
+            }
+
+            return null;
+        }
+
         /// <summary>
         /// Produces the validation body statements for the JSON serialization format.
         /// </summary>
@@ -1448,7 +1518,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var propertyIsNullable = wireInfo.IsNullable;
 
             // Generate the serialization statements for the property
-            var serializationStatement = CreateSerializationStatement(propertyType, propertyExpression, propertySerializationFormat);
+            var serializationStatement = CreateSerializationStatement(propertyType, propertyExpression, propertySerializationFormat, propertySerializationName);
 
             // Check for custom serialization hooks
             foreach (var attribute in _model.CustomCodeView?.Attributes
@@ -1498,22 +1568,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             bool propertyIsNullable,
             MethodBodyStatement writePropertySerializationStatement)
         {
-            if (!propertyIsReadOnly)
-            {
-                // Non-nullable value types can be serialized directly
-                if (IsNonNullableValueType(propertyType))
-                {
-                    return writePropertySerializationStatement;
-                }
+#pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+            ScopedApi<bool>? patchCheck = _jsonPatchProperty.Value != null
+                ? Not(_jsonPatchProperty.Value.As<JsonPatch>().Contains(LiteralU8($"$.{wireInfo.SerializedName}")))
+                : null;
+#pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
 
-                // Required properties that are not nullable can be serialized directly
-                if (propertyIsRequired && !propertyIsNullable)
-                {
+            // Non-nullable value types or required non-nullable properties that aren't read-only
+            // can be serialized directly with just patch checking
+            if (!propertyIsReadOnly &&
+                (IsNonNullableValueType(propertyType) || (propertyIsRequired && !propertyIsNullable)))
+            {
+                if (patchCheck == null)
                     return writePropertySerializationStatement;
-                }
+
+                return (propertyType.IsList || propertyType.IsArray)
+                    ? CreateConditionalPatchSerializationStatement(wireInfo.SerializedName, null, writePropertySerializationStatement, writePropertySerializationStatement)
+                    : new IfStatement(patchCheck) { writePropertySerializationStatement };
             }
 
-            // Conditionally serialize based on whether the property is a collection or a single value and whether it is readonly
+            // Everything else goes through conditional serialization
             return CreateConditionalSerializationStatement(
                 propertyType,
                 propertyExpression,
@@ -1521,6 +1595,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 propertyIsNullable,
                 propertyIsRequired,
                 wireInfo.SerializedName,
+                patchCheck,
                 writePropertySerializationStatement);
         }
 
@@ -1534,17 +1609,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private MethodBodyStatement CreateSerializationStatement(
             CSharpType serializationType,
             ValueExpression value,
-            SerializationFormat serializationFormat)
+            SerializationFormat serializationFormat,
+            string serializedName)
         {
             MethodBodyStatement? statement = serializationType switch
             {
                 { IsDictionary: true } =>
                     CreateDictionarySerializationStatement(
                         value.AsDictionary(serializationType),
-                        serializationFormat),
+                        serializationFormat,
+                        serializedName),
                 { IsList: true } or { IsArray: true } =>
                     CreateListSerializationStatement(GetEnumerableExpression(value, serializationType),
-                        serializationFormat),
+                        serializationFormat,
+                        serializedName),
                 { IsCollection: false } =>
                     CreateValueSerializationStatement(serializationType, serializationFormat, value),
                 _ => null,
@@ -1562,9 +1640,171 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return statement;
         }
 
+#pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+
         private MethodBodyStatement CreateDictionarySerializationStatement(
+           DictionaryExpression dictionary,
+           SerializationFormat serializationFormat,
+           string serializedName)
+        {
+            return _jsonPatchProperty.Value != null
+                ? CreateDictionarySerializationWithPatch(
+                    dictionary,
+                    serializationFormat,
+                    _jsonPatchProperty.Value.As<JsonPatch>(),
+                    serializedName)
+                : CreateDictionarySerialization(dictionary, serializationFormat, serializedName);
+        }
+
+        private MethodBodyStatement CreateDictionarySerializationWithPatch(
             DictionaryExpression dictionary,
+            SerializationFormat serializationFormat,
+            ScopedApi<JsonPatch> patchSnippet,
+            string serializedName)
+        {
+            var bufferDeclaration = Declare(
+                "buffer",
+                new CSharpType(typeof(Span<byte>)),
+                New.Array(typeof(byte), isStackAlloc: true, Int(256)), out var bufferVar);
+            var foreachStatement = new ForEachStatement("item", dictionary, out KeyValuePairExpression keyValuePair);
+            var bytesWrittenDeclaration = Declare(
+                "bytesWritten",
+                typeof(int),
+                Utf8Snippets.GetBytes(keyValuePair.Key.Invoke("AsSpan"), bufferVar),
+                out var bytesWrittenVar);
+
+            // TO-DO: Handle non-string key
+            var jsonPath = LiteralU8($"$.{serializedName}");
+            var patchContainsKey = patchSnippet
+                .Contains(
+                    jsonPath,
+                    Utf8Snippets.GetBytes(keyValuePair.Key.As<string>()));
+            var patchContainsNet8Declaration = Declare(
+                "patchContains",
+                typeof(bool),
+                new TernaryConditionalExpression(
+                    bytesWrittenVar.Equal(Int(256)),
+                    patchContainsKey,
+                    patchSnippet.Contains(
+                        jsonPath,
+                        ReadOnlySpanSnippets.Slice(bufferVar, Int(0), bytesWrittenVar))),
+                out var patchContainsNet8Var);
+
+            var ifPatchDoesNotContainStatement = new IfStatement(Not(patchContainsNet8Var))
+            {
+                _utf8JsonWriterSnippet.WritePropertyName(keyValuePair.Key),
+                TypeRequiresNullCheckInSerialization(keyValuePair.ValueType)
+                    ? new IfStatement(keyValuePair.Value.Equal(Null)) { _utf8JsonWriterSnippet.WriteNullValue(), Continue }
+                    : MethodBodyStatement.Empty,
+                CreateSerializationStatement(keyValuePair.ValueType, keyValuePair.Value, serializationFormat, serializedName)
+            };
+            var innerIfElseProcessorStatement = new IfElsePreprocessorStatement(
+                "NET8_0_OR_GREATER",
+            new MethodBodyStatement[] { bytesWrittenDeclaration, patchContainsNet8Declaration },
+                new DeclarationExpression(new VariableExpression(patchContainsNet8Var.Type, patchContainsNet8Var.Declaration))
+                    .Assign(patchContainsKey)
+                    .Terminate());
+
+            foreachStatement.Add(innerIfElseProcessorStatement);
+            foreachStatement.Add(ifPatchDoesNotContainStatement);
+
+            return new[]
+            {
+                _utf8JsonWriterSnippet.WriteStartObject(),
+                new IfElsePreprocessorStatement("NET8_0_OR_GREATER", bufferDeclaration),
+                foreachStatement,
+                MethodBodyStatement.EmptyLine,
+                patchSnippet.WriteTo(_utf8JsonWriterSnippet, jsonPath).Terminate(),
+                _utf8JsonWriterSnippet.WriteEndObject(),
+            };
+        }
+
+        private MethodBodyStatement CreateListSerializationStatement(
+            ScopedApi array,
+            SerializationFormat serializationFormat,
+            string serializedName)
+        {
+            // Handle ReadOnlyMemory<T> serialization
+            bool isReadOnlySpan = array.Type.ElementType.IsFrameworkType && array.Type.ElementType.FrameworkType == typeof(ReadOnlySpan<>);
+            CSharpType itemType = isReadOnlySpan ? array.Type.ElementType.Arguments[0] : array.Type.Arguments[0];
+            var collection = isReadOnlySpan
+                ? array.NullableStructValue(array.Type.ElementType).Property(nameof(ReadOnlyMemory<byte>.Span))
+                : array;
+
+            return _jsonPatchProperty.Value != null
+                ? CreateListSerializationWithPatch(
+                    collection,
+                    array.Type.IsArray ? "Length" : "Count",
+                    itemType,
+                    _jsonPatchProperty.Value.As<JsonPatch>(),
+                    serializationFormat,
+                    serializedName)
+                : CreateListSerialization(collection, itemType, serializationFormat);
+        }
+
+        private MethodBodyStatement CreateListSerializationWithPatch(
+            ValueExpression collection,
+            string countPropertyName,
+            CSharpType itemType,
+            ScopedApi<JsonPatch> patchSnippet,
+            SerializationFormat serializationFormat,
+            string serializedName)
+        {
+            var indexDeclaration = Declare<int>("i", out var i);
+            ScopedApi<bool> patchIsRemovedCondition;
+
+            if (ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(itemType, out var provider) &&
+                provider is ScmModelProvider scmModelProvider && scmModelProvider.JsonPatchProperty != null)
+            {
+                patchIsRemovedCondition = new IndexerExpression(collection, i)
+                    .Property(scmModelProvider.JsonPatchProperty.Name)
+                    .As<JsonPatch>()
+                    .IsRemoved(LiteralU8("$"));
+            }
+            else
+            {
+                patchIsRemovedCondition = patchSnippet
+                    .IsRemoved(Utf8Snippets.GetBytes(new FormattableStringExpression($"$.{serializedName}[{{0}}]", [i])
+                    .As<string>()));
+            }
+
+            return new[]
+            {
+                _utf8JsonWriterSnippet.WriteStartArray(),
+                new ForStatement(indexDeclaration.Assign(Literal(0)), i.LessThan(collection.Property(countPropertyName)), i.Increment())
+                {
+                    new IfStatement(patchIsRemovedCondition)
+                    {
+                        Continue
+                    },
+                    CreateNullCheckAndSerializationStatement(itemType, new IndexerExpression(collection, i), serializationFormat, serializedName)
+                },
+                patchSnippet.WriteTo(_utf8JsonWriterSnippet, LiteralU8($"$.{serializedName}")).Terminate(),
+                _utf8JsonWriterSnippet.WriteEndArray()
+            };
+#pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+        }
+
+        private MethodBodyStatement CreateListSerialization(
+            ValueExpression collection,
+            CSharpType itemType,
             SerializationFormat serializationFormat)
+        {
+            return new[]
+            {
+                _utf8JsonWriterSnippet.WriteStartArray(),
+                new ForEachStatement(itemType, "item", collection, false, out VariableExpression item)
+                {
+                    CreateNullCheckAndSerializationStatement(itemType, item, serializationFormat, string.Empty)
+                },
+                _utf8JsonWriterSnippet.WriteEndArray()
+            };
+        }
+
+        private MethodBodyStatement CreateDictionarySerialization(
+            DictionaryExpression dictionary,
+            SerializationFormat serializationFormat,
+            string serializedName)
         {
             return new[]
             {
@@ -1574,33 +1814,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     _utf8JsonWriterSnippet.WritePropertyName(keyValuePair.Key),
                     TypeRequiresNullCheckInSerialization(keyValuePair.ValueType) ?
                     new IfStatement(keyValuePair.Value.Equal(Null)) { _utf8JsonWriterSnippet.WriteNullValue(), Continue }: MethodBodyStatement.Empty,
-                    CreateSerializationStatement(keyValuePair.ValueType, keyValuePair.Value, serializationFormat)
+                    CreateSerializationStatement(keyValuePair.ValueType, keyValuePair.Value, serializationFormat, serializedName)
                 },
                 _utf8JsonWriterSnippet.WriteEndObject()
             };
         }
 
-        private MethodBodyStatement CreateListSerializationStatement(
-            ScopedApi array,
-            SerializationFormat serializationFormat)
+        private MethodBodyStatement CreateNullCheckAndSerializationStatement(
+            CSharpType itemType,
+            ValueExpression element,
+            SerializationFormat serializationFormat,
+            string serializedName)
         {
-            // Handle ReadOnlyMemory<T> serialization
-            bool isReadOnlySpan = array.Type.ElementType.IsFrameworkType && array.Type.ElementType.FrameworkType == typeof(ReadOnlySpan<>);
-            CSharpType itemType = isReadOnlySpan ? array.Type.ElementType.Arguments[0] : array.Type.Arguments[0];
-            var collection = isReadOnlySpan
-                ? array.NullableStructValue(array.Type.ElementType).Property(nameof(ReadOnlyMemory<byte>.Span))
-                : array;
+            if (!TypeRequiresNullCheckInSerialization(itemType))
+            {
+                return CreateSerializationStatement(itemType, element, serializationFormat, serializedName);
+            }
 
             return new[]
             {
-                _utf8JsonWriterSnippet.WriteStartArray(),
-                new ForEachStatement(itemType, "item", collection, false, out VariableExpression item)
-                {
-                    TypeRequiresNullCheckInSerialization(item.Type) ?
-                    new IfStatement(item.Equal(Null)) { _utf8JsonWriterSnippet.WriteNullValue(), Continue } : MethodBodyStatement.Empty,
-                    CreateSerializationStatement(item.Type, item, serializationFormat)
-                },
-                _utf8JsonWriterSnippet.WriteEndArray()
+                new IfStatement(element.Equal(Null)) { _utf8JsonWriterSnippet.WriteNullValue(), Continue },
+                CreateSerializationStatement(itemType, element, serializationFormat, serializedName)
             };
         }
 
@@ -1825,11 +2059,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             bool isNullable,
             bool isRequired,
             string serializedName,
+            ValueExpression? patchCheck,
             MethodBodyStatement writePropertySerializationStatement)
         {
+            ScopedApi<bool> condition;
+            bool shouldCheckJsonPath = patchCheck != null && (propertyType.IsList || propertyType.IsArray);
+
             if (isRequired && isReadOnly)
             {
-                return new IfStatement(_isNotEqualToWireConditionSnippet)
+                condition = patchCheck != null
+                    ? _isNotEqualToWireConditionSnippet.And(patchCheck)
+                    : _isNotEqualToWireConditionSnippet;
+
+                // add an if / else if statement to first check if the patch property contains the json collection
+                if (shouldCheckJsonPath)
+                {
+                    return CreateConditionalPatchSerializationStatement(
+                        serializedName,
+                        condition,
+                        writePropertySerializationStatement,
+                        null);
+                }
+
+                return new IfStatement(condition)
                 {
                     writePropertySerializationStatement
                 };
@@ -1838,17 +2090,70 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var isDefinedCondition = propertyType is { IsCollection: true, IsReadOnlyMemory: false }
                 ? OptionalSnippets.IsCollectionDefined(propertyMemberExpression)
                 : OptionalSnippets.IsDefined(propertyMemberExpression);
-            var condition = isReadOnly ? _isNotEqualToWireConditionSnippet.And(isDefinedCondition) : isDefinedCondition;
+
+            if (patchCheck != null && !shouldCheckJsonPath)
+            {
+                isDefinedCondition = isDefinedCondition.And(patchCheck);
+            }
+
+            condition = isReadOnly ? _isNotEqualToWireConditionSnippet.And(isDefinedCondition) : isDefinedCondition;
 
             if (isRequired && isNullable)
             {
+                if (shouldCheckJsonPath)
+                {
+                    return CreateConditionalPatchSerializationStatement(
+                        serializedName,
+                        condition,
+                        writePropertySerializationStatement,
+                        _utf8JsonWriterSnippet.WriteNull(serializedName));
+                }
+
                 return new IfElseStatement(
                     condition,
                     writePropertySerializationStatement,
                     _utf8JsonWriterSnippet.WriteNull(serializedName));
             }
 
+            if (shouldCheckJsonPath)
+            {
+                return CreateConditionalPatchSerializationStatement(
+                    serializedName,
+                    condition,
+                    writePropertySerializationStatement,
+                    _utf8JsonWriterSnippet.WriteNull(serializedName));
+            }
+
             return new IfStatement(condition) { writePropertySerializationStatement };
+        }
+
+        private IfElseStatement CreateConditionalPatchSerializationStatement(
+            string serializedName,
+            ScopedApi<bool>? condition,
+            MethodBodyStatement writePropertySerializationStatement,
+            MethodBodyStatement? elseStatementBody)
+        {
+#pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+            var ifPatchContainsJson = new IfStatement(
+                _jsonPatchProperty.Value!.As<JsonPatch>().Contains(LiteralU8($"$.{serializedName}")))
+            {
+                _utf8JsonWriterSnippet.WritePropertyName(serializedName),
+                _utf8JsonWriterSnippet.WriteRawValue(
+                    JsonPatchSnippets.GetJson(_jsonPatchProperty.Value!.As<JsonPatch>(),
+                    LiteralU8($"$.{serializedName}")))
+            };
+#pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+
+            if (condition == null)
+            {
+                return new IfElseStatement(ifPatchContainsJson, [], elseStatementBody);
+            }
+
+            var elseifPropertyIsDefined = new IfStatement(condition)
+            {
+                writePropertySerializationStatement
+            };
+            return new IfElseStatement(ifPatchContainsJson, [elseifPropertyIsDefined], elseStatementBody);
         }
 
         /// <summary>
@@ -1867,7 +2172,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var forEachStatement = new ForEachStatement("item", rawDataDictionaryExp, out KeyValuePairExpression item)
             {
                 _utf8JsonWriterSnippet.WritePropertyName(item.Key),
-                CreateSerializationStatement(_rawDataField.Type.Arguments[1], item.Value, SerializationFormat.Default),
+                CreateSerializationStatement(_rawDataField.Type.Arguments[1], item.Value, SerializationFormat.Default, _rawDataField.WireInfo?.SerializedName ?? _rawDataField.Name),
             };
 
             return new IfStatement(_isNotEqualToWireConditionSnippet.And(rawDataDictionaryExp.NotEqual(Null)))
@@ -1893,7 +2198,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var forEachStatement = new ForEachStatement("item", additionalPropertiesProperty.AsDictionary(tKey, tValue), out KeyValuePairExpression item)
                 {
                     _utf8JsonWriterSnippet.WritePropertyName(item.Key),
-                    CreateSerializationStatement(additionalPropertiesProperty.Type.Arguments[1], item.Value, SerializationFormat.Default),
+                    CreateSerializationStatement(additionalPropertiesProperty.Type.Arguments[1], item.Value, SerializationFormat.Default, additionalPropertiesProperty.WireInfo?.SerializedName ?? additionalPropertiesProperty.Name),
                 };
                 statements[i] = forEachStatement;
             }

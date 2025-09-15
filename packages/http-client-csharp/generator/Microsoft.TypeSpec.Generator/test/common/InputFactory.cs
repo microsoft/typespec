@@ -439,13 +439,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             IEnumerable<InputModelProperty>? properties = null,
             InputModelType? baseModel = null,
             bool modelAsStruct = false,
-            bool isDynamicModel = false,
             string? discriminatedKind = null,
             InputType? additionalProperties = null,
             IDictionary<string, InputModelType>? discriminatedModels = null,
             IEnumerable<InputModelType>? derivedModels = null,
             InputModelProperty? discriminatorProperty = null,
-            bool isDynamic = false)
+            bool isDynamicModel = false)
         {
             IEnumerable<InputModelProperty> propertiesList = properties ?? [Property("StringProperty", InputPrimitiveType.String)];
 
@@ -470,15 +469,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 additionalProperties,
                 modelAsStruct,
                 new(),
-                isDynamic);
+                isDynamicModel);
             if (baseModel is not null)
             {
                 _addDerivedModelMethod.Invoke(baseModel, new object[] { model });
             }
-            if (isDynamicModel)
-            {
-                model.IsDynamicModel = true;
-            }
+
             return model;
         }
 

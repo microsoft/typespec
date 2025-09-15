@@ -328,7 +328,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         [Test]
         public void ValidateSliceToStartOfPropertyName()
         {
-            MockHelpers.LoadMockGenerator(inputModels: () => [InputFactory.Model("dynamicModel", isDynamic: true)]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [InputFactory.Model("dynamicModel", isDynamicModel: true)]);
 
             var definition = new ModelSerializationExtensionsDefinition();
             var methods = definition.Methods;
@@ -345,7 +345,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         [Test]
         public void ValidateGetUtf8Bytes()
         {
-            MockHelpers.LoadMockGenerator(inputModels: () => [InputFactory.Model("dynamicModel", isDynamic: true)]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [InputFactory.Model("dynamicModel", isDynamicModel: true)]);
 
             var definition = new ModelSerializationExtensionsDefinition();
             var methods = definition.Methods;
@@ -362,7 +362,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         [Test]
         public void ValidateGetFirstPropertyName()
         {
-            MockHelpers.LoadMockGenerator(inputModels: () => [InputFactory.Model("dynamicModel", isDynamic: true)]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [InputFactory.Model("dynamicModel", isDynamicModel: true)]);
 
             var definition = new ModelSerializationExtensionsDefinition();
             var methods = definition.Methods;
@@ -379,7 +379,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         [Test]
         public void ValidateWriteDictionaryWithPatch()
         {
-            MockHelpers.LoadMockGenerator(inputModels: () => [InputFactory.Model("dynamicModel", isDynamic: true)]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [InputFactory.Model("dynamicModel", isDynamicModel: true)]);
 
             var definition = new ModelSerializationExtensionsDefinition();
             var methods = definition.Methods;
@@ -396,7 +396,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         [Test]
         public void ValidateTryGetIndex()
         {
-            MockHelpers.LoadMockGenerator(inputModels: () => [InputFactory.Model("dynamicModel", isDynamic: true)]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [InputFactory.Model("dynamicModel", isDynamicModel: true)]);
 
             var definition = new ModelSerializationExtensionsDefinition();
             var methods = definition.Methods;
@@ -413,7 +413,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         [Test]
         public void ValidateGetRemainder()
         {
-            MockHelpers.LoadMockGenerator(inputModels: () => [InputFactory.Model("dynamicModel", isDynamic: true)]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [InputFactory.Model("dynamicModel", isDynamicModel: true)]);
 
             var definition = new ModelSerializationExtensionsDefinition();
             var methods = definition.Methods;

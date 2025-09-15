@@ -38,6 +38,81 @@ namespace SampleTypeSpec
             }
             writer.WritePropertyName("name"u8);
             writer.WriteStringValue(Name);
+            if (Optional.IsDefined(OptionalUnknown))
+            {
+                writer.WritePropertyName("optionalUnknown"u8);
+#if NET6_0_OR_GREATER
+                writer.WriteRawValue(OptionalUnknown);
+#else
+                using (JsonDocument document = JsonDocument.Parse(OptionalUnknown))
+                {
+                    JsonSerializer.Serialize(writer, document.RootElement);
+                }
+#endif
+            }
+            if (Optional.IsDefined(OptionalInt))
+            {
+                writer.WritePropertyName("optionalInt"u8);
+                writer.WriteNumberValue(OptionalInt.Value);
+            }
+            if (Optional.IsCollectionDefined(OptionalNullableList))
+            {
+                writer.WritePropertyName("optionalNullableList"u8);
+                writer.WriteStartArray();
+                foreach (int item in OptionalNullableList)
+                {
+                    writer.WriteNumberValue(item);
+                }
+                writer.WriteEndArray();
+            }
+            if (Optional.IsCollectionDefined(RequiredNullableList))
+            {
+                writer.WritePropertyName("requiredNullableList"u8);
+                writer.WriteStartArray();
+                foreach (int item in RequiredNullableList)
+                {
+                    writer.WriteNumberValue(item);
+                }
+                writer.WriteEndArray();
+            }
+            else
+            {
+                writer.WriteNull("requiredNullableList"u8);
+            }
+            if (Optional.IsCollectionDefined(OptionalNullableDictionary))
+            {
+                writer.WritePropertyName("optionalNullableDictionary"u8);
+                writer.WriteStartObject();
+                foreach (var item in OptionalNullableDictionary)
+                {
+                    writer.WritePropertyName(item.Key);
+                    writer.WriteNumberValue(item.Value);
+                }
+                writer.WriteEndObject();
+            }
+            if (Optional.IsCollectionDefined(RequiredNullableDictionary))
+            {
+                writer.WritePropertyName("requiredNullableDictionary"u8);
+                writer.WriteStartObject();
+                foreach (var item in RequiredNullableDictionary)
+                {
+                    writer.WritePropertyName(item.Key);
+                    writer.WriteNumberValue(item.Value);
+                }
+                writer.WriteEndObject();
+            }
+            else
+            {
+                writer.WriteNull("requiredNullableDictionary"u8);
+            }
+            writer.WritePropertyName("primitiveDictionary"u8);
+            writer.WriteStartObject();
+            foreach (var item in PrimitiveDictionary)
+            {
+                writer.WritePropertyName(item.Key);
+                writer.WriteNumberValue(item.Value);
+            }
+            writer.WriteEndObject();
             writer.WritePropertyName("foo"u8);
             writer.WriteObjectValue(Foo, options);
             writer.WritePropertyName("listFoo"u8);
@@ -151,6 +226,13 @@ namespace SampleTypeSpec
                 return null;
             }
             string name = default;
+            BinaryData optionalUnknown = default;
+            int? optionalInt = default;
+            IList<int> optionalNullableList = default;
+            IList<int> requiredNullableList = default;
+            IDictionary<string, int> optionalNullableDictionary = default;
+            IDictionary<string, int> requiredNullableDictionary = default;
+            IDictionary<string, int> primitiveDictionary = default;
             AnotherDynamicModel foo = default;
             IList<AnotherDynamicModel> listFoo = default;
             IList<IList<AnotherDynamicModel>> listOfListFoo = default;
@@ -163,6 +245,92 @@ namespace SampleTypeSpec
                 if (prop.NameEquals("name"u8))
                 {
                     name = prop.Value.GetString();
+                    continue;
+                }
+                if (prop.NameEquals("optionalUnknown"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        continue;
+                    }
+                    optionalUnknown = BinaryData.FromString(prop.Value.GetRawText());
+                    continue;
+                }
+                if (prop.NameEquals("optionalInt"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        continue;
+                    }
+                    optionalInt = prop.Value.GetInt32();
+                    continue;
+                }
+                if (prop.NameEquals("optionalNullableList"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        continue;
+                    }
+                    List<int> array = new List<int>();
+                    foreach (var item in prop.Value.EnumerateArray())
+                    {
+                        array.Add(item.GetInt32());
+                    }
+                    optionalNullableList = array;
+                    continue;
+                }
+                if (prop.NameEquals("requiredNullableList"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        requiredNullableList = new ChangeTrackingList<int>();
+                        continue;
+                    }
+                    List<int> array = new List<int>();
+                    foreach (var item in prop.Value.EnumerateArray())
+                    {
+                        array.Add(item.GetInt32());
+                    }
+                    requiredNullableList = array;
+                    continue;
+                }
+                if (prop.NameEquals("optionalNullableDictionary"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        continue;
+                    }
+                    Dictionary<string, int> dictionary = new Dictionary<string, int>();
+                    foreach (var prop0 in prop.Value.EnumerateObject())
+                    {
+                        dictionary.Add(prop0.Name, prop0.Value.GetInt32());
+                    }
+                    optionalNullableDictionary = dictionary;
+                    continue;
+                }
+                if (prop.NameEquals("requiredNullableDictionary"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        requiredNullableDictionary = new ChangeTrackingDictionary<string, int>();
+                        continue;
+                    }
+                    Dictionary<string, int> dictionary = new Dictionary<string, int>();
+                    foreach (var prop0 in prop.Value.EnumerateObject())
+                    {
+                        dictionary.Add(prop0.Name, prop0.Value.GetInt32());
+                    }
+                    requiredNullableDictionary = dictionary;
+                    continue;
+                }
+                if (prop.NameEquals("primitiveDictionary"u8))
+                {
+                    Dictionary<string, int> dictionary = new Dictionary<string, int>();
+                    foreach (var prop0 in prop.Value.EnumerateObject())
+                    {
+                        dictionary.Add(prop0.Name, prop0.Value.GetInt32());
+                    }
+                    primitiveDictionary = dictionary;
                     continue;
                 }
                 if (prop.NameEquals("foo"u8))
@@ -263,6 +431,13 @@ namespace SampleTypeSpec
             }
             return new DynamicModel(
                 name,
+                optionalUnknown,
+                optionalInt,
+                optionalNullableList ?? new ChangeTrackingList<int>(),
+                requiredNullableList,
+                optionalNullableDictionary ?? new ChangeTrackingDictionary<string, int>(),
+                requiredNullableDictionary,
+                primitiveDictionary,
                 foo,
                 listFoo,
                 listOfListFoo,
