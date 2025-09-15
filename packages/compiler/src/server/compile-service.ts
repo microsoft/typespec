@@ -11,21 +11,16 @@ import { TypeSpecConfig } from "../config/types.js";
 import { builtInLinterRule_UnusedTemplateParameter } from "../core/linter-rules/unused-template-parameter.rule.js";
 import { builtInLinterRule_UnusedUsing } from "../core/linter-rules/unused-using.rule.js";
 import { builtInLinterLibraryName } from "../core/linter.js";
-import { formatDiagnostic } from "../core/logger/console-sink.js";
 import { CompilerOptions } from "../core/options.js";
 import { parse } from "../core/parser.js";
-import { getBaseFileName, getDirectoryPath, joinPaths } from "../core/path-utils.js";
-import type {
-  CompilerHost,
-  Diagnostic as TypeSpecDiagnostic,
-  TypeSpecScriptNode,
-} from "../core/types.js";
-import { doIO, loadFile } from "../utils/io.js";
-import { distinctArray, resolveTspMain } from "../utils/misc.js";
+import { getBaseFileName, getDirectoryPath } from "../core/path-utils.js";
+import type { CompilerHost, TypeSpecScriptNode } from "../core/types.js";
+import { distinctArray } from "../utils/misc.js";
 import { getLocationInYamlScript } from "../yaml/diagnostics.js";
 import { parseYaml } from "../yaml/parser.js";
 import { ClientConfigProvider } from "./client-config-provider.js";
 import { serverOptions } from "./constants.js";
+import { resolveEntrypointFile } from "./entrypoint-resolver.js";
 import { FileService } from "./file-service.js";
 import { FileSystemCache } from "./file-system-cache.js";
 import {
@@ -70,7 +65,7 @@ export interface CompileService {
 
   on(event: "compileEnd", listener: (result: CompileResult) => void): void;
 
-  getMainFileForDocument(path: string): Promise<string>;
+  getMainFileForDocument(path: string): Promise<string | undefined>;
 }
 
 export interface CompileServiceOptions {
@@ -133,6 +128,10 @@ export function createCompileService({
       return undefined;
     }
     const mainFile = await getMainFileForDocument(path);
+    if (mainFile === undefined) {
+      log({ level: "debug", message: `failed to resolve main file for ${path}` });
+      return undefined;
+    }
     if (!mainFile.endsWith(".tsp")) {
       return undefined;
     }
@@ -322,6 +321,9 @@ export function createCompileService({
    * results can be obtained from compiling the same file with different entry
    * points.
    *
+   * Priority is given to processing user-defined files as the entry point,
+   * and it has the highest priority.
+   *
    * Walk directory structure upwards looking for package.json with tspMain or
    * main.tsp file. Stop search when reaching a workspace root. If a root is
    * reached without finding an entry point, use the given path as its own
@@ -337,70 +339,7 @@ export function createCompileService({
       return path;
     }
 
-    let dir = getDirectoryPath(path);
-    const options = { allowFileNotFound: true };
-
-    while (true) {
-      let mainFile = "main.tsp";
-      let pkg: any;
-      const pkgPath = joinPaths(dir, "package.json");
-      const cached = await fileSystemCache.get(pkgPath);
-
-      if (cached?.data) {
-        pkg = cached.data;
-      } else {
-        [pkg] = await loadFile(
-          compilerHost,
-          pkgPath,
-          JSON.parse,
-          logMainFileSearchDiagnostic,
-          options,
-        );
-        await fileSystemCache.setData(pkgPath, pkg ?? {});
-      }
-
-      const tspMain = resolveTspMain(pkg);
-      if (typeof tspMain === "string") {
-        log({
-          level: "debug",
-          message: `tspMain resolved from package.json (${pkgPath}) as ${tspMain}`,
-        });
-        mainFile = tspMain;
-      }
-
-      const candidate = joinPaths(dir, mainFile);
-      const stat = await doIO(
-        () => compilerHost.stat(candidate),
-        candidate,
-        logMainFileSearchDiagnostic,
-        options,
-      );
-
-      if (stat?.isFile()) {
-        log({ level: "debug", message: `main file found as ${candidate}` });
-        return candidate;
-      }
-
-      const parentDir = getDirectoryPath(dir);
-      if (parentDir === dir) {
-        break;
-      }
-      log({
-        level: "debug",
-        message: `main file not found in ${dir}, search in parent directory ${parentDir}`,
-      });
-      dir = parentDir;
-    }
-
-    log({ level: "debug", message: `reached directory root, using ${path} as main file` });
-    return path;
-
-    function logMainFileSearchDiagnostic(diagnostic: TypeSpecDiagnostic) {
-      log({
-        level: `error`,
-        message: `Unexpected diagnostic while looking for main file of ${path}`,
-        detail: formatDiagnostic(diagnostic),
-      });
-    }
+    const entrypoints = clientConfigsProvider?.config?.entrypoint;
+    return resolveEntrypointFile(compilerHost, entrypoints, path, fileSystemCache, log);
   }
 }
