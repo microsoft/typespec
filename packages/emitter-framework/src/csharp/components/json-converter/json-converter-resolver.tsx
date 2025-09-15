@@ -32,6 +32,7 @@ export function useJsonConverterResolver(): useJsonConverterResolver | undefined
 }
 
 export interface JsonConverterResolverOptions {
+  /** Custom JSON converters besides the built-in ones for known encode*/
   customConverters?: { type: Type; encodeData: EncodeData; info: JsonConverterInfo }[];
 }
 
