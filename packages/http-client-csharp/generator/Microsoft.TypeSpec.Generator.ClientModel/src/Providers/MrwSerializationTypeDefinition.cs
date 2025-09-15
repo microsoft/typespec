@@ -706,8 +706,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     else if (property.Name.Equals(ScmModelProvider.JsonPatchPropertyName) &&
                         _model is ScmModelProvider { HasDynamicModelSupport: true })
                     {
+#pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+                        var patchAssignment = New.Instance<JsonPatch>(
+                            new TernaryConditionalExpression(
+                                _dataParameter.Is(Null),
+                                ReadOnlyMemorySnippets.Empty(),
+                                _dataParameter.As<BinaryData>().ToMemory()));
+#pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
                         var jsonPatchDeclaration = new SuppressionStatement(
-                            Declare(variableRef, Default),
+                            Declare(variableRef, patchAssignment),
                             Literal(ScmModelProvider.ScmEvaluationTypeDiagnosticId),
                             ScmModelProvider.ScmEvaluationTypeSuppressionJustification);
                         propertyDeclarationStatements.Add(jsonPatchDeclaration);
@@ -935,6 +942,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     rawBinaryData.AsVariableExpression.AsDictionary(rawBinaryData.Type).Add(jsonProperty.Name(), rawDataDeserializationValue)
                 });
+            }
+            else if (_jsonPatchProperty.Value != null)
+            {
+                // If we have a JsonPatch property, we want to add any unknown properties to the patch
+#pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+                var jsonPatchSet = _jsonPatchProperty.Value.AsVariableExpression.As<JsonPatch>().Set(
+                    IndexerExpression.FromCollection(Spread(LiteralU8("$.")), Spread(Utf8Snippets.GetBytes(jsonProperty.Name()))),
+                    jsonProperty.Value().GetUtf8Bytes());
+                propertyDeserializationStatements.Add(jsonPatchSet);
+#pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
             }
 
             return propertyDeserializationStatements;
