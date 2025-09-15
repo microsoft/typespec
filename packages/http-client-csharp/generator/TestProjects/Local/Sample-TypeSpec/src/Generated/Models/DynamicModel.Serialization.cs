@@ -414,7 +414,7 @@ namespace SampleTypeSpec
             IDictionary<string, IList<AnotherDynamicModel>> dictionaryListFoo = default;
             IList<IDictionary<string, AnotherDynamicModel>> listOfDictionaryFoo = default;
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-            JsonPatch patch = default;
+            JsonPatch patch = new JsonPatch(data is null ? ReadOnlyMemory<byte>.Empty : data.ToMemory());
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
             foreach (var prop in element.EnumerateObject())
             {
@@ -511,7 +511,7 @@ namespace SampleTypeSpec
                 }
                 if (prop.NameEquals("foo"u8))
                 {
-                    foo = AnotherDynamicModel.DeserializeAnotherDynamicModel(prop.Value, data, options);
+                    foo = AnotherDynamicModel.DeserializeAnotherDynamicModel(prop.Value, prop.Value.GetUtf8Bytes(), options);
                     continue;
                 }
                 if (prop.NameEquals("listFoo"u8))
@@ -519,7 +519,7 @@ namespace SampleTypeSpec
                     List<AnotherDynamicModel> array = new List<AnotherDynamicModel>();
                     foreach (var item in prop.Value.EnumerateArray())
                     {
-                        array.Add(AnotherDynamicModel.DeserializeAnotherDynamicModel(item, data, options));
+                        array.Add(AnotherDynamicModel.DeserializeAnotherDynamicModel(item, item.GetUtf8Bytes(), options));
                     }
                     listFoo = array;
                     continue;
@@ -538,7 +538,7 @@ namespace SampleTypeSpec
                             List<AnotherDynamicModel> array0 = new List<AnotherDynamicModel>();
                             foreach (var item0 in item.EnumerateArray())
                             {
-                                array0.Add(AnotherDynamicModel.DeserializeAnotherDynamicModel(item0, data, options));
+                                array0.Add(AnotherDynamicModel.DeserializeAnotherDynamicModel(item0, item0.GetUtf8Bytes(), options));
                             }
                             array.Add(array0);
                         }
@@ -551,7 +551,7 @@ namespace SampleTypeSpec
                     Dictionary<string, AnotherDynamicModel> dictionary = new Dictionary<string, AnotherDynamicModel>();
                     foreach (var prop0 in prop.Value.EnumerateObject())
                     {
-                        dictionary.Add(prop0.Name, AnotherDynamicModel.DeserializeAnotherDynamicModel(prop0.Value, data, options));
+                        dictionary.Add(prop0.Name, AnotherDynamicModel.DeserializeAnotherDynamicModel(prop0.Value, prop0.Value.GetUtf8Bytes(), options));
                     }
                     dictionaryFoo = dictionary;
                     continue;
@@ -570,7 +570,7 @@ namespace SampleTypeSpec
                             List<AnotherDynamicModel> array = new List<AnotherDynamicModel>();
                             foreach (var item in prop0.Value.EnumerateArray())
                             {
-                                array.Add(AnotherDynamicModel.DeserializeAnotherDynamicModel(item, data, options));
+                                array.Add(AnotherDynamicModel.DeserializeAnotherDynamicModel(item, item.GetUtf8Bytes(), options));
                             }
                             dictionary.Add(prop0.Name, array);
                         }
@@ -592,7 +592,7 @@ namespace SampleTypeSpec
                             Dictionary<string, AnotherDynamicModel> dictionary = new Dictionary<string, AnotherDynamicModel>();
                             foreach (var prop0 in item.EnumerateObject())
                             {
-                                dictionary.Add(prop0.Name, AnotherDynamicModel.DeserializeAnotherDynamicModel(prop0.Value, data, options));
+                                dictionary.Add(prop0.Name, AnotherDynamicModel.DeserializeAnotherDynamicModel(prop0.Value, prop0.Value.GetUtf8Bytes(), options));
                             }
                             array.Add(dictionary);
                         }
@@ -600,6 +600,7 @@ namespace SampleTypeSpec
                     listOfDictionaryFoo = array;
                     continue;
                 }
+                patch.Set([.. "$."u8, .. Encoding.UTF8.GetBytes(prop.Name)], prop.Value.GetUtf8Bytes());
             }
             return new DynamicModel(
                 name,
