@@ -73,3 +73,31 @@ async def test_request_header_response_header(client: PageableClient):
         )
     ]
     assert_result(result)
+
+
+@pytest.mark.asyncio
+async def test_nested_link(client: PageableClient):
+    result = [p async for p in client.server_driven_pagination.nested_link()]
+    assert_result(result)
+
+
+@pytest.mark.asyncio
+async def test_request_query_nested_response_body(client: PageableClient):
+    result = [
+        p
+        async for p in client.server_driven_pagination.continuation_token.request_query_nested_response_body(
+            foo="foo", bar="bar"
+        )
+    ]
+    assert_result(result)
+
+
+@pytest.mark.asyncio
+async def test_request_header_nested_response_body(client: PageableClient):
+    result = [
+        p
+        async for p in client.server_driven_pagination.continuation_token.request_header_nested_response_body(
+            foo="foo", bar="bar"
+        )
+    ]
+    assert_result(result)

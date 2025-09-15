@@ -52,3 +52,22 @@ def test_request_header_response_header(client: PageableClient):
         client.server_driven_pagination.continuation_token.request_header_response_header(foo="foo", bar="bar")
     )
     assert_result(result)
+
+
+def test_nested_link(client: PageableClient):
+    result = list(client.server_driven_pagination.nested_link())
+    assert_result(result)
+
+
+def test_request_query_nested_response_body(client: PageableClient):
+    result = list(
+        client.server_driven_pagination.continuation_token.request_query_nested_response_body(foo="foo", bar="bar")
+    )
+    assert_result(result)
+
+
+def test_request_header_nested_response_body(client: PageableClient):
+    result = list(
+        client.server_driven_pagination.continuation_token.request_header_nested_response_body(foo="foo", bar="bar")
+    )
+    assert_result(result)
