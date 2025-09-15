@@ -4,4 +4,4 @@ packages:
   - "@typespec/emitter-framework"
 ---
 
-Remove devleopment exports from published package
+Remove development exports from published package
