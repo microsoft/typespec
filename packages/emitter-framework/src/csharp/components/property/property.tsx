@@ -59,16 +59,18 @@ export function Property(props: PropertyProps): Children {
       });
     }
   }
-  const attris = [];
+  const attributes = [];
   if (props.jsonAttributes) {
-    attris.push(<JsonNameAttribute type={props.type} />);
+    attributes.push(<JsonNameAttribute type={props.type} />);
     const encodeData = getEncode($.program, props.type);
     if (encodeData) {
       const JsonConverterResolver = useJsonConverterResolver();
       if (JsonConverterResolver) {
         const converter = JsonConverterResolver.resolveJsonConverter(result.type, encodeData);
         if (converter) {
-          attris.push(<JsonConverterAttribute type={<cs.Reference refkey={converter.refkey} />} />);
+          attributes.push(
+            <JsonConverterAttribute type={<cs.Reference refkey={converter.refkey} />} />,
+          );
         }
       }
     }
@@ -85,7 +87,7 @@ export function Property(props: PropertyProps): Children {
       required={!props.type.optional}
       nullable={result.nullable}
       doc={getDocComments($, props.type)}
-      attributes={attris}
+      attributes={attributes}
       get
       set
     />
