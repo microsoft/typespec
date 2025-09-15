@@ -32,6 +32,12 @@ async def test_link(client: PageableClient):
 
 
 @pytest.mark.asyncio
+async def test_link_string(client: PageableClient):
+    result = [p async for p in client.server_driven_pagination.link_string()]
+    assert_result(result)
+
+
+@pytest.mark.asyncio
 async def test_request_query_response_body(client: PageableClient):
     result = [
         p
@@ -100,4 +106,10 @@ async def test_request_header_nested_response_body(client: PageableClient):
             foo="foo", bar="bar"
         )
     ]
+    assert_result(result)
+
+
+@pytest.mark.asyncio
+async def test_list_without_continuation(client: PageableClient):
+    result = [p async for p in client.list_without_continuation()]
     assert_result(result)

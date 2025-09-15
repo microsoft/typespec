@@ -30,6 +30,11 @@ def test_link(client: PageableClient):
     assert_result(result)
 
 
+def test_link_string(client: PageableClient):
+    result = list(client.server_driven_pagination.link_string())
+    assert_result(result)
+
+
 def test_request_query_response_body(client: PageableClient):
     result = list(client.server_driven_pagination.continuation_token.request_query_response_body(foo="foo", bar="bar"))
     assert_result(result)
@@ -70,4 +75,9 @@ def test_request_header_nested_response_body(client: PageableClient):
     result = list(
         client.server_driven_pagination.continuation_token.request_header_nested_response_body(foo="foo", bar="bar")
     )
+    assert_result(result)
+
+
+def test_list_without_continuation(client: PageableClient):
+    result = list(client.list_without_continuation())
     assert_result(result)
