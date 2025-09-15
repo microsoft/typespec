@@ -13,14 +13,9 @@ import { builtInLinterRule_UnusedUsing } from "../core/linter-rules/unused-using
 import { builtInLinterLibraryName } from "../core/linter.js";
 import { CompilerOptions } from "../core/options.js";
 import { parse } from "../core/parser.js";
-import { getBaseFileName, getDirectoryPath, joinPaths } from "../core/path-utils.js";
-import type {
-  CompilerHost,
-  Diagnostic as TypeSpecDiagnostic,
-  TypeSpecScriptNode,
-} from "../core/types.js";
-import { doIO, loadFile } from "../utils/io.js";
-import { distinctArray, resolveTspMain } from "../utils/misc.js";
+import { getBaseFileName, getDirectoryPath } from "../core/path-utils.js";
+import type { CompilerHost, TypeSpecScriptNode } from "../core/types.js";
+import { distinctArray } from "../utils/misc.js";
 import { getLocationInYamlScript } from "../yaml/diagnostics.js";
 import { parseYaml } from "../yaml/parser.js";
 import { ClientConfigProvider } from "./client-config-provider.js";
@@ -135,6 +130,7 @@ export function createCompileService({
     const mainFile = await getMainFileForDocument(path);
     if (mainFile === undefined) {
       log({ level: "debug", message: `failed to resolve main file for ${path}` });
+      return undefined;
     }
     if (!mainFile.endsWith(".tsp")) {
       return undefined;
