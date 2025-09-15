@@ -282,12 +282,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (!elementType.IsFrameworkType || elementType.Equals(typeof(TimeSpan)) || elementType.Equals(typeof(BinaryData)))
                 {
                     var valueDeclaration = Declare("value", New.Instance(new CSharpType(typeof(List<>), elementType)).As(responseBodyType), out var value);
+                    var dataDeclaration = Declare("data", result.GetRawResponse().Content(), out var data);
+
                     MethodBodyStatement[] statements =
                     [
                         valueDeclaration,
-                        UsingDeclare("document", result.GetRawResponse().ContentStream().Parse(isAsync), out var document),
+                        dataDeclaration,
+                        UsingDeclare("document", data.Parse(), out var document),
                         ForEachStatement.Create("item", document.RootElement().EnumerateArray(), out ScopedApi<JsonElement> item)
-                            .Add(GetElementConversion(elementType, item, value))
+                            .Add(GetElementConversion(elementType, data, item, value))
                     ];
                     declarations = new Dictionary<string, ValueExpression>
                     {
@@ -303,12 +306,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (!valueType.IsFrameworkType || valueType.Equals(typeof(TimeSpan)) || valueType.Equals(typeof(BinaryData)))
                 {
                     var valueDeclaration = Declare("value", New.Instance(new CSharpType(typeof(Dictionary<,>), keyType, valueType)).As(responseBodyType), out var value);
+                    var dataDeclaration = Declare("data", result.GetRawResponse().Content(), out var data);
+
                     MethodBodyStatement[] statements =
                     [
                         valueDeclaration,
-                        UsingDeclare("document", result.GetRawResponse().ContentStream().Parse(isAsync), out var document),
+                        dataDeclaration,
+                        UsingDeclare("document", data.Parse(), out var document),
                         ForEachStatement.Create("item", document.RootElement().EnumerateObject(), out ScopedApi<JsonProperty> item)
-                            .Add(GetElementConversion(valueType, item.Value(), value, item.Name()))
+                            .Add(GetElementConversion(valueType, data, item.Value(), value, item.Name()))
                     ];
                     declarations = new Dictionary<string, ValueExpression>
                     {
@@ -322,7 +328,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return [];
         }
 
-        private MethodBodyStatement GetElementConversion(CSharpType elementType, ScopedApi<JsonElement> item, ScopedApi value, ValueExpression? dictKey = null)
+        private MethodBodyStatement GetElementConversion(CSharpType elementType, ScopedApi<BinaryData> data, ScopedApi<JsonElement> item, ScopedApi value, ValueExpression? dictKey = null)
         {
             if (elementType.Equals(typeof(TimeSpan)))
             {
@@ -337,7 +343,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             else
             {
-                return AddElement(dictKey, Static(elementType).Invoke($"Deserialize{elementType.Name}", item, ModelSerializationExtensionsSnippets.Wire), value);
+                return AddElement(dictKey, Static(elementType).Invoke($"Deserialize{elementType.Name}", [item, data, ModelSerializationExtensionsSnippets.Wire]), value);
             }
         }
 
