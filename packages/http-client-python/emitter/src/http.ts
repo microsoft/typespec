@@ -241,6 +241,8 @@ function addPagingInformation(
     exposeStreamKeyword: false,
     itemName,
     nextLinkName,
+    nextLinkIsNested:
+      method.pagingMetadata.nextLinkSegments && method.pagingMetadata.nextLinkSegments.length > 1,
     nextLinkReInjectedParameters,
     itemType,
     description: method.doc ?? "",
