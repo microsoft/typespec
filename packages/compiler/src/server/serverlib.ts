@@ -505,6 +505,11 @@ export function createServer(
       await fileService.getPath({ uri: firstFilePath.newUri }),
     );
 
+    if (mainFile === undefined) {
+      log({ level: "debug", message: `failed to resolve main file for ${firstFilePath.newUri}` });
+      return;
+    }
+
     // There will be no event triggered if the renamed file is not opened in vscode, also even when it's opened
     // there will be only closed and opened event triggered for the old and new file url, so send fire the update
     // explicitly here to make sure the change is not missed.
