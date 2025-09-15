@@ -95,7 +95,7 @@ describe("jsonAttributes", () => {
     ).toRenderTo(`
       class Test
       {
-          [System.Text.Json.JsonPropertyName("prop1")]
+          [System.Text.Json.Serialization.JsonPropertyName("prop1")]
           public required string Prop1 { get; set; }
       }
   `);
@@ -116,7 +116,7 @@ describe("jsonAttributes", () => {
     ).toRenderTo(`
         class Test
         {
-            [System.Text.Json.JsonPropertyName("prop_1")]
+            [System.Text.Json.Serialization.JsonPropertyName("prop_1")]
             public required string Prop1 { get; set; }
         }
   `);
