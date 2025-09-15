@@ -1,6 +1,6 @@
 export function registerMonacoDefaultWorkersForVite() {
-  self.MonacoEnvironment = {
-    getWorker: async function (workerId, label) {
+  (self as any).MonacoEnvironment = {
+    getWorker: async function (workerId: string, label: string) {
       switch (label) {
         case "json": {
           const { default: jsonWorker } = await import(

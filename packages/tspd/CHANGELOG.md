@@ -1,5 +1,20 @@
 # Changelog - @typespec/tspd
 
+## 0.73.0
+
+### Features
+
+- [#8345](https://github.com/microsoft/typespec/pull/8345) Adds `llmstxt` frontmatter to generated reference docs to enable inclusion in llms.txt. Opt-in: specify `--llmstxt` to enable
+
+### Bump dependencies
+
+- [#8317](https://github.com/microsoft/typespec/pull/8317) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8362](https://github.com/microsoft/typespec/pull/8362) Upgrade alloy to 0.20
+
+
 ## 0.72.2
 
 ### Bump dependencies

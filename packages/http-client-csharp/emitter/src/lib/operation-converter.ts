@@ -324,7 +324,7 @@ function fromSdkServiceMethodResponse(
   methodResponse: SdkMethodResponse,
 ): InputServiceMethodResponse {
   return {
-    type: methodResponse.type ? fromSdkType(sdkContext, methodResponse.type) : undefined,
+    type: getResponseType(sdkContext, methodResponse.type),
     resultSegments: methodResponse.resultSegments?.map((segment) =>
       getResponseSegmentName(segment),
     ),
@@ -594,7 +594,7 @@ export function fromSdkHttpOperationResponse(
   const range = sdkResponse.statusCodes;
   retVar = {
     statusCodes: toStatusCodesArray(range),
-    bodyType: sdkResponse.type ? fromSdkType(sdkContext, sdkResponse.type) : undefined,
+    bodyType: getResponseType(sdkContext, sdkResponse.type),
     headers: fromSdkServiceResponseHeaders(sdkContext, sdkResponse.headers),
     isErrorResponse:
       sdkResponse.type !== undefined && isErrorModel(sdkContext.program, sdkResponse.type.__raw!),
@@ -891,4 +891,20 @@ function getArraySerializationDelimiter(
 ): string | undefined {
   const format = getCollectionFormat(p);
   return format ? collectionFormatToDelimMap[format] : undefined;
+}
+
+function getResponseType(
+  sdkContext: CSharpEmitterContext,
+  type: SdkType | undefined,
+): InputType | undefined {
+  if (!type) {
+    return undefined;
+  }
+
+  // handle anonymous union enum response types by defaulting to the enum value type in the case of
+  if (type.kind === "enum" && type.isUnionAsEnum && type.isGeneratedName) {
+    return fromSdkType(sdkContext, type.valueType);
+  }
+
+  return fromSdkType(sdkContext, type);
 }

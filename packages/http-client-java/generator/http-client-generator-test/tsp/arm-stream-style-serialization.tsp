@@ -11,6 +11,7 @@ using TypeSpec.Versioning;
 using Azure.Core;
 using Azure.ResourceManager;
 using Azure.ClientGenerator.Core;
+using Azure.ClientGenerator.Core.Legacy;
 
 @armProviderNamespace
 @service(#{ title: "ArmStreamStyleSerialization" })
@@ -239,7 +240,10 @@ interface TopLevelArmResources {
 @route("/function")
 interface Functions {
   @put
-  createFunction(@body function: Function): Function;
+  createFunction(
+    @header `x-ms-authorization-auxiliary`?: string,
+    @body function: Function,
+  ): Function;
 }
 
 @route("/priority")

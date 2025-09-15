@@ -5,7 +5,7 @@
 # --------------------------------------------------------------------------
 import datetime
 import decimal
-from typing import Any, Dict, List, Optional, Union, TYPE_CHECKING
+from typing import Any, Optional, Union, TYPE_CHECKING
 
 from .base import BaseType
 from .imports import FileImport, ImportType, TypingSection
@@ -61,7 +61,7 @@ class BooleanType(PrimitiveType):
 
 
 class BinaryType(PrimitiveType):
-    def __init__(self, yaml_data: Dict[str, Any], code_model: "CodeModel") -> None:
+    def __init__(self, yaml_data: dict[str, Any], code_model: "CodeModel") -> None:
         super().__init__(yaml_data=yaml_data, code_model=code_model)
         self.type = "IO"
 
@@ -176,7 +176,7 @@ class AnyObjectType(PrimitiveType):
 
 
 class NumberType(PrimitiveType):
-    def __init__(self, yaml_data: Dict[str, Any], code_model: "CodeModel") -> None:
+    def __init__(self, yaml_data: dict[str, Any], code_model: "CodeModel") -> None:
         super().__init__(yaml_data=yaml_data, code_model=code_model)
         self.precision: Optional[int] = yaml_data.get("precision")
         self.multiple: Optional[int] = yaml_data.get("multipleOf")
@@ -186,7 +186,7 @@ class NumberType(PrimitiveType):
         self.exclusive_minimum: Optional[int] = yaml_data.get("exclusiveMinimum")
 
     @property
-    def serialization_constraints(self) -> List[str]:
+    def serialization_constraints(self) -> list[str]:
         validation_constraints = [
             (f"maximum_ex={self.maximum}" if self.maximum is not None and self.exclusive_maximum else None),
             (f"maximum={self.maximum}" if self.maximum is not None and not self.exclusive_maximum else None),
@@ -197,8 +197,8 @@ class NumberType(PrimitiveType):
         return [x for x in validation_constraints if x is not None]
 
     @property
-    def validation(self) -> Optional[Dict[str, Union[bool, int, str]]]:
-        validation: Dict[str, Union[bool, int, str]] = {}
+    def validation(self) -> Optional[dict[str, Union[bool, int, str]]]:
+        validation: dict[str, Union[bool, int, str]] = {}
         if self.maximum is not None:
             if self.exclusive_maximum:
                 validation["maximum_ex"] = self.maximum
@@ -221,7 +221,7 @@ class NumberType(PrimitiveType):
 
 class IntegerType(NumberType):
 
-    def __init__(self, yaml_data: Dict[str, Any], code_model: "CodeModel") -> None:
+    def __init__(self, yaml_data: dict[str, Any], code_model: "CodeModel") -> None:
         super().__init__(yaml_data=yaml_data, code_model=code_model)
         if yaml_data.get("encode") == "string":
             self.encode = "str"
@@ -294,7 +294,7 @@ class DecimalType(NumberType):
 
 
 class StringType(PrimitiveType):
-    def __init__(self, yaml_data: Dict[str, Any], code_model: "CodeModel") -> None:
+    def __init__(self, yaml_data: dict[str, Any], code_model: "CodeModel") -> None:
         super().__init__(yaml_data=yaml_data, code_model=code_model)
         self.max_length: Optional[int] = yaml_data.get("maxLength")
         self.min_length: Optional[int] = (
@@ -303,7 +303,7 @@ class StringType(PrimitiveType):
         self.pattern: Optional[str] = yaml_data.get("pattern")
 
     @property
-    def serialization_constraints(self) -> List[str]:
+    def serialization_constraints(self) -> list[str]:
         validation_constraints = [
             f"max_length={self.max_length}" if self.max_length is not None else None,
             f"min_length={self.min_length}" if self.min_length is not None else None,
@@ -312,8 +312,8 @@ class StringType(PrimitiveType):
         return [x for x in validation_constraints if x is not None]
 
     @property
-    def validation(self) -> Optional[Dict[str, Union[bool, int, str]]]:
-        validation: Dict[str, Union[bool, int, str]] = {}
+    def validation(self) -> Optional[dict[str, Union[bool, int, str]]]:
+        validation: dict[str, Union[bool, int, str]] = {}
         if self.max_length is not None:
             validation["max_length"] = self.max_length
         if self.min_length is not None:
@@ -338,7 +338,7 @@ class StringType(PrimitiveType):
 
 
 class DatetimeType(PrimitiveType):
-    def __init__(self, yaml_data: Dict[str, Any], code_model: "CodeModel") -> None:
+    def __init__(self, yaml_data: dict[str, Any], code_model: "CodeModel") -> None:
         super().__init__(yaml_data=yaml_data, code_model=code_model)
         self.encode = (
             "rfc3339"
@@ -564,7 +564,7 @@ class DurationType(PrimitiveType):
 
 
 class ByteArraySchema(PrimitiveType):
-    def __init__(self, yaml_data: Dict[str, Any], code_model: "CodeModel") -> None:
+    def __init__(self, yaml_data: dict[str, Any], code_model: "CodeModel") -> None:
         super().__init__(yaml_data=yaml_data, code_model=code_model)
         self.encode = yaml_data.get("encode", "base64")
 
@@ -585,7 +585,7 @@ class ByteArraySchema(PrimitiveType):
 
 
 class SdkCoreType(PrimitiveType):
-    def __init__(self, yaml_data: Dict[str, Any], code_model: "CodeModel") -> None:
+    def __init__(self, yaml_data: dict[str, Any], code_model: "CodeModel") -> None:
         super().__init__(yaml_data=yaml_data, code_model=code_model)
         self.name = yaml_data.get("name", "")
         self.submodule = yaml_data.get("submodule", "")
@@ -616,7 +616,7 @@ class SdkCoreType(PrimitiveType):
 
 
 class MultiPartFileType(PrimitiveType):
-    def __init__(self, yaml_data: Dict[str, Any], code_model: "CodeModel") -> None:
+    def __init__(self, yaml_data: dict[str, Any], code_model: "CodeModel") -> None:
         super().__init__(yaml_data=yaml_data, code_model=code_model)
         self.name = "FileType"
 

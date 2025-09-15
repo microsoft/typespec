@@ -1,5 +1,11 @@
 import { printIdentifier } from "@typespec/compiler";
-import { OpenAPI3Schema, Refable } from "../../../../types.js";
+import {
+  OpenAPI3Encoding,
+  OpenAPI3Schema,
+  OpenAPI3SchemaProperty,
+  Refable,
+} from "../../../../types.js";
+import { Context } from "../utils/context.js";
 import {
   getDecoratorsForSchema,
   normalizeObjectValueToTSValueExpression,
@@ -13,11 +19,14 @@ export class SchemaToExpressionGenerator {
   public generateTypeFromRefableSchema(
     schema: Refable<OpenAPI3Schema>,
     callingScope: string[],
+    isHttpPart = false,
+    encoding?: Record<string, OpenAPI3Encoding>,
+    context?: Context,
   ): string {
     const hasRef = "$ref" in schema;
     return hasRef
       ? this.getRefName(schema.$ref, callingScope)
-      : this.getTypeFromSchema(schema, callingScope);
+      : this.getTypeFromSchema(schema, callingScope, isHttpPart, encoding, context);
   }
 
   public generateArrayType(schema: OpenAPI3Schema, callingScope: string[]): string {
@@ -75,10 +84,18 @@ export class SchemaToExpressionGenerator {
     return scopeAndName;
   }
 
-  private getTypeFromSchema(schema: OpenAPI3Schema, callingScope: string[]): string {
+  private getTypeFromSchema(
+    schema: OpenAPI3Schema,
+    callingScope: string[],
+    isHttpPart = false,
+    encoding?: Record<string, OpenAPI3Encoding>,
+    context?: Context,
+  ): string {
     let type = "unknown";
 
-    if (schema.enum) {
+    if (schema.const !== undefined) {
+      type = JSON.stringify(schema.const);
+    } else if (schema.enum) {
       type = getEnum(schema.enum);
     } else if (schema.anyOf?.length) {
       type = this.getAnyOfType(schema, callingScope);
@@ -90,6 +107,8 @@ export class SchemaToExpressionGenerator {
       type = this.generateArrayType(schema, callingScope);
     } else if (schema.type === "boolean") {
       type = "boolean";
+    } else if ((schema as any).type === "null") {
+      type = "null";
     } else if (schema.type === "integer") {
       type = getIntegerType(schema);
     } else if (schema.type === "number") {
@@ -100,14 +119,14 @@ export class SchemaToExpressionGenerator {
     ) {
       // we should never test on type object as it's not required
       // but rather on the presence of properties which indicates an object type
-      type = this.getObjectType(schema, callingScope);
+      type = this.getObjectType(schema, callingScope, isHttpPart, encoding, context);
     } else if (schema.oneOf?.length) {
       type = this.getOneOfType(schema, callingScope);
     } else if (schema.type === "string") {
       type = getStringType(schema);
     } else if (schema.type === "object") {
       // this is a fallback to maintain compatibility and it needs to be in the last cases
-      type = this.getObjectType(schema, callingScope);
+      type = this.getObjectType(schema, callingScope, isHttpPart, encoding, context);
     } else if (schema.type === "array") {
       // this is a fallback to maintain compatibility and it needs to be in the last cases
       type = this.generateArrayType(schema, callingScope);
@@ -117,11 +136,70 @@ export class SchemaToExpressionGenerator {
       type += ` | null`;
     }
 
-    if (schema.default) {
-      type += ` = ${typeof schema.default === "object" ? normalizeObjectValueToTSValueExpression(schema.default) : JSON.stringify(schema.default)}`;
+    // Check for default value - either at top level or from union members
+    if (schema.default || schema.anyOf?.length || schema.oneOf?.length) {
+      const defaultValue = this.generateDefaultValue(schema, callingScope, context);
+      if (defaultValue) {
+        type += ` = ${defaultValue}`;
+      }
     }
 
     return type;
+  }
+
+  private generateDefaultValue(
+    schema: OpenAPI3Schema,
+    callingScope: string[],
+    context?: Context,
+  ): string | undefined {
+    if (schema.default && typeof schema.default === "object") {
+      return normalizeObjectValueToTSValueExpression(schema.default);
+    }
+
+    // If this schema has a top-level default, use it
+    // Check if this is a union type (anyOf or oneOf) with a default value that might match an enum member
+    if (context && schema.default && (schema.anyOf?.length || schema.oneOf?.length)) {
+      const unionMembers = schema.anyOf || schema.oneOf || [];
+
+      // Try to find an enum reference that contains this default value
+      for (const member of unionMembers) {
+        if ("$ref" in member) {
+          const refSchema = context.getSchemaByRef(member.$ref);
+          // This is an enum type, check if the default value matches any enum member
+          if (
+            refSchema?.enum &&
+            refSchema.type === "string" &&
+            refSchema.enum.includes(schema.default)
+          ) {
+            const enumRefName = this.getRefName(member.$ref, callingScope);
+            // Convert the default value to a valid identifier for the enum member
+            const memberName = printIdentifier(schema.default as string, "disallow-reserved");
+            return `${enumRefName}.${memberName}`;
+          }
+        }
+      }
+    }
+
+    // If this is a union type without a top-level default, find the first default from members
+    if (schema.anyOf?.length || schema.oneOf?.length) {
+      const unionMembers = schema.anyOf || schema.oneOf || [];
+
+      for (const member of unionMembers) {
+        if ("$ref" in member === false && member.default) {
+          // Found a member with a default value, use it for the union
+          if (member.default && typeof member.default === "object") {
+            return normalizeObjectValueToTSValueExpression(member.default);
+          }
+          return JSON.stringify(member.default);
+        }
+      }
+    }
+
+    // Fallback if no default found - return a sentinel value to indicate no default
+    if (schema.default) {
+      return JSON.stringify(schema.default);
+    }
+    return undefined; // Return undefined to indicate no default found
   }
 
   private getAllOfType(schema: OpenAPI3Schema, callingScope: string[]): string {
@@ -161,11 +239,58 @@ export class SchemaToExpressionGenerator {
     }
   }
 
+  private stripDefaultsFromSchema(schema: Refable<OpenAPI3Schema>): Refable<OpenAPI3Schema> {
+    if ("$ref" in schema) {
+      return schema;
+    }
+
+    const strippedSchema = { ...schema };
+    delete strippedSchema.default;
+
+    // Recursively strip defaults from nested structures
+    if (strippedSchema.items) {
+      strippedSchema.items = this.stripDefaultsFromSchema(strippedSchema.items);
+    }
+
+    if (strippedSchema.anyOf) {
+      strippedSchema.anyOf = strippedSchema.anyOf.map((item) => this.stripDefaultsFromSchema(item));
+    }
+
+    if (strippedSchema.oneOf) {
+      strippedSchema.oneOf = strippedSchema.oneOf.map((item) => this.stripDefaultsFromSchema(item));
+    }
+
+    if (strippedSchema.allOf) {
+      strippedSchema.allOf = strippedSchema.allOf.map((item) => this.stripDefaultsFromSchema(item));
+    }
+
+    if (strippedSchema.properties) {
+      const strippedProperties: Record<string, Refable<OpenAPI3Schema>> = {};
+      for (const [key, prop] of Object.entries(strippedSchema.properties)) {
+        strippedProperties[key] = this.stripDefaultsFromSchema(prop);
+      }
+      strippedSchema.properties = strippedProperties;
+    }
+
+    if (
+      strippedSchema.additionalProperties &&
+      typeof strippedSchema.additionalProperties === "object"
+    ) {
+      strippedSchema.additionalProperties = this.stripDefaultsFromSchema(
+        strippedSchema.additionalProperties,
+      );
+    }
+
+    return strippedSchema;
+  }
+
   private getAnyOfType(schema: OpenAPI3Schema, callingScope: string[]): string {
     const definitions: string[] = [];
 
     for (const item of schema.anyOf ?? []) {
-      definitions.push(this.generateTypeFromRefableSchema(item, callingScope));
+      // Generate type without defaults for union members by recursively stripping all defaults
+      const itemWithoutDefaults = this.stripDefaultsFromSchema(item);
+      definitions.push(this.generateTypeFromRefableSchema(itemWithoutDefaults, callingScope));
     }
 
     return definitions.join(" | ");
@@ -175,13 +300,98 @@ export class SchemaToExpressionGenerator {
     const definitions: string[] = [];
 
     for (const item of schema.oneOf ?? []) {
-      definitions.push(this.generateTypeFromRefableSchema(item, callingScope));
+      // Generate type without defaults for union members by recursively stripping all defaults
+      const itemWithoutDefaults = this.stripDefaultsFromSchema(item);
+      definitions.push(this.generateTypeFromRefableSchema(itemWithoutDefaults, callingScope));
     }
 
     return definitions.join(" | ");
   }
 
-  private getObjectType(schema: OpenAPI3Schema, callingScope: string[]): string {
+  public getPartType(
+    propType: string,
+    name: string,
+    isHttpPart: boolean,
+    encoding: Record<string, OpenAPI3Encoding> | undefined,
+    isEnumType: boolean,
+    isUnionType: boolean,
+  ): string {
+    if (!isHttpPart) {
+      return propType;
+    }
+    const propTypeWithoutDefault = propType.replace(/ = .*/, "");
+    const propTypeWithoutNull = propTypeWithoutDefault.replace(/ \| null/g, "");
+    const encodingForProperty = encoding?.[name];
+    const filePartType =
+      encodingForProperty?.contentType &&
+      this.shouldUpgradeToFileDefinition(propTypeWithoutDefault, encodingForProperty.contentType)
+        ? `File<"${encodingForProperty.contentType}">`
+        : undefined;
+    const contentTypeHeader =
+      encodingForProperty?.contentType &&
+      !filePartType &&
+      !this.isDefaultPartType(propTypeWithoutNull, encodingForProperty.contentType) &&
+      !this.isInlineUnionType(propTypeWithoutNull) &&
+      !isUnionType &&
+      !this.isScalarType(propTypeWithoutNull) &&
+      !isEnumType
+        ? ` & { @header contentType: "${encodingForProperty.contentType}" }`
+        : "";
+    return `HttpPart<${filePartType ?? propTypeWithoutDefault}${contentTypeHeader}>`;
+  }
+
+  private isInlineUnionType(partType: string): boolean {
+    return partType.includes("|");
+  }
+
+  private isScalarType(partType: string): boolean {
+    return (
+      partType === "string" ||
+      partType === "boolean" ||
+      partType === "null" ||
+      this.numericTypes[partType]
+    );
+  }
+
+  private isDefaultPartType(partType: string, partMediaType: string): boolean {
+    return (
+      ((partType === "string" || this.numericTypes[partType]) && partMediaType === "text/plain") ||
+      (partType === "bytes" && partMediaType === "application/octet-stream")
+    );
+  }
+
+  private shouldUpgradeToFileDefinition(partType: string, partMediaType: string): boolean {
+    return partType === "bytes" && !this.isDefaultPartType(partType, partMediaType);
+  }
+  private readonly numericTypes: Record<string, boolean> = {
+    // https://typespec.io/docs/language-basics/built-in-types/
+    numeric: true,
+    integer: true,
+    float: true,
+    float32: true,
+    float64: true,
+    int8: true,
+    int16: true,
+    int32: true,
+    int64: true,
+    safeint: true,
+    uint8: true,
+    uint16: true,
+    uint32: true,
+    uint64: true,
+    decimal: true,
+    decimal128: true,
+  };
+
+  public static readonly decoratorNamesToExcludeForParts: string[] = ["minValue", "maxValue"];
+
+  private getObjectType(
+    schema: OpenAPI3Schema,
+    callingScope: string[],
+    isHttpPart = false,
+    encoding?: Record<string, OpenAPI3Encoding>,
+    context?: Context,
+  ): string {
     // If we have `additionalProperties`, treat that as an 'indexer' and convert to a record.
     const recordType =
       typeof schema.additionalProperties === "object"
@@ -194,13 +404,20 @@ export class SchemaToExpressionGenerator {
     if (schema.properties) {
       for (const name of Object.keys(schema.properties)) {
         const originalPropSchema = schema.properties[name];
+        const isEnumType = !!context && isReferencedEnumType(originalPropSchema, context);
+        const isUnionType = !!context && isReferencedUnionType(originalPropSchema, context);
         const propType = this.generateTypeFromRefableSchema(originalPropSchema, callingScope);
 
-        const decorators = generateDecorators(getDecoratorsForSchema(originalPropSchema))
+        const decorators = generateDecorators(
+          getDecoratorsForSchema(originalPropSchema),
+          isHttpPart ? SchemaToExpressionGenerator.decoratorNamesToExcludeForParts : [],
+        )
           .map((d) => `${d}\n`)
           .join("");
         const isOptional = !requiredProps.includes(name) ? "?" : "";
-        props.push(`${decorators}${printIdentifier(name)}${isOptional}: ${propType}`);
+        props.push(
+          `${decorators}${printIdentifier(name)}${isOptional}: ${this.getPartType(propType, name, isHttpPart, encoding, isEnumType, isUnionType)}`,
+        );
       }
     }
 
@@ -224,9 +441,55 @@ export class SchemaToExpressionGenerator {
   }
 }
 
+export function isReferencedEnumType(
+  propSchema: OpenAPI3SchemaProperty,
+  context: Context,
+): boolean {
+  let isEnumType = false;
+  try {
+    isEnumType =
+      ("$ref" in propSchema && context.getSchemaByRef(propSchema.$ref)?.enum) ||
+      ("items" in propSchema &&
+        propSchema.items &&
+        "$ref" in propSchema.items &&
+        context.getSchemaByRef(propSchema.items.$ref)?.enum)
+        ? true
+        : false;
+  } catch {
+    // ignore errors - we couldn't resolve the reference - so we assume it's not an enum
+  }
+  return isEnumType;
+}
+
+export function isReferencedUnionType(
+  propSchema: OpenAPI3SchemaProperty,
+  context: Context,
+): boolean {
+  let isUnionType = false;
+  try {
+    const resolvedSchema =
+      "$ref" in propSchema ? context.getSchemaByRef(propSchema.$ref) : undefined;
+    const resolvedItemsSchema =
+      "items" in propSchema && propSchema.items && "$ref" in propSchema.items
+        ? context.getSchemaByRef(propSchema.items.$ref)
+        : undefined;
+    isUnionType =
+      (resolvedSchema && (resolvedSchema.oneOf?.length || resolvedSchema.anyOf?.length)) ||
+      (resolvedItemsSchema &&
+        (resolvedItemsSchema.oneOf?.length || resolvedItemsSchema.anyOf?.length))
+        ? true
+        : false;
+  } catch {
+    // ignore errors - we couldn't resolve the reference - so we assume it's not a union
+  }
+  return isUnionType;
+}
+
 export function getTypeSpecPrimitiveFromSchema(schema: OpenAPI3Schema): string | undefined {
   if (schema.type === "boolean") {
     return "boolean";
+  } else if ((schema as any).type === "null") {
+    return "null";
   } else if (schema.type === "integer") {
     return getIntegerType(schema);
   } else if (schema.type === "number") {

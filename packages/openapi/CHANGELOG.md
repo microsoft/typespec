@@ -1,5 +1,16 @@
 # Change Log - @typespec/openapi
 
+## 1.4.0
+
+### Bump dependencies
+
+- [#8317](https://github.com/microsoft/typespec/pull/8317) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8192](https://github.com/microsoft/typespec/pull/8192) update `@info` decorator documentation to the latest
+
+
 ## 1.3.0
 
 ### Bump dependencies

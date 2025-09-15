@@ -49,6 +49,7 @@ words:
   - debouncer
   - debugpy
   - Declipse
+  - dedented
   - Dedupes
   - deps
   - destructures
@@ -128,6 +129,8 @@ words:
   - LINUXOS
   - LINUXVMIMAGE
   - ljust
+  - llms
+  - llmstxt
   - lmazuel
   - lropaging
   - lstrip
@@ -135,6 +138,7 @@ words:
   - MACVMIMAGE
   - MACVMIMAGEM
   - mday
+  - methodsubscriptionid
   - mgmt
   - mgmtplane
   - mocharc
@@ -185,6 +189,7 @@ words:
   - proto
   - protobuf
   - protoc
+  - pscore
   - psscriptanalyzer
   - ptvsd
   - pwsh
@@ -211,6 +216,7 @@ words:
   - repr
   - respecify
   - rjust
+  - rollup
   - rpaas
   - rsplit
   - rstrip
@@ -219,8 +225,8 @@ words:
   - safeint
   - sdkcore
   - segmentof
-  - setuppy
   - serde
+  - setuppy
   - sfixed
   - shiki
   - sint
@@ -269,6 +275,7 @@ words:
   - vitest
   - VNEXT
   - vsix
+  - vsmarketplace
   - VSSDK
   - Vsts
   - vswhere

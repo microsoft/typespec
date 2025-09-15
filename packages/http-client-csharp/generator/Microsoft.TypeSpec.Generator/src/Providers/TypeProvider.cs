@@ -499,16 +499,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 _customCodeView = new(BuildCustomCodeView(name, Type.Namespace));
                 _lastContractView = new(BuildLastContractView(name, Type.Namespace));
                 // Give precedence to the custom code view name if it exists
-                Type.Update(_customCodeView.Value?.Name ?? name);
+                Type.Update(name: _customCodeView.Value?.Name ?? name, @namespace: _customCodeView.Value?.Type.Namespace);
             }
 
             if (@namespace != null)
             {
                 // Reset the custom code view to reflect the new namespace
-                _customCodeView = new(BuildCustomCodeView(Name, @namespace));
-                _lastContractView = new(BuildLastContractView(Name, @namespace));
-
-                Type.Update(@namespace: @namespace);
+                _customCodeView = new(BuildCustomCodeView(Type.Name, @namespace));
+                _lastContractView = new(BuildLastContractView(Type.Name, @namespace));
+                Type.Update(@namespace: _customCodeView.Value?.Type.Namespace ?? @namespace);
             }
 
             // Rebuild the canonical view

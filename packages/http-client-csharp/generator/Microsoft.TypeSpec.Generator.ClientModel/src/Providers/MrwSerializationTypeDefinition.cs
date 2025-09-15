@@ -191,7 +191,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var document = UsingDeclare(
                 "document",
                 typeof(JsonDocument),
-                JsonDocumentSnippets.Parse(response.Property(nameof(HttpResponseApi.Content)).As<BinaryData>()),
+                response.Property(nameof(HttpResponseApi.Content)).As<BinaryData>().Parse(),
                 out var docVariable);
             // return DeserializeT(doc.RootElement, ModelSerializationExtensions.WireOptions);
             var deserialize = Return(_model.Type.Deserialize(docVariable.As<JsonDocument>().RootElement(), ModelSerializationExtensionsSnippets.Wire));
@@ -1104,7 +1104,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         break;
                     case JsonValueKind.True:
                         switchCases.Add(new SwitchCaseStatement(
-                            BoolSnippets.Or(JsonValueKindSnippets.True.As<bool>(), JsonValueKindSnippets.False), statements));
+                            JsonValueKindSnippets.True.As<bool>().OrPattern(JsonValueKindSnippets.False), statements));
                         break;
                     case JsonValueKind.Number:
                         statements.Add(Break);

@@ -22,7 +22,7 @@
     "@docsearch/css": "^3.9.0",
     "@docsearch/js": "^3.9.0",
     "@expressive-code/core": "^0.41.2",
-    "@fluentui/react-components": "~9.67.0",
+    "@fluentui/react-components": "~9.70.0",
     "@fluentui/react-icons": "^2.0.292",
     "@typespec/compiler": "workspace:^",
     "@typespec/playground": "workspace:^",
@@ -36,7 +36,7 @@
     "react": "~18.3.1",
     "react-dom": "~18.3.1",
     "sharp": "^0.34.2",
-    "typescript": "~5.8.2"
+    "typescript": "~5.9.2"
   },
   "devDependencies": {
     "@types/react": "~18.3.11",

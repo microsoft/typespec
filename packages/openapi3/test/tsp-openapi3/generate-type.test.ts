@@ -17,6 +17,7 @@ function generateScenarioName(scenario: TestScenario): string {
 const testScenarios: TestScenario[] = [
   // boolean
   { schema: { type: "boolean" }, expected: "boolean" },
+  { schema: { type: "boolean", default: false }, expected: "boolean" },
   { schema: { type: "boolean", nullable: true }, expected: "boolean | null" },
   // integers
   { schema: { type: "integer" }, expected: "integer" },
@@ -40,6 +41,7 @@ const testScenarios: TestScenario[] = [
   },
   // numerics
   { schema: { type: "number" }, expected: "numeric" },
+  { schema: { type: "number", default: 0 }, expected: "numeric" },
   { schema: { type: "number", default: 123 }, expected: "numeric = 123" },
   { schema: { type: "number", default: 123, nullable: true }, expected: "numeric | null = 123" },
   { schema: { type: "number", format: "decimal" }, expected: "decimal" },
@@ -49,6 +51,15 @@ const testScenarios: TestScenario[] = [
   { schema: { type: "number", enum: [3.14, 6.28, 42] }, expected: "3.14 | 6.28 | 42" },
   // strings
   { schema: { type: "string" }, expected: "string" },
+  {
+    schema: { type: "string", default: "foo" },
+    expected: 'string = "foo"',
+  },
+  { schema: { type: "string", default: "" }, expected: "string" },
+  {
+    schema: { type: "string", default: null as unknown as string, nullable: true },
+    expected: "string | null",
+  },
   { schema: { type: "string", format: "binary" }, expected: "bytes" },
   { schema: { type: "string", format: "byte" }, expected: "bytes" },
   { schema: { type: "string", format: "date" }, expected: "plainDate" },
@@ -60,6 +71,16 @@ const testScenarios: TestScenario[] = [
   {
     schema: { type: "string", default: "foo", enum: ["foo", "bar"] },
     expected: `"foo" | "bar" = "foo"`,
+  },
+  // const schemas
+  { schema: { const: "output_audio_buffer.started" }, expected: `"output_audio_buffer.started"` },
+  { schema: { const: 42 }, expected: `42` },
+  { schema: { const: true }, expected: `true` },
+  { schema: { const: false }, expected: `false` },
+  { schema: { const: null }, expected: `null` },
+  {
+    schema: { const: "output_audio_buffer.started", nullable: true },
+    expected: `"output_audio_buffer.started" | null`,
   },
   // refs
   { schema: { $ref: "#/Path/To/Some/Model" }, expected: "Model" },

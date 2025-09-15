@@ -1,5 +1,34 @@
 # Change Log - @typespec/openapi3
 
+## 1.4.0
+
+### Features
+
+- [#8289](https://github.com/microsoft/typespec/pull/8289) adds support for importing OAS const
+- [#8385](https://github.com/microsoft/typespec/pull/8385) adds support for providing the namespace name during conversion from OpenAPI
+- [#8240](https://github.com/microsoft/typespec/pull/8240) adds support for importing discriminator mappings in openAPI
+- [#8272](https://github.com/microsoft/typespec/pull/8272) tsp-openapi3 adds support for importing multipart request bodies
+- [#8201](https://github.com/microsoft/typespec/pull/8201) feat: adds support for importing servers
+- [#8197](https://github.com/microsoft/typespec/pull/8197) feat: adds support for importing tags metadata
+
+### Bump dependencies
+
+- [#8317](https://github.com/microsoft/typespec/pull/8317) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8267](https://github.com/microsoft/typespec/pull/8267) http parts extensions are now emitted
+- [#8369](https://github.com/microsoft/typespec/pull/8369) Operation deprecated field is inherited from containing interface/namespace(s)
+- [#8387](https://github.com/microsoft/typespec/pull/8387) fix import to recognize any of type null as union with type and null, not unknown
+- [#8225](https://github.com/microsoft/typespec/pull/8225) default value for properties was declared without the proper syntax, leading to compilation issues
+- [#8217](https://github.com/microsoft/typespec/pull/8217) invalid symbols being produced by discrminator import
+- [#8214](https://github.com/microsoft/typespec/pull/8214) ensures that value notation is used when importing extension values
+- [#8215](https://github.com/microsoft/typespec/pull/8215) recognize union types during import even when type object is set
+- [#8275](https://github.com/microsoft/typespec/pull/8275) tsp-openapi3: log warnings when operationId is missing from Open API spec, and generate an operation name
+- [#8207](https://github.com/microsoft/typespec/pull/8207) Converter: fixed a bug that would cause nullable array schemas to generate as unions with only a `null` variant. These schemas now generate an array variant as well.
+- [#8203](https://github.com/microsoft/typespec/pull/8203) Converter: fixed a bug in which union definitions converted from `oneOf`/`anyOf` definitions in OpenAPI3 schemas were missing semicolon delimiters.
+
+
 ## 1.3.0
 
 ### Bump dependencies

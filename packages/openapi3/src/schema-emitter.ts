@@ -58,6 +58,7 @@ import { $ } from "@typespec/compiler/typekit";
 import { MetadataInfo, Visibility, getVisibilitySuffix } from "@typespec/http";
 import {
   checkDuplicateTypeName,
+  getExtensions,
   getExternalDocs,
   getOpenAPITypeName,
   isReadonlyProperty,
@@ -435,6 +436,16 @@ export class OpenAPI3SchemaEmitterBase<
 
     // Attach any additional OpenAPI extensions
     attachExtensions(program, prop, additionalProps);
+
+    // For multipart content, ensure extensions are also attached directly to schema
+    // if no $ref is involved, to handle HttpPart property unwrapping
+    const contentType = this.getContentType();
+    if (contentType && contentType.startsWith("multipart/") && !isRef && schema) {
+      const extensions = getExtensions(program, prop);
+      for (const [key, value] of extensions) {
+        (schema as any)[key] = value;
+      }
+    }
 
     if (schema && isRef && !(prop.type.kind === "Model" && isArrayModelType(program, prop.type))) {
       if (Object.keys(additionalProps).length === 0) {

@@ -1,5 +1,29 @@
 # Changelog - @typespec/emitter-framework
 
+## 0.11.0
+
+### Features
+
+- [#8351](https://github.com/microsoft/typespec/pull/8351) [c#] Generate base class and 'virtual'/'new' keywords for property according to the baseType defined in typespec
+- [#8145](https://github.com/microsoft/typespec/pull/8145) Enable component overrides for extensibility
+- [#8224](https://github.com/microsoft/typespec/pull/8224) Support literal types and nullable union in TypeExpression of csharp
+  - Properties with "void" type will be ignored when generating csharp class
+  - Literal type will be mapped to string, int, double, bool in general
+  - Union contains 'null' or 'void' will be unwrapped to '{other non-nullable union variances}?'
+- [#8282](https://github.com/microsoft/typespec/pull/8282) `writeOutput` now uses async render, which enables usage of alloy's resource APIs and templating components.
+
+### Bump dependencies
+
+- [#8317](https://github.com/microsoft/typespec/pull/8317) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8371](https://github.com/microsoft/typespec/pull/8371) [c#] Always separate properties with blank lines
+- [#8274](https://github.com/microsoft/typespec/pull/8274) Optional TypeSpec properties emit as nullable in csharp.
+- [#8302](https://github.com/microsoft/typespec/pull/8302) [c#] Avoid generating double '?' after property name when the property is nullable union and it's prop.optional is true in the meantime
+- [#8362](https://github.com/microsoft/typespec/pull/8362) Upgrade alloy to 0.20
+
+
 ## 0.10.0
 
 ### Bump dependencies

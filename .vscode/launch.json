@@ -94,6 +94,24 @@
       }
     },
     {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug tsp-pack",
+      "program": "${workspaceFolder}/packages/pack/dist/cli.js",
+      "args": ["main.tsp"],
+      "smartStep": true,
+      "sourceMaps": true,
+      "skipFiles": ["<node_internals>/**/*.js"],
+      "outFiles": [
+        "${workspaceFolder}/packages/*/dist/**/*.js",
+        "${workspaceFolder}/packages/*/dist-dev/**/*.js"
+      ],
+      "cwd": "${workspaceFolder}/packages/samples/scratch",
+      "presentation": {
+        "order": 2
+      }
+    },
+    {
       "name": "Regenerate .tmlanguage",
       "type": "node",
       "program": "${workspaceFolder}/packages/typespec-vscode/scripts/generate-tmlanguage.js",
@@ -125,6 +143,9 @@
 
         "TYPESPEC_SERVER_NODE_OPTIONS": "--nolazy --inspect-brk=4242",
         "TYPESPEC_DEVELOPMENT_MODE": "true"
+
+        // "ENABLE_SERVER_COMPILE_LOGGING": "true",
+        // "ENABLE_UPDATE_MANAGER_LOGGING": "true"
       },
       "presentation": {
         "hidden": true
