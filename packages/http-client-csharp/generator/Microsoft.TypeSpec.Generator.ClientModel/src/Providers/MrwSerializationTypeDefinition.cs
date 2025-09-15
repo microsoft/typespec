@@ -64,7 +64,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         public MrwSerializationTypeDefinition(InputModelType inputModel, ModelProvider modelProvider)
         {
             _model = modelProvider;
-            _jsonPatchProperty = new(GetDerivedJsonPatchProperty);
+            _jsonPatchProperty = new(GetBaseJsonPatchProperty);
             _inputModel = inputModel;
             _isStruct = _model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct);
             // Initialize the serialization interfaces
@@ -1402,7 +1402,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 this);
         }
 
-        private PropertyProvider? GetDerivedJsonPatchProperty()
+        private PropertyProvider? GetBaseJsonPatchProperty()
         {
             if (_model is not ScmModelProvider scmModelProvider)
             {
