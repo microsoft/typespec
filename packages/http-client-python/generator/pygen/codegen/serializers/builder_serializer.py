@@ -1386,7 +1386,8 @@ class _PagingOperationSerializer(_OperationSerializer[PagingOperationType]):
             else:
                 next_link_name_array = next_link_name.split(".")
                 access = (
-                    "".join([f'.get("{i}", {{}})' for i in next_link_name_array[:-1]]) + f'.get("{next_link_name_array[-1]}")'
+                    "".join([f'.get("{i}", {{}})' for i in next_link_name_array[:-1]])
+                    + f'.get("{next_link_name_array[-1]}")'
                 )
                 cont_token_property = f"deserialized{access} or None"
         list_type = "AsyncList" if self.async_mode else "iter"
