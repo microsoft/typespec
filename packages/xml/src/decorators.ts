@@ -6,6 +6,7 @@ import {
   type Program,
   type Type,
 } from "@typespec/compiler";
+import { useStateMap } from "@typespec/compiler/utils";
 import type {
   AttributeDecorator,
   NameDecorator,
@@ -19,10 +20,24 @@ import type { XmlNamespace } from "./types.js";
 /** @internal */
 export const namespace = "TypeSpec.Xml";
 
+const [_getXmlName, setXmlName] = useStateMap<Type, string>(XmlStateKeys.xmlName);
+
 /** {@inheritDoc NameDecorator}  */
 export const $name: NameDecorator = (context, target, name) => {
+  setXmlName(context.program, target, name);
   context.call($encodedName, target, "application/xml", name);
 };
+
+/**
+ * Get the XML name for the given type. Returns undefined if no XML name is set.
+ *
+ * @param program The TypeSpec program.
+ * @param target The target type.
+ * @returns The XML name, or undefined if not set.
+ */
+export function getXmlName(program: Program, target: Type): string | undefined {
+  return _getXmlName(program, target);
+}
 
 /** {@inheritDoc AttributeDecorator} */
 export const $attribute: AttributeDecorator = (context, target) => {

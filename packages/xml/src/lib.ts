@@ -43,6 +43,7 @@ export const $lib = createTypeSpecLibrary({
     },
     ns: { description: "Namespace data" },
     nsDeclaration: { description: "Mark an enum that declares Xml Namespaces" },
+    xmlName: { description: "Custom XML name for a model or property" },
   },
 } as const);
 

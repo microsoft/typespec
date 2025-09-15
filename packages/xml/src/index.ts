@@ -12,6 +12,7 @@ export {
   $nsDeclarations,
   $unwrapped,
   getNs,
+  getXmlName,
   isAttribute,
   isUnwrapped,
 } from "./decorators.js";
