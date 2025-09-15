@@ -98,7 +98,7 @@ namespace SampleTypeSpec
                     List<Thing> array = new List<Thing>();
                     foreach (var item in prop.Value.EnumerateArray())
                     {
-                        array.Add(Thing.DeserializeThing(item, data, options));
+                        array.Add(Thing.DeserializeThing(item, item.GetUtf8Bytes(), options));
                     }
                     things = array;
                     continue;

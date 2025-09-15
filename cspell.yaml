@@ -222,6 +222,7 @@ words:
   - rushx
   - safeint
   - sdkcore
+  - SCME
   - segmentof
   - serde
   - setuppy
