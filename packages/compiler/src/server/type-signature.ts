@@ -1,6 +1,7 @@
 import { getSymNode } from "../core/binder.js";
 import { compilerAssert } from "../core/diagnostics.js";
 import { printTypeSpecNode } from "../core/formatter.js";
+import { getRawTextWithCache } from "../core/helpers/raw-text-cache.js";
 import { printIdentifier } from "../core/helpers/syntax-utils.js";
 import { getEntityName, getTypeName, isStdNamespace } from "../core/helpers/type-name-utils.js";
 import type { Program } from "../core/program.js";
@@ -13,13 +14,11 @@ import {
   Interface,
   Model,
   ModelProperty,
-  Node,
   Operation,
   StringTemplate,
   Sym,
   SyntaxKind,
   Type,
-  TypeSpecScriptNode,
   UnionVariant,
   Value,
 } from "../core/types.js";
@@ -143,7 +142,7 @@ function getInterfaceSignature(type: Interface, includeBody: boolean): string {
     ) {
       type.node.templateParameters.forEach((t) => {
         if (t.default) {
-          (t as any).rawText = getRawText(t);
+          getRawTextWithCache(t);
         }
       });
     }
@@ -167,7 +166,7 @@ function getModelSignature(type: Model, includeBody: boolean): string {
     if (type.node && type.node.kind === SyntaxKind.ModelStatement && type.node.templateParameters) {
       type.node.templateParameters.forEach((t) => {
         if (t.default) {
-          (t as any).rawText = getRawText(t);
+          getRawTextWithCache(t);
         }
       });
     }
@@ -220,7 +219,7 @@ async function getAliasSignature(alias: AliasStatementNode): Promise<string> {
   const args = await Promise.all(
     alias.templateParameters.map(async (t, index) => {
       if (t.default) {
-        (t.default as any).rawText = getRawText(t.default);
+        getRawTextWithCache(t.default);
       }
       return await printTypeSpecNode(t);
     }),
@@ -254,25 +253,4 @@ function getPrintableTypeName(type: Type): string {
 
 function fence(code: string) {
   return `\`\`\`typespec\n${code}\n\`\`\``;
-}
-
-function getTypeSpecScript(node: Node): TypeSpecScriptNode | undefined {
-  let current: Node = node;
-  while (current.parent) {
-    current = current.parent;
-  }
-  return current.kind === SyntaxKind.TypeSpecScript ? current : undefined;
-}
-
-function getRawText(node: Node): string {
-  if ("rawText" in node) {
-    return (node as any).rawText as string;
-  }
-
-  const scriptNode = getTypeSpecScript(node);
-  if (!scriptNode) {
-    return "";
-  }
-
-  return scriptNode.file.text.slice(node.pos, node.end);
 }
