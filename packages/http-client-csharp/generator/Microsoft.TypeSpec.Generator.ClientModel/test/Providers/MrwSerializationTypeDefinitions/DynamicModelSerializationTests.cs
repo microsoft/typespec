@@ -320,6 +320,70 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [Test]
+        public void WriteNestedArrayPrimitiveProperties()
+        {
+            var array1 = InputFactory.Array(InputPrimitiveType.String);
+            var array2 = InputFactory.Array(array1);
+            var array3 = InputFactory.Array(array2);
+            var inputModel = InputFactory.Model(
+               "dynamicModel",
+               isDynamicModel: true,
+               properties:
+               [
+                   InputFactory.Property("propertyWithNestedArray", array3),
+               ]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ClientModel.Providers.ScmModelProvider;
+
+            Assert.IsNotNull(model);
+            Assert.IsTrue(model!.IsDynamicModel);
+            var serialization = model.SerializationProviders.SingleOrDefault();
+            Assert.IsNotNull(serialization);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serialization!,
+                name => name is "JsonModelWriteCore" or "Write"));
+
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void WriteNestedArrayDynamicModelProperties()
+        {
+            var dynamicCat = InputFactory.Model("dynamicCat", isDynamicModel: true, properties:
+            [
+                InputFactory.Property("meows", InputPrimitiveType.Boolean, isRequired: true)
+            ]);
+            var array1 = InputFactory.Array(dynamicCat);
+            var array2 = InputFactory.Array(array1);
+            var array3 = InputFactory.Array(array2);
+            var inputModel = InputFactory.Model(
+               "dynamicModel",
+               isDynamicModel: true,
+               properties:
+               [
+                   InputFactory.Property("propertyWithNestedArray", array3),
+               ]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ClientModel.Providers.ScmModelProvider;
+
+            Assert.IsNotNull(model);
+            Assert.IsTrue(model!.IsDynamicModel);
+            var serialization = model.SerializationProviders.SingleOrDefault();
+            Assert.IsNotNull(serialization);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serialization!,
+                name => name is "JsonModelWriteCore" or "Write"));
+
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
         public void WriteDictionaryProperties()
         {
             var catModel = InputFactory.Model("cat", discriminatedKind: "cat", properties:

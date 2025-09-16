@@ -22,7 +22,7 @@ namespace Sample.Models
         {
             P1 = p1;
             _patch = patch;
-            _patch.SetPropagators(PropagateSet, PropagateGet, null);
+            _patch.SetPropagators(PropagateSet, PropagateGet);
         }
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
 
