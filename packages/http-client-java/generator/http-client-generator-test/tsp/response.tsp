@@ -14,7 +14,6 @@ using Azure.ClientGenerator.Core;
 namespace TspTest.Response;
 
 enum ApiVersions {
-  @useDependency(global.Azure.Core.Versions.v1_0_Preview_2)
   v2022_06_01_preview: "2022-06-01-preview",
 }
 
@@ -122,7 +121,7 @@ op CustomLongRunningOperation<
 @doc("Response")
 @route("/response")
 interface ResponseOp {
-  // binary
+  // file as BinaryData
   @route("/get-binary")
   @get
   getBinary(): OkResponse & {
@@ -154,6 +153,7 @@ interface ResponseOp {
     operationLocation: ResourceLocation<Resource>;
   };
 
+  // expect boolean response, true for 200, false for 404
   @route("/exists")
   @head
   exists is RpcOperationWithAdditionalResponse<
@@ -173,6 +173,7 @@ interface ResponseOp {
   >;
 
   // OperationDetails does not have "id" property
+  // expect final result be OperationDetails1, as the response does not follow the standard
   @route("/lro-invalid-poll-response")
   lroInvalidPollResponse is CustomLongRunningOperation<
     {
@@ -182,6 +183,7 @@ interface ResponseOp {
   >;
 
   // OperationDetails does not have "result" property
+  // expect final result be OperationDetails2, as the response does not follow the standard
   @route("/lro-invalid-result")
   lroInvalidResult is CustomLongRunningOperation<
     {
@@ -207,8 +209,13 @@ interface ResponseOp {
     @header contentType: "application/json;charset=utf-8";
   };
 
+  // expect same method signature as "application/json"
   @route("/plus-json-response")
   getPlusJsonResponse(): Resource & {
     @header contentType: "application/vnd.microsoft.appconfig.kv+json";
   };
+
+  // expect BinaryData as response
+  @route("/union-response")
+  getUnionResponse(): OperationDetails1 | OperationDetails2;
 }

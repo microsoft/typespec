@@ -10,7 +10,6 @@ using Azure.ClientGenerator.Core;
 using TypeSpec.Versioning;
 
 @service(#{ title: "Patch" })
-@useDependency(Azure.Core.Versions.v1_0_Preview_2)
 namespace TspTest.Patch;
 
 @resource("resources")
