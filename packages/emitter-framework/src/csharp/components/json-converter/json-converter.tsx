@@ -81,19 +81,41 @@ export function JsonConverter(props: JsonConverterProps) {
   );
 }
 
-export function TimeSpanSecondsJsonConverter(props: { name?: string | Namekey; refkey?: Refkey }) {
+export function TimeSpanSecondsJsonConverter(props: {
+  name?: string | Namekey;
+  refkey?: Refkey;
+  encodeType: Type;
+}) {
   const { $ } = useTsp();
+  const map: Map<Type, { jsonWriteType: string; jsonReaderMethod: string }> = new Map([
+    [$.builtin.int16, { jsonWriteType: "short", jsonReaderMethod: "GetInt16" }],
+    [$.builtin.uint16, { jsonWriteType: "ushort", jsonReaderMethod: "GetUInt16" }],
+    [$.builtin.int32, { jsonWriteType: "int", jsonReaderMethod: "GetInt32" }],
+    [$.builtin.uint32, { jsonWriteType: "uint", jsonReaderMethod: "GetUInt32" }],
+    [$.builtin.int64, { jsonWriteType: "long", jsonReaderMethod: "GetInt64" }],
+    [$.builtin.uint64, { jsonWriteType: "ulong", jsonReaderMethod: "GetUInt64" }],
+    [$.builtin.float32, { jsonWriteType: "float", jsonReaderMethod: "GetSingle" }],
+    [$.builtin.float64, { jsonWriteType: "double", jsonReaderMethod: "GetDouble" }],
+  ]);
+  if (props.encodeType.kind !== "Scalar" || !map.has(props.encodeType)) {
+    throw new Error(
+      `TimeSpanSecondsJsonConverter only supports encodeType of int16, uint16, int32, uint32, int64, uint64, float32, or float64. Received: kind = ${props.encodeType.kind} ${props.encodeType.kind === "Scalar" ? `name = ${props.encodeType.name}` : ""}`,
+    );
+  }
+  const found = map.get(props.encodeType)!;
+  const defaultName = `TimeSpanSeconds${props.encodeType.name[0].toUpperCase()}${props.encodeType.name.slice(1)}JsonConverter`;
+
   return (
     <JsonConverter
       refkey={props.refkey}
-      name={props.name ?? namekey("TimeSpanSecondsJsonConverter")}
+      name={props.name ?? namekey(defaultName)}
       type={$.builtin.duration}
       decodeAndReturn={(reader) => {
-        return code`int seconds = ${reader}.GetInt32();
+        return code`var seconds = ${reader}.${found.jsonReaderMethod}();
                     return ${System.TimeSpan}.FromSeconds(seconds);`;
       }}
       encodeAndWrite={(writer, value) => {
-        return code`${writer}.WriteNumberValue((int)${value}.TotalSeconds);`;
+        return code`${writer}.WriteNumberValue(${found.jsonWriteType === "double" || `(${found.jsonWriteType})`}${value}.TotalSeconds);`;
       }}
     />
   );
@@ -107,11 +129,15 @@ export function TimeSpanIso8601JsonConverter(props: { name?: string | Namekey; r
       name={props.name ?? namekey("TimeSpanIso8601JsonConverter")}
       type={$.builtin.duration}
       decodeAndReturn={(reader) => {
-        return code`string isoString = ${reader}.GetString();
+        return code`var isoString = ${reader}.GetString();
+                    if( isoString == null) 
+                    {
+                      throw new ${System.FormatException}("Invalid ISO8601 duration string: null");
+                    }
                     return ${Xml.XmlConvert}.ToTimeSpan(isoString);`;
       }}
       encodeAndWrite={(writer, value) => {
-        return code`${writer}.WriteStringValue(${Xml.XmlConvert}.ToString(${value}.value));`;
+        return code`${writer}.WriteStringValue(${Xml.XmlConvert}.ToString(${value}));`;
       }}
     />
   );

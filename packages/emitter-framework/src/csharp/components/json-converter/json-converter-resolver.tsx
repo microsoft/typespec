@@ -79,11 +79,26 @@ export function createJsonConverterResolver(
     const { $ } = useTsp();
     // Unwrap nullable because JsonConverter<T> would handle null by default for us.
     const unwrappedType = type.kind === "Union" ? (getNullableUnionInnerType(type) ?? type) : type;
-    if (unwrappedType === $.builtin.duration && encodeData.encoding === ENCODING_DURATION_SECONDS) {
-      const key: Namekey = namekey(`TimeSpanSecondsJsonConverter`);
+    if (
+      unwrappedType === $.builtin.duration &&
+      encodeData.encoding === ENCODING_DURATION_SECONDS &&
+      [
+        $.builtin.int16,
+        $.builtin.uint16,
+        $.builtin.int32,
+        $.builtin.uint32,
+        $.builtin.int64,
+        $.builtin.uint64,
+        $.builtin.float32,
+        $.builtin.float64,
+      ].includes(encodeData.type)
+    ) {
+      const key: Namekey = namekey(
+        `TimeSpanSeconds${encodeData.type.name[0].toUpperCase()}${encodeData.type.name.slice(1)}JsonConverter`,
+      );
       return {
         nameKey: key,
-        converter: <TimeSpanSecondsJsonConverter name={key} />,
+        converter: <TimeSpanSecondsJsonConverter name={key} encodeType={encodeData.type} />,
       };
     } else if (
       unwrappedType === $.builtin.duration &&
