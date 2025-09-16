@@ -412,8 +412,8 @@ importers:
   packages/emitter-framework:
     dependencies:
       '@alloy-js/csharp':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: 0.21.0-dev.14
+        version: 0.21.0-dev.14
     devDependencies:
       '@alloy-js/cli':
         specifier: ^0.20.0
@@ -2750,8 +2750,8 @@ packages:
   '@alloy-js/core@0.20.0':
     resolution: {integrity: sha512-ylPf+ayI9MsqUPrNVzND3Oh9rVrfOOcMkyVwtXXaxaobWPkcRq2I4rX09FkG0i/9DoaLE6ZCvUfdgJsM29MYBA==}
 
-  '@alloy-js/csharp@0.20.0':
-    resolution: {integrity: sha512-Yn8oua43tVWYGN9Gt5DDtGUdLIB9io6/nL8dK4qDvL019w9uK7f3wosr+/JtSm14PuToN4jM1s7HNVzqh41KUA==}
+  '@alloy-js/csharp@0.21.0-dev.14':
+    resolution: {integrity: sha512-EXREYfm9C59IlGPFDeCUWYUVjMVTW8phL0nve23wsskqBQjtPxmZIv9159JkT2nuBzGZa84c+YSn7+NZc/DBUw==}
 
   '@alloy-js/markdown@0.20.0':
     resolution: {integrity: sha512-c1Q4dzUvWC4Bdoi6dRT9yAYVoCiqz3ZMClV8CHzEsgZYjjdS0S2ZWWmgxzS87rSDHSjmQIXJ4BcUZfKyfnMrFA==}
@@ -13642,7 +13642,7 @@ snapshots:
       picocolors: 1.1.1
       prettier: 3.6.2
 
-  '@alloy-js/csharp@0.20.0':
+  '@alloy-js/csharp@0.21.0-dev.14':
     dependencies:
       '@alloy-js/core': 0.20.0
       change-case: 5.4.4
