@@ -53,7 +53,6 @@ public final class MoveMethodParameterToBlobOperationsAsyncClient {
      * }
      * </pre>
      * 
-     * @param storageAccount The storageAccount parameter.
      * @param container The container parameter.
      * @param blob The blob parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -65,15 +64,14 @@ public final class MoveMethodParameterToBlobOperationsAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<BinaryData>> getBlobWithResponse(String storageAccount, String container, String blob,
+    public Mono<Response<BinaryData>> getBlobWithResponse(String container, String blob,
         RequestOptions requestOptions) {
-        return this.serviceClient.getBlobWithResponseAsync(storageAccount, container, blob, requestOptions);
+        return this.serviceClient.getBlobWithResponseAsync(container, blob, requestOptions);
     }
 
     /**
      * The getBlob operation.
      * 
-     * @param storageAccount The storageAccount parameter.
      * @param container The container parameter.
      * @param blob The blob parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -86,10 +84,10 @@ public final class MoveMethodParameterToBlobOperationsAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Blob> getBlob(String storageAccount, String container, String blob) {
+    public Mono<Blob> getBlob(String container, String blob) {
         // Generated convenience method for getBlobWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return getBlobWithResponse(storageAccount, container, blob, requestOptions).flatMap(FluxUtil::toMono)
+        return getBlobWithResponse(container, blob, requestOptions).flatMap(FluxUtil::toMono)
             .map(protocolMethodData -> protocolMethodData.toObject(Blob.class));
     }
 }

@@ -96,7 +96,6 @@ public final class MoveMethodParameterToBlobOperationsImpl {
      * }
      * </pre>
      * 
-     * @param storageAccount The storageAccount parameter.
      * @param container The container parameter.
      * @param blob The blob parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -107,11 +106,11 @@ public final class MoveMethodParameterToBlobOperationsImpl {
      * @return the response body along with {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<BinaryData>> getBlobWithResponseAsync(String storageAccount, String container, String blob,
+    public Mono<Response<BinaryData>> getBlobWithResponseAsync(String container, String blob,
         RequestOptions requestOptions) {
         final String accept = "application/json";
-        return FluxUtil.withContext(context -> service.getBlob(this.client.getEndpoint(), storageAccount, container,
-            blob, accept, requestOptions, context));
+        return FluxUtil.withContext(context -> service.getBlob(this.client.getEndpoint(),
+            this.client.getStorageAccount(), container, blob, accept, requestOptions, context));
     }
 
     /**
@@ -129,7 +128,6 @@ public final class MoveMethodParameterToBlobOperationsImpl {
      * }
      * </pre>
      * 
-     * @param storageAccount The storageAccount parameter.
      * @param container The container parameter.
      * @param blob The blob parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -140,10 +138,9 @@ public final class MoveMethodParameterToBlobOperationsImpl {
      * @return the response body along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> getBlobWithResponse(String storageAccount, String container, String blob,
-        RequestOptions requestOptions) {
+    public Response<BinaryData> getBlobWithResponse(String container, String blob, RequestOptions requestOptions) {
         final String accept = "application/json";
-        return service.getBlobSync(this.client.getEndpoint(), storageAccount, container, blob, accept, requestOptions,
-            Context.NONE);
+        return service.getBlobSync(this.client.getEndpoint(), this.client.getStorageAccount(), container, blob, accept,
+            requestOptions, Context.NONE);
     }
 }

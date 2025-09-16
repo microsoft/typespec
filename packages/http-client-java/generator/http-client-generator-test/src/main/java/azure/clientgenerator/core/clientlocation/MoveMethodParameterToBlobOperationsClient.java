@@ -51,7 +51,6 @@ public final class MoveMethodParameterToBlobOperationsClient {
      * }
      * </pre>
      * 
-     * @param storageAccount The storageAccount parameter.
      * @param container The container parameter.
      * @param blob The blob parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -63,15 +62,13 @@ public final class MoveMethodParameterToBlobOperationsClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> getBlobWithResponse(String storageAccount, String container, String blob,
-        RequestOptions requestOptions) {
-        return this.serviceClient.getBlobWithResponse(storageAccount, container, blob, requestOptions);
+    public Response<BinaryData> getBlobWithResponse(String container, String blob, RequestOptions requestOptions) {
+        return this.serviceClient.getBlobWithResponse(container, blob, requestOptions);
     }
 
     /**
      * The getBlob operation.
      * 
-     * @param storageAccount The storageAccount parameter.
      * @param container The container parameter.
      * @param blob The blob parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -84,9 +81,9 @@ public final class MoveMethodParameterToBlobOperationsClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Blob getBlob(String storageAccount, String container, String blob) {
+    public Blob getBlob(String container, String blob) {
         // Generated convenience method for getBlobWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return getBlobWithResponse(storageAccount, container, blob, requestOptions).getValue().toObject(Blob.class);
+        return getBlobWithResponse(container, blob, requestOptions).getValue().toObject(Blob.class);
     }
 }
