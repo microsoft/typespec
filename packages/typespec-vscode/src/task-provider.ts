@@ -11,14 +11,23 @@ export function createTaskProvider() {
   return vscode.tasks.registerTaskProvider("typespec", {
     provideTasks: async () => {
       logger.info("Providing tsp tasks");
+      // Give it a limit for the built-in task to create when starting because some project may have a large number of
+      // tsp proj (like the spec repo contains 600+...). User can still create the task manually if needed
+      const MAX_BUILTIN_RESULT = 10;
       const targetPathes = await vscode.workspace
-        .findFiles(`**/${StartFileName}`, "**/node_modules/**")
+        .findFiles(`**/${StartFileName}`, "**/node_modules/**", MAX_BUILTIN_RESULT)
         .then((uris) =>
           uris
             .filter((uri) => uri.scheme === "file" && !uri.fsPath.includes("node_modules"))
             .map((uri) => normalizeSlashes(uri.fsPath)),
         );
-      logger.info(`Found ${targetPathes.length} ${StartFileName} files`);
+      if (targetPathes.length === MAX_BUILTIN_RESULT) {
+        logger.warning(
+          `Reached maximum built-in task limit of ${MAX_BUILTIN_RESULT}. Tsp tasks will be created only for the first ${MAX_BUILTIN_RESULT} ${StartFileName} files automatically, but you can still create task manually in the tasks.json for other projects if needed.`,
+        );
+      } else {
+        logger.info(`Found ${targetPathes.length} ${StartFileName} files`);
+      }
       const tasks: vscode.Task[] = [];
       for (const targetPath of targetPathes) {
         tasks.push(...(await createBuiltInTasks(targetPath)));

@@ -136,9 +136,12 @@ export class SchemaToExpressionGenerator {
       type += ` | null`;
     }
 
-    if (schema.default !== undefined) {
+    // Check for default value - either at top level or from union members
+    if (schema.default || schema.anyOf?.length || schema.oneOf?.length) {
       const defaultValue = this.generateDefaultValue(schema, callingScope, context);
-      type += ` = ${defaultValue}`;
+      if (defaultValue) {
+        type += ` = ${defaultValue}`;
+      }
     }
 
     return type;
@@ -148,13 +151,14 @@ export class SchemaToExpressionGenerator {
     schema: OpenAPI3Schema,
     callingScope: string[],
     context?: Context,
-  ): string {
-    if (typeof schema.default === "object") {
+  ): string | undefined {
+    if (schema.default && typeof schema.default === "object") {
       return normalizeObjectValueToTSValueExpression(schema.default);
     }
 
+    // If this schema has a top-level default, use it
     // Check if this is a union type (anyOf or oneOf) with a default value that might match an enum member
-    if (context && schema.default !== undefined && (schema.anyOf?.length || schema.oneOf?.length)) {
+    if (context && schema.default && (schema.anyOf?.length || schema.oneOf?.length)) {
       const unionMembers = schema.anyOf || schema.oneOf || [];
 
       // Try to find an enum reference that contains this default value
@@ -176,8 +180,26 @@ export class SchemaToExpressionGenerator {
       }
     }
 
-    // Fall back to the original logic for other cases
-    return JSON.stringify(schema.default);
+    // If this is a union type without a top-level default, find the first default from members
+    if (schema.anyOf?.length || schema.oneOf?.length) {
+      const unionMembers = schema.anyOf || schema.oneOf || [];
+
+      for (const member of unionMembers) {
+        if ("$ref" in member === false && member.default) {
+          // Found a member with a default value, use it for the union
+          if (member.default && typeof member.default === "object") {
+            return normalizeObjectValueToTSValueExpression(member.default);
+          }
+          return JSON.stringify(member.default);
+        }
+      }
+    }
+
+    // Fallback if no default found - return a sentinel value to indicate no default
+    if (schema.default) {
+      return JSON.stringify(schema.default);
+    }
+    return undefined; // Return undefined to indicate no default found
   }
 
   private getAllOfType(schema: OpenAPI3Schema, callingScope: string[]): string {
@@ -217,11 +239,58 @@ export class SchemaToExpressionGenerator {
     }
   }
 
+  private stripDefaultsFromSchema(schema: Refable<OpenAPI3Schema>): Refable<OpenAPI3Schema> {
+    if ("$ref" in schema) {
+      return schema;
+    }
+
+    const strippedSchema = { ...schema };
+    delete strippedSchema.default;
+
+    // Recursively strip defaults from nested structures
+    if (strippedSchema.items) {
+      strippedSchema.items = this.stripDefaultsFromSchema(strippedSchema.items);
+    }
+
+    if (strippedSchema.anyOf) {
+      strippedSchema.anyOf = strippedSchema.anyOf.map((item) => this.stripDefaultsFromSchema(item));
+    }
+
+    if (strippedSchema.oneOf) {
+      strippedSchema.oneOf = strippedSchema.oneOf.map((item) => this.stripDefaultsFromSchema(item));
+    }
+
+    if (strippedSchema.allOf) {
+      strippedSchema.allOf = strippedSchema.allOf.map((item) => this.stripDefaultsFromSchema(item));
+    }
+
+    if (strippedSchema.properties) {
+      const strippedProperties: Record<string, Refable<OpenAPI3Schema>> = {};
+      for (const [key, prop] of Object.entries(strippedSchema.properties)) {
+        strippedProperties[key] = this.stripDefaultsFromSchema(prop);
+      }
+      strippedSchema.properties = strippedProperties;
+    }
+
+    if (
+      strippedSchema.additionalProperties &&
+      typeof strippedSchema.additionalProperties === "object"
+    ) {
+      strippedSchema.additionalProperties = this.stripDefaultsFromSchema(
+        strippedSchema.additionalProperties,
+      );
+    }
+
+    return strippedSchema;
+  }
+
   private getAnyOfType(schema: OpenAPI3Schema, callingScope: string[]): string {
     const definitions: string[] = [];
 
     for (const item of schema.anyOf ?? []) {
-      definitions.push(this.generateTypeFromRefableSchema(item, callingScope));
+      // Generate type without defaults for union members by recursively stripping all defaults
+      const itemWithoutDefaults = this.stripDefaultsFromSchema(item);
+      definitions.push(this.generateTypeFromRefableSchema(itemWithoutDefaults, callingScope));
     }
 
     return definitions.join(" | ");
@@ -231,7 +300,9 @@ export class SchemaToExpressionGenerator {
     const definitions: string[] = [];
 
     for (const item of schema.oneOf ?? []) {
-      definitions.push(this.generateTypeFromRefableSchema(item, callingScope));
+      // Generate type without defaults for union members by recursively stripping all defaults
+      const itemWithoutDefaults = this.stripDefaultsFromSchema(item);
+      definitions.push(this.generateTypeFromRefableSchema(itemWithoutDefaults, callingScope));
     }
 
     return definitions.join(" | ");
