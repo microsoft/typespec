@@ -20,6 +20,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             {
                 ReferenceHandler = referenceHandler,
                 AllowTrailingCommas = true,
+                MaxDepth = 128,
                 Converters =
                 {
                     new InputNamespaceConverter(referenceHandler),

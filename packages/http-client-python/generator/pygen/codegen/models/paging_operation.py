@@ -97,6 +97,10 @@ class PagingOperationBase(OperationBase[PagingResponseType]):
         return wire_name
 
     @property
+    def next_link_is_nested(self) -> bool:
+        return self.yaml_data.get("nextLinkIsNested", False)
+
+    @property
     def item_name(self) -> str:
         wire_name = self.yaml_data["itemName"]
         if self.code_model.options["models-mode"] == "msrest":
