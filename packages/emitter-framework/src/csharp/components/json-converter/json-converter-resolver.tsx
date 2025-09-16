@@ -1,5 +1,5 @@
 import { useTsp } from "#core/index.js";
-import { createContext, refkey, useContext, type Children, type Refkey } from "@alloy-js/core";
+import { createContext, namekey, useContext, type Children, type Namekey } from "@alloy-js/core";
 import {
   getTypeName,
   type DurationKnownEncoding,
@@ -10,8 +10,7 @@ import { getNullableUnionInnerType } from "../utils/nullable-util.js";
 import { TimeSpanIso8601JsonConverter, TimeSpanSecondsJsonConverter } from "./json-converter.jsx";
 
 interface JsonConverterInfo {
-  refkey: Refkey;
-  name: string;
+  nameKey: Namekey;
   converter: Children;
 }
 
@@ -78,25 +77,22 @@ export function createJsonConverterResolver(
     const ENCODING_DURATION_SECONDS: DurationKnownEncoding = "seconds";
     const ENCODING_DURATION_ISO8601: DurationKnownEncoding = "ISO8601";
     const { $ } = useTsp();
-    const key: Refkey = refkey();
     // Unwrap nullable because JsonConverter<T> would handle null by default for us.
     const unwrappedType = type.kind === "Union" ? (getNullableUnionInnerType(type) ?? type) : type;
     if (unwrappedType === $.builtin.duration && encodeData.encoding === ENCODING_DURATION_SECONDS) {
-      const name = `TimeSpanSecondsJsonConverter`;
+      const key: Namekey = namekey(`TimeSpanSecondsJsonConverter`);
       return {
-        name,
-        refkey: key,
-        converter: <TimeSpanSecondsJsonConverter refkey={key} name={name} />,
+        nameKey: key,
+        converter: <TimeSpanSecondsJsonConverter name={key} />,
       };
     } else if (
       unwrappedType === $.builtin.duration &&
       encodeData.encoding === ENCODING_DURATION_ISO8601
     ) {
-      const name = `TimeSpanIso8601JsonConverter`;
+      const key = namekey(`TimeSpanIso8601JsonConverter`);
       return {
-        name,
-        refkey: key,
-        converter: <TimeSpanIso8601JsonConverter refkey={key} name={name} />,
+        nameKey: key,
+        converter: <TimeSpanIso8601JsonConverter name={key} />,
       };
     } else {
       // TODO: support other known encodings

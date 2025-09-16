@@ -1,12 +1,14 @@
 import { useTsp } from "#core/index.js";
-import { code, List, refkey, type Refkey } from "@alloy-js/core";
+import { code, List, namekey, refkey, type Namekey, type Refkey } from "@alloy-js/core";
 import type { Children } from "@alloy-js/core/jsx-runtime";
 import { ClassDeclaration, Method } from "@alloy-js/csharp";
+import System, { Xml } from "@alloy-js/csharp/global/System/index.js";
+import Json, { Serialization } from "@alloy-js/csharp/global/System/Text/Json/index.js";
 import { type Type } from "@typespec/compiler";
 import { TypeExpression } from "../type-expression.jsx";
 
 interface JsonConverterProps {
-  name: string;
+  name: string | Namekey;
   type: Type;
   refkey?: Refkey;
   /** Decode and return value from reader*/
@@ -29,7 +31,7 @@ export function JsonConverter(props: JsonConverterProps) {
       sealed
       internal
       name={props.name}
-      baseType={code`System.Text.Json.Serialization.JsonConverter<${propTypeExpression}>`}
+      baseType={code`${Serialization.JsonConverter}<${propTypeExpression}>`}
     >
       <List doubleHardline>
         <Method
@@ -39,13 +41,13 @@ export function JsonConverter(props: JsonConverterProps) {
           parameters={[
             {
               name: "reader",
-              type: "ref System.Text.Json.Utf8JsonReader",
+              type: code`ref ${Json.Utf8JsonReader}`,
               refkey: readParamReader,
             },
-            { name: "typeToConvert", type: "System.Type", refkey: readParamTypeToConvert },
+            { name: "typeToConvert", type: code`${System.Type}`, refkey: readParamTypeToConvert },
             {
               name: "options",
-              type: "System.Text.Json.JsonSerializerOptions",
+              type: code`${Json.JsonSerializerOptions}`,
               refkey: readParamOptions,
             },
           ]}
@@ -58,7 +60,7 @@ export function JsonConverter(props: JsonConverterProps) {
           public
           override
           parameters={[
-            { name: "writer", type: "System.Text.Json.Utf8JsonWriter", refkey: writeParamWriter },
+            { name: "writer", type: code`${Json.Utf8JsonWriter}`, refkey: writeParamWriter },
             {
               name: "value",
               type: propTypeExpression,
@@ -66,7 +68,7 @@ export function JsonConverter(props: JsonConverterProps) {
             },
             {
               name: "options",
-              type: "System.Text.Json.JsonSerializerOptions",
+              type: code`${Json.JsonSerializerOptions}`,
               refkey: writeParamOptions,
             },
           ]}
@@ -78,16 +80,16 @@ export function JsonConverter(props: JsonConverterProps) {
   );
 }
 
-export function TimeSpanSecondsJsonConverter(props: { name: string; refkey?: Refkey }) {
+export function TimeSpanSecondsJsonConverter(props: { name?: string | Namekey; refkey?: Refkey }) {
   const { $ } = useTsp();
   return (
     <JsonConverter
       refkey={props.refkey}
-      name={props.name}
+      name={props.name ?? namekey("TimeSpanSecondsJsonConverter")}
       type={$.builtin.duration}
       decodeAndReturn={(reader) => {
         return code`int seconds = ${reader}.GetInt32();
-                    return TimeSpan.FromSeconds(seconds);`;
+                    return ${System.TimeSpan}.FromSeconds(seconds);`;
       }}
       encodeAndWrite={(writer, value) => {
         return code`${writer}.WriteNumberValue((int)${value}.TotalSeconds);`;
@@ -96,19 +98,19 @@ export function TimeSpanSecondsJsonConverter(props: { name: string; refkey?: Ref
   );
 }
 
-export function TimeSpanIso8601JsonConverter(props: { name: string; refkey?: Refkey }) {
+export function TimeSpanIso8601JsonConverter(props: { name?: string | Namekey; refkey?: Refkey }) {
   const { $ } = useTsp();
   return (
     <JsonConverter
       refkey={props.refkey}
-      name={props.name}
+      name={props.name ?? namekey("TimeSpanIso8601JsonConverter")}
       type={$.builtin.duration}
       decodeAndReturn={(reader) => {
         return code`string isoString = ${reader}.GetString();
-                    return XmlConvert.ToTimeSpan(isoString);`;
+                    return ${Xml.XmlConvert}.ToTimeSpan(isoString);`;
       }}
       encodeAndWrite={(writer, value) => {
-        return code`${writer}.WriteStringValue(XmlConvert.ToString(${value}.value));`;
+        return code`${writer}.WriteStringValue(${Xml.XmlConvert}.ToString(${value}.value));`;
       }}
     />
   );
