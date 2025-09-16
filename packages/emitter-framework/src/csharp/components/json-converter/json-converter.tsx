@@ -41,7 +41,8 @@ export function JsonConverter(props: JsonConverterProps) {
           parameters={[
             {
               name: "reader",
-              type: code`ref ${Json.Utf8JsonReader}`,
+              modifier: "ref",
+              type: code`${Json.Utf8JsonReader}`,
               refkey: readParamReader,
             },
             { name: "typeToConvert", type: code`${System.Type}`, refkey: readParamTypeToConvert },

@@ -124,6 +124,9 @@ function preprocessPropertyType(prop: ModelProperty): { type: Type; nullable: bo
 
 function JsonConverterAttribute(props: { type: Children }): Children {
   return (
-    <Attribute name={Serialization.JsonConverterAttribute} args={[code`typeof(${props.type})`]} />
+    <Attribute
+      name={code`${Serialization.JsonConverterAttribute}`}
+      args={[code`typeof(${props.type})`]}
+    />
   );
 }
