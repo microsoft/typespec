@@ -7,7 +7,6 @@ settings:
 overrides:
   cross-spawn@>=7.0.0 <7.0.5: ^7.0.5
   rollup: 4.49.0
-  '@alloy-js/csharp': https://pkg.pr.new/alloy-framework/alloy/@alloy-js/csharp@300
 
 importers:
 
@@ -413,15 +412,15 @@ importers:
   packages/emitter-framework:
     dependencies:
       '@alloy-js/csharp':
-        specifier: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/csharp@300
-        version: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/csharp@300
+        specifier: 0.21.0-dev.14
+        version: 0.21.0-dev.14
     devDependencies:
       '@alloy-js/cli':
         specifier: ^0.20.0
         version: 0.20.0
       '@alloy-js/core':
-        specifier: ^0.21.0-dev.8
-        version: 0.21.0-dev.8
+        specifier: ^0.20.0
+        version: 0.20.0
       '@alloy-js/rollup-plugin':
         specifier: ^0.1.0
         version: 0.1.0(@babel/core@7.28.4)(@types/babel__core@7.20.5)(rollup@4.49.0)
@@ -2751,12 +2750,8 @@ packages:
   '@alloy-js/core@0.20.0':
     resolution: {integrity: sha512-ylPf+ayI9MsqUPrNVzND3Oh9rVrfOOcMkyVwtXXaxaobWPkcRq2I4rX09FkG0i/9DoaLE6ZCvUfdgJsM29MYBA==}
 
-  '@alloy-js/core@0.21.0-dev.8':
-    resolution: {integrity: sha512-CFKy8/sCHTxj/YWG4uJFFRyr68713LOms+gJcQ2NWulqc8JT4bl2XQM8hF/KbkngRY5oKcGsl8VPkn9o7i5hGg==}
-
-  '@alloy-js/csharp@https://pkg.pr.new/alloy-framework/alloy/@alloy-js/csharp@300':
-    resolution: {tarball: https://pkg.pr.new/alloy-framework/alloy/@alloy-js/csharp@300}
-    version: 0.21.0-pr.300.1037
+  '@alloy-js/csharp@0.21.0-dev.14':
+    resolution: {integrity: sha512-EXREYfm9C59IlGPFDeCUWYUVjMVTW8phL0nve23wsskqBQjtPxmZIv9159JkT2nuBzGZa84c+YSn7+NZc/DBUw==}
 
   '@alloy-js/markdown@0.20.0':
     resolution: {integrity: sha512-c1Q4dzUvWC4Bdoi6dRT9yAYVoCiqz3ZMClV8CHzEsgZYjjdS0S2ZWWmgxzS87rSDHSjmQIXJ4BcUZfKyfnMrFA==}
@@ -9941,8 +9936,8 @@ packages:
     engines: {node: '>= 18'}
     hasBin: true
 
-  marked@16.3.0:
-    resolution: {integrity: sha512-K3UxuKu6l6bmA5FUwYho8CfJBlsUWAooKtdGgMcERSpF7gcBUrCGsLH7wDaaNOzwq18JzSUDyoEb/YsrqMac3w==}
+  marked@16.2.1:
+    resolution: {integrity: sha512-r3UrXED9lMlHF97jJByry90cwrZBBvZmjG1L68oYfuPMW+uDTnuMbyJDymCWwbTE+f+3LhpNDKfpR3a3saFyjA==}
     engines: {node: '>= 20'}
     hasBin: true
 
@@ -13647,19 +13642,11 @@ snapshots:
       picocolors: 1.1.1
       prettier: 3.6.2
 
-  '@alloy-js/core@0.21.0-dev.8':
-    dependencies:
-      '@vue/reactivity': 3.5.21
-      cli-table3: 0.6.5
-      pathe: 2.0.3
-      picocolors: 1.1.1
-      prettier: 3.6.2
-
-  '@alloy-js/csharp@https://pkg.pr.new/alloy-framework/alloy/@alloy-js/csharp@300':
+  '@alloy-js/csharp@0.21.0-dev.14':
     dependencies:
       '@alloy-js/core': 0.20.0
       change-case: 5.4.4
-      marked: 16.3.0
+      marked: 16.2.1
       pathe: 2.0.3
 
   '@alloy-js/markdown@0.20.0':
@@ -23518,7 +23505,7 @@ snapshots:
 
   marked@15.0.12: {}
 
-  marked@16.3.0: {}
+  marked@16.2.1: {}
 
   math-intrinsics@1.1.0: {}
 
