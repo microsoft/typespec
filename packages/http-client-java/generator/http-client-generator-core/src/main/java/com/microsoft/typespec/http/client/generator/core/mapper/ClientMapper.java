@@ -565,12 +565,27 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
         String name = CodeNamer.getPlural(operation.getOperationGroup().getLanguage().getJava().getName())
             + CodeNamer.toPascalCase(operation.getLanguage().getJava().getName()) + "Headers";
         Map<String, Schema> headerMap = new HashMap<>();
+        Map<String, String> headerClientNameMap = new HashMap<>();
         Map<String, XmsExtensions> headerExtensions = new HashMap<>();
         for (Response response : operation.getResponses()) {
             if (response.getProtocol().getHttp().getHeaders() != null) {
                 for (Header header : response.getProtocol().getHttp().getHeaders()) {
                     headerExtensions.put(header.getHeader(), header.getExtensions());
                     headerMap.put(header.getHeader(), header.getSchema());
+
+                    String clientName;
+                    if (header.getLanguage() != null
+                        && header.getLanguage().getJava() != null
+                        && !CoreUtils.isNullOrEmpty(header.getLanguage().getJava().getName())) {
+                        clientName = header.getLanguage().getJava().getName();
+                    } else if (header.getLanguage() != null
+                        && header.getLanguage().getDefault() != null
+                        && !CoreUtils.isNullOrEmpty(header.getLanguage().getDefault().getName())) {
+                        clientName = header.getLanguage().getDefault().getName();
+                    } else {
+                        clientName = header.getHeader();
+                    }
+                    headerClientNameMap.put(header.getHeader(), clientName);
                 }
             }
         }
@@ -595,7 +610,9 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
             property.setSerializedName(header.getKey());
             property.setLanguage(new Languages());
             property.getLanguage().setJava(new Language());
-            property.getLanguage().getJava().setName(CodeNamer.getPropertyName(header.getKey()));
+            property.getLanguage()
+                .getJava()
+                .setName(CodeNamer.getPropertyName(headerClientNameMap.get(header.getKey())));
             property.getLanguage().getJava().setDescription(header.getValue().getDescription());
             property.setSchema(header.getValue());
             property.setDescription(header.getValue().getDescription());
