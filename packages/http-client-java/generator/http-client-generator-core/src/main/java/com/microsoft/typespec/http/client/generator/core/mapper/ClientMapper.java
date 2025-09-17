@@ -630,6 +630,12 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
         return headerSchema;
     }
 
+    protected String getResponseHeaderName(Header header) {
+        // We should use header.getLanguage().getDefault().getName()
+        // kept as header.getHeader() for backward compatibility
+        return header.getHeader();
+    }
+
     private ClientResponse parseResponse(Operation method, List<ClientModel> models, JavaSettings settings) {
         ClientResponse.Builder builder = new ClientResponse.Builder();
         ObjectSchema headerSchema = parseHeader(method, settings);

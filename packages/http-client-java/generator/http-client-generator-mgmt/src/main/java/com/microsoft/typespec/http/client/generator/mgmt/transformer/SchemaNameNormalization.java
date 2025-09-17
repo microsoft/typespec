@@ -7,7 +7,7 @@ import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ArraySchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ChoiceSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Languages;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Header;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Metadata;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ObjectSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
@@ -371,7 +371,9 @@ public class SchemaNameNormalization {
                 .flatMap(o -> o.getResponses().stream())
                 .filter(r -> r.getProtocol().getHttp().getHeaders() != null)
                 .flatMap(r -> r.getProtocol().getHttp().getHeaders().stream())
-                .forEach(h -> overrideName(h.getLanguage()));
+                .forEach(h -> {
+                    overrideName(h);
+                });
         }
         return codeModel;
     }
@@ -385,14 +387,28 @@ public class SchemaNameNormalization {
         }
     }
 
-    private void overrideName(Languages l) {
-        // for Header
-        String name = (l != null && l.getDefault() != null) ? l.getDefault().getName() : null;
+    private void overrideName(Header h) {
+        String name = (h.getLanguage() != null && h.getLanguage().getDefault() != null)
+            ? h.getLanguage().getDefault().getName()
+            : null;
         if (name != null) {
             String newName = overrideName(name);
             if (!name.equals(newName)) {
-                l.getDefault().setName(newName);
-                LOGGER.info("Override default name, from '{}' to '{}'", name, newName);
+                h.getLanguage().getDefault().setName(newName);
+                // LOGGER.info("Override default name, from '{}' to '{}'", name, newName);
+            }
+        }
+
+        // We should not modify header name directly
+        // for backward compatibility, here it only change case, where header is case-insensitive
+        name = h.getHeader();
+        String newName = overrideName(name);
+        if (!name.equals(newName)) {
+            if (name.equalsIgnoreCase(newName)) {
+                LOGGER.info("Override response header, from '{}' to '{}'", name, newName);
+                h.setHeader(newName);
+            } else {
+                LOGGER.info("Abort override response header, from '{}' to '{}'", name, newName);
             }
         }
     }
