@@ -648,7 +648,8 @@ interface TestNs.Bird {
       deepStrictEqual(hover, {
         contents: {
           kind: MarkupKind.Markdown,
-          value: "```typespec\n" + "op TestNs.IActions.Eat<T, P>(food: string): string\n" + "```",
+          value:
+            "```typespec\n" + "op TestNs.IActions<Q>.Eat<T, P>(food: string): string\n" + "```",
         },
       });
     });
