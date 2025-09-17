@@ -100,8 +100,8 @@ it("Resolve custom converter", async () => {
     using System.Text.Json;
     using System.Text.Json.Serialization;
 
-    [JsonPropertyNameAttribute("prop1")]
-    [JsonConverterAttribute(typeof(FakeJsonConverter))]
+    [JsonPropertyName("prop1")]
+    [JsonConverter(typeof(FakeJsonConverter))]
     public required string Prop1 { get; set; }
 
 
