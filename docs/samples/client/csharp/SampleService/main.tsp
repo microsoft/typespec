@@ -166,7 +166,7 @@ model NotFriend {
 @clientName("RenamedModel")
 model ModelWithClientName {
   @doc("name of the ModelWithClientName")
-  name: string;
+  otherName: string;
 }
 
 model ModelWithEmbeddedNonBodyParameters {
