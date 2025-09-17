@@ -557,7 +557,7 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
         xmlSequenceWrappers.computeIfAbsent(modelTypeName, name -> new XmlSequenceWrapper(name, arraySchema, settings));
     }
 
-    public static ObjectSchema parseHeader(Operation operation, JavaSettings settings) {
+    public ObjectSchema parseHeader(Operation operation, JavaSettings settings) {
         if (!SchemaUtil.responseContainsHeaderSchemas(operation, settings)) {
             return null;
         }
@@ -572,20 +572,7 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
                 for (Header header : response.getProtocol().getHttp().getHeaders()) {
                     headerExtensions.put(header.getHeader(), header.getExtensions());
                     headerMap.put(header.getHeader(), header.getSchema());
-
-                    String clientName;
-                    if (header.getLanguage() != null
-                        && header.getLanguage().getJava() != null
-                        && !CoreUtils.isNullOrEmpty(header.getLanguage().getJava().getName())) {
-                        clientName = header.getLanguage().getJava().getName();
-                    } else if (header.getLanguage() != null
-                        && header.getLanguage().getDefault() != null
-                        && !CoreUtils.isNullOrEmpty(header.getLanguage().getDefault().getName())) {
-                        clientName = header.getLanguage().getDefault().getName();
-                    } else {
-                        clientName = header.getHeader();
-                    }
-                    headerClientNameMap.put(header.getHeader(), clientName);
+                    headerClientNameMap.put(header.getHeader(), getResponseHeaderName(header));
                 }
             }
         }
