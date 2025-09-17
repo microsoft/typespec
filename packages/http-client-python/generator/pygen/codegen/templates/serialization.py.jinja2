@@ -32,6 +32,7 @@ try:
     from urllib import quote  # type: ignore
 except ImportError:
     from urllib.parse import quote
+import xml.etree as etree
 import xml.etree.ElementTree as ET
 
 import isodate  # type: ignore
@@ -43,6 +44,9 @@ from {{ code_model.core_library }}.serialization import NULL as CoreNull
 _BOM = codecs.BOM_UTF8.decode(encoding="utf-8")
 
 JSON = MutableMapping[str, Any]
+
+_XML_PARSER = etree.XMLParser(resolve_entities=False)
+"""Avoid XML entity resolution to prevent XXE attacks. (https://github.com/microsoft/typespec/issues/8083)"""
 
 
 class RawDeserializer:
@@ -98,7 +102,7 @@ class RawDeserializer:
                 except NameError:
                     pass
 
-                return ET.fromstring(data_as_str)  # nosec
+                return etree.fromstring(data_as_str, parser=_XML_PARSER)
             except ET.ParseError as err:
                 # It might be because the server has an issue, and returned JSON with
                 # content-type XML....
