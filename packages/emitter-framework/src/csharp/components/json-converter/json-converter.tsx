@@ -2,8 +2,8 @@ import { useTsp } from "#core/index.js";
 import { code, List, namekey, refkey, type Namekey, type Refkey } from "@alloy-js/core";
 import type { Children } from "@alloy-js/core/jsx-runtime";
 import { ClassDeclaration, Method } from "@alloy-js/csharp";
-import System, { Xml } from "@alloy-js/csharp/global/System/index.js";
-import Json, { Serialization } from "@alloy-js/csharp/global/System/Text/Json/index.js";
+import System, { Xml } from "@alloy-js/csharp/global/System";
+import Json, { Serialization } from "@alloy-js/csharp/global/System/Text/Json";
 import { type Type } from "@typespec/compiler";
 import { TypeExpression } from "../type-expression.jsx";
 
@@ -41,7 +41,7 @@ export function JsonConverter(props: JsonConverterProps) {
           parameters={[
             {
               name: "reader",
-              modifier: "ref",
+              ref: true,
               type: code`${Json.Utf8JsonReader}`,
               refkey: readParamReader,
             },

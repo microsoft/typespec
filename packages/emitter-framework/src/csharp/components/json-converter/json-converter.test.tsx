@@ -101,14 +101,14 @@ describe("Known JsonConverters", () => {
   });
 
   describe.each([
-    ["int16", "short", "GetInt16"],
-    ["uint16", "ushort", "GetUInt16"],
-    ["int32", "int", "GetInt32"],
-    ["uint32", "uint", "GetUInt32"],
-    ["int64", "long", "GetInt64"],
-    ["uint64", "ulong", "GetUInt64"],
-    ["float32", "float", "GetSingle"],
-    ["float64", "double", "GetDouble"],
+    ["int16", "(short)", "GetInt16"],
+    ["uint16", "(ushort)", "GetUInt16"],
+    ["int32", "(int)", "GetInt32"],
+    ["uint32", "(uint)", "GetUInt32"],
+    ["int64", "(long)", "GetInt64"],
+    ["uint64", "(ulong)", "GetUInt64"],
+    ["float32", "(float)", "GetSingle"],
+    ["float64", "", "GetDouble"],
   ] as const)("%s", (typeName, jsonWriteType, jsonReaderMethod) => {
     it("TimeSpanSecondsJsonConverter", async () => {
       await tester.compile(t.code``);
@@ -132,7 +132,7 @@ describe("Known JsonConverters", () => {
 
           public override void Write(Utf8JsonWriter writer, TimeSpan value, JsonSerializerOptions options)
           {
-              writer.WriteNumberValue((${jsonWriteType})value.TotalSeconds);
+              writer.WriteNumberValue(${jsonWriteType}value.TotalSeconds);
           }
       }
   `);

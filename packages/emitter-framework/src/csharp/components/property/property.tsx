@@ -1,7 +1,7 @@
-import { code, type Children } from "@alloy-js/core";
+import { code, REFKEYABLE, type Children } from "@alloy-js/core";
 import * as cs from "@alloy-js/csharp";
 import { Attribute } from "@alloy-js/csharp";
-import { Serialization } from "@alloy-js/csharp/global/System/Text/Json/index.js";
+import { Serialization } from "@alloy-js/csharp/global/System/Text/Json";
 import {
   getEncode,
   getProperty,
@@ -103,7 +103,10 @@ function JsonNameAttribute(props: JsonNameAttributeProps): Children {
   const { program } = useTsp();
   const jsonName = resolveEncodedName(program, props.type, "application/json");
   return (
-    <Attribute name={Serialization.JsonPropertyNameAttribute} args={[JSON.stringify(jsonName)]} />
+    <Attribute
+      name={Serialization.JsonPropertyNameAttribute[REFKEYABLE]()}
+      args={[JSON.stringify(jsonName)]}
+    />
   );
 }
 
@@ -125,7 +128,7 @@ function preprocessPropertyType(prop: ModelProperty): { type: Type; nullable: bo
 function JsonConverterAttribute(props: { type: Children }): Children {
   return (
     <Attribute
-      name={code`${Serialization.JsonConverterAttribute}`}
+      name={Serialization.JsonConverterAttribute[REFKEYABLE]()}
       args={[code`typeof(${props.type})`]}
     />
   );

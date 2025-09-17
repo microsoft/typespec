@@ -102,7 +102,7 @@ describe("jsonAttributes", () => {
 
       class Test
       {
-          [JsonPropertyNameAttribute("prop1")]
+          [JsonPropertyName("prop1")]
           public required string Prop1 { get; set; }
       }
   `);
@@ -121,11 +121,13 @@ describe("jsonAttributes", () => {
         <Property type={prop1} jsonAttributes />
       </Wrapper>,
     ).toRenderTo(`
-        class Test
-        {
-            [System.Text.Json.Serialization.JsonPropertyName("prop_1")]
-            public required string Prop1 { get; set; }
-        }
+      using System.Text.Json.Serialization;
+
+      class Test
+      {
+          [JsonPropertyName("prop_1")]
+          public required string Prop1 { get; set; }
+      }
   `);
   });
 
@@ -221,14 +223,14 @@ describe("jsonAttributes", () => {
 
       class Test
       {
-          [JsonPropertyNameAttribute("prop1")]
-          [JsonConverterAttribute(typeof(TimeSpanSecondsInt32JsonConverter))]
+          [JsonPropertyName("prop1")]
+          [JsonConverter(typeof(TimeSpanSecondsInt32JsonConverter))]
           public TimeSpan? Prop1 { get; set; }
-          [JsonPropertyNameAttribute("prop2")]
-          [JsonConverterAttribute(typeof(TimeSpanSecondsFloat64JsonConverter))]
+          [JsonPropertyName("prop2")]
+          [JsonConverter(typeof(TimeSpanSecondsFloat64JsonConverter))]
           public required TimeSpan Prop2 { get; set; }
-          [JsonPropertyNameAttribute("prop3")]
-          [JsonConverterAttribute(typeof(TimeSpanIso8601JsonConverter))]
+          [JsonPropertyName("prop3")]
+          [JsonConverter(typeof(TimeSpanIso8601JsonConverter))]
           public required TimeSpan Prop3 { get; set; }
 
 
