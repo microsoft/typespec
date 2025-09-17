@@ -32,7 +32,7 @@ try:
     from urllib import quote  # type: ignore
 except ImportError:
     from urllib.parse import quote
-import xml.etree as etree
+import lxml.etree as etree
 import xml.etree.ElementTree as ET
 
 import isodate  # type: ignore

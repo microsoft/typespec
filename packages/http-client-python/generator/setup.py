@@ -53,5 +53,6 @@ setup(
         "PyYAML==6.0.1",
         "tomli==2.0.1",
         "setuptools==75.3.2",
+        "lxml>=6.0,<7.0"
     ],
 )
