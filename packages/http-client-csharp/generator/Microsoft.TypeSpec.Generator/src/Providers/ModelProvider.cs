@@ -56,7 +56,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private readonly CSharpType _additionalBinaryDataPropsFieldType = typeof(IDictionary<string, BinaryData>);
         private readonly Type _additionalPropsUnknownType = typeof(BinaryData);
-        private readonly Lazy<TypeProvider?>? _baseTypeProvider;
         private FieldProvider? _rawDataField;
         private List<FieldProvider>? _additionalPropertyFields;
         private List<PropertyProvider>? _additionalPropertyProperties;
@@ -71,7 +70,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             if (inputModel.BaseModel is not null)
             {
-                _baseTypeProvider = new(() => CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel.BaseModel));
                 DiscriminatorValueExpression = EnsureDiscriminatorValueExpression();
             }
         }
@@ -112,7 +110,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         internal override TypeProvider? BaseTypeProvider => BaseModelProvider;
 
         public ModelProvider? BaseModelProvider
-            => _baseModelProvider ??= (_baseTypeProvider?.Value is ModelProvider baseModelProvider ? baseModelProvider : null);
+            => _baseModelProvider ??= BuildBaseModelProvider();
         private FieldProvider? RawDataField => _rawDataField ??= BuildRawDataField();
         private List<FieldProvider> AdditionalPropertyFields => _additionalPropertyFields ??= BuildAdditionalPropertyFields();
         private List<PropertyProvider> AdditionalPropertyProperties => _additionalPropertyProperties ??= BuildAdditionalPropertyProperties();
@@ -228,6 +226,26 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private static bool IsDiscriminator(InputProperty property)
         {
             return property is InputModelProperty modelProperty && modelProperty.IsDiscriminator;
+        }
+
+        private ModelProvider? BuildBaseModelProvider()
+        {
+            if (_inputModel.BaseModel == null)
+            {
+                // consider models that have been customized to inherit from a different model
+                if (CustomCodeView?.BaseType != null &&
+                    CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(
+                        CustomCodeView.BaseType,
+                        out var customBaseType) &&
+                    customBaseType is ModelProvider customBaseModel)
+                {
+                    return customBaseModel;
+                }
+
+                return null;
+            }
+
+            return CodeModelGenerator.Instance.TypeFactory.CreateModel(_inputModel.BaseModel!);
         }
 
         private List<FieldProvider> BuildAdditionalPropertyFields()
