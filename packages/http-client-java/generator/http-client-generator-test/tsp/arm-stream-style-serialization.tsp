@@ -241,7 +241,11 @@ interface Functions {
   createFunction(
     @header `x-ms-authorization-auxiliary`?: string,
     @body function: Function,
-  ): Function;
+  ): Function & {
+    @header("ETag")
+    @clientName("etag")
+    eTag: string;
+  };
 }
 
 @route("/priority")

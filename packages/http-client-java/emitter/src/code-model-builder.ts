@@ -2124,12 +2124,12 @@ export class CodeModelBuilder {
     headers = [];
     if (sdkResponse.headers) {
       for (const header of sdkResponse.headers) {
-        const schema = this.processSchema(header.type, header.serializedName);
+        const schema = this.processSchema(header.type, header.name);
         headers.push(
           new HttpHeader(header.serializedName, schema, {
             language: {
               default: {
-                name: header.serializedName,
+                name: header.name,
                 description: header.summary ?? header.doc,
               },
             },
