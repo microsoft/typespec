@@ -245,7 +245,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return null;
             }
 
-            return CodeModelGenerator.Instance.TypeFactory.CreateModel(_inputModel.BaseModel!);
+            return CodeModelGenerator.Instance.TypeFactory.CreateModel(_inputModel.BaseModel);
         }
 
         private List<FieldProvider> BuildAdditionalPropertyFields()
