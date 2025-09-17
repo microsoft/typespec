@@ -252,7 +252,7 @@ namespace SampleTypeSpec
                         }
                         writer.WriteObjectValue(ListOfListFoo[i][i0], options);
                     }
-                    Patch.WriteTo(writer, "$.listOfListFoo"u8);
+                    Patch.WriteTo(writer, Encoding.UTF8.GetBytes($"$.listOfListFoo[{i}]"));
                     writer.WriteEndArray();
                 }
                 Patch.WriteTo(writer, "$.listOfListFoo"u8);

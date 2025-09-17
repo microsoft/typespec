@@ -7,7 +7,6 @@ using System.Text.Json;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
-using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
 {
@@ -72,7 +71,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
             ValueExpression propagateSet,
             ValueExpression propagateGet)
         {
-            return patch.Invoke(nameof(JsonPatch.SetPropagators), [propagateSet, propagateGet, Null]).Terminate();
+            return patch.Invoke(nameof(JsonPatch.SetPropagators), [propagateSet, propagateGet]).Terminate();
         }
 
         public static InvokeMethodExpression WriteTo(

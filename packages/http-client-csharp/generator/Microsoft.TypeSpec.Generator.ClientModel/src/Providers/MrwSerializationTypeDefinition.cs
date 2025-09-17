@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Text.Json;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
 using Microsoft.TypeSpec.Generator.ClientModel.Utilities;
@@ -1751,7 +1752,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return _jsonPatchProperty.Value != null
                 ? CreateListSerializationWithPatch(
                     collection,
-                    array.Type.IsArray ? "Length" : "Count",
                     itemType,
                     _jsonPatchProperty.Value.As<JsonPatch>(),
                     serializationFormat,
@@ -1761,45 +1761,107 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodBodyStatement CreateListSerializationWithPatch(
             ValueExpression collection,
-            string countPropertyName,
-            CSharpType itemType,
+            CSharpType type,
             ScopedApi<JsonPatch> patchSnippet,
             SerializationFormat serializationFormat,
-            string serializedName)
+            string serializedName,
+            List<ValueExpression>? parentIndices = null)
         {
-            var indexDeclaration = Declare<int>("i", out var i);
+            parentIndices ??= [];
+            var indexDeclaration = Declare<int>("i", out var indexVar);
+            var allIndices = new List<ValueExpression>(parentIndices) { indexVar };
+            var parentPathTemplate = $"$.{serializedName}" + string.Concat(Enumerable.Range(0, parentIndices.Count).Select(i => $"[{{{i}}}]"));
             ScopedApi<bool> patchIsRemovedCondition;
 
-            if (ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(itemType, out var provider) &&
+            // Handle model types with their own patch property
+            if (ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(type, out var provider) &&
                 provider is ScmModelProvider scmModelProvider && scmModelProvider.JsonPatchProperty != null)
             {
-                patchIsRemovedCondition = new IndexerExpression(collection, i)
+                patchIsRemovedCondition = new IndexerExpression(collection, indexVar)
                     .Property(scmModelProvider.JsonPatchProperty.Name)
                     .As<JsonPatch>()
                     .IsRemoved(LiteralU8("$"));
             }
             else
             {
-                patchIsRemovedCondition = patchSnippet
-                    .IsRemoved(Utf8Snippets.GetBytes(new FormattableStringExpression($"$.{serializedName}[{{0}}]", [i])
+                patchIsRemovedCondition =  patchSnippet.IsRemoved(
+                    Utf8Snippets.GetBytes(
+                        new FormattableStringExpression(parentPathTemplate + $"[{{{parentIndices.Count}}}]", allIndices)
                     .As<string>()));
             }
+
+            var forStatement = new ForStatement(
+                indexDeclaration.Assign(Literal(0)),
+                indexVar.LessThan(collection.Property(type.IsArray ? "Length" : "Count")),
+                indexVar.Increment())
+            {
+                new MethodBodyStatement[]
+                {
+                    new IfStatement(patchIsRemovedCondition) { Continue },
+                    CreateElementSerializationWithPatch(
+                        new IndexerExpression(collection, indexVar),
+                        type,
+                        patchSnippet,
+                        serializationFormat,
+                        serializedName,
+                        allIndices)
+                }
+            };
+
+            var writeToPatchStatement = parentIndices.Count == 0
+                ? patchSnippet.WriteTo(_utf8JsonWriterSnippet, LiteralU8(parentPathTemplate)).Terminate()
+                : patchSnippet.WriteTo(_utf8JsonWriterSnippet, Utf8Snippets.GetBytes(new FormattableStringExpression(parentPathTemplate, parentIndices).As<string>())).Terminate();
 
             return new[]
             {
                 _utf8JsonWriterSnippet.WriteStartArray(),
-                new ForStatement(indexDeclaration.Assign(Literal(0)), i.LessThan(collection.Property(countPropertyName)), i.Increment())
-                {
-                    new IfStatement(patchIsRemovedCondition)
-                    {
-                        Continue
-                    },
-                    CreateNullCheckAndSerializationStatement(itemType, new IndexerExpression(collection, i), serializationFormat, serializedName)
-                },
-                patchSnippet.WriteTo(_utf8JsonWriterSnippet, LiteralU8($"$.{serializedName}")).Terminate(),
+                forStatement,
+                writeToPatchStatement,
                 _utf8JsonWriterSnippet.WriteEndArray()
             };
-#pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+        }
+
+        private MethodBodyStatement CreateElementSerializationWithPatch(
+            ValueExpression element,
+            CSharpType elementType,
+            ScopedApi<JsonPatch> patchSnippet,
+            SerializationFormat serializationFormat,
+            string serializedName,
+            List<ValueExpression> currentIndices)
+        {
+            var nestedSerialization = elementType switch
+            {
+                { IsList: true } or { IsArray: true } => CreateListSerializationWithPatch(
+                    element,
+                    elementType.Arguments[0],
+                    patchSnippet,
+                    serializationFormat,
+                    serializedName,
+                    currentIndices),
+                { IsDictionary: true } => CreateDictionarySerializationWithPatch(
+                    new DictionaryExpression(elementType, element),
+                    serializationFormat,
+                    patchSnippet,
+                    serializedName),
+                _ => null
+            };
+
+            if (nestedSerialization != null)
+            {
+                return TypeRequiresNullCheckInSerialization(elementType)
+                    ? new[]
+                    {
+                        new IfStatement(element.Equal(Null)) { _utf8JsonWriterSnippet.WriteNullValue(), Continue },
+                        nestedSerialization
+                    }
+                    : nestedSerialization;
+            }
+
+            return CreateNullCheckAndSerializationStatement(
+                elementType,
+                element,
+                serializationFormat,
+                serializedName);
         }
 
         private MethodBodyStatement CreateListSerialization(
