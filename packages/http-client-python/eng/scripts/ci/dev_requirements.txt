@@ -1,7 +1,7 @@
 pyright==1.1.391
 pylint==3.2.7
 tox==4.16.0
-mypy==1.14.1
+mypy==1.18.1
 colorama==0.4.6
 debugpy==1.8.2
 pytest==8.3.2
