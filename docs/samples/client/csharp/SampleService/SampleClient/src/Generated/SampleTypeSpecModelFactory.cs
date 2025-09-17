@@ -138,11 +138,11 @@ namespace SampleTypeSpec
         }
 
         /// <summary> this is a model with a client name. </summary>
-        /// <param name="name"> name of the ModelWithClientName. </param>
+        /// <param name="otherName"> name of the ModelWithClientName. </param>
         /// <returns> A new <see cref="SampleTypeSpec.RenamedModel"/> instance for mocking. </returns>
-        public static RenamedModel RenamedModel(string name = default)
+        public static RenamedModel RenamedModel(string otherName = default)
         {
-            return new RenamedModel(name, additionalBinaryDataProperties: null);
+            return new RenamedModel(otherName, additionalBinaryDataProperties: null);
         }
 
         /// <summary> The ReturnsAnonymousModelResponse. </summary>

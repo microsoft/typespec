@@ -142,11 +142,12 @@ namespace SampleTypeSpec
         }
 
         /// <summary> this is a model with a client name. </summary>
-        /// <param name="name"> name of the ModelWithClientName. </param>
+        /// <param name="name"> name of the NotFriend. </param>
+        /// <param name="otherName"> name of the ModelWithClientName. </param>
         /// <returns> A new <see cref="SampleTypeSpec.RenamedModelCustom"/> instance for mocking. </returns>
-        public static RenamedModelCustom RenamedModelCustom(string name = default)
+        public static RenamedModelCustom RenamedModelCustom(string name = default, string otherName = default)
         {
-            return new RenamedModelCustom(name, additionalBinaryDataProperties: null);
+            return new RenamedModelCustom(name, additionalBinaryDataProperties: null, otherName);
         }
 
         /// <summary> The ReturnsAnonymousModelResponse. </summary>

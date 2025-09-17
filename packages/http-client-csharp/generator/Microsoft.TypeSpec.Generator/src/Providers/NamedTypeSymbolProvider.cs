@@ -38,6 +38,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected override IReadOnlyList<AttributeStatement> BuildAttributes()
             => [.._namedTypeSymbol.GetAttributes().Select(a => new AttributeStatement(a))];
 
+        protected override CSharpType? BuildBaseType()
+        {
+            if (_namedTypeSymbol.BaseType == null || _namedTypeSymbol.BaseType.SpecialType == SpecialType.System_Object)
+            {
+                return null;
+            }
+
+            return _namedTypeSymbol.BaseType.GetCSharpType();
+        }
+
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
         {
             var declaredModifiers = GetAccessModifiers(_namedTypeSymbol.DeclaredAccessibility);

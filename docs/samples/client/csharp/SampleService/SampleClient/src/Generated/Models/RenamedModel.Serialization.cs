@@ -36,8 +36,8 @@ namespace SampleTypeSpec
             {
                 throw new FormatException($"The model {nameof(RenamedModel)} does not support writing '{format}' format.");
             }
-            writer.WritePropertyName("name"u8);
-            writer.WriteStringValue(Name);
+            writer.WritePropertyName("otherName"u8);
+            writer.WriteStringValue(OtherName);
             if (options.Format != "W" && _additionalBinaryDataProperties != null)
             {
                 foreach (var item in _additionalBinaryDataProperties)
@@ -80,13 +80,13 @@ namespace SampleTypeSpec
             {
                 return null;
             }
-            string name = default;
+            string otherName = default;
             IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
-                if (prop.NameEquals("name"u8))
+                if (prop.NameEquals("otherName"u8))
                 {
-                    name = prop.Value.GetString();
+                    otherName = prop.Value.GetString();
                     continue;
                 }
                 if (options.Format != "W")
@@ -94,7 +94,7 @@ namespace SampleTypeSpec
                     additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
                 }
             }
-            return new RenamedModel(name, additionalBinaryDataProperties);
+            return new RenamedModel(otherName, additionalBinaryDataProperties);
         }
 
         /// <param name="options"> The client options for reading and writing models. </param>
