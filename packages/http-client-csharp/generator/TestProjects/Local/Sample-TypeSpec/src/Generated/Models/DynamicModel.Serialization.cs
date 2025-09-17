@@ -73,8 +73,11 @@ namespace SampleTypeSpec
             }
             if (Patch.Contains("$.optionalNullableList"u8))
             {
-                writer.WritePropertyName("optionalNullableList"u8);
-                writer.WriteRawValue(Patch.GetJson("$.optionalNullableList"u8));
+                if (!Patch.IsRemoved("$.optionalNullableList"u8))
+                {
+                    writer.WritePropertyName("optionalNullableList"u8);
+                    writer.WriteRawValue(Patch.GetJson("$.optionalNullableList"u8));
+                }
             }
             else if (Optional.IsCollectionDefined(OptionalNullableList))
             {
@@ -97,8 +100,11 @@ namespace SampleTypeSpec
             }
             if (Patch.Contains("$.requiredNullableList"u8))
             {
-                writer.WritePropertyName("requiredNullableList"u8);
-                writer.WriteRawValue(Patch.GetJson("$.requiredNullableList"u8));
+                if (!Patch.IsRemoved("$.requiredNullableList"u8))
+                {
+                    writer.WritePropertyName("requiredNullableList"u8);
+                    writer.WriteRawValue(Patch.GetJson("$.requiredNullableList"u8));
+                }
             }
             else if (Optional.IsCollectionDefined(RequiredNullableList))
             {
@@ -205,8 +211,11 @@ namespace SampleTypeSpec
             }
             if (Patch.Contains("$.listFoo"u8))
             {
-                writer.WritePropertyName("listFoo"u8);
-                writer.WriteRawValue(Patch.GetJson("$.listFoo"u8));
+                if (!Patch.IsRemoved("$.listFoo"u8))
+                {
+                    writer.WritePropertyName("listFoo"u8);
+                    writer.WriteRawValue(Patch.GetJson("$.listFoo"u8));
+                }
             }
             else
             {
@@ -225,8 +234,11 @@ namespace SampleTypeSpec
             }
             if (Patch.Contains("$.listOfListFoo"u8))
             {
-                writer.WritePropertyName("listOfListFoo"u8);
-                writer.WriteRawValue(Patch.GetJson("$.listOfListFoo"u8));
+                if (!Patch.IsRemoved("$.listOfListFoo"u8))
+                {
+                    writer.WritePropertyName("listOfListFoo"u8);
+                    writer.WriteRawValue(Patch.GetJson("$.listOfListFoo"u8));
+                }
             }
             else
             {
@@ -283,6 +295,56 @@ namespace SampleTypeSpec
                 Patch.WriteTo(writer, "$.dictionaryFoo"u8);
                 writer.WriteEndObject();
             }
+            if (!Patch.Contains("$.dictionaryOfDictionaryFoo"u8))
+            {
+                writer.WritePropertyName("dictionaryOfDictionaryFoo"u8);
+                writer.WriteStartObject();
+#if NET8_0_OR_GREATER
+                global::System.Span<byte> buffer = stackalloc byte[256];
+#endif
+                foreach (var item in DictionaryOfDictionaryFoo)
+                {
+#if NET8_0_OR_GREATER
+                    int bytesWritten = global::System.Text.Encoding.UTF8.GetBytes(item.Key.AsSpan(), buffer);
+                    bool patchContains = (bytesWritten == 256) ? Patch.Contains("$.dictionaryOfDictionaryFoo"u8, global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains("$.dictionaryOfDictionaryFoo"u8, buffer.Slice(0, bytesWritten));
+#else
+                    bool patchContains = Patch.Contains("$.dictionaryOfDictionaryFoo"u8, Encoding.UTF8.GetBytes(item.Key));
+#endif
+                    if (!patchContains)
+                    {
+                        writer.WritePropertyName(item.Key);
+                        if (item.Value == null)
+                        {
+                            writer.WriteNullValue();
+                            continue;
+                        }
+                        writer.WriteStartObject();
+#if NET8_0_OR_GREATER
+                        global::System.Span<byte> buffer0 = stackalloc byte[256];
+#endif
+                        foreach (var item0 in item.Value)
+                        {
+#if NET8_0_OR_GREATER
+                            int bytesWritten0 = global::System.Text.Encoding.UTF8.GetBytes(item0.Key.AsSpan(), buffer0);
+                            bool patchContains0 = (bytesWritten0 == 256) ? Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.dictionaryOfDictionaryFoo[\"{item.Key}\"]"), global::System.Text.Encoding.UTF8.GetBytes(item0.Key)) : Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.dictionaryOfDictionaryFoo[\"{item.Key}\"]"), buffer0.Slice(0, bytesWritten0));
+#else
+                            bool patchContains0 = Patch.Contains(Encoding.UTF8.GetBytes($"$.dictionaryOfDictionaryFoo[\"{item.Key}\"]"), Encoding.UTF8.GetBytes(item0.Key));
+#endif
+                            if (!patchContains0)
+                            {
+                                writer.WritePropertyName(item0.Key);
+                                writer.WriteObjectValue(item0.Value, options);
+                            }
+                        }
+
+                        Patch.WriteTo(writer, Encoding.UTF8.GetBytes($"$.dictionaryOfDictionaryFoo[\"{item.Key}\"]"));
+                        writer.WriteEndObject();
+                    }
+                }
+
+                Patch.WriteTo(writer, "$.dictionaryOfDictionaryFoo"u8);
+                writer.WriteEndObject();
+            }
             if (!Patch.Contains("$.dictionaryListFoo"u8))
             {
                 writer.WritePropertyName("dictionaryListFoo"u8);
@@ -315,7 +377,7 @@ namespace SampleTypeSpec
                             }
                             writer.WriteObjectValue(item.Value[i], options);
                         }
-                        Patch.WriteTo(writer, "$.dictionaryListFoo"u8);
+                        Patch.WriteTo(writer, Encoding.UTF8.GetBytes($"$.dictionaryListFoo[\"{item.Key}\"]"));
                         writer.WriteEndArray();
                     }
                 }
@@ -325,8 +387,11 @@ namespace SampleTypeSpec
             }
             if (Patch.Contains("$.listOfDictionaryFoo"u8))
             {
-                writer.WritePropertyName("listOfDictionaryFoo"u8);
-                writer.WriteRawValue(Patch.GetJson("$.listOfDictionaryFoo"u8));
+                if (!Patch.IsRemoved("$.listOfDictionaryFoo"u8))
+                {
+                    writer.WritePropertyName("listOfDictionaryFoo"u8);
+                    writer.WriteRawValue(Patch.GetJson("$.listOfDictionaryFoo"u8));
+                }
             }
             else
             {
@@ -351,9 +416,9 @@ namespace SampleTypeSpec
                     {
 #if NET8_0_OR_GREATER
                         int bytesWritten = global::System.Text.Encoding.UTF8.GetBytes(item.Key.AsSpan(), buffer);
-                        bool patchContains = (bytesWritten == 256) ? Patch.Contains("$.listOfDictionaryFoo"u8, global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains("$.listOfDictionaryFoo"u8, buffer.Slice(0, bytesWritten));
+                        bool patchContains = (bytesWritten == 256) ? Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.listOfDictionaryFoo[{i}]"), global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.listOfDictionaryFoo[{i}]"), buffer.Slice(0, bytesWritten));
 #else
-                        bool patchContains = Patch.Contains("$.listOfDictionaryFoo"u8, Encoding.UTF8.GetBytes(item.Key));
+                        bool patchContains = Patch.Contains(Encoding.UTF8.GetBytes($"$.listOfDictionaryFoo[{i}]"), Encoding.UTF8.GetBytes(item.Key));
 #endif
                         if (!patchContains)
                         {
@@ -362,7 +427,7 @@ namespace SampleTypeSpec
                         }
                     }
 
-                    Patch.WriteTo(writer, "$.listOfDictionaryFoo"u8);
+                    Patch.WriteTo(writer, Encoding.UTF8.GetBytes($"$.listOfDictionaryFoo[{i}]"));
                     writer.WriteEndObject();
                 }
                 Patch.WriteTo(writer, "$.listOfDictionaryFoo"u8);
@@ -411,6 +476,7 @@ namespace SampleTypeSpec
             IList<AnotherDynamicModel> listFoo = default;
             IList<IList<AnotherDynamicModel>> listOfListFoo = default;
             IDictionary<string, AnotherDynamicModel> dictionaryFoo = default;
+            IDictionary<string, IDictionary<string, AnotherDynamicModel>> dictionaryOfDictionaryFoo = default;
             IDictionary<string, IList<AnotherDynamicModel>> dictionaryListFoo = default;
             IList<IDictionary<string, AnotherDynamicModel>> listOfDictionaryFoo = default;
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
@@ -556,6 +622,28 @@ namespace SampleTypeSpec
                     dictionaryFoo = dictionary;
                     continue;
                 }
+                if (prop.NameEquals("dictionaryOfDictionaryFoo"u8))
+                {
+                    Dictionary<string, IDictionary<string, AnotherDynamicModel>> dictionary = new Dictionary<string, IDictionary<string, AnotherDynamicModel>>();
+                    foreach (var prop0 in prop.Value.EnumerateObject())
+                    {
+                        if (prop0.Value.ValueKind == JsonValueKind.Null)
+                        {
+                            dictionary.Add(prop0.Name, null);
+                        }
+                        else
+                        {
+                            Dictionary<string, AnotherDynamicModel> dictionary0 = new Dictionary<string, AnotherDynamicModel>();
+                            foreach (var prop1 in prop0.Value.EnumerateObject())
+                            {
+                                dictionary0.Add(prop1.Name, AnotherDynamicModel.DeserializeAnotherDynamicModel(prop1.Value, prop1.Value.GetUtf8Bytes(), options));
+                            }
+                            dictionary.Add(prop0.Name, dictionary0);
+                        }
+                    }
+                    dictionaryOfDictionaryFoo = dictionary;
+                    continue;
+                }
                 if (prop.NameEquals("dictionaryListFoo"u8))
                 {
                     Dictionary<string, IList<AnotherDynamicModel>> dictionary = new Dictionary<string, IList<AnotherDynamicModel>>();
@@ -615,6 +703,7 @@ namespace SampleTypeSpec
                 listFoo,
                 listOfListFoo,
                 dictionaryFoo,
+                dictionaryOfDictionaryFoo,
                 dictionaryListFoo,
                 listOfDictionaryFoo,
                 patch);
@@ -720,6 +809,23 @@ namespace SampleTypeSpec
                 }
                 return item.Patch.TryGetEncodedValue([.. "$"u8, .. currentSlice.GetRemainder(i)], out value);
             }
+            if (local.StartsWith("dictionaryOfDictionaryFoo"u8))
+            {
+                int propertyLength = "dictionaryOfDictionaryFoo"u8.Length;
+                ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                string key = currentSlice.GetFirstPropertyName(out int i);
+                if (!DictionaryOfDictionaryFoo.TryGetValue(key, out IDictionary<string, AnotherDynamicModel> item))
+                {
+                    return false;
+                }
+                currentSlice = currentSlice.GetRemainder(i);
+                string key0 = currentSlice.GetFirstPropertyName(out int i0);
+                if (!item.TryGetValue(key0, out AnotherDynamicModel item0))
+                {
+                    return false;
+                }
+                return item0.Patch.TryGetEncodedValue([.. "$"u8, .. currentSlice.GetRemainder(i0)], out value);
+            }
             if (local.StartsWith("dictionaryListFoo"u8))
             {
                 int propertyLength = "dictionaryListFoo"u8.Length;
@@ -807,6 +913,24 @@ namespace SampleTypeSpec
                     return false;
                 }
                 item.Patch.Set([.. "$"u8, .. currentSlice.GetRemainder(i)], value);
+                return true;
+            }
+            if (local.StartsWith("dictionaryOfDictionaryFoo"u8))
+            {
+                int propertyLength = "dictionaryOfDictionaryFoo"u8.Length;
+                ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                string key = currentSlice.GetFirstPropertyName(out int i);
+                if (!DictionaryOfDictionaryFoo.TryGetValue(key, out IDictionary<string, AnotherDynamicModel> item))
+                {
+                    return false;
+                }
+                currentSlice = currentSlice.GetRemainder(i);
+                string key0 = currentSlice.GetFirstPropertyName(out int i0);
+                if (!item.TryGetValue(key0, out AnotherDynamicModel item0))
+                {
+                    return false;
+                }
+                item0.Patch.Set([.. "$"u8, .. currentSlice.GetRemainder(i0)], value);
                 return true;
             }
             if (local.StartsWith("dictionaryListFoo"u8))

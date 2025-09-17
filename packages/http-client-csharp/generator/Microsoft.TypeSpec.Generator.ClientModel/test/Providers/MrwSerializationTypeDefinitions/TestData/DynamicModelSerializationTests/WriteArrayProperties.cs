@@ -37,8 +37,11 @@ namespace Sample
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
             if (Patch.Contains("$.cats"u8))
             {
-                writer.WritePropertyName("cats"u8);
-                writer.WriteRawValue(Patch.GetJson("$.cats"u8));
+                if (!Patch.IsRemoved("$.cats"u8))
+                {
+                    writer.WritePropertyName("cats"u8);
+                    writer.WriteRawValue(Patch.GetJson("$.cats"u8));
+                }
             }
             else if (global::Sample.Optional.IsCollectionDefined(Cats))
             {
@@ -61,8 +64,11 @@ namespace Sample
             }
             if (Patch.Contains("$.names"u8))
             {
-                writer.WritePropertyName("names"u8);
-                writer.WriteRawValue(Patch.GetJson("$.names"u8));
+                if (!Patch.IsRemoved("$.names"u8))
+                {
+                    writer.WritePropertyName("names"u8);
+                    writer.WriteRawValue(Patch.GetJson("$.names"u8));
+                }
             }
             else
             {
@@ -86,8 +92,11 @@ namespace Sample
             }
             if (Patch.Contains("$.optionalNames"u8))
             {
-                writer.WritePropertyName("optionalNames"u8);
-                writer.WriteRawValue(Patch.GetJson("$.optionalNames"u8));
+                if (!Patch.IsRemoved("$.optionalNames"u8))
+                {
+                    writer.WritePropertyName("optionalNames"u8);
+                    writer.WriteRawValue(Patch.GetJson("$.optionalNames"u8));
+                }
             }
             else if (global::Sample.Optional.IsCollectionDefined(OptionalNames))
             {

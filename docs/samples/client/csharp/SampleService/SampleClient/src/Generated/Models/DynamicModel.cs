@@ -24,10 +24,11 @@ namespace SampleTypeSpec
         /// <param name="listFoo"></param>
         /// <param name="listOfListFoo"></param>
         /// <param name="dictionaryFoo"></param>
+        /// <param name="dictionaryOfDictionaryFoo"></param>
         /// <param name="dictionaryListFoo"></param>
         /// <param name="listOfDictionaryFoo"></param>
-        /// <exception cref="ArgumentNullException"> <paramref name="name"/>, <paramref name="primitiveDictionary"/>, <paramref name="foo"/>, <paramref name="listFoo"/>, <paramref name="listOfListFoo"/>, <paramref name="dictionaryFoo"/>, <paramref name="dictionaryListFoo"/> or <paramref name="listOfDictionaryFoo"/> is null. </exception>
-        public DynamicModel(string name, IEnumerable<int> requiredNullableList, IDictionary<string, int> requiredNullableDictionary, IDictionary<string, int> primitiveDictionary, AnotherDynamicModel foo, IEnumerable<AnotherDynamicModel> listFoo, IEnumerable<IList<AnotherDynamicModel>> listOfListFoo, IDictionary<string, AnotherDynamicModel> dictionaryFoo, IDictionary<string, IList<AnotherDynamicModel>> dictionaryListFoo, IEnumerable<IDictionary<string, AnotherDynamicModel>> listOfDictionaryFoo)
+        /// <exception cref="ArgumentNullException"> <paramref name="name"/>, <paramref name="primitiveDictionary"/>, <paramref name="foo"/>, <paramref name="listFoo"/>, <paramref name="listOfListFoo"/>, <paramref name="dictionaryFoo"/>, <paramref name="dictionaryOfDictionaryFoo"/>, <paramref name="dictionaryListFoo"/> or <paramref name="listOfDictionaryFoo"/> is null. </exception>
+        public DynamicModel(string name, IEnumerable<int> requiredNullableList, IDictionary<string, int> requiredNullableDictionary, IDictionary<string, int> primitiveDictionary, AnotherDynamicModel foo, IEnumerable<AnotherDynamicModel> listFoo, IEnumerable<IList<AnotherDynamicModel>> listOfListFoo, IDictionary<string, AnotherDynamicModel> dictionaryFoo, IDictionary<string, IDictionary<string, AnotherDynamicModel>> dictionaryOfDictionaryFoo, IDictionary<string, IList<AnotherDynamicModel>> dictionaryListFoo, IEnumerable<IDictionary<string, AnotherDynamicModel>> listOfDictionaryFoo)
         {
             Argument.AssertNotNull(name, nameof(name));
             Argument.AssertNotNull(primitiveDictionary, nameof(primitiveDictionary));
@@ -35,6 +36,7 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(listFoo, nameof(listFoo));
             Argument.AssertNotNull(listOfListFoo, nameof(listOfListFoo));
             Argument.AssertNotNull(dictionaryFoo, nameof(dictionaryFoo));
+            Argument.AssertNotNull(dictionaryOfDictionaryFoo, nameof(dictionaryOfDictionaryFoo));
             Argument.AssertNotNull(dictionaryListFoo, nameof(dictionaryListFoo));
             Argument.AssertNotNull(listOfDictionaryFoo, nameof(listOfDictionaryFoo));
 
@@ -48,6 +50,7 @@ namespace SampleTypeSpec
             ListFoo = listFoo.ToList();
             ListOfListFoo = listOfListFoo.ToList();
             DictionaryFoo = dictionaryFoo;
+            DictionaryOfDictionaryFoo = dictionaryOfDictionaryFoo;
             DictionaryListFoo = dictionaryListFoo;
             ListOfDictionaryFoo = listOfDictionaryFoo.ToList();
         }
@@ -65,10 +68,11 @@ namespace SampleTypeSpec
         /// <param name="listFoo"></param>
         /// <param name="listOfListFoo"></param>
         /// <param name="dictionaryFoo"></param>
+        /// <param name="dictionaryOfDictionaryFoo"></param>
         /// <param name="dictionaryListFoo"></param>
         /// <param name="listOfDictionaryFoo"></param>
         /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
-        internal DynamicModel(string name, BinaryData optionalUnknown, int? optionalInt, IList<int> optionalNullableList, IList<int> requiredNullableList, IDictionary<string, int> optionalNullableDictionary, IDictionary<string, int> requiredNullableDictionary, IDictionary<string, int> primitiveDictionary, AnotherDynamicModel foo, IList<AnotherDynamicModel> listFoo, IList<IList<AnotherDynamicModel>> listOfListFoo, IDictionary<string, AnotherDynamicModel> dictionaryFoo, IDictionary<string, IList<AnotherDynamicModel>> dictionaryListFoo, IList<IDictionary<string, AnotherDynamicModel>> listOfDictionaryFoo, IDictionary<string, BinaryData> additionalBinaryDataProperties)
+        internal DynamicModel(string name, BinaryData optionalUnknown, int? optionalInt, IList<int> optionalNullableList, IList<int> requiredNullableList, IDictionary<string, int> optionalNullableDictionary, IDictionary<string, int> requiredNullableDictionary, IDictionary<string, int> primitiveDictionary, AnotherDynamicModel foo, IList<AnotherDynamicModel> listFoo, IList<IList<AnotherDynamicModel>> listOfListFoo, IDictionary<string, AnotherDynamicModel> dictionaryFoo, IDictionary<string, IDictionary<string, AnotherDynamicModel>> dictionaryOfDictionaryFoo, IDictionary<string, IList<AnotherDynamicModel>> dictionaryListFoo, IList<IDictionary<string, AnotherDynamicModel>> listOfDictionaryFoo, IDictionary<string, BinaryData> additionalBinaryDataProperties)
         {
             Name = name;
             OptionalUnknown = optionalUnknown;
@@ -82,6 +86,7 @@ namespace SampleTypeSpec
             ListFoo = listFoo;
             ListOfListFoo = listOfListFoo;
             DictionaryFoo = dictionaryFoo;
+            DictionaryOfDictionaryFoo = dictionaryOfDictionaryFoo;
             DictionaryListFoo = dictionaryListFoo;
             ListOfDictionaryFoo = listOfDictionaryFoo;
             _additionalBinaryDataProperties = additionalBinaryDataProperties;
@@ -147,6 +152,9 @@ namespace SampleTypeSpec
 
         /// <summary> Gets the DictionaryFoo. </summary>
         public IDictionary<string, AnotherDynamicModel> DictionaryFoo { get; }
+
+        /// <summary> Gets the DictionaryOfDictionaryFoo. </summary>
+        public IDictionary<string, IDictionary<string, AnotherDynamicModel>> DictionaryOfDictionaryFoo { get; }
 
         /// <summary> Gets the DictionaryListFoo. </summary>
         public IDictionary<string, IList<AnotherDynamicModel>> DictionaryListFoo { get; }
