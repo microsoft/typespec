@@ -7,6 +7,7 @@ import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ArraySchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ChoiceSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Languages;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Metadata;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ObjectSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
@@ -364,25 +365,13 @@ public class SchemaNameNormalization {
                 .flatMap(r -> r.getParameters().stream())
                 .forEach(this::overrideName);
 
-            // hack, http header is case insensitive
             codeModel.getOperationGroups()
                 .stream()
                 .flatMap(og -> og.getOperations().stream())
                 .flatMap(o -> o.getResponses().stream())
                 .filter(r -> r.getProtocol().getHttp().getHeaders() != null)
                 .flatMap(r -> r.getProtocol().getHttp().getHeaders().stream())
-                .forEach(h -> {
-                    String name = h.getHeader();
-                    String newName = overrideName(name);
-                    if (!name.equals(newName)) {
-                        if (name.equalsIgnoreCase(newName)) {
-                            LOGGER.info("Override response header, from '{}' to '{}'", name, newName);
-                            h.setHeader(newName);
-                        } else {
-                            LOGGER.info("Abort override response header, from '{}' to '{}'", name, newName);
-                        }
-                    }
-                });
+                .forEach(h -> overrideName(h.getLanguage()));
         }
         return codeModel;
     }
@@ -393,6 +382,18 @@ public class SchemaNameNormalization {
         if (!name.equals(newName)) {
             m.getLanguage().getDefault().setName(newName);
             LOGGER.info("Override default name, from '{}' to '{}'", name, newName);
+        }
+    }
+
+    private void overrideName(Languages l) {
+        // for Header
+        String name = (l != null && l.getDefault() != null) ? l.getDefault().getName() : null;
+        if (name != null) {
+            String newName = overrideName(name);
+            if (!name.equals(newName)) {
+                l.getDefault().setName(newName);
+                LOGGER.info("Override default name, from '{}' to '{}'", name, newName);
+            }
         }
     }
 
