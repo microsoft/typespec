@@ -1,6 +1,7 @@
 import {
   createDiagnosticCollector,
   Diagnostic,
+  getParameterVisibilityFilter,
   ModelProperty,
   Operation,
   Program,
@@ -13,7 +14,7 @@ import {
 } from "./decorators.js";
 import { isMergePatchBody } from "./experimental/merge-patch/internal.js";
 import { createDiagnostic } from "./lib.js";
-import { resolveRequestVisibility } from "./metadata.js";
+import { HttpVisibilityProvider } from "./metadata.js";
 import { HttpPayloadDisposition, resolveHttpPayload } from "./payload.js";
 import {
   HttpOperation,
@@ -66,62 +67,72 @@ function getOperationParametersForVerb(
   partialUriTemplate: string,
 ): [HttpOperationParameters, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
-  const visibility = resolveRequestVisibility(program, operation, verb);
+  const parameterVisibility = getParameterVisibilityFilter(
+    program,
+    operation,
+    HttpVisibilityProvider(verb),
+  );
   const parsedUriTemplate = parseUriTemplate(partialUriTemplate);
 
   const parameters: HttpOperationParameter[] = [];
   const { body: resolvedBody, metadata } = diagnostics.pipe(
-    resolveHttpPayload(program, operation.parameters, visibility, HttpPayloadDisposition.Request, {
-      implicitParameter: (
-        param: ModelProperty,
-      ): QueryParameterOptions | PathParameterOptions | undefined => {
-        const isTopLevel = param.model === operation.parameters;
-        const pathOptions = getPathOptions(program, param);
-        const queryOptions = getQueryOptions(program, param);
-        const name = pathOptions?.name ?? queryOptions?.name ?? param.name;
-        const uriParam = isTopLevel && parsedUriTemplate.parameters.find((x) => x.name === name);
-
-        if (!uriParam) {
+    resolveHttpPayload(
+      program,
+      operation.parameters,
+      parameterVisibility,
+      HttpPayloadDisposition.Request,
+      {
+        implicitParameter: (
+          param: ModelProperty,
+        ): QueryParameterOptions | PathParameterOptions | undefined => {
+          const isTopLevel = param.model === operation.parameters;
           const pathOptions = getPathOptions(program, param);
-          if (pathOptions && param.optional) {
-            return {
-              type: "path",
-              name: pathOptions.name,
-              explode: false,
-              allowReserved: false,
-              style: operatorToStyle["/"],
-            };
+          const queryOptions = getQueryOptions(program, param);
+          const name = pathOptions?.name ?? queryOptions?.name ?? param.name;
+          const uriParam = isTopLevel && parsedUriTemplate.parameters.find((x) => x.name === name);
+
+          if (!uriParam) {
+            const pathOptions = getPathOptions(program, param);
+            if (pathOptions && param.optional) {
+              return {
+                type: "path",
+                name: pathOptions.name,
+                explode: false,
+                allowReserved: false,
+                style: operatorToStyle["/"],
+              };
+            }
+
+            return undefined;
           }
 
-          return undefined;
-        }
-
-        const explode = uriParam.modifier?.type === "explode";
-        if (uriParam.operator === "?" || uriParam.operator === "&") {
-          return {
-            type: "query",
-            name: uriParam.name,
-            explode,
-          };
-        } else if (uriParam.operator === "+") {
-          return {
-            type: "path",
-            name: uriParam.name,
-            explode,
-            allowReserved: true,
-            style: "simple",
-          };
-        } else {
-          return {
-            type: "path",
-            name: uriParam.name,
-            explode,
-            allowReserved: false,
-            style: (uriParam.operator && operatorToStyle[uriParam.operator]) ?? "simple",
-          };
-        }
+          const explode = uriParam.modifier?.type === "explode";
+          if (uriParam.operator === "?" || uriParam.operator === "&") {
+            return {
+              type: "query",
+              name: uriParam.name,
+              explode,
+            };
+          } else if (uriParam.operator === "+") {
+            return {
+              type: "path",
+              name: uriParam.name,
+              explode,
+              allowReserved: true,
+              style: "simple",
+            };
+          } else {
+            return {
+              type: "path",
+              name: uriParam.name,
+              explode,
+              allowReserved: false,
+              style: (uriParam.operator && operatorToStyle[uriParam.operator]) ?? "simple",
+            };
+          }
+        },
       },
-    }),
+    ),
   );
   const implicitOptionality = getPatchOptions(program, operation)?.implicitOptionality;
   // TODO: remove in 6month after 1.0.0. (November 2025)
