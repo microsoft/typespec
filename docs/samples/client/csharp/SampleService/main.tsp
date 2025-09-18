@@ -284,6 +284,7 @@ model DynamicModel {
   listFoo: AnotherDynamicModel[];
   listOfListFoo: AnotherDynamicModel[][];
   dictionaryFoo: Record<AnotherDynamicModel>;
+  dictionaryOfDictionaryFoo: Record<Record<AnotherDynamicModel>>;
   dictionaryListFoo: Record<AnotherDynamicModel[]>;
   listOfDictionaryFoo: Record<AnotherDynamicModel>[];
 }

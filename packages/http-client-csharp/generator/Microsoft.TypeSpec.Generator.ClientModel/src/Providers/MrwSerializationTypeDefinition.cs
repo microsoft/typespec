@@ -645,7 +645,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
                 writePropertiesStatements.AddRange(
                     MethodBodyStatement.EmptyLine,
-                    _jsonPatchProperty.Value.As<JsonPatch>().WriteTo( _utf8JsonWriterSnippet).Terminate());
+                    _jsonPatchProperty.Value.As<JsonPatch>().WriteTo(_utf8JsonWriterSnippet).Terminate());
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
                 writePropertiesStatements =
                 [
@@ -1678,47 +1678,61 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             DictionaryExpression dictionary,
             SerializationFormat serializationFormat,
             ScopedApi<JsonPatch> patchSnippet,
-            string serializedName)
+            string serializedName,
+            List<ValueExpression>? parentIndices = null)
         {
+            parentIndices ??= [];
+
+            var jsonPathTemplate = BuildJsonPathForElement(serializedName, parentIndices);
+            ValueExpression jsonPath = parentIndices.Count > 0
+                ? Utf8Snippets.GetBytes(new FormattableStringExpression(jsonPathTemplate, [.. parentIndices]).As<string>())
+                : LiteralU8($"$.{serializedName}");
+
+            var foreachStatement = new ForEachStatement("item", dictionary, out KeyValuePairExpression keyValuePair);
+
+            const int BufferSize = 256;
             var bufferDeclaration = Declare(
                 "buffer",
                 new CSharpType(typeof(Span<byte>)),
-                New.Array(typeof(byte), isStackAlloc: true, Int(256)), out var bufferVar);
-            var foreachStatement = new ForEachStatement("item", dictionary, out KeyValuePairExpression keyValuePair);
+                New.Array(typeof(byte), isStackAlloc: true, Int(BufferSize)),
+                out var bufferVar);
             var bytesWrittenDeclaration = Declare(
                 "bytesWritten",
                 typeof(int),
                 Utf8Snippets.GetBytes(keyValuePair.Key.Invoke("AsSpan"), bufferVar),
                 out var bytesWrittenVar);
-
-            // TO-DO: Handle non-string key
-            var jsonPath = LiteralU8($"$.{serializedName}");
-            var patchContainsKey = patchSnippet
-                .Contains(
-                    jsonPath,
-                    Utf8Snippets.GetBytes(keyValuePair.Key.As<string>()));
+            var patchContainsKey = patchSnippet.Contains(jsonPath, Utf8Snippets.GetBytes(keyValuePair.Key.As<string>()));
             var patchContainsNet8Declaration = Declare(
                 "patchContains",
                 typeof(bool),
                 new TernaryConditionalExpression(
-                    bytesWrittenVar.Equal(Int(256)),
+                    bytesWrittenVar.Equal(Int(BufferSize)),
                     patchContainsKey,
                     patchSnippet.Contains(
                         jsonPath,
                         ReadOnlySpanSnippets.Slice(bufferVar, Int(0), bytesWrittenVar))),
                 out var patchContainsNet8Var);
 
+            List<ValueExpression> childIndices = keyValuePair.ValueType.IsCollection
+                ? [.. parentIndices, keyValuePair.Key]
+                : parentIndices;
+
+            // Process key-value pair if patch doesn't contain it
             var ifPatchDoesNotContainStatement = new IfStatement(Not(patchContainsNet8Var))
             {
                 _utf8JsonWriterSnippet.WritePropertyName(keyValuePair.Key),
-                TypeRequiresNullCheckInSerialization(keyValuePair.ValueType)
-                    ? new IfStatement(keyValuePair.Value.Equal(Null)) { _utf8JsonWriterSnippet.WriteNullValue(), Continue }
-                    : MethodBodyStatement.Empty,
-                CreateSerializationStatement(keyValuePair.ValueType, keyValuePair.Value, serializationFormat, serializedName)
+                CreateElementSerializationWithPatch(
+                    keyValuePair.Value,
+                    keyValuePair.ValueType,
+                    patchSnippet,
+                    serializationFormat,
+                    serializedName,
+                    childIndices)
             };
+
             var innerIfElseProcessorStatement = new IfElsePreprocessorStatement(
                 "NET8_0_OR_GREATER",
-            new MethodBodyStatement[] { bytesWrittenDeclaration, patchContainsNet8Declaration },
+                new MethodBodyStatement[] { bytesWrittenDeclaration, patchContainsNet8Declaration },
                 new DeclarationExpression(new VariableExpression(patchContainsNet8Var.Type, patchContainsNet8Var.Declaration))
                     .Assign(patchContainsKey)
                     .Terminate());
@@ -1770,7 +1784,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             parentIndices ??= [];
             var indexDeclaration = Declare<int>("i", out var indexVar);
             var allIndices = new List<ValueExpression>(parentIndices) { indexVar };
-            var parentPathTemplate = $"$.{serializedName}" + string.Concat(Enumerable.Range(0, parentIndices.Count).Select(i => $"[{{{i}}}]"));
+            var jsonPathTemplate = BuildJsonPathForElement(serializedName, parentIndices);
             ScopedApi<bool> patchIsRemovedCondition;
 
             // Handle model types with their own patch property
@@ -1784,9 +1798,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             else
             {
-                patchIsRemovedCondition =  patchSnippet.IsRemoved(
+                patchIsRemovedCondition = patchSnippet.IsRemoved(
                     Utf8Snippets.GetBytes(
-                        new FormattableStringExpression(parentPathTemplate + $"[{{{parentIndices.Count}}}]", allIndices)
+                        new FormattableStringExpression(jsonPathTemplate + $"[{{{parentIndices.Count}}}]", allIndices)
                     .As<string>()));
             }
 
@@ -1809,8 +1823,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             };
 
             var writeToPatchStatement = parentIndices.Count == 0
-                ? patchSnippet.WriteTo(_utf8JsonWriterSnippet, LiteralU8(parentPathTemplate)).Terminate()
-                : patchSnippet.WriteTo(_utf8JsonWriterSnippet, Utf8Snippets.GetBytes(new FormattableStringExpression(parentPathTemplate, parentIndices).As<string>())).Terminate();
+                ? patchSnippet.WriteTo(_utf8JsonWriterSnippet, LiteralU8(jsonPathTemplate)).Terminate()
+                : patchSnippet.WriteTo(_utf8JsonWriterSnippet, Utf8Snippets.GetBytes(new FormattableStringExpression(jsonPathTemplate, parentIndices).As<string>())).Terminate();
 
             return new[]
             {
@@ -1842,7 +1856,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     new DictionaryExpression(elementType, element),
                     serializationFormat,
                     patchSnippet,
-                    serializedName),
+                    serializedName,
+                    currentIndices),
                 _ => null
             };
 
@@ -1863,6 +1878,38 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 serializationFormat,
                 serializedName);
         }
+
+        private IfElseStatement CreateConditionalPatchSerializationStatement(
+            string serializedName,
+            ScopedApi<bool>? condition,
+            MethodBodyStatement writePropertySerializationStatement,
+            MethodBodyStatement? elseStatementBody)
+        {
+            string jsonPath = $"$.{serializedName}";
+            var ifPatchIsNotRemoved = new IfStatement(Not(_jsonPatchProperty.Value!.As<JsonPatch>().IsRemoved(LiteralU8(jsonPath))))
+            {
+                _utf8JsonWriterSnippet.WritePropertyName(serializedName),
+                _utf8JsonWriterSnippet.WriteRawValue(
+                    JsonPatchSnippets.GetJson(_jsonPatchProperty.Value!.As<JsonPatch>(),
+                    LiteralU8(jsonPath)))
+            };
+            var ifPatchContainsJson = new IfStatement(_jsonPatchProperty.Value!.As<JsonPatch>().Contains(LiteralU8(jsonPath)))
+            {
+                ifPatchIsNotRemoved
+            };
+
+            if (condition == null)
+            {
+                return new IfElseStatement(ifPatchContainsJson, [], elseStatementBody);
+            }
+
+            var elseifPropertyIsDefined = new IfStatement(condition)
+            {
+                writePropertySerializationStatement
+            };
+            return new IfElseStatement(ifPatchContainsJson, [elseifPropertyIsDefined], elseStatementBody);
+        }
+#pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
 
         private MethodBodyStatement CreateListSerialization(
             ValueExpression collection,
@@ -2206,35 +2253,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return new IfStatement(condition) { writePropertySerializationStatement };
         }
 
-        private IfElseStatement CreateConditionalPatchSerializationStatement(
-            string serializedName,
-            ScopedApi<bool>? condition,
-            MethodBodyStatement writePropertySerializationStatement,
-            MethodBodyStatement? elseStatementBody)
-        {
-#pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-            var ifPatchContainsJson = new IfStatement(
-                _jsonPatchProperty.Value!.As<JsonPatch>().Contains(LiteralU8($"$.{serializedName}")))
-            {
-                _utf8JsonWriterSnippet.WritePropertyName(serializedName),
-                _utf8JsonWriterSnippet.WriteRawValue(
-                    JsonPatchSnippets.GetJson(_jsonPatchProperty.Value!.As<JsonPatch>(),
-                    LiteralU8($"$.{serializedName}")))
-            };
-#pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-
-            if (condition == null)
-            {
-                return new IfElseStatement(ifPatchContainsJson, [], elseStatementBody);
-            }
-
-            var elseifPropertyIsDefined = new IfStatement(condition)
-            {
-                writePropertySerializationStatement
-            };
-            return new IfElseStatement(ifPatchContainsJson, [elseifPropertyIsDefined], elseStatementBody);
-        }
-
         /// <summary>
         /// Builds the JSON write core body statement for the additional binary data.
         /// </summary>
@@ -2312,6 +2330,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return false;
+        }
+
+        private static string BuildJsonPathForElement(string propertySerializedName, List<ValueExpression> indices)
+        {
+            var count = indices.Count;
+            if (count == 0)
+            {
+                return $"$.{propertySerializedName}";
+            }
+
+            var result = $"$.{propertySerializedName}";
+            for (int i = 0; i < count; i++)
+            {
+                result += indices[i] is MemberExpression
+                    ? $"[\\\"{{{i}}}\\\"]"
+                    : $"[{{{i}}}]";
+            }
+
+            return result;
         }
     }
 }

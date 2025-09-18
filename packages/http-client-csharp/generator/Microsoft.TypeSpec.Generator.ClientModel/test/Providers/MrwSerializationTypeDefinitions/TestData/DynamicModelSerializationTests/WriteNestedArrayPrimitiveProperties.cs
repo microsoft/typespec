@@ -37,8 +37,11 @@ namespace Sample
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
             if (Patch.Contains("$.propertyWithNestedArray"u8))
             {
-                writer.WritePropertyName("propertyWithNestedArray"u8);
-                writer.WriteRawValue(Patch.GetJson("$.propertyWithNestedArray"u8));
+                if (!Patch.IsRemoved("$.propertyWithNestedArray"u8))
+                {
+                    writer.WritePropertyName("propertyWithNestedArray"u8);
+                    writer.WriteRawValue(Patch.GetJson("$.propertyWithNestedArray"u8));
+                }
             }
             else if (global::Sample.Optional.IsCollectionDefined(PropertyWithNestedArray))
             {

@@ -73,11 +73,41 @@ namespace Sample
                         writer.WriteStartArray();
                         for (int i1 = 0; (i1 < PropertyWithNestedArray[i][i0].Count); i1++)
                         {
-                            if (PropertyWithNestedArray[i][i0][i1].Patch.IsRemoved("$"u8))
+                            if (Patch.IsRemoved(global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedArray[{i}][{i0}][{i1}]")))
                             {
                                 continue;
                             }
-                            writer.WriteObjectValue<global::Sample.Models.DynamicCat>(PropertyWithNestedArray[i][i0][i1], options);
+                            if ((PropertyWithNestedArray[i][i0][i1] == null))
+                            {
+                                writer.WriteNullValue();
+                                continue;
+                            }
+                            writer.WriteStartObject();
+#if NET8_0_OR_GREATER
+                            global::System.Span<byte> buffer = stackalloc byte[256];
+#endif
+                            foreach (var item in PropertyWithNestedArray[i][i0][i1])
+                            {
+#if NET8_0_OR_GREATER
+                                int bytesWritten = global::System.Text.Encoding.UTF8.GetBytes(item.Key.AsSpan(), buffer);
+                                bool patchContains = (bytesWritten == 256) ? Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedArray[{i}][{i0}][{i1}]"), global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedArray[{i}][{i0}][{i1}]"), buffer.Slice(0, bytesWritten));
+#else
+                                bool patchContains = Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedArray[{i}][{i0}][{i1}]"), global::System.Text.Encoding.UTF8.GetBytes(item.Key));
+#endif
+                                if (!patchContains)
+                                {
+                                    writer.WritePropertyName(item.Key);
+                                    if ((item.Value == null))
+                                    {
+                                        writer.WriteNullValue();
+                                        continue;
+                                    }
+                                    writer.WriteStringValue(item.Value);
+                                }
+                            }
+
+                            Patch.WriteTo(writer, global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedArray[{i}][{i0}][{i1}]"));
+                            writer.WriteEndObject();
                         }
                         Patch.WriteTo(writer, global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedArray[{i}][{i0}]"));
                         writer.WriteEndArray();

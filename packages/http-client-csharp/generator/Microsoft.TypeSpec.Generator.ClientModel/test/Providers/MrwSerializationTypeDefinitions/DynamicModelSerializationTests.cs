@@ -384,6 +384,36 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [Test]
+        public void WriteNestedArrayDictionaryProperties()
+        {
+            var array1 = InputFactory.Array(InputFactory.Dictionary(InputPrimitiveType.String));
+            var array2 = InputFactory.Array(array1);
+            var array3 = InputFactory.Array(array2);
+            var inputModel = InputFactory.Model(
+               "dynamicModel",
+               isDynamicModel: true,
+               properties:
+               [
+                   InputFactory.Property("propertyWithNestedArray", array3),
+               ]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ClientModel.Providers.ScmModelProvider;
+
+            Assert.IsNotNull(model);
+            Assert.IsTrue(model!.IsDynamicModel);
+            var serialization = model.SerializationProviders.SingleOrDefault();
+            Assert.IsNotNull(serialization);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serialization!,
+                name => name is "JsonModelWriteCore" or "Write"));
+
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
         public void WriteDictionaryProperties()
         {
             var catModel = InputFactory.Model("cat", discriminatedKind: "cat", properties:
@@ -398,6 +428,70 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                    InputFactory.Property("cats", InputFactory.Dictionary(catModel), isRequired: false),
                    InputFactory.Property("names", InputFactory.Dictionary(InputPrimitiveType.String), isRequired: true),
                    InputFactory.Property("optionalNames", InputFactory.Dictionary(InputPrimitiveType.String), isRequired: false),
+               ]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ClientModel.Providers.ScmModelProvider;
+
+            Assert.IsNotNull(model);
+            Assert.IsTrue(model!.IsDynamicModel);
+            var serialization = model.SerializationProviders.SingleOrDefault();
+            Assert.IsNotNull(serialization);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serialization!,
+                name => name is "JsonModelWriteCore" or "Write"));
+
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void WriteNestedDictPrimitiveProperties()
+        {
+            var dict1 = InputFactory.Dictionary(InputPrimitiveType.String);
+            var dict2 = InputFactory.Dictionary(dict1);
+            var dict3 = InputFactory.Dictionary(dict2);
+            var inputModel = InputFactory.Model(
+               "dynamicModel",
+               isDynamicModel: true,
+               properties:
+               [
+                   InputFactory.Property("propertyWithNestedDictionary", dict3),
+               ]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ClientModel.Providers.ScmModelProvider;
+
+            Assert.IsNotNull(model);
+            Assert.IsTrue(model!.IsDynamicModel);
+            var serialization = model.SerializationProviders.SingleOrDefault();
+            Assert.IsNotNull(serialization);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serialization!,
+                name => name is "JsonModelWriteCore" or "Write"));
+
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void WriteNestedDictDynamicModelProperties()
+        {
+            var dynamicCat = InputFactory.Model("dynamicCat", isDynamicModel: true, properties:
+            [
+                InputFactory.Property("meows", InputPrimitiveType.Boolean, isRequired: true)
+            ]);
+            var dict1 = InputFactory.Dictionary(dynamicCat);
+            var dict2 = InputFactory.Dictionary(dict1);
+            var dict3 = InputFactory.Dictionary(dict2);
+            var inputModel = InputFactory.Model(
+               "dynamicModel",
+               isDynamicModel: true,
+               properties:
+               [
+                   InputFactory.Property("propertyWithNestedDictionary", dict3),
                ]);
 
             MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);

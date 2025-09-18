@@ -147,6 +147,25 @@ namespace SampleTypeSpec
                 writer.WriteObjectValue(item.Value, options);
             }
             writer.WriteEndObject();
+            writer.WritePropertyName("dictionaryOfDictionaryFoo"u8);
+            writer.WriteStartObject();
+            foreach (var item in DictionaryOfDictionaryFoo)
+            {
+                writer.WritePropertyName(item.Key);
+                if (item.Value == null)
+                {
+                    writer.WriteNullValue();
+                    continue;
+                }
+                writer.WriteStartObject();
+                foreach (var item0 in item.Value)
+                {
+                    writer.WritePropertyName(item0.Key);
+                    writer.WriteObjectValue(item0.Value, options);
+                }
+                writer.WriteEndObject();
+            }
+            writer.WriteEndObject();
             writer.WritePropertyName("dictionaryListFoo"u8);
             writer.WriteStartObject();
             foreach (var item in DictionaryListFoo)
@@ -237,6 +256,7 @@ namespace SampleTypeSpec
             IList<AnotherDynamicModel> listFoo = default;
             IList<IList<AnotherDynamicModel>> listOfListFoo = default;
             IDictionary<string, AnotherDynamicModel> dictionaryFoo = default;
+            IDictionary<string, IDictionary<string, AnotherDynamicModel>> dictionaryOfDictionaryFoo = default;
             IDictionary<string, IList<AnotherDynamicModel>> dictionaryListFoo = default;
             IList<IDictionary<string, AnotherDynamicModel>> listOfDictionaryFoo = default;
             IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
@@ -380,6 +400,28 @@ namespace SampleTypeSpec
                     dictionaryFoo = dictionary;
                     continue;
                 }
+                if (prop.NameEquals("dictionaryOfDictionaryFoo"u8))
+                {
+                    Dictionary<string, IDictionary<string, AnotherDynamicModel>> dictionary = new Dictionary<string, IDictionary<string, AnotherDynamicModel>>();
+                    foreach (var prop0 in prop.Value.EnumerateObject())
+                    {
+                        if (prop0.Value.ValueKind == JsonValueKind.Null)
+                        {
+                            dictionary.Add(prop0.Name, null);
+                        }
+                        else
+                        {
+                            Dictionary<string, AnotherDynamicModel> dictionary0 = new Dictionary<string, AnotherDynamicModel>();
+                            foreach (var prop1 in prop0.Value.EnumerateObject())
+                            {
+                                dictionary0.Add(prop1.Name, AnotherDynamicModel.DeserializeAnotherDynamicModel(prop1.Value, options));
+                            }
+                            dictionary.Add(prop0.Name, dictionary0);
+                        }
+                    }
+                    dictionaryOfDictionaryFoo = dictionary;
+                    continue;
+                }
                 if (prop.NameEquals("dictionaryListFoo"u8))
                 {
                     Dictionary<string, IList<AnotherDynamicModel>> dictionary = new Dictionary<string, IList<AnotherDynamicModel>>();
@@ -442,6 +484,7 @@ namespace SampleTypeSpec
                 listFoo,
                 listOfListFoo,
                 dictionaryFoo,
+                dictionaryOfDictionaryFoo,
                 dictionaryListFoo,
                 listOfDictionaryFoo,
                 additionalBinaryDataProperties);
