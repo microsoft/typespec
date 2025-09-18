@@ -865,7 +865,9 @@ function validateEncodeData(context: DecoratorContext, target: Type, encodeData:
       const typeName = getTypeName(encodeData.type);
       reportDiagnostic(context.program, {
         code: "invalid-encode",
-        messageId: ["unixTimestamp", "seconds", "milliseconds"].includes(encodeData.encoding ?? "string")
+        messageId: ["unixTimestamp", "seconds", "milliseconds"].includes(
+          encodeData.encoding ?? "string",
+        )
           ? "wrongNumericEncodingType"
           : "wrongEncodingType",
         format: {
