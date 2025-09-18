@@ -245,7 +245,7 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
         ".svn",
       ];
       execSync(
-        `${venvPath} -m black --line-length=120 --fast ${outputDir} --exclude "${blackExcludeDirs.join("|")}"`,
+        `${venvPath} -m black --line-length=120 --quiet --fast ${outputDir} --exclude "${blackExcludeDirs.join("|")}"`,
       );
       checkForPylintIssues(outputDir);
     }
