@@ -139,18 +139,6 @@ export function getDurationFormat(type: SdkDurationType): DurationSchema["format
       );
     }
   }
-  // duration encoded as milliseconds
-  else if (type.encode === "milliseconds") {
-    if (isSdkIntKind(type.wireType.kind)) {
-      format = "milliseconds-integer";
-    } else if (isSdkFloatKind(type.wireType.kind)) {
-      format = "milliseconds-number";
-    } else {
-      throw new Error(
-        `Unrecognized scalar type used by duration encoded as milliseconds: '${type.kind}'.`,
-      );
-    }
-  }
   return format;
 }
 

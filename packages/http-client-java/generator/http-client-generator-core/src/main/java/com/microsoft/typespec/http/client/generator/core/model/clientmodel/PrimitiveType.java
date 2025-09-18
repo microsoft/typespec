@@ -107,12 +107,6 @@ public class PrimitiveType implements IType {
     public static final PrimitiveType DURATION_DOUBLE
         = new Builder().prototypeAsDouble().nullableType(ClassType.DURATION_DOUBLE).build();
 
-    public static final PrimitiveType DURATION_MILLISECONDS_LONG
-        = new Builder().prototypeAsLong().nullableType(ClassType.DURATION_MILLISECONDS_LONG).build();
-
-    public static final PrimitiveType DURATION_MILLISECONDS_DOUBLE
-        = new Builder().prototypeAsDouble().nullableType(ClassType.DURATION_MILLISECONDS_DOUBLE).build();
-
     /**
      * The name of this type.
      */

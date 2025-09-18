@@ -78,17 +78,7 @@ public class DurationSchema extends PrimitiveSchema {
         /**
          * The duration is in seconds as a number.
          */
-        SECONDS_NUMBER("seconds-number"),
-
-        /**
-         * The duration is in milliseconds as an integer.
-         */
-        MILLISECONDS_INTEGER("milliseconds-integer"),
-
-        /**
-         * The duration is in milliseconds as a number.
-         */
-        MILLISECONDS_NUMBER("milliseconds-number");
+        SECONDS_NUMBER("seconds-number");
 
         private final String value;
 
@@ -124,10 +114,6 @@ public class DurationSchema extends PrimitiveSchema {
                 return SECONDS_INTEGER;
             } else if ("seconds-number".equals(value)) {
                 return SECONDS_NUMBER;
-            } else if ("milliseconds-integer".equals(value)) {
-                return MILLISECONDS_INTEGER;
-            } else if ("milliseconds-number".equals(value)) {
-                return MILLISECONDS_NUMBER;
             } else {
                 throw new IllegalArgumentException(value);
             }

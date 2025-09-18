@@ -203,17 +203,6 @@ const DURATION: Dependent<ScalarInfo> = (ctx, module) => {
               },
               decodeTemplate: `${temporalRef}.Duration.from({ seconds: {} })`,
             },
-            milliseconds: {
-              encodeTemplate: (_, module) => {
-                module.imports.push({
-                  from: isPolyfill ? temporalPolyfillHelpers : temporalNativeHelpers,
-                  binder: [`durationTotalMilliseconds`],
-                });
-
-                return `durationTotalMilliseconds({})`;
-              },
-              decodeTemplate: `${temporalRef}.Duration.from({ milliseconds: {} })`,
-            },
           },
         ]),
       ),
@@ -233,17 +222,6 @@ const DURATION: Dependent<ScalarInfo> = (ctx, module) => {
               },
               decodeTemplate: `${temporalRef}.Duration.from({ seconds: globalThis.Number({}) })`,
             },
-            milliseconds: {
-              encodeTemplate: (_, module) => {
-                module.imports.push({
-                  from: isPolyfill ? temporalPolyfillHelpers : temporalNativeHelpers,
-                  binder: [`durationTotalMillisecondsBigInt`],
-                });
-
-                return `durationTotalMillisecondsBigInt({})`;
-              },
-              decodeTemplate: `${temporalRef}.Duration.from({ milliseconds: globalThis.Number({}) })`,
-            },
           },
         ]),
       ),
@@ -259,17 +237,6 @@ const DURATION: Dependent<ScalarInfo> = (ctx, module) => {
             return `new Decimal(durationTotalSecondsBigInt({}).toString())`;
           },
           decodeTemplate: `${temporalRef}.Duration.from({ seconds: ({}).toNumber() })`,
-        },
-        milliseconds: {
-          encodeTemplate: (_, module) => {
-            module.imports.push({
-              from: isPolyfill ? temporalPolyfillHelpers : temporalNativeHelpers,
-              binder: [`durationTotalMillisecondsBigInt`],
-            });
-
-            return `new Decimal(durationTotalMillisecondsBigInt({}).toString())`;
-          },
-          decodeTemplate: `${temporalRef}.Duration.from({ milliseconds: ({}).toNumber() })`,
         },
       },
     },
