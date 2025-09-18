@@ -57,6 +57,7 @@ export const TypeConfig: TypeGraphConfig = buildConfig({
     unions: "nested-items",
     enums: "nested-items",
     decoratorDeclarations: "nested-items",
+    functionDeclarations: "nested-items",
   },
   Interface: {
     operations: "nested-items",
@@ -117,6 +118,11 @@ export const TypeConfig: TypeGraphConfig = buildConfig({
     parameters: "nested-items",
     implementation: "skip",
     target: "ref",
+  },
+  Function: {
+    parameters: "nested-items",
+    returnType: "ref",
+    implementation: "skip",
   },
   ScalarConstructor: {
     scalar: "parent",

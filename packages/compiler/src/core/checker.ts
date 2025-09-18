@@ -10,12 +10,12 @@ import {
   createTupleToArrayValueCodeFix,
 } from "./compiler-code-fixes/convert-to-value.codefix.js";
 import { getDeprecationDetails, markDeprecated } from "./deprecation.js";
-import { compilerAssert, ignoreDiagnostics } from "./diagnostics.js";
+import { compilerAssert, createDiagnosticCollector, ignoreDiagnostics } from "./diagnostics.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
 import { explainStringTemplateNotSerializable } from "./helpers/string-template-utils.js";
 import { typeReferenceToString } from "./helpers/syntax-utils.js";
 import { getEntityName, getTypeName } from "./helpers/type-name-utils.js";
-import { marshallTypeForJS } from "./js-marshaller.js";
+import { marshalTypeForJs, unmarshalJsToValue } from "./js-marshaller.js";
 import { createDiagnostic } from "./messages.js";
 import { NameResolver } from "./name-resolver.js";
 import { Numeric } from "./numeric.js";
@@ -57,6 +57,7 @@ import {
   DecoratorDeclarationStatementNode,
   DecoratorExpressionNode,
   Diagnostic,
+  DiagnosticResult,
   DiagnosticTarget,
   DocContent,
   Entity,
@@ -70,6 +71,7 @@ import {
   FunctionDeclarationStatementNode,
   FunctionParameter,
   FunctionParameterNode,
+  FunctionType,
   IdentifierKind,
   IdentifierNode,
   IndeterminateEntity,
@@ -155,6 +157,7 @@ import {
   UnionVariant,
   UnionVariantNode,
   UnknownType,
+  UnknownValue,
   UsingStatementNode,
   Value,
   ValueWithTemplate,
@@ -286,6 +289,9 @@ export interface Checker {
   readonly anyType: UnknownType;
 
   /** @internal */
+  readonly unknownEntity: IndeterminateEntity;
+
+  /** @internal */
   stats: CheckerStats;
 }
 
@@ -349,6 +355,11 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   const unknownType = createAndFinishType({ kind: "Intrinsic", name: "unknown" } as const);
   const nullType = createAndFinishType({ kind: "Intrinsic", name: "null" } as const);
 
+  const unknownEntity: IndeterminateEntity = {
+    entityKind: "Indeterminate",
+    type: unknownType,
+  };
+
   /**
    * Set keeping track of node pending type resolution.
    * Key is the SymId of a node. It can be retrieved with getNodeSymId(node)
@@ -378,6 +389,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     errorType,
     nullType,
     anyType: unknownType,
+    unknownEntity,
     voidType,
     typePrototype,
     createType,
@@ -670,6 +682,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         switch (type.name) {
           case "null":
             return checkNullValue(type as any, constraint, node);
+          case "unknown":
+            return checkUnknownValue(type as UnknownType, constraint);
         }
         return type;
       default:
@@ -778,6 +792,11 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         // If there were diagnostic reported but we still got a value this means that the value might be invalid.
         reportCheckerDiagnostics(valueDiagnostics);
         return result;
+      } else {
+        const canBeType = constraint?.constraint.type !== undefined;
+        // If the node _must_ resolve to a value, we will return it unconstrained, so that we will at least produce
+        // a value. If it _can_ be a type, we already failed the value constraint, so we return the type as is.
+        return canBeType ? entity.type : getValueFromIndeterminate(entity.type, undefined, node);
       }
     }
 
@@ -862,7 +881,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       case SyntaxKind.NeverKeyword:
         return neverType;
       case SyntaxKind.UnknownKeyword:
-        return unknownType;
+        return unknownEntity;
       case SyntaxKind.ObjectLiteral:
         return checkObjectValue(node, mapper, valueConstraint);
       case SyntaxKind.ArrayLiteral:
@@ -1436,13 +1455,13 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return errorType;
     }
 
-    if (sym.flags & SymbolFlags.Function) {
-      reportCheckerDiagnostic(
-        createDiagnostic({ code: "invalid-type-ref", messageId: "function", target: sym }),
-      );
+    // if (sym.flags & SymbolFlags.Function) {
+    //   reportCheckerDiagnostic(
+    //     createDiagnostic({ code: "invalid-type-ref", messageId: "function", target: sym }),
+    //   );
 
-      return errorType;
-    }
+    //   return errorType;
+    // }
 
     const argumentNodes = node.kind === SyntaxKind.TypeReference ? node.arguments : [];
     const symbolLinks = getSymbolLinks(sym);
@@ -1630,7 +1649,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     args: (Type | Value | IndeterminateEntity)[],
     source: TypeMapper["source"],
     parentMapper: TypeMapper | undefined,
-    instantiateTempalates = true,
+    instantiateTemplates = true,
   ): Type {
     const symbolLinks =
       templateNode.kind === SyntaxKind.OperationStatement &&
@@ -1661,7 +1680,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     if (cached) {
       return cached;
     }
-    if (instantiateTempalates) {
+    if (instantiateTemplates) {
       return instantiateTemplate(symbolLinks.instantiations, templateNode, params, mapper);
     } else {
       return errorType;
@@ -1907,9 +1926,53 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   function checkFunctionDeclaration(
     node: FunctionDeclarationStatementNode,
     mapper: TypeMapper | undefined,
-  ) {
-    reportCheckerDiagnostic(createDiagnostic({ code: "function-unsupported", target: node }));
-    return errorType;
+  ): FunctionType {
+    const mergedSymbol = getMergedSymbol(node.symbol);
+    const links = getSymbolLinks(mergedSymbol);
+
+    if (links.declaredType && mapper === undefined) {
+      // we're not instantiating this operation and we've already checked it
+      return links.declaredType as FunctionType;
+    }
+
+    const namespace = getParentNamespaceType(node);
+    compilerAssert(
+      namespace,
+      `Function ${node.id.sv} should have resolved a declared namespace or the global namespace.`,
+    );
+
+    const name = node.id.sv;
+
+    if (!(node.modifierFlags & ModifierFlags.Extern)) {
+      reportCheckerDiagnostic(createDiagnostic({ code: "function-extern", target: node }));
+    }
+
+    const implementation = mergedSymbol.value;
+    if (implementation === undefined) {
+      reportCheckerDiagnostic(createDiagnostic({ code: "missing-implementation", target: node }));
+    }
+
+    const functionType: FunctionType = createType({
+      kind: "Function",
+      name,
+      namespace,
+      node,
+      parameters: node.parameters.map((x) => checkFunctionParameter(x, mapper, true)),
+      returnType: node.returnType
+        ? getParamConstraintEntityForNode(node.returnType, mapper)
+        : ({
+            entityKind: "MixedParameterConstraint",
+            type: unknownType,
+          } satisfies MixedParameterConstraint),
+      implementation:
+        implementation ?? Object.assign(() => errorType, { isDefaultFunctionImplementation: true }),
+    });
+
+    namespace.functionDeclarations.set(name, functionType);
+
+    linkType(links, functionType, mapper);
+
+    return functionType;
   }
 
   function checkFunctionParameter(
@@ -4081,6 +4144,21 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     );
   }
 
+  function checkUnknownValue(
+    unknownType: UnknownType,
+    constraint: CheckValueConstraint | undefined,
+  ): UnknownValue | null {
+    return createValue(
+      {
+        entityKind: "Value",
+
+        valueKind: "UnknownValue",
+        type: neverType,
+      },
+      constraint ? constraint.type : neverType,
+    );
+  }
+
   function checkEnumValue(
     literalType: EnumMember,
     constraint: CheckValueConstraint | undefined,
@@ -4104,19 +4182,24 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   function checkCallExpressionTarget(
     node: CallExpressionNode,
     mapper: TypeMapper | undefined,
-  ): ScalarConstructor | Scalar | null {
+  ): ScalarConstructor | Scalar | FunctionType | null {
     const target = checkTypeReference(node.target, mapper);
 
-    if (target.kind === "Scalar" || target.kind === "ScalarConstructor") {
+    if (
+      target.kind === "Scalar" ||
+      target.kind === "ScalarConstructor" ||
+      target.kind === "Function"
+    ) {
       return target;
     } else {
-      reportCheckerDiagnostic(
-        createDiagnostic({
-          code: "non-callable",
-          format: { type: target.kind },
-          target: node.target,
-        }),
-      );
+      if (!isErrorType(target))
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "non-callable",
+            format: { type: target.kind },
+            target: node.target,
+          }),
+        );
       return null;
     }
   }
@@ -4260,13 +4343,15 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   function checkCallExpression(
     node: CallExpressionNode,
     mapper: TypeMapper | undefined,
-  ): Value | null {
+  ): Type | Value | null {
     const target = checkCallExpressionTarget(node, mapper);
     if (target === null) {
       return null;
     }
     if (target.kind === "ScalarConstructor") {
       return createScalarValue(node, mapper, target);
+    } else if (target.kind === "Function") {
+      return checkFunctionCall(node, target, mapper);
     }
 
     if (relation.areScalarsRelated(target, getStdType("string"))) {
@@ -4285,6 +4370,282 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       );
       return null;
     }
+  }
+
+  function checkFunctionCall(
+    node: CallExpressionNode,
+    target: FunctionType,
+    mapper: TypeMapper | undefined,
+  ): Type | Value | null {
+    const [satisfied, resolvedArgs] = checkFunctionCallArguments(node.arguments, target, mapper);
+
+    const canCall = satisfied && !(target.implementation as any).isDefaultFunctionImplementation;
+
+    const functionReturn = canCall
+      ? target.implementation(program, ...resolvedArgs)
+      : getDefaultFunctionResult(target.returnType);
+
+    const returnIsTypeOrValue =
+      typeof functionReturn === "object" &&
+      functionReturn !== null &&
+      "entityKind" in functionReturn &&
+      (functionReturn.entityKind === "Type" || functionReturn.entityKind === "Value");
+
+    const result = returnIsTypeOrValue
+      ? (functionReturn as Type | Value)
+      : unmarshalJsToValue(program, functionReturn, function onInvalid(value) {
+          // TODO: diagnostic for invalid return value
+        });
+
+    if (satisfied) checkFunctionReturn(target, result, node);
+
+    return result;
+  }
+
+  function getDefaultFunctionResult(constraint: MixedParameterConstraint): Type | Value {
+    if (constraint.valueType) {
+      return createValue(
+        {
+          valueKind: "UnknownValue",
+          entityKind: "Value",
+          type: constraint.valueType,
+        },
+        constraint.valueType,
+      );
+    } else {
+      compilerAssert(
+        constraint.type,
+        "Expected function to have a return type when it did not have a value type constraint",
+      );
+      return constraint.type;
+    }
+  }
+
+  function checkFunctionCallArguments(
+    args: Expression[],
+    target: FunctionType,
+    mapper: TypeMapper | undefined,
+  ): [boolean, any[]] {
+    const minArgs = target.parameters.filter((p) => !p.optional && !p.rest).length;
+    const maxArgs = target.parameters[target.parameters.length - 1]?.rest
+      ? undefined
+      : target.parameters.length;
+
+    if (args.length < minArgs) {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "invalid-argument-count",
+          messageId: "atLeast",
+          format: { actual: args.length.toString(), expected: minArgs.toString() },
+          target: target.node!,
+        }),
+      );
+      return [false, []];
+    } else if (maxArgs !== undefined && args.length > maxArgs) {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "invalid-argument-count",
+          format: { actual: args.length.toString(), expected: maxArgs.toString() },
+          target: target.node!,
+        }),
+      );
+    }
+
+    const collector = createDiagnosticCollector();
+
+    const resolvedArgs: any[] = [];
+    let satisfied = true;
+
+    let idx = 0;
+
+    for (const param of target.parameters) {
+      if (param.rest) {
+        const constraint = extractRestParamConstraint(param.type);
+
+        if (!constraint) {
+          satisfied = false;
+          continue;
+        }
+
+        const restArgs = args
+          .slice(idx)
+          .map((arg) => getTypeOrValueForNode(arg, mapper, { kind: "argument", constraint }));
+
+        if (restArgs.some((x) => x === null)) {
+          satisfied = false;
+          continue;
+        }
+
+        resolvedArgs.push(
+          ...restArgs.map((v) =>
+            v !== null && isValue(v)
+              ? marshalTypeForJs(v, undefined, function onUnknown() {
+                  // TODO: diagnostic for unknown value
+                })
+              : v,
+          ),
+        );
+      } else {
+        const arg = args[idx++];
+
+        if (!arg) {
+          if (param.optional) {
+            resolvedArgs.push(undefined);
+            continue;
+          } else {
+            reportCheckerDiagnostic(
+              createDiagnostic({
+                code: "invalid-argument",
+                messageId: "default",
+                // TODO: render constraint
+                format: { value: "undefined", expected: "TODO" },
+                target: target.node!,
+              }),
+            );
+            satisfied = false;
+            continue;
+          }
+        }
+
+        // Normal param
+        const checkedArg = getTypeOrValueForNode(arg, mapper, {
+          kind: "argument",
+          constraint: param.type,
+        });
+
+        if (!checkedArg) {
+          satisfied = false;
+          continue;
+        }
+
+        const resolved = collector.pipe(
+          checkEntityAssignableToConstraint(checkedArg, param.type, arg),
+        );
+
+        satisfied &&= !!resolved;
+
+        resolvedArgs.push(
+          resolved
+            ? isValue(resolved)
+              ? marshalTypeForJs(resolved, undefined, function onUnknown() {
+                  // TODO: diagnostic for unknown value
+                })
+              : resolved
+            : undefined,
+        );
+      }
+    }
+
+    reportCheckerDiagnostics(collector.diagnostics);
+
+    return [satisfied, resolvedArgs];
+  }
+
+  function checkFunctionReturn(target: FunctionType, result: Type | Value, diagnosticTarget: Node) {
+    const [_, diagnostics] = checkEntityAssignableToConstraint(
+      result,
+      target.returnType,
+      diagnosticTarget,
+    );
+
+    reportCheckerDiagnostics(diagnostics);
+  }
+
+  function checkEntityAssignableToConstraint(
+    entity: Type | Value | IndeterminateEntity,
+    constraint: MixedParameterConstraint,
+    diagnosticTarget: Node,
+  ): DiagnosticResult<Type | Value | null> {
+    const constraintIsValue = !!constraint.valueType;
+
+    const collector = createDiagnosticCollector();
+
+    if (constraintIsValue) {
+      const normed = collector.pipe(normalizeValue(entity, constraint, diagnosticTarget));
+
+      // Error should have been reported in normalizeValue
+      if (!normed) return collector.wrap(null);
+
+      const assignable = collector.pipe(
+        relation.isValueOfType(normed, constraint.valueType, diagnosticTarget),
+      );
+
+      return collector.wrap(assignable ? normed : null);
+    } else {
+      // Constraint is a type
+
+      if (entity.entityKind !== "Type") {
+        collector.add(
+          createDiagnostic({
+            code: "value-in-type",
+            format: { name: getTypeName(entity.type) },
+            target: diagnosticTarget,
+          }),
+        );
+        return collector.wrap(null);
+      }
+
+      compilerAssert(
+        constraint.type,
+        "Expected type constraint to be defined when known not to be a value constraint.",
+      );
+
+      const assignable = collector.pipe(
+        relation.isTypeAssignableTo(entity, constraint.type, diagnosticTarget),
+      );
+
+      return collector.wrap(assignable ? entity : null);
+    }
+  }
+
+  function normalizeValue(
+    entity: Type | Value | IndeterminateEntity,
+    constraint: MixedParameterConstraint,
+    diagnosticTarget: Node,
+  ): DiagnosticResult<Value | null> {
+    if (entity.entityKind === "Value") return [entity, []];
+
+    if (entity.entityKind === "Indeterminate") {
+      // Coerce to a value
+      const coerced = getValueFromIndeterminate(
+        entity.type,
+        constraint.type && { kind: "argument", type: constraint.type },
+        entity.type.node!,
+      );
+
+      if (coerced?.entityKind !== "Value") {
+        return [
+          null,
+          [
+            createDiagnostic({
+              code: "expect-value",
+              format: { name: getTypeName(entity.type) },
+              target: diagnosticTarget,
+            }),
+          ],
+        ];
+      }
+
+      return [coerced, []];
+    }
+
+    if (entity.entityKind === "Type") {
+      return [
+        null,
+        [
+          createDiagnostic({
+            code: "expect-value",
+            format: { name: getTypeName(entity) },
+            target: diagnosticTarget,
+          }),
+        ],
+      ];
+    }
+
+    compilerAssert(
+      false,
+      `Unreachable: unexpected entity kind '${(entity satisfies never as Entity).entityKind}'`,
+    );
   }
 
   function checkTypeOfExpression(node: TypeOfExpressionNode, mapper: TypeMapper | undefined): Type {
@@ -4980,12 +5341,13 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         return {
           value: arg,
           node: argNode,
-          jsValue: resolveDecoratorArgJsValue(
+          jsValue: resolveArgumentJsValue(
             arg,
             extractValueOfConstraints({
               kind: "argument",
               constraint: perParamType,
             }),
+            argNode,
           ),
         };
       } else {
@@ -5059,13 +5421,22 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return type.kind === "Model" ? type.indexer?.value : undefined;
   }
 
-  function resolveDecoratorArgJsValue(
+  function resolveArgumentJsValue(
     value: Type | Value,
     valueConstraint: CheckValueConstraint | undefined,
+    diagnosticTarget: Node,
   ) {
     if (valueConstraint !== undefined) {
       if (isValue(value)) {
-        return marshallTypeForJS(value, valueConstraint.type);
+        return marshalTypeForJs(value, valueConstraint.type, function onUnknown() {
+          reportCheckerDiagnostic(
+            createDiagnostic({
+              code: "unknown-value",
+              messageId: "in-js-argument",
+              target: diagnosticTarget,
+            }),
+          );
+        });
       } else {
         return value;
       }
@@ -5445,6 +5816,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       case "EnumValue":
       case "NullValue":
       case "ScalarValue":
+      case "UnknownValue":
         return value;
     }
   }
