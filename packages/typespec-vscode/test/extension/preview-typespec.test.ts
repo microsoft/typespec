@@ -4,15 +4,36 @@ import fs from "node:fs";
 import path from "node:path";
 import { beforeEach, describe } from "vitest";
 import { startWithCommandPalette } from "./common/common-steps";
-import { CaseScreenshot, retry, tempDir, test } from "./common/utils";
+import {
+  CaseScreenshot,
+  PNPM_NO_MATCHING_VERSION_ERROR,
+  retry,
+  tempDir,
+  test,
+} from "./common/utils";
 
 let shouldSkip = false;
+
 try {
-  execSync("pnpm install @typespec/http@9.9.9", { stdio: "inherit" });
-  execSync("pnpm install @typespec/openapi3@9.9.9", { stdio: "inherit" });
-} catch (e) {
-  // Skip this test in the scene of version bump
-  shouldSkip = true;
+  execSync("pnpm install @typespec/http", { stdio: "pipe" });
+  execSync("pnpm install @typespec/openapi3", { stdio: "pipe" });
+} catch (e: any) {
+  const errorOutput =
+    (e.stderr && e.stderr.toString()) ||
+    (e.stdout && e.stdout.toString()) ||
+    (e.message && e.message.toString()) ||
+    "";
+  if (PNPM_NO_MATCHING_VERSION_ERROR.test(errorOutput)) {
+    const filteredLines = errorOutput
+      .split("\n")
+      .filter((line: any) => !line.trim().startsWith("../.."));
+    filteredLines.unshift(
+      "WARN_INFO: skip due to making a release PR. Issue link: https://github.com/microsoft/typespec/issues/8402",
+    );
+    const filteredErrorOutput = filteredLines.join("\n");
+    process.stderr.write(filteredErrorOutput + "\n");
+    shouldSkip = true;
+  }
 }
 
 export enum PreviewProjectTriggerType {

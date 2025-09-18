@@ -3,6 +3,8 @@ import path, { join } from "node:path";
 import { ElectronApplication, Page, _electron } from "playwright";
 import { test as baseTest, inject } from "vitest";
 
+export const PNPM_NO_MATCHING_VERSION_ERROR = /ERR_PNPM_NO_MATCHING_VERSION.*No matching version found/;
+
 const __dirname = import.meta.dirname;
 export const projectRoot = path.resolve(__dirname, "../../../");
 export const tempDir = path.resolve(projectRoot, "./temp");
