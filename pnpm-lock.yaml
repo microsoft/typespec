@@ -7,6 +7,8 @@ settings:
 overrides:
   cross-spawn@>=7.0.0 <7.0.5: ^7.0.5
   rollup: 4.49.0
+  '@alloy-js/core': 0.21.0-dev.8
+  '@alloy-js/csharp': 0.21.0-dev.19
 
 importers:
 
@@ -412,14 +414,14 @@ importers:
   packages/emitter-framework:
     dependencies:
       '@alloy-js/csharp':
-        specifier: ^0.21.0-dev.19
+        specifier: 0.21.0-dev.19
         version: 0.21.0-dev.19
     devDependencies:
       '@alloy-js/cli':
         specifier: ^0.20.0
         version: 0.20.0
       '@alloy-js/core':
-        specifier: ^0.21.0-dev.8
+        specifier: 0.21.0-dev.8
         version: 0.21.0-dev.8
       '@alloy-js/rollup-plugin':
         specifier: ^0.1.0
@@ -661,8 +663,8 @@ importers:
         specifier: ^0.20.0
         version: 0.20.0
       '@alloy-js/core':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: 0.21.0-dev.8
+        version: 0.21.0-dev.8
       '@alloy-js/rollup-plugin':
         specifier: ^0.1.0
         version: 0.1.0(@babel/core@7.28.4)(@types/babel__core@7.20.5)(rollup@4.49.0)
@@ -703,8 +705,8 @@ importers:
   packages/http-client-js:
     dependencies:
       '@alloy-js/core':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: 0.21.0-dev.8
+        version: 0.21.0-dev.8
       '@alloy-js/typescript':
         specifier: ^0.20.0
         version: 0.20.0
@@ -2214,8 +2216,8 @@ importers:
   packages/tspd:
     dependencies:
       '@alloy-js/core':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: 0.21.0-dev.8
+        version: 0.21.0-dev.8
       '@alloy-js/markdown':
         specifier: ^0.20.0
         version: 0.20.0
@@ -2746,9 +2748,6 @@ packages:
     resolution: {integrity: sha512-iDiJAs2yjP5G8lMmry+4usM33tL9G1u8IKp+beh0jx5RqfLsZsXOu78S4ZIZLqskAMkCLuRJogsh8fPREg2CzQ==}
     engines: {node: '>=18.0.0'}
     hasBin: true
-
-  '@alloy-js/core@0.20.0':
-    resolution: {integrity: sha512-ylPf+ayI9MsqUPrNVzND3Oh9rVrfOOcMkyVwtXXaxaobWPkcRq2I4rX09FkG0i/9DoaLE6ZCvUfdgJsM29MYBA==}
 
   '@alloy-js/core@0.21.0-dev.8':
     resolution: {integrity: sha512-CFKy8/sCHTxj/YWG4uJFFRyr68713LOms+gJcQ2NWulqc8JT4bl2XQM8hF/KbkngRY5oKcGsl8VPkn9o7i5hGg==}
@@ -13637,14 +13636,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@alloy-js/core@0.20.0':
-    dependencies:
-      '@vue/reactivity': 3.5.21
-      cli-table3: 0.6.5
-      pathe: 2.0.3
-      picocolors: 1.1.1
-      prettier: 3.6.2
-
   '@alloy-js/core@0.21.0-dev.8':
     dependencies:
       '@vue/reactivity': 3.5.21
@@ -13655,14 +13646,14 @@ snapshots:
 
   '@alloy-js/csharp@0.21.0-dev.19':
     dependencies:
-      '@alloy-js/core': 0.20.0
+      '@alloy-js/core': 0.21.0-dev.8
       change-case: 5.4.4
       marked: 16.2.1
       pathe: 2.0.3
 
   '@alloy-js/markdown@0.20.0':
     dependencies:
-      '@alloy-js/core': 0.20.0
+      '@alloy-js/core': 0.21.0-dev.8
       yaml: 2.8.1
 
   '@alloy-js/rollup-plugin@0.1.0(@babel/core@7.28.4)(@types/babel__core@7.20.5)(rollup@4.49.0)':
@@ -13678,7 +13669,7 @@ snapshots:
 
   '@alloy-js/typescript@0.20.0':
     dependencies:
-      '@alloy-js/core': 0.20.0
+      '@alloy-js/core': 0.21.0-dev.8
       change-case: 5.4.4
       pathe: 2.0.3
 
