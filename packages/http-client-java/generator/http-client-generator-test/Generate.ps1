@@ -94,6 +94,8 @@ $generateScript = {
     $tspOptions += " --option ""@typespec/http-client-java.remove-inner=NginxConfigurationResponse"""
     # generate async methods
     $tspOptions += " --option ""@typespec/http-client-java.generate-async-methods=true"""
+    # enable client side validations
+    $tspOptions += " --option ""@typespec/http-client-java.client-side-validations=true"""
   } elseif ($tspFile -match "arm-stream-style-serialization.tsp") {
     # for mgmt, do not generate tests due to random mock values
     $tspOptions += " --option ""@typespec/http-client-java.generate-tests=false"""
