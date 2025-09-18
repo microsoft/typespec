@@ -454,6 +454,12 @@ function emitBuiltInType(
       encode: type.encode,
     });
   }
+  if (type.kind === "duration" && type.encode === "milliseconds") {
+    return getSimpleTypeResult({
+      type: sdkScalarKindToPythonKind[type.wireType.kind],
+      encode: type.encode,
+    });
+  }
   if (type.encode === "unixTimestamp") {
     return getSimpleTypeResult({
       type: "unixtime",

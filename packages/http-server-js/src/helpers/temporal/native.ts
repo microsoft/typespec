@@ -66,15 +66,17 @@ export function durationTotalSeconds(duration: any): number {
 }
 
 /**
- * Gets the total number of seconds in a duration.
- *
+ * Converts a `Temporal.Duration` to a number of milliseconds.
  * This method will throw an Error if the duration contains any years, months, weeks, or days, as those require a reference
- * point to calculate the total number of seconds. It will also throw an error if any of the components are not integers.
+ * point to calculate the total number of milliseconds.
  *
- * @param duration - the duration to calculate the total number of seconds for
- * @returns the total number of seconds in the duration
+ * WARNING: If the total number of milliseconds is larger than the maximum safe integer in JavaScript, this method will
+ * lose precision. @see durationTotalMillisecondsBigInt for a BigInt alternative.
+ *
+ * @param duration - the duration to calculate the total number of milliseconds for
+ * @returns the total number of milliseconds in the duration
  */
-export function durationTotalSecondsBigInt(duration: any): bigint {
+export function durationTotalMilliseconds(duration: any): number {
   if (
     duration.years !== 0 ||
     duration.months !== 0 ||
@@ -82,11 +84,41 @@ export function durationTotalSecondsBigInt(duration: any): bigint {
     duration.days !== 0
   ) {
     throw new Error(
-      "Cannot calculate total seconds for a duration with years, months, weeks, or days.",
+      "Cannot calculate total milliseconds for a duration with years, months, weeks, or days.",
+    );
+  }
+
+  return (
+    duration.milliseconds +
+    duration.seconds * 1000 +
+    duration.minutes * 60 * 1000 +
+    duration.hours * 60 * 60 * 1000
+  );
+}
+
+/**
+ * Gets the total number of milliseconds in a duration.
+ *
+ * This method will throw an Error if the duration contains any years, months, weeks, or days, as those require a reference
+ * point to calculate the total number of milliseconds. It will also throw an error if any of the components are not integers.
+ *
+ * @param duration - the duration to calculate the total number of milliseconds for
+ * @returns the total number of milliseconds in the duration
+ */
+export function durationTotalMillisecondsBigInt(duration: any): bigint {
+  if (
+    duration.years !== 0 ||
+    duration.months !== 0 ||
+    duration.weeks !== 0 ||
+    duration.days !== 0
+  ) {
+    throw new Error(
+      "Cannot calculate total milliseconds for a duration with years, months, weeks, or days.",
     );
   }
 
   if (
+    !Number.isInteger(duration.milliseconds) ||
     !Number.isInteger(duration.seconds) ||
     !Number.isInteger(duration.minutes) ||
     !Number.isInteger(duration.hours) ||
@@ -96,9 +128,9 @@ export function durationTotalSecondsBigInt(duration: any): bigint {
   }
 
   return (
-    BigInt(duration.seconds) +
-    BigInt(duration.minutes) * 60n +
-    BigInt(duration.hours) * 60n * 60n +
-    BigInt(duration.days) * 24n * 60n * 60n
+    BigInt(duration.milliseconds) +
+    BigInt(duration.seconds) * 1000n +
+    BigInt(duration.minutes) * 60n * 1000n +
+    BigInt(duration.hours) * 60n * 60n * 1000n
   );
 }
