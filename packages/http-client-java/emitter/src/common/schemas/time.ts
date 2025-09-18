@@ -7,7 +7,7 @@ export interface DurationSchema extends PrimitiveSchema {
   /** the schema type  */
   type: SchemaType.Duration;
 
-  format: "duration-rfc3339" | "seconds-integer" | "seconds-number";
+  format: "duration-rfc3339" | "seconds-integer" | "seconds-number" | "milliseconds-integer" | "milliseconds-number";
 }
 
 export class DurationSchema extends PrimitiveSchema implements DurationSchema {

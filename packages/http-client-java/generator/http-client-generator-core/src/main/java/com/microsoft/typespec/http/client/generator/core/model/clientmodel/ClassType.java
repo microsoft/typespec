@@ -492,6 +492,10 @@ public class ClassType implements IType {
 
     public static final ClassType DURATION_DOUBLE = new ClassType.Builder(false).prototypeAsDouble().build();
 
+    public static final ClassType DURATION_MILLISECONDS_LONG = new ClassType.Builder(false).prototypeAsLong().build();
+
+    public static final ClassType DURATION_MILLISECONDS_DOUBLE = new ClassType.Builder(false).prototypeAsDouble().build();
+
     public static final ClassType HTTP_PIPELINE = getClassTypeBuilder(HttpPipeline.class).build();
 
     public static final ClassType REST_PROXY = getClassTypeBuilder(RestProxy.class).build();
@@ -796,6 +800,10 @@ public class ClassType implements IType {
             expression = "Duration.ofSeconds(" + expression + ")";
         } else if (this == ClassType.DURATION_DOUBLE) {
             expression = "Duration.ofNanos((long) (" + expression + " * 1000_000_000L))";
+        } else if (this == ClassType.DURATION_MILLISECONDS_LONG) {
+            expression = "Duration.ofMillis(" + expression + ")";
+        } else if (this == ClassType.DURATION_MILLISECONDS_DOUBLE) {
+            expression = "Duration.ofNanos((long) (" + expression + " * 1000_000L))";
         }
 
         return expression;
@@ -814,6 +822,10 @@ public class ClassType implements IType {
             expression = expression + ".getSeconds()";
         } else if (this == ClassType.DURATION_DOUBLE) {
             expression = "(double) " + expression + ".toNanos() / 1000_000_000L";
+        } else if (this == ClassType.DURATION_MILLISECONDS_LONG) {
+            expression = expression + ".toMillis()";
+        } else if (this == ClassType.DURATION_MILLISECONDS_DOUBLE) {
+            expression = "(double) " + expression + ".toNanos() / 1000_000L";
         }
 
         return expression;

@@ -13,6 +13,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Extensions
             {
                 "iso8601" => DurationKnownEncoding.Iso8601,
                 "seconds" => DurationKnownEncoding.Seconds,
+                "milliseconds" => DurationKnownEncoding.Milliseconds,
                 "duration-constant" => DurationKnownEncoding.Constant,
                 _ => null
             };
