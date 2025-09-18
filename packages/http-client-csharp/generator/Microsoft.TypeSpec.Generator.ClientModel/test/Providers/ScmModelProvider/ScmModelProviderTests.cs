@@ -207,5 +207,97 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
 
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
+
+        [Test]
+        public void TestDiscriminatedDynamicBaseModel()
+        {
+            var catModel = InputFactory.Model("cat", discriminatedKind: "cat", properties:
+            [
+                InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                InputFactory.Property("meows", InputPrimitiveType.Boolean, isRequired: true)
+            ]);
+            var dogModel = InputFactory.Model("dog", discriminatedKind: "dog", properties:
+            [
+                InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                InputFactory.Property("barks", InputPrimitiveType.Boolean, isRequired: true)
+            ]);
+            var baseModel = InputFactory.Model(
+                "pet",
+                isDynamicModel: true,
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "cat", catModel }, { "dog", dogModel } });
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [baseModel, dogModel, catModel]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(baseModel) as ClientModel.Providers.ScmModelProvider;
+
+            Assert.IsNotNull(model);
+            Assert.IsTrue(model!.IsDynamicModel);
+
+            var writer = new TypeProviderWriter(model);
+            var file = writer.Write();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void TestDiscriminatedDynamicDerivedModel()
+        {
+            var catModel = InputFactory.Model("cat", discriminatedKind: "cat", properties:
+            [
+                InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                InputFactory.Property("meows", InputPrimitiveType.Boolean, isRequired: true)
+            ]);
+            var dogModel = InputFactory.Model("dog", discriminatedKind: "dog", properties:
+            [
+                InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                InputFactory.Property("barks", InputPrimitiveType.Boolean, isRequired: true)
+            ]);
+            var baseModel = InputFactory.Model(
+                "pet",
+                isDynamicModel: true,
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "cat", catModel }, { "dog", dogModel } });
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [baseModel, dogModel, catModel]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(catModel) as ClientModel.Providers.ScmModelProvider;
+
+            Assert.IsNotNull(model);
+            Assert.IsTrue(model!.HasDynamicModelSupport);
+
+            var writer = new TypeProviderWriter(model);
+            var file = writer.Write();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void TestDynamicDerivedModel()
+        {
+            var catModel = InputFactory.Model("cat", properties:
+            [
+                InputFactory.Property("meows", InputPrimitiveType.Boolean, isRequired: true)
+            ]);
+            var baseModel = InputFactory.Model(
+                "pet",
+                isDynamicModel: true,
+                derivedModels: [catModel]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [baseModel, catModel]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(catModel) as ClientModel.Providers.ScmModelProvider;
+
+            Assert.IsNotNull(model);
+            Assert.IsTrue(model!.HasDynamicModelSupport);
+
+            var writer = new TypeProviderWriter(model);
+            var file = writer.Write();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
     }
 }

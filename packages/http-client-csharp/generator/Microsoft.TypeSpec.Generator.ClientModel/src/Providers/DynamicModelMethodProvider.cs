@@ -97,7 +97,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var dynamicProperties = _model.Properties.Where(p =>
                 ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(p.Type, out var provider) &&
-                provider is ScmModelProvider { IsDynamicModel: true });
+                provider is ScmModelProvider { JsonPatchProperty: not null });
             var statements = new List<MethodBodyStatement>();
 
             foreach (var property in dynamicProperties)
@@ -135,7 +135,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 .Where(p => ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(
                     p.Type.GetNestedElementType(),
                     out var provider) &&
-                    provider is ScmModelProvider { IsDynamicModel: true });
+                    provider is ScmModelProvider { JsonPatchProperty: not null });
 
             foreach (var property in dynamicCollectionProperties)
             {

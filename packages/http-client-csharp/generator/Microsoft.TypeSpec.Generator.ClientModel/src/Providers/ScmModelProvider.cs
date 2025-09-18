@@ -21,6 +21,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
     public sealed class ScmModelProvider : ModelProvider
     {
         private const string JsonPatchFieldName = "_patch";
+        private const string AdditionalBinaryDataParameterName = "additionalBinaryDataProperties";
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
         private readonly CSharpType _jsonPatchFieldType = typeof(JsonPatch);
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
@@ -33,6 +34,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         internal const string JsonPatchPropertyName = "Patch";
         internal bool IsDynamicModel { get; }
         internal bool HasDynamicModelSupport { get; }
+        internal Lazy<PropertyProvider?> BaseJsonPatchProperty { get; }
 
         internal bool HasDynamicProperties => _hasDynamicProperties ??= BuildHasDynamicProperties();
         private bool? _hasDynamicProperties;
@@ -45,6 +47,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             IsDynamicModel = inputModel.IsDynamicModel;
             HasDynamicModelSupport = ComputeHasDynamicModelSupport();
+            BaseJsonPatchProperty = new(GetBaseJsonPatchProperty());
         }
 
         protected override FieldProvider[] BuildFields()
@@ -107,9 +110,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     constructor.Update(signature: constructor.Signature);
                     constructor.Update(suppressions: [suppression, .. constructor.Suppressions]);
 
-                    if (RawDataField != null &&
-                        JsonPatchField != null &&
-                        constructor.BodyStatements != null)
+                    if (RawDataField != null && constructor.BodyStatements != null)
                     {
                         List<MethodBodyStatement> updatedBody = [];
                         foreach (var statement in constructor.BodyStatements)
@@ -123,12 +124,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             updatedBody.Add(statement);
                         }
 
-                        updatedBody.Add(JsonPatchField.Assign(JsonPatchProperty!.AsParameter).Terminate());
-                        if (HasDynamicProperties)
+                        if (JsonPatchField != null)
                         {
+                            updatedBody.Add(JsonPatchField.Assign(JsonPatchProperty!.AsParameter).Terminate());
+                            if (HasDynamicProperties)
+                            {
 #pragma warning disable SCME0001
-                            updatedBody.Add(JsonPatchField.As<JsonPatch>().SetPropagators(new MemberExpression(null, "PropagateSet"), new MemberExpression(null, "PropagateGet")));
+                                updatedBody.Add(JsonPatchField.As<JsonPatch>().SetPropagators(new MemberExpression(null, "PropagateSet"), new MemberExpression(null, "PropagateGet")));
 #pragma warning restore SCME0001
+                            }
                         }
 
                         constructor.Update(bodyStatements: updatedBody);
@@ -194,7 +198,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     new AttributeStatement(typeof(EditorBrowsableAttribute), FrameworkEnumValue(EditorBrowsableState.Never)),
                     new AttributeStatement(typeof(ExperimentalAttribute), [Literal(ScmEvaluationTypeDiagnosticId)])
                 ],
-                enclosingType: this);
+                enclosingType: this)
+            {
+                BackingField = JsonPatchField
+            };
         }
 
         private bool ComputeHasDynamicModelSupport()
@@ -227,23 +234,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return true;
             }
 
-            return FullConstructor.Signature.Parameters.Any(p => p.Field?.Equals(RawDataField) == true);
+            return FullConstructor.Signature.Parameters
+                .Any(p => p.Field?.Name.Equals(AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName) == true);
         }
 
         private void UpdateFullConstructorParameters()
         {
-            if (JsonPatchProperty is null)
+            if (BaseJsonPatchProperty.Value is null)
             {
                 return;
             }
 
             var updatedParameters = new List<ParameterProvider>(FullConstructor.Signature.Parameters.Count + 1);
-            var jsonPatchParameter = JsonPatchProperty.AsParameter;
+            var jsonPatchParameter = BaseJsonPatchProperty.Value.AsParameter;
             jsonPatchParameter.Update(isIn: true);
 
             foreach (var parameter in FullConstructor.Signature.Parameters)
             {
-                if (parameter.Field?.Equals(RawDataField) == true)
+                if (parameter.Field?.Name.Equals(AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName) == true)
                 {
                     updatedParameters.Add(jsonPatchParameter);
                 }
@@ -251,6 +259,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     updatedParameters.Add(parameter);
                 }
+            }
+
+            // Update the initializer to include the json patch parameter as an argument
+            if (FullConstructor.Signature.Initializer != null)
+            {
+                var updatedArguments = new List<ValueExpression>(FullConstructor.Signature.Initializer.Arguments.Count);
+                foreach (var argument in FullConstructor.Signature.Initializer.Arguments)
+                {
+                    if (argument is VariableExpression { Declaration.RequestedName: AdditionalBinaryDataParameterName })
+                    {
+                        updatedArguments.Add(jsonPatchParameter);
+                    }
+                    else
+                    {
+                        updatedArguments.Add(argument);
+                    }
+                }
+                var updatedInitializer = new ConstructorInitializer(FullConstructor.Signature.Initializer.IsBase, updatedArguments);
+                FullConstructor.Signature.Update(initializer: updatedInitializer);
             }
 
             FullConstructor.Signature.Update(parameters: updatedParameters);
@@ -271,6 +298,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                               p.Type.GetNestedElementType(),
                               out var provider) &&
                           provider is ScmModelProvider { IsDynamicModel: true });
+        }
+
+        private PropertyProvider? GetBaseJsonPatchProperty()
+        {
+            if (JsonPatchProperty != null)
+            {
+                return JsonPatchProperty;
+            }
+
+            var baseModelProvider = BaseModelProvider;
+            while (baseModelProvider != null)
+            {
+                if (baseModelProvider is ScmModelProvider baseScmModelProvider && baseScmModelProvider.JsonPatchProperty != null)
+                {
+                    return baseScmModelProvider.JsonPatchProperty;
+                }
+                baseModelProvider = baseModelProvider.BaseModelProvider;
+            }
+
+            return null;
         }
     }
 }

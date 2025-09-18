@@ -55,7 +55,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private readonly InputModelType _inputModel;
         private readonly FieldProvider? _rawDataField;
         private readonly Lazy<PropertyProvider?> _additionalBinaryDataProperty;
-        private readonly Lazy<PropertyProvider?> _jsonPatchProperty;
+        private readonly PropertyProvider? _jsonPatchProperty;
         private readonly bool _isStruct;
         private ConstructorProvider? _serializationConstructor;
         // Flag to determine if the model should override the serialization methods
@@ -65,7 +65,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         public MrwSerializationTypeDefinition(InputModelType inputModel, ModelProvider modelProvider)
         {
             _model = modelProvider;
-            _jsonPatchProperty = new(GetBaseJsonPatchProperty);
+            _jsonPatchProperty = _jsonPatchProperty = modelProvider is ScmModelProvider scmModel
+                ? scmModel.BaseJsonPatchProperty.Value
+                : null;
             _inputModel = inputModel;
             _isStruct = _model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct);
             // Initialize the serialization interfaces
@@ -603,12 +605,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var coreMethodSignature = jsonModelWriteCoreMethod.Signature;
             List<MethodBodyStatement>? rootJsonPatchStatements = null;
 
-            if (_jsonPatchProperty.Value != null)
+            if (_jsonPatchProperty != null)
             {
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-                IfStatement condition = new(_jsonPatchProperty.Value.As<JsonPatch>().Contains(LiteralU8("$")))
+                IfStatement condition = new(_jsonPatchProperty.As<JsonPatch>().Contains(LiteralU8("$")))
                 {
-                    _utf8JsonWriterSnippet.WriteRawValue(_jsonPatchProperty.Value.As<JsonPatch>().GetJson(LiteralU8("$"))),
+                    _utf8JsonWriterSnippet.WriteRawValue(_jsonPatchProperty.As<JsonPatch>().GetJson(LiteralU8("$"))),
                     Return()
                 };
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
@@ -640,12 +642,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 CreateWriteAdditionalPropertiesStatement(),
             ];
 
-            if (_jsonPatchProperty.Value != null)
+            if (_jsonPatchProperty != null)
             {
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-                writePropertiesStatements.AddRange(
-                    MethodBodyStatement.EmptyLine,
-                    _jsonPatchProperty.Value.As<JsonPatch>().WriteTo(_utf8JsonWriterSnippet).Terminate());
+                if ((DeclarationModifiers & (TypeSignatureModifiers.Abstract | TypeSignatureModifiers.Protected)) == 0)
+                {
+                    writePropertiesStatements.AddRange(
+                        MethodBodyStatement.EmptyLine,
+                        _jsonPatchProperty.As<JsonPatch>().WriteTo(_utf8JsonWriterSnippet).Terminate());
+                }
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
                 writePropertiesStatements =
                 [
@@ -944,11 +949,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     rawBinaryData.AsVariableExpression.AsDictionary(rawBinaryData.Type).Add(jsonProperty.Name(), rawDataDeserializationValue)
                 });
             }
-            else if (_jsonPatchProperty.Value != null)
+            else if (_jsonPatchProperty != null)
             {
                 // If we have a JsonPatch property, we want to add any unknown properties to the patch
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-                var jsonPatchSet = _jsonPatchProperty.Value.AsVariableExpression.As<JsonPatch>().Set(
+                var jsonPatchSet = _jsonPatchProperty.AsVariableExpression.As<JsonPatch>().Set(
                     IndexerExpression.FromCollection(Spread(LiteralU8("$.")), Spread(Utf8Snippets.GetBytes(jsonProperty.Name()))),
                     jsonProperty.Value().GetUtf8Bytes());
                 propertyDeserializationStatements.Add(jsonPatchSet);
@@ -1420,31 +1425,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 this);
         }
 
-        private PropertyProvider? GetBaseJsonPatchProperty()
-        {
-            if (_model is not ScmModelProvider scmModelProvider)
-            {
-                return null;
-            }
-
-            if (scmModelProvider.JsonPatchProperty != null)
-            {
-                return scmModelProvider.JsonPatchProperty;
-            }
-
-            var baseModelProvider = scmModelProvider.BaseModelProvider;
-            while (baseModelProvider != null)
-            {
-                if (baseModelProvider is ScmModelProvider baseScmModelProvider && baseScmModelProvider.JsonPatchProperty != null)
-                {
-                    return baseScmModelProvider.JsonPatchProperty;
-                }
-                baseModelProvider = baseModelProvider.BaseModelProvider;
-            }
-
-            return null;
-        }
-
         /// <summary>
         /// Produces the validation body statements for the JSON serialization format.
         /// </summary>
@@ -1587,8 +1567,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             MethodBodyStatement writePropertySerializationStatement)
         {
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-            ScopedApi<bool>? patchCheck = _jsonPatchProperty.Value != null
-                ? Not(_jsonPatchProperty.Value.As<JsonPatch>().Contains(LiteralU8($"$.{wireInfo.SerializedName}")))
+            ScopedApi<bool>? patchCheck = _jsonPatchProperty != null
+                ? Not(_jsonPatchProperty.As<JsonPatch>().Contains(LiteralU8($"$.{wireInfo.SerializedName}")))
                 : null;
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
 
@@ -1665,11 +1645,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
            SerializationFormat serializationFormat,
            string serializedName)
         {
-            return _jsonPatchProperty.Value != null
+            return _jsonPatchProperty != null
                 ? CreateDictionarySerializationWithPatch(
                     dictionary,
                     serializationFormat,
-                    _jsonPatchProperty.Value.As<JsonPatch>(),
+                    _jsonPatchProperty.As<JsonPatch>(),
                     serializedName)
                 : CreateDictionarySerialization(dictionary, serializationFormat, serializedName);
         }
@@ -1763,11 +1743,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ? array.NullableStructValue(array.Type.ElementType).Property(nameof(ReadOnlyMemory<byte>.Span))
                 : array;
 
-            return _jsonPatchProperty.Value != null
+            return _jsonPatchProperty != null
                 ? CreateListSerializationWithPatch(
                     collection,
                     itemType,
-                    _jsonPatchProperty.Value.As<JsonPatch>(),
+                    _jsonPatchProperty.As<JsonPatch>(),
                     serializationFormat,
                     serializedName)
                 : CreateListSerialization(collection, itemType, serializationFormat);
@@ -1886,14 +1866,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             MethodBodyStatement? elseStatementBody)
         {
             string jsonPath = $"$.{serializedName}";
-            var ifPatchIsNotRemoved = new IfStatement(Not(_jsonPatchProperty.Value!.As<JsonPatch>().IsRemoved(LiteralU8(jsonPath))))
+            var ifPatchIsNotRemoved = new IfStatement(Not(_jsonPatchProperty!.As<JsonPatch>().IsRemoved(LiteralU8(jsonPath))))
             {
                 _utf8JsonWriterSnippet.WritePropertyName(serializedName),
                 _utf8JsonWriterSnippet.WriteRawValue(
-                    JsonPatchSnippets.GetJson(_jsonPatchProperty.Value!.As<JsonPatch>(),
+                    JsonPatchSnippets.GetJson(_jsonPatchProperty!.As<JsonPatch>(),
                     LiteralU8(jsonPath)))
             };
-            var ifPatchContainsJson = new IfStatement(_jsonPatchProperty.Value!.As<JsonPatch>().Contains(LiteralU8(jsonPath)))
+            var ifPatchContainsJson = new IfStatement(_jsonPatchProperty!.As<JsonPatch>().Contains(LiteralU8(jsonPath)))
             {
                 ifPatchIsNotRemoved
             };
