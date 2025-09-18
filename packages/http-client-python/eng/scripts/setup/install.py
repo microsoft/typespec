@@ -51,8 +51,7 @@ def main():
         venv_context = create_venv_with_package_manager(venv_path)
 
         # Install required packages - install_packages handles package manager logic
-        install_packages(["-U", "black"], venv_context)
-        install_packages([f"{_ROOT_DIR}/generator"], venv_context)
+        install_packages([f"{_ROOT_DIR}/generator"], venv_context, cwd=_ROOT_DIR)
     except Exception as e:
         # Since Python and package manager are available, any failure here should fail the npm install
         print(f"Error: Installation failed despite Python and package manager being available: {e}")
