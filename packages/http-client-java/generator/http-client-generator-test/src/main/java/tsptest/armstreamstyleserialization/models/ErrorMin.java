@@ -114,6 +114,14 @@ public final class ErrorMin extends ManagementError {
     }
 
     /**
+     * Validates the instance.
+     * 
+     * @throws IllegalArgumentException thrown if the instance is not valid.
+     */
+    public void validate() {
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override

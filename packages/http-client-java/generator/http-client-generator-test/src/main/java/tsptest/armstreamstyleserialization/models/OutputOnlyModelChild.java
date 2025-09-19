@@ -5,6 +5,7 @@
 package tsptest.armstreamstyleserialization.models;
 
 import com.azure.core.annotation.Immutable;
+import com.azure.core.util.logging.ClientLogger;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonToken;
 import com.azure.json.JsonWriter;
@@ -113,6 +114,32 @@ public final class OutputOnlyModelChild extends OutputOnlyModelInner {
     public Golden dog() {
         return this.innerProperties() == null ? null : this.innerProperties().dog();
     }
+
+    /**
+     * Validates the instance.
+     * 
+     * @throws IllegalArgumentException thrown if the instance is not valid.
+     */
+    @Override
+    public void validate() {
+        if (childName() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Missing required property childName in model OutputOnlyModelChild"));
+        }
+        if (name() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Missing required property name in model OutputOnlyModelChild"));
+        }
+        if (innerProperties() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Missing required property innerProperties in model OutputOnlyModelChild"));
+        } else {
+            innerProperties().validate();
+        }
+    }
+
+    private static final ClientLogger LOGGER = new ClientLogger(OutputOnlyModelChild.class);
 
     /**
      * {@inheritDoc}

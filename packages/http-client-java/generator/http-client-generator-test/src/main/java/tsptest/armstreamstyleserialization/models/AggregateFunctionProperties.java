@@ -5,6 +5,7 @@
 package tsptest.armstreamstyleserialization.models;
 
 import com.azure.core.annotation.Fluent;
+import com.azure.core.util.logging.ClientLogger;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonToken;
 import com.azure.json.JsonWriter;
@@ -82,6 +83,24 @@ public final class AggregateFunctionProperties extends FunctionProperties {
         this.innerProperties().withOutput(output);
         return this;
     }
+
+    /**
+     * Validates the instance.
+     * 
+     * @throws IllegalArgumentException thrown if the instance is not valid.
+     */
+    @Override
+    public void validate() {
+        if (innerProperties() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Missing required property innerProperties in model AggregateFunctionProperties"));
+        } else {
+            innerProperties().validate();
+        }
+    }
+
+    private static final ClientLogger LOGGER = new ClientLogger(AggregateFunctionProperties.class);
 
     /**
      * {@inheritDoc}

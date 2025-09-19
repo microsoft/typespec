@@ -21,6 +21,7 @@ import com.azure.core.http.rest.RestProxy;
 import com.azure.core.management.exception.ManagementException;
 import com.azure.core.util.Context;
 import com.azure.core.util.FluxUtil;
+import com.azure.core.util.logging.ClientLogger;
 import reactor.core.publisher.Mono;
 import tsptest.armstreamstyleserialization.fluent.FishesClient;
 import tsptest.armstreamstyleserialization.fluent.models.FishInner;
@@ -112,6 +113,10 @@ public final class FishesClientImpl implements FishesClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<FishInner>> getModelWithResponseAsync() {
+        if (this.client.getEndpoint() == null) {
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
         final String accept = "application/json";
         return FluxUtil.withContext(context -> service.getModel(this.client.getEndpoint(), accept, context))
             .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
@@ -142,6 +147,11 @@ public final class FishesClientImpl implements FishesClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<FishInner> getModelWithResponse(Context context) {
+        if (this.client.getEndpoint() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
         final String accept = "application/json";
         return service.getModelSync(this.client.getEndpoint(), accept, context);
     }
@@ -170,6 +180,15 @@ public final class FishesClientImpl implements FishesClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<FishInner>> putModelWithResponseAsync(FishInner fish) {
+        if (this.client.getEndpoint() == null) {
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (fish == null) {
+            return Mono.error(new IllegalArgumentException("Parameter fish is required and cannot be null."));
+        } else {
+            fish.validate();
+        }
         final String contentType = "application/json";
         final String accept = "application/json";
         return FluxUtil
@@ -205,6 +224,16 @@ public final class FishesClientImpl implements FishesClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<FishInner> putModelWithResponse(FishInner fish, Context context) {
+        if (this.client.getEndpoint() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
+        if (fish == null) {
+            throw LOGGER.atError().log(new IllegalArgumentException("Parameter fish is required and cannot be null."));
+        } else {
+            fish.validate();
+        }
         final String contentType = "application/json";
         final String accept = "application/json";
         return service.putModelSync(this.client.getEndpoint(), contentType, accept, fish, context);
@@ -234,6 +263,10 @@ public final class FishesClientImpl implements FishesClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<OutputOnlyModelInner>> getOutputOnlyModelWithResponseAsync() {
+        if (this.client.getEndpoint() == null) {
+            return Mono.error(
+                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
         final String accept = "application/json";
         return FluxUtil.withContext(context -> service.getOutputOnlyModel(this.client.getEndpoint(), accept, context))
             .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
@@ -262,6 +295,11 @@ public final class FishesClientImpl implements FishesClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<OutputOnlyModelInner> getOutputOnlyModelWithResponse(Context context) {
+        if (this.client.getEndpoint() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Parameter this.client.getEndpoint() is required and cannot be null."));
+        }
         final String accept = "application/json";
         return service.getOutputOnlyModelSync(this.client.getEndpoint(), accept, context);
     }
@@ -277,4 +315,6 @@ public final class FishesClientImpl implements FishesClient {
     public OutputOnlyModelInner getOutputOnlyModel() {
         return getOutputOnlyModelWithResponse(Context.NONE).getValue();
     }
+
+    private static final ClientLogger LOGGER = new ClientLogger(FishesClientImpl.class);
 }

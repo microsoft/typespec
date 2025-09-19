@@ -36,4 +36,12 @@ public final class FunctionsCreateFunctionHeaders {
     public String etag() {
         return this.etag;
     }
+
+    /**
+     * Validates the instance.
+     * 
+     * @throws IllegalArgumentException thrown if the instance is not valid.
+     */
+    public void validate() {
+    }
 }
