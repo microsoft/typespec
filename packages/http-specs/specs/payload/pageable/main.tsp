@@ -449,27 +449,68 @@ namespace ServerDrivenPagination {
   }
 }
 
-@scenario
-@scenarioDoc("""
-  Test case for simple pagination without nextlink or continuationToken.
-  
-  Single request:
-  Expected route: /payload/pageable/simple
-  
-  Expected response body:
-  ```json
-  { "pets": [
-      { "id": "1", "name": "dog" },
-      { "id": "2", "name": "cat" },
-      { "id": "3", "name": "bird" },
-      { "id": "4", "name": "fish" }
-    ]
-  }
-  ```
-  """)
-@route("/simple")
-@list
-op listWithoutContinuation(): {
-  @pageItems
-  pets: Pet[];
-};
+@route("/pagesize")
+namespace PageSize {
+  @scenario
+  @scenarioDoc("""
+    Test case for simple pagination without nextlink or continuationToken.
+    
+    Single request:
+    Expected route: /payload/pageable/pagesize/without-continuation
+    
+    Expected response body:
+    ```json
+    { "pets": [
+        { "id": "1", "name": "dog" },
+        { "id": "2", "name": "cat" },
+        { "id": "3", "name": "bird" },
+        { "id": "4", "name": "fish" }
+      ]
+    }
+    ```
+    """)
+  @route("/without-continuation")
+  @list
+  op listWithoutContinuation(): {
+    @pageItems
+    pets: Pet[];
+  };
+
+  @scenario
+  @scenarioDoc("""
+    Test case for pagination with a regular @pageSize parameter.
+    
+    Two requests need to be tested:
+    1. Request with pageSize=2:
+    Expected route: /payload/pageable/pagesize/list?pageSize=2
+    
+    Expected response body:
+    ```json
+    { "pets": [
+        { "id": "1", "name": "dog" },
+        { "id": "2", "name": "cat" }
+      ]
+    }
+    ```
+    
+    2. Request with pageSize=4:
+    Expected route: /payload/pageable/pagesize/list?pageSize=4
+    
+    Expected response body:
+    ```json
+    { "pets": [
+        { "id": "1", "name": "dog" },
+        { "id": "2", "name": "cat" },
+        { "id": "3", "name": "bird" },
+        { "id": "4", "name": "fish" }
+      ]
+    }
+    ```
+    """)
+  @route("/list")
+  @list
+  op listWithPageSize(@pageSize @query pageSize?: int32): {
+    @pageItems
+    pets: Pet[];
+  };
+}
