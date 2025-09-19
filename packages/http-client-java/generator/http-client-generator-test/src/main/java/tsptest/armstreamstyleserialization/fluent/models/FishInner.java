@@ -5,7 +5,6 @@
 package tsptest.armstreamstyleserialization.fluent.models;
 
 import com.azure.core.annotation.Fluent;
-import com.azure.core.util.logging.ClientLogger;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
@@ -247,29 +246,6 @@ public class FishInner implements JsonSerializable<FishInner> {
         this.innerAnotherProperties().withRequiredString(requiredString);
         return this;
     }
-
-    /**
-     * Validates the instance.
-     * 
-     * @throws IllegalArgumentException thrown if the instance is not valid.
-     */
-    public void validate() {
-        if (innerProperties() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Missing required property innerProperties in model FishInner"));
-        } else {
-            innerProperties().validate();
-        }
-        if (innerAnotherProperties() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Missing required property innerAnotherProperties in model FishInner"));
-        } else {
-            innerAnotherProperties().validate();
-        }
-    }
-
-    private static final ClientLogger LOGGER = new ClientLogger(FishInner.class);
 
     /**
      * {@inheritDoc}
