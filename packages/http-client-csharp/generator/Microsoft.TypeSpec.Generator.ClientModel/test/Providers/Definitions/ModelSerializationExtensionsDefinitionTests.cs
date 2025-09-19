@@ -377,23 +377,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         }
 
         [Test]
-        public void ValidateWriteDictionaryWithPatch()
-        {
-            MockHelpers.LoadMockGenerator(inputModels: () => [InputFactory.Model("dynamicModel", isDynamicModel: true)]);
-
-            var definition = new ModelSerializationExtensionsDefinition();
-            var methods = definition.Methods;
-
-            Assert.IsNotNull(methods);
-            var method = methods.SingleOrDefault(m => m.Signature.Name == "WriteDictionaryWithPatch");
-            Assert.IsNotNull(method);
-
-            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(definition, name => name == method!.Signature.Name));
-            var file = writer.Write();
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
-        }
-
-        [Test]
         public void ValidateTryGetIndex()
         {
             MockHelpers.LoadMockGenerator(inputModels: () => [InputFactory.Model("dynamicModel", isDynamicModel: true)]);
