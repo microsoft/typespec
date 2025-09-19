@@ -769,7 +769,7 @@ export const $secret: SecretDecorator = (
 export { isSecret };
 
 export type DateTimeKnownEncoding = "rfc3339" | "rfc7231" | "unixTimestamp";
-export type DurationKnownEncoding = "ISO8601" | "seconds";
+export type DurationKnownEncoding = "ISO8601" | "seconds" | "milliseconds";
 export type BytesKnownEncoding = "base64" | "base64url";
 
 export interface EncodeData {
@@ -865,7 +865,9 @@ function validateEncodeData(context: DecoratorContext, target: Type, encodeData:
       const typeName = getTypeName(encodeData.type);
       reportDiagnostic(context.program, {
         code: "invalid-encode",
-        messageId: ["unixTimestamp", "seconds"].includes(encodeData.encoding ?? "string")
+        messageId: ["unixTimestamp", "seconds", "milliseconds"].includes(
+          encodeData.encoding ?? "string",
+        )
           ? "wrongNumericEncodingType"
           : "wrongEncodingType",
         format: {
@@ -887,6 +889,8 @@ function validateEncodeData(context: DecoratorContext, target: Type, encodeData:
     case "unixTimestamp":
       return check(["utcDateTime"], ["integer"]);
     case "seconds":
+      return check(["duration"], ["numeric"]);
+    case "milliseconds":
       return check(["duration"], ["numeric"]);
     case "base64":
       return check(["bytes"], ["string"]);
