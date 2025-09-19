@@ -168,7 +168,6 @@ public class TypeSpecFluentPlugin extends FluentGen {
         SETTINGS_MAP.put("graal-vm-config", true);
         SETTINGS_MAP.put("sync-methods", "all");
         SETTINGS_MAP.put("stream-style-serialization", false);
-//        SETTINGS_MAP.put("pipeline.fluentgen.naming.override", getNamingOverrides());
     }
 
     @SuppressWarnings("unchecked")
