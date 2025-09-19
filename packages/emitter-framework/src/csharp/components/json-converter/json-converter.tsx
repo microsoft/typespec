@@ -1,5 +1,5 @@
 import { useTsp } from "#core/index.js";
-import { code, List, namekey, refkey, type Namekey, type Refkey } from "@alloy-js/core";
+import { code, List, namekey, type Namekey, type Refkey } from "@alloy-js/core";
 import type { Children } from "@alloy-js/core/jsx-runtime";
 import { ClassDeclaration, Method } from "@alloy-js/csharp";
 import System, { Xml } from "@alloy-js/csharp/global/System";
@@ -12,18 +12,22 @@ interface JsonConverterProps {
   type: Type;
   refkey?: Refkey;
   /** Decode and return value from reader*/
-  decodeAndReturn: (reader: Refkey, typeToConvert: Refkey, options: Refkey) => Children;
+  decodeAndReturn: (reader: Namekey, typeToConvert: Namekey, options: Namekey) => Children;
   /** Encode the given value and send to writer*/
-  encodeAndWrite: (writer: Refkey, value: Refkey, options: Refkey) => Children;
+  encodeAndWrite: (writer: Namekey, value: Namekey, options: Namekey) => Children;
 }
 
+/**
+ * Generate a Json converter class inheriting System.Text.Json.Serialization.JsonConverter<T> which can be used by System.Text.Json.Serialization.JsonConverterAttribute to provide custom serialization.
+ * @see https://learn.microsoft.com/en-us/dotnet/standard/serialization/system-text-json/converters-how-to#steps-to-follow-the-basic-pattern
+ */
 export function JsonConverter(props: JsonConverterProps) {
-  const readParamReader: Refkey = refkey();
-  const readParamTypeToConvert: Refkey = refkey();
-  const readParamOptions: Refkey = refkey();
-  const writeParamWriter: Refkey = refkey();
-  const writeParamValue: Refkey = refkey();
-  const writeParamOptions: Refkey = refkey();
+  const readParamReader: Namekey = namekey("reader");
+  const readParamTypeToConvert: Namekey = namekey("typeToConvert");
+  const readParamOptions: Namekey = namekey("options");
+  const writeParamWriter: Namekey = namekey("writer");
+  const writeParamValue: Namekey = namekey("value");
+  const writeParamOptions: Namekey = namekey("options");
   const propTypeExpression = code`${(<TypeExpression type={props.type} />)}`;
   return (
     <ClassDeclaration
@@ -40,16 +44,14 @@ export function JsonConverter(props: JsonConverterProps) {
           override
           parameters={[
             {
-              name: "reader",
+              name: readParamReader,
               ref: true,
               type: code`${Json.Utf8JsonReader}`,
-              refkey: readParamReader,
             },
-            { name: "typeToConvert", type: code`${System.Type}`, refkey: readParamTypeToConvert },
+            { name: readParamTypeToConvert, type: code`${System.Type}` },
             {
-              name: "options",
+              name: readParamOptions,
               type: code`${Json.JsonSerializerOptions}`,
-              refkey: readParamOptions,
             },
           ]}
           returns={propTypeExpression}
@@ -61,16 +63,14 @@ export function JsonConverter(props: JsonConverterProps) {
           public
           override
           parameters={[
-            { name: "writer", type: code`${Json.Utf8JsonWriter}`, refkey: writeParamWriter },
+            { name: writeParamWriter, type: code`${Json.Utf8JsonWriter}` },
             {
-              name: "value",
+              name: writeParamValue,
               type: propTypeExpression,
-              refkey: writeParamValue,
             },
             {
-              name: "options",
+              name: writeParamOptions,
               type: code`${Json.JsonSerializerOptions}`,
-              refkey: writeParamOptions,
             },
           ]}
         >
