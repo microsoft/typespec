@@ -2,16 +2,19 @@ import { execSync } from "child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { beforeEach, describe } from "vitest";
-import { contrastResult, preContrastResult, startWithRightClick } from "./common/common-steps";
+import {
+  contrastResult,
+  preContrastResult,
+  startWithRightClick,
+  tryInstallAndHandle,
+} from "./common/common-steps";
 import { mockShowOpenDialog } from "./common/mock-dialogs";
 import { CaseScreenshot, tempDir, test } from "./common/utils";
 
-try {
-  execSync("pnpm install @typespec/openapi3", { stdio: "inherit" });
-  execSync("pnpm install @typespec/http", { stdio: "inherit" });
-} catch (e) {
-  process.exit(1);
-}
+let shouldSkip = false;
+
+shouldSkip = tryInstallAndHandle("@typespec/http") || shouldSkip;
+shouldSkip = tryInstallAndHandle("@typespec/http-client-csharp") || shouldSkip;
 
 enum ImportProjectTriggerType {
   CommandPalette = "CommandPalette",
@@ -70,7 +73,8 @@ beforeEach(() => {
   }
 });
 
-describe.each(ImportCasesConfigList)("ImportTypespecFromOpenApi3", async (item) => {
+const describeFn = shouldSkip ? describe.skip : describe;
+describeFn.each(ImportCasesConfigList)("ImportTypespecFromOpenApi3", async (item) => {
   const { caseName, expectedResults } = item;
   test(caseName, async ({ launch }) => {
     const cs = new CaseScreenshot(caseName);
