@@ -1,8 +1,9 @@
+import { execSync } from "child_process";
 import { rm } from "fs/promises";
 import fs from "node:fs";
 import path from "node:path";
 import { Locator, Page } from "playwright";
-import { CaseScreenshot, retry } from "./utils";
+import { CaseScreenshot, PNPM_NO_MATCHING_VERSION_ERROR, retry } from "./utils";
 
 /**
  * Waits for the specified text to appear on the page before proceeding.
@@ -135,4 +136,25 @@ export function readTspConfigFile(folderName: string) {
 export function restoreTspConfigFile(folderName: string, lines: string) {
   const filePath = path.join(folderName, "tspconfig.yaml");
   fs.writeFileSync(filePath, lines, "utf-8");
+}
+
+/**
+ * Attempt to install the specified npm package and handle the error of pnpm version mismatch.
+ * @param pkg package name
+ * @returns Return true to skip testing, otherwise return false.
+ */
+export function tryInstallAndHandle(pkg: string): boolean {
+  try {
+    execSync(`pnpm install ${pkg}`, { stdio: "pipe" });
+    return false;
+  } catch (e: any) {
+    const errorOutput = (e.stdout && e.stdout.toString()) || "";
+    if (PNPM_NO_MATCHING_VERSION_ERROR.test(errorOutput)) {
+      const filteredLines = errorOutput
+        .split("\n")
+        .filter((line: any) => !line.trim().startsWith("../.."));
+      process.stderr.write(["SKIP_REASON:", ...filteredLines].join("\n") + "\n");
+    }
+    return true;
+  }
 }
