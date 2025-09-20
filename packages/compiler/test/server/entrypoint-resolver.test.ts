@@ -99,26 +99,6 @@ it("falls back to tspMain from package.json when no client entrypoints exist", a
   expect(result).toBe(expected);
 });
 
-it("falls back to default main.tsp when no client entrypoints and no tspMain in package.json", async () => {
-  const host = createMockHost();
-  const dir = "/lib";
-  const filePath = joinPaths(dir, "src", "index.tsp");
-  const expected = joinPaths(dir, "main.tsp");
-
-  vi.mocked(host.stat).mockImplementation(async (path) => {
-    return path === expected ? ({ isFile: () => true } as any) : ({ isFile: () => false } as any);
-  });
-
-  vi.mocked(host.readFile).mockImplementation(async (path: string) => {
-    // Return empty package.json
-    return { text: "{}" } as any;
-  });
-
-  const { log } = createLogger();
-  const result = await resolveEntrypointFile(host, undefined, filePath, undefined, log);
-  expect(result).toBe(expected);
-});
-
 it("uses the given path as main when nothing else is found", async () => {
   const host = createMockHost();
   const filePath = "/standalone/file.tsp";
@@ -132,4 +112,47 @@ it("uses the given path as main when nothing else is found", async () => {
   const { log } = createLogger();
   const result = await resolveEntrypointFile(host, undefined, filePath, undefined, log);
   expect(result).toBe(filePath);
+});
+
+it("uses main.tsp as default entrypoint when entrypoints is null or undefined and no package.json tspMain found", async () => {
+  const host = createMockHost();
+  const dir = "/project";
+  const filePath = joinPaths(dir, "src", "file.tsp");
+  const expectedMainTsp = joinPaths(dir, "main.tsp");
+
+  // Mock host.stat to return isFile: true only for the expected main.tsp path
+  vi.mocked(host.stat).mockImplementation(async (path) => {
+    return path === expectedMainTsp
+      ? ({ isFile: () => true } as any)
+      : ({ isFile: () => false } as any);
+  });
+
+  // Mock host.readFile to return empty package.json (no tspMain)
+  vi.mocked(host.readFile).mockImplementation(async (path) => {
+    if (path.endsWith("package.json")) {
+      return { text: "{}" } as any; // Empty package.json, no tspMain
+    }
+    throw new Error("File not found");
+  });
+
+  const { log } = createLogger();
+  const resultForNull = await resolveEntrypointFile(
+    host,
+    null, // Explicitly pass null for entrypoints
+    filePath,
+    undefined,
+    log,
+  );
+
+  expect(resultForNull).toBe(expectedMainTsp);
+
+  const resultForUndefined = await resolveEntrypointFile(
+    host,
+    undefined, // Explicitly pass undefined for entrypoints
+    filePath,
+    undefined,
+    log,
+  );
+
+  expect(resultForUndefined).toBe(expectedMainTsp);
 });
