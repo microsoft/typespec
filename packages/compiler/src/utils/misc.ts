@@ -38,7 +38,7 @@ export function deepClone<T>(value: T): T {
   }
 
   if (value === null) {
-    return null as T;
+    return value;
   }
 
   if (typeof value === "object") {
