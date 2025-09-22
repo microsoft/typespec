@@ -82,13 +82,12 @@ namespace SampleTypeSpec
                 throw new FormatException($"The model {nameof(ListWithContinuationTokenResponse)} does not support reading '{format}' format.");
             }
             using JsonDocument document = JsonDocument.ParseValue(ref reader);
-            return DeserializeListWithContinuationTokenResponse(document.RootElement, null, options);
+            return DeserializeListWithContinuationTokenResponse(document.RootElement, options);
         }
 
         /// <param name="element"> The JSON element to deserialize. </param>
-        /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        internal static ListWithContinuationTokenResponse DeserializeListWithContinuationTokenResponse(JsonElement element, BinaryData data, ModelReaderWriterOptions options)
+        internal static ListWithContinuationTokenResponse DeserializeListWithContinuationTokenResponse(JsonElement element, ModelReaderWriterOptions options)
         {
             if (element.ValueKind == JsonValueKind.Null)
             {
@@ -104,7 +103,7 @@ namespace SampleTypeSpec
                     List<Thing> array = new List<Thing>();
                     foreach (var item in prop.Value.EnumerateArray())
                     {
-                        array.Add(Thing.DeserializeThing(item, item.GetUtf8Bytes(), options));
+                        array.Add(Thing.DeserializeThing(item, options));
                     }
                     things = array;
                     continue;
@@ -152,7 +151,7 @@ namespace SampleTypeSpec
                 case "J":
                     using (JsonDocument document = JsonDocument.Parse(data))
                     {
-                        return DeserializeListWithContinuationTokenResponse(document.RootElement, data, options);
+                        return DeserializeListWithContinuationTokenResponse(document.RootElement, options);
                     }
                 default:
                     throw new FormatException($"The model {nameof(ListWithContinuationTokenResponse)} does not support reading '{options.Format}' format.");
@@ -168,7 +167,7 @@ namespace SampleTypeSpec
             using PipelineResponse response = result.GetRawResponse();
             BinaryData data = response.Content;
             using JsonDocument document = JsonDocument.Parse(data);
-            return DeserializeListWithContinuationTokenResponse(document.RootElement, data, ModelSerializationExtensions.WireOptions);
+            return DeserializeListWithContinuationTokenResponse(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
     }
 }

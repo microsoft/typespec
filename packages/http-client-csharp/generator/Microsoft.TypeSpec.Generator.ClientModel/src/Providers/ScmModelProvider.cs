@@ -21,7 +21,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
     public sealed class ScmModelProvider : ModelProvider
     {
         private const string JsonPatchFieldName = "_patch";
-        private const string AdditionalBinaryDataParameterName = "additionalBinaryDataProperties";
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
         private readonly CSharpType _jsonPatchFieldType = typeof(JsonPatch);
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
@@ -264,20 +263,36 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Update the initializer to include the json patch parameter as an argument
             if (FullConstructor.Signature.Initializer != null)
             {
-                var updatedArguments = new List<ValueExpression>(FullConstructor.Signature.Initializer.Arguments.Count);
-                foreach (var argument in FullConstructor.Signature.Initializer.Arguments)
+                var baseRawDataField = RawDataField;
+                var currentProvider = BaseModelProvider;
+                while (baseRawDataField == null && currentProvider != null)
                 {
-                    if (argument is VariableExpression { Declaration.RequestedName: AdditionalBinaryDataParameterName })
+                    if (currentProvider is ScmModelProvider baseScmModelProvider && baseScmModelProvider.RawDataField != null)
                     {
-                        updatedArguments.Add(jsonPatchParameter);
+                        baseRawDataField = baseScmModelProvider.RawDataField;
+                        break;
                     }
-                    else
-                    {
-                        updatedArguments.Add(argument);
-                    }
+                    currentProvider = currentProvider.BaseModelProvider;
                 }
-                var updatedInitializer = new ConstructorInitializer(FullConstructor.Signature.Initializer.IsBase, updatedArguments);
-                FullConstructor.Signature.Update(initializer: updatedInitializer);
+
+                if (baseRawDataField != null)
+                {
+                    var updatedArguments = new List<ValueExpression>(FullConstructor.Signature.Initializer.Arguments.Count);
+                    foreach (var argument in FullConstructor.Signature.Initializer.Arguments)
+                    {
+                        VariableExpression rawDataFieldAsVar = baseRawDataField.AsParameter;
+                        if (rawDataFieldAsVar.Equals(argument))
+                        {
+                            updatedArguments.Add(jsonPatchParameter);
+                        }
+                        else
+                        {
+                            updatedArguments.Add(argument);
+                        }
+                    }
+                    var updatedInitializer = new ConstructorInitializer(FullConstructor.Signature.Initializer.IsBase, updatedArguments);
+                    FullConstructor.Signature.Update(initializer: updatedInitializer);
+                }
             }
 
             FullConstructor.Signature.Update(parameters: updatedParameters);

@@ -32,7 +32,7 @@ namespace Sample
                     {
                         continue;
                     }
-                    cats = global::Sample.Models.Cat.DeserializeCat(prop.Value, prop.Value.GetUtf8Bytes(), options);
+                    cats = global::Sample.Models.Cat.DeserializeCat(prop.Value, options);
                     continue;
                 }
                 switch (prop.Value.ValueKind)

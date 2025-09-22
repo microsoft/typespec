@@ -36,7 +36,7 @@ namespace Sample
                     global::System.Collections.Generic.List<global::Sample.Models.Cat> array = new global::System.Collections.Generic.List<global::Sample.Models.Cat>();
                     foreach (var item in prop.Value.EnumerateArray())
                     {
-                        array.Add(global::Sample.Models.Cat.DeserializeCat(item, item.GetUtf8Bytes(), options));
+                        array.Add(global::Sample.Models.Cat.DeserializeCat(item, options));
                     }
                     cats = array;
                     continue;

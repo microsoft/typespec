@@ -149,13 +149,12 @@ namespace SampleTypeSpec
                 throw new FormatException($"The model {nameof(Thing)} does not support reading '{format}' format.");
             }
             using JsonDocument document = JsonDocument.ParseValue(ref reader);
-            return DeserializeThing(document.RootElement, null, options);
+            return DeserializeThing(document.RootElement, options);
         }
 
         /// <param name="element"> The JSON element to deserialize. </param>
-        /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        internal static Thing DeserializeThing(JsonElement element, BinaryData data, ModelReaderWriterOptions options)
+        internal static Thing DeserializeThing(JsonElement element, ModelReaderWriterOptions options)
         {
             if (element.ValueKind == JsonValueKind.Null)
             {
@@ -349,7 +348,7 @@ namespace SampleTypeSpec
                 case "J":
                     using (JsonDocument document = JsonDocument.Parse(data))
                     {
-                        return DeserializeThing(document.RootElement, data, options);
+                        return DeserializeThing(document.RootElement, options);
                     }
                 default:
                     throw new FormatException($"The model {nameof(Thing)} does not support reading '{options.Format}' format.");
@@ -375,7 +374,7 @@ namespace SampleTypeSpec
             using PipelineResponse response = result.GetRawResponse();
             BinaryData data = response.Content;
             using JsonDocument document = JsonDocument.Parse(data);
-            return DeserializeThing(document.RootElement, data, ModelSerializationExtensions.WireOptions);
+            return DeserializeThing(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
     }
 }

@@ -31,7 +31,7 @@ namespace Sample
                     {
                         continue;
                     }
-                    cat = global::Sample.Models.Cat.DeserializeCat(prop.Value, prop.Value.GetUtf8Bytes(), options);
+                    cat = global::Sample.Models.Cat.DeserializeCat(prop.Value, options);
                     continue;
                 }
                 if (prop.NameEquals("anything"u8))

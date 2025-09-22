@@ -574,10 +574,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var signature = deserializationMethod?.Signature;
             Assert.IsNotNull(signature);
             Assert.AreEqual($"Deserialize{model.Name}", signature?.Name);
-            Assert.AreEqual(3, signature?.Parameters.Count);
+            Assert.AreEqual(2, signature?.Parameters.Count);
             Assert.AreEqual(new CSharpType(typeof(JsonElement)), signature?.Parameters[0].Type);
-            Assert.AreEqual(new CSharpType(typeof(BinaryData)), signature?.Parameters[1].Type);
-            Assert.AreEqual(new CSharpType(typeof(ModelReaderWriterOptions)), signature?.Parameters[2].Type);
+            Assert.AreEqual(new CSharpType(typeof(ModelReaderWriterOptions)), signature?.Parameters[1].Type);
             Assert.AreEqual(model.Type, signature?.ReturnType);
             Assert.AreEqual(MethodSignatureModifiers.Internal | MethodSignatureModifiers.Static, signature?.Modifiers);
 
@@ -618,10 +617,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var signature = deserializationMethod?.Signature;
             Assert.IsNotNull(signature);
             Assert.AreEqual($"Deserialize{model.Name}", signature?.Name);
-            Assert.AreEqual(3, signature?.Parameters.Count);
+            Assert.AreEqual(2, signature?.Parameters.Count);
             Assert.AreEqual(new CSharpType(typeof(JsonElement)), signature?.Parameters[0].Type);
-            Assert.AreEqual(new CSharpType(typeof(BinaryData)), signature?.Parameters[1].Type);
-            Assert.AreEqual(new CSharpType(typeof(ModelReaderWriterOptions)), signature?.Parameters[2].Type);
+            Assert.AreEqual(new CSharpType(typeof(ModelReaderWriterOptions)), signature?.Parameters[1].Type);
             Assert.AreEqual(model.Type, signature?.ReturnType);
             Assert.AreEqual(MethodSignatureModifiers.Internal | MethodSignatureModifiers.Static, signature?.Modifiers);
 

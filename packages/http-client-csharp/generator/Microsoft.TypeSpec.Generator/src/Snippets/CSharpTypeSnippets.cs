@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -23,9 +24,22 @@ namespace Microsoft.TypeSpec.Generator.Snippets
             }
         }
 
-        public static ValueExpression Deserialize(this CSharpType type, ValueExpression element, ValueExpression data, ValueExpression? options)
+        public static ValueExpression Deserialize(this CSharpType type, ValueExpression element, ValueExpression? data, ValueExpression? options)
         {
-            var arguments = options == null ? new[] { element } : new[] { element, data, options };
+            List<ValueExpression> arguments;
+            if (options is null)
+            {
+                arguments = [element];
+            }
+            else if (data is null)
+            {
+                arguments = [element, options];
+            }
+            else
+            {
+                arguments = [element, data, options];
+            }
+
             return Static(type).Invoke($"Deserialize{type.Name}", arguments);
         }
 

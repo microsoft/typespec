@@ -72,13 +72,12 @@ namespace SampleTypeSpec
                 throw new FormatException($"The model {nameof(RenamedModelCustom)} does not support reading '{format}' format.");
             }
             using JsonDocument document = JsonDocument.ParseValue(ref reader);
-            return DeserializeRenamedModelCustom(document.RootElement, null, options);
+            return DeserializeRenamedModelCustom(document.RootElement, options);
         }
 
         /// <param name="element"> The JSON element to deserialize. </param>
-        /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        internal static RenamedModelCustom DeserializeRenamedModelCustom(JsonElement element, BinaryData data, ModelReaderWriterOptions options)
+        internal static RenamedModelCustom DeserializeRenamedModelCustom(JsonElement element, ModelReaderWriterOptions options)
         {
             if (element.ValueKind == JsonValueKind.Null)
             {
@@ -131,7 +130,7 @@ namespace SampleTypeSpec
                 case "J":
                     using (JsonDocument document = JsonDocument.Parse(data))
                     {
-                        return DeserializeRenamedModelCustom(document.RootElement, data, options);
+                        return DeserializeRenamedModelCustom(document.RootElement, options);
                     }
                 default:
                     throw new FormatException($"The model {nameof(RenamedModelCustom)} does not support reading '{options.Format}' format.");
@@ -157,7 +156,7 @@ namespace SampleTypeSpec
             using PipelineResponse response = result.GetRawResponse();
             BinaryData data = response.Content;
             using JsonDocument document = JsonDocument.Parse(data);
-            return DeserializeRenamedModelCustom(document.RootElement, data, ModelSerializationExtensions.WireOptions);
+            return DeserializeRenamedModelCustom(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
     }
 }
