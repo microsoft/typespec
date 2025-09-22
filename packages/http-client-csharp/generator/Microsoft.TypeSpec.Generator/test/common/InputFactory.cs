@@ -482,9 +482,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             return new InputDictionaryType("dictionary", keyType ?? InputPrimitiveType.String, valueType);
         }
 
-        public static InputType Union(IList<InputType> types)
+        public static InputType Union(IList<InputType> types, string name = "union")
         {
-            return new InputUnionType("union", [.. types]);
+            return new InputUnionType(name, [.. types]);
         }
 
         public static InputBasicServiceMethod BasicServiceMethod(

@@ -60,6 +60,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private readonly bool _shouldOverrideMethods;
         private readonly Lazy<PropertyProvider[]> _additionalProperties;
 
+        private CSharpType RootType => _rootType ??= GetRootType();
+        private CSharpType? _rootType;
+
         public MrwSerializationTypeDefinition(InputModelType inputModel, ModelProvider modelProvider)
         {
             _model = modelProvider;
@@ -104,6 +107,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
             }
             return [];
+        }
+
+        private CSharpType GetRootType()
+        {
+            // We need to explicitly use the BaseModelProvider when looking up the root type
+            // to account for any customizations that may have changed the base model.
+            var returnType = _model.BaseModelProvider?.Type ?? Type;
+            while (returnType.BaseType != null)
+            {
+                returnType = returnType.BaseType;
+            }
+
+            return returnType;
         }
 
         protected override ConstructorProvider[] BuildConstructors()
@@ -379,7 +395,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // T PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
             return new MethodProvider
             (
-                new MethodSignature(PersistableModelCreateCoreMethodName, null, modifiers, _model.Type.RootType, null, [_dataParameter, _serializationOptionsParameter]),
+                new MethodSignature(PersistableModelCreateCoreMethodName, null, modifiers, RootType, null, [_dataParameter, _serializationOptionsParameter]),
                 BuildPersistableModelCreateCoreMethodBody(),
                 this
             );
@@ -391,12 +407,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         internal MethodProvider BuildJsonModelCreateMethod()
         {
             ValueExpression createCoreInvocation = This.Invoke(JsonModelCreateCoreMethodName, [_utf8JsonReaderParameter, _serializationOptionsParameter]);
-            var createCoreReturnType = _model.Type.RootType;
+            var createCoreReturnType = RootType;
 
             // If the return type of the create core method is not the same as the interface type, cast it to the interface type since
             // the Core methods will always return the root type of the model. The interface type will be the model type unless the model
             // is an unknown discriminated model.
-            if (createCoreReturnType != _jsonModelTInterface.Arguments[0])
+            if (!createCoreReturnType.Equals(_jsonModelTInterface.Arguments[0]))
             {
                 createCoreInvocation = createCoreInvocation.CastTo(_model.Type);
             }
@@ -438,7 +454,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // T JsonModelCreateCore(ref reader, ModelReaderWriterOptions options)
             return new MethodProvider
             (
-              new MethodSignature(JsonModelCreateCoreMethodName, null, modifiers, _model.Type.RootType, null, [_utf8JsonReaderParameter, _serializationOptionsParameter]),
+              new MethodSignature(JsonModelCreateCoreMethodName, null, modifiers, RootType, null, [_utf8JsonReaderParameter, _serializationOptionsParameter]),
               methodBody,
               this
             );
@@ -537,12 +553,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             ParameterProvider dataParameter = new("data", $"The data to parse.", typeof(BinaryData));
             ValueExpression createCoreInvocation = This.Invoke(PersistableModelCreateCoreMethodName, [dataParameter, _serializationOptionsParameter]);
-            var createCoreReturnType = _model.Type.RootType;
+            var createCoreReturnType = RootType;
 
             // If the return type of the create core method is not the same as the interface type, cast it to the interface type since
             // the Core methods will always return the root type of the model. The interface type will be the model type unless the model
             // is an unknown discriminated model.
-            if (createCoreReturnType != _persistableModelTInterface.Arguments[0])
+            if (!createCoreReturnType.Equals(_persistableModelTInterface.Arguments[0]))
             {
                 createCoreInvocation = createCoreInvocation.CastTo(_model.Type);
             }

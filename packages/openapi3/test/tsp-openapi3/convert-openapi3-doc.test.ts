@@ -83,6 +83,70 @@ it("converts an OpenAPI 3 document with an empty schema to a valid TypeSpec repr
   );
 });
 
+describe("Union types with multiple defaults", () => {
+  it("should select first default for union types with multiple defaults", async () => {
+    const tsp = await convertOpenAPI3Document({
+      openapi: "3.0.0",
+      info: {
+        title: "(title)",
+        version: "0.0.0",
+      },
+      tags: [],
+      paths: {},
+      components: {
+        schemas: {
+          Foo: {
+            type: "object",
+            required: ["bar"],
+            properties: {
+              bar: {
+                anyOf: [
+                  {
+                    type: "string",
+                    default: "life",
+                  },
+                  {
+                    type: "array",
+                    items: {
+                      type: "string",
+                    },
+                    default: ["life"],
+                  },
+                  {
+                    type: "number",
+                    default: 42,
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+    });
+
+    // Should generate valid TypeSpec syntax
+    strictEqual(
+      tsp.includes('bar: string | string[] | numeric = "life";'),
+      true,
+      "Expected 'bar: string | string[] | numeric = \"life\";' but got: " + tsp,
+    );
+
+    // Should NOT generate the invalid syntax
+    strictEqual(
+      tsp.includes('string = "life"| string[]'),
+      false,
+      "Should not contain the invalid syntax from the issue. Got: " + tsp,
+    );
+
+    // Should NOT generate the invalid syntax
+    strictEqual(
+      tsp.includes("= 42,"),
+      false,
+      "Should not contain number default concatenated. Got: " + tsp,
+    );
+  });
+});
+
 describe("OpenAPI 3.1 anyOf with null conversion", () => {
   it("should convert anyOf with ref + null to proper union with null", async () => {
     const tsp = await convertOpenAPI3Document({

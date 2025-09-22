@@ -1565,8 +1565,22 @@ export class CodeModelBuilder {
     for (const sdkMethodParameter of sdkMethod.parameters) {
       let httpOperationParameter = getHttpOperationParameter(sdkMethod, sdkMethodParameter);
       if (httpOperationParameter) {
-        const opParameter = findOperationParameter(httpOperationParameter);
+        let opParameter = findOperationParameter(httpOperationParameter);
         if (opParameter) {
+          // handle difference of parameter, between REST and SDK
+          if (opParameter.required !== !sdkMethodParameter.optional) {
+            const clonedOpParameter = cloneOperationParameter(opParameter);
+            clonedOpParameter.required = !sdkMethodParameter.optional;
+
+            if (opParameter.protocol.http?.in === "path" && !sdkMethodParameter.optional) {
+              // TODO: remove this after we supported optional path parameter
+              // set path parameter as required
+              opParameter.required = !sdkMethodParameter.optional;
+            }
+
+            opParameter = clonedOpParameter;
+          }
+
           request.signatureParameters.push(opParameter);
           request.parameters.push(opParameter);
         }
@@ -1574,16 +1588,14 @@ export class CodeModelBuilder {
         // sdkMethodParameter is a grouping parameter
         if (sdkMethodParameter.type.kind === "model") {
           const opParameters = [];
+          const groupProperties = [];
           for (const property of sdkMethodParameter.type.properties) {
             httpOperationParameter = getHttpOperationParameter(sdkMethod, property);
             if (httpOperationParameter) {
               const opParameter = findOperationParameter(httpOperationParameter);
               if (opParameter) {
-                if (opParameter instanceof VirtualParameter) {
-                  opParameters.push(opParameter);
-                } else {
-                  opParameters.push(opParameter);
-                }
+                opParameters.push(opParameter);
+                groupProperties.push(property);
               }
             }
           }
@@ -1591,6 +1603,7 @@ export class CodeModelBuilder {
           const groupSchema = this.processGroupSchema(
             sdkMethodParameter.type,
             opParameters,
+            groupProperties,
             sdkMethodParameter.type.name,
           );
           this.trackSchemaUsage(groupSchema, { usage: [SchemaContext.Input] });
@@ -1627,6 +1640,7 @@ export class CodeModelBuilder {
   private processGroupSchema(
     type: SdkModelType | undefined,
     parameters: Parameter[],
+    groupProperties: SdkModelPropertyType[] | undefined,
     name: string,
     description: string | undefined = undefined,
   ): GroupSchema {
@@ -1650,12 +1664,14 @@ export class CodeModelBuilder {
         },
       }),
     );
-    parameters.forEach((it) => {
+    parameters.forEach((it, index) => {
+      // use required/optional from the group property, if available
+      const optional = groupProperties?.at(index)?.optional ?? !it.required;
       optionBagSchema.add(
         new GroupProperty(it.language.default.name, it.language.default.description, it.schema, {
           originalParameter: [it],
           summary: it.summary,
-          required: it.required,
+          required: !optional,
           nullable: it.nullable,
           readOnly: false,
           serializedName: it.language.default.serializedName,
@@ -1686,6 +1702,7 @@ export class CodeModelBuilder {
       const optionBagSchema = this.processGroupSchema(
         undefined,
         request.parameters,
+        undefined,
         name,
         `Options for ${op.language.default.name} API`,
       );
@@ -2107,12 +2124,12 @@ export class CodeModelBuilder {
     headers = [];
     if (sdkResponse.headers) {
       for (const header of sdkResponse.headers) {
-        const schema = this.processSchema(header.type, header.serializedName);
+        const schema = this.processSchema(header.type, header.name);
         headers.push(
           new HttpHeader(header.serializedName, schema, {
             language: {
               default: {
-                name: header.serializedName,
+                name: header.name,
                 description: header.summary ?? header.doc,
               },
             },
