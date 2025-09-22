@@ -222,8 +222,15 @@ class PreProcessPlugin(YamlUpdatePlugin):
             if not (self.is_tsp and has_multi_part_content_type(body_parameter)):
                 body_parameter["type"]["types"].append(KNOWN_TYPES["binary"])
 
-            if origin_type == "model" and is_dpg_model and self.options["models-mode"] == "dpg":
-                body_parameter["type"]["types"].insert(1, KNOWN_TYPES["any-object"])
+            if self.options["models-mode"] == "dpg":  
+              if origin_type == "model":
+                  body_parameter["type"]["types"].insert(1, KNOWN_TYPES["any-object"])
+              else:
+                  # dict or list
+                  # copy the original dict / list type
+                  any_obj_list_or_dict = copy.deepcopy(body_parameter["type"]["types"][0])
+                  any_obj_list_or_dict["elementType"] = KNOWN_TYPES["any-object"]
+                  body_parameter["type"]["types"].insert(1, any_obj_list_or_dict)
             code_model["types"].append(body_parameter["type"])
 
     def pad_reserved_words(self, name: str, pad_type: PadType):
