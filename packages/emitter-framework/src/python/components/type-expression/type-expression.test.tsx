@@ -1,22 +1,9 @@
-import { render } from "@alloy-js/core";
+import { Tester } from "#test/test-host.js";
 import { d } from "@alloy-js/core/testing";
-import type { BasicTestRunner } from "@typespec/compiler/testing";
-import { beforeEach, describe, expect, it } from "vitest";
-import { createEmitterFrameworkTestRunner } from "../../test-host.js";
-import {
-  assertFileContents,
-  compileCodeModelPropertyType,
-  compileModelProperty,
-  compileModelPropertyType,
-  getOutput,
-} from "../../test-utils.js";
+import { t } from "@typespec/compiler/testing";
+import { describe, expect, it } from "vitest";
+import { getOutput } from "../../test-utils.js";
 import { TypeExpression } from "./type-expression.jsx";
-
-let runner: BasicTestRunner;
-
-beforeEach(async () => {
-  runner = await createEmitterFrameworkTestRunner();
-});
 
 describe("map Typespec types to Python built-in types", () => {
   it.each([
@@ -50,11 +37,12 @@ describe("map Typespec types to Python built-in types", () => {
     ["duration", "str"],
     ["url", "str"],
   ])("%s => %s", async (tspType, pythonType, extraImport = "") => {
-    const type = await compileModelPropertyType(tspType, runner);
-    const extraImportText = extraImport ? `${extraImport}\n\n` : "";
+    const { program, Type } = await Tester.compile(t.code`
+      alias ${t.type("Type")} = ${t.type(tspType)};
+    `);
 
-    expect(getOutput(runner.program, [<TypeExpression type={type} />])).toRenderTo(d`
-      ${extraImportText}${pythonType}
+    expect(getOutput(program, [<TypeExpression type={Type} />])).toRenderTo(d`
+      ${extraImport ? `${extraImport}\n\n` : ""}${pythonType}
     `);
   });
 });
@@ -62,46 +50,42 @@ describe("map Typespec types to Python built-in types", () => {
 // TODO: Add extra test for when we have Scalar types defined and with references
 describe("map scalar to Python types", () => {
   it("Email => Email", async () => {
-    const type = await compileCodeModelPropertyType(
-      d`
-      scalar Email extends string;
-      model Test {
-        @test test: Email;
-      }
-    `,
-      runner,
-    );
-    const res = render(getOutput(runner.program, [<TypeExpression type={type} />]));
+    const { program, Email } = await Tester.compile(t.code`
+      scalar ${t.scalar("Email")} extends string;
+    `);
 
-    assertFileContents(
-      res,
-      d`
-          ${"str"}
-        `,
-    );
+    expect(getOutput(program, [<TypeExpression type={Email} />])).toRenderTo(d`
+      str
+    `);
   });
 });
 
 describe("map tuple to Python types", () => {
-  it.each([["[int32, int32]", "Tuple[int, int]"]])("%s => %s", async (tspType, pythonType) => {
-    const type = await compileModelPropertyType(tspType, runner);
+  it("[int32, int32] => Tuple[int, int]", async () => {
+    const { program, Tuple } = await Tester.compile(t.code`
+      alias ${t.type("Tuple")} = [int32, int32];
+    `);
 
-    expect(getOutput(runner.program, [<TypeExpression type={type} />])).toRenderTo(d`
+    expect(getOutput(program, [<TypeExpression type={Tuple} />])).toRenderTo(d`
       from typing import Tuple
 
-      ${pythonType}
+      Tuple[int, int]
     `);
   });
 });
 
 describe("correctly solves a ModelProperty to Python types", () => {
-  it.each([["[int32, int32]", "Tuple[int, int]"]])("%s => %s", async (tspType, pythonType) => {
-    const type = await compileModelProperty(tspType, runner);
+  it("[int32, int32] => Tuple[int, int]", async () => {
+    const { program, tupleProperty } = await Tester.compile(t.code`
+      model Test {
+        ${t.modelProperty("tupleProperty")}: [int32, int32];
+      }
+    `);
 
-    expect(getOutput(runner.program, [<TypeExpression type={type} />])).toRenderTo(d`
+    expect(getOutput(program, [<TypeExpression type={tupleProperty} />])).toRenderTo(d`
       from typing import Tuple
 
-      ${pythonType}
+      Tuple[int, int]
     `);
   });
 });

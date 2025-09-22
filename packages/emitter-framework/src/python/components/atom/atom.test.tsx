@@ -1,14 +1,16 @@
-import { Output } from "@alloy-js/core";
-import { SourceFile } from "@alloy-js/python";
-import { type Model, type Namespace, type Program, type Value } from "@typespec/compiler";
+import { getOutput } from "#python/test-utils.js";
+import { Tester } from "#test/test-host.js";
+import { type Model, type Program, type Value } from "@typespec/compiler";
+import { t } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/typekit";
 import { assert, beforeAll, describe, expect, it } from "vitest";
 import { Atom } from "../../index.js";
-import { getProgram } from "../../test-host.js";
 
 let program: Program;
+
 beforeAll(async () => {
-  program = await getProgram("");
+  const result = await Tester.compile("");
+  program = result.program;
 });
 
 describe("NullValue", () => {
@@ -63,7 +65,7 @@ describe("NumericValue", () => {
 
 describe("ArrayValue", () => {
   it("empty", async () => {
-    // Can be replaced with with TypeKit once #6976 is implemented
+    // Can be replaced with TypeKit once #6976 is implemented
     const value = {
       entityKind: "Value",
       valueKind: "ArrayValue",
@@ -73,7 +75,7 @@ describe("ArrayValue", () => {
   });
 
   it("with mixed values", async () => {
-    // Can be replaced with with TypeKit once #6976 is implemented
+    // Can be replaced with TypeKit once #6976 is implemented
     const value = {
       entityKind: "Value",
       valueKind: "ArrayValue",
@@ -98,41 +100,31 @@ describe("ArrayValue", () => {
 
 describe("ScalarValue", () => {
   it("utcDateTime.fromISO correctly supplied", async () => {
-    const program = await getProgram(`
-        namespace DemoService;
-        model DateRange {
-          @encode("rfc7231")
-          minDate: utcDateTime = utcDateTime.fromISO("2024-02-15T18:36:03Z");
-        }
-      `);
-    const [namespace] = program.resolveTypeReference("DemoService");
-    const dateRange = (namespace as Namespace).models.get("DateRange");
-    const minDate = dateRange?.properties.get("minDate")?.defaultValue;
-    assert.exists(minDate, "unable to find minDate property");
+    const { minDate } = await Tester.compile(t.code`
+      model ${t.model("DateRange")} {
+        @encode("rfc7231")
+        ${t.modelProperty("minDate")}: ${t.type("utcDateTime")} = utcDateTime.fromISO("2024-02-15T18:36:03Z");
+      }
+    `);
     await testValueExpression(
-      minDate,
+      minDate.defaultValue!,
       `"datetime.datetime(2024, 2, 15, 18, 36, 3, tzinfo=datetime.timezone.utc)"`,
     );
   });
 
   it("Unsupported scalar constructor", async () => {
-    const program = await getProgram(`
-        namespace DemoService;
-
-        scalar ipv4 extends string {
+    const { IpAddress } = await Tester.compile(t.code`
+        scalar ${t.scalar("ipv4")} extends ${t.scalar("string")} {
           init fromInt(value: uint32);
         }
 
         @example (#{ip: ipv4.fromInt(2130706433)})
-        model IpAddress {
-          ip: ipv4;
+        model ${t.model("IpAddress")} {
+          ${t.modelProperty("ip")}: ${t.type("ipv4")};
         }
       `);
-    const [namespace] = program.resolveTypeReference("DemoService");
-    const model = (namespace as Namespace).models.get("IpAddress");
-    assert.exists(model, "unable to find IpAddress model");
 
-    const value = getExampleValue(model);
+    const value = getExampleValue(IpAddress);
     await expect(testValueExpression(value, ``)).rejects.toThrow(
       /Unsupported scalar constructor fromInt/,
     );
@@ -141,88 +133,56 @@ describe("ScalarValue", () => {
 
 describe("ObjectValue", () => {
   it("empty object", async () => {
-    // Can be replaced with with TypeKit once #6976 is implemented
-    const program = await getProgram(`
-        namespace DemoService;
+    // Can be replaced with TypeKit once #6976 is implemented
+    const { ObjectValue } = await Tester.compile(t.code`
         @example(#{})
-        model ObjectValue {};
+        model ${t.model("ObjectValue")} {};
       `);
-    const [namespace] = program.resolveTypeReference("DemoService");
-    const model = (namespace as Namespace).models.get("ObjectValue");
-    assert.exists(model, "unable to find ObjectValue model");
 
-    const value = getExampleValue(model);
+    const value = getExampleValue(ObjectValue);
     await testValueExpression(value, `{}`);
   });
 
   it("object with properties", async () => {
-    // Can be replaced with with TypeKit once #6976 is implemented
-    const program = await getProgram(`
-        namespace DemoService;
+    // Can be replaced with TypeKit once #6976 is implemented
+    const { ObjectValue } = await Tester.compile(t.code`
         @example(#{aNumber: 5, aString: "foo", aBoolean: true})
-        model ObjectValue {
-          aNumber: int32;
-          aString: string;
-          aBoolean: boolean;
+        model ${t.model("ObjectValue")} {
+          ${t.modelProperty("aNumber")}: int32;
+          ${t.modelProperty("aString")}: string;
+          ${t.modelProperty("aBoolean")}: boolean;
         };
       `);
-    const [namespace] = program.resolveTypeReference("DemoService");
-    const model = (namespace as Namespace).models.get("ObjectValue");
-    assert.exists(model, "unable to find ObjectValue model");
-
-    const value = getExampleValue(model);
+    const value = getExampleValue(ObjectValue);
     await testValueExpression(value, `{"aNumber": 5, "aString": "foo", "aBoolean": True}`);
   });
 });
 
-// describe("EnumValue", () => {
-//   it("different EnumValue types", async () => {
-//     // Can be replaced with with TypeKit once #6976 is implemented
-//     const program = await getProgram(`
-//         namespace DemoService;
-//         enum Color {
-//           Red,
-//           Green: 3,
-//           Blue
-//         }
-//       `);
-//     const [namespace] = program.resolveTypeReference("DemoService");
-//     const colors = (namespace as Namespace).enums.get("Color");
-//     assert.exists(colors, "unable to find Color enum");
+describe("EnumValue", () => {
+  it("different EnumValue types", async () => {
+    // Can be replaced with TypeKit once #6976 is implemented
+    const { Red, Green, Blue } = await Tester.compile(t.code`
+        enum ${t.enum("Color")} {
+          Red,
+          Green: 3,
+          Blue: "cyan",
+        }
+        const ${t.value("Red")} = ${t.enumValue("Color.Red")};
+        const ${t.value("Green")} = ${t.enumValue("Color.Green")};
+        const ${t.value("Blue")} = ${t.enumValue("Color.Blue")};
+      `);
 
-//     const red = colors?.members.get("Red");
-//     assert.exists(red, "unable to find Red enum member");
-//     await testValueExpression(
-//       {
-//         valueKind: "EnumValue",
-//         value: red,
-//       } as EnumValue,
-//       `"Red"`,
-//     );
-
-//     const green = colors?.members.get("Green");
-//     assert.exists(green, "unable to find Green enum member");
-//     await testValueExpression(
-//       {
-//         valueKind: "EnumValue",
-//         value: green,
-//       } as EnumValue,
-//       `3`,
-//     );
-//   });
-// });
+    await testValueExpression(Red, `"Red"`);
+    await testValueExpression(Green, `3`);
+    await testValueExpression(Blue, `"cyan"`);
+  });
+});
 
 /**
  * Helper that renders a value expression and checks the output against the expected value.
  */
 async function testValueExpression(value: Value, expected: string) {
-  expect(
-    <Output>
-      <SourceFile path="test.py">
-        <Atom value={value} />
-      </SourceFile>
-    </Output>,
-  ).toRenderTo(`${expected}`);
+  expect(getOutput(program, [<Atom value={value} />])).toRenderTo(`${expected}`);
 }
 
 /**

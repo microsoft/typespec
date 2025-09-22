@@ -1,10 +1,10 @@
+import { Experimental_OverridableComponent } from "#core/components/index.js";
+import { useTsp } from "#core/context/index.js";
+import { reportPythonDiagnostic } from "#python/lib.js";
 import { For } from "@alloy-js/core";
 import * as py from "@alloy-js/python";
 import type { IntrinsicType, Model, Scalar, Type } from "@typespec/compiler";
 import type { Typekit } from "@typespec/compiler/typekit";
-import "@typespec/http/experimental/typekit";
-import { useTsp } from "../../../core/context/tsp-context.js";
-import { reportPythonDiagnostic } from "../../../python/lib.js";
 import { datetimeModule, decimalModule, typingModule } from "../../builtins.js";
 import { efRefkey } from "../../utils/refkey.js";
 import { ArrayExpression } from "../array-expression/array-expression.js";
@@ -23,9 +23,13 @@ export interface TypeExpressionProps {
 
 export function TypeExpression(props: TypeExpressionProps) {
   const { $ } = useTsp();
-  const type = $.httpPart.unpack(props.type);
+  const type = props.type;
   if (!props.noReference && isDeclaration($, type)) {
-    return <py.Reference refkey={efRefkey(type)} />;
+    return (
+      <Experimental_OverridableComponent reference type={type}>
+        <py.Reference refkey={efRefkey(type)} />
+      </Experimental_OverridableComponent>
+    );
   }
 
   // TODO: Make sure this is an exhaustive switch, including EnumMember and such
@@ -60,10 +64,8 @@ export function TypeExpression(props: TypeExpressionProps) {
         return <RecordExpression elementType={elementType} />;
       }
 
-      if ($.httpPart.is(type)) {
-        const partType = $.httpPart.unpack(type);
-        return <TypeExpression type={partType} />;
-      }
+      reportPythonDiagnostic($.program, { code: "python-unsupported-type", target: type });
+      break;
 
     // TODO: Models will be implemented separately
     // return <InterfaceExpression type={type} />;

@@ -53,14 +53,12 @@ No changes, version bump only.
 - [#8302](https://github.com/microsoft/typespec/pull/8302) [c#] Avoid generating double '?' after property name when the property is nullable union and it's prop.optional is true in the meantime
 - [#8362](https://github.com/microsoft/typespec/pull/8362) Upgrade alloy to 0.20
 
-
 ## 0.10.0
 
 ### Bump dependencies
 
 - [#8050](https://github.com/microsoft/typespec/pull/8050) Upgrade alloy 0.19
 - [#7978](https://github.com/microsoft/typespec/pull/7978) Upgrade dependencies
-
 
 ## 0.9.0
 

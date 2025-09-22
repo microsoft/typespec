@@ -1,22 +1,14 @@
+import { Tester } from "#test/test-host.js";
 import { d } from "@alloy-js/core/testing";
-import type { BasicTestRunner } from "@typespec/compiler/testing";
-import { beforeEach, describe, expect, it } from "vitest";
-import { createEmitterFrameworkTestRunner } from "../../test-host.js";
-import { compileModelPropertyType, getOutput } from "../../test-utils.js";
+import { t } from "@typespec/compiler/testing";
+import { expect, it } from "vitest";
+import { getOutput } from "../../test-utils.js";
 import { TypeExpression } from "../type-expression/type-expression.jsx";
 
-let runner: BasicTestRunner;
+it("maps Record to Python dict", async () => {
+  const { program, TestRecord } = await Tester.compile(t.code`
+    alias ${t.type("TestRecord")} = Record<boolean>;
+  `);
 
-beforeEach(async () => {
-  runner = await createEmitterFrameworkTestRunner();
-});
-
-describe("map Record to Python dict", () => {
-  it.each([["Record<boolean>", "dict[str, bool]"]])("%s => %s", async (tspType, pythonType) => {
-    const type = await compileModelPropertyType(tspType, runner);
-
-    expect(getOutput(runner.program, [<TypeExpression type={type} />])).toRenderTo(d`
-      ${pythonType}
-    `);
-  });
+  expect(getOutput(program, [<TypeExpression type={TestRecord} />])).toRenderTo(d`dict[str, bool]`);
 });

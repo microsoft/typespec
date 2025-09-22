@@ -46,9 +46,8 @@ export function Atom(props: Readonly<AtomProps>): Children {
         jsProperties[key] = Atom({ value: value.value });
       }
       return <py.Atom jsValue={jsProperties} />;
-    // case "EnumValue":
-    //   return <py.Atom jsValue={props.value.value.value ?? props.value.value.name} />;
-    // TODO: Handle EnumValue in a separate PR
+    case "EnumValue":
+      return <py.Atom jsValue={props.value.value.value ?? props.value.value.name} />;
   }
 }
 
