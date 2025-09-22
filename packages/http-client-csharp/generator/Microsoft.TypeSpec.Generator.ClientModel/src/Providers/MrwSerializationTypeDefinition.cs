@@ -77,7 +77,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _rawDataField = _model.Fields.FirstOrDefault(f => f.Name == AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName);
             _additionalBinaryDataProperty = new(GetAdditionalBinaryDataPropertiesProp);
             _additionalProperties = new(() => [.. _model.Properties.Where(p => p.IsAdditionalProperties)]);
-            _shouldOverrideMethods = _model.Type.BaseType != null && !_isStruct && _model.Type.BaseType is { IsFrameworkType: false };
+            _shouldOverrideMethods = _model.Type.BaseType != null && !_isStruct && ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(_model.Type.BaseType, out var baseProvider) && baseProvider is ModelProvider;
             _utf8JsonWriterSnippet = _utf8JsonWriterParameter.As<Utf8JsonWriter>();
             _mrwOptionsParameterSnippet = _serializationOptionsParameter.As<ModelReaderWriterOptions>();
             _jsonElementParameterSnippet = _jsonElementDeserializationParam.As<JsonElement>();
