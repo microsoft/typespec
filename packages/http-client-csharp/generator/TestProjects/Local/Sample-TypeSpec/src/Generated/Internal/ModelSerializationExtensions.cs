@@ -304,50 +304,6 @@ namespace SampleTypeSpec
             return key;
         }
 
-#pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        public static void WriteDictionaryWithPatch<T>(this Utf8JsonWriter writer, ModelReaderWriterOptions options, ref JsonPatch patch, ReadOnlySpan<byte> propertyName, ReadOnlySpan<byte> prefix, IDictionary<string, T> dictionary, Action<Utf8JsonWriter, T, ModelReaderWriterOptions> write, Func<T, JsonPatch> getPatchFromItem)
-        {
-            if (!propertyName.IsEmpty)
-            {
-                writer.WritePropertyName(propertyName);
-            }
-
-            writer.WriteStartObject();
-#if NET8_0_OR_GREATER
-            const int maxPropertyNameLength = 256;
-            global::System.Span<byte> buffer = stackalloc byte[maxPropertyNameLength];
-#endif
-            foreach (var item in dictionary)
-            {
-                if (getPatchFromItem != null && getPatchFromItem(item.Value).TryGetJson("$"u8, out ReadOnlyMemory<byte> patchedJson))
-                {
-                    if (!patchedJson.IsEmpty)
-                    {
-                        writer.WritePropertyName(item.Key);
-                        writer.WriteRawValue(patchedJson.Span);
-                    }
-                    continue;
-                }
-
-                bool patchContains;
-#if NET8_0_OR_GREATER
-                int bytesWritten = global::System.Text.Encoding.UTF8.GetBytes(item.Key, buffer);
-                patchContains = (bytesWritten == maxPropertyNameLength) ? patch.Contains(prefix, global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : patch.Contains(prefix, buffer.Slice(0, bytesWritten));
-#else
-                patchContains = patch.Contains(prefix, Encoding.UTF8.GetBytes(item.Key));
-#endif
-                if (!patchContains)
-                {
-                    writer.WritePropertyName(item.Key);
-                    write(writer, item.Value, options);
-                }
-            }
-
-            patch.WriteTo(writer, prefix);
-            writer.WriteEndObject();
-        }
-#pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-
         public static BinaryData GetUtf8Bytes(this JsonElement element)
         {
 #if NET9_0_OR_GREATER

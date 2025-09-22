@@ -343,7 +343,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             else
             {
-                return AddElement(dictKey, Static(elementType).Invoke($"Deserialize{elementType.Name}", [item, data, ModelSerializationExtensionsSnippets.Wire]), value);
+                return AddElement(
+                    dictKey,
+                    MrwSerializationTypeDefinition.GetDeserializationMethodInvocationForType(elementType, item, data, ModelSerializationExtensionsSnippets.Wire),
+                    value);
             }
         }
 

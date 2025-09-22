@@ -96,13 +96,12 @@ namespace SampleTypeSpec
                 throw new FormatException($"The model {nameof(ModelWithRequiredNullableProperties)} does not support reading '{format}' format.");
             }
             using JsonDocument document = JsonDocument.ParseValue(ref reader);
-            return DeserializeModelWithRequiredNullableProperties(document.RootElement, null, options);
+            return DeserializeModelWithRequiredNullableProperties(document.RootElement, options);
         }
 
         /// <param name="element"> The JSON element to deserialize. </param>
-        /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        internal static ModelWithRequiredNullableProperties DeserializeModelWithRequiredNullableProperties(JsonElement element, BinaryData data, ModelReaderWriterOptions options)
+        internal static ModelWithRequiredNullableProperties DeserializeModelWithRequiredNullableProperties(JsonElement element, ModelReaderWriterOptions options)
         {
             if (element.ValueKind == JsonValueKind.Null)
             {
@@ -182,7 +181,7 @@ namespace SampleTypeSpec
                 case "J":
                     using (JsonDocument document = JsonDocument.Parse(data))
                     {
-                        return DeserializeModelWithRequiredNullableProperties(document.RootElement, data, options);
+                        return DeserializeModelWithRequiredNullableProperties(document.RootElement, options);
                     }
                 default:
                     throw new FormatException($"The model {nameof(ModelWithRequiredNullableProperties)} does not support reading '{options.Format}' format.");

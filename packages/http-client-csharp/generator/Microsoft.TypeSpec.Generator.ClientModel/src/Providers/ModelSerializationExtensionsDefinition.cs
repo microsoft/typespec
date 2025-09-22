@@ -576,7 +576,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             [
                 BuildSliceToStartOfPropertyNameMethodProvider(),
                 BuildGetFirstPropertyNameMethodProvider(),
-                BuildWriteDictionaryWithPatchMethodProvider(),
                 BuildGetUtf8BytesMethodProvider(),
                 BuildTryGetIndexMethodProvider(),
                 BuildGetRemainderMethodProvider()
@@ -668,103 +667,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             };
 
             return new MethodProvider(signature, body, this, XmlDocProvider.Empty);
-        }
-
-        private MethodProvider BuildWriteDictionaryWithPatchMethodProvider()
-        {
-            var writerParameter = ScmKnownParameters.Utf8JsonWriter;
-            var optionsParameter = ScmKnownParameters.Options;
-#pragma warning disable SCME0001
-            var patchParameter = new ParameterProvider("patch", FormattableStringHelpers.Empty, typeof(JsonPatch), isRef: true);
-#pragma warning restore SCME0001
-            var propertyNameParameter = new ParameterProvider("propertyName", FormattableStringHelpers.Empty, typeof(ReadOnlySpan<byte>));
-            var prefixParameter = new ParameterProvider("prefix", FormattableStringHelpers.Empty, typeof(ReadOnlySpan<byte>));
-            var tArg = typeof(IList<>).GetGenericArguments()[0];
-            var dictionaryParameter = new ParameterProvider("dictionary", FormattableStringHelpers.Empty, new CSharpType(typeof(IDictionary<,>), typeof(string), tArg));
-            var writeParameter = new ParameterProvider("write", FormattableStringHelpers.Empty, new CSharpType(typeof(Action<,,>), typeof(Utf8JsonWriter), tArg, typeof(ModelReaderWriterOptions)));
-#pragma warning disable SCME0001
-            var getPatchFromItemParameter = new ParameterProvider("getPatchFromItem", FormattableStringHelpers.Empty, new CSharpType(typeof(Func<,>), tArg, typeof(JsonPatch)));
-#pragma warning restore SCME0001
-
-            var signature = new MethodSignature(
-                Name: "WriteDictionaryWithPatch",
-                Modifiers: _methodModifiers,
-                Parameters: [writerParameter, optionsParameter, patchParameter, propertyNameParameter, prefixParameter, dictionaryParameter, writeParameter, getPatchFromItemParameter],
-                ReturnType: null,
-                Description: null,
-                ReturnDescription: null,
-                GenericArguments: [tArg]);
-            var jsonWriter = writerParameter.As<Utf8JsonWriter>();
-#pragma warning disable SCME0001
-            var patchExpression = patchParameter.AsVariable().As<JsonPatch>();
-#pragma warning restore SCME0001
-
-            var body = new MethodBodyStatement[]
-            {
-                new IfStatement(Not(ReadOnlySpanSnippets.IsEmpty(propertyNameParameter)))
-                {
-                    jsonWriter.WritePropertyName(propertyNameParameter)
-                },
-                MethodBodyStatement.EmptyLine, jsonWriter.WriteStartObject(), new IfElsePreprocessorStatement(
-                    "NET8_0_OR_GREATER",
-                    new MethodBodyStatement[]
-                    {
-                        Declare("maxPropertyNameLength", typeof(int), Int(256), isConst: true,
-                            out var maxPropertyNameLength),
-                        Declare("buffer", typeof(Span<byte>),
-                            New.Array(typeof(byte), isStackAlloc: true, size: maxPropertyNameLength),
-                            out var buffer)
-                    }),
-                new ForEachStatement("item", dictionaryParameter.As<IDictionary<string, object>>(), out var item)
-                {
-                    new IfStatement(getPatchFromItemParameter.NotEqual(Null)
-#pragma warning disable SCME0001
-                        .And(getPatchFromItemParameter.InvokeLambda(item.Property("Value")).As<JsonPatch>().TryGetJson(
-#pragma warning restore SCME0001
-                            LiteralU8("$"), out var patchedJson)))
-                    {
-                        new IfStatement(Not(patchedJson.IsEmpty()))
-                        {
-                            jsonWriter.WritePropertyName(item.Property("Key")),
-                            jsonWriter.WriteRawValue(patchedJson.Span())
-                        },
-                        Continue
-                    },
-                    MethodBodyStatement.EmptyLine,
-                    Declare("patchContains", typeof(bool), out var patchContains).Terminate(),
-                    new IfElsePreprocessorStatement
-                    (
-                        "NET8_0_OR_GREATER",
-                        new MethodBodyStatement[]
-                        {
-                            Declare("bytesWritten", Utf8Snippets.GetBytes(item.Property("Key"), buffer),
-                                out var bytesWritten),
-                            patchContains.Assign(
-                                new TernaryConditionalExpression(bytesWritten.Equal(maxPropertyNameLength),
-                                    patchExpression.Contains(prefixParameter,
-                                        Utf8Snippets.GetBytes(item.Property("Key").As<string>())),
-                                    patchExpression.Contains(prefixParameter,
-                                        ReadOnlySpanSnippets.Slice(buffer, Int(0), bytesWritten)))).Terminate(),
-                        },
-                        patchContains.Assign(
-                            patchExpression.Contains(prefixParameter,
-                                Utf8Snippets.GetBytes(item.Property("Key").As<string>()))).Terminate()
-                    ),
-                    new IfStatement(Not(patchContains))
-                    {
-                        jsonWriter.WritePropertyName(item.Property("Key")),
-                        writeParameter.InvokeLambda(jsonWriter, item.Property("Value"), optionsParameter)
-                            .Terminate()
-                    },
-                },
-                MethodBodyStatement.EmptyLine,
-#pragma warning disable SCME0001
-                patchParameter.Invoke(nameof(JsonPatch.WriteTo), jsonWriter, prefixParameter).Terminate(),
-#pragma warning restore SCME0001
-                jsonWriter.WriteEndObject()
-            };
-
-            return new MethodProvider(signature, body, this, XmlDocProvider.Empty, suppressions: [ScmModelProvider.JsonPatchSuppression]);
         }
 
         private MethodProvider BuildGetUtf8BytesMethodProvider()

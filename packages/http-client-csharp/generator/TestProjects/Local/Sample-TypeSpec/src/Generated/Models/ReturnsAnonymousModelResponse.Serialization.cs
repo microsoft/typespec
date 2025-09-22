@@ -65,13 +65,12 @@ namespace SampleTypeSpec
                 throw new FormatException($"The model {nameof(ReturnsAnonymousModelResponse)} does not support reading '{format}' format.");
             }
             using JsonDocument document = JsonDocument.ParseValue(ref reader);
-            return DeserializeReturnsAnonymousModelResponse(document.RootElement, null, options);
+            return DeserializeReturnsAnonymousModelResponse(document.RootElement, options);
         }
 
         /// <param name="element"> The JSON element to deserialize. </param>
-        /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        internal static ReturnsAnonymousModelResponse DeserializeReturnsAnonymousModelResponse(JsonElement element, BinaryData data, ModelReaderWriterOptions options)
+        internal static ReturnsAnonymousModelResponse DeserializeReturnsAnonymousModelResponse(JsonElement element, ModelReaderWriterOptions options)
         {
             if (element.ValueKind == JsonValueKind.Null)
             {
@@ -118,7 +117,7 @@ namespace SampleTypeSpec
                 case "J":
                     using (JsonDocument document = JsonDocument.Parse(data))
                     {
-                        return DeserializeReturnsAnonymousModelResponse(document.RootElement, data, options);
+                        return DeserializeReturnsAnonymousModelResponse(document.RootElement, options);
                     }
                 default:
                     throw new FormatException($"The model {nameof(ReturnsAnonymousModelResponse)} does not support reading '{options.Format}' format.");
@@ -134,7 +133,7 @@ namespace SampleTypeSpec
             using PipelineResponse response = result.GetRawResponse();
             BinaryData data = response.Content;
             using JsonDocument document = JsonDocument.Parse(data);
-            return DeserializeReturnsAnonymousModelResponse(document.RootElement, data, ModelSerializationExtensions.WireOptions);
+            return DeserializeReturnsAnonymousModelResponse(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
     }
 }

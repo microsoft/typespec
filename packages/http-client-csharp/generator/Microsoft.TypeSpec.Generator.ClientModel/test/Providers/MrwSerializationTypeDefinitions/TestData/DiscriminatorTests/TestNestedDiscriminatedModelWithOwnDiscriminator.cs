@@ -44,10 +44,10 @@ namespace Sample.Models
                 throw new global::System.FormatException($"The model {nameof(global::Sample.Models.Tree)} does not support reading '{format}' format.");
             }
             using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.ParseValue(ref reader);
-            return global::Sample.Models.Tree.DeserializeTree(document.RootElement, null, options);
+            return global::Sample.Models.Tree.DeserializeTree(document.RootElement, options);
         }
 
-        internal static global::Sample.Models.Tree DeserializeTree(global::System.Text.Json.JsonElement element, global::System.BinaryData data, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        internal static global::Sample.Models.Tree DeserializeTree(global::System.Text.Json.JsonElement element, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
             if ((element.ValueKind == global::System.Text.Json.JsonValueKind.Null))
             {
@@ -58,10 +58,10 @@ namespace Sample.Models
                 switch (discriminator.GetString())
                 {
                     case "oak":
-                        return global::Sample.Models.OakTree.DeserializeOakTree(element, data, options);
+                        return global::Sample.Models.OakTree.DeserializeOakTree(element, options);
                 }
             }
-            return global::Sample.Models.UnknownTree.DeserializeUnknownTree(element, data, options);
+            return global::Sample.Models.UnknownTree.DeserializeUnknownTree(element, options);
         }
 
         global::System.BinaryData global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.Tree>.Write(global::System.ClientModel.Primitives.ModelReaderWriterOptions options) => this.PersistableModelWriteCore(options);
@@ -88,7 +88,7 @@ namespace Sample.Models
                 case "J":
                     using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(data))
                     {
-                        return global::Sample.Models.Tree.DeserializeTree(document.RootElement, data, options);
+                        return global::Sample.Models.Tree.DeserializeTree(document.RootElement, options);
                     }
                 default:
                     throw new global::System.FormatException($"The model {nameof(global::Sample.Models.Tree)} does not support reading '{options.Format}' format.");

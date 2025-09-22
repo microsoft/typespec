@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -511,6 +512,180 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [Test]
+        public void WriteModelWithAdditionalProperties()
+        {
+            var catModel = InputFactory.Model("cat", discriminatedKind: "cat", properties:
+            [
+                InputFactory.Property("meows", InputPrimitiveType.Boolean, isRequired: true)
+            ]);
+            var inputModel = InputFactory.Model(
+               "dynamicModel",
+               isDynamicModel: true,
+               properties:
+               [
+                   InputFactory.Property("cats", catModel),
+               ],
+               additionalProperties: InputPrimitiveType.String);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ClientModel.Providers.ScmModelProvider;
+
+            Assert.IsNotNull(model);
+            Assert.IsTrue(model!.IsDynamicModel);
+            var serialization = model.SerializationProviders.SingleOrDefault();
+            Assert.IsNotNull(serialization);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serialization!,
+                name => name is "JsonModelWriteCore" or "Write"));
+
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void WriteDiscriminatedBaseModel()
+        {
+            var catModel = InputFactory.Model("cat", discriminatedKind: "cat", properties:
+            [
+                InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                InputFactory.Property("meows", InputPrimitiveType.Boolean, isRequired: true)
+            ]);
+            var dogModel = InputFactory.Model("dog", discriminatedKind: "dog", properties:
+            [
+                InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                InputFactory.Property("barks", InputPrimitiveType.Boolean, isRequired: true)
+            ]);
+            var baseModel = InputFactory.Model(
+                "pet",
+                isDynamicModel: true,
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true)
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "cat", catModel }, { "dog", dogModel } });
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [baseModel, dogModel, catModel]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(baseModel) as ClientModel.Providers.ScmModelProvider;
+
+            Assert.IsNotNull(model);
+            Assert.IsTrue(model!.IsDynamicModel);
+            var serialization = model.SerializationProviders.SingleOrDefault();
+            Assert.IsNotNull(serialization);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serialization!,
+                name => name is "JsonModelWriteCore" or "Write"));
+
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void WriteDiscriminatedDerivedModel()
+        {
+            var catModel = InputFactory.Model("cat", discriminatedKind: "cat", properties:
+            [
+                InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                InputFactory.Property("meows", InputPrimitiveType.Boolean, isRequired: true)
+            ]);
+            var dogModel = InputFactory.Model("dog", discriminatedKind: "dog", properties:
+            [
+                InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                InputFactory.Property("barks", InputPrimitiveType.Boolean, isRequired: true)
+            ]);
+            var baseModel = InputFactory.Model(
+                "pet",
+                isDynamicModel: true,
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true)
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "cat", catModel }, { "dog", dogModel } });
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [baseModel, dogModel, catModel]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(catModel) as ClientModel.Providers.ScmModelProvider;
+
+            Assert.IsNotNull(model);
+            Assert.IsTrue(model!.HasDynamicModelSupport);
+            var serialization = model.SerializationProviders.SingleOrDefault();
+            Assert.IsNotNull(serialization);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serialization!,
+                name => name is "JsonModelWriteCore" or "Write"));
+
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void WriteBaseModel()
+        {
+            var catModel = InputFactory.Model("cat", properties:
+            [
+                InputFactory.Property("meows", InputPrimitiveType.Boolean, isRequired: true)
+            ]);
+            var baseModel = InputFactory.Model(
+                "pet",
+                isDynamicModel: true,
+                derivedModels: [catModel],
+                properties:
+                [
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true)
+                ]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [baseModel, catModel]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(baseModel) as ClientModel.Providers.ScmModelProvider;
+
+            Assert.IsNotNull(model);
+            Assert.IsTrue(model!.IsDynamicModel);
+            var serialization = model.SerializationProviders.SingleOrDefault();
+            Assert.IsNotNull(serialization);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serialization!,
+                name => name is "JsonModelWriteCore" or "Write"));
+
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void WriteDerivedModel()
+        {
+            var catModel = InputFactory.Model("cat", properties:
+            [
+                InputFactory.Property("meows", InputPrimitiveType.Boolean, isRequired: true)
+            ]);
+            var baseModel = InputFactory.Model(
+                "pet",
+                isDynamicModel: true,
+                derivedModels: [catModel],
+                properties:
+                [
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true)
+                ]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [baseModel, catModel]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(catModel) as ClientModel.Providers.ScmModelProvider;
+
+            Assert.IsNotNull(model);
+            Assert.IsTrue(model!.HasDynamicModelSupport);
+            var serialization = model.SerializationProviders.SingleOrDefault();
+            Assert.IsNotNull(serialization);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serialization!,
+                name => name is "JsonModelWriteCore" or "Write"));
+
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
         public void DeserializeMultiplePrimitiveProperties()
         {
             var inputModel = InputFactory.Model(
@@ -623,6 +798,40 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                    InputFactory.Property("names", InputFactory.Dictionary(InputPrimitiveType.String), isRequired: true),
                    InputFactory.Property("optionalNames", InputFactory.Dictionary(InputPrimitiveType.String), isRequired: false),
                ]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ClientModel.Providers.ScmModelProvider;
+
+            Assert.IsNotNull(model);
+            Assert.AreEqual(2, model!.Constructors.Count);
+            Assert.IsTrue(model!.IsDynamicModel);
+            var serialization = model.SerializationProviders.SingleOrDefault();
+            Assert.IsNotNull(serialization);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serialization!,
+                name => name.StartsWith("Deserialize")));
+
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        // This test validates that additional properties are properly deserialized in dynamic models.
+        [Test]
+        public void DeserializeModelWithAP()
+        {
+            var catModel = InputFactory.Model("cat", discriminatedKind: "cat", properties:
+            [
+                InputFactory.Property("meows", InputPrimitiveType.Boolean, isRequired: true)
+            ]);
+            var inputModel = InputFactory.Model(
+               "dynamicModel",
+               isDynamicModel: true,
+               properties:
+               [
+                   InputFactory.Property("cats", catModel),
+               ],
+               additionalProperties: InputPrimitiveType.String);
 
             MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
             var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ClientModel.Providers.ScmModelProvider;

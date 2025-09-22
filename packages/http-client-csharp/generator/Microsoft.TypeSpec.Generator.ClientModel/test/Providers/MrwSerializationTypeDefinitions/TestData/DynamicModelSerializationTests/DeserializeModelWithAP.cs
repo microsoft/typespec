@@ -4,6 +4,7 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
 using Sample.Models;
@@ -18,30 +19,31 @@ namespace Sample
             {
                 return null;
             }
-            global::Sample.Models.Cat cat = default;
-            global::System.BinaryData anything = default;
+            global::Sample.Models.Cat cats = default;
+            global::System.Collections.Generic.IDictionary<string, string> additionalProperties = new global::Sample.ChangeTrackingDictionary<string, string>();
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
             global::System.ClientModel.Primitives.JsonPatch patch = new global::System.ClientModel.Primitives.JsonPatch((data is null) ? global::System.ReadOnlyMemory<byte>.Empty : data.ToMemory());
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
             foreach (var prop in element.EnumerateObject())
             {
-                if (prop.NameEquals("cat"u8))
+                if (prop.NameEquals("cats"u8))
                 {
                     if ((prop.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))
                     {
                         continue;
                     }
-                    cat = global::Sample.Models.Cat.DeserializeCat(prop.Value, options);
+                    cats = global::Sample.Models.Cat.DeserializeCat(prop.Value, options);
                     continue;
                 }
-                if (prop.NameEquals("anything"u8))
+                switch (prop.Value.ValueKind)
                 {
-                    anything = global::System.BinaryData.FromString(prop.Value.GetRawText());
-                    continue;
+                    case global::System.Text.Json.JsonValueKind.String:
+                        additionalProperties.Add(prop.Name, prop.Value.GetString());
+                        continue;
                 }
                 patch.Set([.. "$."u8, .. global::System.Text.Encoding.UTF8.GetBytes(prop.Name)], prop.Value.GetUtf8Bytes());
             }
-            return new global::Sample.Models.DynamicModel(cat, anything, patch);
+            return new global::Sample.Models.DynamicModel(cats, additionalProperties, patch);
         }
     }
 }
