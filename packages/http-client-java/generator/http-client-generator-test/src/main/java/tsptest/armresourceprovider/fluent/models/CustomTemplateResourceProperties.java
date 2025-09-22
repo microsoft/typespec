@@ -5,7 +5,6 @@
 package tsptest.armresourceprovider.fluent.models;
 
 import com.azure.core.annotation.Fluent;
-import com.azure.core.util.logging.ClientLogger;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
@@ -141,42 +140,6 @@ public final class CustomTemplateResourceProperties implements JsonSerializable<
         this.priority = priority;
         return this;
     }
-
-    /**
-     * Validates the instance.
-     * 
-     * @throws IllegalArgumentException thrown if the instance is not valid.
-     */
-    public void validate() {
-        if (dog() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Missing required property dog in model CustomTemplateResourceProperties"));
-        } else {
-            dog().validate();
-        }
-        if (namedEmptyModel() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Missing required property namedEmptyModel in model CustomTemplateResourceProperties"));
-        } else {
-            namedEmptyModel().validate();
-        }
-        if (anonymousEmptyModel() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Missing required property anonymousEmptyModel in model CustomTemplateResourceProperties"));
-        } else {
-            anonymousEmptyModel().validate();
-        }
-        if (priority() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Missing required property priority in model CustomTemplateResourceProperties"));
-        }
-    }
-
-    private static final ClientLogger LOGGER = new ClientLogger(CustomTemplateResourceProperties.class);
 
     /**
      * {@inheritDoc}

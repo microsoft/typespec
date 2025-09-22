@@ -25,7 +25,6 @@ import com.azure.core.management.polling.PollResult;
 import com.azure.core.util.BinaryData;
 import com.azure.core.util.Context;
 import com.azure.core.util.FluxUtil;
-import com.azure.core.util.logging.ClientLogger;
 import com.azure.core.util.polling.PollerFlux;
 import com.azure.core.util.polling.SyncPoller;
 import java.nio.ByteBuffer;
@@ -97,22 +96,6 @@ public final class LargeHeadersClientImpl implements LargeHeadersClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<Flux<ByteBuffer>>> two6kWithResponseAsync(String resourceGroupName, String largeHeaderName) {
-        if (this.client.getEndpoint() == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        if (this.client.getSubscriptionId() == null) {
-            return Mono.error(new IllegalArgumentException(
-                "Parameter this.client.getSubscriptionId() is required and cannot be null."));
-        }
-        if (resourceGroupName == null) {
-            return Mono
-                .error(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
-        }
-        if (largeHeaderName == null) {
-            return Mono
-                .error(new IllegalArgumentException("Parameter largeHeaderName is required and cannot be null."));
-        }
         final String accept = "application/json";
         return FluxUtil
             .withContext(context -> service.two6k(this.client.getEndpoint(), this.client.getApiVersion(),
@@ -132,24 +115,6 @@ public final class LargeHeadersClientImpl implements LargeHeadersClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Response<BinaryData> two6kWithResponse(String resourceGroupName, String largeHeaderName) {
-        if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
-        }
-        if (resourceGroupName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
-        }
-        if (largeHeaderName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter largeHeaderName is required and cannot be null."));
-        }
         final String accept = "application/json";
         return service.two6kSync(this.client.getEndpoint(), this.client.getApiVersion(),
             this.client.getSubscriptionId(), resourceGroupName, largeHeaderName, accept, Context.NONE);
@@ -168,24 +133,6 @@ public final class LargeHeadersClientImpl implements LargeHeadersClient {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Response<BinaryData> two6kWithResponse(String resourceGroupName, String largeHeaderName, Context context) {
-        if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        if (this.client.getSubscriptionId() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getSubscriptionId() is required and cannot be null."));
-        }
-        if (resourceGroupName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resourceGroupName is required and cannot be null."));
-        }
-        if (largeHeaderName == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter largeHeaderName is required and cannot be null."));
-        }
         final String accept = "application/json";
         return service.two6kSync(this.client.getEndpoint(), this.client.getApiVersion(),
             this.client.getSubscriptionId(), resourceGroupName, largeHeaderName, accept, context);
@@ -292,6 +239,4 @@ public final class LargeHeadersClientImpl implements LargeHeadersClient {
     public CancelResultInner two6k(String resourceGroupName, String largeHeaderName, Context context) {
         return beginTwo6k(resourceGroupName, largeHeaderName, context).getFinalResult();
     }
-
-    private static final ClientLogger LOGGER = new ClientLogger(LargeHeadersClientImpl.class);
 }
