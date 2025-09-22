@@ -36,31 +36,95 @@ on reasoning in a response.`,
               },
             ],
           },
+          NullableNumberWithConstraints: {
+            oneOf: [
+              {
+                type: "number",
+                minimum: 0,
+                maximum: 100,
+                description: "A percentage value between 0 and 100",
+              },
+              {
+                type: "null",
+              },
+            ],
+          },
+          ModelOrNull: {
+            anyOf: [
+              {
+                $ref: "#/components/schemas/SomeModel",
+              },
+              {
+                type: "null",
+              },
+            ],
+          },
+          SomeModel: {
+            type: "object",
+            properties: {
+              id: { type: "string" },
+            },
+          },
         },
       },
     });
   });
 
-  it("preserves description and decorators from anyOf members when one is null", () => {
+  it("generates proper TypeSpec code with description and null", () => {
     const context = createContext(parser, doc as OpenAPI3Document);
     const types: (TypeSpecUnion)[] = [];
     transformComponentSchemas(context, types);
     
     const union = types.find((t) => t.name === "ReasoningEffort" && t.kind === "union") as TypeSpecUnion;
     expect(union).toBeDefined();
-    
-    // Log the actual structure for debugging
-    console.log("Union:", JSON.stringify(union, null, 2));
-    console.log("Schema:", JSON.stringify(union.schema, null, 2));
-    
     expect(union.doc).toBeTruthy();
-    expect(union.doc).toContain("Constrains effort on reasoning");
     
-    // Generate the TypeSpec code to verify the output
+    // Generate the actual TypeSpec code
     const generatedCode = generateDataType(union, context);
+    
+    // Verify the generated code contains all expected elements
+    expect(generatedCode).toContain("/**");
     expect(generatedCode).toContain("Constrains effort on reasoning");
+    expect(generatedCode).toContain("*/");
+    expect(generatedCode).toContain("union ReasoningEffort {");
+    expect(generatedCode).toContain('"minimal"');
+    expect(generatedCode).toContain('"low"');
+    expect(generatedCode).toContain('"medium"');
+    expect(generatedCode).toContain('"high"');
     expect(generatedCode).toContain("null");
-    expect(generatedCode).toContain("minimal");
+    expect(generatedCode).toContain("}");
+  });
+
+  it("preserves description from oneOf members with constraints when one is null", () => {
+    const context = createContext(parser, doc as OpenAPI3Document);
+    const types: (TypeSpecUnion)[] = [];
+    transformComponentSchemas(context, types);
+    
+    const union = types.find((t) => t.name === "NullableNumberWithConstraints" && t.kind === "union") as TypeSpecUnion;
+    expect(union).toBeDefined();
+    expect(union.doc).toBe("A percentage value between 0 and 100");
+    
+    // Check that decorators from the number schema are preserved
+    expect(union.decorators).toBeDefined();
+    const hasMinConstraint = union.decorators.some(d => d.name === "minValue");
+    const hasMaxConstraint = union.decorators.some(d => d.name === "maxValue");
+    expect(hasMinConstraint).toBe(true);
+    expect(hasMaxConstraint).toBe(true);
+  });
+
+  it("handles reference + null anyOf correctly", () => {
+    const context = createContext(parser, doc as OpenAPI3Document);
+    const types: (TypeSpecUnion)[] = [];
+    transformComponentSchemas(context, types);
+    
+    const union = types.find((t) => t.name === "ModelOrNull" && t.kind === "union") as TypeSpecUnion;
+    expect(union).toBeDefined();
+    // For reference + null, there's no description on the ref itself, so doc should be undefined
+    expect(union.doc).toBeUndefined();
+    
+    const generatedCode = generateDataType(union, context);
+    expect(generatedCode).toContain("SomeModel");
+    expect(generatedCode).toContain("null");
   });
 
   it("handles oneOf with null type array properly", async () => {
@@ -72,9 +136,15 @@ on reasoning in a response.`,
         schemas: {
           NullableString: {
             type: ["string", "null"],
-            enum: ["value1", "value2"],
+            enum: ["value1", "value2", null],
             default: "value1",
             description: "A nullable string with enum values",
+          },
+          NullableInteger: {
+            type: ["integer", "null"],
+            minimum: 1,
+            maximum: 10,
+            description: "A nullable integer between 1 and 10",
           },
         },
       },
@@ -84,8 +154,18 @@ on reasoning in a response.`,
     const types: (TypeSpecUnion)[] = [];
     transformComponentSchemas(context, types);
     
-    const union = types.find((t) => t.name === "NullableString" && t.kind === "union") as TypeSpecUnion;
-    expect(union).toBeDefined();
-    expect(union.doc).toBe("A nullable string with enum values");
+    const stringUnion = types.find((t) => t.name === "NullableString" && t.kind === "union") as TypeSpecUnion;
+    expect(stringUnion).toBeDefined();
+    expect(stringUnion.doc).toBe("A nullable string with enum values");
+    
+    const integerUnion = types.find((t) => t.name === "NullableInteger" && t.kind === "union") as TypeSpecUnion;
+    expect(integerUnion).toBeDefined();
+    expect(integerUnion.doc).toBe("A nullable integer between 1 and 10");
+    
+    // Check that constraints are preserved for the integer union
+    const hasMinConstraint = integerUnion.decorators.some(d => d.name === "minValue");
+    const hasMaxConstraint = integerUnion.decorators.some(d => d.name === "maxValue");
+    expect(hasMinConstraint).toBe(true);
+    expect(hasMaxConstraint).toBe(true);
   });
 });

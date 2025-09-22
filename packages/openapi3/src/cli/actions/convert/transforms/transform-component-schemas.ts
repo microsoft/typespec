@@ -6,6 +6,7 @@ import {
   TypeSpecModel,
   TypeSpecModelProperty,
   TypeSpecUnion,
+  TypeSpecDecorator,
 } from "../interfaces.js";
 import { Context } from "../utils/context.js";
 import { getDecoratorsForSchema } from "../utils/decorators.js";
@@ -115,15 +116,59 @@ export function transformComponentSchemas(context: Context, models: TypeSpecMode
   }
 
   function populateUnion(types: TypeSpecDataTypes[], name: string, schema: OpenAPI3Schema): void {
+    // Extract description and decorators from meaningful union members
+    const unionMetadata = extractUnionMetadata(schema);
+    
     const union: TypeSpecUnion = {
       kind: "union",
       ...getScopeAndName(name),
-      decorators: getDecoratorsForSchema(schema),
-      doc: schema.description,
+      decorators: [...getDecoratorsForSchema(schema), ...unionMetadata.decorators],
+      doc: schema.description || unionMetadata.description,
       schema,
     };
 
     types.push(union);
+  }
+
+  /**
+   * Extracts meaningful description and decorators from union members.
+   * Handles anyOf/oneOf with null, and type arrays like ["string", "null"].
+   */
+  function extractUnionMetadata(schema: OpenAPI3Schema): { description?: string; decorators: TypeSpecDecorator[] } {
+    const result = { decorators: [] as TypeSpecDecorator[] };
+
+    // Handle anyOf/oneOf scenarios
+    const unionMembers = schema.anyOf || schema.oneOf;
+    if (unionMembers) {
+      const meaningfulMembers = unionMembers.filter(member => {
+        if ("$ref" in member) return true; // Reference is meaningful
+        return member.type !== "null"; // Non-null types are meaningful
+      });
+
+      // If we have exactly one meaningful member and at least one null, extract from the meaningful one
+      if (meaningfulMembers.length === 1 && unionMembers.length > meaningfulMembers.length) {
+        const meaningfulMember = meaningfulMembers[0];
+        if (!("$ref" in meaningfulMember)) {
+          result.description = meaningfulMember.description;
+          result.decorators = getDecoratorsForSchema(meaningfulMember);
+        }
+      }
+    }
+
+    // Handle type array scenarios like type: ["string", "null"]
+    if (Array.isArray(schema.type)) {
+      const nonNullTypes = schema.type.filter(t => t !== "null");
+      // If we have exactly one non-null type, this is essentially a nullable version of that type
+      // The schema itself should contain the relevant constraints/description for the non-null type
+      if (nonNullTypes.length === 1) {
+        // Create a schema without the null type to extract decorators for the non-null part
+        const nonNullSchema = { ...schema, type: nonNullTypes[0] };
+        result.decorators = getDecoratorsForSchema(nonNullSchema);
+        // The description should already be on the main schema, so we don't override it here
+      }
+    }
+
+    return result;
   }
 
   function populateScalar(types: TypeSpecDataTypes[], name: string, schema: OpenAPI3Schema): void {
@@ -225,7 +270,13 @@ function getTypeSpecKind(schema: OpenAPI3Schema): TypeSpecDataTypes["kind"] {
 
   if (schema.enum && schema.type === "string" && !schema.nullable) {
     return "enum";
-  } else if (schema.anyOf || schema.oneOf || schema.enum || schema.nullable) {
+  } else if (
+    schema.anyOf || 
+    schema.oneOf || 
+    schema.enum || 
+    schema.nullable ||
+    (Array.isArray(schema.type) && schema.type.includes("null"))
+  ) {
     return "union";
   } else if (
     schema.type === "object" ||
