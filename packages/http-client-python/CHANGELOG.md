@@ -1,5 +1,16 @@
 # Change Log - @typespec/http-client-python
 
+## 0.18.0
+
+### Features
+
+- [#8454](https://github.com/microsoft/typespec/pull/8454) Support nested nextLink for paging operation
+
+### Bug Fixes
+
+- [#8516](https://github.com/microsoft/typespec/pull/8516) Add overload for operation when body type is array of model
+
+
 ## 0.17.0
 
 ### Features
