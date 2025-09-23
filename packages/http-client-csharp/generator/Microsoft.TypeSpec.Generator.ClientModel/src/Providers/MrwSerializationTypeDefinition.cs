@@ -60,7 +60,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private readonly bool _shouldOverrideMethods;
         private readonly Lazy<PropertyProvider[]> _additionalProperties;
 
-        private CSharpType RootType => _rootType ??= GetRootType();
+        private CSharpType RootType => _rootType ??= GetRootModelType();
         private CSharpType? _rootType;
 
         public MrwSerializationTypeDefinition(InputModelType inputModel, ModelProvider modelProvider)
@@ -77,7 +77,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _rawDataField = _model.Fields.FirstOrDefault(f => f.Name == AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName);
             _additionalBinaryDataProperty = new(GetAdditionalBinaryDataPropertiesProp);
             _additionalProperties = new(() => [.. _model.Properties.Where(p => p.IsAdditionalProperties)]);
-            _shouldOverrideMethods = _model.Type.BaseType != null && !_isStruct && ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(_model.Type.BaseType, out var baseProvider) && baseProvider is ModelProvider;
+            _shouldOverrideMethods = _model.BaseModelProvider != null && !_isStruct;
             _utf8JsonWriterSnippet = _utf8JsonWriterParameter.As<Utf8JsonWriter>();
             _mrwOptionsParameterSnippet = _serializationOptionsParameter.As<ModelReaderWriterOptions>();
             _jsonElementParameterSnippet = _jsonElementDeserializationParam.As<JsonElement>();
@@ -96,6 +96,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override string BuildName() => _inputModel.Name.ToIdentifierName();
 
+        protected override CSharpType? BuildBaseType() => _model.BaseType;
+
         protected override IReadOnlyList<AttributeStatement> BuildAttributes()
         {
             if (_model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract))
@@ -109,18 +111,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return [];
         }
 
-        private CSharpType GetRootType()
+        private CSharpType GetRootModelType()
         {
             // We need to explicitly use the BaseModelProvider when looking up the root type
             // to account for any customizations that may have changed the base model.
             var returnType = _model.BaseModelProvider?.Type ?? Type;
-            while (returnType.BaseType != null)
+            while (returnType.BaseType != null
+                   && IsModelType(returnType.BaseType))
             {
                 returnType = returnType.BaseType;
             }
 
             return returnType;
         }
+
+        private static bool IsModelType(CSharpType type)
+            => ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(type, out var baseProvider) &&
+               baseProvider is ModelProvider;
 
         protected override ConstructorProvider[] BuildConstructors()
         {

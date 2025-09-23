@@ -8,8 +8,6 @@ namespace Versioning.Added
 {
     public partial class AddedClientOptions : ClientPipelineOptions
     {
-        private const ServiceVersion LatestVersion = ServiceVersion.V1;
-
         public AddedClientOptions(ServiceVersion version = LatestVersion) => throw null;
 
         public enum ServiceVersion

@@ -8,8 +8,6 @@ namespace Versioning.TypeChangedFrom
 {
     public partial class TypeChangedFromClientOptions : ClientPipelineOptions
     {
-        private const ServiceVersion LatestVersion = ServiceVersion.V2;
-
         public TypeChangedFromClientOptions(ServiceVersion version = LatestVersion) => throw null;
 
         public enum ServiceVersion

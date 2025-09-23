@@ -8,8 +8,6 @@ namespace Versioning.RenamedFrom
 {
     public partial class RenamedFromClientOptions : ClientPipelineOptions
     {
-        private const ServiceVersion LatestVersion = ServiceVersion.V1;
-
         public RenamedFromClientOptions(ServiceVersion version = LatestVersion) => throw null;
 
         public enum ServiceVersion

@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text.Json;
 using Microsoft.TypeSpec.Generator.Input;
@@ -31,6 +32,20 @@ namespace Microsoft.TypeSpec.Generator
         private Dictionary<InputType, IReadOnlyList<TypeProvider>> SerializationsCache { get; } = [];
 
         internal HashSet<string> UnionVariantTypesToKeep { get; } = [];
+
+        internal IDictionary<string, InputModelType> InputModelTypeNameMap
+        {
+            get
+            {
+                if (_inputModelTypeNameMap == null)
+                {
+                    _inputModelTypeNameMap = CodeModelGenerator.Instance.InputLibrary.InputNamespace.Models.ToDictionary(m => m.Name, m => m);
+                }
+
+                return _inputModelTypeNameMap;
+            }
+        }
+        private IDictionary<string, InputModelType>? _inputModelTypeNameMap;
 
         protected internal TypeFactory()
         {

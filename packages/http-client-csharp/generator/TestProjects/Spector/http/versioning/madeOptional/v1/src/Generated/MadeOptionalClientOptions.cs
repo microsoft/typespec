@@ -8,8 +8,6 @@ namespace Versioning.MadeOptional
 {
     public partial class MadeOptionalClientOptions : ClientPipelineOptions
     {
-        private const ServiceVersion LatestVersion = ServiceVersion.V1;
-
         public MadeOptionalClientOptions(ServiceVersion version = LatestVersion) => throw null;
 
         public enum ServiceVersion
