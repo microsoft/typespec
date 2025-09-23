@@ -889,6 +889,36 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.AreEqual(Helpers.GetExpectedFromFile(type.Name), convenienceMethod!.BodyStatements!.ToDisplayString());
         }
 
+        [Test]
+        public void TestUnionResponseType()
+        {
+            var inputUnionFooType = InputFactory.Union([InputFactory.Model("Foo", properties:
+            [
+                InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+            ])], "foo");
+            var inputType = InputFactory.Union([inputUnionFooType], "bar");
+            var inputOperation = InputFactory.Operation(
+                "GetUnion",
+                responses: [InputFactory.OperationResponse([200], inputType!)]);
+
+            var inputServiceMethod = InputFactory.BasicServiceMethod("GetScalar", inputOperation);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator();
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+            Assert.IsNotNull(methodCollection);
+            var convenienceMethod = methodCollection.FirstOrDefault(m
+                => m.Signature.Parameters.All(p => p.Name != "options")
+                   && m.Signature.Name == $"{inputOperation.Name.ToIdentifierName()}");
+
+            var responseType = convenienceMethod!.Signature.ReturnType;
+            Assert.IsNotNull(responseType);
+            Assert.AreEqual(new CSharpType(typeof(ClientResult<BinaryData>)), responseType);
+        }
+
         [TestCase(typeof(int))]
         [TestCase(typeof(long))]
         [TestCase(typeof(float))]

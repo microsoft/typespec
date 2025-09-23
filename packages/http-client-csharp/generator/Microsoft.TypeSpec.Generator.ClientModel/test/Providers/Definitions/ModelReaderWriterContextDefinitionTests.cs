@@ -35,8 +35,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             Assert.IsTrue(contextDefinition.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
             Assert.IsTrue(contextDefinition.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Partial));
             Assert.IsTrue(contextDefinition.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Class));
-            Assert.IsNotNull(contextDefinition.Implements);
-            Assert.IsTrue(contextDefinition.Implements.Contains(typeof(ModelReaderWriterContext)));
+            Assert.IsEmpty(contextDefinition.Implements);
+            Assert.IsNotNull(contextDefinition.BaseType);
+            Assert.IsTrue(contextDefinition.BaseType!.Equals(typeof(ModelReaderWriterContext)));
         }
 
         [Test]
@@ -812,7 +813,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             Assert.AreEqual(2, attributes.Count);
 
             // Check that we have the right number of attributes including the suppression for the obsolete type
-            var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && 
+            var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType &&
                 a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute)).ToList();
             Assert.AreEqual(2, buildableAttributes.Count());
 
@@ -870,7 +871,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
                         InputFactory.Property("DeprecatedModelRef", InputFactory.Model("DeprecatedModel"))
                     ])
                 },
-                createModelCore: input => input.Name == "DeprecatedModel" ? 
+                createModelCore: input => input.Name == "DeprecatedModel" ?
                     new ObsoleteModelProvider(input) : new ModelProvider(input));
 
             var contextDefinition = new ModelReaderWriterContextDefinition();
@@ -879,7 +880,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             Assert.IsNotNull(attributes);
             Assert.IsTrue(attributes.Count > 0);
 
-            var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && 
+            var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType &&
                 a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute)).ToList();
             Assert.AreEqual(2, buildableAttributes.Count());
 

@@ -252,6 +252,52 @@ describe("Operation Converter", () => {
       });
     });
 
+    describe("With union model response type", () => {
+      it("should use union response type", async () => {
+        const program = await typeSpecCompile(
+          `
+          model ServerEventSessionAvatarConnecting {
+            server_sdp: string;
+          }
+
+          model ServerEventSessionCreated {
+            session: string;
+          }
+
+          alias ForceModelServerEvent =
+            ServerEventSessionAvatarConnecting |
+            ServerEventSessionCreated;
+
+          @route("foo")
+          op force_models(): ForceModelServerEvent;
+          `,
+          runner,
+        );
+        const context = createEmitterContext(program);
+        const sdkContext = await createCSharpSdkContext(context);
+        const root = createModel(sdkContext);
+
+        strictEqual(root.clients.length, 1);
+        strictEqual(root.clients[0].methods.length, 1);
+
+        const method = root.clients[0].methods[0];
+        ok(method);
+
+        // validate service method response
+        const responseType = method.response.type;
+        ok(responseType);
+        strictEqual(responseType.kind, "union");
+
+        // validate operation response
+        const operation = method.operation;
+        ok(operation);
+        strictEqual(operation.responses.length, 1);
+        const response = operation.responses[0];
+        ok(response);
+        strictEqual(response.bodyType?.kind, "union");
+      });
+    });
+
     describe("With regular enum response type", () => {
       it("should convert regular enum response type normally", async () => {
         const program = await typeSpecCompile(

@@ -649,20 +649,6 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             }
         }
 
-        private CSharpType? _rootType;
-        public CSharpType RootType => _rootType ??= GetRootType();
-
-        private CSharpType GetRootType()
-        {
-            CSharpType returnType = this;
-            while (returnType.BaseType != null)
-            {
-                returnType = returnType.BaseType;
-            }
-
-            return returnType;
-        }
-
         /// <summary>
         /// Update the instance with given parameters.
         /// </summary>

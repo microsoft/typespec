@@ -1496,19 +1496,19 @@ namespace SampleTypeSpec
         }
 
         /// <summary> Model can have its projected name. </summary>
-        /// <param name="name"> name of the ModelWithClientName. </param>
+        /// <param name="otherName"> name of the ModelWithClientName. </param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="name"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="otherName"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="otherName"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<RenamedModel> ProjectedNameModel(string name, CancellationToken cancellationToken = default)
+        public virtual ClientResult<RenamedModel> ProjectedNameModel(string otherName, CancellationToken cancellationToken = default)
         {
             try
             {
                 System.Console.WriteLine("Entering method ProjectedNameModel.");
-                Argument.AssertNotNullOrEmpty(name, nameof(name));
+                Argument.AssertNotNullOrEmpty(otherName, nameof(otherName));
 
-                RenamedModel spreadModel = new RenamedModel(name, null);
+                RenamedModel spreadModel = new RenamedModel(otherName, null);
                 ClientResult result = ProjectedNameModel(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
                 return ClientResult.FromValue((RenamedModel)result, result.GetRawResponse());
             }
@@ -1524,19 +1524,19 @@ namespace SampleTypeSpec
         }
 
         /// <summary> Model can have its projected name. </summary>
-        /// <param name="name"> name of the ModelWithClientName. </param>
+        /// <param name="otherName"> name of the ModelWithClientName. </param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="name"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="otherName"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="otherName"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<RenamedModel>> ProjectedNameModelAsync(string name, CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult<RenamedModel>> ProjectedNameModelAsync(string otherName, CancellationToken cancellationToken = default)
         {
             try
             {
                 System.Console.WriteLine("Entering method ProjectedNameModelAsync.");
-                Argument.AssertNotNullOrEmpty(name, nameof(name));
+                Argument.AssertNotNullOrEmpty(otherName, nameof(otherName));
 
-                RenamedModel spreadModel = new RenamedModel(name, null);
+                RenamedModel spreadModel = new RenamedModel(otherName, null);
                 ClientResult result = await ProjectedNameModelAsync(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
                 return ClientResult.FromValue((RenamedModel)result, result.GetRawResponse());
             }

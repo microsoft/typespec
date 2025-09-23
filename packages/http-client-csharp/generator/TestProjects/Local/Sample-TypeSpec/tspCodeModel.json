@@ -2563,8 +2563,8 @@
         {
           "$id": "232",
           "kind": "property",
-          "name": "name",
-          "serializedName": "name",
+          "name": "otherName",
+          "serializedName": "otherName",
           "doc": "name of the ModelWithClientName",
           "type": {
             "$id": "233",
@@ -2578,10 +2578,10 @@
           "discriminator": false,
           "flatten": false,
           "decorators": [],
-          "crossLanguageDefinitionId": "SampleTypeSpec.ModelWithClientName.name",
+          "crossLanguageDefinitionId": "SampleTypeSpec.ModelWithClientName.otherName",
           "serializationOptions": {
             "json": {
-              "name": "name"
+              "name": "otherName"
             }
           },
           "isHttpMetadata": false
@@ -5789,8 +5789,8 @@
             {
               "$id": "440",
               "kind": "method",
-              "name": "name",
-              "serializedName": "name",
+              "name": "otherName",
+              "serializedName": "otherName",
               "doc": "name of the ModelWithClientName",
               "type": {
                 "$id": "441",
@@ -5803,7 +5803,7 @@
               "isApiVersion": false,
               "optional": false,
               "scope": "Method",
-              "crossLanguageDefinitionId": "SampleTypeSpec.projectedNameModel.name",
+              "crossLanguageDefinitionId": "SampleTypeSpec.projectedNameModel.otherName",
               "readOnly": false,
               "access": "public",
               "decorators": []

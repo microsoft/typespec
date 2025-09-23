@@ -6,7 +6,6 @@ package tsptest.armresourceprovider.fluent.models;
 
 import com.azure.core.annotation.Fluent;
 import com.azure.core.util.CoreUtils;
-import com.azure.core.util.logging.ClientLogger;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
@@ -155,36 +154,6 @@ public final class TopLevelArmResourceProperties implements JsonSerializable<Top
     public ProvisioningState provisioningState() {
         return this.provisioningState;
     }
-
-    /**
-     * Validates the instance.
-     * 
-     * @throws IllegalArgumentException thrown if the instance is not valid.
-     */
-    public void validate() {
-        if (userName() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Missing required property userName in model TopLevelArmResourceProperties"));
-        }
-        if (userNames() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Missing required property userNames in model TopLevelArmResourceProperties"));
-        }
-        if (accuserName() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Missing required property accuserName in model TopLevelArmResourceProperties"));
-        }
-        if (startTimeStamp() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Missing required property startTimeStamp in model TopLevelArmResourceProperties"));
-        }
-    }
-
-    private static final ClientLogger LOGGER = new ClientLogger(TopLevelArmResourceProperties.class);
 
     /**
      * {@inheritDoc}
