@@ -4,7 +4,6 @@ import {
   TypeSpecDataTypes,
   TypeSpecDecorator,
   TypeSpecEnum,
-  TypeSpecModel,
   TypeSpecModelProperty,
   TypeSpecUnion,
 } from "../interfaces.js";
@@ -19,7 +18,7 @@ import { getScopeAndName } from "../utils/get-scope-and-name.js";
  * @param schemas
  * @returns
  */
-export function transformComponentSchemas(context: Context, models: TypeSpecModel[]): void {
+export function transformComponentSchemas(context: Context, models: TypeSpecDataTypes[]): void {
   const schemas = context.openApi3Doc.components?.schemas;
   if (!schemas) return;
 
