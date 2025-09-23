@@ -77,7 +77,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _rawDataField = _model.Fields.FirstOrDefault(f => f.Name == AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName);
             _additionalBinaryDataProperty = new(GetAdditionalBinaryDataPropertiesProp);
             _additionalProperties = new(() => [.. _model.Properties.Where(p => p.IsAdditionalProperties)]);
-            _shouldOverrideMethods = _model.Type.BaseType != null && !_isStruct && IsModelType(_model.Type.BaseType);
+            _shouldOverrideMethods = _model.BaseModelProvider != null && !_isStruct;
             _utf8JsonWriterSnippet = _utf8JsonWriterParameter.As<Utf8JsonWriter>();
             _mrwOptionsParameterSnippet = _serializationOptionsParameter.As<ModelReaderWriterOptions>();
             _jsonElementParameterSnippet = _jsonElementDeserializationParam.As<JsonElement>();
@@ -95,6 +95,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.Serialization.cs");
 
         protected override string BuildName() => _inputModel.Name.ToIdentifierName();
+
+        protected override CSharpType? BuildBaseType() => _model.BaseType;
 
         protected override IReadOnlyList<AttributeStatement> BuildAttributes()
         {

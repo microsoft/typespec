@@ -233,13 +233,24 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (_inputModel.BaseModel == null)
             {
                 // consider models that have been customized to inherit from a different model
-                if (CustomCodeView?.BaseType != null &&
-                    CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(
-                        CustomCodeView.BaseType,
-                        out var customBaseType) &&
-                    customBaseType is ModelProvider customBaseModel)
+                if (CustomCodeView?.BaseType != null)
                 {
-                    return customBaseModel;
+                    var baseType = CustomCodeView.BaseType;
+                    // If the custom base type doesn't have a namespace, then try to resolve it from the input model map
+                    if (string.IsNullOrEmpty(baseType.Namespace))
+                    {
+                        if (CodeModelGenerator.Instance.TypeFactory.InputModelTypeNameMap.TryGetValue(baseType.Name.ToIdentifierName(useCamelCase: true), out var baseInputModel))
+                        {
+                            baseType = CodeModelGenerator.Instance.TypeFactory.CreateModel(baseInputModel)?.Type;
+                        }
+                    }
+                    if (baseType != null && CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(
+                            baseType,
+                            out var customBaseType) &&
+                        customBaseType is ModelProvider customBaseModel)
+                    {
+                        return customBaseModel;
+                    }
                 }
 
                 return null;

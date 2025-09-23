@@ -282,19 +282,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
-        [Test]
-        public async Task CanCustomizeBaseType()
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task CanCustomizeBaseType(bool declareBaseTypeInCustomCode)
         {
             var modelProp = InputFactory.Property("prop1", InputPrimitiveType.String);
-            var inputModel = InputFactory.Model("mockInputModel", properties: [modelProp], usage: InputModelTypeUsage.Json);
+            var inputModel = InputFactory.Model("mockInputModel", properties: [], usage: InputModelTypeUsage.Json);
             var baseModel = InputFactory.Model(
                 "mockInputModelBase",
-                properties: [],
+                properties: [modelProp],
                 usage: InputModelTypeUsage.Json);
 
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModels: () => [inputModel, baseModel],
-                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(declareBaseTypeInCustomCode.ToString()));
 
             var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
 
@@ -312,7 +313,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
-        [Test]
         public async Task DoesNotOverrideMethodsIfBaseTypeIsNotModel()
         {
             var modelProp = InputFactory.Property("prop1", InputPrimitiveType.String);
