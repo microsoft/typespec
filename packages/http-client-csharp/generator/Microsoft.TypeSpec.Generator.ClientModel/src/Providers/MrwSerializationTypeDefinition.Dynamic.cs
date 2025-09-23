@@ -4,23 +4,16 @@
 using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Net;
-using System.Text;
 using System.Text.Json;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
-using Microsoft.TypeSpec.Generator.ClientModel.Utilities;
-using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
-using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
-using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Statements;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
@@ -118,12 +111,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         private MethodBodyStatement CreateListSerializationWithPatch(
-    ValueExpression collection,
-    CSharpType type,
-    ScopedApi<JsonPatch> patchSnippet,
-    SerializationFormat serializationFormat,
-    string serializedName,
-    List<ValueExpression>? parentIndices = null)
+            ValueExpression collection,
+            CSharpType type,
+            bool isReadOnlySpan,
+            ScopedApi<JsonPatch> patchSnippet,
+            SerializationFormat serializationFormat,
+            string serializedName,
+            List<ValueExpression>? parentIndices = null)
         {
             parentIndices ??= [];
             var indexDeclaration = Declare<int>("i", out var indexVar);
@@ -148,9 +142,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     .As<string>()));
             }
 
+            string lengthProperty = isReadOnlySpan || type.IsArray
+                ? "Length"
+                : "Count";
             var forStatement = new ForStatement(
                 indexDeclaration.Assign(Literal(0)),
-                indexVar.LessThan(collection.Property(type.IsArray ? "Length" : "Count")),
+                indexVar.LessThan(collection.Property(lengthProperty)),
                 indexVar.Increment())
             {
                 new MethodBodyStatement[]
@@ -192,6 +189,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 { IsList: true } or { IsArray: true } => CreateListSerializationWithPatch(
                     element,
                     elementType.Arguments[0],
+                    elementType.ElementType.IsFrameworkType && elementType.ElementType.FrameworkType == typeof(ReadOnlySpan<>), // isReadOnlySpan
                     patchSnippet,
                     serializationFormat,
                     serializedName,
@@ -375,7 +373,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return [.. statements];
         }
 
-        private MethodBodyStatement[] BuildCollectionIfStatements(
+        private static MethodBodyStatement[] BuildCollectionIfStatements(
             PropertyProvider property,
             bool propagateGet,
             ParameterProvider valueParameter,
