@@ -505,6 +505,11 @@ export function createServer(
       await fileService.getPath({ uri: firstFilePath.newUri }),
     );
 
+    if (mainFile === undefined) {
+      log({ level: "debug", message: `failed to resolve main file for ${firstFilePath.newUri}` });
+      return;
+    }
+
     // There will be no event triggered if the renamed file is not opened in vscode, also even when it's opened
     // there will be only closed and opened event triggered for the old and new file url, so send fire the update
     // explicitly here to make sure the change is not missed.
@@ -822,7 +827,7 @@ export function createServer(
         kind: MarkupKind.Markdown,
         value:
           sym && sym.length > 0
-            ? getSymbolDetails(program, sym[0], {
+            ? await getSymbolDetails(program, sym[0], {
                 includeSignature: true,
                 includeParameterTags: true,
                 includeExpandedDefinition,
@@ -863,11 +868,11 @@ export function createServer(
     }
   }
 
-  function getSignatureHelpForTemplate(
+  async function getSignatureHelpForTemplate(
     program: Program,
     node: TypeReferenceNode,
     argumentIndex: number,
-  ): SignatureHelp | undefined {
+  ): Promise<SignatureHelp | undefined> {
     const sym = program.checker.resolveRelatedSymbols(
       node.target.kind === SyntaxKind.MemberExpression ? node.target.id : node.target,
     );
@@ -905,7 +910,7 @@ export function createServer(
       activeParameter: 0,
     };
 
-    const doc = getSymbolDetails(program, sym[0], {
+    const doc = await getSymbolDetails(program, sym[0], {
       includeSignature: false,
       includeParameterTags: false,
     });
@@ -916,11 +921,11 @@ export function createServer(
     return help;
   }
 
-  function getSignatureHelpForDecorator(
+  async function getSignatureHelpForDecorator(
     program: Program,
     node: DecoratorExpressionNode | AugmentDecoratorStatementNode,
     argumentIndex: number,
-  ): SignatureHelp | undefined {
+  ): Promise<SignatureHelp | undefined> {
     const sym = program.checker.resolveRelatedSymbols(
       node.target.kind === SyntaxKind.MemberExpression ? node.target.id : node.target,
     );
@@ -983,7 +988,7 @@ export function createServer(
       activeParameter: 0,
     };
 
-    const doc = getSymbolDetails(program, sym[0], {
+    const doc = await getSymbolDetails(program, sym[0], {
       includeSignature: false,
       includeParameterTags: false,
     });

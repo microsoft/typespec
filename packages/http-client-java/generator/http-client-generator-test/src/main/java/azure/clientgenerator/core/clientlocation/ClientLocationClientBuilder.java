@@ -206,6 +206,24 @@ public final class ClientLocationClientBuilder implements HttpTrait<ClientLocati
     }
 
     /*
+     * 
+     */
+    @Generated
+    private String storageAccount;
+
+    /**
+     * Sets.
+     * 
+     * @param storageAccount the storageAccount value.
+     * @return the ClientLocationClientBuilder.
+     */
+    @Generated
+    public ClientLocationClientBuilder storageAccount(String storageAccount) {
+        this.storageAccount = storageAccount;
+        return this;
+    }
+
+    /*
      * The retry policy that will attempt to retry failed requests, if applicable.
      */
     @Generated
@@ -234,7 +252,7 @@ public final class ClientLocationClientBuilder implements HttpTrait<ClientLocati
         HttpPipeline localPipeline = (pipeline != null) ? pipeline : createHttpPipeline();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
         ClientLocationClientImpl client = new ClientLocationClientImpl(localPipeline,
-            JacksonAdapter.createDefaultSerializerAdapter(), localEndpoint);
+            JacksonAdapter.createDefaultSerializerAdapter(), localEndpoint, this.storageAccount);
         return client;
     }
 
@@ -242,6 +260,7 @@ public final class ClientLocationClientBuilder implements HttpTrait<ClientLocati
     private void validateClient() {
         // This method is invoked from 'buildInnerClient'/'buildClient' method.
         // Developer can customize this method, to validate that the necessary conditions are met for the new client.
+        Objects.requireNonNull(storageAccount, "'storageAccount' cannot be null.");
     }
 
     @Generated

@@ -40,6 +40,7 @@
     "tsptest.armstreamstyleserialization.models.Error": "TspTest.ArmStreamStyleSerialization.ErrorResponse",
     "tsptest.armstreamstyleserialization.models.ErrorMin": "TspTest.ArmStreamStyleSerialization.ErrorResponseMin",
     "tsptest.armstreamstyleserialization.models.FunctionProperties": "TspTest.ArmStreamStyleSerialization.FunctionProperties",
+    "tsptest.armstreamstyleserialization.models.FunctionsCreateFunctionHeaders": null,
     "tsptest.armstreamstyleserialization.models.GoblinShark": "TspTest.ArmStreamStyleSerialization.GoblinShark",
     "tsptest.armstreamstyleserialization.models.Golden": "TspTest.ArmStreamStyleSerialization.Golden",
     "tsptest.armstreamstyleserialization.models.OutputOnlyModelChild": "TspTest.ArmStreamStyleSerialization.OutputOnlyModelChild",

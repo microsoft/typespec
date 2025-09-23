@@ -21,8 +21,6 @@ namespace TspTest.ArmStreamStyleSerialization;
 
 @doc("Azure API versions.")
 enum Versions {
-  @useDependency(Azure.Core.Versions.v1_0_Preview_2)
-  @useDependency(Azure.ResourceManager.Versions.v1_0_Preview_1)
   @doc("Preview API version 2023-12-01-preview.")
   v2023_12_01_preview: "2023-12-01-preview",
 }
@@ -243,7 +241,11 @@ interface Functions {
   createFunction(
     @header `x-ms-authorization-auxiliary`?: string,
     @body function: Function,
-  ): Function;
+  ): Function & {
+    @header("ETag")
+    @clientName("etag")
+    eTag: string;
+  };
 }
 
 @route("/priority")

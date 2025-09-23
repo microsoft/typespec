@@ -198,7 +198,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected virtual CSharpType? BuildBaseType() => null;
 
-        public CSharpType? BaseType => _baseType ??= BuildBaseType();
+        public CSharpType? BaseType => _baseType ??= CustomCodeView?.BaseType ?? BuildBaseType();
         private CSharpType? _baseType;
 
         public WhereExpression? WhereClause => _whereClause ??= BuildWhereClause();

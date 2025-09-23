@@ -517,6 +517,13 @@ value=1686566864
 Test default encode for a duration header.
 Expected header `input=P40D`
 
+### Encode_Duration_Header_float64Milliseconds
+
+- Endpoint: `get /encode/duration/header/float64-milliseconds`
+
+Test float64 milliseconds encode for a duration header.
+Expected header `duration: 35625`
+
 ### Encode_Duration_Header_float64Seconds
 
 - Endpoint: `get /encode/duration/header/float64-seconds`
@@ -524,12 +531,33 @@ Expected header `input=P40D`
 Test float64 seconds encode for a duration header.
 Expected header `duration: 35.625`
 
+### Encode_Duration_Header_floatMilliseconds
+
+- Endpoint: `get /encode/duration/header/float-milliseconds`
+
+Test float milliseconds encode for a duration header.
+Expected header `duration: 35625`
+
 ### Encode_Duration_Header_floatSeconds
 
 - Endpoint: `get /encode/duration/header/float-seconds`
 
 Test float seconds encode for a duration header.
 Expected header `duration: 35.625`
+
+### Encode_Duration_Header_int32Milliseconds
+
+- Endpoint: `get /encode/duration/header/int32-milliseconds`
+
+Test int32 milliseconds encode for a duration header.
+Expected header `duration: 36000`
+
+### Encode_Duration_Header_int32MillisecondsArray
+
+- Endpoint: `get /encode/duration/header/int32-milliseconds-array`
+
+Test int32 milliseconds encode for a duration array header.
+Expected header `duration: [36000,47000]`
 
 ### Encode_Duration_Header_int32Seconds
 
@@ -573,6 +601,27 @@ Expected response body:
 }
 ```
 
+### Encode_Duration_Property_float64Milliseconds
+
+- Endpoint: `get /encode/duration/property/float64-milliseconds`
+
+Test operation with request and response model contains a duration property with float64 milliseconds encode.
+Expected request body:
+
+```json
+{
+  "value": 35625
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": 35625
+}
+```
+
 ### Encode_Duration_Property_float64Seconds
 
 - Endpoint: `get /encode/duration/property/float64-seconds`
@@ -591,6 +640,48 @@ Expected response body:
 ```json
 {
   "value": 35.625
+}
+```
+
+### Encode_Duration_Property_floatMilliseconds
+
+- Endpoint: `get /encode/duration/property/float-milliseconds`
+
+Test operation with request and response model contains a duration property with float milliseconds encode.
+Expected request body:
+
+```json
+{
+  "value": 35625
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": 35625
+}
+```
+
+### Encode_Duration_Property_floatMillisecondsArray
+
+- Endpoint: `get /encode/duration/property/float-milliseconds-array`
+
+Test operation with request and response model contains an array property which elements are duration with float milliseconds encode.
+Expected request body:
+
+```json
+{
+  "value": [35625, 46750]
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": [35625, 46750]
 }
 ```
 
@@ -633,6 +724,27 @@ Expected response body:
 ```json
 {
   "value": [35.625, 46.75]
+}
+```
+
+### Encode_Duration_Property_int32Milliseconds
+
+- Endpoint: `get /encode/duration/property/int32-milliseconds`
+
+Test operation with request and response model contains a duration property with int32 milliseconds encode.
+Expected request body:
+
+```json
+{
+  "value": 36000
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": 36000
 }
 ```
 
@@ -685,6 +797,13 @@ Expected response body:
 Test default encode for a duration parameter.
 Expected query parameter `input=P40D`
 
+### Encode_Duration_Query_float64Milliseconds
+
+- Endpoint: `get /encode/duration/query/float64-milliseconds`
+
+Test float64 milliseconds encode for a duration parameter.
+Expected query parameter `input=35625`
+
 ### Encode_Duration_Query_float64Seconds
 
 - Endpoint: `get /encode/duration/query/float64-seconds`
@@ -692,12 +811,33 @@ Expected query parameter `input=P40D`
 Test float64 seconds encode for a duration parameter.
 Expected query parameter `input=35.625`
 
+### Encode_Duration_Query_floatMilliseconds
+
+- Endpoint: `get /encode/duration/query/float-milliseconds`
+
+Test float milliseconds encode for a duration parameter.
+Expected query parameter `input=35625`
+
 ### Encode_Duration_Query_floatSeconds
 
 - Endpoint: `get /encode/duration/query/float-seconds`
 
 Test float seconds encode for a duration parameter.
 Expected query parameter `input=35.625`
+
+### Encode_Duration_Query_int32Milliseconds
+
+- Endpoint: `get /encode/duration/query/int32-milliseconds`
+
+Test int32 milliseconds encode for a duration parameter.
+Expected query parameter `input=36000`
+
+### Encode_Duration_Query_int32MillisecondsArray
+
+- Endpoint: `get /encode/duration/query/int32-milliseconds-array`
+
+Test int32 milliseconds encode for a duration array parameter.
+Expected query parameter `input=36000,47000`
 
 ### Encode_Duration_Query_int32Seconds
 
@@ -1699,14 +1839,52 @@ Content-Type: application/octet-stream
 --abcde12345--
 ```
 
-### Payload_Pageable_listWithoutContinuation
+### Payload_Pageable_PageSize_listWithoutContinuation
 
-- Endpoint: `get /payload/pageable/simple`
+- Endpoint: `get /payload/pageable/pagesize/without-continuation`
 
 Test case for simple pagination without nextlink or continuationToken.
 
 Single request:
-Expected route: /payload/pageable/simple
+Expected route: /payload/pageable/pagesize/without-continuation
+
+Expected response body:
+
+```json
+{
+  "pets": [
+    { "id": "1", "name": "dog" },
+    { "id": "2", "name": "cat" },
+    { "id": "3", "name": "bird" },
+    { "id": "4", "name": "fish" }
+  ]
+}
+```
+
+### Payload_Pageable_PageSize_listWithPageSize
+
+- Endpoint: `get /payload/pageable/pagesize/list`
+
+Test case for pagination with a regular @pageSize parameter.
+
+Two requests need to be tested:
+
+1. Request with pageSize=2:
+   Expected route: /payload/pageable/pagesize/list?pageSize=2
+
+Expected response body:
+
+```json
+{
+  "pets": [
+    { "id": "1", "name": "dog" },
+    { "id": "2", "name": "cat" }
+  ]
+}
+```
+
+2. Request with pageSize=4:
+   Expected route: /payload/pageable/pagesize/list?pageSize=4
 
 Expected response body:
 

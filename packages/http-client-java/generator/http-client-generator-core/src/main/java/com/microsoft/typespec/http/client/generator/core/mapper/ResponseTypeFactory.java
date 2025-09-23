@@ -62,7 +62,7 @@ final class ResponseTypeFactory {
                     : mono(GenericType.Response(bodyType));
             }
 
-            final ObjectSchema headersSchema = ClientMapper.parseHeader(operation, settings);
+            final ObjectSchema headersSchema = Mappers.getClientMapper().parseHeader(operation, settings);
             final IType headersType = Mappers.getSchemaMapper().map(headersSchema);
             // If the responseBodyType is InputStream it needs to be converted to proper binary return type so
             // that it is valid for async method.
@@ -117,7 +117,7 @@ final class ResponseTypeFactory {
             if (typedHeadersDisallowed) {
                 return GenericType.Response(syncReturnType);
             }
-            final ObjectSchema headersSchema = ClientMapper.parseHeader(operation, settings);
+            final ObjectSchema headersSchema = Mappers.getClientMapper().parseHeader(operation, settings);
             final IType headersType = Mappers.getSchemaMapper().map(headersSchema);
             return GenericType.RestResponse(headersType, syncReturnType);
         }

@@ -16,6 +16,8 @@
     "test:ui": "vitest --ui",
     "test:watch": "vitest -w",
     "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
+    "prepack": "tsx ../../eng/tsp-core/scripts/strip-dev-import-exports.ts",
+    "postpack": "tsx ../../eng/tsp-core/scripts/strip-dev-import-exports.ts --restore",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix"
   },

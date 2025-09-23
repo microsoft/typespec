@@ -26,7 +26,6 @@ import com.azure.core.http.rest.RestProxy;
 import com.azure.core.management.exception.ManagementException;
 import com.azure.core.util.Context;
 import com.azure.core.util.FluxUtil;
-import com.azure.core.util.logging.ClientLogger;
 import reactor.core.publisher.Mono;
 
 /**
@@ -130,17 +129,6 @@ public final class MixedSubscriptionPlacementSubscriptionResourceOperationsClien
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<SubscriptionResourceInner>> getWithResponseAsync(String subscriptionId,
         String subscriptionResourceName) {
-        if (this.client.getEndpoint() == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        if (subscriptionId == null) {
-            return Mono.error(new IllegalArgumentException("Parameter subscriptionId is required and cannot be null."));
-        }
-        if (subscriptionResourceName == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter subscriptionResourceName is required and cannot be null."));
-        }
         final String accept = "application/json";
         return FluxUtil
             .withContext(context -> service.get(this.client.getEndpoint(), this.client.getApiVersion(), subscriptionId,
@@ -178,20 +166,6 @@ public final class MixedSubscriptionPlacementSubscriptionResourceOperationsClien
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<SubscriptionResourceInner> getWithResponse(String subscriptionId, String subscriptionResourceName,
         Context context) {
-        if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        if (subscriptionId == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter subscriptionId is required and cannot be null."));
-        }
-        if (subscriptionResourceName == null) {
-            throw LOGGER.atError()
-                .log(
-                    new IllegalArgumentException("Parameter subscriptionResourceName is required and cannot be null."));
-        }
         final String accept = "application/json";
         return service.getSync(this.client.getEndpoint(), this.client.getApiVersion(), subscriptionId,
             subscriptionResourceName, accept, context);
@@ -227,22 +201,6 @@ public final class MixedSubscriptionPlacementSubscriptionResourceOperationsClien
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<SubscriptionResourceInner>> putWithResponseAsync(String subscriptionId,
         String subscriptionResourceName, SubscriptionResourceInner resource) {
-        if (this.client.getEndpoint() == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        if (subscriptionId == null) {
-            return Mono.error(new IllegalArgumentException("Parameter subscriptionId is required and cannot be null."));
-        }
-        if (subscriptionResourceName == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter subscriptionResourceName is required and cannot be null."));
-        }
-        if (resource == null) {
-            return Mono.error(new IllegalArgumentException("Parameter resource is required and cannot be null."));
-        } else {
-            resource.validate();
-        }
         final String contentType = "application/json";
         final String accept = "application/json";
         return FluxUtil
@@ -286,26 +244,6 @@ public final class MixedSubscriptionPlacementSubscriptionResourceOperationsClien
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<SubscriptionResourceInner> putWithResponse(String subscriptionId, String subscriptionResourceName,
         SubscriptionResourceInner resource, Context context) {
-        if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        if (subscriptionId == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter subscriptionId is required and cannot be null."));
-        }
-        if (subscriptionResourceName == null) {
-            throw LOGGER.atError()
-                .log(
-                    new IllegalArgumentException("Parameter subscriptionResourceName is required and cannot be null."));
-        }
-        if (resource == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter resource is required and cannot be null."));
-        } else {
-            resource.validate();
-        }
         final String contentType = "application/json";
         final String accept = "application/json";
         return service.putSync(this.client.getEndpoint(), this.client.getApiVersion(), subscriptionId,
@@ -341,17 +279,6 @@ public final class MixedSubscriptionPlacementSubscriptionResourceOperationsClien
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<Response<Void>> deleteWithResponseAsync(String subscriptionId, String subscriptionResourceName) {
-        if (this.client.getEndpoint() == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        if (subscriptionId == null) {
-            return Mono.error(new IllegalArgumentException("Parameter subscriptionId is required and cannot be null."));
-        }
-        if (subscriptionResourceName == null) {
-            return Mono.error(
-                new IllegalArgumentException("Parameter subscriptionResourceName is required and cannot be null."));
-        }
         return FluxUtil
             .withContext(context -> service.delete(this.client.getEndpoint(), this.client.getApiVersion(),
                 subscriptionId, subscriptionResourceName, context))
@@ -386,20 +313,6 @@ public final class MixedSubscriptionPlacementSubscriptionResourceOperationsClien
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> deleteWithResponse(String subscriptionId, String subscriptionResourceName, Context context) {
-        if (this.client.getEndpoint() == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException(
-                    "Parameter this.client.getEndpoint() is required and cannot be null."));
-        }
-        if (subscriptionId == null) {
-            throw LOGGER.atError()
-                .log(new IllegalArgumentException("Parameter subscriptionId is required and cannot be null."));
-        }
-        if (subscriptionResourceName == null) {
-            throw LOGGER.atError()
-                .log(
-                    new IllegalArgumentException("Parameter subscriptionResourceName is required and cannot be null."));
-        }
         return service.deleteSync(this.client.getEndpoint(), this.client.getApiVersion(), subscriptionId,
             subscriptionResourceName, context);
     }
@@ -417,7 +330,4 @@ public final class MixedSubscriptionPlacementSubscriptionResourceOperationsClien
     public void delete(String subscriptionId, String subscriptionResourceName) {
         deleteWithResponse(subscriptionId, subscriptionResourceName, Context.NONE);
     }
-
-    private static final ClientLogger LOGGER
-        = new ClientLogger(MixedSubscriptionPlacementSubscriptionResourceOperationsClientImpl.class);
 }
