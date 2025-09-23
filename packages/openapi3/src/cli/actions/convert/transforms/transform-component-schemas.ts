@@ -122,7 +122,7 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
       kind: "union",
       ...getScopeAndName(name),
       decorators: [...getDecoratorsForSchema(schema), ...unionMetadata.decorators],
-      doc: schema.description || unionMetadata.description,
+      doc: schema.description ?? unionMetadata.description,
       schema,
     };
 
