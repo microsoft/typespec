@@ -13,7 +13,7 @@ it("hint by default", async () => {
   strictEqual(diags.length, 1);
   strictEqual(diags[0].code, "@typespec/compiler/unused-using");
   strictEqual(diags[0].severity, DiagnosticSeverity.Hint);
-  strictEqual(diags[0].message, "'using Foo' is declared but never be used.");
+  strictEqual(diags[0].message, "'using Foo' is declared but never used.");
 });
 
 it("warning if enable === true", async () => {
@@ -30,7 +30,7 @@ it("warning if enable === true", async () => {
   strictEqual(diags.length, 1);
   strictEqual(diags[0].code, "@typespec/compiler/unused-using");
   strictEqual(diags[0].severity, DiagnosticSeverity.Warning);
-  strictEqual(diags[0].message, "'using Foo' is declared but never be used.");
+  strictEqual(diags[0].message, "'using Foo' is declared but never used.");
 });
 
 it("nothing if enable === false", async () => {

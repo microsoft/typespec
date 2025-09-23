@@ -531,7 +531,8 @@ enum DurationKnownEncoding
 | Name | Value | Description |
 |------|-------|-------------|
 | ISO8601 | `"ISO8601"` | ISO8601 duration |
-| seconds | `"seconds"` | Encode to integer or float |
+| seconds | `"seconds"` | Encode to integer or float as seconds |
+| milliseconds | `"milliseconds"` | Encode to integer or float as milliseconds |
 
 
 ### `Lifecycle` {#Lifecycle}

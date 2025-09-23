@@ -101,6 +101,8 @@ $generateScript = {
     $tspOptions += " --option ""@typespec/http-client-java.service-name=Arm Resource Provider"""
     # test property-include-always
     $tspOptions += " --option ""@typespec/http-client-java.property-include-always=FunctionConfiguration.input"""
+    # enable client side validations
+    $tspOptions += " --option ""@typespec/http-client-java.client-side-validations=true"""
   } elseif ($tspFile -match "subclient.tsp") {
     $tspOptions += " --option ""@typespec/http-client-java.enable-subclient=true"""
     # test for include-api-view-properties
