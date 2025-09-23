@@ -8,6 +8,8 @@ namespace Resiliency.ServiceDriven
 {
     public partial class ResiliencyServiceDrivenClientOptions : ClientPipelineOptions
     {
+        private const ServiceVersion LatestVersion = ServiceVersion.V2;
+
         public ResiliencyServiceDrivenClientOptions(ServiceVersion version = LatestVersion) => throw null;
 
         public enum ServiceVersion
