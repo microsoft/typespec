@@ -213,7 +213,10 @@ class PreProcessPlugin(YamlUpdatePlugin):
             and not any(t for t in ["flattened", "groupedBy"] if body_parameter.get(t))
         ):
             origin_type = body_parameter["type"]["type"]
-            is_dpg_model = body_parameter["type"].get("base") == "dpg"
+            model_type = (
+                body_parameter["type"] if origin_type == "model" else body_parameter["type"].get("elementType", {})
+            )
+            is_dpg_model = model_type.get("base") == "dpg"
             body_parameter["type"] = {
                 "type": "combined",
                 "types": [body_parameter["type"]],
