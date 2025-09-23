@@ -89,6 +89,7 @@ namespace Microsoft.TypeSpec.Generator.Snippets
         public static ScopedApi<string> Literal(string? value) => (value is null ? Null : new LiteralExpression(value)).As<string>();
         public static ScopedApi<string> LiteralU8(string value) => new UnaryOperatorExpression("u8", new LiteralExpression(value), true).As<string>();
 
+        public static ValueExpression Spread(ValueExpression expression) => new UnaryOperatorExpression(".. ", expression, false);
         public static ScopedApi<bool> Not(ValueExpression operand) => new UnaryOperatorExpression("!", operand, false).As<bool>();
 
         public static MethodBodyStatement Continue => new KeywordExpression("continue", null).Terminate();
@@ -125,6 +126,9 @@ namespace Microsoft.TypeSpec.Generator.Snippets
 
         public static InvokeMethodExpression Invoke(this ParameterProvider parameter, string methodName, CSharpType? extensionType = null)
             => new InvokeMethodExpression(parameter, methodName, Array.Empty<ValueExpression>()) { ExtensionType = extensionType};
+
+        public static InvokeMethodExpression InvokeLambda(this ParameterProvider parameter, params ValueExpression[] args)
+            => new InvokeMethodExpression(null, parameter.Name, args);
 
         public static ValueExpression Property(this ParameterProvider parameter, string propertyName, bool nullConditional = false)
             => new MemberExpression(nullConditional ? new NullConditionalExpression(parameter) : parameter, propertyName);
@@ -164,6 +168,7 @@ namespace Microsoft.TypeSpec.Generator.Snippets
         public static ScopedApi<bool> NotEqual(this ParameterProvider parameter, ValueExpression other)
             => new BinaryOperatorExpression("!=", parameter, other).As<bool>();
 
-        public static VariableExpression AsExpression(this ParameterProvider variableExpression) => (VariableExpression)variableExpression;
+        public static VariableExpression AsVariable(this ParameterProvider parameter) => ParameterProvider.GetVariableExpression(parameter, includeModifiers: false);
+        public static VariableExpression AsArgument(this ParameterProvider property) => ParameterProvider.GetVariableExpression(property, includeModifiers: true);
     }
 }

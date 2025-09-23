@@ -9,7 +9,7 @@ namespace Microsoft.TypeSpec.Generator.Statements
         public MethodBodyStatement If { get; }
         public MethodBodyStatement? Else { get; }
 
-        public IfElsePreprocessorStatement(string condition, MethodBodyStatement ifStatement, MethodBodyStatement? elseStatement)
+        public IfElsePreprocessorStatement(string condition, MethodBodyStatement ifStatement, MethodBodyStatement? elseStatement = null)
         {
             Condition = condition;
             If = ifStatement;

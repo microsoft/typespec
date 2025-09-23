@@ -165,7 +165,8 @@ namespace SampleTypeSpec
         public static explicit operator ListWithContinuationTokenResponse(ClientResult result)
         {
             using PipelineResponse response = result.GetRawResponse();
-            using JsonDocument document = JsonDocument.Parse(response.Content);
+            BinaryData data = response.Content;
+            using JsonDocument document = JsonDocument.Parse(data);
             return DeserializeListWithContinuationTokenResponse(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
     }

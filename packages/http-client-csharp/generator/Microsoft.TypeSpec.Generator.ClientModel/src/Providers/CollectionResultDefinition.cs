@@ -131,7 +131,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             PropertyProvider? property = null;
             for (int i = 0; i < NextPagePropertySegments.Count; i++)
             {
-                property = model.Properties.First(p => p.WireInfo!.SerializedName == NextPagePropertySegments[i]);
+                property = model.Properties.First(p => p.WireInfo?.SerializedName == NextPagePropertySegments[i]);
 
                 if (i < NextPagePropertySegments.Count - 1)
                 {
@@ -197,7 +197,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             for (int i = 0; i < segments.Count; i++)
             {
-                var property = model.Properties.First(p => p.WireInfo!.SerializedName == segments[i]);
+                var property = model.Properties.First(p => p.WireInfo?.SerializedName == segments[i]);
 
                 if (i > 0)
                 {
@@ -291,7 +291,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodBodyStatement[] BuildGetValuesFromPages()
         {
-            var items = GetPropertyExpression(Paging.ItemPropertySegments, PageParameter.AsExpression());
+            var items = GetPropertyExpression(Paging.ItemPropertySegments, PageParameter.AsVariable());
             return
             IsAsync ?
                 [
@@ -322,7 +322,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             switch (NextPageLocation)
             {
                 case InputResponseLocation.Body:
-                    var resultExpression = GetPropertyExpression(nextPagePropertySegments!, PageParameter.AsExpression());
+                    var resultExpression = GetPropertyExpression(nextPagePropertySegments!, PageParameter.AsVariable());
                     return
                     [
                         Declare(nextPageVariable, resultExpression),
