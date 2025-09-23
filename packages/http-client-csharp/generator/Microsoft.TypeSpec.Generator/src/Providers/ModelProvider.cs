@@ -241,7 +241,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     {
                         if (CodeModelGenerator.Instance.TypeFactory.InputModelTypeNameMap.TryGetValue(baseType.Name.ToIdentifierName(useCamelCase: true), out var baseInputModel))
                         {
-                            baseType = CodeModelGenerator.Instance.TypeFactory.CreateModel(baseInputModel)?.Type;
+                            baseType = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(baseInputModel);
                         }
                     }
                     if (baseType != null && CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(
