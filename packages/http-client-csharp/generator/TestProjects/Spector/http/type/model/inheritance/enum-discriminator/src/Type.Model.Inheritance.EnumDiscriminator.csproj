@@ -10,6 +10,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.ClientModel" Version="1.7.0-alpha.20250916.4" />
+    <PackageReference Include="System.ClientModel" Version="1.7.0" />
   </ItemGroup>
 </Project>
