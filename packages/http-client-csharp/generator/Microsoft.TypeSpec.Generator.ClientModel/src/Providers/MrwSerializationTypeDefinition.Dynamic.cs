@@ -496,7 +496,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private static ValueExpression GetDeserializationMethodInvocationForType(
             ModelProvider model,
             ScopedApi<JsonElement> jsonElementVariable,
-            ValueExpression dataVariable,
+            ValueExpression? dataVariable = null,
             ValueExpression? optionsVariable = null)
         {
             optionsVariable ??= ModelSerializationExtensionsSnippets.Wire;
