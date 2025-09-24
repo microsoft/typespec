@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Tests.Common;
@@ -305,6 +306,39 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                ]);
 
             MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ClientModel.Providers.ScmModelProvider;
+
+            Assert.IsNotNull(model);
+            Assert.IsTrue(model!.IsDynamicModel);
+            var serialization = model.SerializationProviders.SingleOrDefault();
+            Assert.IsNotNull(serialization);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serialization!,
+                name => name is "JsonModelWriteCore" or "Write"));
+
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public async Task WriteReadOnlySpanProperty()
+        {
+            var catModel = InputFactory.Model("cat", discriminatedKind: "cat", properties:
+            [
+                InputFactory.Property("meows", InputPrimitiveType.Boolean, isRequired: true)
+            ]);
+            var inputModel = InputFactory.Model(
+               "dynamicModel",
+               isDynamicModel: true,
+               properties:
+               [
+                   InputFactory.Property("someSpan", InputFactory.Array(InputPrimitiveType.String), isRequired: false, isReadOnly: true)
+               ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                inputModels: () => [inputModel]);
             var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ClientModel.Providers.ScmModelProvider;
 
             Assert.IsNotNull(model);

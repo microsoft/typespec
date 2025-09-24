@@ -1695,6 +1695,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ? CreateListSerializationWithPatch(
                     collection,
                     itemType,
+                    isReadOnlySpan,
                     _jsonPatchProperty.As<JsonPatch>(),
                     serializationFormat,
                     serializedName)
