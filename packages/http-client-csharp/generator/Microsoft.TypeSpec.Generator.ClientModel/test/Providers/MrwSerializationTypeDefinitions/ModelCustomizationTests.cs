@@ -282,14 +282,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
-        [TestCase(false)]
-        [TestCase(true)]
-        public async Task CanCustomizeBaseType(bool declareBaseTypeInCustomCode)
+        [TestCase(false, false)]
+        [TestCase(false, true)]
+        [TestCase(true, false)]
+        [TestCase(true, true)]
+        public async Task CanCustomizeBaseType(bool declareBaseTypeInCustomCode, bool camelCaseModelName)
         {
             var modelProp = InputFactory.Property("prop1", InputPrimitiveType.String);
             var inputModel = InputFactory.Model("mockInputModel", properties: [], usage: InputModelTypeUsage.Json);
             var baseModel = InputFactory.Model(
-                "mockInputModelBase",
+                camelCaseModelName ? "mockInputModelBase" : "MockInputModelBase",
                 properties: [modelProp],
                 usage: InputModelTypeUsage.Json);
 
