@@ -11,7 +11,7 @@ import {
 } from "../core/types.js";
 import { DiagnosticMatch, expectDiagnosticEmpty, expectDiagnostics } from "./expect.js";
 import { resolveVirtualPath, trimBlankLines } from "./test-utils.js";
-import { BasicTestRunner, TesterInstance } from "./types.js";
+import { BasicTestRunner, TestCompileResult, TesterInstance } from "./types.js";
 
 export interface LinterRuleTester {
   expect(code: string): LinterRuleTestExpect;
@@ -44,20 +44,36 @@ export function createLinterRuleTester(
     };
 
     async function toBeValid() {
-      const diagnostics = await diagnose(code);
+      const diagnostics = await compileAndDiagnose(code);
       expectDiagnosticEmpty(diagnostics);
     }
 
-    async function toEmitDiagnostics(match: DiagnosticMatch | DiagnosticMatch[]) {
-      const diagnostics = await diagnose(code);
-      expectDiagnostics(diagnostics, match);
+    async function toEmitDiagnostics(
+      match:
+        | DiagnosticMatch
+        | DiagnosticMatch[]
+        | ((res: TestCompileResult<any>) => DiagnosticMatch | DiagnosticMatch[]),
+    ) {
+      const [result, diagnostics] = await compileAndDiagnose(code);
+      let expected;
+      if (typeof match === "function") {
+        if ("autoCodeOffset" in runner) {
+          throw new Error(
+            ".toEmitDiagnostics with a function match can only be used with a TesterInstance",
+          );
+        }
+        expected = match(result);
+      } else {
+        expected = match;
+      }
+      expectDiagnostics(diagnostics, expected);
     }
 
     function applyCodeFix(fixId: string) {
       return { toEqual };
 
       async function toEqual(expectedCode: string) {
-        const diagnostics = await diagnose(code);
+        const diagnostics = await compileAndDiagnose(code);
         const codefix = diagnostics[0].codefixes?.find((x) => x.id === fixId);
         ok(codefix, `Codefix with id "${fixId}" not found.`);
         let content: string | undefined;
@@ -78,8 +94,13 @@ export function createLinterRuleTester(
     }
   }
 
-  async function diagnose(code: string): Promise<readonly Diagnostic[]> {
-    await runner.diagnose(code, { parseOptions: { comments: true } });
+  async function compileAndDiagnose(
+    code: string,
+  ): Promise<[TestCompileResult<any>, readonly Diagnostic[]]> {
+    const [res, codeDiagnostics] = await runner.compileAndDiagnose(code, {
+      parseOptions: { comments: true },
+    });
+    expectDiagnosticEmpty(codeDiagnostics);
 
     const diagnostics = createDiagnosticCollector();
     const rule = { ...ruleDef, id: `${libraryName}/${ruleDef.name}` };
@@ -88,6 +109,6 @@ export function createLinterRuleTester(
     navigateProgram(runner.program, listener);
     // No diagnostics should have been reported to the program. If it happened the rule is calling reportDiagnostic directly and should NOT be doing that.
     expectDiagnosticEmpty(runner.program.diagnostics);
-    return diagnostics.diagnostics;
+    return [res, diagnostics.diagnostics];
   }
 }
