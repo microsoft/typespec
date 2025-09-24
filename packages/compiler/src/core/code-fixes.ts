@@ -11,6 +11,12 @@ import type {
   SourceLocation,
 } from "./types.js";
 
+export async function applyCodeFixes(host: CompilerHost, codeFixes: CodeFix[]) {
+  if (!codeFixes.length) return;
+  const edits = (await Promise.all(codeFixes.map((codeFix) => resolveCodeFix(codeFix)))).flat();
+  await applyCodeFixEdits(host, edits);
+}
+
 export async function resolveCodeFix(codeFix: CodeFix): Promise<CodeFixEdit[]> {
   const context = createCodeFixContext();
   const values = await codeFix.fix(context);
@@ -23,7 +29,7 @@ export async function applyCodeFix(host: CompilerHost, codeFix: CodeFix) {
   await applyCodeFixEdits(host, edits);
 }
 
-export async function applyCodeFixEdits(host: CompilerHost, edits: CodeFixEdit[]) {
+async function applyCodeFixEdits(host: CompilerHost, edits: CodeFixEdit[]) {
   const perFile = new Map<string, [SourceFile, CodeFixEdit[]]>();
 
   for (const edit of edits) {
