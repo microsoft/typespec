@@ -14,7 +14,7 @@ import { CaseScreenshot, tempDir, test } from "./common/utils";
 let shouldSkip = false;
 
 shouldSkip = tryInstallAndHandle("@typespec/http") || shouldSkip;
-shouldSkip = tryInstallAndHandle("@typespec/http-client-csharp") || shouldSkip;
+shouldSkip = tryInstallAndHandle("@typespec/openapi3") || shouldSkip;
 
 enum ImportProjectTriggerType {
   CommandPalette = "CommandPalette",
