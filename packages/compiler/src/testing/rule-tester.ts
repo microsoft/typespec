@@ -7,19 +7,30 @@ import {
   CompilerHost,
   Diagnostic,
   DiagnosticMessages,
+  Entity,
   LinterRuleDefinition,
 } from "../core/types.js";
 import { DiagnosticMatch, expectDiagnosticEmpty, expectDiagnostics } from "./expect.js";
+import { GetMarkedEntities, TemplateWithMarkers } from "./marked-template.js";
 import { resolveVirtualPath, trimBlankLines } from "./test-utils.js";
 import { BasicTestRunner, TestCompileResult, TesterInstance } from "./types.js";
 
 export interface LinterRuleTester {
-  expect(code: string): LinterRuleTestExpect;
+  expect<
+    T extends string | TemplateWithMarkers<any> | Record<string, string | TemplateWithMarkers<any>>,
+  >(
+    code: T,
+  ): LinterRuleTestExpect<GetMarkedEntities<T>>;
 }
 
-export interface LinterRuleTestExpect {
+export interface LinterRuleTestExpect<T extends Record<string, Entity> = any> {
   toBeValid(): Promise<void>;
-  toEmitDiagnostics(diagnostics: DiagnosticMatch | DiagnosticMatch[]): Promise<void>;
+  toEmitDiagnostics(
+    diagnostics:
+      | DiagnosticMatch
+      | DiagnosticMatch[]
+      | ((res: TestCompileResult<T>) => DiagnosticMatch | DiagnosticMatch[]),
+  ): Promise<void>;
   applyCodeFix(codeFixId: string): ApplyCodeFixExpect;
 }
 
@@ -36,7 +47,9 @@ export function createLinterRuleTester(
     expect,
   };
 
-  function expect(code: string): LinterRuleTestExpect {
+  function expect<
+    T extends string | TemplateWithMarkers<any> | Record<string, string | TemplateWithMarkers<any>>,
+  >(code: T): LinterRuleTestExpect<GetMarkedEntities<T>> {
     return {
       toBeValid,
       toEmitDiagnostics,
@@ -44,7 +57,7 @@ export function createLinterRuleTester(
     };
 
     async function toBeValid() {
-      const diagnostics = await compileAndDiagnose(code);
+      const [_, diagnostics] = await compileAndDiagnose(code);
       expectDiagnosticEmpty(diagnostics);
     }
 
@@ -73,7 +86,7 @@ export function createLinterRuleTester(
       return { toEqual };
 
       async function toEqual(expectedCode: string) {
-        const diagnostics = await compileAndDiagnose(code);
+        const [_, diagnostics] = await compileAndDiagnose(code);
         const codefix = diagnostics[0].codefixes?.find((x) => x.id === fixId);
         ok(codefix, `Codefix with id "${fixId}" not found.`);
         let content: string | undefined;
@@ -88,16 +101,16 @@ export function createLinterRuleTester(
 
         ok(content, "No content was written to the host.");
         const fs = "keys" in runner.fs ? runner.fs : runner.fs.fs;
-        const offset = fs.get(resolveVirtualPath("./main.tsp"))?.indexOf(code);
+        const offset = fs.get(resolveVirtualPath("./main.tsp"))?.indexOf(code as any);
         strictEqual(trimBlankLines(content.slice(offset)), trimBlankLines(expectedCode));
       }
     }
   }
 
-  async function compileAndDiagnose(
-    code: string,
-  ): Promise<[TestCompileResult<any>, readonly Diagnostic[]]> {
-    const [res, codeDiagnostics] = await runner.compileAndDiagnose(code, {
+  async function compileAndDiagnose<
+    T extends string | TemplateWithMarkers<any> | Record<string, string | TemplateWithMarkers<any>>,
+  >(code: T): Promise<[TestCompileResult<GetMarkedEntities<T>>, readonly Diagnostic[]]> {
+    const [res, codeDiagnostics] = await runner.compileAndDiagnose(code as any, {
       parseOptions: { comments: true },
     });
     expectDiagnosticEmpty(codeDiagnostics);
@@ -109,6 +122,6 @@ export function createLinterRuleTester(
     navigateProgram(runner.program, listener);
     // No diagnostics should have been reported to the program. If it happened the rule is calling reportDiagnostic directly and should NOT be doing that.
     expectDiagnosticEmpty(runner.program.diagnostics);
-    return [res, diagnostics.diagnostics];
+    return [res as any, diagnostics.diagnostics];
   }
 }
