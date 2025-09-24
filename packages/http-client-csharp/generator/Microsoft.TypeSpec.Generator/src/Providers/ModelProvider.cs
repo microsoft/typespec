@@ -411,22 +411,26 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var propertiesCount = _inputModel.Properties.Count;
             var properties = new List<PropertyProvider>(propertiesCount + 1);
             Dictionary<string, InputModelProperty> baseProperties = EnumerateBaseModels().SelectMany(m => m.Properties).GroupBy(x => x.Name).Select(g => g.First()).ToDictionary(p => p.Name) ?? [];
-            var baseModelDiscriminator = _inputModel.BaseModel?.DiscriminatorProperty;
             for (int i = 0; i < propertiesCount; i++)
             {
                 var property = _inputModel.Properties[i];
                 var isDiscriminator = IsDiscriminator(property);
 
-                if (isDiscriminator && property.Name == baseModelDiscriminator?.Name)
+                if (isDiscriminator && baseProperties.ContainsKey(property.Name))
+                {
                     continue;
+                }
 
                 var outputProperty = CodeModelGenerator.Instance.TypeFactory.CreateProperty(property, this);
                 if (_inputModel.DiscriminatorProperty == property)
                 {
                     DiscriminatorProperty = outputProperty;
                 }
+
                 if (outputProperty is null)
+                {
                     continue;
+                }
 
                 if (!isDiscriminator)
                 {
@@ -470,11 +474,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private IEnumerable<InputModelType> EnumerateBaseModels()
         {
-            var model = _inputModel;
-            while (model.BaseModel != null)
+            var model = BaseModelProvider;
+            while (model != null)
             {
-                yield return model.BaseModel;
-                model = model.BaseModel;
+                yield return model._inputModel;
+                model = model.BaseModelProvider;
             }
         }
 

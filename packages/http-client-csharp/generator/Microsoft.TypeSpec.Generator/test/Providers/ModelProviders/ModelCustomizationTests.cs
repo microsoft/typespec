@@ -1161,6 +1161,35 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual("NewNamespace", updatedModel.Type.Namespace);
         }
 
+        [Test]
+        public async Task DiscriminatorPropertyNotGeneratedIfOnCustomizedBase()
+        {
+            var modelProp = InputFactory.Property("prop1", InputPrimitiveType.String);
+            var inputModel = InputFactory.Model("mockInputModel", properties: [], usage: InputModelTypeUsage.Json);
+            var baseModel = InputFactory.Model(
+                "mockInputModelBase",
+                properties: [modelProp],
+                usage: InputModelTypeUsage.Json);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel, baseModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+
+            // should not have the additionalProperties dictionary
+            Assert.AreEqual(0, modelProvider.Fields.Count);
+            Assert.IsNotNull(modelProvider.BaseType);
+            Assert.AreEqual(0, modelProvider.Properties.Count);
+
+            Assert.IsNotNull(modelProvider.BaseTypeProvider);
+            Assert.AreEqual(1, modelProvider.BaseTypeProvider!.Properties.Count);
+            Assert.AreEqual("Prop1", modelProvider.BaseTypeProvider.Properties[0].Name);
+
+            Assert.AreEqual("MockInputModelBase", modelProvider.BaseType!.Name);
+            Assert.AreEqual("Sample.Models", modelProvider.BaseType!.Namespace);
+        }
+
         private class NameSpaceVisitor : LibraryVisitor
         {
             protected override TypeProvider? VisitType(TypeProvider type)
