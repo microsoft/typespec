@@ -79,7 +79,12 @@ export function createLinterRuleTester(
   }
 
   async function diagnose(code: string): Promise<readonly Diagnostic[]> {
-    await runner.diagnose(code, { parseOptions: { comments: true } });
+    const compilerOptions = { parseOptions: { comments: true } };
+    if ("autoCodeOffset" in runner) {
+      await runner.diagnose(code, compilerOptions);
+    } else {
+      await runner.diagnose(code, { compilerOptions });
+    }
 
     const diagnostics = createDiagnosticCollector();
     const rule = { ...ruleDef, id: `${libraryName}/${ruleDef.name}` };
