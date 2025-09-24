@@ -883,5 +883,45 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ExplicitClientResultOperator(bool isDynamicModel)
+        {
+            var inputModel = InputFactory.Model(
+               "cat",
+               isDynamicModel: isDynamicModel,
+               properties:
+               [
+                    InputFactory.Property("foo", InputPrimitiveType.String, isRequired: true),
+               ]);
+            var operation = InputFactory.Operation(
+                "getCat",
+                parameters: [
+                    InputFactory.PathParameter("catId", InputPrimitiveType.String, isRequired: true)
+                ],
+                responses: [
+                    InputFactory.OperationResponse(
+                        statusCodes: [200],
+                        bodytype: inputModel)
+                ]);
+            var method = InputFactory.BasicServiceMethod("GetCat", operation);
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel], clients: () => [InputFactory.Client("TestClient", methods: [method])]);
+
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ClientModel.Providers.ScmModelProvider;
+
+            Assert.IsNotNull(model);
+            Assert.AreEqual(2, model!.Constructors.Count);
+            Assert.AreEqual(isDynamicModel, model.IsDynamicModel);
+            var serialization = model.SerializationProviders.SingleOrDefault();
+            Assert.IsNotNull(serialization);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serialization!,
+                name => name.StartsWith("Cat")));
+
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(isDynamicModel.ToString()), file.Content);
+        }
     }
 }
