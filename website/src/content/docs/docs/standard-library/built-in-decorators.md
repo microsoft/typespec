@@ -614,7 +614,7 @@ Specify the maximum value this numeric type should be.
 
 #### Target
 
-`numeric | ModelProperty`
+`numeric | utcDateTime | offsetDateTime | plainDate | plainTime | duration | ModelProperty`
 
 #### Parameters
 | Name | Type | Description |
@@ -639,7 +639,7 @@ value.
 
 #### Target
 
-`numeric | ModelProperty`
+`numeric | utcDateTime | offsetDateTime | plainDate | plainTime | duration | ModelProperty`
 
 #### Parameters
 | Name | Type | Description |
@@ -751,7 +751,7 @@ Specify the minimum value this numeric type should be.
 
 #### Target
 
-`numeric | ModelProperty`
+`numeric | utcDateTime | offsetDateTime | plainDate | plainTime | duration | ModelProperty`
 
 #### Parameters
 | Name | Type | Description |
@@ -776,7 +776,7 @@ value.
 
 #### Target
 
-`numeric | ModelProperty`
+`numeric | utcDateTime | offsetDateTime | plainDate | plainTime | duration | ModelProperty`
 
 #### Parameters
 | Name | Type | Description |
