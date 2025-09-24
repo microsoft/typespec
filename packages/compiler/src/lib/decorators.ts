@@ -286,25 +286,6 @@ function isTypeIn(type: Type, condition: (type: Type) => boolean): boolean {
   return condition(type);
 }
 
-function validateTargetingANumeric(
-  context: DecoratorContext,
-  target: Scalar | ModelProperty,
-  decoratorName: string,
-) {
-  const valid = isTypeIn(getPropertyType(target), (x) => isNumericType(context.program, x));
-  if (!valid) {
-    reportDiagnostic(context.program, {
-      code: "decorator-wrong-target",
-      format: {
-        decorator: decoratorName,
-        to: `type it is not a numeric`,
-      },
-      target: context.decoratorTarget,
-    });
-  }
-  return valid;
-}
-
 /**
  * Validate the target is a comparable type (numeric or datetime) that supports min/max value constraints.
  * @param context Decorator context

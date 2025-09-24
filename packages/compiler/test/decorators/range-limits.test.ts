@@ -119,17 +119,15 @@ describe("compiler: range limiting decorators", () => {
       it("applies @minValue and @maxValue on unixTimestamp32", async () => {
         const { Foo } = (await runner.compile(`
           @test model Foo {
-            @minValue(unixTimestamp32.fromISO("2025-01-01T00:00:00Z"))
-            @maxValue(unixTimestamp32.fromISO("2025-12-31T23:59:59Z"))
+            @minValue(1735689600)  // 2025-01-01T00:00:00Z as unix timestamp
+            @maxValue(1767225599)  // 2025-12-31T23:59:59Z as unix timestamp
             stamp: unixTimestamp32;
           }
         `)) as { Foo: Model };
         const stampProp = Foo.properties.get("stamp")!;
 
-        // The exact numeric values will depend on the ISO string conversion
-        // but we can verify the decorators were applied
-        strictEqual(typeof getMinValue(runner.program, stampProp), "number");
-        strictEqual(typeof getMaxValue(runner.program, stampProp), "number");
+        strictEqual(getMinValue(runner.program, stampProp), 1735689600);
+        strictEqual(getMaxValue(runner.program, stampProp), 1767225599);
       });
 
       it("applies @minValue on utcDateTime", async () => {
