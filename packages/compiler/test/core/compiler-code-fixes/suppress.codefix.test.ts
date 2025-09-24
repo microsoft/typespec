@@ -40,4 +40,23 @@ describe("CodeFix: suppress", () => {
       }
     `);
   });
+
+  it("it suppress for model property with message", async () => {
+    await expectCodeFixOnAst(
+      `
+      model Foo {
+        a: ┆int32;
+      }
+    `,
+      (node) => {
+        strictEqual(node.kind, SyntaxKind.Identifier);
+        return createSuppressCodeFix(node, "foo", "This is a message");
+      },
+    ).toChangeTo(`
+      model Foo {
+        #suppress "foo" "This is a message"
+        a: int32;
+      }
+    `);
+  });
 });
