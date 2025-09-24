@@ -242,7 +242,7 @@ export const $decorators = {
   },
 };
 
-export { applyCodeFix } from "./core/code-fixes.js";
+export { applyCodeFix, applyCodeFixEdits, resolveCodeFix } from "./core/code-fixes.js";
 export { createSuppressCodeFix } from "./core/compiler-code-fixes/suppress.codefix.js";
 export {
   ensureTrailingDirectorySeparator,

@@ -23,7 +23,7 @@ export async function applyCodeFix(host: CompilerHost, codeFix: CodeFix) {
   await applyCodeFixEdits(host, edits);
 }
 
-async function applyCodeFixEdits(host: CompilerHost, edits: CodeFixEdit[]) {
+export async function applyCodeFixEdits(host: CompilerHost, edits: CodeFixEdit[]) {
   const perFile = new Map<string, [SourceFile, CodeFixEdit[]]>();
 
   for (const edit of edits) {
