@@ -84,7 +84,7 @@ describe("compiler: range limiting decorators", () => {
     `);
       expectDiagnostics(diagnostics, {
         code: "decorator-wrong-target",
-        message: "Cannot apply @minValue decorator to type it is not a numeric or datetime",
+        message: "Cannot apply @minValue decorator to type it must be a numeric or comparable type",
       });
     });
 
@@ -97,7 +97,7 @@ describe("compiler: range limiting decorators", () => {
     `);
       expectDiagnostics(diagnostics, {
         code: "decorator-wrong-target",
-        message: "Cannot apply @maxValue decorator to type it is not a numeric or datetime",
+        message: "Cannot apply @maxValue decorator to type it must be a numeric or comparable type",
       });
     });
 

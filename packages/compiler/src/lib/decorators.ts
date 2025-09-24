@@ -299,7 +299,14 @@ function validateTargetingANumeric(
   return valid;
 }
 
-function validateTargetingNumericOrDateTime(
+/**
+ * Validate the target is a comparable type (numeric or datetime) that supports min/max value constraints.
+ * @param context Decorator context
+ * @param target Target type to validate
+ * @param decoratorName Name of the decorator for error reporting
+ * @returns True if target is valid, false otherwise
+ */
+function validateTargetingComparableType(
   context: DecoratorContext,
   target: Scalar | ModelProperty,
   decoratorName: string,
@@ -312,7 +319,7 @@ function validateTargetingNumericOrDateTime(
       code: "decorator-wrong-target",
       format: {
         decorator: decoratorName,
-        to: `type it is not a numeric or datetime`,
+        to: `type it must be a numeric or comparable type`,
       },
       target: context.decoratorTarget,
     });
@@ -681,7 +688,7 @@ export const $minValue: MinValueDecorator = (
   validateDecoratorNotOnType(context, target, $minValueExclusive, $minValue);
   const { program } = context;
 
-  if (!validateTargetingNumericOrDateTime(context, target, "@minValue")) {
+  if (!validateTargetingComparableType(context, target, "@minValue")) {
     return;
   }
 
@@ -708,7 +715,7 @@ export const $maxValue: MaxValueDecorator = (
   validateDecoratorUniqueOnNode(context, target, $maxValue);
   validateDecoratorNotOnType(context, target, $maxValueExclusive, $maxValue);
   const { program } = context;
-  if (!validateTargetingNumericOrDateTime(context, target, "@maxValue")) {
+  if (!validateTargetingComparableType(context, target, "@maxValue")) {
     return;
   }
 
@@ -736,7 +743,7 @@ export const $minValueExclusive: MinValueExclusiveDecorator = (
   validateDecoratorNotOnType(context, target, $minValue, $minValueExclusive);
   const { program } = context;
 
-  if (!validateTargetingNumericOrDateTime(context, target, "@minValueExclusive")) {
+  if (!validateTargetingComparableType(context, target, "@minValueExclusive")) {
     return;
   }
 
@@ -763,7 +770,7 @@ export const $maxValueExclusive: MaxValueExclusiveDecorator = (
   validateDecoratorUniqueOnNode(context, target, $maxValueExclusive);
   validateDecoratorNotOnType(context, target, $maxValue, $maxValueExclusive);
   const { program } = context;
-  if (!validateTargetingNumericOrDateTime(context, target, "@maxValueExclusive")) {
+  if (!validateTargetingComparableType(context, target, "@maxValueExclusive")) {
     return;
   }
 
