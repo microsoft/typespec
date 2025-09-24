@@ -1,5 +1,12 @@
 # Change Log - @typespec/http-client-python
 
+## 0.18.1
+
+### Bug Fixes
+
+- [#8531](https://github.com/microsoft/typespec/pull/8531) [python] fix peer reps
+
+
 ## 0.18.0
 
 ### Features
