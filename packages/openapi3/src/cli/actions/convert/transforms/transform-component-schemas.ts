@@ -141,7 +141,7 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
     const unionMembers = schema.anyOf || schema.oneOf;
     if (unionMembers) {
       const meaningfulMembers = unionMembers.filter((member) => {
-        if ("$ref" in member) return true; // Reference is meaningful
+        if ("$ref" in member) return true; // Redundant, but help the type system understand whether it's a ref or not, and give us access to the type property
         return member.type !== "null"; // Non-null types are meaningful
       });
 
