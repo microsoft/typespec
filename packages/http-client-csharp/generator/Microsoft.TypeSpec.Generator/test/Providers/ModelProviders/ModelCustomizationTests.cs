@@ -1164,15 +1164,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [Test]
         public async Task DiscriminatorPropertyNotGeneratedIfOnCustomizedBase()
         {
-            var modelProp = InputFactory.Property("prop1", InputPrimitiveType.String);
-            var inputModel = InputFactory.Model("mockInputModel", properties: [], usage: InputModelTypeUsage.Json);
+            var childModel = InputFactory.Model("mockInputModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.String, isDiscriminator: true)], usage: InputModelTypeUsage.Json);
             var baseModel = InputFactory.Model(
                 "mockInputModelBase",
-                properties: [modelProp],
+                properties: [InputFactory.Property("prop1", InputPrimitiveType.String)],
                 usage: InputModelTypeUsage.Json);
 
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
-                inputModelTypes: [inputModel, baseModel],
+                inputModelTypes: [childModel, baseModel],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
