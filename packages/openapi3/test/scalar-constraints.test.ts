@@ -213,3 +213,80 @@ describe("string constraints", () => {
     });
   });
 });
+
+describe("datetime constraints", () => {
+  const datetimeTypes = [
+    { name: "unixTimestamp32", format: "int32" },
+    { name: "utcDateTime", format: "date-time" },
+    { name: "offsetDateTime", format: "date-time" },
+    { name: "plainDate", format: "date" },
+    { name: "plainTime", format: "time" },
+    { name: "duration", format: "duration" },
+  ];
+
+  worksFor(["3.0.0", "3.1.0"], ({ oapiForModel }) => {
+    describe("@minValue/@maxValue on datetime types", () => {
+      for (const dateType of datetimeTypes) {
+        it(`${dateType.name}`, async () => {
+          const schemas = await oapiForModel(
+            "Test",
+            `
+            model Test {
+              @minValue(100)
+              @maxValue(200) 
+              timestamp: ${dateType.name};
+            }
+          `,
+          );
+
+          const timestampSchema = schemas.schemas.Test.properties.timestamp;
+          strictEqual(timestampSchema.minimum, 100);
+          strictEqual(timestampSchema.maximum, 200);
+          if (dateType.name === "unixTimestamp32") {
+            strictEqual(timestampSchema.type, "integer");
+            strictEqual(timestampSchema.format, "int32");
+          } else {
+            strictEqual(timestampSchema.type, "string");
+            strictEqual(timestampSchema.format, dateType.format);
+          }
+        });
+      }
+
+      it("@minValue only", async () => {
+        const schemas = await oapiForModel(
+          "Test",
+          `
+          model Test {
+            @minValue(1000)
+            timestamp: utcDateTime;
+          }
+        `,
+        );
+
+        const timestampSchema = schemas.schemas.Test.properties.timestamp;
+        strictEqual(timestampSchema.minimum, 1000);
+        strictEqual(timestampSchema.maximum, undefined);
+        strictEqual(timestampSchema.type, "string");
+        strictEqual(timestampSchema.format, "date-time");
+      });
+
+      it("@maxValue only", async () => {
+        const schemas = await oapiForModel(
+          "Test",
+          `
+          model Test {
+            @maxValue(5000)
+            timestamp: duration;
+          }
+        `,
+        );
+
+        const timestampSchema = schemas.schemas.Test.properties.timestamp;
+        strictEqual(timestampSchema.minimum, undefined);
+        strictEqual(timestampSchema.maximum, 5000);
+        strictEqual(timestampSchema.type, "string");
+        strictEqual(timestampSchema.format, "duration");
+      });
+    });
+  });
+});

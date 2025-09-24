@@ -84,7 +84,7 @@ describe("compiler: range limiting decorators", () => {
     `);
       expectDiagnostics(diagnostics, {
         code: "decorator-wrong-target",
-        message: "Cannot apply @minValue decorator to type it is not a numeric",
+        message: "Cannot apply @minValue decorator to type it is not a numeric or datetime",
       });
     });
 
@@ -97,7 +97,7 @@ describe("compiler: range limiting decorators", () => {
     `);
       expectDiagnostics(diagnostics, {
         code: "decorator-wrong-target",
-        message: "Cannot apply @maxValue decorator to type it is not a numeric",
+        message: "Cannot apply @maxValue decorator to type it is not a numeric or datetime",
       });
     });
 
@@ -112,6 +112,84 @@ describe("compiler: range limiting decorators", () => {
       expectDiagnostics(diagnostics, {
         code: "invalid-range",
         message: `Range "3..2" is invalid.`,
+      });
+    });
+
+    describe("datetime types", () => {
+      it("applies @minValue and @maxValue on unixTimestamp32", async () => {
+        const { Foo } = (await runner.compile(`
+          @test model Foo {
+            @minValue(1758023189)
+            @maxValue(1858023189)
+            stamp: unixTimestamp32;
+          }
+        `)) as { Foo: Model };
+        const stampProp = Foo.properties.get("stamp")!;
+
+        strictEqual(getMinValue(runner.program, stampProp), 1758023189);
+        strictEqual(getMaxValue(runner.program, stampProp), 1858023189);
+      });
+
+      it("applies @minValue on utcDateTime", async () => {
+        const { Foo } = (await runner.compile(`
+          @test model Foo {
+            @minValue(0)
+            @maxValue(1000000000)
+            timestamp: utcDateTime;
+          }
+        `)) as { Foo: Model };
+        const timestampProp = Foo.properties.get("timestamp")!;
+
+        strictEqual(getMinValue(runner.program, timestampProp), 0);
+        strictEqual(getMaxValue(runner.program, timestampProp), 1000000000);
+      });
+
+      it("applies @minValue on offsetDateTime", async () => {
+        const { Foo } = (await runner.compile(`
+          @test model Foo {
+            @minValue(100)
+            timestamp: offsetDateTime;
+          }
+        `)) as { Foo: Model };
+        const timestampProp = Foo.properties.get("timestamp")!;
+
+        strictEqual(getMinValue(runner.program, timestampProp), 100);
+      });
+
+      it("applies @minValue on plainDate", async () => {
+        const { Foo } = (await runner.compile(`
+          @test model Foo {
+            @minValue(100)
+            date: plainDate;
+          }
+        `)) as { Foo: Model };
+        const dateProp = Foo.properties.get("date")!;
+
+        strictEqual(getMinValue(runner.program, dateProp), 100);
+      });
+
+      it("applies @minValue on plainTime", async () => {
+        const { Foo } = (await runner.compile(`
+          @test model Foo {
+            @minValue(100)
+            time: plainTime;
+          }
+        `)) as { Foo: Model };
+        const timeProp = Foo.properties.get("time")!;
+
+        strictEqual(getMinValue(runner.program, timeProp), 100);
+      });
+
+      it("applies @minValue on duration", async () => {
+        const { Foo } = (await runner.compile(`
+          @test model Foo {
+            @minValue(60)
+            timespan: duration;
+          }
+        `)) as { Foo: Model };
+        const timespanProp = Foo.properties.get("timespan")!;
+
+        strictEqual(getMinValue(runner.program, timespanProp), 60);
       });
     });
   });

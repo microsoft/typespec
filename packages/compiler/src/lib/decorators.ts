@@ -253,6 +253,19 @@ export function isNumericType(program: Program, target: Type): target is Scalar 
   );
 }
 
+export function isDateTimeType(program: Program, target: Type): target is Scalar {
+  if (target.kind !== "Scalar") {
+    return false;
+  }
+  
+  const dateTimeTypes: StdTypeName[] = ["utcDateTime", "offsetDateTime", "plainDate", "plainTime", "duration"];
+  
+  return dateTimeTypes.some((typeName) => {
+    const stdType = program.checker.getStdType(typeName);
+    return program.checker.isTypeAssignableTo(target, stdType, target)[0];
+  });
+}
+
 /**
  * Check the given type is matching the given condition or is a union of null and types matching the condition.
  * @param type Type to test
@@ -279,6 +292,27 @@ function validateTargetingANumeric(
       format: {
         decorator: decoratorName,
         to: `type it is not a numeric`,
+      },
+      target: context.decoratorTarget,
+    });
+  }
+  return valid;
+}
+
+function validateTargetingNumericOrDateTime(
+  context: DecoratorContext,
+  target: Scalar | ModelProperty,
+  decoratorName: string,
+) {
+  const valid = isTypeIn(getPropertyType(target), (x) => 
+    isNumericType(context.program, x) || isDateTimeType(context.program, x)
+  );
+  if (!valid) {
+    reportDiagnostic(context.program, {
+      code: "decorator-wrong-target",
+      format: {
+        decorator: decoratorName,
+        to: `type it is not a numeric or datetime`,
       },
       target: context.decoratorTarget,
     });
@@ -647,7 +681,7 @@ export const $minValue: MinValueDecorator = (
   validateDecoratorNotOnType(context, target, $minValueExclusive, $minValue);
   const { program } = context;
 
-  if (!validateTargetingANumeric(context, target, "@minValue")) {
+  if (!validateTargetingNumericOrDateTime(context, target, "@minValue")) {
     return;
   }
 
@@ -674,7 +708,7 @@ export const $maxValue: MaxValueDecorator = (
   validateDecoratorUniqueOnNode(context, target, $maxValue);
   validateDecoratorNotOnType(context, target, $maxValueExclusive, $maxValue);
   const { program } = context;
-  if (!validateTargetingANumeric(context, target, "@maxValue")) {
+  if (!validateTargetingNumericOrDateTime(context, target, "@maxValue")) {
     return;
   }
 
@@ -702,7 +736,7 @@ export const $minValueExclusive: MinValueExclusiveDecorator = (
   validateDecoratorNotOnType(context, target, $minValue, $minValueExclusive);
   const { program } = context;
 
-  if (!validateTargetingANumeric(context, target, "@minValueExclusive")) {
+  if (!validateTargetingNumericOrDateTime(context, target, "@minValueExclusive")) {
     return;
   }
 
@@ -729,7 +763,7 @@ export const $maxValueExclusive: MaxValueExclusiveDecorator = (
   validateDecoratorUniqueOnNode(context, target, $maxValueExclusive);
   validateDecoratorNotOnType(context, target, $maxValue, $maxValueExclusive);
   const { program } = context;
-  if (!validateTargetingANumeric(context, target, "@maxValueExclusive")) {
+  if (!validateTargetingNumericOrDateTime(context, target, "@maxValueExclusive")) {
     return;
   }
 
