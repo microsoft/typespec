@@ -235,12 +235,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 if (CustomCodeView?.BaseType != null)
                 {
                     var baseType = CustomCodeView.BaseType;
-                    // If the custom base type doesn't have a namespace, then try to resolve it from the input model map
+
+                    // If the custom base type doesn't have a resolved namespace, then try to resolve it from the input model map.
+                    // This will happen if a model is customized to inherit from another generated model, but that generated model
+                    // was not also defined in custom code so Roslyn does not recognize it.
                     if (string.IsNullOrEmpty(baseType.Namespace))
                     {
-                        if (CodeModelGenerator.Instance.TypeFactory.InputModelTypeNameMap.TryGetValue(baseType.Name.ToIdentifierName(useCamelCase: true), out var baseInputModel))
+                        if (CodeModelGenerator.Instance.TypeFactory.InputModelTypeNameMap.TryGetValue(baseType.Name, out var baseInputModel))
                         {
-                            baseType = CodeModelGenerator.Instance.TypeFactory.CreateModel(baseInputModel)?.Type;
+                            baseType = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(baseInputModel);
                         }
                     }
                     if (baseType != null && CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(
