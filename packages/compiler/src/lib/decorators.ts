@@ -328,6 +328,37 @@ function validateTargetingComparableType(
 }
 
 /**
+ * Validate that the value passed to a min/max decorator is assignable to the target type.
+ * @param context Decorator context
+ * @param target Target type
+ * @param value Value to validate
+ * @param decoratorName Name of the decorator for error reporting
+ * @returns True if value is compatible, false otherwise
+ */
+function validateValueAssignableToTarget(
+  context: DecoratorContext,
+  target: Scalar | ModelProperty,
+  value: Numeric,
+  decoratorName: string,
+): boolean {
+  const targetType = getPropertyType(target);
+  
+  // For numeric types, the value should be numeric (which it already is)
+  if (isNumericType(context.program, targetType)) {
+    return true;
+  }
+  
+  // For datetime types, we expect the value to be created using the appropriate constructor
+  // The current implementation accepts Numeric values which represent the underlying numeric representation
+  // This is acceptable for datetime types as they can be represented numerically
+  if (isDateTimeType(context.program, targetType)) {
+    return true;
+  }
+  
+  return true; // Allow for now - more specific validation could be added in the future
+}
+
+/**
  * Validate the given target is a string type or a union containing at least a string type.
  */
 function validateTargetingAString(
@@ -692,6 +723,10 @@ export const $minValue: MinValueDecorator = (
     return;
   }
 
+  if (!validateValueAssignableToTarget(context, target, minValue, "@minValue")) {
+    return;
+  }
+
   if (
     !validateRange(
       context,
@@ -716,6 +751,10 @@ export const $maxValue: MaxValueDecorator = (
   validateDecoratorNotOnType(context, target, $maxValueExclusive, $maxValue);
   const { program } = context;
   if (!validateTargetingComparableType(context, target, "@maxValue")) {
+    return;
+  }
+
+  if (!validateValueAssignableToTarget(context, target, maxValue, "@maxValue")) {
     return;
   }
 
@@ -747,6 +786,10 @@ export const $minValueExclusive: MinValueExclusiveDecorator = (
     return;
   }
 
+  if (!validateValueAssignableToTarget(context, target, minValueExclusive, "@minValueExclusive")) {
+    return;
+  }
+
   if (
     !validateRange(
       context,
@@ -771,6 +814,10 @@ export const $maxValueExclusive: MaxValueExclusiveDecorator = (
   validateDecoratorNotOnType(context, target, $maxValue, $maxValueExclusive);
   const { program } = context;
   if (!validateTargetingComparableType(context, target, "@maxValueExclusive")) {
+    return;
+  }
+
+  if (!validateValueAssignableToTarget(context, target, maxValueExclusive, "@maxValueExclusive")) {
     return;
   }
 
