@@ -230,7 +230,17 @@ extern dec maxItems(target: unknown[] | ModelProperty, value: valueof integer);
  * scalar Age is int32;
  * ```
  */
-extern dec minValue(target: numeric | utcDateTime | offsetDateTime | plainDate | plainTime | duration | ModelProperty, value: valueof numeric);
+extern dec minValue(
+  target:
+    | numeric
+    | utcDateTime
+    | offsetDateTime
+    | plainDate
+    | plainTime
+    | duration
+    | ModelProperty,
+  value: valueof numeric
+);
 
 /**
  * Specify the maximum value this numeric type should be.
@@ -242,7 +252,17 @@ extern dec minValue(target: numeric | utcDateTime | offsetDateTime | plainDate |
  * scalar Age is int32;
  * ```
  */
-extern dec maxValue(target: numeric | utcDateTime | offsetDateTime | plainDate | plainTime | duration | ModelProperty, value: valueof numeric);
+extern dec maxValue(
+  target:
+    | numeric
+    | utcDateTime
+    | offsetDateTime
+    | plainDate
+    | plainTime
+    | duration
+    | ModelProperty,
+  value: valueof numeric
+);
 
 /**
  * Specify the minimum value this numeric type should be, exclusive of the given
@@ -255,7 +275,17 @@ extern dec maxValue(target: numeric | utcDateTime | offsetDateTime | plainDate |
  * scalar distance is float64;
  * ```
  */
-extern dec minValueExclusive(target: numeric | utcDateTime | offsetDateTime | plainDate | plainTime | duration | ModelProperty, value: valueof numeric);
+extern dec minValueExclusive(
+  target:
+    | numeric
+    | utcDateTime
+    | offsetDateTime
+    | plainDate
+    | plainTime
+    | duration
+    | ModelProperty,
+  value: valueof numeric
+);
 
 /**
  * Specify the maximum value this numeric type should be, exclusive of the given
@@ -268,7 +298,17 @@ extern dec minValueExclusive(target: numeric | utcDateTime | offsetDateTime | pl
  * scalar distance is float64;
  * ```
  */
-extern dec maxValueExclusive(target: numeric | utcDateTime | offsetDateTime | plainDate | plainTime | duration | ModelProperty, value: valueof numeric);
+extern dec maxValueExclusive(
+  target:
+    | numeric
+    | utcDateTime
+    | offsetDateTime
+    | plainDate
+    | plainTime
+    | duration
+    | ModelProperty,
+  value: valueof numeric
+);
 
 /**
  * Mark this string as a secret value that should be treated carefully to avoid exposure

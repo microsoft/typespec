@@ -257,9 +257,15 @@ export function isDateTimeType(program: Program, target: Type): target is Scalar
   if (target.kind !== "Scalar") {
     return false;
   }
-  
-  const dateTimeTypes: StdTypeName[] = ["utcDateTime", "offsetDateTime", "plainDate", "plainTime", "duration"];
-  
+
+  const dateTimeTypes: StdTypeName[] = [
+    "utcDateTime",
+    "offsetDateTime",
+    "plainDate",
+    "plainTime",
+    "duration",
+  ];
+
   return dateTimeTypes.some((typeName) => {
     const stdType = program.checker.getStdType(typeName);
     return program.checker.isTypeAssignableTo(target, stdType, target)[0];
@@ -311,8 +317,9 @@ function validateTargetingComparableType(
   target: Scalar | ModelProperty,
   decoratorName: string,
 ) {
-  const valid = isTypeIn(getPropertyType(target), (x) => 
-    isNumericType(context.program, x) || isDateTimeType(context.program, x)
+  const valid = isTypeIn(
+    getPropertyType(target),
+    (x) => isNumericType(context.program, x) || isDateTimeType(context.program, x),
   );
   if (!valid) {
     reportDiagnostic(context.program, {
@@ -342,19 +349,19 @@ function validateValueAssignableToTarget(
   decoratorName: string,
 ): boolean {
   const targetType = getPropertyType(target);
-  
+
   // For numeric types, the value should be numeric (which it already is)
   if (isNumericType(context.program, targetType)) {
     return true;
   }
-  
+
   // For datetime types, we expect the value to be created using the appropriate constructor
   // The current implementation accepts Numeric values which represent the underlying numeric representation
   // This is acceptable for datetime types as they can be represented numerically
   if (isDateTimeType(context.program, targetType)) {
     return true;
   }
-  
+
   return true; // Allow for now - more specific validation could be added in the future
 }
 

@@ -216,12 +216,42 @@ describe("string constraints", () => {
 
 describe("datetime constraints", () => {
   const datetimeTypes = [
-    { name: "unixTimestamp32", format: "int32", minValue: `unixTimestamp32.fromInt(1577836800)`, maxValue: `unixTimestamp32.fromInt(1893456000)` },
-    { name: "utcDateTime", format: "date-time", minValue: `utcDateTime.fromISO("2020-01-01T00:00:00Z")`, maxValue: `utcDateTime.fromISO("2030-01-01T00:00:00Z")` },
-    { name: "offsetDateTime", format: "date-time", minValue: `offsetDateTime.fromISO("2020-01-01T00:00:00+00:00")`, maxValue: `offsetDateTime.fromISO("2030-01-01T00:00:00+00:00")` },
-    { name: "plainDate", format: "date", minValue: `plainDate.fromISO("2020-01-01")`, maxValue: `plainDate.fromISO("2030-01-01")` },
-    { name: "plainTime", format: "time", minValue: `plainTime.fromISO("08:00:00")`, maxValue: `plainTime.fromISO("18:00:00")` },
-    { name: "duration", format: "duration", minValue: `duration.fromISO("PT1H")`, maxValue: `duration.fromISO("PT24H")` },
+    {
+      name: "unixTimestamp32",
+      format: "int32",
+      minValue: `1577836800`,
+      maxValue: `1893456000`,
+    },
+    {
+      name: "utcDateTime",
+      format: "date-time",
+      minValue: `utcDateTime.fromISO("2020-01-01T00:00:00Z")`,
+      maxValue: `utcDateTime.fromISO("2030-01-01T00:00:00Z")`,
+    },
+    {
+      name: "offsetDateTime",
+      format: "date-time",
+      minValue: `offsetDateTime.fromISO("2020-01-01T00:00:00+00:00")`,
+      maxValue: `offsetDateTime.fromISO("2030-01-01T00:00:00+00:00")`,
+    },
+    {
+      name: "plainDate",
+      format: "date",
+      minValue: `plainDate.fromISO("2020-01-01")`,
+      maxValue: `plainDate.fromISO("2030-01-01")`,
+    },
+    {
+      name: "plainTime",
+      format: "time",
+      minValue: `plainTime.fromISO("08:00:00")`,
+      maxValue: `plainTime.fromISO("18:00:00")`,
+    },
+    {
+      name: "duration",
+      format: "duration",
+      minValue: `duration.fromISO("PT1H")`,
+      maxValue: `duration.fromISO("PT24H")`,
+    },
   ];
 
   worksFor(["3.0.0", "3.1.0"], ({ oapiForModel }) => {

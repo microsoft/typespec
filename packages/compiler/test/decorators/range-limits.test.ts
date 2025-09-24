@@ -119,8 +119,8 @@ describe("compiler: range limiting decorators", () => {
       it("applies @minValue and @maxValue on unixTimestamp32", async () => {
         const { Foo } = (await runner.compile(`
           @test model Foo {
-            @minValue(unixTimestamp32.fromInt(1758023189))
-            @maxValue(unixTimestamp32.fromInt(1858023189))
+            @minValue(1758023189)
+            @maxValue(1858023189)
             stamp: unixTimestamp32;
           }
         `)) as { Foo: Model };
