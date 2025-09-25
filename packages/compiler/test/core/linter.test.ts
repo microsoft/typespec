@@ -82,7 +82,7 @@ describe("compiler: linter", () => {
     const linter = await createTestLinter(`model Foo {}`, {
       rules: [noModelFoo],
     });
-    expectDiagnosticEmpty(linter.lint().diagnostics);
+    expectDiagnosticEmpty((await linter.lint()).diagnostics);
   });
 
   it("enabling a rule that doesn't exists emit a diagnostic", async () => {
@@ -159,7 +159,7 @@ describe("compiler: linter", () => {
       const linter = await createTestLinterAndEnableRules(files, {
         rules: [noModelFoo],
       });
-      expectDiagnosticEmpty(linter.lint().diagnostics);
+      expectDiagnosticEmpty((await linter.lint()).diagnostics);
     });
 
     it("emit diagnostic when in the user code", async () => {
@@ -174,7 +174,7 @@ describe("compiler: linter", () => {
       const linter = await createTestLinterAndEnableRules(files, {
         rules: [noModelFoo],
       });
-      expectDiagnostics(linter.lint().diagnostics, {
+      expectDiagnostics((await linter.lint()).diagnostics, {
         severity: "warning",
         code: "@typespec/test-linter/no-model-foo",
         message: `Cannot call model 'Foo'`,
@@ -192,7 +192,7 @@ describe("compiler: linter", () => {
           enable: { "@typespec/test-linter/no-model-foo": true },
         }),
       );
-      expectDiagnostics(linter.lint().diagnostics, {
+      expectDiagnostics((await linter.lint()).diagnostics, {
         severity: "warning",
         code: "@typespec/test-linter/no-model-foo",
         message: `Cannot call model 'Foo'`,
@@ -208,7 +208,7 @@ describe("compiler: linter", () => {
           enable: { "@typespec/test-linter/no-model-foo": true },
         }),
       );
-      expectDiagnosticEmpty(linter.lint().diagnostics);
+      expectDiagnosticEmpty((await linter.lint()).diagnostics);
     });
   });
 
@@ -222,7 +222,7 @@ describe("compiler: linter", () => {
           extends: ["@typespec/test-linter/all"],
         }),
       );
-      expectDiagnostics(linter.lint().diagnostics, {
+      expectDiagnostics((await linter.lint()).diagnostics, {
         severity: "warning",
         code: "@typespec/test-linter/no-model-foo",
         message: `Cannot call model 'Foo'`,
@@ -242,7 +242,7 @@ describe("compiler: linter", () => {
           extends: ["@typespec/test-linter/custom"],
         }),
       );
-      expectDiagnostics(linter.lint().diagnostics, {
+      expectDiagnostics((await linter.lint()).diagnostics, {
         severity: "warning",
         code: "@typespec/test-linter/no-model-foo",
         message: `Cannot call model 'Foo'`,

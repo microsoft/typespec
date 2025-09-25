@@ -1,3 +1,4 @@
+import { isPromise } from "util/types";
 import type { Program } from "./program.js";
 import { isTemplateDeclaration } from "./type-utils.js";
 import {
@@ -31,6 +32,7 @@ export interface NavigationOptions {
    * Visit derived types.
    */
   visitDerivedTypes?: boolean;
+  asyncMode?: "await" | "await-all" | "no-await";
 }
 
 export interface NamespaceNavigationOptions {
@@ -41,8 +43,9 @@ export interface NamespaceNavigationOptions {
   skipSubNamespaces?: boolean;
 }
 
-const defaultOptions = {
+const defaultOptions: NavigationOptions = {
   includeTemplateDeclaration: false,
+  asyncMode: "await",
 };
 
 /**
@@ -51,15 +54,21 @@ const defaultOptions = {
  * @param listeners Listener called when visiting types.
  * @param options Navigation options.
  */
-export function navigateProgram(
+export async function navigateProgram(
   program: Program,
   listeners: SemanticNodeListener,
   options: NavigationOptions = {},
 ) {
   const context = createNavigationContext(listeners, options);
-  context.emit("root", program);
+  await context.emit("root", program);
 
-  navigateNamespaceType(program.getGlobalNamespaceType(), context);
+  await navigateNamespaceType(program.getGlobalNamespaceType(), context);
+
+  await context.emit("exitRoot", program);
+
+  if (context.awaited.length > 0 && context.options.asyncMode === "await-all") {
+    await Promise.all(context.awaited);
+  }
 }
 
 /**
@@ -68,13 +77,13 @@ export function navigateProgram(
  * @param listeners Listener for the types found.
  * @param options Navigation options
  */
-export function navigateType(
+export async function navigateType(
   type: Type,
   listeners: SemanticNodeListener,
   options: NavigationOptions,
 ) {
   const context = createNavigationContext(listeners, options);
-  navigateTypeInternal(type, context);
+  await navigateTypeInternal(type, context);
 }
 
 /**
@@ -106,12 +115,12 @@ export function scopeNavigationToNamespace<T extends TypeListeners>(
   return wrappedListeners as any;
 }
 
-export function navigateTypesInNamespace(
+export async function navigateTypesInNamespace(
   namespace: Namespace,
   listeners: TypeListeners,
   options: NamespaceNavigationOptions & NavigationOptions = {},
 ) {
-  navigateType(namespace, scopeNavigationToNamespace(namespace, listeners, options), options);
+  await navigateType(namespace, scopeNavigationToNamespace(namespace, listeners, options), options);
 }
 
 /**
@@ -146,10 +155,25 @@ function createNavigationContext(
   listeners: SemanticNodeListener,
   options: NavigationOptions = {},
 ): NavigationContext {
+  const op = computeOptions(options);
+  const awaited: Promise<any>[] = [];
   return {
     visited: new Set(),
-    emit: (key, ...args) => (listeners as any)[key]?.(...(args as [any])),
-    options: computeOptions(options),
+    awaited,
+    emit: async (key, ...args) => {
+      const r = (listeners as any)[key]?.(...(args as [any]));
+      if (isPromise(r)) {
+        if (!op.asyncMode || op.asyncMode === "await") {
+          return await r;
+        } else if (op.asyncMode === "await-all") {
+          awaited.push(Promise.resolve(r));
+        }
+        return undefined;
+      } else {
+        return r;
+      }
+    },
+    options: op,
   };
 }
 
@@ -164,44 +188,48 @@ interface NavigationContext<
 > {
   options: ResolvedNavigationOptions;
   visited: Set<Type>;
-  emit<K extends keyof T>(name: K, ...args: Parameters<T[K]>): ListenerFlow | undefined | void;
+  awaited: Promise<ListenerFlow | undefined | void>[];
+  emit<K extends keyof T>(
+    name: K,
+    ...args: Parameters<T[K]>
+  ): Promise<ListenerFlow | undefined | void>;
 }
 
-function navigateNamespaceType(namespace: Namespace, context: NavigationContext) {
-  if (context.emit("namespace", namespace) === ListenerFlow.NoRecursion) return;
+async function navigateNamespaceType(namespace: Namespace, context: NavigationContext) {
+  if ((await context.emit("namespace", namespace)) === ListenerFlow.NoRecursion) return;
   for (const model of namespace.models.values()) {
-    navigateModelType(model, context);
+    await navigateModelType(model, context);
   }
   for (const scalar of namespace.scalars.values()) {
-    navigateScalarType(scalar, context);
+    await navigateScalarType(scalar, context);
   }
   for (const operation of namespace.operations.values()) {
-    navigateOperationType(operation, context);
+    await navigateOperationType(operation, context);
   }
 
   for (const subNamespace of namespace.namespaces.values()) {
     if (!(namespace.name === "TypeSpec" && subNamespace.name === "Prototypes")) {
-      navigateNamespaceType(subNamespace, context);
+      await navigateNamespaceType(subNamespace, context);
     }
   }
 
   for (const union of namespace.unions.values()) {
-    navigateUnionType(union, context);
+    await navigateUnionType(union, context);
   }
 
   for (const iface of namespace.interfaces.values()) {
-    navigateInterfaceType(iface, context);
+    await navigateInterfaceType(iface, context);
   }
 
   for (const enumType of namespace.enums.values()) {
-    navigateEnumType(enumType, context);
+    await navigateEnumType(enumType, context);
   }
 
   for (const decorator of namespace.decoratorDeclarations.values()) {
-    navigateDecoratorDeclaration(decorator, context);
+    await navigateDecoratorDeclaration(decorator, context);
   }
 
-  context.emit("exitNamespace", namespace);
+  await context.emit("exitNamespace", namespace);
 }
 
 function checkVisited(visited: Set<any>, item: Type) {
@@ -222,76 +250,76 @@ function shouldNavigateTemplatableType(
     return type.isFinished;
   }
 }
-function navigateOperationType(operation: Operation, context: NavigationContext) {
+async function navigateOperationType(operation: Operation, context: NavigationContext) {
   if (checkVisited(context.visited, operation)) {
     return;
   }
   if (!shouldNavigateTemplatableType(context, operation)) {
     return;
   }
-  if (context.emit("operation", operation) === ListenerFlow.NoRecursion) return;
+  if ((await context.emit("operation", operation)) === ListenerFlow.NoRecursion) return;
   for (const parameter of operation.parameters.properties.values()) {
-    navigateTypeInternal(parameter, context);
+    await navigateTypeInternal(parameter, context);
   }
-  navigateTypeInternal(operation.returnType, context);
+  await navigateTypeInternal(operation.returnType, context);
   if (operation.sourceOperation) {
-    navigateTypeInternal(operation.sourceOperation, context);
+    await navigateTypeInternal(operation.sourceOperation, context);
   }
-  context.emit("exitOperation", operation);
+  await context.emit("exitOperation", operation);
 }
 
-function navigateModelType(model: Model, context: NavigationContext) {
+async function navigateModelType(model: Model, context: NavigationContext) {
   if (checkVisited(context.visited, model)) {
     return;
   }
   if (!shouldNavigateTemplatableType(context, model)) {
     return;
   }
-  if (context.emit("model", model) === ListenerFlow.NoRecursion) return;
+  if ((await context.emit("model", model)) === ListenerFlow.NoRecursion) return;
   for (const property of model.properties.values()) {
-    navigateModelTypeProperty(property, context);
+    await navigateModelTypeProperty(property, context);
   }
   if (model.baseModel) {
-    navigateModelType(model.baseModel, context);
+    await navigateModelType(model.baseModel, context);
   }
   if (model.indexer && model.indexer.value) {
-    navigateTypeInternal(model.indexer.value, context);
+    await navigateTypeInternal(model.indexer.value, context);
   }
 
   if (context.options.visitDerivedTypes) {
     for (const derived of model.derivedModels) {
-      navigateModelType(derived, context);
+      await navigateModelType(derived, context);
     }
   }
 
-  context.emit("exitModel", model);
+  await context.emit("exitModel", model);
 }
 
-function navigateModelTypeProperty(property: ModelProperty, context: NavigationContext) {
+async function navigateModelTypeProperty(property: ModelProperty, context: NavigationContext) {
   if (checkVisited(context.visited, property)) {
     return;
   }
-  if (context.emit("modelProperty", property) === ListenerFlow.NoRecursion) return;
-  navigateTypeInternal(property.type, context);
-  context.emit("exitModelProperty", property);
+  if ((await context.emit("modelProperty", property)) === ListenerFlow.NoRecursion) return;
+  await navigateTypeInternal(property.type, context);
+  await context.emit("exitModelProperty", property);
 }
 
-function navigateScalarType(scalar: Scalar, context: NavigationContext) {
+async function navigateScalarType(scalar: Scalar, context: NavigationContext) {
   if (checkVisited(context.visited, scalar)) {
     return;
   }
-  if (context.emit("scalar", scalar) === ListenerFlow.NoRecursion) return;
+  if ((await context.emit("scalar", scalar)) === ListenerFlow.NoRecursion) return;
   if (scalar.baseScalar) {
-    navigateScalarType(scalar.baseScalar, context);
+    await navigateScalarType(scalar.baseScalar, context);
   }
   for (const constructor of scalar.constructors.values()) {
-    navigateScalarConstructor(constructor, context);
+    await navigateScalarConstructor(constructor, context);
   }
 
-  context.emit("exitScalar", scalar);
+  await context.emit("exitScalar", scalar);
 }
 
-function navigateInterfaceType(type: Interface, context: NavigationContext) {
+async function navigateInterfaceType(type: Interface, context: NavigationContext) {
   if (checkVisited(context.visited, type)) {
     return;
   }
@@ -299,99 +327,99 @@ function navigateInterfaceType(type: Interface, context: NavigationContext) {
     return;
   }
 
-  context.emit("interface", type);
+  await context.emit("interface", type);
   for (const op of type.operations.values()) {
-    navigateOperationType(op, context);
+    await navigateOperationType(op, context);
   }
 
-  context.emit("exitInterface", type);
+  await context.emit("exitInterface", type);
 }
 
-function navigateEnumType(type: Enum, context: NavigationContext) {
+async function navigateEnumType(type: Enum, context: NavigationContext) {
   if (checkVisited(context.visited, type)) {
     return;
   }
 
-  context.emit("enum", type);
+  await context.emit("enum", type);
   for (const member of type.members.values()) {
-    navigateTypeInternal(member, context);
+    await navigateTypeInternal(member, context);
   }
 
-  context.emit("exitEnum", type);
+  await context.emit("exitEnum", type);
 }
 
-function navigateUnionType(type: Union, context: NavigationContext) {
+async function navigateUnionType(type: Union, context: NavigationContext) {
   if (checkVisited(context.visited, type)) {
     return;
   }
   if (!shouldNavigateTemplatableType(context, type)) {
     return;
   }
-  if (context.emit("union", type) === ListenerFlow.NoRecursion) return;
+  if ((await context.emit("union", type)) === ListenerFlow.NoRecursion) return;
   for (const variant of type.variants.values()) {
-    navigateUnionTypeVariant(variant, context);
+    await navigateUnionTypeVariant(variant, context);
   }
 
-  context.emit("exitUnion", type);
+  await context.emit("exitUnion", type);
 }
 
-function navigateUnionTypeVariant(type: UnionVariant, context: NavigationContext) {
+async function navigateUnionTypeVariant(type: UnionVariant, context: NavigationContext) {
   if (checkVisited(context.visited, type)) {
     return;
   }
-  if (context.emit("unionVariant", type) === ListenerFlow.NoRecursion) return;
-  navigateTypeInternal(type.type, context);
+  if ((await context.emit("unionVariant", type)) === ListenerFlow.NoRecursion) return;
+  await navigateTypeInternal(type.type, context);
 
-  context.emit("exitUnionVariant", type);
+  await context.emit("exitUnionVariant", type);
 }
 
-function navigateTupleType(type: Tuple, context: NavigationContext) {
+async function navigateTupleType(type: Tuple, context: NavigationContext) {
   if (checkVisited(context.visited, type)) {
     return;
   }
-  if (context.emit("tuple", type) === ListenerFlow.NoRecursion) return;
+  if ((await context.emit("tuple", type)) === ListenerFlow.NoRecursion) return;
   for (const value of type.values) {
-    navigateTypeInternal(value, context);
+    await navigateTypeInternal(value, context);
   }
 
-  context.emit("exitTuple", type);
+  await context.emit("exitTuple", type);
 }
-function navigateStringTemplate(type: StringTemplate, context: NavigationContext) {
+async function navigateStringTemplate(type: StringTemplate, context: NavigationContext) {
   if (checkVisited(context.visited, type)) {
     return;
   }
-  if (context.emit("stringTemplate", type) === ListenerFlow.NoRecursion) return;
+  if ((await context.emit("stringTemplate", type)) === ListenerFlow.NoRecursion) return;
   for (const value of type.spans) {
-    navigateTypeInternal(value, context);
+    await navigateTypeInternal(value, context);
   }
 }
-function navigateStringTemplateSpan(type: StringTemplateSpan, context: NavigationContext) {
+async function navigateStringTemplateSpan(type: StringTemplateSpan, context: NavigationContext) {
   if (checkVisited(context.visited, type)) {
     return;
   }
-  if (context.emit("stringTemplateSpan", type as any) === ListenerFlow.NoRecursion) return;
-  navigateTypeInternal(type.type, context);
-}
-
-function navigateTemplateParameter(type: TemplateParameter, context: NavigationContext) {
-  if (checkVisited(context.visited, type)) {
-    return;
-  }
-  if (context.emit("templateParameter", type) === ListenerFlow.NoRecursion) return;
+  if ((await context.emit("stringTemplateSpan", type as any)) === ListenerFlow.NoRecursion) return;
+  await navigateTypeInternal(type.type, context);
 }
 
-function navigateDecoratorDeclaration(type: Decorator, context: NavigationContext) {
+async function navigateTemplateParameter(type: TemplateParameter, context: NavigationContext) {
   if (checkVisited(context.visited, type)) {
     return;
   }
-  if (context.emit("decorator", type) === ListenerFlow.NoRecursion) return;
+  if ((await context.emit("templateParameter", type)) === ListenerFlow.NoRecursion) return;
 }
 
-function navigateScalarConstructor(type: ScalarConstructor, context: NavigationContext) {
+async function navigateDecoratorDeclaration(type: Decorator, context: NavigationContext) {
   if (checkVisited(context.visited, type)) {
     return;
   }
-  if (context.emit("scalarConstructor", type) === ListenerFlow.NoRecursion) return;
+  if ((await context.emit("decorator", type)) === ListenerFlow.NoRecursion) return;
+}
+
+async function navigateScalarConstructor(type: ScalarConstructor, context: NavigationContext) {
+  if (checkVisited(context.visited, type)) {
+    return;
+  }
+  if ((await context.emit("scalarConstructor", type)) === ListenerFlow.NoRecursion) return;
 }
 
 function navigateTypeInternal(type: Type, context: NavigationContext) {
@@ -476,6 +504,7 @@ export class EventEmitter<T extends { [key: string]: (...args: any) => any }> {
 
 const eventNames: Array<keyof SemanticNodeListener> = [
   "root",
+  "exitRoot",
   "templateParameter",
   "exitTemplateParameter",
   "scalar",

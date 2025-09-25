@@ -18,3 +18,5 @@ export const Commands = {
  */
 export const ENABLE_SERVER_COMPILE_LOGGING = "ENABLE_SERVER_COMPILE_LOGGING";
 export const ENABLE_UPDATE_MANAGER_LOGGING = "ENABLE_UPDATE_MANAGER_LOGGING";
+// TODO: enable this flag before checking in
+//export const ENABLE_LM_PROVIDER_LOGGING = "ENABLE_LM_PROVIDER_LOGGING";

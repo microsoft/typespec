@@ -16,7 +16,15 @@ import { NodeHost } from "../core/node-host.js";
 import { typespecVersion } from "../manifest.js";
 import { createClientConfigProvider } from "./client-config-provider.js";
 import { createServer } from "./serverlib.js";
-import { CustomRequestName, Server, ServerHost, ServerLog } from "./types.js";
+import {
+  ChatCompleteOptions,
+  ChatMessage,
+  CustomRequestName,
+  LmProvider,
+  Server,
+  ServerHost,
+  ServerLog,
+} from "./types.js";
 
 let server: Server | undefined = undefined;
 
@@ -152,6 +160,42 @@ function main() {
   documents.onDidChangeContent(profile(s.checkChange));
   documents.onDidClose(profile(s.documentClosed));
   documents.onDidOpen(profile(s.documentOpened));
+
+  let chatCompleteRequestId = 0;
+  const lmProvider: LmProvider = {
+    chatComplete: async (
+      messages: ChatMessage[],
+      options: ChatCompleteOptions,
+    ): Promise<string> => {
+      const start = Date.now();
+      const id = chatCompleteRequestId++;
+      host.log({
+        level: "debug",
+        message: `[ChatComplete #${id}] start sending custom/chatCompletion event`,
+      });
+      try {
+        const r = await connection.sendRequest("custom/chatCompletion", {
+          messages,
+          lmOptions: options,
+          id: id.toString(),
+        });
+        const end = Date.now();
+        host.log({
+          level: "debug",
+          message: `[ChatComplete #${id}] custom/chatCompletion event finished in ${end - start} ms`,
+        });
+        return r as string;
+      } catch (e) {
+        host.log({
+          level: "error",
+          message: `chatComplete failed with error: ${inspect(e)}`,
+        });
+        return "";
+      }
+    },
+  };
+
+  (globalThis as any).TspExLmProvider = lmProvider;
 
   documents.listen(connection);
   connection.listen();

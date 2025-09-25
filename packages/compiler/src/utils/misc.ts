@@ -37,6 +37,10 @@ export function deepClone<T>(value: T): T {
     return value.map(deepClone) as any;
   }
 
+  if (value === null) {
+    return value;
+  }
+
   if (typeof value === "object") {
     const obj: any = {};
     for (const prop in value) {
@@ -479,4 +483,8 @@ class RekeyableMapImpl<K, V> implements RekeyableMap<K, V> {
     this.#keys.set(newKey, keyItem);
     return true;
   }
+}
+
+export function isPromise(value: any): value is Promise<any> {
+  return value && typeof value.then === "function";
 }

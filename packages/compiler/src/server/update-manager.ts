@@ -1,5 +1,6 @@
 import { TextDocumentIdentifier } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
+import { DeferredPromise } from "../utils/deferred-promise.js";
 import { ENABLE_UPDATE_MANAGER_LOGGING } from "./constants.js";
 import { ServerLog } from "./types.js";
 
@@ -10,43 +11,57 @@ interface PendingUpdate {
 
 export type UpdateType = "opened" | "changed" | "closed" | "renamed";
 
-type UpdateCallback = (updates: PendingUpdate[]) => Promise<void>;
+type UpdateCallback<T> = (
+  updates: PendingUpdate[],
+  triggeredBy: TextDocument | TextDocumentIdentifier,
+) => Promise<T>;
 /**
  * Track file updates and recompile the affected files after some debounce time.
  */
-export class UpdateManger {
+export class UpdateManager<T = void> {
   #pendingUpdates = new Map<string, PendingUpdate>();
-  #updateCb?: UpdateCallback;
+  #updateCb?: UpdateCallback<T>;
   // overall version which should be bumped for any actual doc change
   #docChangedVersion = 0;
-  #scheduleBatchUpdate: () => void;
+  #scheduleBatchUpdate: (
+    triggeredBy: TextDocument | TextDocumentIdentifier,
+  ) => Promise<T | undefined>;
   #docChangedTimesteps: number[] = [];
 
   private _log: (sl: ServerLog) => void;
 
-  constructor(log: (sl: ServerLog) => void) {
+  /**
+   *
+   * @param name For logging purpose, identify different update manager if there are multiple
+   * @param log
+   */
+  constructor(
+    private name: string,
+    log: (sl: ServerLog) => void,
+  ) {
     this._log =
       typeof process !== "undefined" &&
       process?.env?.[ENABLE_UPDATE_MANAGER_LOGGING]?.toLowerCase() === "true"
         ? (sl: ServerLog) => {
-            log({ ...sl, message: `#FromUpdateManager: ${sl.message}` });
+            log({ ...sl, message: `#FromUpdateManager(${this.name}): ${sl.message}` });
           }
         : () => {};
 
-    this.#scheduleBatchUpdate = debounceThrottle(
-      async () => {
+    this.#scheduleBatchUpdate = debounceThrottle<
+      T | undefined,
+      TextDocument | TextDocumentIdentifier
+    >(
+      async (arg: TextDocument | TextDocumentIdentifier) => {
         const updates = this.#pendingUpdates;
         this.#pendingUpdates = new Map<string, PendingUpdate>();
-        if (updates.size > 0) {
-          await this.#update(Array.from(updates.values()));
-        }
+        return await this.#update(Array.from(updates.values()), arg);
       },
       this.getAdaptiveDebounceDelay,
       this._log,
     );
   }
 
-  public setCallback(callback: UpdateCallback) {
+  public setCallback(callback: UpdateCallback<T>) {
     this.#updateCb = callback;
   }
 
@@ -105,8 +120,15 @@ export class UpdateManger {
     return this.DEFAULT_DELAY;
   };
 
-  public scheduleUpdate(document: TextDocument | TextDocumentIdentifier, UpdateType: UpdateType) {
-    if (UpdateType === "changed" || UpdateType === "renamed") {
+  /**
+   * T will be returned if the schedule is triggered eventually, if a newer scheduleUpdate
+   *  occurs before the debounce time, the previous one will be cancelled and return undefined.
+   */
+  public scheduleUpdate(
+    document: TextDocument | TextDocumentIdentifier,
+    updateType: UpdateType,
+  ): Promise<T | undefined> {
+    if (updateType === "changed" || updateType === "renamed") {
       // only bump this when the file is actually changed
       // skip open
       this.bumpDocChangedVersion();
@@ -122,11 +144,21 @@ export class UpdateManger {
       existing.latest = document;
       existing.latestUpdateTimestamp = Date.now();
     }
-    this.#scheduleBatchUpdate();
+    return this.#scheduleBatchUpdate(document);
   }
 
-  async #update(updates: PendingUpdate[]) {
-    await this.#updateCb?.(updates);
+  async #update(
+    updates: PendingUpdate[],
+    arg: TextDocument | TextDocumentIdentifier,
+  ): Promise<T | undefined> {
+    if (this.#updateCb === undefined) {
+      this._log({
+        level: "warning",
+        message: `No update callback registered, skip invoking update.`,
+      });
+      return undefined;
+    }
+    return await this.#updateCb(updates, arg);
   }
 }
 
@@ -138,43 +170,67 @@ export class UpdateManger {
  * @param fn The function
  * @param milliseconds Number of milliseconds to debounce/throttle
  */
-export function debounceThrottle(
-  fn: () => void | Promise<void>,
+export function debounceThrottle<T, P>(
+  fn: (arg: P) => T | Promise<T>,
   getDelay: () => number,
   log: (sl: ServerLog) => void,
-): () => void {
+): (arg: P) => Promise<T | undefined> {
   let timeout: any;
   let lastInvocation: number | undefined = undefined;
   let executingCount = 0;
   let debounceExecutionId = 0;
+  const executionPromises = new Map<number, DeferredPromise<T | undefined>>();
   const UPDATE_PARALLEL_LIMIT = 2;
 
-  function maybeCall() {
+  function maybeCall(arg: P): Promise<T | undefined> {
+    const promise = new DeferredPromise<T | undefined>();
+    const curId = debounceExecutionId++;
+    executionPromises.set(curId, promise);
+    maybeCallInternal(curId, arg, promise);
+    return promise.getPromise();
+  }
+
+  /** Clear all promises before the given id */
+  function clearPromisesBefore(id: number) {
+    // clear all promises before with id < the given id
+    for (const k of executionPromises.keys()) {
+      if (k < id) {
+        executionPromises.get(k)?.resolvePromise(undefined);
+        executionPromises.delete(k);
+      }
+    }
+  }
+
+  function maybeCallInternal(id: number, arg: P, promise: DeferredPromise<T | undefined>) {
     clearTimeout(timeout);
+    clearPromisesBefore(id);
 
     timeout = setTimeout(async () => {
       if (
         lastInvocation !== undefined &&
         (Date.now() - lastInvocation < getDelay() || executingCount >= UPDATE_PARALLEL_LIMIT)
       ) {
-        maybeCall();
+        maybeCallInternal(id, arg, promise);
         return;
       }
-      const curId = debounceExecutionId++;
       const s = new Date();
       try {
         executingCount++;
         log({
           level: "debug",
-          message: `Starting debounce execution #${curId} at ${s.toISOString()}. Current parallel count: ${executingCount}`,
+          message: `Starting debounce execution #${id} at ${s.toISOString()}. Current parallel count: ${executingCount}`,
         });
-        await fn();
+        const r = await fn(arg);
+        promise.resolvePromise(r);
+      } catch (e) {
+        promise.rejectPromise(e);
       } finally {
+        executionPromises.delete(id);
         executingCount--;
         const e = new Date();
         log({
           level: "debug",
-          message: `Finish debounce execution #${curId} at ${e.toISOString()}, duration=${e.getTime() - s.getTime()}. Current parallel count: ${executingCount}`,
+          message: `Finish debounce execution #${id} at ${e.toISOString()}, duration=${e.getTime() - s.getTime()}. Current parallel count: ${executingCount}`,
         });
       }
       lastInvocation = Date.now();

@@ -1,3 +1,4 @@
+import { isPromise } from "util/types";
 import { DiagnosticCollector, compilerAssert, createDiagnosticCollector } from "./diagnostics.js";
 import { getLocationContext } from "./helpers/location-context.js";
 import { defineLinter } from "./library.js";
@@ -7,7 +8,7 @@ import { createDiagnostic } from "./messages.js";
 import { NameResolver } from "./name-resolver.js";
 import type { Program } from "./program.js";
 import { EventEmitter, mapEventEmitterToNodeListener, navigateProgram } from "./semantic-walker.js";
-import { startTimer, time } from "./stats.js";
+import { startTimer } from "./stats.js";
 import {
   Diagnostic,
   DiagnosticMessages,
@@ -27,7 +28,7 @@ type LinterLibraryInstance = { linter: LinterResolvedDefinition };
 export interface Linter {
   extendRuleSet(ruleSet: LinterRuleSet): Promise<readonly Diagnostic[]>;
   registerLinterLibrary(name: string, lib?: LinterLibraryInstance): void;
-  lint(): LinterResult;
+  lint(): Promise<LinterResult>;
 }
 
 export interface LinterStats {
@@ -158,7 +159,7 @@ export function createLinter(
     return diagnostics.diagnostics;
   }
 
-  function lint(): LinterResult {
+  async function lint(): Promise<LinterResult> {
     const diagnostics = createDiagnosticCollector();
     const eventEmitter = new EventEmitter<SemanticNodeListener>();
     const stats: LinterStats = {
@@ -174,19 +175,40 @@ export function createLinter(
     );
 
     const timer = startTimer();
+    // We can't rely on semantic walker to wait-all because event emitter won't return result to semantic walker (we need to to hook multiple callback to one event).
+    // So we need to track all promises returned by each rule and await them after navigation explicitly here to make sure they can run in parallel as well as be awaited properly after navigation.
+    const promisesMap: Map<LinterRule<string, any>, Promise<any>[]> = new Map();
     for (const rule of enabledRules.values()) {
       const createTiming = startTimer();
       const listener = rule.create(createLinterRuleContext(program, rule, diagnostics));
       stats.runtime.rules[rule.id] = createTiming.end();
+      const promises: Promise<any>[] = [];
+      promisesMap.set(rule, promises);
       for (const [name, cb] of Object.entries(listener)) {
         const timedCb = (...args: any[]) => {
-          const duration = time(() => (cb as any)(...args));
-          stats.runtime.rules[rule.id] += duration;
+          const timer = startTimer();
+          const result = (cb as any)(...args);
+          if (isPromise(result)) {
+            const rr = result.then(() => {
+              const duration = timer.end();
+              stats.runtime.rules[rule.id] += duration;
+            });
+            promises.push(rr);
+          } else {
+            const duration = timer.end();
+            stats.runtime.rules[rule.id] += duration;
+          }
         };
         eventEmitter.on(name as any, timedCb);
       }
     }
-    navigateProgram(program, mapEventEmitterToNodeListener(eventEmitter));
+    await navigateProgram(program, mapEventEmitterToNodeListener(eventEmitter), {
+      // set to await-all so that semantic walker won't block, but needs to handle the promises ourselves as explained above.
+      asyncMode: "await-all",
+    });
+    for (const ps of promisesMap.values()) {
+      await Promise.all(ps);
+    }
     stats.runtime.total = timer.end();
     return { diagnostics: diagnostics.diagnostics, stats };
   }
