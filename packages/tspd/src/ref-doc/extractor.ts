@@ -101,7 +101,7 @@ export async function extractLibraryRefDocs(
     const program = await compile(NodeHost, main, {
       parseOptions: { comments: true, docs: true },
     });
-    const tspEmitter = diagnostics.pipe(await extractRefDocs(program));
+    const tspEmitter = diagnostics.pipe(extractRefDocs(program));
     Object.assign(refDoc, tspEmitter);
     for (const diag of program.diagnostics ?? []) {
       diagnostics.add(diag);
@@ -138,10 +138,10 @@ export interface ExtractRefDocOptions {
   };
 }
 
-async function resolveNamespaces(
+function resolveNamespaces(
   program: Program,
   options: ExtractRefDocOptions,
-): Promise<[Namespace[], readonly Diagnostic[]]> {
+): [Namespace[], readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   let namespaceTypes: Namespace[] = [];
 
@@ -151,7 +151,7 @@ async function resolveNamespaces(
       .map((x) => diagnostics.pipe(program.resolveTypeReference(x)))
       .filter((x): x is Namespace => x !== undefined);
   }
-  await navigateProgram(program, {
+  navigateProgram(program, {
     namespace(namespace) {
       if (getLocationContext(program, namespace).type !== "project") {
         return;
@@ -171,12 +171,12 @@ async function resolveNamespaces(
   return diagnostics.wrap(namespaceTypes);
 }
 
-export async function extractRefDocs(
+export function extractRefDocs(
   program: Program,
   options: ExtractRefDocOptions = {},
-): Promise<[TypeSpecRefDocBase, readonly Diagnostic[]]> {
+): [TypeSpecRefDocBase, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
-  const namespaceTypes = diagnostics.pipe(await resolveNamespaces(program, options));
+  const namespaceTypes = diagnostics.pipe(resolveNamespaces(program, options));
   const typeMapping = new Map<Type, RefDocEntity>();
   const namespaces: Mutable<NamespaceRefDoc>[] = [];
 
@@ -200,7 +200,7 @@ export async function extractRefDocs(
       typeMapping.set(type, refDoc);
       (array as any).push(refDoc);
     }
-    await navigateTypesInNamespace(
+    navigateTypesInNamespace(
       namespace,
       {
         decorator(dec) {

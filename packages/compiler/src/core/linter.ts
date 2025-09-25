@@ -175,8 +175,8 @@ export function createLinter(
     );
 
     const timer = startTimer();
-    // We can't rely on semantic walker to wait-all because event emitter won't return result to semantic walker (we need to to hook multiple callback to one event).
-    // So we need to track all promises returned by each rule and await them after navigation explicitly here to make sure they can run in parallel as well as be awaited properly after navigation.
+    // Because we are hooking multiple callback to the event emitter and won't be able to return a result to the walker
+    // so try to collect back all the promise and await them here explicitly
     const promisesMap: Map<LinterRule<string, any>, Promise<any>[]> = new Map();
     for (const rule of enabledRules.values()) {
       const createTiming = startTimer();
@@ -202,10 +202,7 @@ export function createLinter(
         eventEmitter.on(name as any, timedCb);
       }
     }
-    await navigateProgram(program, mapEventEmitterToNodeListener(eventEmitter), {
-      // set to await-all so that semantic walker won't block, but needs to handle the promises ourselves as explained above.
-      asyncMode: "await-all",
-    });
+    navigateProgram(program, mapEventEmitterToNodeListener(eventEmitter));
     for (const ps of promisesMap.values()) {
       await Promise.all(ps);
     }
