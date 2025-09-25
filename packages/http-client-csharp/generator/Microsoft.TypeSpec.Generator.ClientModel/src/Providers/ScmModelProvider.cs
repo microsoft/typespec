@@ -168,9 +168,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var experimentalAttribute = new AttributeStatement(typeof(ExperimentalAttribute), [Literal(ScmEvaluationTypeDiagnosticId)]);
-
+            FieldModifiers modifiers = DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct)
+                ? FieldModifiers.Private | FieldModifiers.ReadOnly
+                : FieldModifiers.Private;
             return new FieldProvider(
-                modifiers: FieldModifiers.Private,
+                modifiers: modifiers,
                 type: _jsonPatchFieldType,
                 description: null,
                 name: JsonPatchFieldName,
@@ -185,13 +187,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return null;
             }
 
+            bool isRef = !DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct);
             return new PropertyProvider(
                 description: null,
                 modifiers: MethodSignatureModifiers.Public,
                 type: _jsonPatchFieldType,
                 name: JsonPatchPropertyName,
-                isRef: true,
-                body: new ExpressionPropertyBody(new VariableExpression(JsonPatchField.Type, JsonPatchField.Declaration, IsRef: true)),
+                isRef: isRef,
+                body: new ExpressionPropertyBody(new VariableExpression(JsonPatchField.Type, JsonPatchField.Declaration, IsRef: isRef)),
                 attributes:
                 [
                     new AttributeStatement(typeof(EditorBrowsableAttribute), FrameworkEnumValue(EditorBrowsableState.Never)),
