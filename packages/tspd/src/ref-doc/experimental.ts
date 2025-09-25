@@ -66,7 +66,7 @@ export async function resolveLibraryRefDocsBase(
     const program = await compile(NodeHost, main, {
       parseOptions: { comments: true, docs: true },
     });
-    const refDoc = diagnostics.pipe(extractRefDocs(program, options));
+    const refDoc = diagnostics.pipe(await extractRefDocs(program, options));
     for (const diag of program.diagnostics ?? []) {
       diagnostics.add(diag);
     }

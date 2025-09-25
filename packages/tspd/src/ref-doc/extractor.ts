@@ -101,7 +101,7 @@ export async function extractLibraryRefDocs(
     const program = await compile(NodeHost, main, {
       parseOptions: { comments: true, docs: true },
     });
-    const tspEmitter = diagnostics.pipe(extractRefDocs(program));
+    const tspEmitter = diagnostics.pipe(await extractRefDocs(program));
     Object.assign(refDoc, tspEmitter);
     for (const diag of program.diagnostics ?? []) {
       diagnostics.add(diag);
@@ -138,10 +138,10 @@ export interface ExtractRefDocOptions {
   };
 }
 
-function resolveNamespaces(
+async function resolveNamespaces(
   program: Program,
   options: ExtractRefDocOptions,
-): [Namespace[], readonly Diagnostic[]] {
+): Promise<[Namespace[], readonly Diagnostic[]]> {
   const diagnostics = createDiagnosticCollector();
   let namespaceTypes: Namespace[] = [];
 
@@ -151,7 +151,7 @@ function resolveNamespaces(
       .map((x) => diagnostics.pipe(program.resolveTypeReference(x)))
       .filter((x): x is Namespace => x !== undefined);
   }
-  navigateProgram(program, {
+  await navigateProgram(program, {
     namespace(namespace) {
       if (getLocationContext(program, namespace).type !== "project") {
         return;
@@ -171,12 +171,12 @@ function resolveNamespaces(
   return diagnostics.wrap(namespaceTypes);
 }
 
-export function extractRefDocs(
+export async function extractRefDocs(
   program: Program,
   options: ExtractRefDocOptions = {},
-): [TypeSpecRefDocBase, readonly Diagnostic[]] {
+): Promise<[TypeSpecRefDocBase, readonly Diagnostic[]]> {
   const diagnostics = createDiagnosticCollector();
-  const namespaceTypes = diagnostics.pipe(resolveNamespaces(program, options));
+  const namespaceTypes = diagnostics.pipe(await resolveNamespaces(program, options));
   const typeMapping = new Map<Type, RefDocEntity>();
   const namespaces: Mutable<NamespaceRefDoc>[] = [];
 
@@ -200,7 +200,7 @@ export function extractRefDocs(
       typeMapping.set(type, refDoc);
       (array as any).push(refDoc);
     }
-    navigateTypesInNamespace(
+    await navigateTypesInNamespace(
       namespace,
       {
         decorator(dec) {
