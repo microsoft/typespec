@@ -80,10 +80,27 @@ export class LmRuleChecker<
     const data = this.dataToCheck;
     this.dataToCheck = [];
 
+    const dataToLm = [];
+
+    for (const d of data) {
+      const cached = this.cache.get(d.key);
+      if (cached) {
+        this.resolveCheckData(d, cached);
+      } else {
+        dataToLm.push(d);
+      }
+    }
+    console.log(
+      `[ChatComplete(${this.name})] ${dataToLm.length} out of ${data.length} items need to be checked by LM.`,
+    );
+    if (dataToLm.length === 0) {
+      return;
+    }
+
     const s = Date.now();
     const promises = [];
-    for (let i = 0; i < data.length; i += this.checkBatchSize) {
-      const batch = data.slice(i, i + this.checkBatchSize);
+    for (let i = 0; i < dataToLm.length; i += this.checkBatchSize) {
+      const batch = dataToLm.slice(i, i + this.checkBatchSize);
       console.log(
         `[ChatComplete(${this.name})] Start processing batch ${i} to ${i + batch.length}`,
       );
@@ -94,14 +111,12 @@ export class LmRuleChecker<
         );
       });
       promises.push(pp);
-      // wait for 100 ms before processing the next batch to avoid overwhelming the LM service
       // TODO: more logic may be needed here to handle service throttling
-      await new Promise((resolve) => setTimeout(resolve, 100));
     }
     await Promise.all(promises);
     const e = Date.now();
     console.log(
-      `[ChatComplete(${this.name})] Finished processing all ${data.length} items in ${e - s} ms.`,
+      `[ChatComplete(${this.name})] Finished processing all ${data.length} items in ${e - s} ms, cache size = ${this.cache.size()}.`,
     );
   }
 
@@ -111,18 +126,6 @@ export class LmRuleChecker<
     options: ChatCompleteOptions,
     retryCount: number,
   ) {
-    const foundInCache: string[] = [];
-    for (const d of data) {
-      const cached = this.cache.get(d.key);
-      if (cached) {
-        this.resolveCheckData(d, cached);
-        foundInCache.push(d.key);
-      }
-    }
-    console.log(
-      `[ChatComplete(${this.name})] ${foundInCache.length} out of ${data.length} items found in cache.`,
-    );
-    data = data.filter((d) => !foundInCache.includes(d.key));
     if (data.length === 0) {
       return;
     }
@@ -158,13 +161,12 @@ export class LmRuleChecker<
       return;
     }
     const responseData = response.data;
-    const keyToData = new Map<string, z.infer<resultSchemaT> & Keyed>();
     for (const d of responseData) {
-      keyToData.set(d.key, d);
+      this.cache.set(d.key, d);
     }
     const left: (dataT & Keyed)[] = [];
     for (const d of data) {
-      const resolved = keyToData.get(d.key);
+      const resolved = this.cache.get(d.key);
       if (resolved) {
         this.resolveCheckData(d, resolved);
       } else {
@@ -185,7 +187,6 @@ export class LmRuleChecker<
     if (deferred) {
       deferred.resolvePromise(result);
       this.deferredPromises.delete(data.key);
-      this.cache.set(data.key, result);
     }
   }
 
@@ -242,5 +243,9 @@ class LmRuleCheckerCache<resultT extends object> {
 
   clear() {
     this.cache.clear();
+  }
+
+  size(): number {
+    return this.cache.size;
   }
 }

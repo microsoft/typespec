@@ -8,7 +8,7 @@ import {
 import { inspect } from "util";
 import { LmRuleChecker } from "../lm/lm-rule-checker.js";
 import { reportLmErrors } from "../lm/lm-utils.js";
-import { LmDiagnosticMessages, LmFamily, LmResponseError } from "../lm/types.js";
+import { defaultLmFamily, LmDiagnosticMessages, LmResponseError } from "../lm/types.js";
 import {
   createRenameCodeFix,
   createRuleWithLmRuleChecker,
@@ -34,7 +34,7 @@ const aiChecker = new LmRuleChecker(
     },
   ],
   {
-    modelPreferences: LmFamily.gpt5mini,
+    modelPreferences: defaultLmFamily,
   },
   zRenameCheckResult,
 );

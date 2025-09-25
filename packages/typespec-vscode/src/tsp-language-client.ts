@@ -283,7 +283,7 @@ export class TspLanguageClient {
     const lmModelCache = new Map<string, Thenable<LanguageModelChat[]>>();
     // pre-warm some well known models
     // TODO: refine the list
-    const knownFamilies = ["gpt-4o", "o4-mini", "gpt-5-mini"];
+    const knownFamilies = ["gpt-4o", "o4-mini", "gpt-5-mini", "claude-sonnet-4"];
     for (const family of knownFamilies) {
       const m = lm.selectChatModels({ family });
       lmModelCache.set(family, m);
