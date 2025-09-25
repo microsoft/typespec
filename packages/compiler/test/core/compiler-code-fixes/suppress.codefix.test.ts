@@ -2,7 +2,7 @@ import { strictEqual } from "assert";
 import { describe, it } from "vitest";
 import { SyntaxKind } from "../../../src/ast/index.js";
 import { createSuppressCodeFix } from "../../../src/core/compiler-code-fixes/suppress.codefix.js";
-import { expectCodeFixOnAst } from "../../../src/testing/code-fix-testing.js";
+import { expectCodeFixesOnAst, expectCodeFixOnAst } from "../../../src/testing/code-fix-testing.js";
 
 describe("CodeFix: suppress", () => {
   it("it suppress in previous line", async () => {
@@ -56,6 +56,37 @@ describe("CodeFix: suppress", () => {
       model Foo {
         #suppress "foo" "This is a message"
         a: int32;
+      }
+    `);
+  });
+
+  it("it does not shift while applying multiple code fixes", async () => {
+    await expectCodeFixesOnAst(
+      `
+      model Foo {
+        a: ┆int32;
+        b: ┆int32;
+        c: ┆int32;
+        d: ┆int32;
+        e: ┆int32;
+      }
+    `,
+      (node) => {
+        strictEqual(node.kind, SyntaxKind.Identifier);
+        return createSuppressCodeFix(node, "foo");
+      },
+    ).toChangeTo(`
+      model Foo {
+        #suppress "foo" ""
+        a: int32;
+        #suppress "foo" ""
+        b: int32;
+        #suppress "foo" ""
+        c: int32;
+        #suppress "foo" ""
+        d: int32;
+        #suppress "foo" ""
+        e: int32;
       }
     `);
   });
