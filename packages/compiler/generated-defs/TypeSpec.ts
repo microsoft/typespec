@@ -442,7 +442,10 @@ export type MaxValueExclusiveDecorator = (
  * scalar Password is string;
  * ```
  */
-export type SecretDecorator = (context: DecoratorContext, target: Scalar | ModelProperty | Model | Union | Enum) => void;
+export type SecretDecorator = (
+  context: DecoratorContext,
+  target: Scalar | ModelProperty | Model | Union | Enum,
+) => void;
 
 /**
  * Attaches a tag to an operation, interface, or namespace. Multiple `@tag` decorators can be specified to attach multiple tags to a TypeSpec element.
