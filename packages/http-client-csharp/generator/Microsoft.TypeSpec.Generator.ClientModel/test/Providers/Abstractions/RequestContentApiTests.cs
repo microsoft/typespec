@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.ClientModel;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -25,14 +26,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Abstractions
             }
         }
 
-        [Test]
-        public void MultipartFormBinaryContentTypeUsesCorrectBaseType()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void MultipartFormBinaryContentTypeUsesCorrectBaseType(bool overrideType)
         {
-            MockHelpers.LoadMockGenerator(requestContentApi: TestRequestContentApi.Instance);
+            MockHelpers.LoadMockGenerator(requestContentApi: overrideType ? TestRequestContentApi.Instance : null);
             var multiPartFormDefinition = new MultiPartFormDataBinaryContentDefinition();
 
-            Assert.AreEqual(TestRequestContentApi.Instance.RequestContentType, multiPartFormDefinition.BaseType);
-            Assert.IsTrue(multiPartFormDefinition.BaseType!.Equals(typeof(string)));
+            Assert.AreEqual(ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType, multiPartFormDefinition.BaseType);
+            var expectedBaseType = overrideType ? typeof(string) : typeof(BinaryContent);
+            Assert.IsTrue(multiPartFormDefinition.BaseType!.Equals(expectedBaseType));
         }
     }
 }
