@@ -26,7 +26,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Abstractions
         }
 
         [Test]
-        public void MultipartFormBinaryContentTypeUseCorrectBaseType()
+        public void MultipartFormBinaryContentTypeUsesCorrectBaseType()
         {
             MockHelpers.LoadMockGenerator(requestContentApi: TestRequestContentApi.Instance);
             var multiPartFormDefinition = new MultiPartFormDataBinaryContentDefinition();
