@@ -15,6 +15,7 @@ import type {
   Union,
   Value,
 } from "../types.js";
+import { getCachedRawText } from "./raw-text-cache.js";
 import { printIdentifier } from "./syntax-utils.js";
 
 export interface TypeNameOptions {
@@ -178,9 +179,10 @@ function getModelName(model: Model, options: TypeNameOptions | undefined) {
     return `${modelName}<${args.join(", ")}>`;
   } else if ((model.node as ModelStatementNode)?.templateParameters?.length > 0) {
     // template
-    const params = (model.node as ModelStatementNode).templateParameters.map((t) =>
-      getIdentifierName(t.id.sv, options),
-    );
+    const params = (model.node as ModelStatementNode).templateParameters.map((t) => {
+      const cachedRawText = getCachedRawText(t);
+      return getIdentifierName(t.id.sv, options, cachedRawText);
+    });
     return `${modelName}<${params.join(", ")}>`;
   } else {
     // regular old model.
@@ -227,6 +229,12 @@ function getInterfaceName(iface: Interface, options: TypeNameOptions | undefined
     interfaceName += `<${iface.templateMapper.args
       .map((x) => getEntityName(x, options))
       .join(", ")}>`;
+  } else if (iface.node && iface.node.templateParameters.length > 0) {
+    const params = iface.node.templateParameters.map((t) => {
+      const cachedRawText = getCachedRawText(t);
+      return getIdentifierName(t.id.sv, options, cachedRawText);
+    });
+    interfaceName += `<${params.join(", ")}>`;
   }
   return `${getNamespacePrefix(iface.namespace, options)}${interfaceName}`;
 }
@@ -248,8 +256,12 @@ function getOperationName(op: Operation, options: TypeNameOptions | undefined) {
   }
 }
 
-function getIdentifierName(name: string, options: TypeNameOptions | undefined) {
-  return options?.printable ? printIdentifier(name) : name;
+function getIdentifierName(
+  name: string,
+  options: TypeNameOptions | undefined,
+  nodeIncludeRawText?: string,
+) {
+  return nodeIncludeRawText ?? (options?.printable ? printIdentifier(name) : name);
 }
 
 function getStringTemplateName(type: StringTemplate): string {

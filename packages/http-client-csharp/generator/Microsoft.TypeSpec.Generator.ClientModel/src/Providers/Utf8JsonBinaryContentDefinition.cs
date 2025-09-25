@@ -47,7 +47,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 enclosingType: this);
         }
 
-        protected override string BuildName() => $"Utf8Json{BaseType!.Name}";
+        protected override string BuildName() => $"Utf8Json{BuildBaseType().Name}";
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
             => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;

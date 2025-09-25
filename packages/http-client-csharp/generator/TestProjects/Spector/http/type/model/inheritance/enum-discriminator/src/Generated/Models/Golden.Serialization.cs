@@ -8,7 +8,7 @@ using System.Text.Json;
 
 namespace _Type.Model.Inheritance.EnumDiscriminator
 {
-    public partial class Golden : IJsonModel<Golden>
+    public partial class Golden : Dog, IJsonModel<Golden>
     {
         internal Golden() => throw null;
 

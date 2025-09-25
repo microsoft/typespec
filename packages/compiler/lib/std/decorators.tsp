@@ -481,9 +481,14 @@ enum DurationKnownEncoding {
   ISO8601: "ISO8601",
 
   /**
-   * Encode to integer or float
+   * Encode to integer or float as seconds
    */
   seconds: "seconds",
+
+  /**
+   * Encode to integer or float as milliseconds
+   */
+  milliseconds: "milliseconds",
 }
 
 /**

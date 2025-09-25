@@ -1,5 +1,6 @@
 import "@typespec/rest";
 import "@typespec/http";
+import "@typespec/http-client-csharp";
 import "@azure-tools/typespec-client-generator-core";
 import "@azure-tools/typespec-azure-core";
 
@@ -18,8 +19,8 @@ namespace SampleTypeSpec;
 
 using TypeSpec.Http;
 using TypeSpec.Versioning;
+using TypeSpec.HttpClient.CSharp;
 using Azure.ClientGenerator.Core;
-using Azure.Core;
 
 alias SampleOAuth2 = OAuth2Auth<[
   {
@@ -166,7 +167,7 @@ model NotFriend {
 @clientName("RenamedModel")
 model ModelWithClientName {
   @doc("name of the ModelWithClientName")
-  name: string;
+  otherName: string;
 }
 
 model ModelWithEmbeddedNonBodyParameters {
@@ -266,6 +267,32 @@ model RoundTripModel {
 
   @doc("Required bytes")
   requiredBytes: bytes;
+}
+
+@doc("A sample dynamic model.")
+@dynamicModel
+model DynamicModel {
+  name: string;
+  optionalUnknown?: unknown;
+  optionalInt?: int32;
+  optionalNullableList?: int32[] | null;
+  requiredNullableList: int32[] | null;
+  optionalNullableDictionary?: Record<int32> | null;
+  requiredNullableDictionary: Record<int32> | null;
+  primitiveDictionary: Record<int32>;
+  foo: AnotherDynamicModel;
+  listFoo: AnotherDynamicModel[];
+  listOfListFoo: AnotherDynamicModel[][];
+  dictionaryFoo: Record<AnotherDynamicModel>;
+  dictionaryOfDictionaryFoo: Record<Record<AnotherDynamicModel>>;
+  dictionaryListFoo: Record<AnotherDynamicModel[]>;
+  listOfDictionaryFoo: Record<AnotherDynamicModel>[];
+}
+
+@doc("Another sample dynamic model.")
+@dynamicModel
+model AnotherDynamicModel {
+  bar: string;
 }
 
 union DaysOfWeekExtensibleEnum {
@@ -462,3 +489,8 @@ op ListWithPaging(): Page<Thing>;
 @doc("An operation with embedded parameters within the body")
 @post
 op EmbeddedParameters(@bodyRoot body: ModelWithEmbeddedNonBodyParameters): void;
+
+@route("dynamicModel")
+@doc("An operation with a dynamic model")
+@post
+op DynamicModelOperation(@body body: DynamicModel): void;

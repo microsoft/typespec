@@ -67,9 +67,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override string BuildNamespace() => _clientProvider.Type.Namespace;
         protected override FormattableString BuildDescription() => $"Client options for {_clientProvider.Type:C}.";
 
-        protected override CSharpType[] BuildImplements()
+        protected override CSharpType BuildBaseType()
         {
-            return [ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.ClientPipelineOptionsType];
+            return ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.ClientPipelineOptionsType;
         }
 
         protected override FieldProvider[] BuildFields()

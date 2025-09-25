@@ -233,6 +233,11 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             return IsFrameworkType && FrameworkType == typeof(BinaryData);
         }
 
+        public CSharpType GetNestedElementType()
+        {
+            return IsCollection || IsArray ? ElementType.GetNestedElementType() : this;
+        }
+
         /// <summary>
         /// Retrieves the <see cref="CSharpType"/> initialization type with the <see cref="Arguments"/>.
         /// </summary>
@@ -642,20 +647,6 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             {
                 return new CSharpType(Name, Namespace, IsValueType, IsNullable, DeclaringType, arguments, IsPublic, IsStruct);
             }
-        }
-
-        private CSharpType? _rootType;
-        public CSharpType RootType => _rootType ??= GetRootType();
-
-        private CSharpType GetRootType()
-        {
-            CSharpType returnType = this;
-            while (returnType.BaseType != null)
-            {
-                returnType = returnType.BaseType;
-            }
-
-            return returnType;
         }
 
         /// <summary>
