@@ -50,6 +50,7 @@ const defaultOptions: NavigationOptions = {
 
 /**
  * Navigate all types in the program.
+ * TODO: quick update to add async to try in POC, maybe we should expose a different Api for async like navigateProgramAsync?
  * @param program Program to navigate.
  * @param listeners Listener called when visiting types.
  * @param options Navigation options.

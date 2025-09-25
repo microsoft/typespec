@@ -129,10 +129,10 @@ export async function generateExternDecorators(
   };
   if (options?.namespaces) {
     for (const namespace of options.namespaces) {
-      navigateTypesInNamespace(namespace, listener, { skipSubNamespaces: true });
+      await navigateTypesInNamespace(namespace, listener, { skipSubNamespaces: true });
     }
   } else {
-    navigateProgram(program, listener);
+    await navigateProgram(program, listener);
   }
 
   function format(value: string) {
