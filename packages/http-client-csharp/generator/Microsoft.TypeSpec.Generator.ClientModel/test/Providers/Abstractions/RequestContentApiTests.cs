@@ -3,9 +3,6 @@
 
 using System.ClientModel;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
-using Microsoft.TypeSpec.Generator.Expressions;
-using Microsoft.TypeSpec.Generator.Primitives;
-using Microsoft.TypeSpec.Generator.Statements;
 using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Abstractions
