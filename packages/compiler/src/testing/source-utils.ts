@@ -9,10 +9,9 @@ export function extractCursor(
   sourceWithCursor: string,
   marker = "┆",
 ): { source: string; pos: number } {
-  const pos = sourceWithCursor.indexOf(marker);
-  ok(pos >= 0, "marker not found");
-  const source = sourceWithCursor.replace(marker, "");
-  return { source, pos };
+  const result = extractCursors(sourceWithCursor, marker);
+  ok(result.positions.length === 1, "Expected exactly one cursor");
+  return { source: result.source, pos: result.positions[0] };
 }
 
 /**
@@ -33,6 +32,7 @@ export function extractCursors(
     positions.push(pos - marker.length * positions.length);
     offset = pos + marker.length;
   }
+  ok(positions.length >= 0, "marker not found");
   const source = sourceWithCursor.replace(new RegExp(marker, "g"), "");
   return { source, positions };
 }

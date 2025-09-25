@@ -1,10 +1,10 @@
 import { ok, strictEqual } from "assert";
-import { applyCodeFix, applyCodeFixes } from "../core/code-fixes.js";
+import { applyCodeFixes } from "../core/code-fixes.js";
 import { getNodeAtPosition, parse, visitChildren } from "../core/parser.js";
 import { createSourceFile } from "../core/source-file.js";
 import type { CodeFix, Node } from "../core/types.js";
 import { mutate } from "../utils/misc.js";
-import { extractCursor, extractCursors } from "./source-utils.js";
+import { extractCursors } from "./source-utils.js";
 import { createTestHost } from "./test-host.js";
 import { trimBlankLines } from "./test-utils.js";
 
@@ -38,31 +38,7 @@ export interface CodeFixExpect {
  * ```
  */
 export function expectCodeFixOnAst(code: string, callback: (node: Node) => CodeFix): CodeFixExpect {
-  return { toChangeTo };
-
-  async function toChangeTo(expectedCode: string) {
-    const { pos, source } = extractCursor(code);
-    const virtualFile = createSourceFile(source, "test.tsp");
-    const script = parse(virtualFile);
-    linkAstParents(script);
-    const node = getNodeAtPosition(script, pos);
-    ok(node, "Expected node at cursor. Make sure to have ┆ to mark which node.");
-    const codefix = callback(node);
-    const host = await createTestHost();
-    let updatedContent: string | undefined;
-    await applyCodeFix(
-      {
-        ...host.compilerHost,
-        writeFile: async (path, value) => {
-          strictEqual(path, "test.tsp");
-          updatedContent = value;
-        },
-      },
-      codefix,
-    );
-    ok(updatedContent);
-    strictEqual(trimBlankLines(updatedContent), trimBlankLines(expectedCode));
-  }
+  return expectCodeFixesOnAst(code, callback, 1);
 }
 
 /**
@@ -93,6 +69,7 @@ export function expectCodeFixOnAst(code: string, callback: (node: Node) => CodeF
 export function expectCodeFixesOnAst(
   code: string,
   callback: (node: Node) => CodeFix,
+  numberOfExpectedFixes: number | undefined = undefined,
 ): CodeFixExpect {
   return { toChangeTo };
 
@@ -107,6 +84,13 @@ export function expectCodeFixesOnAst(
       ok(node, "Expected node at cursor. Make sure to have ┆ to mark which node.");
       const codefix = callback(node);
       codefixes.push(codefix);
+    }
+    ok(codefixes.length > 0, "No codefixes returned from callback");
+    if (numberOfExpectedFixes !== undefined) {
+      ok(
+        codefixes.length === numberOfExpectedFixes,
+        `Expected exactly ${numberOfExpectedFixes} codefixes`,
+      );
     }
     const host = await createTestHost();
     let updatedContent: string | undefined;
