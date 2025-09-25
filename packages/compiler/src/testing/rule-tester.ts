@@ -109,10 +109,23 @@ export function createLinterRuleTester(
 
   async function compileAndDiagnose<
     T extends string | TemplateWithMarkers<any> | Record<string, string | TemplateWithMarkers<any>>,
-  >(code: T): Promise<[TestCompileResult<GetMarkedEntities<T>>, readonly Diagnostic[]]> {
-    const [res, codeDiagnostics] = await runner.compileAndDiagnose(code as any, {
-      parseOptions: { comments: true },
-    });
+  >(
+    code: T,
+  ): Promise<[TestCompileResult<GetMarkedEntities<T>> | undefined, readonly Diagnostic[]]> {
+    const compilerOptions = { parseOptions: { comments: true } };
+    let res;
+    let codeDiagnostics;
+    if (isLegacyTestRunner(runner)) {
+      if (typeof code !== "string") {
+        throw new Error(
+          "Only string code is supported with BasicTestRunner. Use Tester.createInstance()",
+        );
+      }
+      codeDiagnostics = await runner.diagnose(code, compilerOptions);
+    } else {
+      [res, codeDiagnostics] = await runner.compileAndDiagnose(code, { compilerOptions });
+    }
+
     expectDiagnosticEmpty(codeDiagnostics);
 
     const diagnostics = createDiagnosticCollector();
@@ -122,6 +135,10 @@ export function createLinterRuleTester(
     navigateProgram(runner.program, listener);
     // No diagnostics should have been reported to the program. If it happened the rule is calling reportDiagnostic directly and should NOT be doing that.
     expectDiagnosticEmpty(runner.program.diagnostics);
-    return [res as any, diagnostics.diagnostics];
+    return [res, diagnostics.diagnostics];
   }
+}
+
+function isLegacyTestRunner(tester: BasicTestRunner | TesterInstance): tester is BasicTestRunner {
+  return "autoCodeOffset" in tester;
 }
