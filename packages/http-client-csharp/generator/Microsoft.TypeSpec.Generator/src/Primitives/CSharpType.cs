@@ -233,6 +233,11 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             return IsFrameworkType && FrameworkType == typeof(BinaryData);
         }
 
+        public CSharpType GetNestedElementType()
+        {
+            return IsCollection || IsArray ? ElementType.GetNestedElementType() : this;
+        }
+
         /// <summary>
         /// Retrieves the <see cref="CSharpType"/> initialization type with the <see cref="Arguments"/>.
         /// </summary>

@@ -29,7 +29,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
             => TypeSignatureModifiers.Public | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;
 
-        protected override CSharpType[] BuildImplements() => [typeof(ModelReaderWriterContext)];
+        protected override CSharpType BuildBaseType() => typeof(ModelReaderWriterContext);
 
         protected override IReadOnlyList<MethodBodyStatement> BuildAttributes()
         {

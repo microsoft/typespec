@@ -40,7 +40,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override CSharpType? BuildBaseType()
         {
-            if (_namedTypeSymbol.BaseType == null || _namedTypeSymbol.BaseType.SpecialType == SpecialType.System_Object)
+            if (_namedTypeSymbol.BaseType == null
+                || _namedTypeSymbol.BaseType.SpecialType == SpecialType.System_Object
+                || _namedTypeSymbol.BaseType.SpecialType == SpecialType.System_ValueType)
             {
                 return null;
             }

@@ -74,7 +74,7 @@ npm run ci
    ```bash
    # Navigate to the root of the TypeSpec repository
    cd ../../
-   pnpm changeset add
+   pnpm change add
    ```
 
    Follow the prompts to describe your changes. This helps with automated changelog generation and versioning.
@@ -93,7 +93,7 @@ Before creating a pull request:
 - [ ] Ensure all tests pass: `npm run regenerate && npm run ci`
 - [ ] Ensure code is properly formatted: `npm run format`
 - [ ] Ensure code is properly linted: `npm run lint`
-- [ ] Add a changeset: `pnpm changeset add` (from repo root)
+- [ ] Add a changeset: `pnpm change add` (from repo root)
 - [ ] Update documentation if needed
 
 ### 2. Create the PR
@@ -119,7 +119,7 @@ After your PR is created and CI passes:
 2. **Trigger downstream testing**:
    - Run [this pipeline](https://dev.azure.com/azure-sdk/internal/_build/results?buildId=4278466&view=results) with:
      - `PULL-REQUEST-URL`: Your PR URL from step 1
-     - `ARTIFACTS-URL`: The artifact URL from step 1
+     - `ARTIFACTS-URL`: The artifact URL from step 1 (submit it wrapped in quotes like "ARTIFACTS-URL")
 
 3. **Review downstream changes**:
    - The pipeline will create a PR in [autorest.python](https://github.com/Azure/autorest.python)

@@ -9,7 +9,7 @@ using Sample;
 
 namespace Sample.Models
 {
-    public partial class Tree : global::System.ClientModel.Primitives.IJsonModel<global::Sample.Models.Tree>
+    public partial class Tree : global::Sample.Models.Plant, global::System.ClientModel.Primitives.IJsonModel<global::Sample.Models.Tree>
     {
         internal Tree()
         {
