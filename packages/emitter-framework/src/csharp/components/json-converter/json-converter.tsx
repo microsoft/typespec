@@ -5,6 +5,7 @@ import { ClassDeclaration, Method } from "@alloy-js/csharp";
 import System, { Xml } from "@alloy-js/csharp/global/System";
 import Json, { Serialization } from "@alloy-js/csharp/global/System/Text/Json";
 import { type Type } from "@typespec/compiler";
+import { capitalize } from "@typespec/compiler/casing";
 import { TypeExpression } from "../type-expression.jsx";
 
 interface JsonConverterProps {
@@ -103,7 +104,8 @@ export function TimeSpanSecondsJsonConverter(props: {
     );
   }
   const found = map.get(props.encodeType)!;
-  const defaultName = `TimeSpanSeconds${props.encodeType.name[0].toUpperCase()}${props.encodeType.name.slice(1)}JsonConverter`;
+  const capitalizedTypeName = capitalize(props.encodeType.name);
+  const defaultName = `TimeSpanSeconds${capitalizedTypeName}JsonConverter`;
 
   return (
     <JsonConverter

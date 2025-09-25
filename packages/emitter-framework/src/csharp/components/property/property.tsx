@@ -70,7 +70,7 @@ export function Property(props: PropertyProps): Children {
         const converter = JsonConverterResolver.resolveJsonConverter(result.type, encodeData);
         if (converter) {
           attributes.push(
-            <JsonConverterAttribute type={<cs.Reference refkey={converter.nameKey} />} />,
+            <JsonConverterAttribute type={<cs.Reference refkey={converter.namekey} />} />,
           );
         }
       }

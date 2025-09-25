@@ -6,11 +6,12 @@ import {
   type EncodeData,
   type Type,
 } from "@typespec/compiler";
+import { capitalize } from "@typespec/compiler/casing";
 import { getNullableUnionInnerType } from "../utils/nullable-util.js";
 import { TimeSpanIso8601JsonConverter, TimeSpanSecondsJsonConverter } from "./json-converter.jsx";
 
 interface JsonConverterInfo {
-  nameKey: Namekey;
+  namekey: Namekey;
   converter: Children;
 }
 
@@ -93,11 +94,10 @@ export function createJsonConverterResolver(
         $.builtin.float64,
       ].includes(encodeData.type)
     ) {
-      const key: Namekey = namekey(
-        `TimeSpanSeconds${encodeData.type.name[0].toUpperCase()}${encodeData.type.name.slice(1)}JsonConverter`,
-      );
+      const capitalizedTypeName = capitalize(encodeData.type.name);
+      const key: Namekey = namekey(`TimeSpanSeconds${capitalizedTypeName}JsonConverter`);
       return {
-        nameKey: key,
+        namekey: key,
         converter: <TimeSpanSecondsJsonConverter name={key} encodeType={encodeData.type} />,
       };
     } else if (
@@ -106,7 +106,7 @@ export function createJsonConverterResolver(
     ) {
       const key = namekey(`TimeSpanIso8601JsonConverter`);
       return {
-        nameKey: key,
+        namekey: key,
         converter: <TimeSpanIso8601JsonConverter name={key} />,
       };
     } else {

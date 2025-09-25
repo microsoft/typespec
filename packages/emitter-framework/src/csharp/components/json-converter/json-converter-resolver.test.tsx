@@ -56,7 +56,7 @@ function createTestJsonConverterResolver() {
         },
         info: {
           converter: FakeJsonConverter,
-          nameKey: fakeJsonConverterKey,
+          namekey: fakeJsonConverterKey,
         },
       },
     ],
