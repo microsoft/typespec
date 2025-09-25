@@ -154,8 +154,7 @@ namespace SampleTypeSpec
         public static explicit operator PageThing(ClientResult result)
         {
             using PipelineResponse response = result.GetRawResponse();
-            BinaryData data = response.Content;
-            using JsonDocument document = JsonDocument.Parse(data);
+            using JsonDocument document = JsonDocument.Parse(response.Content);
             return DeserializePageThing(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
     }
