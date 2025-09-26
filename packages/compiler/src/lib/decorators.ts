@@ -333,7 +333,7 @@ function validateValueAssignableToTarget(
   if (isNumeric(value)) {
     value = $(context.program).value.createNumeric(value);
   }
-  const [assignable, diagnostics] = $(context.program).value.isAssignableTo.withDiagnostics(
+  const [assignable, diagnostics] = $(context.program).value.isOfType.withDiagnostics(
     value,
     targetType,
     value,
