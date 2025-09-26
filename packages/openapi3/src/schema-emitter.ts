@@ -67,7 +67,7 @@ import { getOneOf, getRef } from "./decorators.js";
 import { JsonSchemaModule } from "./json-schema.js";
 import { OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
 import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
-import { getMaxValue, getMinValue } from "./range.js";
+import { getMaxValueAsJson, getMinValueAsJson } from "./range.js";
 import { getSchemaForStdScalars } from "./std-scalar-schemas.js";
 import {
   CommonOpenAPI3Schema,
@@ -724,8 +724,8 @@ export class OpenAPI3SchemaEmitterBase<
 
     applyConstraint(getMinLength, "minLength");
     applyConstraint(getMaxLength, "maxLength");
-    applyConstraint(getMinValue, "minimum");
-    applyConstraint(getMaxValue, "maximum");
+    applyConstraint(getMinValueAsJson, "minimum");
+    applyConstraint(getMaxValueAsJson, "maximum");
     applyConstraint(getPattern, "pattern");
     applyConstraint(getMinItems, "minItems");
     applyConstraint(getMaxItems, "maxItems");

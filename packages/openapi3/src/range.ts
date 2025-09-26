@@ -1,23 +1,23 @@
 import {
-  getMaxValue as coreGetMaxValue,
-  getMinValue as coreGetMinValue,
+  getMaxValue,
   getMaxValueForScalar,
+  getMinValue,
   getMinValueForScalar,
   type Program,
   serializeValueAsJson,
   type Type,
 } from "@typespec/compiler";
 
-export function getMinValue(program: Program, type: Type): unknown {
-  const numericValue = coreGetMinValue(program, type);
+export function getMinValueAsJson(program: Program, type: Type): unknown {
+  const numericValue = getMinValue(program, type);
   if (numericValue) return numericValue;
 
   const scalarValue = getMinValueForScalar(program, type);
   return scalarValue && serializeValueAsJson(program, scalarValue, type);
 }
 
-export function getMaxValue(program: Program, type: Type): unknown {
-  const numericValue = coreGetMaxValue(program, type);
+export function getMaxValueAsJson(program: Program, type: Type): unknown {
+  const numericValue = getMaxValue(program, type);
   if (numericValue) return numericValue;
 
   const scalarValue = getMaxValueForScalar(program, type);
