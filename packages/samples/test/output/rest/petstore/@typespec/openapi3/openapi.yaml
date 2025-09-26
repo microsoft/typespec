@@ -716,6 +716,7 @@ components:
         age:
           type: integer
           format: int32
+          minimum: 0
           maximum: 20
         ownerId:
           type: integer
@@ -749,6 +750,7 @@ components:
         age:
           type: integer
           format: int32
+          minimum: 0
           maximum: 20
         ownerId:
           type: integer
@@ -775,6 +777,7 @@ components:
         age:
           type: integer
           format: int32
+          minimum: 0
           maximum: 20
         ownerId:
           type: integer

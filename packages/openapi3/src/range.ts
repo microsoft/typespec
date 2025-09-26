@@ -10,7 +10,7 @@ import {
 
 export function getMinValueAsJson(program: Program, type: Type): unknown {
   const numericValue = getMinValue(program, type);
-  if (numericValue) return numericValue;
+  if (numericValue !== undefined) return numericValue;
 
   const scalarValue = getMinValueForScalar(program, type);
   return scalarValue && serializeValueAsJson(program, scalarValue, type);
@@ -18,7 +18,7 @@ export function getMinValueAsJson(program: Program, type: Type): unknown {
 
 export function getMaxValueAsJson(program: Program, type: Type): unknown {
   const numericValue = getMaxValue(program, type);
-  if (numericValue) return numericValue;
+  if (numericValue !== undefined) return numericValue;
 
   const scalarValue = getMaxValueForScalar(program, type);
   return scalarValue && serializeValueAsJson(program, scalarValue, type);
