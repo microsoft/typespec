@@ -439,18 +439,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
 
                 // Targeted backcompat fix for the case where properties were previously generated as read-only collections
-                if (outputProperty.Type.IsFrameworkType)
+                if (outputProperty.Type.IsReadWriteList || outputProperty.Type.IsReadWriteDictionary)
                 {
-                    var frameworkType = outputProperty.Type.FrameworkType;
-                    if (frameworkType == typeof(IList<>) || frameworkType == typeof(IDictionary<,>))
+                    if (LastContractPropertiesMap.TryGetValue(outputProperty.Name,
+                            out CSharpType? lastContractPropertyType) &&
+                        !outputProperty.Type.Equals(lastContractPropertyType))
                     {
-                        if (LastContractPropertiesMap.TryGetValue(outputProperty.Name,
-                                out CSharpType? lastContractPropertyType) &&
-                            !outputProperty.Type.Equals(lastContractPropertyType))
-                        {
-                            outputProperty.Type = lastContractPropertyType;
-                            CodeModelGenerator.Instance.Emitter.Info($"Changed property {Name}.{outputProperty.Name} type to {lastContractPropertyType} to match last contract.");
-                        }
+                        outputProperty.Type = lastContractPropertyType;
+                        CodeModelGenerator.Instance.Emitter.Info($"Changed property {Name}.{outputProperty.Name} type to {lastContractPropertyType} to match last contract.");
                     }
                 }
 
