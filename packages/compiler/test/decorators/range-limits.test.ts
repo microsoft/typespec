@@ -1,15 +1,24 @@
-import { strictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
+import { ok, strictEqual } from "assert";
+import { beforeEach, describe, expect, it } from "vitest";
 import {
   getMaxItems,
   getMaxLength,
   getMaxValue,
+  getMaxValueRaw,
   getMinItems,
   getMinLength,
   getMinValue,
+  getMinValueRaw,
 } from "../../src/core/intrinsic-type-state.js";
-import { Model } from "../../src/core/types.js";
-import { BasicTestRunner, createTestRunner, expectDiagnostics } from "../../src/testing/index.js";
+import { Numeric } from "../../src/core/numeric.js";
+import { Model, ScalarValue } from "../../src/core/types.js";
+import {
+  BasicTestRunner,
+  createTestRunner,
+  expectDiagnostics,
+  t,
+} from "../../src/testing/index.js";
+import { Tester } from "../tester.js";
 
 describe("compiler: range limiting decorators", () => {
   let runner: BasicTestRunner;
@@ -116,80 +125,95 @@ describe("compiler: range limiting decorators", () => {
     });
 
     describe("datetime types", () => {
+      function expectScalarValue(
+        value: Numeric | ScalarValue | undefined,
+        scalar: string,
+        constructor: string,
+      ) {
+        ok(value);
+        ok("valueKind" in value);
+
+        strictEqual(value.valueKind, "ScalarValue");
+        expect(value.scalar.name).toEqual(scalar);
+        expect(value.value).toMatchObject({ name: constructor });
+      }
+
       it("applies @minValue and @maxValue on unixTimestamp32", async () => {
-        const { Foo } = (await runner.compile(`
-          @test model Foo {
-            @minValue(1735689600)  // 2025-01-01T00:00:00Z as unix timestamp
-            @maxValue(1767225599)  // 2025-12-31T23:59:59Z as unix timestamp
-            stamp: unixTimestamp32;
+        const { stamp, program } = await Tester.compile(t.code`
+          model Foo {
+            @minValue(unixTimestamp32.fromISO("2025-01-01T00:00:00Z"))
+            @maxValue(unixTimestamp32.fromISO("2025-12-31T23:59:59Z"))
+            ${t.modelProperty("stamp")}: unixTimestamp32;
           }
-        `)) as { Foo: Model };
-        const stampProp = Foo.properties.get("stamp")!;
+        `);
 
-        strictEqual(getMinValue(runner.program, stampProp), 1735689600);
-        strictEqual(getMaxValue(runner.program, stampProp), 1767225599);
+        expectScalarValue(getMinValueRaw(program, stamp), "unixTimestamp32", "fromISO");
+        expectScalarValue(getMaxValueRaw(program, stamp), "unixTimestamp32", "fromISO");
       });
 
-      it("applies @minValue on utcDateTime", async () => {
-        const { Foo } = (await runner.compile(`
-          @test model Foo {
-            @minValue(0)
-            @maxValue(1000000000)
-            timestamp: utcDateTime;
+      it("applies @minValue and @maxValue on utcDateTime", async () => {
+        const { stamp, program } = await Tester.compile(t.code`
+          model Foo {
+            @minValue(utcDateTime.fromISO("2025-01-01T00:00:00Z"))
+            @maxValue(utcDateTime.fromISO("2025-12-31T23:59:59Z"))
+            ${t.modelProperty("stamp")}: utcDateTime;
           }
-        `)) as { Foo: Model };
-        const timestampProp = Foo.properties.get("timestamp")!;
+        `);
 
-        strictEqual(getMinValue(runner.program, timestampProp), 0);
-        strictEqual(getMaxValue(runner.program, timestampProp), 1000000000);
+        expectScalarValue(getMinValueRaw(program, stamp), "utcDateTime", "fromISO");
+        expectScalarValue(getMaxValueRaw(program, stamp), "utcDateTime", "fromISO");
       });
 
-      it("applies @minValue on offsetDateTime", async () => {
-        const { Foo } = (await runner.compile(`
-          @test model Foo {
-            @minValue(100)
-            timestamp: offsetDateTime;
+      it("applies @minValue and @maxValue on offsetDateTime", async () => {
+        const { stamp, program } = await Tester.compile(t.code`
+          model Foo {
+            @minValue(offsetDateTime.fromISO("2025-01-01T00:00:00+00:00"))
+            @maxValue(offsetDateTime.fromISO("2025-12-31T23:59:59+00:00"))
+            ${t.modelProperty("stamp")}: offsetDateTime;
           }
-        `)) as { Foo: Model };
-        const timestampProp = Foo.properties.get("timestamp")!;
+        `);
 
-        strictEqual(getMinValue(runner.program, timestampProp), 100);
+        expectScalarValue(getMinValueRaw(program, stamp), "offsetDateTime", "fromISO");
+        expectScalarValue(getMaxValueRaw(program, stamp), "offsetDateTime", "fromISO");
       });
 
-      it("applies @minValue on plainDate", async () => {
-        const { Foo } = (await runner.compile(`
-          @test model Foo {
-            @minValue(100)
-            date: plainDate;
+      it("applies @minValue and @maxValue on plainTime", async () => {
+        const { stamp, program } = await Tester.compile(t.code`
+          model Foo {
+            @minValue(plainTime.fromISO("09:00:00"))
+            @maxValue(plainTime.fromISO("17:00:00"))
+            ${t.modelProperty("stamp")}: plainTime;
           }
-        `)) as { Foo: Model };
-        const dateProp = Foo.properties.get("date")!;
+        `);
 
-        strictEqual(getMinValue(runner.program, dateProp), 100);
+        expectScalarValue(getMinValueRaw(program, stamp), "plainTime", "fromISO");
+        expectScalarValue(getMaxValueRaw(program, stamp), "plainTime", "fromISO");
       });
 
-      it("applies @minValue on plainTime", async () => {
-        const { Foo } = (await runner.compile(`
-          @test model Foo {
-            @minValue(100)
-            time: plainTime;
+      it("applies @minValue and @maxValue on plainDate", async () => {
+        const { stamp, program } = await Tester.compile(t.code`
+          model Foo {
+            @minValue(plainDate.fromISO("2025-01-01"))
+            @maxValue(plainDate.fromISO("2025-12-31"))
+            ${t.modelProperty("stamp")}: plainDate;
           }
-        `)) as { Foo: Model };
-        const timeProp = Foo.properties.get("time")!;
+        `);
 
-        strictEqual(getMinValue(runner.program, timeProp), 100);
+        expectScalarValue(getMinValueRaw(program, stamp), "plainDate", "fromISO");
+        expectScalarValue(getMaxValueRaw(program, stamp), "plainDate", "fromISO");
       });
 
-      it("applies @minValue on duration", async () => {
-        const { Foo } = (await runner.compile(`
-          @test model Foo {
-            @minValue(60)
-            timespan: duration;
+      it("applies @minValue and @maxValue on duration", async () => {
+        const { stamp, program } = await Tester.compile(t.code`
+          model Foo {
+            @minValue(duration.fromISO("PT1H"))
+            @maxValue(duration.fromISO("PT8H"))
+            ${t.modelProperty("stamp")}: duration;
           }
-        `)) as { Foo: Model };
-        const timespanProp = Foo.properties.get("timespan")!;
+        `);
 
-        strictEqual(getMinValue(runner.program, timespanProp), 60);
+        expectScalarValue(getMinValueRaw(program, stamp), "duration", "fromISO");
+        expectScalarValue(getMaxValueRaw(program, stamp), "duration", "fromISO");
       });
     });
   });

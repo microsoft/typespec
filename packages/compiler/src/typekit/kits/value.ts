@@ -11,6 +11,7 @@ import type {
   ObjectValue,
   ScalarValue,
   StringValue,
+  Type,
   Value,
 } from "../../core/types.js";
 import { createDiagnosable, Diagnosable } from "../create-diagnosable.js";
@@ -112,7 +113,7 @@ export interface ValueKit {
    * @param diagnosticTarget Target for the diagnostic
    */
   isAssignableTo: Diagnosable<
-    (source: Value, target: Entity, diagnosticTarget?: Entity | Node) => boolean
+    (source: Value, target: Type, diagnosticTarget?: Entity | Node) => boolean
   >;
 
   /**
@@ -211,7 +212,7 @@ defineKit<TypekitExtension>({
       return this.value.is(type) && type.valueKind === "ScalarValue";
     },
     isAssignableTo: createDiagnosable(function (source, target, diagnosticTarget) {
-      return this.program.checker.isTypeAssignableTo(source, target, diagnosticTarget ?? source);
+      return this.program.checker.isValueOfType(source, target, diagnosticTarget ?? source);
     }),
     resolve: createDiagnosable(function (reference, kind) {
       const [value, diagnostics] = this.program.resolveTypeOrValueReference(reference);

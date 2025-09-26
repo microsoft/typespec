@@ -18,7 +18,9 @@ describe("isAssignableTo", () => {
 
     const tk = $(program);
     // Can't actually assign a value to a value.
-    expect(tk.value.isAssignableTo(tk.value.create("foo"), tk.value.create("foo"))).toBe(false);
+    expect(tk.value.isAssignableTo(tk.value.create("foo"), tk.value.create("foo") as any)).toBe(
+      false,
+    );
   });
 
   it("validates against MixedParameterConstraint", async () => {

@@ -225,6 +225,20 @@ export interface Checker {
   ): [boolean, readonly Diagnostic[]];
 
   /**
+   * Check if the value is assignable to the given type
+   * @param source Source value, should be assignable to the target type.
+   * @param target Target type
+   * @param diagnosticTarget Target for the diagnostic, unless something better can be inferred.
+   * @returns [related, list of diagnostics]
+   * @internal
+   */
+  isValueOfType(
+    source: Value,
+    target: Type,
+    diagnosticTarget: DiagnosticTarget,
+  ): [boolean, readonly Diagnostic[]];
+
+  /**
    * Check if the given type is one of the built-in standard TypeSpec Types.
    * @param type Type to check
    * @param stdType If provided check is that standard type
@@ -393,10 +407,12 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     getValueExactType,
     getTemplateParameterUsageMap,
     isTypeAssignableTo: undefined!,
+    isValueOfType: undefined!,
     stats,
   };
   const relation = createTypeRelationChecker(program, checker);
   checker.isTypeAssignableTo = relation.isTypeAssignableTo;
+  checker.isValueOfType = relation.isValueOfType;
 
   return checker;
 

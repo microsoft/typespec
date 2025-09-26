@@ -196,6 +196,15 @@ extern dec minLength(target: string | ModelProperty, value: valueof integer);
  */
 extern dec maxLength(target: string | ModelProperty, value: valueof integer);
 
+/** Types that can have range limits */
+alias RangeLimitableTypes =
+  | numeric
+  | utcDateTime
+  | offsetDateTime
+  | plainDate
+  | plainTime
+  | duration;
+
 /**
  * Specify the minimum number of items this array should have.
  * @param value Minimum number
@@ -231,15 +240,8 @@ extern dec maxItems(target: unknown[] | ModelProperty, value: valueof integer);
  * ```
  */
 extern dec minValue(
-  target:
-    | numeric
-    | utcDateTime
-    | offsetDateTime
-    | plainDate
-    | plainTime
-    | duration
-    | ModelProperty,
-  value: valueof numeric
+  target: RangeLimitableTypes | ModelProperty,
+  value: valueof RangeLimitableTypes
 );
 
 /**
@@ -253,15 +255,8 @@ extern dec minValue(
  * ```
  */
 extern dec maxValue(
-  target:
-    | numeric
-    | utcDateTime
-    | offsetDateTime
-    | plainDate
-    | plainTime
-    | duration
-    | ModelProperty,
-  value: valueof numeric
+  target: RangeLimitableTypes | ModelProperty,
+  value: valueof RangeLimitableTypes
 );
 
 /**
@@ -276,15 +271,8 @@ extern dec maxValue(
  * ```
  */
 extern dec minValueExclusive(
-  target:
-    | numeric
-    | utcDateTime
-    | offsetDateTime
-    | plainDate
-    | plainTime
-    | duration
-    | ModelProperty,
-  value: valueof numeric
+  target: RangeLimitableTypes | ModelProperty,
+  value: valueof RangeLimitableTypes
 );
 
 /**
@@ -299,15 +287,8 @@ extern dec minValueExclusive(
  * ```
  */
 extern dec maxValueExclusive(
-  target:
-    | numeric
-    | utcDateTime
-    | offsetDateTime
-    | plainDate
-    | plainTime
-    | duration
-    | ModelProperty,
-  value: valueof numeric
+  target: RangeLimitableTypes | ModelProperty,
+  value: valueof RangeLimitableTypes
 );
 
 /**
