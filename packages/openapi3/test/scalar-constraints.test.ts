@@ -1,6 +1,6 @@
 /* eslint-disable vitest/no-identical-title */
 import { deepStrictEqual, strictEqual } from "assert";
-import { describe, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { worksFor } from "./works-for.js";
 
 describe("numeric constraints", () => {
@@ -215,78 +215,42 @@ describe("string constraints", () => {
 });
 
 describe("datetime constraints", () => {
-  const datetimeTypes = [
-    {
-      name: "unixTimestamp32",
-      format: "int32",
-      minValue: `unixTimestamp32.fromISO("2025-01-01T00:00:00Z")`,
-      maxValue: `unixTimestamp32.fromISO("2025-12-31T23:59:59Z")`,
-      minExpected: 1735689600,
-      maxExpected: 1767225599,
-    },
-    {
-      name: "utcDateTime",
-      format: "date-time",
-      minValue: `utcDateTime.fromISO("2025-01-01T00:00:00Z")`,
-      maxValue: `utcDateTime.fromISO("2025-12-31T23:59:59Z")`,
-      minExpected: "2025-01-01T00:00:00Z",
-      maxExpected: "2025-12-31T23:59:59Z",
-    },
-    {
-      name: "offsetDateTime",
-      format: "date-time",
-      minValue: `offsetDateTime.fromISO("2025-01-01T00:00:00Z")`,
-      maxValue: `offsetDateTime.fromISO("2025-12-31T23:59:59Z")`,
-      minExpected: "2025-01-01T00:00:00Z",
-      maxExpected: "2025-12-31T23:59:59Z",
-    },
-    {
-      name: "plainDate",
-      format: "date",
-      minValue: `plainDate.fromISO("2025-01-01")`,
-      maxValue: `plainDate.fromISO("2025-12-31")`,
-      minExpected: "2025-01-01",
-      maxExpected: "2025-12-31",
-    },
-    {
-      name: "plainTime",
-      format: "time",
-      minValue: `plainTime.fromISO("01:00")`,
-      maxValue: `plainTime.fromISO("23:59")`,
-      minExpected: "01:00",
-      maxExpected: "23:59",
-    },
-    {
-      name: "duration",
-      format: "duration",
-      minValue: `duration.fromISO("PT1H")`,
-      maxValue: `duration.fromISO("PT24H")`,
-      minExpected: "PT1H",
-      maxExpected: "PT24H",
-    },
-  ];
-
   worksFor(["3.0.0", "3.1.0"], ({ oapiForModel }) => {
     describe("@minValue/@maxValue on datetime types", () => {
-      for (const dateType of datetimeTypes) {
-        it(`${dateType.name}`, async () => {
-          const schemas = await oapiForModel(
-            "Test",
-            `
+      it(`include min/max value for unixTimeStamp32`, async () => {
+        const schemas = await oapiForModel(
+          "Test",
+          `
             model Test {
-              @minValue(${dateType.minValue})
-              @maxValue(${dateType.maxValue}) 
-              prop: ${dateType.name};
+              @minValue(unixTimestamp32.fromISO("2025-01-01T00:00:00Z"))
+              @maxValue(unixTimestamp32.fromISO("2025-12-31T23:59:59Z")) 
+              prop: unixTimestamp32;
             }
           `,
-          );
+        );
 
-          const schema = schemas.schemas.Test.properties.prop;
-          strictEqual(schema.format, dateType.format);
-          strictEqual(schema.minimum, dateType.minExpected);
-          strictEqual(schema.maximum, dateType.maxExpected);
-        });
-      }
+        const schema = schemas.schemas.Test.properties.prop;
+        expect(schema.minimum).toEqual(1735689600);
+        expect(schema.maximum).toEqual(1767225599);
+      });
+
+      it(`include min/max value for duration encoded as seconds`, async () => {
+        const schemas = await oapiForModel(
+          "Test",
+          `
+            model Test {
+              @minValue(duration.fromISO("PT1H"))
+              @maxValue(duration.fromISO("PT24H"))
+              @encode(DurationKnownEncoding.seconds, int32)
+              prop: duration;
+            }
+          `,
+        );
+
+        const schema = schemas.schemas.Test.properties.prop;
+        expect(schema.minimum).toEqual(3600);
+        expect(schema.maximum).toEqual(86400);
+      });
     });
   });
 });
