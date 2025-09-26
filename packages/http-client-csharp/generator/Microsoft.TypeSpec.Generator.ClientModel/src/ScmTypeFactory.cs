@@ -87,10 +87,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                     {
                         _rootOutputModels.Add(inputModelType);
                     }
-                    if (method.Response.Type is InputModelType outputModelType)
-                    {
-                        _rootOutputModels.Add(outputModelType);
-                    }
+
+                    PopulateRootOutputModelsFromType(method.Response.Type, _rootOutputModels);
 
                     if (operation.GenerateConvenienceMethod)
                     {
@@ -104,6 +102,36 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                         }
                     }
                 }
+            }
+        }
+
+        private static void PopulateRootOutputModelsFromType(InputType? type, HashSet<InputModelType> targetSet, HashSet<InputType>? visited = null)
+        {
+            if (type == null)
+            {
+                return;
+            }
+
+            visited ??= [];
+            if (!visited.Add(type))
+            {
+                return;
+            }
+
+            switch (type)
+            {
+                case InputModelType modelType:
+                    targetSet.Add(modelType);
+                    break;
+                case InputNullableType nullableType:
+                    PopulateRootOutputModelsFromType(nullableType.Type, targetSet, visited);
+                    break;
+                case InputUnionType unionType:
+                    foreach (var variantType in unionType.VariantTypes)
+                    {
+                        PopulateRootOutputModelsFromType(variantType, targetSet, visited);
+                    }
+                    break;
             }
         }
 
