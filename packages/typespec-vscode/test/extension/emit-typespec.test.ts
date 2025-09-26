@@ -15,6 +15,7 @@ import { CaseScreenshot, tempDir, test } from "./common/utils";
 
 let shouldSkip = false;
 
+shouldSkip = tryInstallAndHandle("@azure-tools/typespec-azure-core") || shouldSkip;
 shouldSkip = tryInstallAndHandle("@typespec/versioning") || shouldSkip;
 shouldSkip = tryInstallAndHandle("@typespec/http") || shouldSkip;
 shouldSkip = tryInstallAndHandle("@typespec/http-client-csharp") || shouldSkip;
