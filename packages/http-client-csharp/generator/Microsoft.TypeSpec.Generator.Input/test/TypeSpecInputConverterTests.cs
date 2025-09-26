@@ -141,16 +141,29 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
 
             Assert.IsNotNull(inputNamespace);
 
-            var inputModel = inputNamespace!.Models.Last();
-            Assert.IsNotNull(inputModel);
-            Assert.IsTrue(inputModel.IsDynamicModel);
+            var friendModel = inputNamespace!.Models.SingleOrDefault(m => m.Name == "Friend");
+            Assert.IsNotNull(friendModel);
+            Assert.IsTrue(friendModel!.IsDynamicModel);
 
-            var modelProperty = inputModel.Properties.SingleOrDefault(p => p.Type is InputModelType);
-            Assert.IsNotNull(modelProperty);
-            Assert.IsTrue(((InputModelType)modelProperty!.Type).IsDynamicModel);
+            var anotherModelProperty = friendModel.Properties.SingleOrDefault(p => p.Type is InputModelType);
+            Assert.IsNotNull(anotherModelProperty);
+            var anotherModel = (InputModelType)anotherModelProperty!.Type;
+            Assert.IsTrue(anotherModel.IsDynamicModel);
 
-            inputModel = (InputModelType)modelProperty.Type;
-            modelProperty = inputModel.Properties.SingleOrDefault(p => p.Type is InputModelType);
+            var nullableModelProperty = friendModel.Properties.SingleOrDefault(p => p.Type is InputNullableType);
+            Assert.IsNotNull(nullableModelProperty);
+            anotherModel = (nullableModelProperty!.Type as InputNullableType)!.Type as InputModelType;
+            Assert.IsTrue(anotherModel!.IsDynamicModel);
+
+            var unionModelProperty = friendModel.Properties.SingleOrDefault(p => p.Type is InputUnionType);
+            Assert.IsNotNull(unionModelProperty);
+            var variantTypes = (unionModelProperty!.Type as InputUnionType)!.VariantTypes;
+            foreach (var variantType in variantTypes)
+            {
+                Assert.IsTrue(((InputModelType)variantType).IsDynamicModel);
+            }
+
+            var modelProperty = anotherModel.Properties.SingleOrDefault(p => p.Type is InputModelType);
             Assert.IsNotNull(modelProperty);
             Assert.IsTrue(((InputModelType)modelProperty!.Type).IsDynamicModel);
         }
