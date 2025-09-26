@@ -1135,24 +1135,20 @@ describe("compiler: built-in decorators", () => {
       ok(isSecret(runner.program, A.properties.get("a")!));
     });
 
-    it("emit diagnostic if model is not a string", async () => {
-      const diagnostics = await runner.diagnose(
+    it("can be applied on a model", async () => {
+      const { A } = (await runner.compile(
         `
         @test
         @secret
         model A {}
         `,
-      );
+      )) as { A: Model };
 
-      expectDiagnostics(diagnostics, {
-        code: "decorator-wrong-target",
-        message:
-          "Cannot apply @secret decorator to A since it is not assignable to string | ModelProperty",
-      });
+      ok(isSecret(runner.program, A));
     });
 
-    it("emit diagnostic if model is a different intrinsic type(not a string)", async () => {
-      const diagnostics = await runner.diagnose(
+    it("can be applied on a non-string scalar", async () => {
+      const { A } = await runner.compile(
         `
         @test
         @secret
@@ -1160,15 +1156,11 @@ describe("compiler: built-in decorators", () => {
         `,
       );
 
-      expectDiagnostics(diagnostics, {
-        code: "decorator-wrong-target",
-        message:
-          "Cannot apply @secret decorator to A since it is not assignable to string | ModelProperty",
-      });
+      ok(isSecret(runner.program, A));
     });
 
-    it("emit diagnostic if model property is not a string type", async () => {
-      const diagnostics = await runner.diagnose(
+    it("can be applied on a model property with non-string type", async () => {
+      const { A } = (await runner.compile(
         `
         @test
         model A {
@@ -1176,12 +1168,96 @@ describe("compiler: built-in decorators", () => {
           a: int32;
         }
         `,
-      );
+      )) as { A: Model };
 
-      expectDiagnostics(diagnostics, {
-        code: "decorator-wrong-target",
-        message: "Cannot apply @secret decorator to type it is not a string",
-      });
+      ok(isSecret(runner.program, A.properties.get("a")!));
+    });
+
+    it("can be applied on a union", async () => {
+      const { A } = (await runner.compile(
+        `
+        @test
+        @secret
+        union A {
+          x: string,
+          y: int32
+        }
+        `,
+      )) as { A: Union };
+
+      ok(isSecret(runner.program, A));
+    });
+
+    it("can be applied on an enum", async () => {
+      const { A } = (await runner.compile(
+        `
+        @test
+        @secret
+        enum A {
+          One: "one",
+          Two: "two"
+        }
+        `,
+      )) as { A: Enum };
+
+      ok(isSecret(runner.program, A));
+    });
+
+    it("can be applied on a model property with model type", async () => {
+      const { A } = (await runner.compile(
+        `
+        @secret
+        model SecretModel {
+          data: string;
+        }
+
+        @test
+        model A {
+          @secret
+          secret: SecretModel;
+        }
+        `,
+      )) as { A: Model };
+
+      ok(isSecret(runner.program, A.properties.get("secret")!));
+    });
+
+    it("can be applied on a model property with union type", async () => {
+      const { A } = (await runner.compile(
+        `
+        union SecretUnion {
+          x: string,
+          y: int32
+        }
+
+        @test
+        model A {
+          @secret
+          secret: SecretUnion;
+        }
+        `,
+      )) as { A: Model };
+
+      ok(isSecret(runner.program, A.properties.get("secret")!));
+    });
+
+    it("can be applied on a model property with enum type", async () => {
+      const { A } = (await runner.compile(
+        `
+        enum SecretEnum {
+          One: "one",
+          Two: "two"
+        }
+
+        @test
+        model A {
+          @secret
+          secret: SecretEnum;
+        }
+        `,
+      )) as { A: Model };
+
+      ok(isSecret(runner.program, A.properties.get("secret")!));
     });
   });
 
