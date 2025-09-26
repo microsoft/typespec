@@ -1204,5 +1204,4 @@ servers:
       Endpoint:
         default: ''
         description: |-
-          Supported Text Translation endpoints (protocol and hostname, for example:
-              https://api.cognitive.microsofttranslator.com).
+          Supported Text Translation endpoints (protocol and hostname, for example:https://api.cognitive.microsofttranslator.com).

@@ -8,16 +8,15 @@ import {
   readTspConfigFile,
   restoreTspConfigFile,
   startWithCommandPalette,
+  tryInstallAndHandle,
 } from "./common/common-steps";
 import { emiChooseEmitter, emitSelectLanguage, emitSelectType } from "./common/emit-steps";
 import { CaseScreenshot, tempDir, test } from "./common/utils";
 
-try {
-  execSync("pnpm install @typespec/http-client-csharp", { stdio: "inherit" });
-  execSync("pnpm install @typespec/http", { stdio: "inherit" });
-} catch (e) {
-  process.exit(1);
-}
+let shouldSkip = false;
+
+shouldSkip = tryInstallAndHandle("@typespec/http") || shouldSkip;
+shouldSkip = tryInstallAndHandle("@typespec/http-client-csharp") || shouldSkip;
 
 enum EmitProjectTriggerType {
   Command = "Command",
@@ -64,7 +63,8 @@ beforeEach(() => {
   }
 });
 
-describe.each(EmitCasesConfigList)("EmitTypespecProject", async (item) => {
+const describeFn = shouldSkip ? describe.skip : describe;
+describeFn.each(EmitCasesConfigList)("EmitTypespecProject", async (item) => {
   const { caseName, selectType, selectTypeLanguage, TspConfigHasEmit, expectedResults } = item;
   test(caseName, async ({ launch }) => {
     const cs = new CaseScreenshot(caseName);

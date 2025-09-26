@@ -3,15 +3,13 @@ import { rm } from "fs/promises";
 import fs from "node:fs";
 import path from "node:path";
 import { beforeEach, describe } from "vitest";
-import { startWithCommandPalette } from "./common/common-steps";
+import { startWithCommandPalette, tryInstallAndHandle } from "./common/common-steps";
 import { CaseScreenshot, retry, tempDir, test } from "./common/utils";
 
-try {
-  execSync("pnpm install @typespec/http", { stdio: "inherit" });
-  execSync("pnpm install @typespec/openapi3", { stdio: "inherit" });
-} catch (e) {
-  process.exit(1);
-}
+let shouldSkip = false;
+
+shouldSkip = tryInstallAndHandle("@typespec/http") || shouldSkip;
+shouldSkip = tryInstallAndHandle("@typespec/openapi3") || shouldSkip;
 
 export enum PreviewProjectTriggerType {
   Command = "CommandPalette",
@@ -53,7 +51,8 @@ beforeEach(() => {
   }
 });
 
-describe.each(PreviewCasesConfigList)("PreviewAPIDocument", async (item) => {
+const describeFn = shouldSkip ? describe.skip : describe;
+describeFn.each(PreviewCasesConfigList)("PreviewAPIDocument", async (item) => {
   const { caseName } = item;
   test(caseName, async ({ launch }) => {
     const cs = new CaseScreenshot(caseName);
