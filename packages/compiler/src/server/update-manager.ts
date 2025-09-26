@@ -27,6 +27,7 @@ export class UpdateManager<T = void> {
     triggeredBy: TextDocument | TextDocumentIdentifier,
   ) => Promise<T | undefined>;
   #docChangedTimesteps: number[] = [];
+  #isStarted = false;
 
   private _log: (sl: ServerLog) => void;
 
@@ -56,9 +57,17 @@ export class UpdateManager<T = void> {
         this.#pendingUpdates = new Map<string, PendingUpdate>();
         return await this.#update(Array.from(updates.values()), arg);
       },
+      () => (this.#isStarted ? "ready" : "pending"),
       this.getAdaptiveDebounceDelay,
       this._log,
     );
+  }
+
+  /**
+   * Callback will only be invoked after start() is called.
+   */
+  public start() {
+    this.#isStarted = true;
   }
 
   public setCallback(callback: UpdateCallback<T>) {
@@ -168,10 +177,12 @@ export class UpdateManager<T = void> {
  * took too long and the whole timeout of the next call was eaten up already.
  *
  * @param fn The function
+ * @param getFnStatus Fn will only be called when this returns "ready"
  * @param milliseconds Number of milliseconds to debounce/throttle
  */
 export function debounceThrottle<T, P>(
   fn: (arg: P) => T | Promise<T>,
+  getFnStatus: () => "ready" | "pending",
   getDelay: () => number,
   log: (sl: ServerLog) => void,
 ): (arg: P) => Promise<T | undefined> {
@@ -206,10 +217,11 @@ export function debounceThrottle<T, P>(
     clearPromisesBefore(id);
 
     timeout = setTimeout(async () => {
-      if (
-        lastInvocation !== undefined &&
-        (Date.now() - lastInvocation < getDelay() || executingCount >= UPDATE_PARALLEL_LIMIT)
-      ) {
+      const delay = getDelay();
+      const tooSoon = lastInvocation !== undefined && Date.now() - lastInvocation < delay;
+      const notReady = getFnStatus() !== "ready";
+      const tooManyParallel = executingCount >= UPDATE_PARALLEL_LIMIT;
+      if (notReady || tooSoon || tooManyParallel) {
         maybeCallInternal(id, arg, promise);
         return;
       }

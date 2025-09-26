@@ -379,6 +379,8 @@ export function createServer(
   }
 
   function initialized(params: InitializedParams): void {
+    updateManager.start();
+    signatureHelpUpdateManager.start();
     isInitialized = true;
     log({ level: "info", message: "Initialization complete." });
   }

@@ -167,11 +167,11 @@ function main() {
       messages: ChatMessage[],
       options: ChatCompleteOptions,
     ): Promise<string> => {
-      const start = Date.now();
+      const start = new Date();
       const id = chatCompleteRequestId++;
       host.log({
         level: "debug",
-        message: `[ChatComplete #${id}] start sending custom/chatCompletion event`,
+        message: `[ChatComplete #${id}][${start.toTimeString()}] start sending custom/chatCompletion event`,
       });
       try {
         const r = await connection.sendRequest("custom/chatCompletion", {
@@ -179,10 +179,10 @@ function main() {
           lmOptions: options,
           id: id.toString(),
         });
-        const end = Date.now();
+        const end = new Date();
         host.log({
           level: "debug",
-          message: `[ChatComplete #${id}] custom/chatCompletion event finished in ${end - start} ms`,
+          message: `[ChatComplete #${id}][${end.toTimeString()}] custom/chatCompletion event finished in ${end.getTime() - start.getTime()} ms`,
         });
         return r as string;
       } catch (e) {

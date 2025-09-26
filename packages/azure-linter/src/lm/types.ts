@@ -45,4 +45,4 @@ export enum LmFamily {
   gpt5mini = "gpt-5-mini",
 }
 
-export const defaultLmFamily = LmFamily.claudeSonnet4;
+export const defaultLmFamily = LmFamily.gpt4o;

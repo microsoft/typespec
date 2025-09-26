@@ -111,7 +111,9 @@ export class LmRuleChecker<
         );
       });
       promises.push(pp);
+      // small delay to avoid sending too many requests to LM in a very short time.
       // TODO: more logic may be needed here to handle service throttling
+      await new Promise((resolve) => setTimeout(resolve, 25));
     }
     await Promise.all(promises);
     const e = Date.now();

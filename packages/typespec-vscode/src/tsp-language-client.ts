@@ -292,9 +292,9 @@ export class TspLanguageClient {
       "custom/chatCompletion",
       async (params: { messages: ChatMessage[]; lmOptions: ChatCompleteOptions; id?: string }) => {
         const family = params.lmOptions.modelPreferences ?? "gpt-4o";
-        const s = Date.now();
+        const s = new Date();
         logger.debug(
-          `[ChatComplete #${params.id ?? "N/A"}] start select model for family ${family}`,
+          `[ChatComplete #${params.id ?? "N/A"}][${s.toTimeString()}] start select model for family ${family}`,
         );
         let mp = lmModelCache.get(family);
         if (!mp) {
@@ -302,9 +302,9 @@ export class TspLanguageClient {
           lmModelCache.set(family, mp);
         }
         const models = await mp;
-        const e = Date.now();
+        const e = new Date();
         logger.debug(
-          `[ChatComplete #${params.id ?? "N/A"}] Model selection for family ${family} took ${e - s} ms`,
+          `[ChatComplete #${params.id ?? "N/A"}][${e.toTimeString()}] Model selection for family ${family} took ${e.getTime() - s.getTime()} ms`,
         );
         if (!models || models.length === 0) {
           logger.error(
@@ -315,9 +315,9 @@ export class TspLanguageClient {
         try {
           aiParallel++;
           logger.warning(`AI parallelism: ${aiParallel}`);
-          const ss = Date.now();
+          const ss = new Date();
           logger.debug(
-            `[ChatComplete #${params.id ?? "N/A"}] Sending chat completion request to model ${models[0].name}`,
+            `[ChatComplete #${params.id ?? "N/A"}][${ss.toTimeString()}] Sending chat completion request to model ${models[0].name}`,
           );
           // we always use the first model for now.
           const response = await models[0].sendRequest(
@@ -336,9 +336,9 @@ export class TspLanguageClient {
           for await (const chunk of response.text) {
             fullResponse += chunk;
           }
-          const es = Date.now();
+          const es = new Date();
           logger.debug(
-            `[ChatComplete #${params.id ?? "N/A"}] chat complete request took ${es - ss} ms`,
+            `[ChatComplete #${params.id ?? "N/A"}][${es.toTimeString()}] chat complete request took ${es.getTime() - ss.getTime()} ms`,
           );
           // TODO: support stream mode? seems not necessary because we need to wait for the full response anyway and no way to
           // show the progress to end user.
