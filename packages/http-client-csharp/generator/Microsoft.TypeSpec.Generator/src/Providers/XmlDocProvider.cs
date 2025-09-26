@@ -2,42 +2,43 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.TypeSpec.Generator.Statements;
 
 namespace Microsoft.TypeSpec.Generator.Providers
 {
     public class XmlDocProvider
     {
-        public static XmlDocProvider Empty => new XmlDocProvider();
+        public static XmlDocProvider Empty { get; } = new XmlDocProvider();
+        public static XmlDocProvider InheritDocs { get; } = new XmlDocProvider { Inherit = new XmlDocInheritStatement() };
+
+        private IReadOnlyList<ParameterProvider>? _parameters;
 
         public XmlDocProvider(
             XmlDocSummaryStatement? summary = null,
-            IReadOnlyList<XmlDocParamStatement>? parameters = null,
+            IReadOnlyList<ParameterProvider>? parameters = null,
             IReadOnlyList<XmlDocExceptionStatement>? exceptions = null,
             XmlDocReturnsStatement? returns = null,
             XmlDocInheritStatement? inherit = null)
         {
             Summary = summary;
-            Parameters = parameters ?? new List<XmlDocParamStatement>();
+            _parameters = parameters;
             Exceptions = exceptions ?? new List<XmlDocExceptionStatement>();
             Returns = returns;
             Inherit = inherit;
         }
 
-        private static XmlDocProvider? _inheritDocs;
-
-        public static XmlDocProvider InheritDocs =>
-            _inheritDocs ??= new XmlDocProvider { Inherit = new XmlDocInheritStatement() };
-
         public XmlDocSummaryStatement? Summary { get; private set; }
-        public IReadOnlyList<XmlDocParamStatement> Parameters { get; private set; }
+
+        private IReadOnlyList<XmlDocParamStatement>? _parameterStatements;
+        public IReadOnlyList<XmlDocParamStatement> Parameters => _parameterStatements ??= _parameters?.Select(p => new XmlDocParamStatement(p)).ToArray() ?? [];
         public XmlDocReturnsStatement? Returns { get; private set; }
         public IReadOnlyList<XmlDocExceptionStatement> Exceptions { get; private set; }
         public XmlDocInheritStatement? Inherit { get; private set; }
 
         public void Update(
             XmlDocSummaryStatement? summary = null,
-            IReadOnlyList<XmlDocParamStatement>? parameters = null,
+            IReadOnlyList<ParameterProvider>? parameters = null,
             IReadOnlyList<XmlDocExceptionStatement>? exceptions = null,
             XmlDocReturnsStatement? returns = null,
             XmlDocInheritStatement? inherit = null)
@@ -49,7 +50,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             if (parameters != null)
             {
-                Parameters = parameters;
+                _parameters = parameters;
+                _parameterStatements = null; // Reset the cached parameter statements
             }
 
             if (exceptions != null)
