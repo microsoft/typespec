@@ -1,12 +1,11 @@
 import { isWhiteSpace } from "../charcode.js";
-import { defineCodeFix, getSourceLocation } from "../diagnostics.js";
+import { defineCodeFix, getNodeForTarget, getSourceLocation } from "../diagnostics.js";
 import {
   SyntaxKind,
   type CodeFix,
   type DiagnosticTarget,
   type Node,
   type SourceLocation,
-  type TypeSpecDiagnosticTarget,
 } from "../types.js";
 
 export function createSuppressCodeFix(
@@ -37,7 +36,7 @@ function findSuppressTarget(target: DiagnosticTarget): SourceLocation | undefine
     return target;
   }
 
-  const nodeTarget = findNodeTarget(target);
+  const nodeTarget = getNodeForTarget(target);
   if (!nodeTarget) return undefined;
 
   const node = findSuppressNode(nodeTarget);
@@ -55,24 +54,6 @@ function findSuppressNode(node: Node): Node {
     default:
       return node;
   }
-}
-
-function findNodeTarget(target: TypeSpecDiagnosticTarget): Node | undefined {
-  if ("file" in target) {
-    return target;
-  }
-
-  // Symbols
-  if ("declarations" in target) {
-    return target.declarations[0];
-  }
-
-  // Types
-  if ("entityKind" in target || "node" in target) {
-    return (target as any).node;
-  }
-
-  return target;
 }
 
 function findLineStartAndIndent(location: SourceLocation): { lineStart: number; indent: string } {
