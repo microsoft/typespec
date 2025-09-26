@@ -7,3 +7,7 @@ packages:
 
 Add support for `@minValue`, `@maxValue` and their exclusive variant for datetime and duration types.
 Expose as well the following APIs
+- `getMinValueForScalar`
+- `getMaxValueForScalar`
+- `getMinValueExclusiveForScalar`
+- `getMaxValueExclusiveForScalar`
