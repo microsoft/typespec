@@ -155,8 +155,7 @@ namespace SampleTypeSpec.Models.Custom
         public static explicit operator Friend(ClientResult result)
         {
             using PipelineResponse response = result.GetRawResponse();
-            BinaryData data = response.Content;
-            using JsonDocument document = JsonDocument.Parse(data);
+            using JsonDocument document = JsonDocument.Parse(response.Content);
             return DeserializeFriend(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
     }

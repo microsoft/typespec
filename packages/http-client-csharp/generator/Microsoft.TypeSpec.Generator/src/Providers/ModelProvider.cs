@@ -81,6 +81,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private IReadOnlyList<ModelProvider>? _derivedModels;
         public IReadOnlyList<ModelProvider> DerivedModels => _derivedModels ??= BuildDerivedModels();
 
+        private IDictionary<string, CSharpType> LastContractPropertiesMap
+            => _lastContractPropertiesMap ??= LastContractView?.Properties.ToDictionary(p => p.Name, p => p.Type) ?? [];
+
+        private IDictionary<string, CSharpType>? _lastContractPropertiesMap;
+
         private IReadOnlyList<ModelProvider> BuildDerivedModels()
         {
             var derivedModels = new HashSet<ModelProvider>(_inputModel.DiscriminatedSubtypes.Count + _inputModel.DerivedModels.Count);
@@ -411,22 +416,39 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var propertiesCount = _inputModel.Properties.Count;
             var properties = new List<PropertyProvider>(propertiesCount + 1);
             Dictionary<string, InputModelProperty> baseProperties = EnumerateBaseModels().SelectMany(m => m.Properties).GroupBy(x => x.Name).Select(g => g.First()).ToDictionary(p => p.Name) ?? [];
-            var baseModelDiscriminator = _inputModel.BaseModel?.DiscriminatorProperty;
             for (int i = 0; i < propertiesCount; i++)
             {
                 var property = _inputModel.Properties[i];
                 var isDiscriminator = IsDiscriminator(property);
 
-                if (isDiscriminator && property.Name == baseModelDiscriminator?.Name)
+                if (isDiscriminator && baseProperties.ContainsKey(property.Name))
+                {
                     continue;
+                }
 
                 var outputProperty = CodeModelGenerator.Instance.TypeFactory.CreateProperty(property, this);
+
                 if (_inputModel.DiscriminatorProperty == property)
                 {
                     DiscriminatorProperty = outputProperty;
                 }
+
                 if (outputProperty is null)
+                {
                     continue;
+                }
+
+                // Targeted backcompat fix for the case where properties were previously generated as read-only collections
+                if (outputProperty.Type.IsReadWriteList || outputProperty.Type.IsReadWriteDictionary)
+                {
+                    if (LastContractPropertiesMap.TryGetValue(outputProperty.Name,
+                            out CSharpType? lastContractPropertyType) &&
+                        !outputProperty.Type.Equals(lastContractPropertyType))
+                    {
+                        outputProperty.Type = lastContractPropertyType;
+                        CodeModelGenerator.Instance.Emitter.Info($"Changed property {Name}.{outputProperty.Name} type to {lastContractPropertyType} to match last contract.");
+                    }
+                }
 
                 if (!isDiscriminator)
                 {
@@ -470,11 +492,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private IEnumerable<InputModelType> EnumerateBaseModels()
         {
-            var model = _inputModel;
-            while (model.BaseModel != null)
+            var model = BaseModelProvider;
+            while (model != null)
             {
-                yield return model.BaseModel;
-                model = model.BaseModel;
+                yield return model._inputModel;
+                model = model.BaseModelProvider;
             }
         }
 
