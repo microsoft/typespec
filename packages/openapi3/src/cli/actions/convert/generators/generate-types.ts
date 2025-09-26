@@ -394,9 +394,11 @@ export class SchemaToExpressionGenerator {
   ): string {
     // If we have `additionalProperties`, treat that as an 'indexer' and convert to a record.
     const recordType =
-      typeof schema.additionalProperties === "object"
-        ? `Record<${this.generateTypeFromRefableSchema(schema.additionalProperties, callingScope)}>`
-        : "";
+      schema.additionalProperties === true
+        ? "Record<unknown>"
+        : typeof schema.additionalProperties === "object"
+          ? `Record<${this.generateTypeFromRefableSchema(schema.additionalProperties, callingScope)}>`
+          : "";
 
     const requiredProps = schema.required ?? [];
 
