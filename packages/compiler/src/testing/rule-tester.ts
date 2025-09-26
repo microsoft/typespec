@@ -7,19 +7,30 @@ import {
   CompilerHost,
   Diagnostic,
   DiagnosticMessages,
+  Entity,
   LinterRuleDefinition,
 } from "../core/types.js";
 import { DiagnosticMatch, expectDiagnosticEmpty, expectDiagnostics } from "./expect.js";
+import { GetMarkedEntities, TemplateWithMarkers } from "./marked-template.js";
 import { resolveVirtualPath, trimBlankLines } from "./test-utils.js";
-import { BasicTestRunner, TesterInstance } from "./types.js";
+import { BasicTestRunner, TestCompileResult, TesterInstance } from "./types.js";
 
 export interface LinterRuleTester {
-  expect(code: string): LinterRuleTestExpect;
+  expect<
+    T extends string | TemplateWithMarkers<any> | Record<string, string | TemplateWithMarkers<any>>,
+  >(
+    code: T,
+  ): LinterRuleTestExpect<GetMarkedEntities<T>>;
 }
 
-export interface LinterRuleTestExpect {
+export interface LinterRuleTestExpect<T extends Record<string, Entity> = any> {
   toBeValid(): Promise<void>;
-  toEmitDiagnostics(diagnostics: DiagnosticMatch | DiagnosticMatch[]): Promise<void>;
+  toEmitDiagnostics(
+    diagnostics:
+      | DiagnosticMatch
+      | DiagnosticMatch[]
+      | ((res: TestCompileResult<T>) => DiagnosticMatch | DiagnosticMatch[]),
+  ): Promise<void>;
   applyCodeFix(codeFixId: string): ApplyCodeFixExpect;
 }
 
@@ -36,7 +47,9 @@ export function createLinterRuleTester(
     expect,
   };
 
-  function expect(code: string): LinterRuleTestExpect {
+  function expect<
+    T extends string | TemplateWithMarkers<any> | Record<string, string | TemplateWithMarkers<any>>,
+  >(code: T): LinterRuleTestExpect<GetMarkedEntities<T>> {
     return {
       toBeValid,
       toEmitDiagnostics,
@@ -44,20 +57,36 @@ export function createLinterRuleTester(
     };
 
     async function toBeValid() {
-      const diagnostics = await diagnose(code);
+      const [_, diagnostics] = await compileAndDiagnose(code);
       expectDiagnosticEmpty(diagnostics);
     }
 
-    async function toEmitDiagnostics(match: DiagnosticMatch | DiagnosticMatch[]) {
-      const diagnostics = await diagnose(code);
-      expectDiagnostics(diagnostics, match);
+    async function toEmitDiagnostics(
+      match:
+        | DiagnosticMatch
+        | DiagnosticMatch[]
+        | ((res: TestCompileResult<any>) => DiagnosticMatch | DiagnosticMatch[]),
+    ) {
+      const [result, diagnostics] = await compileAndDiagnose(code);
+      let expected;
+      if (typeof match === "function") {
+        if ("autoCodeOffset" in runner) {
+          throw new Error(
+            ".toEmitDiagnostics with a function match can only be used with a TesterInstance",
+          );
+        }
+        expected = match(result);
+      } else {
+        expected = match;
+      }
+      expectDiagnostics(diagnostics, expected);
     }
 
     function applyCodeFix(fixId: string) {
       return { toEqual };
 
       async function toEqual(expectedCode: string) {
-        const diagnostics = await diagnose(code);
+        const [_, diagnostics] = await compileAndDiagnose(code);
         const codefix = diagnostics[0].codefixes?.find((x) => x.id === fixId);
         ok(codefix, `Codefix with id "${fixId}" not found.`);
         let content: string | undefined;
@@ -72,19 +101,32 @@ export function createLinterRuleTester(
 
         ok(content, "No content was written to the host.");
         const fs = "keys" in runner.fs ? runner.fs : runner.fs.fs;
-        const offset = fs.get(resolveVirtualPath("./main.tsp"))?.indexOf(code);
+        const offset = fs.get(resolveVirtualPath("./main.tsp"))?.indexOf(code as any);
         strictEqual(trimBlankLines(content.slice(offset)), trimBlankLines(expectedCode));
       }
     }
   }
 
-  async function diagnose(code: string): Promise<readonly Diagnostic[]> {
+  async function compileAndDiagnose<
+    T extends string | TemplateWithMarkers<any> | Record<string, string | TemplateWithMarkers<any>>,
+  >(
+    code: T,
+  ): Promise<[TestCompileResult<GetMarkedEntities<T>> | undefined, readonly Diagnostic[]]> {
     const compilerOptions = { parseOptions: { comments: true } };
-    if ("autoCodeOffset" in runner) {
-      await runner.diagnose(code, compilerOptions);
+    let res;
+    let codeDiagnostics;
+    if (isLegacyTestRunner(runner)) {
+      if (typeof code !== "string") {
+        throw new Error(
+          "Only string code is supported with BasicTestRunner. Use Tester.createInstance()",
+        );
+      }
+      codeDiagnostics = await runner.diagnose(code, compilerOptions);
     } else {
-      await runner.diagnose(code, { compilerOptions });
+      [res, codeDiagnostics] = await runner.compileAndDiagnose(code, { compilerOptions });
     }
+
+    expectDiagnosticEmpty(codeDiagnostics);
 
     const diagnostics = createDiagnosticCollector();
     const rule = { ...ruleDef, id: `${libraryName}/${ruleDef.name}` };
@@ -93,6 +135,10 @@ export function createLinterRuleTester(
     navigateProgram(runner.program, listener);
     // No diagnostics should have been reported to the program. If it happened the rule is calling reportDiagnostic directly and should NOT be doing that.
     expectDiagnosticEmpty(runner.program.diagnostics);
-    return diagnostics.diagnostics;
+    return [res, diagnostics.diagnostics];
   }
+}
+
+function isLegacyTestRunner(tester: BasicTestRunner | TesterInstance): tester is BasicTestRunner {
+  return "autoCodeOffset" in tester;
 }
