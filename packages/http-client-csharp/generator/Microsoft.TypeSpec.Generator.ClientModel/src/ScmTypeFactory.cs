@@ -88,7 +88,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                         _rootOutputModels.Add(inputModelType);
                     }
 
-                    PopulateRootOutputModelsFromType(method.Response.Type, _rootOutputModels);
+                    PopulateRootOutputModelsFromTypeRecursive(method.Response.Type, _rootOutputModels, []);
 
                     if (operation.GenerateConvenienceMethod)
                     {
@@ -105,14 +105,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             }
         }
 
-        private static void PopulateRootOutputModelsFromType(InputType? type, HashSet<InputModelType> targetSet, HashSet<InputType>? visited = null)
+        private static void PopulateRootOutputModelsFromTypeRecursive(InputType? type, HashSet<InputModelType> targetSet, HashSet<InputType> visited)
         {
             if (type == null)
             {
                 return;
             }
 
-            visited ??= [];
             if (!visited.Add(type))
             {
                 return;
@@ -124,12 +123,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                     targetSet.Add(modelType);
                     break;
                 case InputNullableType nullableType:
-                    PopulateRootOutputModelsFromType(nullableType.Type, targetSet, visited);
+                    PopulateRootOutputModelsFromTypeRecursive(nullableType.Type, targetSet, visited);
                     break;
                 case InputUnionType unionType:
                     foreach (var variantType in unionType.VariantTypes)
                     {
-                        PopulateRootOutputModelsFromType(variantType, targetSet, visited);
+                        PopulateRootOutputModelsFromTypeRecursive(variantType, targetSet, visited);
                     }
                     break;
             }
