@@ -9,7 +9,7 @@ from specs.azure.clientgenerator.core.clientlocation.aio import ClientLocationCl
 
 @pytest.fixture
 async def client():
-    async with ClientLocationClient() as client:
+    async with ClientLocationClient(storage_account="testaccount") as client:
         yield client
 
 
@@ -46,3 +46,10 @@ async def test_move_to_new_sub_client_product_operations_list_products(client: C
 @pytest.mark.asyncio
 async def test_move_to_root_client_resource_operations_get_resource(client: ClientLocationClient):
     await client.move_to_root_client.resource_operations.get_resource()
+
+
+@pytest.mark.asyncio
+async def test_move_method_parameter_to_client_blob_operations_get_blob(client: ClientLocationClient):
+    await client.move_method_parameter_to_client.blob_operations.get_blob(
+        container="testcontainer", blob="testblob.txt"
+    )

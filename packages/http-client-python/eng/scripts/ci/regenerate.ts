@@ -97,6 +97,9 @@ const AZURE_EMITTER_OPTIONS: Record<string, Record<string, string> | Record<stri
   "azure/payload/pageable": {
     namespace: "specs.azure.payload.pageable",
   },
+  "azure/versioning/previewVersion": {
+    namespace: "specs.azure.versioning.previewversion",
+  },
   "client/structure/default": {
     namespace: "client.structure.service",
   },
