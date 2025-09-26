@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -960,6 +961,60 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var writer = new TypeProviderWriter(modelTypeProvider);
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public async Task BackCompat_ReadOnlyCollectionPropertiesAreRetained()
+        {
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                properties:
+                [
+                    InputFactory.Property("items", InputFactory.Array(InputPrimitiveType.String)),
+                    InputFactory.Property("moreItems", InputFactory.Dictionary(InputPrimitiveType.String))
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            var itemsProperty = modelProvider!.Properties.FirstOrDefault(p => p.Name == "Items");
+            Assert.IsNotNull(itemsProperty);
+            Assert.IsTrue(itemsProperty!.Type.Equals(typeof(IReadOnlyList<string>)));
+
+            var moreItemsProperty = modelProvider.Properties.FirstOrDefault(p => p.Name == "MoreItems");
+            Assert.IsNotNull(moreItemsProperty);
+            Assert.IsTrue(moreItemsProperty!.Type.Equals(typeof(IReadOnlyDictionary<string, string>)));
+        }
+
+        [Test]
+        public async Task BackCompat_InternalTypesAreIgnored()
+        {
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                properties:
+                [
+                    InputFactory.Property("items", InputFactory.Array(InputPrimitiveType.String)),
+                    InputFactory.Property("moreItems", InputFactory.Dictionary(InputPrimitiveType.String))
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            var itemsProperty = modelProvider!.Properties.FirstOrDefault(p => p.Name == "Items");
+            Assert.IsNotNull(itemsProperty);
+            Assert.IsTrue(itemsProperty!.Type.Equals(typeof(IList<string>)));
+
+            var moreItemsProperty = modelProvider.Properties.FirstOrDefault(p => p.Name == "MoreItems");
+            Assert.IsNotNull(moreItemsProperty);
+            Assert.IsTrue(moreItemsProperty!.Type.Equals(typeof(IDictionary<string, string>)));
         }
     }
 }

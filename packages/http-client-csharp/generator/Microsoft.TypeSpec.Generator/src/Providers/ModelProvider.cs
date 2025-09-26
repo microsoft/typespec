@@ -81,6 +81,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private IReadOnlyList<ModelProvider>? _derivedModels;
         public IReadOnlyList<ModelProvider> DerivedModels => _derivedModels ??= BuildDerivedModels();
 
+        private IDictionary<string, CSharpType> LastContractPropertiesMap
+            => _lastContractPropertiesMap ??= LastContractView?.Properties.ToDictionary(p => p.Name, p => p.Type) ?? [];
+
+        private IDictionary<string, CSharpType>? _lastContractPropertiesMap;
+
         private IReadOnlyList<ModelProvider> BuildDerivedModels()
         {
             var derivedModels = new HashSet<ModelProvider>(_inputModel.DiscriminatedSubtypes.Count + _inputModel.DerivedModels.Count);
@@ -410,6 +415,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             var propertiesCount = _inputModel.Properties.Count;
             var properties = new List<PropertyProvider>(propertiesCount + 1);
+            var lastContractProperties = LastContractView?.Properties.ToDictionary(p => p.Name) ?? [];
             Dictionary<string, InputModelProperty> baseProperties = EnumerateBaseModels().SelectMany(m => m.Properties).GroupBy(x => x.Name).Select(g => g.First()).ToDictionary(p => p.Name) ?? [];
             for (int i = 0; i < propertiesCount; i++)
             {
@@ -422,6 +428,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
 
                 var outputProperty = CodeModelGenerator.Instance.TypeFactory.CreateProperty(property, this);
+
                 if (_inputModel.DiscriminatorProperty == property)
                 {
                     DiscriminatorProperty = outputProperty;
@@ -430,6 +437,22 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 if (outputProperty is null)
                 {
                     continue;
+                }
+
+                // Targeted backcompat fix for the case where properties were previously generated as read-only collections
+                if (outputProperty.Type.IsFrameworkType)
+                {
+                    var frameworkType = outputProperty.Type.FrameworkType;
+                    if (frameworkType == typeof(IList<>) || frameworkType == typeof(IDictionary<,>))
+                    {
+                        if (LastContractPropertiesMap.TryGetValue(outputProperty.Name,
+                                out CSharpType? lastContractPropertyType) &&
+                            !outputProperty.Type.Equals(lastContractPropertyType))
+                        {
+                            outputProperty.Type = lastContractPropertyType;
+                            CodeModelGenerator.Instance.Emitter.Info($"Changed property {Name}.{outputProperty.Name} type to {lastContractPropertyType} to match last contract.");
+                        }
+                    }
                 }
 
                 if (!isDiscriminator)
