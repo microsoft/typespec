@@ -415,7 +415,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             var propertiesCount = _inputModel.Properties.Count;
             var properties = new List<PropertyProvider>(propertiesCount + 1);
-            var lastContractProperties = LastContractView?.Properties.ToDictionary(p => p.Name) ?? [];
             Dictionary<string, InputModelProperty> baseProperties = EnumerateBaseModels().SelectMany(m => m.Properties).GroupBy(x => x.Name).Select(g => g.First()).ToDictionary(p => p.Name) ?? [];
             for (int i = 0; i < propertiesCount; i++)
             {
