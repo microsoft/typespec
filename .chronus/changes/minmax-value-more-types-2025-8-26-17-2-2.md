@@ -5,4 +5,4 @@ packages:
   - "@typespec/tspd"
 ---
 
-Handle union of union correctly for target type
+Handle union of union correctly for target type in decorator signature generation
