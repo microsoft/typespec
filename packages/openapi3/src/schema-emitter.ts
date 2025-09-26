@@ -39,10 +39,8 @@ import {
   getFormat,
   getMaxItems,
   getMaxLength,
-  getMaxValue,
   getMinItems,
   getMinLength,
-  getMinValue,
   getNamespaceFullName,
   getPattern,
   getSummary,
@@ -69,6 +67,7 @@ import { getOneOf, getRef } from "./decorators.js";
 import { JsonSchemaModule } from "./json-schema.js";
 import { OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
 import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
+import { getMaxValue, getMinValue } from "./range.js";
 import { getSchemaForStdScalars } from "./std-scalar-schemas.js";
 import {
   CommonOpenAPI3Schema,

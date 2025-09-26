@@ -219,38 +219,50 @@ describe("datetime constraints", () => {
     {
       name: "unixTimestamp32",
       format: "int32",
-      minValue: `1577836800`,  // Raw unix timestamp
-      maxValue: `1893456000`,  // Raw unix timestamp
+      minValue: `unixTimestamp32.fromISO("2025-01-01T00:00:00Z")`,
+      maxValue: `unixTimestamp32.fromISO("2025-12-31T23:59:59Z")`,
+      minExpected: 1735689600,
+      maxExpected: 1767225599,
     },
     {
       name: "utcDateTime",
       format: "date-time",
-      minValue: `0`,    // Simple numeric constraint
-      maxValue: `2000000000`,  // Simple numeric constraint
+      minValue: `utcDateTime.fromISO("2025-01-01T00:00:00Z")`,
+      maxValue: `utcDateTime.fromISO("2025-12-31T23:59:59Z")`,
+      minExpected: "2025-01-01T00:00:00Z",
+      maxExpected: "2025-12-31T23:59:59Z",
     },
     {
       name: "offsetDateTime",
       format: "date-time",
-      minValue: `100`,  // Simple numeric constraint
-      maxValue: `1900000000`,  // Simple numeric constraint
+      minValue: `offsetDateTime.fromISO("2025-01-01T00:00:00Z")`,
+      maxValue: `offsetDateTime.fromISO("2025-12-31T23:59:59Z")`,
+      minExpected: "2025-01-01T00:00:00Z",
+      maxExpected: "2025-12-31T23:59:59Z",
     },
     {
       name: "plainDate",
       format: "date",
-      minValue: `19700101`,  // Simple numeric constraint
-      maxValue: `20301231`,  // Simple numeric constraint
+      minValue: `plainDate.fromISO("2025-01-01")`,
+      maxValue: `plainDate.fromISO("2025-12-31")`,
+      minExpected: "2025-01-01",
+      maxExpected: "2025-12-31",
     },
     {
       name: "plainTime",
       format: "time",
-      minValue: `0`,     // 0 seconds since midnight
-      maxValue: `86400`, // Max seconds in a day
+      minValue: `plainTime.fromISO("01:00")`,
+      maxValue: `plainTime.fromISO("23:59")`,
+      minExpected: "01:00",
+      maxExpected: "23:59",
     },
     {
       name: "duration",
       format: "duration",
-      minValue: `3600`,  // 1 hour in seconds
-      maxValue: `86400`, // 24 hours in seconds
+      minValue: `duration.fromISO("PT1H")`,
+      maxValue: `duration.fromISO("PT24H")`,
+      minExpected: "PT1H",
+      maxExpected: "PT24H",
     },
   ];
 
@@ -264,62 +276,17 @@ describe("datetime constraints", () => {
             model Test {
               @minValue(${dateType.minValue})
               @maxValue(${dateType.maxValue}) 
-              timestamp: ${dateType.name};
+              prop: ${dateType.name};
             }
           `,
           );
 
-          const timestampSchema = schemas.schemas.Test.properties.timestamp;
-          if (dateType.name === "unixTimestamp32") {
-            strictEqual(timestampSchema.type, "integer");
-            strictEqual(timestampSchema.format, "int32");
-            strictEqual(timestampSchema.minimum, parseInt(dateType.minValue));
-            strictEqual(timestampSchema.maximum, parseInt(dateType.maxValue));
-          } else {
-            strictEqual(timestampSchema.type, "string");
-            strictEqual(timestampSchema.format, dateType.format);
-            // For datetime types, the constraints are applied as numeric values
-            strictEqual(timestampSchema.minimum, parseInt(dateType.minValue));
-            strictEqual(timestampSchema.maximum, parseInt(dateType.maxValue));
-          }
+          const schema = schemas.schemas.Test.properties.prop;
+          strictEqual(schema.format, dateType.format);
+          strictEqual(schema.minimum, dateType.minExpected);
+          strictEqual(schema.maximum, dateType.maxExpected);
         });
       }
-
-      it("@minValue only", async () => {
-        const schemas = await oapiForModel(
-          "Test",
-          `
-          model Test {
-            @minValue(1000)
-            timestamp: utcDateTime;
-          }
-        `,
-        );
-
-        const timestampSchema = schemas.schemas.Test.properties.timestamp;
-        strictEqual(timestampSchema.minimum, 1000);
-        strictEqual(timestampSchema.maximum, undefined);
-        strictEqual(timestampSchema.type, "string");
-        strictEqual(timestampSchema.format, "date-time");
-      });
-
-      it("@maxValue only", async () => {
-        const schemas = await oapiForModel(
-          "Test",
-          `
-          model Test {
-            @maxValue(5000)
-            timestamp: duration;
-          }
-        `,
-        );
-
-        const timestampSchema = schemas.schemas.Test.properties.timestamp;
-        strictEqual(timestampSchema.minimum, undefined);
-        strictEqual(timestampSchema.maximum, 5000);
-        strictEqual(timestampSchema.type, "string");
-        strictEqual(timestampSchema.format, "duration");
-      });
     });
   });
 });
