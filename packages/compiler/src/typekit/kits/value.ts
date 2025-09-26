@@ -11,6 +11,7 @@ import type {
   ObjectValue,
   ScalarValue,
   StringValue,
+  Type,
   Value,
 } from "../../core/types.js";
 import { createDiagnosable, Diagnosable } from "../create-diagnosable.js";
@@ -39,7 +40,7 @@ export interface ValueKit {
    *
    * @param value The numeric value.
    */
-  createNumeric(value: number): NumericValue;
+  createNumeric(value: number | Numeric): NumericValue;
 
   /**
    * Create a boolean Value type from a JavaScript boolean value.
@@ -114,6 +115,14 @@ export interface ValueKit {
   isAssignableTo: Diagnosable<
     (source: Value, target: Entity, diagnosticTarget?: Entity | Node) => boolean
   >;
+
+  /**
+   * Check if the source type can be assigned to the target type.
+   * @param source Source type
+   * @param target Target type
+   * @param diagnosticTarget Target for the diagnostic
+   */
+  isOfType: Diagnosable<(source: Value, target: Type, diagnosticTarget?: Entity | Node) => boolean>;
 
   /**
    * Resolve a value reference to a TypeSpec value.
@@ -211,11 +220,10 @@ defineKit<TypekitExtension>({
       return this.value.is(type) && type.valueKind === "ScalarValue";
     },
     isAssignableTo: createDiagnosable(function (source, target, diagnosticTarget) {
-      if ("kind" in target) {
-        return this.program.checker.isValueOfType(source, target, diagnosticTarget ?? source);
-      } else {
-        return this.program.checker.isTypeAssignableTo(source, target, diagnosticTarget ?? source);
-      }
+      return this.program.checker.isTypeAssignableTo(source, target, diagnosticTarget ?? source);
+    }),
+    isOfType: createDiagnosable(function (source, target, diagnosticTarget) {
+      return this.program.checker.isValueOfType(source, target, diagnosticTarget ?? source);
     }),
     resolve: createDiagnosable(function (reference, kind) {
       const [value, diagnostics] = this.program.resolveTypeOrValueReference(reference);

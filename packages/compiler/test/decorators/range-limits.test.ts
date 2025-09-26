@@ -4,11 +4,11 @@ import {
   getMaxItems,
   getMaxLength,
   getMaxValue,
-  getMaxValueRaw,
+  getMaxValueForScalar,
   getMinItems,
   getMinLength,
   getMinValue,
-  getMinValueRaw,
+  getMinValueForScalar,
 } from "../../src/core/intrinsic-type-state.js";
 import { Numeric } from "../../src/core/numeric.js";
 import { Model, ScalarValue } from "../../src/core/types.js";
@@ -133,7 +133,6 @@ describe("compiler: range limiting decorators", () => {
         ok(value);
         ok("valueKind" in value);
 
-        strictEqual(value.valueKind, "ScalarValue");
         expect(value.scalar.name).toEqual(scalar);
         expect(value.value).toMatchObject({ name: constructor });
       }
@@ -147,8 +146,8 @@ describe("compiler: range limiting decorators", () => {
           }
         `);
 
-        expectScalarValue(getMinValueRaw(program, stamp), "unixTimestamp32", "fromISO");
-        expectScalarValue(getMaxValueRaw(program, stamp), "unixTimestamp32", "fromISO");
+        expectScalarValue(getMinValueForScalar(program, stamp), "unixTimestamp32", "fromISO");
+        expectScalarValue(getMaxValueForScalar(program, stamp), "unixTimestamp32", "fromISO");
       });
 
       it("applies @minValue and @maxValue on utcDateTime", async () => {
@@ -160,8 +159,8 @@ describe("compiler: range limiting decorators", () => {
           }
         `);
 
-        expectScalarValue(getMinValueRaw(program, stamp), "utcDateTime", "fromISO");
-        expectScalarValue(getMaxValueRaw(program, stamp), "utcDateTime", "fromISO");
+        expectScalarValue(getMinValueForScalar(program, stamp), "utcDateTime", "fromISO");
+        expectScalarValue(getMaxValueForScalar(program, stamp), "utcDateTime", "fromISO");
       });
 
       it("applies @minValue and @maxValue on offsetDateTime", async () => {
@@ -173,8 +172,8 @@ describe("compiler: range limiting decorators", () => {
           }
         `);
 
-        expectScalarValue(getMinValueRaw(program, stamp), "offsetDateTime", "fromISO");
-        expectScalarValue(getMaxValueRaw(program, stamp), "offsetDateTime", "fromISO");
+        expectScalarValue(getMinValueForScalar(program, stamp), "offsetDateTime", "fromISO");
+        expectScalarValue(getMaxValueForScalar(program, stamp), "offsetDateTime", "fromISO");
       });
 
       it("applies @minValue and @maxValue on plainTime", async () => {
@@ -186,8 +185,8 @@ describe("compiler: range limiting decorators", () => {
           }
         `);
 
-        expectScalarValue(getMinValueRaw(program, stamp), "plainTime", "fromISO");
-        expectScalarValue(getMaxValueRaw(program, stamp), "plainTime", "fromISO");
+        expectScalarValue(getMinValueForScalar(program, stamp), "plainTime", "fromISO");
+        expectScalarValue(getMaxValueForScalar(program, stamp), "plainTime", "fromISO");
       });
 
       it("applies @minValue and @maxValue on plainDate", async () => {
@@ -199,8 +198,8 @@ describe("compiler: range limiting decorators", () => {
           }
         `);
 
-        expectScalarValue(getMinValueRaw(program, stamp), "plainDate", "fromISO");
-        expectScalarValue(getMaxValueRaw(program, stamp), "plainDate", "fromISO");
+        expectScalarValue(getMinValueForScalar(program, stamp), "plainDate", "fromISO");
+        expectScalarValue(getMaxValueForScalar(program, stamp), "plainDate", "fromISO");
       });
 
       it("applies @minValue and @maxValue on duration", async () => {
@@ -212,8 +211,8 @@ describe("compiler: range limiting decorators", () => {
           }
         `);
 
-        expectScalarValue(getMinValueRaw(program, stamp), "duration", "fromISO");
-        expectScalarValue(getMaxValueRaw(program, stamp), "duration", "fromISO");
+        expectScalarValue(getMinValueForScalar(program, stamp), "duration", "fromISO");
+        expectScalarValue(getMaxValueForScalar(program, stamp), "duration", "fromISO");
       });
     });
   });

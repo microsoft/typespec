@@ -199,7 +199,7 @@ export interface Checker {
   ): T & TypePrototype;
   finishType<T extends Type>(typeDef: T): T;
   createLiteralType(value: string, node?: StringLiteralNode): StringLiteral;
-  createLiteralType(value: number, node?: NumericLiteralNode): NumericLiteral;
+  createLiteralType(value: number | Numeric, node?: NumericLiteralNode): NumericLiteral;
   createLiteralType(value: boolean, node?: BooleanLiteralNode): BooleanLiteral;
   createLiteralType(
     value: string | number | boolean,
@@ -6115,14 +6115,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       | StringTemplateMiddleNode
       | StringTemplateTailNode,
   ): StringLiteral;
-  function createLiteralType(value: number, node?: NumericLiteralNode): NumericLiteral;
+  function createLiteralType(value: number | Numeric, node?: NumericLiteralNode): NumericLiteral;
   function createLiteralType(value: boolean, node?: BooleanLiteralNode): BooleanLiteral;
   function createLiteralType(
     value: string | number | boolean,
     node?: LiteralNode,
   ): StringLiteral | NumericLiteral | BooleanLiteral;
   function createLiteralType(
-    value: string | number | boolean,
+    value: string | number | boolean | Numeric,
     node?: LiteralNode,
   ): StringLiteral | NumericLiteral | BooleanLiteral {
     if (program.literalTypes.has(value)) {
@@ -6155,6 +6155,13 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           numericValue: Numeric(valueAsString),
         });
         break;
+      default:
+        type = createType({
+          kind: "Number",
+          value: value.asNumber() ?? 0,
+          valueAsString: value.toString(),
+          numericValue: value,
+        });
     }
     program.literalTypes.set(value, type);
     return finishType(type);

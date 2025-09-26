@@ -331,15 +331,7 @@ function validateValueAssignableToTarget(
 ): boolean {
   const targetType = getPropertyType(target);
   if (isNumeric(value)) {
-    const [assignable, diagnostics] = context.program.checker.isTypeAssignableTo(
-      targetType,
-      context.program.checker.getStdType("numeric"),
-      context.decoratorTarget,
-    );
-    if (!assignable) {
-      context.program.reportDiagnostics(diagnostics);
-    }
-    return assignable;
+    value = $(context.program).value.createNumeric(value);
   }
   const [assignable, diagnostics] = $(context.program).value.isAssignableTo.withDiagnostics(
     value,

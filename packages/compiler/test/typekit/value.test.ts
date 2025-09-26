@@ -64,6 +64,24 @@ describe("isAssignableTo", () => {
   });
 });
 
+describe("isOfType", () => {
+  it("returns true when value is assignable", async () => {
+    const { program } = await getAssignables({});
+
+    const tk = $(program);
+    // Can't actually assign a value to a type.
+    expect(tk.value.isOfType(tk.value.create("foo"), tk.builtin.string)).toBe(true);
+  });
+
+  it("returns false when value is not assignable", async () => {
+    const { program } = await getAssignables({});
+
+    const tk = $(program);
+    // Can't actually assign a value to a type.
+    expect(tk.value.isOfType(tk.value.create("foo"), tk.builtin.int32)).toBe(false);
+  });
+});
+
 describe("resolve", () => {
   it("resolves to the value type", async () => {
     const {
