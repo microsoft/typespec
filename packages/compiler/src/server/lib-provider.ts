@@ -57,8 +57,11 @@ export class LibraryProvider {
     const data = await pkg.getPackageJsonData();
     // don't add to cache when failing to load package.json which is unexpected
     if (!data) return false;
+    // Modification Note:
+    // - devDependencies are theoretically not counted in the production environment;
+    // - this leads to LSP connection failure after dynamically loading a certain library in the package.
     if (
-      (data.devDependencies && data.devDependencies["@typespec/compiler"]) ||
+      (data.peerDependencies && data.peerDependencies["@typespec/compiler"]) ||
       (data.dependencies && data.dependencies["@typespec/compiler"])
     ) {
       const exports = await pkg.getModuleExports();
