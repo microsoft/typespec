@@ -687,6 +687,7 @@ namespace SampleTypeSpec
             Argument.AssertNotNullOrEmpty(requiredBadDescription, nameof(requiredBadDescription));
 
             Thing spreadModel = new Thing(
+                default,
                 requiredUnion,
                 requiredLiteralString,
                 requiredNullableString,
@@ -701,8 +702,7 @@ namespace SampleTypeSpec
                 requiredBadDescription,
                 optionalNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
                 requiredNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
-                null,
-                null);
+                default);
             ClientResult result = AnonymousBody(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
@@ -735,6 +735,7 @@ namespace SampleTypeSpec
             Argument.AssertNotNullOrEmpty(requiredBadDescription, nameof(requiredBadDescription));
 
             Thing spreadModel = new Thing(
+                default,
                 requiredUnion,
                 requiredLiteralString,
                 requiredNullableString,
@@ -749,8 +750,7 @@ namespace SampleTypeSpec
                 requiredBadDescription,
                 optionalNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
                 requiredNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
-                null,
-                null);
+                default);
             ClientResult result = await AnonymousBodyAsync(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
             return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
@@ -807,7 +807,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNullOrEmpty(name, nameof(name));
 
-            Friend spreadModel = new Friend(name, null);
+            Friend spreadModel = new Friend(name, default);
             ClientResult result = FriendlyModel(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
             return ClientResult.FromValue((Friend)result, result.GetRawResponse());
         }
@@ -822,7 +822,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNullOrEmpty(name, nameof(name));
 
-            Friend spreadModel = new Friend(name, null);
+            Friend spreadModel = new Friend(name, default);
             ClientResult result = await FriendlyModelAsync(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
             return ClientResult.FromValue((Friend)result, result.GetRawResponse());
         }
@@ -920,31 +920,31 @@ namespace SampleTypeSpec
         }
 
         /// <summary> Model can have its projected name. </summary>
-        /// <param name="name"> name of the ModelWithClientName. </param>
+        /// <param name="otherName"> name of the ModelWithClientName. </param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="name"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="otherName"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="otherName"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<RenamedModelCustom> ProjectedNameModel(string name, CancellationToken cancellationToken = default)
+        public virtual ClientResult<RenamedModelCustom> ProjectedNameModel(string otherName, CancellationToken cancellationToken = default)
         {
-            Argument.AssertNotNullOrEmpty(name, nameof(name));
+            Argument.AssertNotNullOrEmpty(otherName, nameof(otherName));
 
-            RenamedModelCustom spreadModel = new RenamedModelCustom(name, null);
+            RenamedModelCustom spreadModel = new RenamedModelCustom(default, otherName);
             ClientResult result = ProjectedNameModel(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
             return ClientResult.FromValue((RenamedModelCustom)result, result.GetRawResponse());
         }
 
         /// <summary> Model can have its projected name. </summary>
-        /// <param name="name"> name of the ModelWithClientName. </param>
+        /// <param name="otherName"> name of the ModelWithClientName. </param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="name"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ArgumentNullException"> <paramref name="otherName"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="otherName"/> is an empty string, and was expected to be non-empty. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<RenamedModelCustom>> ProjectedNameModelAsync(string name, CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult<RenamedModelCustom>> ProjectedNameModelAsync(string otherName, CancellationToken cancellationToken = default)
         {
-            Argument.AssertNotNullOrEmpty(name, nameof(name));
+            Argument.AssertNotNullOrEmpty(otherName, nameof(otherName));
 
-            RenamedModelCustom spreadModel = new RenamedModelCustom(name, null);
+            RenamedModelCustom spreadModel = new RenamedModelCustom(default, otherName);
             ClientResult result = await ProjectedNameModelAsync(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
             return ClientResult.FromValue((RenamedModelCustom)result, result.GetRawResponse());
         }
@@ -1380,6 +1380,54 @@ namespace SampleTypeSpec
         }
 
         /// <summary>
+        /// [Protocol Method] List things with nextlink
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual CollectionResult GetWithStringNextLink(RequestOptions options)
+        {
+            return new SampleTypeSpecClientGetWithStringNextLinkCollectionResult(this, options);
+        }
+
+        /// <summary>
+        /// [Protocol Method] List things with nextlink
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual AsyncCollectionResult GetWithStringNextLinkAsync(RequestOptions options)
+        {
+            return new SampleTypeSpecClientGetWithStringNextLinkAsyncCollectionResult(this, options);
+        }
+
+        /// <summary> List things with nextlink. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual CollectionResult<Thing> GetWithStringNextLink(CancellationToken cancellationToken = default)
+        {
+            return new SampleTypeSpecClientGetWithStringNextLinkCollectionResultOfT(this, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+        }
+
+        /// <summary> List things with nextlink. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual AsyncCollectionResult<Thing> GetWithStringNextLinkAsync(CancellationToken cancellationToken = default)
+        {
+            return new SampleTypeSpecClientGetWithStringNextLinkAsyncCollectionResultOfT(this, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+        }
+
+        /// <summary>
         /// [Protocol Method] List things with continuation token
         /// <list type="bullet">
         /// <item>
@@ -1609,6 +1657,72 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(body, nameof(body));
 
             return await EmbeddedParametersAsync(body.RequiredHeader, body.RequiredQuery, body, body.OptionalHeader, body.OptionalQuery, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// [Protocol Method] An operation with a dynamic model
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult DynamicModelOperation(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateDynamicModelOperationRequest(content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] An operation with a dynamic model
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> DynamicModelOperationAsync(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateDynamicModelOperationRequest(content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> An operation with a dynamic model. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult DynamicModelOperation(DynamicModel body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(body, nameof(body));
+
+            return DynamicModelOperation(body, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+        }
+
+        /// <summary> An operation with a dynamic model. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> DynamicModelOperationAsync(DynamicModel body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(body, nameof(body));
+
+            return await DynamicModelOperationAsync(body, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
         }
     }
 }

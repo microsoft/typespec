@@ -239,11 +239,6 @@ export type ErrorsDocDecorator = (
  * @service(#{title: "Pet store"})
  * namespace PetStore;
  * ```
- * @example Setting service version
- * ```typespec
- * @service(#{version: "1.0"})
- * namespace PetStore;
- * ```
  */
 export type ServiceDecorator = (
   context: DecoratorContext,

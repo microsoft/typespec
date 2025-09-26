@@ -8,6 +8,7 @@ from authentication.apikey.aio import ApiKeyClient
 from authentication.http.custom.aio import CustomClient
 from authentication.oauth2.aio import OAuth2Client
 from authentication.union.aio import UnionClient
+from setuppy.authentication.union.aio import UnionClient as SetuppyUnionClient
 
 
 # Utilities functions
@@ -99,14 +100,16 @@ async def test_oauth2_invalid(oauth2_client, core_library):
 
 
 @pytest.mark.asyncio
-async def test_union_keyvalid(api_key_client):
-    client = api_key_client(UnionClient)
+@pytest.mark.parametrize("union_client_type", [UnionClient, SetuppyUnionClient])
+async def test_union_keyvalid(api_key_client, union_client_type):
+    client = api_key_client(union_client_type)
     await client.valid_key()
 
 
 @pytest.mark.asyncio
-async def test_union_tokenvalid(oauth2_client):
-    client = oauth2_client(UnionClient)
+@pytest.mark.parametrize("union_client_type", [UnionClient, SetuppyUnionClient])
+async def test_union_tokenvalid(oauth2_client, union_client_type):
+    client = oauth2_client(union_client_type)
     await client.valid_token(enforce_https=False)
 
 

@@ -2,43 +2,10 @@
   "name": "Response.StatusCodeRange",
   "apiVersions": [],
   "enums": [],
-  "constants": [
-    {
-      "$id": "1",
-      "kind": "constant",
-      "name": "errorResponseStatusCodeInRangeContentType",
-      "namespace": "",
-      "usage": "None",
-      "valueType": {
-        "$id": "2",
-        "kind": "string",
-        "name": "string",
-        "crossLanguageDefinitionId": "TypeSpec.string",
-        "decorators": []
-      },
-      "value": "application/json",
-      "decorators": []
-    },
-    {
-      "$id": "3",
-      "kind": "constant",
-      "name": "errorResponseStatusCode404ContentType",
-      "namespace": "",
-      "usage": "None",
-      "valueType": {
-        "$id": "4",
-        "kind": "string",
-        "name": "string",
-        "crossLanguageDefinitionId": "TypeSpec.string",
-        "decorators": []
-      },
-      "value": "application/json",
-      "decorators": []
-    }
-  ],
+  "constants": [],
   "models": [
     {
-      "$id": "5",
+      "$id": "1",
       "kind": "model",
       "name": "ErrorInRange",
       "namespace": "Response.StatusCodeRange",
@@ -47,12 +14,12 @@
       "decorators": [],
       "properties": [
         {
-          "$id": "6",
+          "$id": "2",
           "kind": "property",
           "name": "code",
           "serializedName": "code",
           "type": {
-            "$id": "7",
+            "$id": "3",
             "kind": "string",
             "name": "string",
             "crossLanguageDefinitionId": "TypeSpec.string",
@@ -68,15 +35,16 @@
             "json": {
               "name": "code"
             }
-          }
+          },
+          "isHttpMetadata": false
         },
         {
-          "$id": "8",
+          "$id": "4",
           "kind": "property",
           "name": "message",
           "serializedName": "message",
           "type": {
-            "$id": "9",
+            "$id": "5",
             "kind": "string",
             "name": "string",
             "crossLanguageDefinitionId": "TypeSpec.string",
@@ -92,12 +60,13 @@
             "json": {
               "name": "message"
             }
-          }
+          },
+          "isHttpMetadata": false
         }
       ]
     },
     {
-      "$id": "10",
+      "$id": "6",
       "kind": "model",
       "name": "DefaultError",
       "namespace": "Response.StatusCodeRange",
@@ -106,12 +75,12 @@
       "decorators": [],
       "properties": [
         {
-          "$id": "11",
+          "$id": "7",
           "kind": "property",
           "name": "code",
           "serializedName": "code",
           "type": {
-            "$id": "12",
+            "$id": "8",
             "kind": "string",
             "name": "string",
             "crossLanguageDefinitionId": "TypeSpec.string",
@@ -127,12 +96,13 @@
             "json": {
               "name": "code"
             }
-          }
+          },
+          "isHttpMetadata": false
         }
       ]
     },
     {
-      "$id": "13",
+      "$id": "9",
       "kind": "model",
       "name": "NotFoundError",
       "namespace": "Response.StatusCodeRange",
@@ -141,12 +111,12 @@
       "decorators": [],
       "properties": [
         {
-          "$id": "14",
+          "$id": "10",
           "kind": "property",
           "name": "code",
           "serializedName": "code",
           "type": {
-            "$id": "15",
+            "$id": "11",
             "kind": "string",
             "name": "string",
             "crossLanguageDefinitionId": "TypeSpec.string",
@@ -162,15 +132,16 @@
             "json": {
               "name": "code"
             }
-          }
+          },
+          "isHttpMetadata": false
         },
         {
-          "$id": "16",
+          "$id": "12",
           "kind": "property",
           "name": "resourceId",
           "serializedName": "resourceId",
           "type": {
-            "$id": "17",
+            "$id": "13",
             "kind": "string",
             "name": "string",
             "crossLanguageDefinitionId": "TypeSpec.string",
@@ -186,12 +157,13 @@
             "json": {
               "name": "resourceId"
             }
-          }
+          },
+          "isHttpMetadata": false
         }
       ]
     },
     {
-      "$id": "18",
+      "$id": "14",
       "kind": "model",
       "name": "Standard4XXError",
       "namespace": "Response.StatusCodeRange",
@@ -200,12 +172,12 @@
       "decorators": [],
       "properties": [
         {
-          "$id": "19",
+          "$id": "15",
           "kind": "property",
           "name": "code",
           "serializedName": "code",
           "type": {
-            "$id": "20",
+            "$id": "16",
             "kind": "string",
             "name": "string",
             "crossLanguageDefinitionId": "TypeSpec.string",
@@ -221,49 +193,32 @@
             "json": {
               "name": "code"
             }
-          }
+          },
+          "isHttpMetadata": false
         }
       ]
     }
   ],
   "clients": [
     {
-      "$id": "21",
+      "$id": "17",
       "kind": "client",
       "name": "StatusCodeRangeClient",
       "namespace": "Response.StatusCodeRange",
       "doc": "Test for range of status code.",
       "methods": [
         {
-          "$id": "22",
+          "$id": "18",
           "kind": "basic",
           "name": "errorResponseStatusCodeInRange",
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
-            "$id": "23",
+            "$id": "19",
             "name": "errorResponseStatusCodeInRange",
             "resourceName": "StatusCodeRange",
             "accessibility": "public",
-            "parameters": [
-              {
-                "$id": "24",
-                "name": "accept",
-                "nameInRequest": "Accept",
-                "type": {
-                  "$ref": "1"
-                },
-                "location": "Header",
-                "isApiVersion": false,
-                "isContentType": false,
-                "isEndpoint": false,
-                "explode": false,
-                "isRequired": true,
-                "kind": "Constant",
-                "decorators": [],
-                "skipUrlEncoding": false
-              }
-            ],
+            "parameters": [],
             "responses": [
               {
                 "statusCodes": [
@@ -282,25 +237,7 @@
             "crossLanguageDefinitionId": "Response.StatusCodeRange.errorResponseStatusCodeInRange",
             "decorators": []
           },
-          "parameters": [
-            {
-              "$id": "25",
-              "name": "accept",
-              "nameInRequest": "accept",
-              "type": {
-                "$ref": "1"
-              },
-              "location": "Header",
-              "isApiVersion": false,
-              "isContentType": false,
-              "isEndpoint": false,
-              "explode": false,
-              "isRequired": true,
-              "kind": "Constant",
-              "decorators": [],
-              "skipUrlEncoding": false
-            }
-          ],
+          "parameters": [],
           "response": {},
           "isOverride": false,
           "generateConvenient": true,
@@ -308,35 +245,17 @@
           "crossLanguageDefinitionId": "Response.StatusCodeRange.errorResponseStatusCodeInRange"
         },
         {
-          "$id": "26",
+          "$id": "20",
           "kind": "basic",
           "name": "errorResponseStatusCode404",
           "accessibility": "public",
           "apiVersions": [],
           "operation": {
-            "$id": "27",
+            "$id": "21",
             "name": "errorResponseStatusCode404",
             "resourceName": "StatusCodeRange",
             "accessibility": "public",
-            "parameters": [
-              {
-                "$id": "28",
-                "name": "accept",
-                "nameInRequest": "Accept",
-                "type": {
-                  "$ref": "3"
-                },
-                "location": "Header",
-                "isApiVersion": false,
-                "isContentType": false,
-                "isEndpoint": false,
-                "explode": false,
-                "isRequired": true,
-                "kind": "Constant",
-                "decorators": [],
-                "skipUrlEncoding": false
-              }
-            ],
+            "parameters": [],
             "responses": [
               {
                 "statusCodes": [
@@ -355,25 +274,7 @@
             "crossLanguageDefinitionId": "Response.StatusCodeRange.errorResponseStatusCode404",
             "decorators": []
           },
-          "parameters": [
-            {
-              "$id": "29",
-              "name": "accept",
-              "nameInRequest": "accept",
-              "type": {
-                "$ref": "3"
-              },
-              "location": "Header",
-              "isApiVersion": false,
-              "isContentType": false,
-              "isEndpoint": false,
-              "explode": false,
-              "isRequired": true,
-              "kind": "Constant",
-              "decorators": [],
-              "skipUrlEncoding": false
-            }
-          ],
+          "parameters": [],
           "response": {},
           "isOverride": false,
           "generateConvenient": true,
@@ -383,34 +284,34 @@
       ],
       "parameters": [
         {
-          "$id": "30",
+          "$id": "22",
+          "kind": "endpoint",
           "name": "endpoint",
-          "nameInRequest": "endpoint",
+          "serializedName": "endpoint",
           "doc": "Service host",
           "type": {
-            "$id": "31",
+            "$id": "23",
             "kind": "url",
             "name": "endpoint",
             "crossLanguageDefinitionId": "TypeSpec.url"
           },
-          "location": "Uri",
           "isApiVersion": false,
-          "isContentType": false,
-          "isRequired": true,
+          "optional": false,
+          "scope": "Client",
           "isEndpoint": true,
-          "skipUrlEncoding": false,
-          "explode": false,
-          "kind": "Client",
           "defaultValue": {
             "type": {
-              "$id": "32",
+              "$id": "24",
               "kind": "string",
               "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string"
             },
             "value": "http://localhost:3000"
           },
-          "serverUrlTemplate": "{endpoint}"
+          "serverUrlTemplate": "{endpoint}",
+          "skipUrlEncoding": false,
+          "readOnly": false,
+          "crossLanguageDefinitionId": "Response.StatusCodeRange.endpoint"
         }
       ],
       "decorators": [],

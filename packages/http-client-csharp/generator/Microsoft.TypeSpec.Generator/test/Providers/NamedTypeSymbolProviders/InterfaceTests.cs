@@ -55,7 +55,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
         public void VerifyBaseTypeIsNull()
         {
             var model = new Model();
-            var compilation = CompilationHelper.LoadCompilation([model]);
+            var compilation = CompilationHelper.LoadCompilation([model], [typeof(IJsonModel<>)]);
             var iNamedSymbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, "Model");
 
             var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!);

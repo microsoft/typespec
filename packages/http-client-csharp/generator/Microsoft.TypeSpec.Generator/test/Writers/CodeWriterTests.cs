@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -509,6 +510,103 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
 
                 }
             }
+        }
+
+        [Test]
+        public void CodeWriter_WriteConstructor_WithSuppressions()
+        {
+            var intParam = new ParameterProvider("value", $"The integer value.", typeof(int));
+            var provider = new TestTypeProvider();
+            var constructorSignature = new ConstructorSignature(
+                provider.Type,
+                $"Test constructor with suppressions", 
+                MethodSignatureModifiers.Public, 
+                [intParam]);
+            
+            var bodyStatement = intParam.Assign(This.Property("Value")).Terminate();
+            var suppressions = new List<SuppressionStatement>
+            {
+                new SuppressionStatement(null, Literal("CS0618"), "Using obsolete method for testing"),
+            };
+
+            var constructor = new ConstructorProvider(
+                constructorSignature, 
+                bodyStatement, 
+                provider,
+                suppressions: suppressions);
+
+            using var writer = new CodeWriter();
+            writer.WriteConstructor(constructor);
+
+            var expected = Helpers.GetExpectedFromFile();
+            var result = writer.ToString(false);
+
+            Assert.AreEqual(expected, result);
+        }
+
+        [Test]
+        public void CodeWriter_WriteConstructor_WithBodyExpressionAndSuppressions()
+        {
+            var stringParam = new ParameterProvider("message", $"The message value.", typeof(string));
+            var provider = new TestTypeProvider();
+            var constructorSignature = new ConstructorSignature(
+                provider.Type, 
+                $"Test constructor with body expression and suppressions", 
+                MethodSignatureModifiers.Public,
+                [stringParam]);
+
+            var bodyExpression = new KeywordExpression("throw", New.Instance(typeof(NotImplementedException), stringParam));
+            var suppressions = new List<SuppressionStatement>
+            {
+                new SuppressionStatement(null, Literal("CS0618"), "Using obsolete constructor for testing"),
+            };
+
+            var constructor = new ConstructorProvider(
+                constructorSignature, 
+                bodyExpression, 
+                provider,
+                suppressions: suppressions);
+
+            using var writer = new CodeWriter();
+            writer.WriteConstructor(constructor);
+
+            var expected = Helpers.GetExpectedFromFile();
+            var result = writer.ToString(false);
+
+            Assert.AreEqual(expected, result);
+        }
+
+        [Test]
+        public void CodeWriter_WriteProperty_WithRefModifier()
+        {
+            var property1 = new PropertyProvider($"To test a ref property without a setter", MethodSignatureModifiers.Public, typeof(int), "RefProperty1", new AutoPropertyBody(false), new TestTypeProvider(), isRef: true);
+
+            using var codeWriter = new CodeWriter();
+            codeWriter.WriteProperty(property1);
+
+            var expected = Helpers.GetExpectedFromFile();
+
+            var result = codeWriter.ToString(false);
+
+            Assert.AreEqual(expected, result);
+        }
+
+        [Test]
+        public void CodeWriter_WriteParameter_WithInModifier()
+        {
+            var parameter = new ParameterProvider(
+                "p1", 
+                $"The input value.", 
+                typeof(int), 
+                isIn: true);
+
+            using var codeWriter = new CodeWriter();
+            codeWriter.WriteParameter(parameter);
+
+            var expected = Helpers.GetExpectedFromFile();
+            var result = codeWriter.ToString(false);
+
+            Assert.AreEqual(expected, result);
         }
     }
 }

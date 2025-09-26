@@ -9,8 +9,13 @@ function generateDecorator({ name, args }: TypeSpecDecorator): string {
   return `@${name}${stringifiedArguments}`;
 }
 
-export function generateDecorators(decorators: TypeSpecDecorator[]): string[] {
-  const uniqueDecorators = new Set<string>(decorators.map(generateDecorator));
+export function generateDecorators(
+  decorators: TypeSpecDecorator[],
+  namesToExclude: string[] = [],
+): string[] {
+  const uniqueDecorators = new Set<string>(
+    decorators.filter((d) => !namesToExclude.includes(d.name)).map(generateDecorator),
+  );
   return Array.from(uniqueDecorators);
 }
 

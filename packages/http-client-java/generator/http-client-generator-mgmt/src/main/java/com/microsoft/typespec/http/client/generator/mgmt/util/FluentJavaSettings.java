@@ -131,6 +131,12 @@ public class FluentJavaSettings {
         return javaNamesForRemoveOperationGroup;
     }
 
+    /**
+     * The set of model property that should always be serialized, even its value is null.
+     * The model property is in the form of "<modelName>.<propertyName>".
+     *
+     * @return the set of model property names that should always be serialized.
+     */
     public Set<String> getJavaNamesForPropertyIncludeAlways() {
         return javaNamesForPropertyIncludeAlways;
     }

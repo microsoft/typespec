@@ -4,7 +4,9 @@
 import { UsageFlags } from "@azure-tools/typespec-client-generator-core";
 import { CSharpEmitterContext } from "../sdk-context.js";
 import { CodeModel } from "../type/code-model.js";
+import { InputEnumType, InputModelType } from "../type/input-type.js";
 import { fromSdkClients } from "./client-converter.js";
+import { fromSdkNamespaces } from "./namespace-converter.js";
 import { processServiceAuthentication } from "./service-authentication.js";
 import { fromSdkType } from "./type-converter.js";
 import { firstLetterToUpperCase, getClientNamespaceString } from "./utils.js";
@@ -17,9 +19,17 @@ import { firstLetterToUpperCase, getClientNamespaceString } from "./utils.js";
  */
 export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
   const sdkPackage = sdkContext.sdkPackage;
-  // convert all the models and enums in the sdkPackage to the type cache.
-  const models = sdkPackage.models.map((m) => fromSdkType(sdkContext, m));
-  const enums = sdkPackage.enums.map((e) => fromSdkType(sdkContext, e));
+
+  // TO-DO: Consider exposing the namespace hierarchy in the code model https://github.com/microsoft/typespec/issues/8332
+  fromSdkNamespaces(sdkContext, sdkPackage.namespaces);
+  // TO-DO: Consider using the TCGC model + enum cache once https://github.com/Azure/typespec-azure/issues/3180 is resolved
+  navigateModels(sdkContext);
+
+  const types = Array.from(sdkContext.__typeCache.types.values());
+  const [models, enums] = [
+    types.filter((type) => type.kind === "model") as InputModelType[],
+    types.filter((type) => type.kind === "enum") as InputEnumType[],
+  ];
 
   const sdkApiVersionEnums = sdkPackage.enums.filter((e) => e.usage === UsageFlags.ApiVersionEnum);
   const rootClients = sdkPackage.clients;
@@ -79,4 +89,13 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
   };
 
   return clientModel;
+}
+
+function navigateModels(sdkContext: CSharpEmitterContext) {
+  for (const m of sdkContext.sdkPackage.models) {
+    fromSdkType(sdkContext, m);
+  }
+  for (const e of sdkContext.sdkPackage.enums) {
+    fromSdkType(sdkContext, e);
+  }
 }

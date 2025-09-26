@@ -51,6 +51,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             }
         }
 
+        internal bool HasDynamicModels
+            => _hasDynamicModels ??= ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Models.Any(m => m.IsDynamicModel);
+        private bool? _hasDynamicModels;
+
         private HashSet<InputModelType>? _rootInputModels;
 
         internal HashSet<InputModelType> RootOutputModels
@@ -164,6 +168,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             }
 
             ClientCache[inputClient] = client;
+
+            if (client != null)
+            {
+                CSharpTypeMap[client.Type] = client;
+            }
+
             return client;
         }
 
@@ -192,8 +202,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             return methods;
         }
 
-        public virtual ValueExpression DeserializeJsonValue(Type valueType, ScopedApi<JsonElement> element, SerializationFormat format)
-            => MrwSerializationTypeDefinition.DeserializeJsonValueCore(valueType, element, format);
+        public virtual ValueExpression DeserializeJsonValue(
+            Type valueType,
+            ScopedApi<JsonElement> element,
+            ScopedApi<BinaryData> data,
+            ScopedApi<ModelReaderWriterOptions> mrwOptionsParameter,
+            SerializationFormat format)
+            => MrwSerializationTypeDefinition.DeserializeJsonValueCore(valueType, element, data, mrwOptionsParameter, format);
 
         public virtual MethodBodyStatement SerializeJsonValue(
             Type valueType,
@@ -202,5 +217,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             ScopedApi<ModelReaderWriterOptions> mrwOptionsParameter,
             SerializationFormat serializationFormat)
             => MrwSerializationTypeDefinition.SerializeJsonValueCore(valueType, value, utf8JsonWriter, mrwOptionsParameter, serializationFormat);
+
+        protected override ModelProvider? CreateModelCore(InputModelType model) => new ScmModelProvider(model);
     }
 }

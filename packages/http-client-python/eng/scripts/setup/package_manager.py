@@ -85,7 +85,7 @@ def get_install_command(package_manager: str, venv_context=None) -> list:
         raise ValueError(f"Unknown package manager: {package_manager}")
 
 
-def install_packages(packages: list, venv_context=None, package_manager: str = None) -> None:
+def install_packages(packages: list, venv_context=None, package_manager: str = None, cwd: Path = None) -> None:
     """Install packages using the available package manager.
 
     Args:
@@ -99,7 +99,10 @@ def install_packages(packages: list, venv_context=None, package_manager: str = N
     install_cmd = get_install_command(package_manager, venv_context)
 
     try:
-        subprocess.check_call(install_cmd + packages)
+        if cwd:
+            subprocess.check_call(install_cmd + packages, cwd=cwd)
+        else:
+            subprocess.check_call(install_cmd + packages)
     except subprocess.CalledProcessError as e:
         raise RuntimeError(f"Failed to install packages with {package_manager}: {e}")
 

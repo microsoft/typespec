@@ -1,7 +1,9 @@
 ---
 title: "Decorators"
+description: "Decorators exported by @typespec/openapi"
 toc_min_heading_level: 2
 toc_max_heading_level: 3
+llmstxt: true
 ---
 
 ## TypeSpec.OpenAPI
@@ -91,7 +93,7 @@ op listPets(): Pet[];
 ### `@info` {#@TypeSpec.OpenAPI.info}
 
 Specify OpenAPI additional information.
-The service `title` and `version` are already specified using `@service`.
+The service `title` is already specified using `@service`.
 
 ```typespec
 @TypeSpec.OpenAPI.info(additionalInfo: valueof TypeSpec.OpenAPI.AdditionalInfo)

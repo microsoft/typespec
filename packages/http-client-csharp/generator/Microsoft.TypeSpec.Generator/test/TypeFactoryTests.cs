@@ -1,11 +1,12 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
+using System.Net;
+using System.Text.Json;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
-using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Tests.Common;
-using Moq;
 using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.Tests
@@ -147,6 +148,19 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var input = new InputPrimitiveType(kind, name, $"TypeSpec.{name}", encode, null);
 
             Assert.AreEqual(encode == "string" ? SerializationFormat.Int_String : SerializationFormat.Default, CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(input));
+        }
+
+        [TestCase(typeof(Guid))]
+        [TestCase(typeof(IPAddress))]
+        [TestCase(typeof(BinaryData))]
+        [TestCase(typeof(Uri))]
+        [TestCase(typeof(JsonElement))]
+        public void CreatesFrameworkType(Type expectedType)
+        {
+            var factory = new TestTypeFactory();
+
+            var actual = factory.InvokeCreateFrameworkType(expectedType.FullName!);
+            Assert.AreEqual(expectedType, actual);
         }
     }
 }

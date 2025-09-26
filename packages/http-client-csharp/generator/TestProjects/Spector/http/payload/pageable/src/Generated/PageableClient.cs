@@ -3,7 +3,9 @@
 #nullable disable
 
 using System;
+using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Threading;
 using Payload.Pageable._ServerDrivenPagination;
 
 namespace Payload.Pageable
@@ -15,6 +17,14 @@ namespace Payload.Pageable
         public PageableClient(Uri endpoint, PageableClientOptions options) => throw null;
 
         public ClientPipeline Pipeline => throw null;
+
+        public virtual CollectionResult GetWithoutContinuation(RequestOptions options) => throw null;
+
+        public virtual AsyncCollectionResult GetWithoutContinuationAsync(RequestOptions options) => throw null;
+
+        public virtual CollectionResult<Pet> GetWithoutContinuation(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual AsyncCollectionResult<Pet> GetWithoutContinuationAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ServerDrivenPagination GetServerDrivenPaginationClient() => throw null;
     }

@@ -37,7 +37,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                     $"TestClass",
                     MethodSignatureModifiers.Public,
                     parameters,
-                    Initializer: new ConstructorInitializer(false, parameters)),
+                    initializer: new ConstructorInitializer(false, parameters)),
                 ThrowExpression(Null),
                 new TestTypeProvider(),
                 new XmlDocProvider());
@@ -67,18 +67,18 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                   $"TestClass",
                   MethodSignatureModifiers.Public,
                   parameters,
-                  Initializer: new ConstructorInitializer(false, parameters)),
+                  attributes: attributes,
+                  initializer: new ConstructorInitializer(false, parameters)),
               ThrowExpression(Null),
               new TestTypeProvider(),
-              new XmlDocProvider(),
-              attributes: attributes);
+              new XmlDocProvider());
 
-            Assert.IsNotNull(constructor.Attributes);
-            Assert.AreEqual(attributes.Count, constructor.Attributes.Count);
+            Assert.IsNotNull(constructor.Signature.Attributes);
+            Assert.AreEqual(attributes.Count, constructor.Signature.Attributes.Count);
             for (int i = 0; i < attributes.Count; i++)
             {
-                Assert.AreEqual(attributes[i].Type, constructor.Attributes[i].Type);
-                Assert.IsTrue(constructor.Attributes[i].Arguments.SequenceEqual(attributes[i].Arguments));
+                Assert.AreEqual(attributes[i].Type, constructor.Signature.Attributes[i].Type);
+                Assert.IsTrue(constructor.Signature.Attributes[i].Arguments.SequenceEqual(attributes[i].Arguments));
             }
 
             // validate the attributes are written correctly

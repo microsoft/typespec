@@ -1,5 +1,6 @@
 ---
 title: "Built-in Decorators"
+description: "Decorators exported by TypeSpec"
 toc_min_heading_level: 2
 toc_max_heading_level: 3
 ---
@@ -1182,13 +1183,6 @@ namespace PetStore;
 
 ```typespec
 @service(#{title: "Pet store"})
-namespace PetStore;
-```
-
-##### Setting service version
-
-```typespec
-@service(#{version: "1.0"})
 namespace PetStore;
 ```
 
