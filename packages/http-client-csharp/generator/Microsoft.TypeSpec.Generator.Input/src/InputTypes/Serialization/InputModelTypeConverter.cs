@@ -155,17 +155,26 @@ namespace Microsoft.TypeSpec.Generator.Input
                 modelType.IsDynamicModel = true;
                 foreach (var property in modelType.Properties)
                 {
-                    if (property.Type is InputModelType propertyType)
+                    switch (property.Type)
                     {
-                        MarkModelsAsDynamicRecursive(propertyType);
-                    }
-                    else if (property.Type is InputArrayType arrayType)
-                    {
-                        MarkModelsAsDynamicRecursive(arrayType.ValueType);
-                    }
-                    else if (property.Type is InputDictionaryType dictionaryType)
-                    {
-                        MarkModelsAsDynamicRecursive(dictionaryType.ValueType);
+                        case InputModelType propertyType:
+                            MarkModelsAsDynamicRecursive(propertyType);
+                            break;
+                        case InputArrayType arrayType:
+                            MarkModelsAsDynamicRecursive(arrayType.ValueType);
+                            break;
+                        case InputDictionaryType dictionaryType:
+                            MarkModelsAsDynamicRecursive(dictionaryType.ValueType);
+                            break;
+                        case InputNullableType nullableType:
+                            MarkModelsAsDynamicRecursive(nullableType.Type);
+                            break;
+                        case InputUnionType unionType:
+                            foreach (var type in unionType.VariantTypes)
+                            {
+                                MarkModelsAsDynamicRecursive(type);
+                            }
+                            break;
                     }
                 }
             }
