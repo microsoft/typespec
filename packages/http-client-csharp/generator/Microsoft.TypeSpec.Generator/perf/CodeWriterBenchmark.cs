@@ -21,7 +21,7 @@ namespace Microsoft.TypeSpec.Generator.Perf
             {
                 new InputModelProperty("MyProperty", null, "The property of mine", InputPrimitiveType.Int32, true, false, null, false, "myProperty", false, false, null, new(json: new("myProperty")))
             };
-            var inputModel = new InputModelType("MyModel", "MyNamespace", string.Empty, null, null, null, "Test model", InputModelTypeUsage.Input | InputModelTypeUsage.Output, properties, null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false, new());
+            var inputModel = new InputModelType("MyModel", "MyNamespace", string.Empty, null, null, null, "Test model", InputModelTypeUsage.Input | InputModelTypeUsage.Output, properties, null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false, new(), false);
             var modelProvider = new ModelProvider(inputModel);
             _writer = new TypeProviderWriter(modelProvider);
         }

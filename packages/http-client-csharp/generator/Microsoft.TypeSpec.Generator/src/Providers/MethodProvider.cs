@@ -21,6 +21,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public TypeProvider EnclosingType { get; }
 
+        public IReadOnlyList<SuppressionStatement> Suppressions { get; internal set; }
+
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         protected MethodProvider()
@@ -39,13 +41,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
             MethodSignature signature,
             MethodBodyStatement bodyStatements,
             TypeProvider enclosingType,
-            XmlDocProvider? xmlDocProvider = default)
+            XmlDocProvider? xmlDocProvider = default,
+            IEnumerable<SuppressionStatement>? suppressions = default)
         {
             Signature = signature;
             var paramHash = MethodProviderHelpers.GetParamHash(signature);
             BodyStatements = MethodProviderHelpers.GetBodyStatementWithValidation(signature.Parameters, bodyStatements, paramHash);
             XmlDocs = xmlDocProvider ?? MethodProviderHelpers.BuildXmlDocs(signature);
             EnclosingType = enclosingType;
+            Suppressions = (suppressions as IReadOnlyList<SuppressionStatement>) ?? [];
         }
 
         /// <summary>
@@ -59,19 +63,22 @@ namespace Microsoft.TypeSpec.Generator.Providers
             MethodSignature signature,
             ValueExpression bodyExpression,
             TypeProvider enclosingType,
-            XmlDocProvider? xmlDocProvider = default)
+            XmlDocProvider? xmlDocProvider = default,
+            IEnumerable<SuppressionStatement>? suppressions = default)
         {
             Signature = signature;
             BodyExpression = bodyExpression;
             XmlDocs = xmlDocProvider ?? MethodProviderHelpers.BuildXmlDocs(signature);
             EnclosingType = enclosingType;
+            Suppressions = (suppressions as IReadOnlyList<SuppressionStatement>) ?? [];
         }
 
         public void Update(
             MethodSignature? signature = null,
             MethodBodyStatement? bodyStatements = null,
             ValueExpression? bodyExpression = null,
-            XmlDocProvider? xmlDocProvider = null)
+            XmlDocProvider? xmlDocProvider = null,
+            IEnumerable<SuppressionStatement>? suppressions = default)
         {
             if (signature != null)
             {
@@ -92,6 +99,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (xmlDocProvider != null)
             {
                 XmlDocs = xmlDocProvider;
+            }
+            if (suppressions != null)
+            {
+                Suppressions = (suppressions as IReadOnlyList<SuppressionStatement>) ?? [];
             }
         }
 

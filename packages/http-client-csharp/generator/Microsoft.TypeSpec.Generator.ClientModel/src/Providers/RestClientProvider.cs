@@ -160,7 +160,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 statements.AddRange([
                     declareUri,
-                    uri.Reset(ScmKnownParameters.NextPage.AsExpression()).Terminate()
+                    uri.Reset(ScmKnownParameters.NextPage.AsVariable()).Terminate()
                 ]);
 
                 // handle reinjected parameters for URI

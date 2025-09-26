@@ -3,8 +3,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Reflection.Metadata;
 using System.Text;
 using Microsoft.CodeAnalysis;
@@ -186,18 +188,34 @@ namespace Microsoft.TypeSpec.Generator
             {
                 if (method.BodyStatements is { } body)
                 {
+                    foreach (var suppression in method.Suppressions)
+                    {
+                        suppression.DisableStatement.Write(this);
+                    }
                     using (WriteMethodDeclaration(method.Signature))
                     {
                         body.Write(this);
                     }
+                    foreach (var suppression in method.Suppressions)
+                    {
+                        suppression.RestoreStatement.Write(this);
+                    }
                 }
                 else if (method.BodyExpression is { } expression)
                 {
+                    foreach (var suppression in method.Suppressions)
+                    {
+                        suppression.DisableStatement.Write(this);
+                    }
                     using (WriteMethodDeclarationNoScope(method.Signature))
                     {
                         AppendRaw(" => ");
                         expression.Write(this);
                         WriteRawLine(";");
+                    }
+                    foreach (var suppression in method.Suppressions)
+                    {
+                        suppression.RestoreStatement.Write(this);
                     }
                 }
             }
@@ -211,18 +229,38 @@ namespace Microsoft.TypeSpec.Generator
             {
                 if (ctor.BodyStatements is { } body)
                 {
+                    foreach (var suppression in ctor.Suppressions)
+                    {
+                        suppression.DisableStatement.Write(this);
+                    }
+
                     using (WriteMethodDeclaration(ctor.Signature))
                     {
                         body.Write(this);
                     }
+
+                    foreach (var suppression in ctor.Suppressions)
+                    {
+                        suppression.RestoreStatement.Write(this);
+                    }
                 }
                 else if (ctor.BodyExpression is { } expression)
                 {
+                    foreach (var suppression in ctor.Suppressions)
+                    {
+                        suppression.DisableStatement.Write(this);
+                    }
+
                     using (WriteMethodDeclarationNoScope(ctor.Signature))
                     {
                         AppendRaw(" => ");
                         expression.Write(this);
                         WriteRawLine(";");
+                    }
+
+                    foreach (var suppression in ctor.Suppressions)
+                    {
+                        suppression.RestoreStatement.Write(this);
                     }
                 }
             }
@@ -296,6 +334,8 @@ namespace Microsoft.TypeSpec.Generator
                 .AppendRawIf("static ", modifiers.HasFlag(MethodSignatureModifiers.Static))
                 .AppendRawIf("virtual ", modifiers.HasFlag(MethodSignatureModifiers.Virtual));
 
+            AppendRawIf("ref ", property.IsRef);
+
             Append($"{property.Type} ");
 
             if (property.ExplicitInterface is not null)
@@ -305,7 +345,7 @@ namespace Microsoft.TypeSpec.Generator
             if (property is IndexPropertyProvider indexer)
             {
                 indexerScope = AmbientScope();
-                Append($"{indexer.Name}[{indexer.IndexerParameter.Type} {indexer.IndexerParameter.AsExpression().Declaration}]");
+                Append($"{indexer.Name}[{indexer.IndexerParameter.Type} {indexer.IndexerParameter.AsVariable().Declaration}]");
             }
             else
             {
@@ -428,10 +468,11 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             AppendRawIf("out ", parameter.IsOut);
+            AppendRawIf("in ", parameter.IsIn);
             AppendRawIf("ref ", parameter.IsRef);
             AppendRawIf("params ", parameter.IsParams);
 
-            Append($"{parameter.Type} {parameter.AsExpression().Declaration}");
+            Append($"{parameter.Type} {parameter.AsVariable().Declaration}");
             if (parameter.DefaultValue != null)
             {
                 AppendRaw(" = ");

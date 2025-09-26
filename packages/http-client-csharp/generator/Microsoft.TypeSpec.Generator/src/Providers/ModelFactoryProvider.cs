@@ -20,6 +20,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
     {
         private const string ModelFactorySuffix = "ModelFactory";
         private const string AdditionalBinaryDataParameterName = "additionalBinaryDataProperties";
+        private const string JsonPatchParameterName = "patch";
 
         private readonly IEnumerable<InputModelType> _models;
 
@@ -80,7 +81,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                var (binaryDataParam, fullConstructor) = GetBinaryDataParamAndFullCtorForFactoryMethod(modelProvider);
+                var (_, fullConstructor) = GetBinaryDataParamAndFullCtorForFactoryMethod(modelProvider);
                 var signature = new MethodSignature(
                     modelProvider.Name,
                     null,
@@ -448,7 +449,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 bool isBinaryDataParam = param.Name.Equals(AdditionalBinaryDataParameterName)
                     || (isCustomConstructor && param.Type.Equals(typeof(IDictionary<string, BinaryData>)));
 
-                if (isBinaryDataParam && !modelProvider.SupportsBinaryDataAdditionalProperties)
+                if ((isBinaryDataParam && !modelProvider.SupportsBinaryDataAdditionalProperties) ||
+                    param.Name.Equals(JsonPatchParameterName) && param.IsIn)
                     continue;
 
                 // skip discriminator parameters if the model has a discriminator value as those shouldn't be exposed in the factory methods
@@ -470,6 +472,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 Default,
                 parameter.IsRef,
                 parameter.IsOut,
+                parameter.IsIn,
                 parameter.IsParams,
                 parameter.Attributes,
                 parameter.Property,

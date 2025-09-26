@@ -124,7 +124,7 @@ $generateScript = {
   }
 
   $tspTrace = "--trace import-resolution --trace projection --trace http-client-java"
-  $tspCommand = "npx --no-install tsp compile $tspFile $tspOptions $tspTrace"
+  $tspCommand = "npx --no tsp compile $tspFile $tspOptions $tspTrace"
 
   # output of "tsp compile" seems trigger powershell error or exit, hence the "2>&1"
   $timer = [Diagnostics.Stopwatch]::StartNew()
@@ -185,7 +185,7 @@ try {
   $job | Receive-Job
 
   # partial update test
-  npx --no-install tsp compile ./tsp/partialupdate.tsp --option="@typespec/http-client-java.emitter-output-dir={project-root}/existingcode"
+  npx --no tsp compile ./tsp/partialupdate.tsp --option="@typespec/http-client-java.emitter-output-dir={project-root}/existingcode"
   Copy-Item -Path ./existingcode/src/main/java/tsptest/partialupdate -Destination ./src/main/java/tsptest/partialupdate -Recurse -Force
   Remove-Item ./existingcode -Recurse -Force
 

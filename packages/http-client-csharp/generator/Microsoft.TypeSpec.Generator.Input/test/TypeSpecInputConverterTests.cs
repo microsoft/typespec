@@ -1,4 +1,5 @@
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.TypeSpec.Generator.Tests.Common;
@@ -114,6 +115,44 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             var inputModel = inputType as InputModelType;
             Assert.IsNotNull(inputModel);
             Assert.IsTrue(inputModel!.IsDynamicModel);
+        }
+
+        [Test]
+        public void LoadsDynamicModelWithModelProperties()
+        {
+            var directory = Helpers.GetAssetFileOrDirectoryPath(false);
+            // this tspCodeModel.json contains a partial part of the full tspCodeModel.json
+            var content = File.ReadAllText(Path.Combine(directory, "tspCodeModel.json"));
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true,
+                Converters =
+                {
+                    new JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
+                    new InputNamespaceConverter(referenceHandler),
+                    new InputTypeConverter(referenceHandler),
+                    new InputDecoratorInfoConverter(),
+                    new InputModelTypeConverter(referenceHandler),
+                    new InputModelPropertyConverter(referenceHandler),
+                },
+            };
+            var inputNamespace = JsonSerializer.Deserialize<InputNamespace>(content, options);
+
+            Assert.IsNotNull(inputNamespace);
+
+            var inputModel = inputNamespace!.Models.Last();
+            Assert.IsNotNull(inputModel);
+            Assert.IsTrue(inputModel.IsDynamicModel);
+
+            var modelProperty = inputModel.Properties.SingleOrDefault(p => p.Type is InputModelType);
+            Assert.IsNotNull(modelProperty);
+            Assert.IsTrue(((InputModelType)modelProperty!.Type).IsDynamicModel);
+
+            inputModel = (InputModelType)modelProperty.Type;
+            modelProperty = inputModel.Properties.SingleOrDefault(p => p.Type is InputModelType);
+            Assert.IsNotNull(modelProperty);
+            Assert.IsTrue(((InputModelType)modelProperty!.Type).IsDynamicModel);
         }
 
         [Test]

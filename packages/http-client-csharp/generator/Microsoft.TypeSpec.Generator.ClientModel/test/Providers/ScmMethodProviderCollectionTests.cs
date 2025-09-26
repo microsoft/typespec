@@ -161,7 +161,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             foreach (var method in convenienceMethods)
             {
                 StringAssert.Contains(
-                    "global::Sample.Models.SpreadModel spreadModel = new global::Sample.Models.SpreadModel(p2, null);",
+                    "global::Sample.Models.SpreadModel spreadModel = new global::Sample.Models.SpreadModel(p2, default);",
                     method.BodyStatements!.ToDisplayString());
             }
 

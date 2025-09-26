@@ -11,7 +11,7 @@ import { createSourceLoader } from "../core/source-loader.js";
 import { CompilerHost, Diagnostic, Entity, NoTarget, SourceFile } from "../core/types.js";
 import { resolveModule } from "../module-resolver/module-resolver.js";
 import { expectDiagnosticEmpty } from "./expect.js";
-import { PositionedMarker, extractMarkers } from "./fourslash.js";
+import { extractMarkers } from "./fourslash.js";
 import { createTestFileSystem } from "./fs.js";
 import { GetMarkedEntities, Marker, TemplateWithMarkers } from "./marked-template.js";
 import { StandardTestLibrary, addTestLib } from "./test-compiler-host.js";
@@ -20,6 +20,7 @@ import type {
   EmitterTester,
   EmitterTesterInstance,
   MockFile,
+  PositionedMarkerInFile,
   TestCompileOptions,
   TestCompileResult,
   TestEmitterCompileResult,
@@ -334,11 +335,11 @@ async function createTesterInstance(params: TesterInternalParams): Promise<Teste
       const codeStr = TemplateWithMarkers.is(value) ? value.code : value;
 
       const actualCode = filename === "main.tsp" ? wrapMain(codeStr) : codeStr;
+      const markers = extractMarkers(actualCode);
+      for (const marker of markers) {
+        markerPositions.push({ ...marker, filename });
+      }
       if (TemplateWithMarkers.is(value)) {
-        const markers = extractMarkers(actualCode);
-        for (const marker of markers) {
-          markerPositions.push({ ...marker, filename });
-        }
         for (const [markerName, markerConfig] of Object.entries(value.markers)) {
           if (markerConfig) {
             markerConfigs[markerName] = markerConfig;
@@ -386,13 +387,17 @@ async function createTesterInstance(params: TesterInternalParams): Promise<Teste
     savedProgram = program;
 
     const entities = extractMarkedEntities(program, markerPositions, markerConfigs);
-    return [{ program, fs, ...typesCollected, ...entities } as any, program.diagnostics];
+    return [
+      {
+        program,
+        fs,
+        pos: Object.fromEntries(markerPositions.map((x) => [x.name, x])) as any,
+        ...(typesCollected as GetMarkedEntities<T>),
+        ...entities,
+      },
+      program.diagnostics,
+    ];
   }
-}
-
-interface PositionedMarkerInFile extends PositionedMarker {
-  /** The file where the marker is located */
-  readonly filename: string;
 }
 
 function extractMarkedEntities(

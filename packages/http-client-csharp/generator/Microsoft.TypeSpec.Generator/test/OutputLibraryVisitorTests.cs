@@ -107,7 +107,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 .Returns([mockSerializationProvider.Object]);
             var sig = new MethodSignature("Test", $"", MethodSignatureModifiers.Public, null, $"", []);
             var mockMethodProvider = new Mock<MethodProvider>(MockBehavior.Default, sig, MethodBodyStatement.Empty,
-                mockSerializationProvider.Object, new XmlDocProvider())
+                mockSerializationProvider.Object, new XmlDocProvider(), new List<SuppressionStatement>())
             {
                 CallBase = true
             };
