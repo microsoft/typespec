@@ -58,7 +58,7 @@ export class LibraryProvider {
     // don't add to cache when failing to load package.json which is unexpected
     if (!data) return false;
     if (
-      (data.devDependencies && data.devDependencies["@typespec/compiler"]) ||
+      (data.peerDependencies && data.peerDependencies["@typespec/compiler"]) ||
       (data.dependencies && data.dependencies["@typespec/compiler"])
     ) {
       const exports = await pkg.getModuleExports();
