@@ -167,7 +167,7 @@ describe("required-doc rule", () => {
 
   it("emit diagnostics when doc is missing for model", async () => {
     await ruleTester.expect(`model Foo {}`).toEmitDiagnostics({
-      code: "@godark/typespec-linter/no-model-doc",
+      code: "@typespec/my-linter/no-foo-model",
       message: "Models must be documented.",
     });
   });
