@@ -9,6 +9,7 @@ import type {
   Numeric,
   Operation,
   Scalar,
+  ScalarValue,
   Type,
   Union,
   UnionVariant,
@@ -380,7 +381,7 @@ export type MaxItemsDecorator = (
 export type MinValueDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  value: Numeric,
+  value: Numeric | ScalarValue | ScalarValue | ScalarValue | ScalarValue | ScalarValue,
 ) => void;
 
 /**
@@ -396,7 +397,7 @@ export type MinValueDecorator = (
 export type MaxValueDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  value: Numeric,
+  value: Numeric | ScalarValue | ScalarValue | ScalarValue | ScalarValue | ScalarValue,
 ) => void;
 
 /**
@@ -413,7 +414,7 @@ export type MaxValueDecorator = (
 export type MinValueExclusiveDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  value: Numeric,
+  value: Numeric | ScalarValue | ScalarValue | ScalarValue | ScalarValue | ScalarValue,
 ) => void;
 
 /**
@@ -430,7 +431,7 @@ export type MinValueExclusiveDecorator = (
 export type MaxValueExclusiveDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
-  value: Numeric,
+  value: Numeric | ScalarValue | ScalarValue | ScalarValue | ScalarValue | ScalarValue,
 ) => void;
 
 /**

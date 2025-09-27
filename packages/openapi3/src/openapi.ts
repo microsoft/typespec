@@ -13,11 +13,9 @@ import {
   getFormat,
   getMaxItems,
   getMaxLength,
-  getMaxValue,
   getMaxValueExclusive,
   getMinItems,
   getMinLength,
-  getMinValue,
   getMinValueExclusive,
   getNamespaceFullName,
   getPattern,
@@ -88,6 +86,7 @@ import { JsonSchemaModule, resolveJsonSchemaModule } from "./json-schema.js";
 import { createDiagnostic, FileType, OpenAPI3EmitterOptions, OpenAPIVersion } from "./lib.js";
 import { getOpenApiSpecProps } from "./openapi-spec-mappings.js";
 import { getParameterStyle } from "./parameters.js";
+import { getMaxValueAsJson, getMinValueAsJson } from "./range.js";
 import { getOpenAPI3StatusCodes } from "./status-codes.js";
 import {
   OpenAPI3Encoding,
@@ -1720,7 +1719,7 @@ function createOAPIEmitter(
       newTarget.maxLength = maxLength;
     }
 
-    const minValue = getMinValue(program, typespecType);
+    const minValue = getMinValueAsJson(program, typespecType);
     if (minValue !== undefined) {
       newTarget.minimum = minValue;
     }
@@ -1731,7 +1730,7 @@ function createOAPIEmitter(
       newTarget.exclusiveMinimum = true;
     }
 
-    const maxValue = getMaxValue(program, typespecType);
+    const maxValue = getMaxValueAsJson(program, typespecType);
     if (maxValue !== undefined) {
       newTarget.maximum = maxValue;
     }
