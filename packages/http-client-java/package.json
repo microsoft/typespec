@@ -51,8 +51,8 @@
   "peerDependencies": {
     "@azure-tools/typespec-autorest": ">=0.60.0 <1.0.0",
     "@azure-tools/typespec-azure-core": ">=0.60.0 <1.0.0",
-    "@azure-tools/typespec-azure-resource-manager": ">=0.60.0 <1.0.0",
-    "@azure-tools/typespec-client-generator-core": ">=0.60.1 <1.0.0",
+    "@azure-tools/typespec-azure-resource-manager": ">=0.60.1 <1.0.0",
+    "@azure-tools/typespec-client-generator-core": ">=0.60.3 <1.0.0",
     "@typespec/compiler": "^1.4.0",
     "@typespec/events": ">=0.74.0 <1.0.0",
     "@typespec/http": "^1.4.0",
@@ -65,16 +65,16 @@
   },
   "dependencies": {
     "@autorest/codemodel": "~4.20.1",
-    "@azure-tools/codegen": "~2.10.1",
+    "@typespec/http-client-java": "file:",
     "js-yaml": "~4.1.0",
     "lodash": "~4.17.21"
   },
   "devDependencies": {
     "@azure-tools/typespec-autorest": "0.60.0",
     "@azure-tools/typespec-azure-core": "0.60.0",
-    "@azure-tools/typespec-azure-resource-manager": "0.60.0",
+    "@azure-tools/typespec-azure-resource-manager": "0.60.1",
     "@azure-tools/typespec-azure-rulesets": "0.60.0",
-    "@azure-tools/typespec-client-generator-core": "0.60.1",
+    "@azure-tools/typespec-client-generator-core": "0.60.3",
     "@microsoft/api-extractor": "^7.52.13",
     "@microsoft/api-extractor-model": "^7.30.7",
     "@types/js-yaml": "~4.0.9",
