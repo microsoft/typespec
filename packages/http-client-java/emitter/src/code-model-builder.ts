@@ -642,9 +642,9 @@ export class CodeModelBuilder {
     const versions = getServiceApiVersions(this.program, client);
     if (versions && versions.length > 0) {
       if (!this.sdkContext.apiVersion || ["all", "latest"].includes(this.sdkContext.apiVersion)) {
-        this.apiVersion = versions[versions.length - 1];
+        this.apiVersion = versions[versions.length - 1].value;
       } else {
-        this.apiVersion = versions.find((it: string) => it === this.sdkContext.apiVersion);
+        this.apiVersion = versions.find((it) => it.value === this.sdkContext.apiVersion)?.value;
         if (!this.apiVersion) {
           reportDiagnostic(this.program, {
             code: "invalid-api-version",
@@ -661,7 +661,7 @@ export class CodeModelBuilder {
         this.options["service-version-exclude-preview"],
       )) {
         const apiVersion = new ApiVersion();
-        apiVersion.version = version;
+        apiVersion.version = version.value;
         codeModelClient.apiVersions.push(apiVersion);
       }
     }
