@@ -1,12 +1,7 @@
 import { isPreviewVersion } from "@azure-tools/typespec-azure-core";
 import { SdkClientType, SdkHttpOperation } from "@azure-tools/typespec-client-generator-core";
 import { Namespace, Program } from "@typespec/compiler";
-import {
-  findVersionedNamespace,
-  getVersions,
-  getVersionsForEnum,
-  Version,
-} from "@typespec/versioning";
+import { findVersionedNamespace, getVersions, Version } from "@typespec/versioning";
 
 /**
  * Gets the array of api-version on the TypeSpec service that contains this SDK client.
@@ -28,7 +23,6 @@ export function getServiceApiVersions(
     client.__raw.service,
   );
   if (versionedNamespace) {
-    getVersionsForEnum;
     apiVersions = getVersions(program, versionedNamespace)[1]?.getVersions();
   }
   return apiVersions;
