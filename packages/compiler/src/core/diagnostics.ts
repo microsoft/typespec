@@ -14,6 +14,7 @@ import {
   SymbolFlags,
   SyntaxKind,
   Type,
+  TypeSpecDiagnosticTarget,
 } from "./types.js";
 
 export type WriteLine = (text?: string) => void;
@@ -40,6 +41,32 @@ export function getRelatedLocations(diagnostic: Diagnostic): RelatedSourceLocati
       location: getSourceLocation(x),
     };
   });
+}
+
+/**
+ * Find the syntax node for a typespec diagnostic target.
+ * Returns undefined if target is a type or symbol without a node.
+ */
+export function getNodeForTarget(target: TypeSpecDiagnosticTarget): Node | undefined {
+  if (!("kind" in target) && !("entityKind" in target)) {
+    // TemplateInstanceTarget
+    if (!("declarations" in target)) {
+      return target.node;
+    }
+
+    // symbol
+    if (target.flags & SymbolFlags.Using) {
+      target = target.symbolSource!;
+    }
+
+    return target.declarations[0];
+  } else if ("kind" in target && typeof target.kind === "number") {
+    // node
+    return target as Node;
+  } else {
+    // type
+    return (target as Type).node;
+  }
 }
 
 export interface SourceLocationOptions {
@@ -73,35 +100,8 @@ export function getSourceLocation(
     return target;
   }
 
-  if (!("kind" in target) && !("entityKind" in target)) {
-    // TemplateInstanceTarget
-    if (!("declarations" in target)) {
-      return getSourceLocationOfNode(target.node, options);
-    }
-
-    // symbol
-    if (target.flags & SymbolFlags.Using) {
-      target = target.symbolSource!;
-    }
-
-    if (!target.declarations[0]) {
-      return createSyntheticSourceLocation();
-    }
-
-    return getSourceLocationOfNode(target.declarations[0], options);
-  } else if ("kind" in target && typeof target.kind === "number") {
-    // node
-    return getSourceLocationOfNode(target as Node, options);
-  } else {
-    // type
-    const targetNode = (target as Type).node;
-
-    if (targetNode) {
-      return getSourceLocationOfNode(targetNode, options);
-    }
-
-    return createSyntheticSourceLocation();
-  }
+  const node = getNodeForTarget(target);
+  return node ? getSourceLocationOfNode(node, options) : createSyntheticSourceLocation();
 }
 
 /**

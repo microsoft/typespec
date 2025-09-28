@@ -215,11 +215,18 @@ namespace Microsoft.TypeSpec.Generator
         {
             var workspace = new AdhocWorkspace();
             Project project = workspace.AddProject("LastContract", LanguageNames.CSharp);
+            XmlDocumentationProvider? documentationProvider = File.Exists(xmlDocumentationpath)
+               ? XmlDocumentationProvider.CreateFromFile(xmlDocumentationpath)
+               : null;
+            List<MetadataReference> metadataReferences =
+            [
+                .. _assemblyMetadataReferences.Value.Concat(CodeModelGenerator.Instance.AdditionalMetadataReferences),
+                MetadataReference.CreateFromFile(dllPath, documentation: documentationProvider)
+            ];
             project = project
-                .AddMetadataReferences(_assemblyMetadataReferences.Value)
+                .AddMetadataReferences(metadataReferences)
                 .WithCompilationOptions(new CSharpCompilationOptions(
                     OutputKind.DynamicallyLinkedLibrary, metadataReferenceResolver: _metadataReferenceResolver.Value, nullableContextOptions: NullableContextOptions.Disable));
-            project = project.AddMetadataReference(MetadataReference.CreateFromFile(dllPath, documentation: XmlDocumentationProvider.CreateFromFile(xmlDocumentationpath)));
             return await project.GetCompilationAsync();
         }
 

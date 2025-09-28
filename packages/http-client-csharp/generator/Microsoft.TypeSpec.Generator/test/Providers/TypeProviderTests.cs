@@ -78,6 +78,37 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual("p1", signature.Parameters[0].Name);
         }
 
+        // This test validates that the last contract view for a type that is renamed via visitor and customization is loaded correctly.
+        [Test]
+        public async Task LastContractViewLoadedForRenamedVisitedType()
+        {
+            // load the custom code view and last contract. False => custom code view. True => last contract view.
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "False"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "True"));
+            var typeProvider = new TestTypeProvider(name: "TestType", ns: "SampleTypeSpec");
+
+            var customCodeView = typeProvider.CustomCodeView;
+            Assert.IsNotNull(customCodeView);
+            Assert.AreEqual("RenamedType", customCodeView!.Name);
+
+            var lastContractView = typeProvider.LastContractView;
+            Assert.IsNull(lastContractView);
+
+            typeProvider.Update(name: "RenamedTypeAgain");
+            lastContractView = typeProvider.LastContractView;
+            Assert.IsNotNull(lastContractView);
+
+            Assert.AreEqual("RenamedTypeAgain", lastContractView!.Name);
+
+            var methods = lastContractView!.Methods;
+            Assert.AreEqual(1, methods.Count);
+
+            var signature = methods[0].Signature;
+            Assert.AreEqual("Foo", signature.Name);
+            Assert.AreEqual("p1", signature.Parameters[0].Name);
+        }
+
         [TestCase(false)]
         [TestCase(true)]
         public async Task TestCustomizeNestedTypes(bool isNestedTypeAnEnum)

@@ -14,11 +14,12 @@ namespace Microsoft.TypeSpec.Generator.Tests
         private readonly MethodProvider[] _methods;
         private readonly PropertyProvider[] _properties;
         private readonly string _name;
+        private readonly string _namespace;
         protected override string BuildRelativeFilePath() => $"{Name}.cs";
 
         protected override string BuildName() => _name;
 
-        protected override string BuildNamespace() => "Test";
+        protected override string BuildNamespace() => _namespace;
 
         protected override PropertyProvider[] BuildProperties() => _properties;
 
@@ -31,12 +32,14 @@ namespace Microsoft.TypeSpec.Generator.Tests
             string? name = null,
             TypeSignatureModifiers? declarationModifiers = null,
             IEnumerable<MethodProvider>? methods = null,
-            IEnumerable<PropertyProvider>? properties = null)
+            IEnumerable<PropertyProvider>? properties = null,
+            string? ns = null)
         {
             _declarationModifiers = declarationModifiers;
             _methods = methods?.ToArray() ?? [];
             _properties = properties?.ToArray() ?? [];
             _name = name ?? "TestName";
+            _namespace = ns ?? "Test";
         }
 
         internal TypeProvider[]? NestedTypesInternal { get; set; }

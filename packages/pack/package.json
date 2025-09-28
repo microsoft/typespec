@@ -23,7 +23,7 @@
     ".": "./dist/index.js"
   },
   "bin": {
-    "tsp-pack": "dist/src/cli.js"
+    "tsp-pack": "cmd/cli.js"
   },
   "engines": {
     "node": ">=18.0.0"

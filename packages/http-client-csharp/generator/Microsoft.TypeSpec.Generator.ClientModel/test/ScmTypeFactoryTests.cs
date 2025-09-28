@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
@@ -69,6 +70,41 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             Assert.IsNotNull(rootModels);
             Assert.AreEqual(1, rootModels.Count);
             Assert.IsTrue(rootModels.Contains(inputModel));
+        }
+
+        [Test]
+        public void RootOutputModelsIncludesUnionVariantTypesServiceResponse()
+        {
+            var variantAModel = InputFactory.Model("VariantAModel");
+            var variantBModel = InputFactory.Model("VariantBModel");
+            var variantCModel = InputFactory.Model("VariantCModel");
+            var unionInputType = InputFactory.Union(
+            [
+                variantAModel,
+                variantBModel,
+                new InputNullableType(variantCModel),
+                InputPrimitiveType.Any
+            ],
+            "MyUnion");
+            var someOtherNonRootModel = InputFactory.Model("SomeOtherNonRootModel");
+            var operation = InputFactory.Operation("TestOperation", "Samples");
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "TestMethod",
+                operation,
+                response: InputFactory.ServiceMethodResponse(unionInputType, []));
+            var client = InputFactory.Client("TestClient", "Samples", "", [serviceMethod]);
+            var generator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [variantAModel, variantBModel, variantCModel, someOtherNonRootModel],
+                clients: () => [client]);
+
+            var scmTypeFactory = generator.Object.TypeFactory;
+            var rootModels = scmTypeFactory.RootOutputModels;
+
+            Assert.IsNotNull(rootModels);
+            Assert.AreEqual(3, rootModels.Count);
+            Assert.IsTrue(rootModels.Contains(variantAModel));
+            Assert.IsTrue(rootModels.Contains(variantBModel));
+            Assert.IsTrue(rootModels.Contains(variantCModel));
         }
     }
 }
