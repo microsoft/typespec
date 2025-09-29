@@ -724,6 +724,10 @@ class Serializer:  # pylint: disable=too-many-public-methods
                 do_quote = not kwargs.get("skip_quote", False)
                 return self.serialize_iter(data, internal_data_type, do_quote=do_quote, **kwargs)
 
+            # Handle dictionaries specially for query parameters
+            if data_type.startswith("{") and isinstance(data, dict):
+                return self.serialize_dict_query(name, data, data_type, **kwargs)
+
             # Not a list, regular serialization
             output = self.serialize_data(data, data_type, **kwargs)
             if data_type == "bool":
@@ -735,6 +739,63 @@ class Serializer:  # pylint: disable=too-many-public-methods
         except SerializationError as exc:
             raise TypeError("{} must be type {}.".format(name, data_type)) from exc
         return str(output)
+
+    def serialize_dict_query(self, name, data, data_type, **kwargs):
+        """Serialize a dictionary for query parameters.
+        
+        Serializes dictionary as multiple query parameters with bracket notation.
+        For example: foo={ a: [1,2], b: [3,4] } becomes &foo[a]=[1,2]&foo[b]=[3,4]
+        
+        :param str name: The name of the query parameter.
+        :param dict data: The dictionary to be serialized.
+        :param str data_type: The type to be serialized from.
+        :rtype: dict
+        :returns: Dictionary of parameter names to values
+        """
+        internal_data_type = data_type[1:-1]  # Remove { and }
+        result = {}
+        
+        for key, value in data.items():
+            try:                
+                # Create the parameter name with bracket notation
+                param_name = f"{name}[{key}]"
+                
+                # Handle list values specially
+                if isinstance(value, list):
+                    # For lists, create a compact string representation without spaces
+                    serialized_items = []
+                    for item in value:
+                        try:
+                            serialized_item = self.serialize_data(item, internal_data_type, **kwargs)
+                            serialized_items.append(str(serialized_item))
+                        except ValueError:
+                            serialized_items.append("")
+                    
+                    # Create compact list representation: [1,2,3] instead of [1, 2, 3]
+                    list_str = "[" + ",".join(serialized_items) + "]"
+                    
+                    if kwargs.get("skip_quote") is True:
+                        list_value = list_str
+                    else:
+                        # Don't URL encode brackets and commas for list values to preserve [1,2] format
+                        list_value = quote(list_str, safe="[],")
+                    result[param_name] = list_value
+                else:
+                    # For non-list values, serialize normally
+                    serialized_value = self.serialize_data(value, internal_data_type, **kwargs)
+                    if kwargs.get("skip_quote") is True:
+                        serialized_value = str(serialized_value)
+                    else:
+                        serialized_value = quote(str(serialized_value), safe="")
+                    result[param_name] = serialized_value
+                    
+            except ValueError as err:
+                if isinstance(err, SerializationError):
+                    raise
+                # Skip invalid entries
+                continue
+                
+        return result
 
     def header(self, name, data, data_type, **kwargs):
         """Serialize data intended for a request header.

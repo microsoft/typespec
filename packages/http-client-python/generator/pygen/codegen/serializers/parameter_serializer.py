@@ -93,9 +93,16 @@ class ParameterSerializer:
             optional_parameters += serialization_constraints
 
         origin_name = parameter.full_client_name
+        
+        # For dictionary parameters, use wire_name instead of Python parameter name
+        from ..models.dictionary_type import DictionaryType
+        if isinstance(parameter.type, DictionaryType):
+            param_name = f'"{parameter.wire_name}"'
+        else:
+            param_name = f'"{origin_name.lstrip("_")}"'
 
         parameters = [
-            f'"{origin_name.lstrip("_")}"',
+            param_name,
             "q" if parameter.explode else origin_name,
             f"'{type.serialization_type(serialize_namespace=self.serialize_namespace)}'",
             *optional_parameters,
@@ -156,6 +163,26 @@ class ParameterSerializer:
             and param.wire_name.lower() in SPECIAL_HEADER_SERIALIZATION
         ):
             return SPECIAL_HEADER_SERIALIZATION[param.wire_name.lower()]
+
+        # Handle dictionary parameters specially
+        from ..models.dictionary_type import DictionaryType
+        if isinstance(param.type, DictionaryType):
+            # For dictionary parameters, serialize and update _params with individual key-value pairs
+            serialize_call = self.serialize_parameter(param, serializer_name)
+            if not param.optional and (param.in_method_signature or param.constant):
+                retval = [
+                    f"dict_params = {serialize_call}",
+                    f"if dict_params:",
+                    f"    _{kwarg_name}.update(dict_params)",
+                ]
+            else:
+                retval = [
+                    f"if {param.full_client_name} is not None:",
+                    f"    dict_params = {serialize_call}",
+                    f"    if dict_params:",
+                    f"        _{kwarg_name}.update(dict_params)",
+                ]
+            return retval
 
         set_parameter = "_{}['{}'] = {}".format(
             kwarg_name,
