@@ -3,6 +3,7 @@ import type {
   Interface,
   Model,
   ModelProperty,
+  Namespace,
   Operation,
 } from "@typespec/compiler";
 
@@ -58,7 +59,7 @@ export type SegmentOfDecorator = (
  */
 export type ActionSeparatorDecorator = (
   context: DecoratorContext,
-  target: Model | ModelProperty | Operation,
+  target: Operation | Interface | Namespace,
   seperator: "/" | ":" | "/:",
 ) => void;
 

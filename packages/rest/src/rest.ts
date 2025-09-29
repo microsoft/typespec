@@ -5,6 +5,7 @@ import {
   Interface,
   Model,
   ModelProperty,
+  Namespace,
   Operation,
   Program,
   Scalar,
@@ -273,11 +274,11 @@ const actionSeparatorKey = createStateSymbol("actionSeparator");
  * `@actionSeparator` defines the separator string that is used to precede the action name
  *  in auto-generated actions.
  *
- * `@actionSeparator` can only be applied to model properties, operation parameters, or operations.
+ * `@actionSeparator` can only be applied to operations, interfaces, or namespaces.
  */
 export function $actionSeparator(
   context: DecoratorContext,
-  entity: Model | ModelProperty | Operation,
+  entity: Operation | Interface | Namespace,
   separator: "/" | ":" | "/:",
 ) {
   context.program.stateMap(actionSeparatorKey).set(entity, separator);
