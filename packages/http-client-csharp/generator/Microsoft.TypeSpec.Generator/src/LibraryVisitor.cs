@@ -202,6 +202,11 @@ namespace Microsoft.TypeSpec.Generator
             return statement;
         }
 
+        protected internal virtual MethodBodyStatement? VisitIfElsePreprocessorStatement(IfElsePreprocessorStatement statement, MethodProvider method)
+        {
+            return statement;
+        }
+
         protected internal virtual MethodBodyStatement? VisitTryCatchFinallyStatement(TryCatchFinallyStatement statement, MethodProvider method)
         {
             return statement;

@@ -8,6 +8,8 @@ using System.Text.Json;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.ClientModel.Tests;
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
@@ -213,26 +215,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             Assert.IsTrue(writeStringValueMethods.Count >= 4, "Multiple WriteStringValue methods should be generated");
 
             // Check DateTimeOffset version
-            var dateTimeOffsetMethod = writeStringValueMethods.SingleOrDefault(m => 
-                m.Signature.Parameters.Count == 3 && 
+            var dateTimeOffsetMethod = writeStringValueMethods.SingleOrDefault(m =>
+                m.Signature.Parameters.Count == 3 &&
                 m.Signature.Parameters[1].Type.FrameworkType == typeof(DateTimeOffset));
             Assert.IsNotNull(dateTimeOffsetMethod, "WriteStringValue for DateTimeOffset should be generated");
 
             // Check DateTime version
-            var dateTimeMethod = writeStringValueMethods.SingleOrDefault(m => 
-                m.Signature.Parameters.Count == 3 && 
+            var dateTimeMethod = writeStringValueMethods.SingleOrDefault(m =>
+                m.Signature.Parameters.Count == 3 &&
                 m.Signature.Parameters[1].Type.FrameworkType == typeof(DateTime));
             Assert.IsNotNull(dateTimeMethod, "WriteStringValue for DateTime should be generated");
 
             // Check TimeSpan version
-            var timeSpanMethod = writeStringValueMethods.SingleOrDefault(m => 
-                m.Signature.Parameters.Count == 3 && 
+            var timeSpanMethod = writeStringValueMethods.SingleOrDefault(m =>
+                m.Signature.Parameters.Count == 3 &&
                 m.Signature.Parameters[1].Type.FrameworkType == typeof(TimeSpan));
             Assert.IsNotNull(timeSpanMethod, "WriteStringValue for TimeSpan should be generated");
 
             // Check char version
-            var charMethod = writeStringValueMethods.SingleOrDefault(m => 
-                m.Signature.Parameters.Count == 2 && 
+            var charMethod = writeStringValueMethods.SingleOrDefault(m =>
+                m.Signature.Parameters.Count == 2 &&
                 m.Signature.Parameters[1].Type.FrameworkType == typeof(char));
             Assert.IsNotNull(charMethod, "WriteStringValue for char should be generated");
         }
@@ -290,13 +292,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             Assert.AreEqual(2, writeObjectValueMethods.Count, "Two WriteObjectValue methods should be generated");
 
             // Check non-generic version
-            var nonGenericMethod = writeObjectValueMethods.SingleOrDefault(m => 
+            var nonGenericMethod = writeObjectValueMethods.SingleOrDefault(m =>
                 m.Signature.GenericArguments == null || m.Signature.GenericArguments.Count == 0);
             Assert.IsNotNull(nonGenericMethod, "Non-generic WriteObjectValue method should be generated");
             Assert.AreEqual(typeof(object), nonGenericMethod!.Signature.Parameters[1].Type.FrameworkType);
 
             // Check generic version
-            var genericMethod = writeObjectValueMethods.SingleOrDefault(m => 
+            var genericMethod = writeObjectValueMethods.SingleOrDefault(m =>
                 m.Signature.GenericArguments != null && m.Signature.GenericArguments.Count == 1);
             Assert.IsNotNull(genericMethod, "Generic WriteObjectValue method should be generated");
         }
@@ -314,13 +316,98 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
 
             foreach (var method in methods)
             {
-                Assert.IsTrue(method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public), 
+                Assert.IsTrue(method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public),
                     $"Method {method.Signature.Name} should be public");
-                Assert.IsTrue(method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Static), 
+                Assert.IsTrue(method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Static),
                     $"Method {method.Signature.Name} should be static");
-                Assert.IsTrue(method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Extension), 
+                Assert.IsTrue(method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Extension),
                     $"Method {method.Signature.Name} should be extension");
             }
+        }
+
+        [Test]
+        public void ValidateSliceToStartOfPropertyName()
+        {
+            MockHelpers.LoadMockGenerator(inputModels: () => [InputFactory.Model("dynamicModel", isDynamicModel: true)]);
+
+            var definition = new ModelSerializationExtensionsDefinition();
+            var methods = definition.Methods;
+
+            Assert.IsNotNull(methods);
+            var method = methods.SingleOrDefault(m => m.Signature.Name == "SliceToStartOfPropertyName");
+            Assert.IsNotNull(method);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(definition, name => name == method!.Signature.Name));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void ValidateGetUtf8Bytes()
+        {
+            MockHelpers.LoadMockGenerator(inputModels: () => [InputFactory.Model("dynamicModel", isDynamicModel: true)]);
+
+            var definition = new ModelSerializationExtensionsDefinition();
+            var methods = definition.Methods;
+
+            Assert.IsNotNull(methods);
+            var method = methods.SingleOrDefault(m => m.Signature.Name == "GetUtf8Bytes");
+            Assert.IsNotNull(method);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(definition, name => name == method!.Signature.Name));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void ValidateGetFirstPropertyName()
+        {
+            MockHelpers.LoadMockGenerator(inputModels: () => [InputFactory.Model("dynamicModel", isDynamicModel: true)]);
+
+            var definition = new ModelSerializationExtensionsDefinition();
+            var methods = definition.Methods;
+
+            Assert.IsNotNull(methods);
+            var method = methods.SingleOrDefault(m => m.Signature.Name == "GetFirstPropertyName");
+            Assert.IsNotNull(method);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(definition, name => name == method!.Signature.Name));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void ValidateTryGetIndex()
+        {
+            MockHelpers.LoadMockGenerator(inputModels: () => [InputFactory.Model("dynamicModel", isDynamicModel: true)]);
+
+            var definition = new ModelSerializationExtensionsDefinition();
+            var methods = definition.Methods;
+
+            Assert.IsNotNull(methods);
+            var method = methods.SingleOrDefault(m => m.Signature.Name == "TryGetIndex");
+            Assert.IsNotNull(method);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(definition, name => name == method!.Signature.Name));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void ValidateGetRemainder()
+        {
+            MockHelpers.LoadMockGenerator(inputModels: () => [InputFactory.Model("dynamicModel", isDynamicModel: true)]);
+
+            var definition = new ModelSerializationExtensionsDefinition();
+            var methods = definition.Methods;
+
+            Assert.IsNotNull(methods);
+            var method = methods.SingleOrDefault(m => m.Signature.Name == "GetRemainder");
+            Assert.IsNotNull(method);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(definition, name => name == method!.Signature.Name));
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
     }
 }

@@ -1,4 +1,5 @@
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.TypeSpec.Generator.Tests.Common;
@@ -114,6 +115,57 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             var inputModel = inputType as InputModelType;
             Assert.IsNotNull(inputModel);
             Assert.IsTrue(inputModel!.IsDynamicModel);
+        }
+
+        [Test]
+        public void LoadsDynamicModelWithModelProperties()
+        {
+            var directory = Helpers.GetAssetFileOrDirectoryPath(false);
+            // this tspCodeModel.json contains a partial part of the full tspCodeModel.json
+            var content = File.ReadAllText(Path.Combine(directory, "tspCodeModel.json"));
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true,
+                Converters =
+                {
+                    new JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
+                    new InputNamespaceConverter(referenceHandler),
+                    new InputTypeConverter(referenceHandler),
+                    new InputDecoratorInfoConverter(),
+                    new InputModelTypeConverter(referenceHandler),
+                    new InputModelPropertyConverter(referenceHandler),
+                },
+            };
+            var inputNamespace = JsonSerializer.Deserialize<InputNamespace>(content, options);
+
+            Assert.IsNotNull(inputNamespace);
+
+            var friendModel = inputNamespace!.Models.SingleOrDefault(m => m.Name == "Friend");
+            Assert.IsNotNull(friendModel);
+            Assert.IsTrue(friendModel!.IsDynamicModel);
+
+            var anotherModelProperty = friendModel.Properties.SingleOrDefault(p => p.Type is InputModelType);
+            Assert.IsNotNull(anotherModelProperty);
+            var anotherModel = (InputModelType)anotherModelProperty!.Type;
+            Assert.IsTrue(anotherModel.IsDynamicModel);
+
+            var nullableModelProperty = friendModel.Properties.SingleOrDefault(p => p.Type is InputNullableType);
+            Assert.IsNotNull(nullableModelProperty);
+            anotherModel = (nullableModelProperty!.Type as InputNullableType)!.Type as InputModelType;
+            Assert.IsTrue(anotherModel!.IsDynamicModel);
+
+            var unionModelProperty = friendModel.Properties.SingleOrDefault(p => p.Type is InputUnionType);
+            Assert.IsNotNull(unionModelProperty);
+            var variantTypes = (unionModelProperty!.Type as InputUnionType)!.VariantTypes;
+            foreach (var variantType in variantTypes)
+            {
+                Assert.IsTrue(((InputModelType)variantType).IsDynamicModel);
+            }
+
+            var modelProperty = anotherModel.Properties.SingleOrDefault(p => p.Type is InputModelType);
+            Assert.IsNotNull(modelProperty);
+            Assert.IsTrue(((InputModelType)modelProperty!.Type).IsDynamicModel);
         }
 
         [Test]

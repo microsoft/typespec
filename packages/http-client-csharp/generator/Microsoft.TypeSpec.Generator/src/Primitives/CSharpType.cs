@@ -179,7 +179,28 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         public bool IsGenericType => Arguments.Count > 0;
         public bool IsCollection => _isCollection ??= TypeIsCollection();
         public IReadOnlyList<CSharpType> Arguments { get; private init; }
-        public CSharpType? BaseType { get; }
+
+        public CSharpType? BaseType
+        {
+            get => _baseType;
+            private init
+            {
+                if (value is { IsFrameworkType: true }
+                    // Special base types that we want to ignore - kept in sync with NamedTypeSymbolProvider.BuildBaseType
+                    && (value.FrameworkType == typeof(object)
+                        || value.FrameworkType == typeof(ValueType)
+                        || value.FrameworkType == typeof(Array)
+                        || value.FrameworkType == typeof(Enum)))
+                {
+                    _baseType = null;
+                }
+                else
+                {
+                    _baseType = value;
+                }
+            }
+        }
+        private readonly CSharpType? _baseType;
         public bool IsStruct { get; private init; }
         public Type FrameworkType => _type ?? throw new InvalidOperationException("Not a framework type");
         public object Literal => _literal ?? throw new InvalidOperationException("Not a literal type");
@@ -231,6 +252,11 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             }
 
             return IsFrameworkType && FrameworkType == typeof(BinaryData);
+        }
+
+        public CSharpType GetNestedElementType()
+        {
+            return IsCollection || IsArray ? ElementType.GetNestedElementType() : this;
         }
 
         /// <summary>

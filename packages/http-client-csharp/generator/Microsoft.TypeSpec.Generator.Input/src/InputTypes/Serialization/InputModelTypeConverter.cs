@@ -52,7 +52,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                 discriminatedSubtypes: null!,
                 additionalProperties: null,
                 modelAsStruct: false,
-                serializationOptions: null!);
+                serializationOptions: null!,
+                isDynamicModel: false);
             resolver.AddReference(id, model);
 
             string? @namespace = null;
@@ -132,7 +133,10 @@ namespace Microsoft.TypeSpec.Generator.Input
             if (decorators != null)
             {
                 model.Decorators = decorators;
-                model.IsDynamicModel = model.Decorators.Any(d => d.Name.Equals(DynamicModelDecorator));
+                if (model.Decorators.Any(d => d.Name.Equals(DynamicModelDecorator)))
+                {
+                    MarkModelsAsDynamicRecursive(model, []);
+                }
             }
 
             // if this model has a base, it means this model is a derived model of the base model, add it into the list.
@@ -142,6 +146,51 @@ namespace Microsoft.TypeSpec.Generator.Input
             }
 
             return model;
+        }
+
+        private static void MarkModelsAsDynamicRecursive(InputType inputType, HashSet<InputType> visited)
+        {
+            if (!visited.Add(inputType))
+            {
+                return;
+            }
+
+            if (inputType is InputModelType modelType)
+            {
+                modelType.IsDynamicModel = true;
+                foreach (var property in modelType.Properties)
+                {
+                    switch (property.Type)
+                    {
+                        case InputModelType propertyType:
+                            MarkModelsAsDynamicRecursive(propertyType, visited);
+                            break;
+                        case InputArrayType arrayType:
+                            MarkModelsAsDynamicRecursive(arrayType.ValueType, visited);
+                            break;
+                        case InputDictionaryType dictionaryType:
+                            MarkModelsAsDynamicRecursive(dictionaryType.ValueType, visited);
+                            break;
+                        case InputNullableType nullableType:
+                            MarkModelsAsDynamicRecursive(nullableType.Type, visited);
+                            break;
+                        case InputUnionType unionType:
+                            foreach (var type in unionType.VariantTypes)
+                            {
+                                MarkModelsAsDynamicRecursive(type, visited);
+                            }
+                            break;
+                    }
+                }
+            }
+            else if (inputType is InputArrayType arrayType)
+            {
+                MarkModelsAsDynamicRecursive(arrayType.ValueType, visited);
+            }
+            else if (inputType is InputDictionaryType dictionaryType)
+            {
+                MarkModelsAsDynamicRecursive(dictionaryType.ValueType, visited);
+            }
         }
     }
 }

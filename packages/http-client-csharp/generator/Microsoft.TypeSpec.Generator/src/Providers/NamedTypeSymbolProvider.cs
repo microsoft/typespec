@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
@@ -42,7 +43,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             if (_namedTypeSymbol.BaseType == null
                 || _namedTypeSymbol.BaseType.SpecialType == SpecialType.System_Object
-                || _namedTypeSymbol.BaseType.SpecialType == SpecialType.System_ValueType)
+                || _namedTypeSymbol.BaseType.SpecialType == SpecialType.System_ValueType
+                || _namedTypeSymbol.BaseType.SpecialType == SpecialType.System_Array
+                || _namedTypeSymbol.BaseType.SpecialType == SpecialType.System_Enum)
             {
                 return null;
             }
@@ -258,10 +261,70 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (!string.IsNullOrEmpty(xmlDocumentation))
             {
                 XDocument xDocument = ParseXml(propertySymbol, xmlDocumentation);
-                var summaryElement = xDocument.Descendants(tag).FirstOrDefault();
-                return FormattableStringHelpers.FromString(summaryElement?.Value.Trim());
+                XElement? tagElement = xDocument.Descendants(tag).FirstOrDefault();
+                try
+                {
+                    if (tagElement != null)
+                    {
+                        string processedContent = ProcessXmlContent(tagElement);
+                        return FormattableStringHelpers.FromString(processedContent);
+                    }
+                }
+                catch
+                {
+                    return FormattableStringHelpers.FromString(tagElement?.Value.Trim());
+                }
             }
             return null;
+        }
+
+        private static string ProcessXmlContent(XElement element)
+        {
+            const string SeeTagName = "see";
+            const string CrefAttributeName = "cref";
+            const string SeeTagOpen = "<see cref=\"";
+            const string SeeTagClose = "\"/>";
+
+            var result = new StringBuilder(Math.Max(128, element.ToString().Length));
+
+            foreach (var node in element.Nodes())
+            {
+                switch (node)
+                {
+                    case XText textNode:
+                        result.Append(textNode.Value);
+                        break;
+
+                    case XElement childElement when string.Equals(childElement.Name.LocalName, SeeTagName, StringComparison.Ordinal):
+                        var cref = childElement.Attribute(CrefAttributeName)?.Value;
+
+                        if (!string.IsNullOrEmpty(cref))
+                        {
+                            // Find the type prefix ('T:') separator and strip it
+                            int colonIndex = cref.IndexOf(':');
+                            string cleanCref = colonIndex >= 0 ? cref.Substring(colonIndex + 1) : cref;
+
+                            result.Append(SeeTagOpen)
+                                  .Append(cleanCref)
+                                  .Append(SeeTagClose);
+                        }
+                        else
+                        {
+                            result.Append(childElement.ToString());
+                        }
+                        break;
+
+                    case XElement childElement:
+                        result.Append(ProcessXmlContent(childElement));
+                        break;
+                }
+            }
+
+            string resultString = result.ToString();
+            return resultString.Length > 0 && (char.IsWhiteSpace(resultString[0]) ||
+                   char.IsWhiteSpace(resultString[resultString.Length - 1]))
+                ? resultString.Trim()
+                : resultString;
         }
 
         private static XDocument ParseXml(ISymbol docsSymbol, string xmlDocumentation)
