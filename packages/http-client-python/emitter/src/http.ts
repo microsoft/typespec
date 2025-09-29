@@ -444,9 +444,21 @@ function emitHttpParameters(
   // handle @override
   const httpParameters = method.isOverride
     ? (() => {
-        return method.parameters
-          .map((param) => getHttpOperationParameter(method, param))
-          .filter((result) => result !== undefined);
+        const parametersFromMethod = [];
+        for (const param of method.parameters) {
+          const httpParam = getHttpOperationParameter(method, param);
+          if (httpParam) {
+            // override properties of the http parameter
+            httpParam.optional = param.optional;
+            parametersFromMethod.push(httpParam);
+          }
+        }
+
+        if (parametersFromMethod.length > 0) {
+          return parametersFromMethod;
+        }
+
+        return operation.parameters;
       })()
     : operation.parameters;
 
