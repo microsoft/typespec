@@ -11,6 +11,7 @@ import {
   Scope,
   SourceFileScope,
   TypeEmitter,
+  setProperty,
 } from "@typespec/asset-emitter";
 import {
   BooleanLiteral,
@@ -376,12 +377,13 @@ export class OpenAPI3SchemaEmitterBase<
       }
       const result = this.emitter.emitModelProperty(prop);
       const encodedName = resolveEncodedName(program, prop, contentType);
-      props.set(encodedName, result);
+
+      setProperty(props, encodedName, result);
     }
 
     const discriminator = getDiscriminator(program, model);
     if (discriminator && !(discriminator.propertyName in props)) {
-      props.set(discriminator.propertyName, {
+      setProperty(props, discriminator.propertyName, {
         type: "string",
         description: `Discriminator property for ${model.name}.`,
       });
@@ -468,7 +470,7 @@ export class OpenAPI3SchemaEmitterBase<
 
       const merged = new ObjectBuilder(schema);
       for (const [key, value] of Object.entries(additionalProps)) {
-        merged.set(key, value);
+        setProperty(merged, key, value);
       }
 
       return merged;
@@ -793,7 +795,7 @@ export class OpenAPI3SchemaEmitterBase<
 
   #inlineType(type: Type, schema: ObjectBuilder<any>) {
     if (this._options.includeXTypeSpecName !== "never") {
-      schema.set("x-typespec-name", getTypeName(type, this.#typeNameOptions()));
+      setProperty(schema, "x-typespec-name", getTypeName(type, this.#typeNameOptions()));
     }
     return schema;
   }
@@ -817,7 +819,7 @@ export class OpenAPI3SchemaEmitterBase<
 
     const title = getSummary(this.emitter.getProgram(), type);
     if (title) {
-      schema.set("title", title);
+      setProperty(schema, "title", title);
     }
 
     const usage = this._visibilityUsage.getUsage(type);
