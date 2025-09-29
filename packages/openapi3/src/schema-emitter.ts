@@ -193,18 +193,18 @@ export class OpenAPI3SchemaEmitterBase<
           // Here we are saying that this property will always validate as true for this schema.
           // This is because the `allOf` subSchema will contain the more specific validation
           // for this property.
-          props.set(key, {});
+          setProperty(props, key, {});
         }
       }
       if (Object.keys(props).length > 0) {
-        schema.set("properties", props);
+        setProperty(schema, "properties", props);
       }
     }
 
     const additionalPropertiesSchema = shouldSeal
       ? { not: {} }
       : this.emitter.emitTypeReference(model.indexer!.value);
-    schema.set("additionalProperties", additionalPropertiesSchema);
+    setProperty(schema, "additionalProperties", additionalPropertiesSchema);
   }
 
   modelDeclaration(model: Model, _: string): EmitterOutput<object> {
@@ -228,7 +228,11 @@ export class OpenAPI3SchemaEmitterBase<
     this.#applyExternalDocs(model, schema);
 
     if (model.baseModel) {
-      schema.set("allOf", Builders.array([this.emitter.emitTypeReference(model.baseModel)]));
+      setProperty(
+        schema,
+        "allOf",
+        Builders.array([this.emitter.emitTypeReference(model.baseModel)]),
+      );
     }
 
     const baseName = getOpenAPITypeName(program, model, this.#typeNameOptions());
@@ -864,7 +868,7 @@ export const Builders = {
   object: <T extends Record<string, unknown>>(obj: T): ObjectBuilder<T[string]> => {
     const builder = new ObjectBuilder<T[string]>();
     for (const [key, value] of Object.entries(obj)) {
-      builder.set(key, value as any);
+      setProperty(builder, key, value as any);
     }
     return builder;
   },
