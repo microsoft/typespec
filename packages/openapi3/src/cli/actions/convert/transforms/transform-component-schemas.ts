@@ -104,7 +104,11 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
       doc: schema.description,
       properties: [...getModelPropertiesFromObjectSchema(schema), ...allOfDetails.properties],
       additionalProperties:
-        typeof schema.additionalProperties === "object" ? schema.additionalProperties : undefined,
+        schema.additionalProperties === true
+          ? {} // Use empty object to represent Record<unknown>
+          : typeof schema.additionalProperties === "object"
+            ? schema.additionalProperties
+            : undefined,
       extends: allOfDetails.extends,
       is: isParent,
       type: schema.type,
