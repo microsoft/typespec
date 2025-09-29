@@ -1824,7 +1824,10 @@ export class CodeModelBuilder {
           }
         }
 
-        const schemaName = groupToRequestConditions ? "RequestConditions" : "MatchConditions";
+        let schemaName = groupToRequestConditions ? "RequestConditions" : "MatchConditions";
+        if (!this.isBranded()) {
+          schemaName = "Http" + schemaName;
+        }
         const schemaDescription = groupToRequestConditions
           ? "Specifies HTTP options for conditional requests based on modification time."
           : "Specifies HTTP options for conditional requests.";
