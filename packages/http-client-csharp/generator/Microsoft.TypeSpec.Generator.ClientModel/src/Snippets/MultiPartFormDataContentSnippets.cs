@@ -22,7 +22,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
             => multipartContent.Invoke(nameof(MultipartFormDataContent.CopyToAsync), [destination, cancellationTokenExpression], null, true, true);
 
         public static InvokeMethodExpression CopyTo(this ScopedApi<MultipartFormDataContent> multipartContent, ValueExpression destination, ValueExpression cancellationTokenExpression)
-            => multipartContent.Invoke(nameof(MultipartFormDataContent.CopyTo), [destination, cancellationTokenExpression]);
+            => multipartContent.Invoke(nameof(MultipartFormDataContent.CopyTo), [destination, Default, cancellationTokenExpression]);
 
         public static InvokeMethodExpression Add(this ScopedApi<MultipartFormDataContent> multipartContent, ValueExpression content, ValueExpression name)
             => multipartContent.Invoke(nameof(MultipartFormDataContent.Add), [content, name]);
