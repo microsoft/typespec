@@ -342,7 +342,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var streamParam = new ParameterProvider("stream", FormattableStringHelpers.Empty, typeof(Stream));
             var streamExpression = (ValueExpression)streamParam;
             var cancellationTokenParam = KnownParameters.CancellationTokenParameter;
-            var cancellatinTokenExpression = (ValueExpression)cancellationTokenParam;
+            var cancellationTokenExpression = (ValueExpression)cancellationTokenParam;
             var signature = new MethodSignature(
                 Name: "WriteTo",
                 Description: null,
@@ -363,7 +363,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 new IfElsePreprocessorStatement(
                     "NET6_0_OR_GREATER",
                     /*_multipartContent.CopyTo(stream, cancellationToken);*/
-                    _multipartContentExpression.CopyTo(streamExpression, cancellatinTokenExpression).Terminate(),
+                    _multipartContentExpression.CopyTo(streamExpression, cancellationTokenExpression).Terminate(),
                     taskWaitCompletedStatementsList.ToArray()),
             };
             return new MethodProvider(signature, body, this);
@@ -374,7 +374,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var streamParam = new ParameterProvider("stream", FormattableStringHelpers.Empty, typeof(Stream));
             var streamExpression = (ValueExpression)streamParam;
             var cancellationTokenParam = KnownParameters.CancellationTokenParameter;
-            var cancellatinTokenExpression = (ValueExpression)cancellationTokenParam;
+            var cancellationTokenExpression = (ValueExpression)cancellationTokenParam;
 
             var signature = new MethodSignature(
                 Name: "WriteToAsync",
@@ -392,7 +392,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 new IfElsePreprocessorStatement(
                     "NET6_0_OR_GREATER",
                     /*await _multipartContent.CopyToAsync(stream, cancellationToken).ConfigureAwait(false);,*/
-                    _multipartContentExpression.CopyToAsync(streamExpression, cancellatinTokenExpression).Terminate(),
+                    _multipartContentExpression.CopyToAsync(streamExpression, cancellationTokenExpression).Terminate(),
                     /*await _multipartContent.CopyToAsync(stream).ConfigureAwait(false);*/
                     _multipartContentExpression.CopyToAsync(streamExpression).Terminate()),
             };
