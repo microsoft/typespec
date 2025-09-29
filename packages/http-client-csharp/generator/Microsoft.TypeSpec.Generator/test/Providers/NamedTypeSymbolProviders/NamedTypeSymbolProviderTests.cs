@@ -173,11 +173,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             Assert.AreEqual(expectedType.Arguments.Count, propertyCSharpType.Arguments.Count);
             Assert.AreEqual(expectedType.IsCollection, propertyCSharpType.IsCollection);
             Assert.AreEqual(expectedType.IsFrameworkType, propertyCSharpType.IsFrameworkType);
+            Assert.IsNull(propertyCSharpType.BaseType);
 
             for (var i = 0; i < expectedType.Arguments.Count; i++)
             {
                 Assert.AreEqual(expectedType.Arguments[i].Name, propertyCSharpType.Arguments[i].Name);
                 Assert.AreEqual(expectedType.Arguments[i].IsNullable, propertyCSharpType.Arguments[i].IsNullable);
+                Assert.IsNull(propertyCSharpType.Arguments[i].BaseType);
             }
 
             // validate the underlying types aren't nullable
