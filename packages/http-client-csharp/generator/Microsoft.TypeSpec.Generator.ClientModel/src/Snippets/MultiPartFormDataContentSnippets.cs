@@ -14,10 +14,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
         public static ScopedApi<HttpContentHeaders> Headers(this ScopedApi<MultipartFormDataContent> multipartContent)
             => multipartContent.Property(nameof(MultipartFormDataContent.Headers)).As<HttpContentHeaders>();
 
-        public static InvokeMethodExpression CopyToAsync(this ScopedApi<MultipartFormDataContent> multipartContent, ValueExpression destination, bool isAsync = true)
-            => multipartContent.Invoke(nameof(MultipartFormDataContent.CopyToAsync), [destination], null, isAsync, isAsync);
+        public static InvokeMethodExpression CopyToAsync(this ScopedApi<MultipartFormDataContent> multipartContent, ValueExpression destination, ValueExpression cancellationTokenExpression, bool isAsync = true)
+            => multipartContent.Invoke(nameof(MultipartFormDataContent.CopyToAsync), [destination, cancellationTokenExpression], null, isAsync, isAsync);
 
-        public static InvokeMethodExpression CopyToAsync(this ScopedApi<MultipartFormDataContent> multipartContent, ValueExpression destination, ValueExpression cancellationTokenExpression)
+        // Older .NET versions do not have the CancellationToken parameter, so we provide an overload without it.
+        public static InvokeMethodExpression CopyToAsync(this ScopedApi<MultipartFormDataContent> multipartContent, ValueExpression destination)
             => multipartContent.Invoke(nameof(MultipartFormDataContent.CopyToAsync), [destination], null, true, true);
 
         public static InvokeMethodExpression CopyTo(this ScopedApi<MultipartFormDataContent> multipartContent, ValueExpression destination, ValueExpression cancellationTokenExpression)
