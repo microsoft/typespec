@@ -526,7 +526,8 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     const program = this.emitter.getProgram();
     const examples = getExamples(program, type);
     if (examples.length > 0) {
-      target.set(
+      setProperty(
+        target,
         "examples",
         examples.map((x) => serializeValueAsJson(program, x.value, type)),
       );
