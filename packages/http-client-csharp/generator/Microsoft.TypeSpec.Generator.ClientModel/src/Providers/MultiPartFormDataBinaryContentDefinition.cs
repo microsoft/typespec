@@ -355,7 +355,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     cancellationTokenParam
                 ]);
             var taskWaitCompletedStatementsList = new List<MethodBodyStatement>();
-            ValueExpression getTaskWaiterExpression = _multipartContentExpression.CopyToAsync(streamParam, cancellationTokenExpression, isAsync: false).Invoke(nameof(Task.GetAwaiter), []);
+            ValueExpression getTaskWaiterExpression = _multipartContentExpression.CopyToAsync(streamParam, isAsync: false).Invoke(nameof(Task.GetAwaiter), []);
             /*_multipartContent.CopyToAsync(stream).GetAwaiter().GetResult();*/
             taskWaitCompletedStatementsList.Add(getTaskWaiterExpression.Invoke(nameof(TaskAwaiter.GetResult), []).Terminate());
             var body = new MethodBodyStatement[]

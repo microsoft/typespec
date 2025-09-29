@@ -14,15 +14,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
         public static ScopedApi<HttpContentHeaders> Headers(this ScopedApi<MultipartFormDataContent> multipartContent)
             => multipartContent.Property(nameof(MultipartFormDataContent.Headers)).As<HttpContentHeaders>();
 
-        public static InvokeMethodExpression CopyToAsync(this ScopedApi<MultipartFormDataContent> multipartContent, ValueExpression destination, ValueExpression cancellationTokenExpression, bool isAsync = true)
-            => multipartContent.Invoke(nameof(MultipartFormDataContent.CopyToAsync), [destination, cancellationTokenExpression], null, isAsync, isAsync);
+        public static InvokeMethodExpression CopyToAsync(this ScopedApi<MultipartFormDataContent> multipartContent, ValueExpression destination, ValueExpression cancellationTokenExpression)
+            => multipartContent.Invoke(nameof(MultipartFormDataContent.CopyToAsync), [destination, cancellationTokenExpression], null, true, true);
 
         // Older .NET versions do not have the CancellationToken parameter, so we provide an overload without it.
-        public static InvokeMethodExpression CopyToAsync(this ScopedApi<MultipartFormDataContent> multipartContent, ValueExpression destination)
-            => multipartContent.Invoke(nameof(MultipartFormDataContent.CopyToAsync), [destination], null, true, true);
+        public static InvokeMethodExpression CopyToAsync(this ScopedApi<MultipartFormDataContent> multipartContent, ValueExpression destination, bool isAsync = true)
+            => multipartContent.Invoke(nameof(MultipartFormDataContent.CopyToAsync), [destination], null, isAsync, isAsync);
 
         public static InvokeMethodExpression CopyTo(this ScopedApi<MultipartFormDataContent> multipartContent, ValueExpression destination, ValueExpression cancellationTokenExpression)
-            => multipartContent.Invoke(nameof(MultipartFormDataContent.CopyTo), [destination, Default, cancellationTokenExpression]);
+            => multipartContent.Invoke(nameof(MultipartFormDataContent.CopyTo), [destination, cancellationTokenExpression]);
 
         public static InvokeMethodExpression Add(this ScopedApi<MultipartFormDataContent> multipartContent, ValueExpression content, ValueExpression name)
             => multipartContent.Invoke(nameof(MultipartFormDataContent.Add), [content, name]);
