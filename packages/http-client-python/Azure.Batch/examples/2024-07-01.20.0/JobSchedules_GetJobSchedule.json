@@ -1,0 +1,48 @@
+{
+  "operationId": "JobSchedules_GetJobSchedule",
+  "title": "JobSchedule get",
+  "parameters": {
+    "batchUrl": "account.region.batch.azure.com",
+    "api-version": "2024-07-01.20.0",
+    "jobScheduleId": "jobScheduleId",
+    "client-request-id": "00000000-0000-0000-0000-000000000000",
+    "ocp-date": "Fri, 17 Feb 2017 00:00:00 GMT"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "id": "jobScheduleId",
+        "url": "https://account.region.batch.azure.com/jobschedules/jobScheduleId",
+        "eTag": "0x8D40FFD2E848323",
+        "lastModified": "2016-11-18T21:52:24.7661347Z",
+        "creationTime": "2016-11-18T21:52:22.5431125Z",
+        "state": "completed",
+        "stateTransitionTime": "2016-11-18T21:52:24.8371778Z",
+        "previousState": "active",
+        "previousStateTransitionTime": "2016-11-18T21:52:24.0064874Z",
+        "jobSpecification": {
+          "priority": 0,
+          "maxParallelTasks": -1,
+          "allowTaskPreemption": false,
+          "usesTaskDependencies": false,
+          "onAllTasksComplete": "noaction",
+          "onTaskFailure": "noaction",
+          "constraints": {
+            "maxWallClockTime": "P10675199DT2H48M5.4775807S",
+            "maxTaskRetryCount": 0
+          },
+          "poolInfo": {
+            "poolId": "testPool"
+          }
+        },
+        "executionInfo": {
+          "recentJob": {
+            "url": "https://account.region.batch.azure.com/jobschedules/jobScheduleId:job-1",
+            "id": "jobScheduleId:job-1"
+          },
+          "endTime": "2016-11-18T21:52:24.8371778Z"
+        }
+      }
+    }
+  }
+}

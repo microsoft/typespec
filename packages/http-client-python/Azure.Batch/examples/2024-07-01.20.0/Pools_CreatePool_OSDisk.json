@@ -1,0 +1,40 @@
+{
+  "operationId": "Pools_CreatePool",
+  "title": "Creates a VirtualMachineConfiguration pool with OS disk",
+  "parameters": {
+    "batchUrl": "account.region.batch.azure.com",
+    "api-version": "2024-07-01.20.0",
+    "client-request-id": "00000000-0000-0000-0000-000000000000",
+    "ocp-date": "Wed, 23 Aug 2023 08:40:02 GMT",
+    "pool": {
+      "id": "mypool001",
+      "vmSize": "standard_d2s_v3",
+      "virtualMachineConfiguration": {
+        "imageReference": {
+          "publisher": "Canonical",
+          "offer": "0001-com-ubuntu-server-focal",
+          "sku": "20_04-lts"
+        },
+        "osDisk": {
+          "diskSizeGB": 100,
+          "managedDisk": {
+            "storageAccountType": "standardssd_lrs"
+          },
+          "caching": "readwrite",
+          "ephemeralOSDiskSettings": {
+            "placement": "cachedisk"
+          }
+        },
+        "nodeAgentSKUId": "batch.node.ubuntu 20.04"
+      },
+      "resizeTimeout": "PT15M",
+      "targetDedicatedNodes": 1,
+      "targetLowPriorityNodes": 0,
+      "taskSlotsPerNode": 1,
+      "enableAutoScale": false
+    }
+  },
+  "responses": {
+    "201": {}
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "operationId": "Pools_ListPoolUsageMetrics",
+  "title": "Pool list usage metrics",
+  "parameters": {
+    "batchUrl": "account.region.batch.azure.com",
+    "api-version": "2024-07-01.20.0",
+    "client-request-id": "00000000-0000-0000-0000-000000000000",
+    "ocp-date": "Fri, 17 Feb 2017 00:00:00 GMT"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "value": [
+          {
+            "startTime": "2013-04-01T00:00:00Z",
+            "endTime": "2013-04-01T00:30:00Z",
+            "poolId": "p1",
+            "vmSize": "a1",
+            "totalCoreHours": 39.384838
+          },
+          {
+            "startTime": "2013-04-01T00:30:00Z",
+            "endTime": "2013-04-01T01:00:00Z",
+            "poolId": "p2",
+            "vmSize": "a8",
+            "totalCoreHours": 3039.384838
+          }
+        ]
+      }
+    }
+  }
+}

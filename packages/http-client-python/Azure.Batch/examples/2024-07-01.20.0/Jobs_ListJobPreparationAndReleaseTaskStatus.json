@@ -1,0 +1,42 @@
+{
+  "operationId": "Jobs_ListJobPreparationAndReleaseTaskStatus",
+  "title": "Job list preparation and release task status",
+  "parameters": {
+    "batchUrl": "account.region.batch.azure.com",
+    "api-version": "2024-07-01.20.0",
+    "jobId": "jobId",
+    "client-request-id": "00000000-0000-0000-0000-000000000000",
+    "ocp-date": "Fri, 17 Feb 2017 00:00:00 GMT"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "value": [
+          {
+            "poolId": "poolId",
+            "nodeId": "tvm-2167304207_1-20140905t174658z",
+            "nodeUrl": "https://account.region.batch.azure.com/pools/poolId/nodes/tvm-2167304207_1-20140905t174658z",
+            "jobPreparationTaskExecutionInfo": {
+              "state": "completed",
+              "startTime": "2015-05-01T10:20:31Z",
+              "endTime": "2015-05-02T20:12:42Z",
+              "taskRootDirectory": "tasks/myjob/job-1/myjobpreptask",
+              "taskRootDirectoryUrl": "https://account.region.batch.azure.com/pools/poolId/nodes/tvm-2167304207_1-20140905t174658z/files/tasks/myjob/job-1/myjobpreptask",
+              "exitCode": 0,
+              "retryCount": 0
+            },
+            "jobReleaseTaskExecutionInfo": {
+              "state": "completed",
+              "startTime": "2015-05-01T10:20:31Z",
+              "endTime": "2015-05-02T20:12:42Z",
+              "taskRootDirectory": "tasks/myjob/job-1/myjobreleasetask",
+              "taskRootDirectoryUrl": "https://account.region.batch.azure.com/pools/poolId/nodes/tvm-2167304207_1-20140905t174658z/files/tasks/myjob/job-1/myjobreleasetask",
+              "exitCode": 0
+            }
+          }
+        ],
+        "odata.nextLink": "https://account.region.batch.azure.com/jobs/myjob/jobpreparationandreleasestatus?$skipToken=tvm-2167304207_1-20140905t174658z&api-version=2024-07-01.20.0"
+      }
+    }
+  }
+}

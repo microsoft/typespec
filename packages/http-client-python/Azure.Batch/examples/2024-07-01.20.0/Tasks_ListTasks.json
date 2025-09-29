@@ -1,0 +1,71 @@
+{
+  "operationId": "Tasks_ListTasks",
+  "title": "Task list",
+  "parameters": {
+    "batchUrl": "account.region.batch.azure.com",
+    "api-version": "2024-07-01.20.0",
+    "jobId": "jobId",
+    "client-request-id": "00000000-0000-0000-0000-000000000000",
+    "ocp-date": "Fri, 17 Feb 2017 00:00:00 GMT"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "value": [
+          {
+            "id": "task1",
+            "url": "https://account.region.batch.azure.com/jobs/jobId/tasks/task1",
+            "eTag": "0x8D4125FD1A825A4",
+            "creationTime": "2016-11-21T22:43:31.4733476Z",
+            "lastModified": "2016-11-21T22:43:31.4733476Z",
+            "state": "active",
+            "stateTransitionTime": "2016-11-21T22:43:31.4733476Z",
+            "commandLine": "cmd /c echo task1",
+            "userIdentity": {
+              "autoUser": {
+                "scope": "task",
+                "elevationLevel": "nonadmin"
+              }
+            },
+            "constraints": {
+              "maxWallClockTime": "P10675199DT2H48M5.4775807S",
+              "retentionTime": "P10675199DT2H48M5.4775807S",
+              "maxTaskRetryCount": 0
+            },
+            "requiredSlots": 2,
+            "executionInfo": {
+              "retryCount": 0,
+              "requeueCount": 0
+            }
+          },
+          {
+            "id": "task2",
+            "url": "https://account.region.batch.azure.com/jobs/jobId/tasks/task2",
+            "eTag": "0x8D4125FD2153345",
+            "creationTime": "2016-11-21T22:43:31.6736345Z",
+            "lastModified": "2016-11-21T22:43:32.1880389Z",
+            "state": "active",
+            "stateTransitionTime": "2016-11-21T22:43:31.6736345Z",
+            "commandLine": "cmd /c echo task2",
+            "userIdentity": {
+              "autoUser": {
+                "scope": "task",
+                "elevationLevel": "nonadmin"
+              }
+            },
+            "constraints": {
+              "maxWallClockTime": "P10675199DT2H48M5.4775807S",
+              "retentionTime": "P10675199DT2H48M5.4775807S",
+              "maxTaskRetryCount": 3
+            },
+            "requiredSlots": 2,
+            "executionInfo": {
+              "retryCount": 0,
+              "requeueCount": 0
+            }
+          }
+        ]
+      }
+    }
+  }
+}

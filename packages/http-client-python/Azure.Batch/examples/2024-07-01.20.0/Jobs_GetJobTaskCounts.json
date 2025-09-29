@@ -1,0 +1,31 @@
+{
+  "operationId": "Jobs_GetJobTaskCounts",
+  "title": "Job get task counts",
+  "parameters": {
+    "batchUrl": "account.region.batch.azure.com",
+    "api-version": "2024-07-01.20.0",
+    "jobId": "jobId",
+    "client-request-id": "00000000-0000-0000-0000-000000000000",
+    "ocp-date": "Fri, 17 Feb 2017 00:00:00 GMT"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "taskCounts": {
+          "active": 5,
+          "running": 7,
+          "completed": 4,
+          "succeeded": 2,
+          "failed": 2
+        },
+        "taskSlotCounts": {
+          "active": 5,
+          "running": 7,
+          "completed": 4,
+          "succeeded": 2,
+          "failed": 2
+        }
+      }
+    }
+  }
+}

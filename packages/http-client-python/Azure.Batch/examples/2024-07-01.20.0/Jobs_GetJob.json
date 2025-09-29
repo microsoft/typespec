@@ -1,0 +1,45 @@
+{
+  "operationId": "Jobs_GetJob",
+  "title": "Job get",
+  "parameters": {
+    "batchUrl": "account.region.batch.azure.com",
+    "api-version": "2024-07-01.20.0",
+    "jobId": "jobId",
+    "client-request-id": "00000000-0000-0000-0000-000000000000",
+    "ocp-date": "Fri, 17 Feb 2017 00:00:00 GMT"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "id": "jobId",
+        "url": "https://account.region.batch.azure.com/jobs/jobId",
+        "eTag": "0x8D4100FC49F0278",
+        "lastModified": "2016-11-19T00:05:27.5391608Z",
+        "creationTime": "2016-11-19T00:05:25.311915Z",
+        "state": "completed",
+        "stateTransitionTime": "2016-11-19T00:05:27.578581Z",
+        "previousState": "active",
+        "previousStateTransitionTime": "2016-11-19T00:05:27.2137716Z",
+        "priority": 0,
+        "maxParallelTasks": -1,
+        "allowTaskPreemption": false,
+        "usesTaskDependencies": false,
+        "constraints": {
+          "maxWallClockTime": "P10675199DT2H48M5.4775807S",
+          "maxTaskRetryCount": 0
+        },
+        "poolInfo": {
+          "poolId": "poolId"
+        },
+        "executionInfo": {
+          "startTime": "2016-11-19T00:05:25.3309105Z",
+          "endTime": "2016-11-19T00:05:27.578581Z",
+          "poolId": "poolId",
+          "terminateReason": "UserTerminate"
+        },
+        "onAllTasksComplete": "noaction",
+        "onTaskFailure": "noaction"
+      }
+    }
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "operationId": "Pools_GetPool",
+  "title": "Get a VirtualMachineConfiguration pool with SecurityProfile",
+  "parameters": {
+    "batchUrl": "account.region.batch.azure.com",
+    "api-version": "2024-07-01.20.0",
+    "poolId": "mypool001",
+    "client-request-id": "00000000-0000-0000-0000-000000000000",
+    "ocp-date": "Wed, 14 Jun 2023 06:39:01 GMT"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "id": "mypool001",
+        "url": "https://account.region.batch.azure.com/pools/pool",
+        "eTag": "0x8DB6CA2DFF530D1",
+        "lastModified": "2023-06-14T06:45:00.0946897Z",
+        "creationTime": "2023-06-14T06:45:00.0946897Z",
+        "state": "active",
+        "stateTransitionTime": "2023-06-14T06:45:00.0946897Z",
+        "allocationState": "steady",
+        "allocationStateTransitionTime": "2023-06-14T06:45:59.4770341Z",
+        "vmSize": "standard_dc2s_v2",
+        "resizeTimeout": "PT15M",
+        "currentDedicatedNodes": 1,
+        "targetDedicatedNodes": 1,
+        "currentLowPriorityNodes": 0,
+        "targetLowPriorityNodes": 0,
+        "enableAutoScale": false,
+        "enableInterNodeCommunication": false,
+        "taskSlotsPerNode": 1,
+        "taskSchedulingPolicy": {
+          "nodeFillType": "spread"
+        },
+        "virtualMachineConfiguration": {
+          "imageReference": {
+            "publisher": "Canonical",
+            "offer": "UbuntuServer",
+            "sku": "18_04-lts-gen2",
+            "version": "latest"
+          },
+          "nodeAgentSKUId": "batch.node.ubuntu 18.04",
+          "securityProfile": {
+            "securityType": "trustedLaunch",
+            "encryptionAtHost": true,
+            "uefiSettings": {
+              "secureBootEnabled": false
+            }
+          }
+        },
+        "currentNodeCommunicationMode": "classic"
+      }
+    }
+  }
+}

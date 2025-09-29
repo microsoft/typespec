@@ -1,0 +1,22 @@
+{
+  "operationId": "Nodes_GetNodeFileProperties",
+  "title": "File get properties from node",
+  "parameters": {
+    "batchUrl": "account.region.batch.azure.com",
+    "api-version": "2024-07-01.20.0",
+    "poolId": "poolId",
+    "nodeId": "nodeId",
+    "filePath": "workitems\\jobId\\job-1\\task1\\wd\\testFile.txt",
+    "client-request-id": "00000000-0000-0000-0000-000000000000",
+    "ocp-date": "Fri, 17 Feb 2017 00:00:00 GMT"
+  },
+  "responses": {
+    "200": {
+      "ocp-creation-time": "Fri, 17 Feb 2017 00:00:00 GMT",
+      "Last-Modified": "Fri, 17 Feb 2017 00:00:00 GMT",
+      "ocp-batch-file-isdirectory": "false",
+      "Content-Length": "17",
+      "Content-Type": "application/octet-stream"
+    }
+  }
+}

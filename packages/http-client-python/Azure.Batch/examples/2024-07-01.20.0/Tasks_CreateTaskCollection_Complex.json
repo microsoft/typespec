@@ -1,0 +1,80 @@
+{
+  "operationId": "Tasks_CreateTaskCollection",
+  "title": "Creates a complex collection of tasks",
+  "parameters": {
+    "batchUrl": "account.region.batch.azure.com",
+    "api-version": "2024-07-01.20.0",
+    "jobId": "jobId",
+    "client-request-id": "00000000-0000-0000-0000-000000000000",
+    "ocp-date": "Fri, 17 Feb 2017 00:00:00 GMT",
+    "taskCollection": {
+      "value": [
+        {
+          "id": "complex1",
+          "commandLine": "cmd /c dir /s",
+          "resourceFiles": [
+            {
+              "autoStorageContainerName": "containerName",
+              "filePath": "data"
+            }
+          ],
+          "environmentSettings": [
+            {
+              "name": "env1",
+              "value": "value1"
+            },
+            {
+              "name": "env2",
+              "value": "value2"
+            }
+          ],
+          "affinityInfo": {
+            "affinityId": "affinityId"
+          },
+          "constraints": {
+            "maxWallClockTime": "P1D",
+            "retentionTime": "P2D",
+            "maxTaskRetryCount": 5
+          },
+          "requiredSlots": 2,
+          "multiInstanceSettings": {
+            "numberOfInstances": 3,
+            "coordinationCommandLine": "cmd /c echo coordinating",
+            "commonResourceFiles": [
+              {
+                "httpUrl": "https://common.blob.core.windows.net/",
+                "filePath": "common.exe"
+              }
+            ]
+          }
+        },
+        {
+          "id": "simple3",
+          "commandLine": "cmd /c dir /s"
+        }
+      ]
+    }
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "value": [
+          {
+            "taskId": "simple3",
+            "status": "success",
+            "eTag": "0x8D3D623CE295629",
+            "lastModified": "2016-09-06T07:02:46.0386857Z",
+            "location": "https://account.region.batch.azure.com/jobs/jobId/tasks/simple3"
+          },
+          {
+            "taskId": "complex1",
+            "status": "success",
+            "eTag": "0x8D3D623CE29A412",
+            "lastModified": "2016-09-06T07:02:46.0406802Z",
+            "location": "https://account.region.batch.azure.com/jobs/jobId/tasks/complex1"
+          }
+        ]
+      }
+    }
+  }
+}

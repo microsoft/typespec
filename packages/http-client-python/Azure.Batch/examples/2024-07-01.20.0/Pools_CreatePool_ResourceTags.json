@@ -1,0 +1,31 @@
+{
+  "operationId": "Pools_CreatePool",
+  "title": "Creates a simple pool with resourceTags",
+  "parameters": {
+    "batchUrl": "account.region.batch.azure.com",
+    "api-version": "2024-07-01.20.0",
+    "client-request-id": "00000000-0000-0000-0000-000000000000",
+    "ocp-date": "Wed, 14 Jun 2023 06:39:01 GMT",
+    "pool": {
+      "id": "mypool001",
+      "vmSize": "STANDARD_DC2s_V2",
+      "virtualMachineConfiguration": {
+        "imageReference": {
+          "publisher": "Canonical",
+          "offer": "UbuntuServer",
+          "sku": "18_04-lts-gen2",
+          "version": "latest"
+        },
+        "nodeAgentSKUId": "batch.node.ubuntu 18.04"
+      },
+      "targetDedicatedNodes": 1,
+      "resourceTags": {
+        "TagName1": "TagValue1",
+        "TagName2": "TagValue2"
+      }
+    }
+  },
+  "responses": {
+    "201": {}
+  }
+}

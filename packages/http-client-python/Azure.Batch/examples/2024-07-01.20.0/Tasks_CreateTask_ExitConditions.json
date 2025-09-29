@@ -1,0 +1,35 @@
+{
+  "operationId": "Tasks_CreateTask",
+  "title": "Creates a task with exit conditions",
+  "parameters": {
+    "batchUrl": "account.region.batch.azure.com",
+    "api-version": "2024-07-01.20.0",
+    "jobId": "jobId",
+    "client-request-id": "00000000-0000-0000-0000-000000000000",
+    "ocp-date": "Fri, 17 Feb 2017 00:00:00 GMT",
+    "task": {
+      "id": "taskId",
+      "commandLine": "cmd /c exit 3",
+      "exitConditions": {
+        "exitCodeRanges": [
+          {
+            "start": 2,
+            "end": 4,
+            "exitOptions": {
+              "jobAction": "terminate"
+            }
+          }
+        ]
+      },
+      "userIdentity": {
+        "autoUser": {
+          "scope": "task",
+          "elevationLevel": "nonadmin"
+        }
+      }
+    }
+  },
+  "responses": {
+    "201": {}
+  }
+}

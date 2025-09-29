@@ -1,0 +1,33 @@
+{
+  "operationId": "Pools_CreatePool",
+  "title": "Creates a VirtualMachineConfiguration pool with ServiceArtifactReference",
+  "parameters": {
+    "batchUrl": "account.region.batch.azure.com",
+    "api-version": "2024-07-01.20.0",
+    "client-request-id": "00000000-0000-0000-0000-000000000000",
+    "ocp-date": "Thu, 11 May 2023 08:03:01 GMT",
+    "pool": {
+      "id": "mypool002",
+      "vmSize": "Standard_A1_v2",
+      "virtualMachineConfiguration": {
+        "imageReference": {
+          "publisher": "MicrosoftWindowsServer",
+          "offer": "WindowsServer",
+          "sku": "2016-datacenter-smalldisk",
+          "version": "latest"
+        },
+        "windowsConfiguration": {
+          "enableAutomaticUpdates": false
+        },
+        "serviceArtifactReference": {
+          "id": "/subscriptions/subid/resourceGroups/default-azurebatch-japaneast/providers/Microsoft.Compute/galleries/myGallery/serviceArtifacts/myServiceArtifact/vmArtifactsProfiles/vmArtifactsProfile"
+        },
+        "nodeAgentSKUId": "batch.node.windows amd64"
+      },
+      "targetDedicatedNodes": 2
+    }
+  },
+  "responses": {
+    "201": {}
+  }
+}

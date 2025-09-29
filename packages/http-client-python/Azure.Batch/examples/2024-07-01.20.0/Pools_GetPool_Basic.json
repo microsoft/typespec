@@ -1,0 +1,58 @@
+{
+  "operationId": "Pools_GetPool",
+  "title": "Pool get",
+  "parameters": {
+    "batchUrl": "account.region.batch.azure.com",
+    "api-version": "2024-07-01.20.0",
+    "poolId": "pool",
+    "client-request-id": "00000000-0000-0000-0000-000000000000",
+    "ocp-date": "Fri, 17 Feb 2017 00:00:00 GMT"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "id": "pool",
+        "url": "https://account.region.batch.azure.com/pools/pool",
+        "eTag": "0x8D413091E739A56",
+        "lastModified": "2016-11-22T18:55:25.2608598Z",
+        "creationTime": "2016-11-22T18:55:24.2632496Z",
+        "state": "active",
+        "stateTransitionTime": "2016-11-22T18:55:24.2632496Z",
+        "allocationState": "steady",
+        "allocationStateTransitionTime": "2016-11-22T18:55:24.8154041Z",
+        "vmSize": "standard_a1",
+        "resizeTimeout": "PT15M",
+        "currentDedicatedNodes": 0,
+        "currentLowPriorityNodes": 0,
+        "targetDedicatedNodes": 0,
+        "targetLowPriorityNodes": 0,
+        "enableAutoScale": false,
+        "enableInterNodeCommunication": false,
+        "startTask": {
+          "commandLine": "/bin/bash -c 'echo start task'",
+          "userIdentity": {
+            "autoUser": {
+              "scope": "task",
+              "elevationLevel": "nonadmin"
+            }
+          },
+          "maxTaskRetryCount": 0,
+          "waitForSuccess": false
+        },
+        "taskSlotsPerNode": 1,
+        "taskSchedulingPolicy": {
+          "nodeFillType": "spread"
+        },
+        "virtualMachineConfiguration": {
+          "imageReference": {
+            "publisher": "Canonical",
+            "offer": "0001-com-ubuntu-server-focal",
+            "sku": "20_04-lts",
+            "version": "latest"
+          },
+          "nodeAgentSKUId": "batch.node.ubuntu 20.04"
+        }
+      }
+    }
+  }
+}

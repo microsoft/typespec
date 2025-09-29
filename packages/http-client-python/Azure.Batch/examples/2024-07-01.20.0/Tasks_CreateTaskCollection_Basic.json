@@ -1,0 +1,45 @@
+{
+  "operationId": "Tasks_CreateTaskCollection",
+  "title": "Creates a basic collection of tasks",
+  "parameters": {
+    "batchUrl": "account.region.batch.azure.com",
+    "api-version": "2024-07-01.20.0",
+    "jobId": "jobId",
+    "client-request-id": "00000000-0000-0000-0000-000000000000",
+    "ocp-date": "Fri, 17 Feb 2017 00:00:00 GMT",
+    "taskCollection": {
+      "value": [
+        {
+          "id": "simple1",
+          "commandLine": "cmd /c dir /s"
+        },
+        {
+          "id": "simple2",
+          "commandLine": "cmd /c dir /s"
+        }
+      ]
+    }
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "value": [
+          {
+            "status": "success",
+            "taskId": "simple1",
+            "eTag": "0x8D3D623CD661246",
+            "lastModified": "2016-09-06T07:02:44.7589958Z",
+            "location": "https://account.region.batch.azure.com/jobs/jobId/tasks/simple1"
+          },
+          {
+            "status": "success",
+            "taskId": "simple2",
+            "eTag": "0x8D3D623CD7072CC",
+            "lastModified": "2016-09-06T07:02:44.8270028Z",
+            "location": "https://account.region.batch.azure.com/jobs/jobId/tasks/simple2"
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "operationId": "Nodes_CreateNodeUser",
+  "title": "Node create user",
+  "parameters": {
+    "batchUrl": "account.region.batch.azure.com",
+    "api-version": "2024-07-01.20.0",
+    "poolId": "poolId",
+    "nodeId": "tvm-1695681911_1-20161121t182739z",
+    "client-request-id": "00000000-0000-0000-0000-000000000000",
+    "ocp-date": "Fri, 17 Feb 2017 00:00:00 GMT",
+    "user": {
+      "name": "userName",
+      "isAdmin": false,
+      "expiryTime": "2017-08-01T00:00:00Z",
+      "password": "Password"
+    }
+  },
+  "responses": {
+    "201": {}
+  }
+}

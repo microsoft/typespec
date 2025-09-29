@@ -1,0 +1,54 @@
+{
+  "operationId": "Pools_GetPool",
+  "title": "Get a VirtualMachineConfiguration pool with ServiceArtifactReference",
+  "parameters": {
+    "batchUrl": "account.region.batch.azure.com",
+    "api-version": "2024-07-01.20.0",
+    "poolId": "pool",
+    "client-request-id": "00000000-0000-0000-0000-000000000000",
+    "ocp-date": "Thu, 11 May 2023 08:08:01 GMT"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "id": "pool",
+        "url": "https://account.region.batch.azure.com/pools/pool",
+        "eTag": "0x8DB51F652DFC78F",
+        "lastModified": "2023-05-11T08:04:19.7259151Z",
+        "creationTime": "2023-05-11T08:04:19.7259151Z",
+        "state": "active",
+        "stateTransitionTime": "2023-05-11T08:04:19.7259151Z",
+        "allocationState": "steady",
+        "allocationStateTransitionTime": "2023-05-11T08:05:22.0020052Z",
+        "vmSize": "standard_a1_v2",
+        "resizeTimeout": "PT15M",
+        "currentDedicatedNodes": 2,
+        "targetDedicatedNodes": 2,
+        "currentLowPriorityNodes": 0,
+        "targetLowPriorityNodes": 0,
+        "enableAutoScale": false,
+        "enableInterNodeCommunication": false,
+        "taskSlotsPerNode": 1,
+        "taskSchedulingPolicy": {
+          "nodeFillType": "spread"
+        },
+        "virtualMachineConfiguration": {
+          "imageReference": {
+            "publisher": "MicrosoftWindowsServer",
+            "offer": "WindowsServer",
+            "sku": "2016-datacenter-smalldisk",
+            "version": "latest"
+          },
+          "nodeAgentSKUId": "batch.node.windows amd64",
+          "windowsConfiguration": {
+            "enableAutomaticUpdates": false
+          },
+          "serviceArtifactReference": {
+            "id": "/subscriptions/subid/resourceGroups/default-azurebatch-japaneast/providers/Microsoft.Compute/galleries/myGallery/serviceArtifacts/myServiceArtifact/vmArtifactsProfiles/vmArtifactsProfile"
+          }
+        },
+        "currentNodeCommunicationMode": "classic"
+      }
+    }
+  }
+}

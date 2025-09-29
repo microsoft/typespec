@@ -1,0 +1,36 @@
+{
+  "operationId": "Certificates_GetCertificate",
+  "title": "Certificate get",
+  "parameters": {
+    "batchUrl": "account.region.batch.azure.com",
+    "api-version": "2024-07-01.20.0",
+    "thumbprintAlgorithm": "sha1",
+    "thumbprint": "0123456789abcdef0123456789abcdef01234567",
+    "client-request-id": "00000000-0000-0000-0000-000000000000",
+    "ocp-date": "Fri, 17 Feb 2017 00:00:00 GMT"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "thumbprint": "0123456789abcdef0123456789abcdef01234567",
+        "thumbprintAlgorithm": "sha1",
+        "url": "https://account.region.batch.azure.com/certificates(thumbprintAlgorithm=sha1,thumbprint=0123456789abcdef0123456789abcdef01234567)",
+        "state": "deletefailed",
+        "stateTransitionTime": "2014-07-31T21:12:58.236Z",
+        "previousState": "deleting",
+        "previousStateTransitionTime": "2014-07-31T21:11:58.236Z",
+        "publicData": "#####...",
+        "deleteCertificateError": {
+          "code": "PoolsReferencingCertificate",
+          "message": "The specified certificate is being used by the below mentioned pool(s)",
+          "values": [
+            {
+              "name": "Pools",
+              "value": "mypool1"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

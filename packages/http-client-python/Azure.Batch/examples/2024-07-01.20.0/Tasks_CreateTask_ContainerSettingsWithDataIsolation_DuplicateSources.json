@@ -1,0 +1,37 @@
+{
+  "operationId": "Tasks_CreateTask",
+  "title": "Creates a task with container settings with duplicate source",
+  "parameters": {
+    "batchUrl": "account.region.batch.azure.com",
+    "api-version": "2024-07-01.20.0",
+    "jobId": "jobId",
+    "client-request-id": "00000000-0000-0000-0000-000000000000",
+    "ocp-date": "Tue, 26 Mar 2024 00:00:00 GMT",
+    "task": {
+      "id": "taskId",
+      "commandLine": "bash -c 'echo hello'",
+      "containerSettings": {
+        "imageName": "ubuntu",
+        "containerHostBatchBindMounts": [
+          {
+            "source": "Task",
+            "isReadOnly": true
+          },
+          {
+            "source": "Task",
+            "isReadOnly": true
+          }
+        ]
+      },
+      "userIdentity": {
+        "autoUser": {
+          "scope": "task",
+          "elevationLevel": "nonadmin"
+        }
+      }
+    }
+  },
+  "responses": {
+    "201": {}
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "operationId": "Nodes_StartNode",
+  "title": "Node start",
+  "parameters": {
+    "batchUrl": "account.region.batch.azure.com",
+    "api-version": "2024-07-01.20.0",
+    "poolId": "poolId",
+    "nodeId": "tvm-1695681911_1-20161122t193202z",
+    "client-request-id": "00000000-0000-0000-0000-000000000000",
+    "ocp-date": "Fri, 17 Feb 2017 00:00:00 GMT"
+  },
+  "responses": {
+    "202": {}
+  }
+}

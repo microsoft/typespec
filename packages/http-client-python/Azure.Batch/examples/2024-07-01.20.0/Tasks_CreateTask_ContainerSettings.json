@@ -1,0 +1,28 @@
+{
+  "operationId": "Tasks_CreateTask",
+  "title": "Creates a task with container settings",
+  "parameters": {
+    "batchUrl": "account.region.batch.azure.com",
+    "api-version": "2024-07-01.20.0",
+    "jobId": "jobId",
+    "client-request-id": "00000000-0000-0000-0000-000000000000",
+    "ocp-date": "Fri, 17 Feb 2017 00:00:00 GMT",
+    "task": {
+      "id": "taskId",
+      "commandLine": "bash -c 'echo hello'",
+      "containerSettings": {
+        "imageName": "ubuntu",
+        "containerRunOptions": "--rm"
+      },
+      "userIdentity": {
+        "autoUser": {
+          "scope": "task",
+          "elevationLevel": "nonadmin"
+        }
+      }
+    }
+  },
+  "responses": {
+    "201": {}
+  }
+}

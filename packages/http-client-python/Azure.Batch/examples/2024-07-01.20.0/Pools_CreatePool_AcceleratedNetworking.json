@@ -1,0 +1,30 @@
+{
+  "operationId": "Pools_CreatePool",
+  "title": "Creates a pool with accelerated networking",
+  "parameters": {
+    "batchUrl": "account.region.batch.azure.com",
+    "api-version": "2024-07-01.20.0",
+    "client-request-id": "00000000-0000-0000-0000-000000000000",
+    "ocp-date": "Thu, 27 Apr 2023 05:31:01 GMT",
+    "pool": {
+      "id": "mypool01",
+      "vmSize": "Standard_D1_v2",
+      "virtualMachineConfiguration": {
+        "imageReference": {
+          "publisher": "MicrosoftWindowsServer",
+          "offer": "WindowsServer",
+          "sku": "2016-datacenter-smalldisk",
+          "version": "latest"
+        },
+        "nodeAgentSKUId": "batch.node.windows amd64"
+      },
+      "targetDedicatedNodes": 2,
+      "networkConfiguration": {
+        "enableAcceleratedNetworking": true
+      }
+    }
+  },
+  "responses": {
+    "201": {}
+  }
+}

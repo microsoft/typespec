@@ -1,0 +1,72 @@
+{
+  "operationId": "Pools_CreatePool",
+  "title": "Creates a pool with mount drive specified",
+  "parameters": {
+    "batchUrl": "account.region.batch.azure.com",
+    "api-version": "2024-07-01.20.0",
+    "client-request-id": "00000000-0000-0000-0000-000000000000",
+    "ocp-data": "Fri, 17 Feb 2017 00:00:00 GMT",
+    "pool": {
+      "id": "pool2",
+      "vmSize": "standard_a1",
+      "virtualMachineConfiguration": {
+        "imageReference": {
+          "publisher": "Canonical",
+          "offer": "UbuntuServer",
+          "sku": "20_04-lts"
+        },
+        "nodeAgentSKUId": "batch.node.ubuntu 20.04"
+      },
+      "mountConfiguration": [
+        {
+          "azureBlobFileSystemConfiguration": {
+            "accountName": "accountName",
+            "containerName": "blobContainerName",
+            "accountKey": "accountKey",
+            "relativeMountPath": "bfusepath"
+          }
+        },
+        {
+          "azureFileShareConfiguration": {
+            "accountName": "accountName",
+            "azureFileUrl": "https://myaccount.file.core.windows.net/fileshare",
+            "accountKey": "accountKey",
+            "relativeMountPath": "filesharepath",
+            "mountOptions": "mount options ver=1.0"
+          }
+        },
+        {
+          "nfsMountConfiguration": {
+            "source": "somesource nfs url",
+            "relativeMountPath": "mountpath",
+            "mountOptions": "mount options ver=1.0"
+          }
+        },
+        {
+          "cifsMountConfiguration": {
+            "username": "accountName",
+            "password": "password",
+            "source": "//myaccount.file.core.windows.net/file",
+            "relativeMountPath": "mountpath",
+            "mountOptions": "mount options ver=1.0"
+          }
+        }
+      ],
+      "resizeTimeout": "PT15M",
+      "targetDedicatedNodes": 5,
+      "targetLowPriorityNodes": 0,
+      "taskSlotsPerNode": 3,
+      "taskSchedulingPolicy": {
+        "nodeFillType": "spread"
+      },
+      "enableAutoScale": false
+    }
+  },
+  "responses": {
+    "201": {
+      "request-id": "00000000-0000-0000-0000-000000000000",
+      "ETag": "0x8D45765A6A2DC04",
+      "Last-Modified": "Fri, 17 Feb 2017 00:00:00 GMT"
+    }
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "operationId": "Jobs_ListJobs",
+  "title": "Job list",
+  "parameters": {
+    "batchUrl": "account.region.batch.azure.com",
+    "api-version": "2024-07-01.20.0",
+    "client-request-id": "00000000-0000-0000-0000-000000000000",
+    "ocp-date": "Fri, 17 Feb 2017 00:00:00 GMT"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "value": [
+          {
+            "id": "jobId",
+            "url": "https://account.region.batch.azure.com/jobs/jobId",
+            "eTag": "0x8D4100FC46D5BF4",
+            "lastModified": "2016-11-19T00:05:27.2137716Z",
+            "creationTime": "2016-11-19T00:05:25.311915Z",
+            "state": "active",
+            "stateTransitionTime": "2016-11-19T00:05:27.2137716Z",
+            "previousState": "disabled",
+            "previousStateTransitionTime": "2016-11-19T00:05:26.88777Z",
+            "priority": 0,
+            "maxParallelTasks": -1,
+            "allowTaskPreemption": false,
+            "usesTaskDependencies": false,
+            "constraints": {
+              "maxWallClockTime": "P10675199DT2H48M5.4775807S",
+              "maxTaskRetryCount": 0
+            },
+            "poolInfo": {
+              "poolId": "poolId"
+            },
+            "executionInfo": {
+              "startTime": "2016-11-19T00:05:25.3309105Z",
+              "poolId": "poolId"
+            },
+            "onAllTasksComplete": "noaction",
+            "onTaskFailure": "noaction"
+          }
+        ]
+      }
+    }
+  }
+}

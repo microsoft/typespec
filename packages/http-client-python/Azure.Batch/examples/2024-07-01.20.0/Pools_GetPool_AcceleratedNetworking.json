@@ -1,0 +1,52 @@
+{
+  "operationId": "Pools_GetPool",
+  "title": "Get a pool with AcceleratedNetworking",
+  "parameters": {
+    "batchUrl": "account.region.batch.azure.com",
+    "api-version": "2024-07-01.20.0",
+    "poolId": "pool",
+    "client-request-id": "00000000-0000-0000-0000-000000000000",
+    "ocp-date": "Fri, 28 Apr 2023 02:43:01 GMT"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "id": "pool",
+        "url": "https://account.region.batch.azure.com/pools/pool",
+        "eTag": "0x8DB4792BE8566A2",
+        "lastModified": "2023-04-28T02:46:19.0268066Z",
+        "creationTime": "2023-04-28T02:46:19.0268066Z",
+        "state": "active",
+        "stateTransitionTime": "2023-04-28T02:46:19.0268066Z",
+        "allocationState": "steady",
+        "allocationStateTransitionTime": "2023-04-28T02:47:17.9169655Z",
+        "vmSize": "standard_d1_v2",
+        "resizeTimeout": "PT15M",
+        "currentDedicatedNodes": 2,
+        "targetDedicatedNodes": 2,
+        "currentLowPriorityNodes": 0,
+        "targetLowPriorityNodes": 0,
+        "enableAutoScale": false,
+        "enableInterNodeCommunication": false,
+        "taskSlotsPerNode": 1,
+        "taskSchedulingPolicy": {
+          "nodeFillType": "spread"
+        },
+        "virtualMachineConfiguration": {
+          "imageReference": {
+            "publisher": "MicrosoftWindowsServer",
+            "offer": "WindowsServer",
+            "sku": "2016-datacenter-smalldisk",
+            "version": "latest"
+          },
+          "nodeAgentSKUId": "batch.node.windows amd64"
+        },
+        "networkConfiguration": {
+          "dynamicVNetAssignmentScope": "none",
+          "enableAcceleratedNetworking": true
+        },
+        "currentNodeCommunicationMode": "classic"
+      }
+    }
+  }
+}

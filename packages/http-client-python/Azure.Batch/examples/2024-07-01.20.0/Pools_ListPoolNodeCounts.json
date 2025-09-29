@@ -1,0 +1,141 @@
+{
+  "operationId": "Pools_ListPoolNodeCounts",
+  "title": "NodeCountsPayload",
+  "parameters": {
+    "batchUrl": "account.region.batch.azure.com",
+    "api-version": "2024-07-01.20.0",
+    "client-request-id": "00000000-0000-0000-0000-000000000000",
+    "ocp-date": "Fri, 17 Feb 2017 00:00:00 GMT"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "value": [
+          {
+            "poolId": "pool1",
+            "dedicated": {
+              "creating": 0,
+              "deallocated": 0,
+              "deallocating": 0,
+              "idle": 0,
+              "leavingPool": 0,
+              "offline": 0,
+              "preempted": 0,
+              "rebooting": 0,
+              "reimaging": 0,
+              "running": 0,
+              "starting": 0,
+              "startTaskFailed": 0,
+              "unknown": 0,
+              "unusable": 0,
+              "waitingForStartTask": 0,
+              "upgradingOS": 0,
+              "total": 0
+            },
+            "lowPriority": {
+              "creating": 0,
+              "deallocated": 0,
+              "deallocating": 0,
+              "idle": 0,
+              "leavingPool": 0,
+              "offline": 0,
+              "preempted": 0,
+              "rebooting": 0,
+              "reimaging": 0,
+              "running": 2,
+              "starting": 1,
+              "startTaskFailed": 0,
+              "unknown": 0,
+              "unusable": 0,
+              "waitingForStartTask": 0,
+              "upgradingOS": 0,
+              "total": 3
+            }
+          },
+          {
+            "poolId": "pool2",
+            "dedicated": {
+              "creating": 0,
+              "deallocated": 0,
+              "deallocating": 0,
+              "idle": 1,
+              "leavingPool": 0,
+              "offline": 3,
+              "preempted": 0,
+              "rebooting": 0,
+              "reimaging": 0,
+              "running": 0,
+              "starting": 0,
+              "startTaskFailed": 0,
+              "unknown": 0,
+              "unusable": 0,
+              "waitingForStartTask": 0,
+              "upgradingOS": 0,
+              "total": 4
+            },
+            "lowPriority": {
+              "creating": 0,
+              "deallocated": 0,
+              "deallocating": 0,
+              "idle": 0,
+              "leavingPool": 0,
+              "offline": 0,
+              "preempted": 0,
+              "rebooting": 0,
+              "reimaging": 0,
+              "running": 0,
+              "starting": 0,
+              "startTaskFailed": 0,
+              "unknown": 0,
+              "unusable": 0,
+              "waitingForStartTask": 0,
+              "upgradingOS": 0,
+              "total": 0
+            }
+          },
+          {
+            "poolId": "pool3",
+            "dedicated": {
+              "creating": 0,
+              "deallocated": 0,
+              "deallocating": 0,
+              "idle": 5,
+              "leavingPool": 0,
+              "offline": 0,
+              "preempted": 0,
+              "rebooting": 0,
+              "reimaging": 4,
+              "running": 0,
+              "starting": 0,
+              "startTaskFailed": 0,
+              "unknown": 0,
+              "unusable": 0,
+              "waitingForStartTask": 0,
+              "upgradingOS": 0,
+              "total": 9
+            },
+            "lowPriority": {
+              "creating": 7,
+              "deallocated": 0,
+              "deallocating": 0,
+              "idle": 0,
+              "leavingPool": 0,
+              "offline": 0,
+              "preempted": 0,
+              "rebooting": 0,
+              "reimaging": 0,
+              "running": 4,
+              "starting": 0,
+              "startTaskFailed": 0,
+              "unknown": 0,
+              "unusable": 0,
+              "waitingForStartTask": 0,
+              "upgradingOS": 0,
+              "total": 11
+            }
+          }
+        ]
+      }
+    }
+  }
+}

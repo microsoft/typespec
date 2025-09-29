@@ -1,0 +1,30 @@
+{
+  "operationId": "JobSchedules_ReplaceJobSchedule",
+  "title": "JobSchedule patch",
+  "parameters": {
+    "batchUrl": "account.region.batch.azure.com",
+    "api-version": "2024-07-01.20.0",
+    "jobScheduleId": "jobScheduleId",
+    "client-request-id": "00000000-0000-0000-0000-000000000000",
+    "ocp-date": "Fri, 17 Feb 2017 00:00:00 GMT",
+    "jobSchedule": {
+      "schedule": {
+        "doNotRunUntil": "2025-01-01T12:30:00Z"
+      },
+      "jobSpecification": {
+        "priority": 0,
+        "usesTaskDependencies": false,
+        "constraints": {
+          "maxWallClockTime": "P10675199DT2H48M5.4775807S",
+          "maxTaskRetryCount": 0
+        },
+        "poolInfo": {
+          "poolId": "poolId"
+        }
+      }
+    }
+  },
+  "responses": {
+    "200": {}
+  }
+}

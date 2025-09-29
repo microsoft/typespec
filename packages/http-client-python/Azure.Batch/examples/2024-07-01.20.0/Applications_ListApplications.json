@@ -1,0 +1,25 @@
+{
+  "operationId": "Applications_ListApplications",
+  "title": "List applications",
+  "parameters": {
+    "batchUrl": "account.region.batch.azure.com",
+    "api-version": "2024-07-01.20.0",
+    "client-request-id": "00000000-0000-0000-0000-000000000000",
+    "ocp-date": "Fri, 17 Feb 2017 00:00:00 GMT"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "value": [
+          {
+            "id": "my_application_id",
+            "versions": [
+              "v1.0"
+            ],
+            "displayName": "my_display_name"
+          }
+        ]
+      }
+    }
+  }
+}

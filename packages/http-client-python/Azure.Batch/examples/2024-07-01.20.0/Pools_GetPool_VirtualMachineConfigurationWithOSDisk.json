@@ -1,0 +1,58 @@
+{
+  "operationId": "Pools_GetPool",
+  "title": "Add a VirtualMachineConfiguration pool with OS disk",
+  "parameters": {
+    "batchUrl": "account.region.batch.azure.com",
+    "api-version": "2024-07-01.20.0",
+    "poolId": "mypool001",
+    "client-request-id": "00000000-0000-0000-0000-000000000000",
+    "ocp-date": "Wed, 23 Aug 2023 08:42:01 GMT"
+  },
+  "responses": {
+    "200": {
+      "body": {
+        "id": "mypool001",
+        "url": "http://localhost:20302/testaccount1tls/pools/mypool001",
+        "eTag": "0x8DBA3B4E91CD7B7",
+        "lastModified": "2023-08-23T08:42:40.3479479Z",
+        "creationTime": "2023-08-23T08:42:40.3479479Z",
+        "state": "active",
+        "stateTransitionTime": "2023-08-23T08:42:40.3479479Z",
+        "allocationState": "steady",
+        "allocationStateTransitionTime": "2023-08-23T08:42:53.8587829Z",
+        "vmSize": "standard_d2s_v3",
+        "resizeTimeout": "PT15M",
+        "currentDedicatedNodes": 1,
+        "targetDedicatedNodes": 1,
+        "currentLowPriorityNodes": 0,
+        "targetLowPriorityNodes": 0,
+        "enableAutoScale": false,
+        "enableInterNodeCommunication": false,
+        "taskSlotsPerNode": 1,
+        "taskSchedulingPolicy": {
+          "nodeFillType": "spread"
+        },
+        "virtualMachineConfiguration": {
+          "imageReference": {
+            "publisher": "Canonical",
+            "offer": "0001-com-ubuntu-server-focal",
+            "sku": "20_04-lts",
+            "version": "latest"
+          },
+          "osDisk": {
+            "ephemeralOSDiskSettings": {
+              "placement": "cachedisk"
+            },
+            "managedDisk": {
+              "storageAccountType": "standardssd_lrs"
+            },
+            "diskSizeGB": 100,
+            "caching": "readwrite"
+          },
+          "nodeAgentSKUId": "batch.node.ubuntu 20.04"
+        },
+        "currentNodeCommunicationMode": "classic"
+      }
+    }
+  }
+}

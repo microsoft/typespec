@@ -1,0 +1,44 @@
+{
+  "operationId": "Pools_CreatePool",
+  "title": "Creates a VirtualMachineConfiguration pool",
+  "parameters": {
+    "batchUrl": "account.region.batch.azure.com",
+    "api-version": "2024-07-01.20.0",
+    "client-request-id": "00000000-0000-0000-0000-000000000000",
+    "ocp-date": "Fri, 17 Feb 2017 00:00:00 GMT",
+    "pool": {
+      "id": "pool2",
+      "vmSize": "standard_a1",
+      "virtualMachineConfiguration": {
+        "imageReference": {
+          "publisher": "Canonical",
+          "offer": "0001-com-ubuntu-server-focal",
+          "sku": "20_04-lts"
+        },
+        "nodeAgentSKUId": "batch.node.ubuntu 20.04"
+      },
+      "resizeTimeout": "PT15M",
+      "targetDedicatedNodes": 5,
+      "targetLowPriorityNodes": 0,
+      "taskSlotsPerNode": 3,
+      "taskSchedulingPolicy": {
+        "nodeFillType": "spread"
+      },
+      "enableAutoScale": false,
+      "enableInterNodeCommunication": true,
+      "metadata": [
+        {
+          "name": "myproperty",
+          "value": "myvalue"
+        }
+      ]
+    }
+  },
+  "responses": {
+    "201": {
+      "request-id": "00000000-0000-0000-0000-000000000000",
+      "ETag": "0x8D45765A6A2DC04",
+      "Last-Modified": "Fri, 17 Feb 2017 00:00:00 GMT"
+    }
+  }
+}
