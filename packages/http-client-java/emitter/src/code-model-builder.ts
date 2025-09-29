@@ -1088,7 +1088,7 @@ export class CodeModelBuilder {
     let continuationTokenParameter: Parameter | undefined;
     let continuationTokenResponseProperty: Property[] | undefined;
     let continuationTokenResponseHeader: HttpHeader | undefined;
-    if (!this.isBranded()) {
+    if (!this.isAzureV1()) {
       // parameter would either be query or header parameter, so taking the last segment would be enough
       const continuationTokenParameterSegment =
         sdkMethod.pagingMetadata.continuationTokenParameterSegments?.at(-1);
