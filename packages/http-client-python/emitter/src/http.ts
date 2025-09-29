@@ -441,18 +441,12 @@ function emitHttpParameters(
 ): Record<string, any>[] {
   const parameters: Record<string, any>[] = [...context.__endpointPathParameters];
 
-  // handle @override for parameters reorder
+  // handle @override
   const httpParameters = method.isOverride
     ? (() => {
-        const parametersFromMethod = method.parameters
+        return method.parameters
           .map((param) => getHttpOperationParameter(method, param))
           .filter((result) => result !== undefined);
-
-        const parametersFromOperation = operation.parameters.filter(
-          (param) => !parametersFromMethod.includes(param),
-        );
-
-        return [...parametersFromMethod, ...parametersFromOperation];
       })()
     : operation.parameters;
 
