@@ -344,6 +344,11 @@
       "commandLineArgs": "$(SolutionDir)/TestProjects/Local/Sample-TypeSpec -g ScmCodeModelGenerator",
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
+    },
+    "Azure.Security.KeyVault.Administration": {
+      "commandLineArgs": "\"C:\\Users\\jolov\\repos\\azure-sdk-for-net\\sdk\\keyvault\\Azure.Security.KeyVault.Administration/TempTypeSpecFiles/node_modules/@azure-typespec/http-client-csharp/dist/generator/Microsoft.TypeSpec.Generator.dll\" \"C:\\Users\\jolov\\repos\\azure-sdk-for-net\\sdk\\keyvault\\Azure.Security.KeyVault.Administration\" -g AzureClientGenerator",
+      "executablePath": "dotnet",
+      "commandName": "Executable"
     }
   }
 }
