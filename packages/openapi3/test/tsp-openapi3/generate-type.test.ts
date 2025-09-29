@@ -17,6 +17,7 @@ function generateScenarioName(scenario: TestScenario): string {
 const testScenarios: TestScenario[] = [
   // boolean
   { schema: { type: "boolean" }, expected: "boolean" },
+  { schema: { type: "boolean", default: false }, expected: "boolean" },
   { schema: { type: "boolean", nullable: true }, expected: "boolean | null" },
   // integers
   { schema: { type: "integer" }, expected: "integer" },
@@ -40,6 +41,7 @@ const testScenarios: TestScenario[] = [
   },
   // numerics
   { schema: { type: "number" }, expected: "numeric" },
+  { schema: { type: "number", default: 0 }, expected: "numeric" },
   { schema: { type: "number", default: 123 }, expected: "numeric = 123" },
   { schema: { type: "number", default: 123, nullable: true }, expected: "numeric | null = 123" },
   { schema: { type: "number", format: "decimal" }, expected: "decimal" },
@@ -49,6 +51,15 @@ const testScenarios: TestScenario[] = [
   { schema: { type: "number", enum: [3.14, 6.28, 42] }, expected: "3.14 | 6.28 | 42" },
   // strings
   { schema: { type: "string" }, expected: "string" },
+  {
+    schema: { type: "string", default: "foo" },
+    expected: 'string = "foo"',
+  },
+  { schema: { type: "string", default: "" }, expected: "string" },
+  {
+    schema: { type: "string", default: null as unknown as string, nullable: true },
+    expected: "string | null",
+  },
   { schema: { type: "string", format: "binary" }, expected: "bytes" },
   { schema: { type: "string", format: "byte" }, expected: "bytes" },
   { schema: { type: "string", format: "date" }, expected: "plainDate" },
@@ -113,6 +124,25 @@ const testScenarios: TestScenario[] = [
       properties: { bar: { type: "boolean" } },
     },
     expected: "{bar?: boolean; ...Record<string>}",
+  },
+  // Test for additionalProperties: true (should be Record<unknown>)
+  {
+    schema: { type: "object", additionalProperties: true },
+    expected: "Record<unknown>",
+  },
+  // Test for additionalProperties: {} (should be Record<unknown>, same as above)
+  {
+    schema: { type: "object", additionalProperties: {} },
+    expected: "Record<unknown>",
+  },
+  // Test for additionalProperties: true with properties
+  {
+    schema: {
+      type: "object",
+      additionalProperties: true,
+      properties: { bar: { type: "boolean" } },
+    },
+    expected: "{bar?: boolean; ...Record<unknown>}",
   },
   {
     schema: {

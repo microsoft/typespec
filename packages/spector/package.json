@@ -1,6 +1,6 @@
 {
   "name": "@typespec/spector",
-  "version": "0.1.0-alpha.17",
+  "version": "0.1.0-alpha.18",
   "description": "Typespec Core Tool to validate, run mock api, collect coverage.",
   "exports": {
     ".": {
@@ -35,7 +35,7 @@
   },
   "homepage": "https://github.com/microsoft/typespec#readme",
   "dependencies": {
-    "@azure/identity": "~4.11.1",
+    "@azure/identity": "~4.12.0",
     "@types/js-yaml": "^4.0.5",
     "@typespec/compiler": "workspace:^",
     "@typespec/http": "workspace:^",

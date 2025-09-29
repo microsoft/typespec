@@ -37,6 +37,7 @@ import "@docsearch/css";
         const options: Parameters<typeof docsearch>[0] = {
           ...algoliaConfig,
           container: "sl-doc-search",
+          keyboardShortcuts: { "/": false },
         };
         docsearch(options);
       });

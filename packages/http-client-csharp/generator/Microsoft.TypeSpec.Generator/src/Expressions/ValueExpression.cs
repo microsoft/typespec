@@ -7,6 +7,7 @@ using System.Diagnostics;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
+using Microsoft.TypeSpec.Generator.Statements;
 
 namespace Microsoft.TypeSpec.Generator.Expressions
 {
@@ -129,6 +130,8 @@ namespace Microsoft.TypeSpec.Generator.Expressions
         public ValueExpression AndExpr(ValueExpression other) => new BinaryOperatorExpression("and", this, other);
 
         public ValueExpression NullConditional() => new NullConditionalExpression(this);
+
+        public MethodBodyStatement AddAndAssign(ValueExpression value) => new BinaryOperatorExpression("+=", this, value).As<int>().Terminate();
 
         public AssignmentExpression Assign(ValueExpression value, bool nullCoalesce = false) => new AssignmentExpression(this, value, nullCoalesce);
 

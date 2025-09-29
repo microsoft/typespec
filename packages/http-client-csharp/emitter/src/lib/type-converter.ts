@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 import {
+  DecoratorInfo,
   SdkArrayType,
   SdkBuiltInType,
   SdkConstantType,
@@ -30,6 +31,7 @@ import {
   InputLiteralType,
   InputModelProperty,
   InputModelType,
+  InputNamespace,
   InputNullableType,
   InputPrimitiveType,
   InputType,
@@ -159,6 +161,12 @@ function fromSdkModelType(
   sdkContext: CSharpEmitterContext,
   modelType: SdkModelType,
 ): InputModelType {
+  // get all unique decorators for the model type from the namespace level and the model level
+  let decorators: DecoratorInfo[] = modelType.decorators;
+  const namespace = sdkContext.__typeCache.namespaces.get(modelType.namespace);
+  if (namespace) {
+    decorators = getAllModelDecorators(namespace, modelType.decorators);
+  }
   const inputModelType: InputModelType = {
     kind: "model",
     name: modelType.name,
@@ -170,7 +178,7 @@ function fromSdkModelType(
     doc: modelType.doc,
     summary: modelType.summary,
     discriminatorValue: modelType.discriminatorValue,
-    decorators: modelType.decorators,
+    decorators: decorators,
   } as InputModelType;
 
   sdkContext.__typeCache.updateSdkTypeReferences(modelType, inputModelType);
@@ -405,4 +413,30 @@ function fromSdkEndpointType(): InputPrimitiveType {
     name: "string",
     crossLanguageDefinitionId: "TypeSpec.string",
   };
+}
+
+/**
+ * @beta
+ */
+export function getAllModelDecorators(
+  namespace: InputNamespace,
+  modelDecorators?: DecoratorInfo[],
+): DecoratorInfo[] {
+  const decoratorMap = new Map<string, DecoratorInfo>();
+
+  // Add namespace decorators first
+  if (namespace.decorators) {
+    for (const decorator of namespace.decorators) {
+      decoratorMap.set(decorator.name, decorator);
+    }
+  }
+
+  // Add model decorators (will override namespace decorators with same name)
+  if (modelDecorators) {
+    for (const decorator of modelDecorators) {
+      decoratorMap.set(decorator.name, decorator);
+    }
+  }
+
+  return Array.from(decoratorMap.values());
 }

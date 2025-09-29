@@ -1,22 +1,21 @@
+import { Tester } from "#test/test-host.js";
 import { SourceFile } from "@alloy-js/typescript";
-import type { Operation } from "@typespec/compiler";
-import type { BasicTestRunner } from "@typespec/compiler/testing";
+import { t, type TesterInstance } from "@typespec/compiler/testing";
 import { beforeEach, describe, expect, it } from "vitest";
 import { Output } from "../../../src/core/components/output.jsx";
 import { FunctionExpression } from "../../../src/typescript/components/function-expression.jsx";
-import { createEmitterFrameworkTestRunner } from "../test-host.js";
 
 describe("function expressions with a `type` prop", () => {
-  let runner: BasicTestRunner;
+  let runner: TesterInstance;
 
   beforeEach(async () => {
-    runner = await createEmitterFrameworkTestRunner();
+    runner = await Tester.createInstance();
   });
 
   it("creates a function", async () => {
-    const { getName } = (await runner.compile(`
-      @test op getName(id: string): string;
-    `)) as { getName: Operation };
+    const { getName } = await runner.compile(t.code`
+      @test op ${t.op("getName")}(id: string): string;
+    `);
 
     expect(
       <Output program={runner.program}>
@@ -32,9 +31,9 @@ describe("function expressions with a `type` prop", () => {
   });
 
   it("creates an async function", async () => {
-    const { getName } = (await runner.compile(`
-      @test op getName(id: string): string;
-    `)) as { getName: Operation };
+    const { getName } = await runner.compile(t.code`
+      @test op ${t.op("getName")}(id: string): string;
+    `);
 
     expect(
       <Output program={runner.program}>
@@ -48,9 +47,9 @@ describe("function expressions with a `type` prop", () => {
   });
 
   it("can append extra parameters with raw params provided", async () => {
-    const { getName } = (await runner.compile(`
-      @test op getName(id: string): string;
-    `)) as { getName: Operation };
+    const { getName } = await runner.compile(t.code`
+      @test op ${t.op("getName")}(id: string): string;
+    `);
 
     expect(
       <Output program={runner.program}>

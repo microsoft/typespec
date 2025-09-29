@@ -56,8 +56,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
             var implements = clientOptionsProvider.Implements;
             Assert.IsNotNull(implements);
-            Assert.AreEqual(1, implements.Count);
-            Assert.AreEqual(new CSharpType(typeof(ClientPipelineOptions)), implements[0]);
+            Assert.AreEqual(0, implements.Count);
+        }
+
+        [Test]
+        public void TestBaseType()
+        {
+            var client = InputFactory.Client("TestClient");
+            var clientProvider = new ClientProvider(client);
+            var clientOptionsProvider = new ClientOptionsProvider(client, clientProvider);
+
+            Assert.IsNotNull(clientOptionsProvider);
+
+            var baseType = clientOptionsProvider.BaseType;
+            Assert.IsNotNull(baseType);
+            Assert.AreEqual(new CSharpType(typeof(ClientPipelineOptions)), baseType);
+
         }
 
         [TestCase(true, Category = ApiVersionsCategory)]

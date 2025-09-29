@@ -271,7 +271,7 @@ extern dec minValueExclusive(target: numeric | ModelProperty, value: valueof num
 extern dec maxValueExclusive(target: numeric | ModelProperty, value: valueof numeric);
 
 /**
- * Mark this string as a secret value that should be treated carefully to avoid exposure
+ * Mark this value as a secret value that should be treated carefully to avoid exposure
  *
  * @example
  * ```typespec
@@ -279,7 +279,7 @@ extern dec maxValueExclusive(target: numeric | ModelProperty, value: valueof num
  * scalar Password is string;
  * ```
  */
-extern dec secret(target: string | ModelProperty);
+extern dec secret(target: Scalar | ModelProperty | Model | Union | Enum);
 
 /**
  * Attaches a tag to an operation, interface, or namespace. Multiple `@tag` decorators can be specified to attach multiple tags to a TypeSpec element.
@@ -481,9 +481,14 @@ enum DurationKnownEncoding {
   ISO8601: "ISO8601",
 
   /**
-   * Encode to integer or float
+   * Encode to integer or float as seconds
    */
   seconds: "seconds",
+
+  /**
+   * Encode to integer or float as milliseconds
+   */
+  milliseconds: "milliseconds",
 }
 
 /**

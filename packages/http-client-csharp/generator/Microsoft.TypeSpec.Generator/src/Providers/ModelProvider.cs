@@ -20,7 +20,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
     {
         private const string AdditionalBinaryDataPropsFieldDescription = "Keeps track of any properties unknown to the library.";
         private readonly InputModelType _inputModel;
-
         // Note the description cannot be built from the constructor as it would lead to a circular dependency between the base
         // and derived models resulting in a stack overflow.
         protected override FormattableString BuildDescription()
@@ -42,7 +41,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     }
                     else
                     {
-                        derivedClassesDescription += $"<see cref=\"{publicDerivedModels[i].Name}\"/>{(addComma ? ", ": " ")}";
+                        derivedClassesDescription += $"<see cref=\"{publicDerivedModels[i].Name}\"/>{(addComma ? ", " : " ")}";
                     }
                 }
 
@@ -56,7 +55,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private readonly CSharpType _additionalBinaryDataPropsFieldType = typeof(IDictionary<string, BinaryData>);
         private readonly Type _additionalPropsUnknownType = typeof(BinaryData);
-        private readonly Lazy<TypeProvider?>? _baseTypeProvider;
         private FieldProvider? _rawDataField;
         private List<FieldProvider>? _additionalPropertyFields;
         private List<PropertyProvider>? _additionalPropertyProperties;
@@ -71,7 +69,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             if (inputModel.BaseModel is not null)
             {
-                _baseTypeProvider = new(() => CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel.BaseModel));
                 DiscriminatorValueExpression = EnsureDiscriminatorValueExpression();
             }
         }
@@ -83,6 +80,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private IReadOnlyList<ModelProvider>? _derivedModels;
         public IReadOnlyList<ModelProvider> DerivedModels => _derivedModels ??= BuildDerivedModels();
+
+        private IDictionary<string, CSharpType> LastContractPropertiesMap
+            => _lastContractPropertiesMap ??= LastContractView?.Properties.ToDictionary(p => p.Name, p => p.Type) ?? [];
+
+        private IDictionary<string, CSharpType>? _lastContractPropertiesMap;
 
         private IReadOnlyList<ModelProvider> BuildDerivedModels()
         {
@@ -112,11 +114,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
         internal override TypeProvider? BaseTypeProvider => BaseModelProvider;
 
         public ModelProvider? BaseModelProvider
-            => _baseModelProvider ??= (_baseTypeProvider?.Value is ModelProvider baseModelProvider ? baseModelProvider : null);
-        private FieldProvider? RawDataField => _rawDataField ??= BuildRawDataField();
+            => _baseModelProvider ??= BuildBaseModelProvider();
+        protected FieldProvider? RawDataField => _rawDataField ??= BuildRawDataField();
         private List<FieldProvider> AdditionalPropertyFields => _additionalPropertyFields ??= BuildAdditionalPropertyFields();
         private List<PropertyProvider> AdditionalPropertyProperties => _additionalPropertyProperties ??= BuildAdditionalPropertyProperties();
-        internal bool SupportsBinaryDataAdditionalProperties => AdditionalPropertyProperties.Any(p => p.Type.ElementType.Equals(_additionalPropsUnknownType));
+        protected internal bool SupportsBinaryDataAdditionalProperties => AdditionalPropertyProperties.Any(p => p.Type.ElementType.Equals(_additionalPropsUnknownType));
         public ConstructorProvider FullConstructor => _fullConstructor ??= BuildFullConstructor();
 
         protected override string BuildNamespace() => string.IsNullOrEmpty(_inputModel.Namespace) ?
@@ -228,6 +230,40 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private static bool IsDiscriminator(InputProperty property)
         {
             return property is InputModelProperty modelProperty && modelProperty.IsDiscriminator;
+        }
+
+        private ModelProvider? BuildBaseModelProvider()
+        {
+            if (_inputModel.BaseModel == null)
+            {
+                // consider models that have been customized to inherit from a different model
+                if (CustomCodeView?.BaseType != null)
+                {
+                    var baseType = CustomCodeView.BaseType;
+
+                    // If the custom base type doesn't have a resolved namespace, then try to resolve it from the input model map.
+                    // This will happen if a model is customized to inherit from another generated model, but that generated model
+                    // was not also defined in custom code so Roslyn does not recognize it.
+                    if (string.IsNullOrEmpty(baseType.Namespace))
+                    {
+                        if (CodeModelGenerator.Instance.TypeFactory.InputModelTypeNameMap.TryGetValue(baseType.Name, out var baseInputModel))
+                        {
+                            baseType = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(baseInputModel);
+                        }
+                    }
+                    if (baseType != null && CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(
+                            baseType,
+                            out var customBaseType) &&
+                        customBaseType is ModelProvider customBaseModel)
+                    {
+                        return customBaseModel;
+                    }
+                }
+
+                return null;
+            }
+
+            return CodeModelGenerator.Instance.TypeFactory.CreateModel(_inputModel.BaseModel);
         }
 
         private List<FieldProvider> BuildAdditionalPropertyFields()
@@ -380,22 +416,39 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var propertiesCount = _inputModel.Properties.Count;
             var properties = new List<PropertyProvider>(propertiesCount + 1);
             Dictionary<string, InputModelProperty> baseProperties = EnumerateBaseModels().SelectMany(m => m.Properties).GroupBy(x => x.Name).Select(g => g.First()).ToDictionary(p => p.Name) ?? [];
-            var baseModelDiscriminator = _inputModel.BaseModel?.DiscriminatorProperty;
             for (int i = 0; i < propertiesCount; i++)
             {
                 var property = _inputModel.Properties[i];
                 var isDiscriminator = IsDiscriminator(property);
 
-                if (isDiscriminator && property.Name == baseModelDiscriminator?.Name)
+                if (isDiscriminator && baseProperties.ContainsKey(property.Name))
+                {
                     continue;
+                }
 
                 var outputProperty = CodeModelGenerator.Instance.TypeFactory.CreateProperty(property, this);
+
                 if (_inputModel.DiscriminatorProperty == property)
                 {
                     DiscriminatorProperty = outputProperty;
                 }
+
                 if (outputProperty is null)
+                {
                     continue;
+                }
+
+                // Targeted backcompat fix for the case where properties were previously generated as read-only collections
+                if (outputProperty.Type.IsReadWriteList || outputProperty.Type.IsReadWriteDictionary)
+                {
+                    if (LastContractPropertiesMap.TryGetValue(outputProperty.Name,
+                            out CSharpType? lastContractPropertyType) &&
+                        !outputProperty.Type.Equals(lastContractPropertyType))
+                    {
+                        outputProperty.Type = lastContractPropertyType.ApplyInputSpecProperty(property);
+                        CodeModelGenerator.Instance.Emitter.Info($"Changed property {Name}.{outputProperty.Name} type to {lastContractPropertyType} to match last contract.");
+                    }
+                }
 
                 if (!isDiscriminator)
                 {
@@ -439,11 +492,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private IEnumerable<InputModelType> EnumerateBaseModels()
         {
-            var model = _inputModel;
-            while (model.BaseModel != null)
+            var model = BaseModelProvider;
+            while (model != null)
             {
-                yield return model.BaseModel;
-                model = model.BaseModel;
+                yield return model._inputModel;
+                model = model.BaseModelProvider;
             }
         }
 

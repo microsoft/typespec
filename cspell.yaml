@@ -138,6 +138,7 @@ words:
   - MACVMIMAGE
   - MACVMIMAGEM
   - mday
+  - methodsubscriptionid
   - mgmt
   - mgmtplane
   - mocharc
@@ -215,6 +216,7 @@ words:
   - repr
   - respecify
   - rjust
+  - rollup
   - rpaas
   - rsplit
   - rstrip
@@ -222,6 +224,7 @@ words:
   - rushx
   - safeint
   - sdkcore
+  - SCME
   - segmentof
   - serde
   - setuppy
