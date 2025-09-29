@@ -5,4 +5,4 @@ packages:
   - "@typespec/http-client-python"
 ---
 
-[python] ensure first line in param desc wrap arounds is a space
+[python] ensure first line in param description wrap around is a space
