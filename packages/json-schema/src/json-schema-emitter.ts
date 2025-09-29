@@ -11,6 +11,7 @@ import {
   type SourceFile,
   type SourceFileScope,
   TypeEmitter,
+  setProperty,
 } from "@typespec/asset-emitter";
 import {
   type BooleanLiteral,
@@ -84,14 +85,18 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
   #applyModelIndexer(schema: ObjectBuilder<unknown>, model: Model) {
     if (model.indexer) {
-      schema.set("unevaluatedProperties", this.emitter.emitTypeReference(model.indexer.value));
+      setProperty(
+        schema,
+        "unevaluatedProperties",
+        this.emitter.emitTypeReference(model.indexer.value),
+      );
       return;
     }
     if (!this.emitter.getOptions()["seal-object-schemas"]) return;
 
     const derivedModels = model.derivedModels.filter(includeDerivedModel);
     if (!derivedModels.length) {
-      schema.set("unevaluatedProperties", { not: {} });
+      setProperty(schema, "unevaluatedProperties", { not: {} });
     }
   }
 
@@ -105,7 +110,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     if (model.baseModel) {
       const allOf = new ArrayBuilder();
       allOf.push(this.emitter.emitTypeReference(model.baseModel));
-      schema.set("allOf", allOf);
+      setProperty(schema, "allOf", allOf);
     }
 
     this.#applyModelIndexer(schema, model);
@@ -169,7 +174,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
     for (const [name, prop] of model.properties) {
       const result = this.emitter.emitModelProperty(prop);
-      props.set(name, result);
+      setProperty(props, name, result);
     }
 
     return props;
@@ -544,7 +549,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       if (constraintType) {
         const ref = this.emitter.emitTypeReference(constraintType);
         compilerAssert(ref.kind === "code", "Unexpected non-code result from emit reference");
-        schema.set(key, ref.value);
+        setProperty(schema, key, ref.value);
       }
     };
     if (type.kind !== "UnionVariant") {
@@ -589,15 +594,15 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       for (const item of prefixItems.values) {
         prefixItemsSchema.push(this.emitter.emitTypeReference(item));
       }
-      schema.set("prefixItems", prefixItemsSchema);
+      setProperty(schema, "prefixItems", prefixItemsSchema);
     }
 
     const extensions = getExtensions(this.emitter.getProgram(), type);
     for (const { key, value } of extensions) {
       if (this.#isTypeLike(value)) {
-        schema.set(key, this.emitter.emitTypeReference(value));
+        setProperty(schema, key, this.emitter.emitTypeReference(value));
       } else {
-        schema.set(key, value);
+        setProperty(schema, key, value);
       }
     }
   }
