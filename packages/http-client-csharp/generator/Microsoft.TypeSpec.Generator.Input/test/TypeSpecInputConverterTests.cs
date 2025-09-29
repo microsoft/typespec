@@ -166,6 +166,21 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             var modelProperty = anotherModel.Properties.SingleOrDefault(p => p.Type is InputModelType);
             Assert.IsNotNull(modelProperty);
             Assert.IsTrue(((InputModelType)modelProperty!.Type).IsDynamicModel);
+
+            var nullableModel = inputNamespace!.Models.SingleOrDefault(m => m.Name == "NullableModel");
+            Assert.IsNotNull(nullableModel);
+
+            var nullableUnionProperty = nullableModel!.Properties.SingleOrDefault(p => p.Type is InputNullableType n && p.Name.Equals("NullableUnionDynamicProperty"));
+            Assert.IsNotNull(nullableUnionProperty);
+            var nullableUnionType = nullableUnionProperty!.Type;
+            bool isNullable = nullableUnionType is InputNullableType;
+            Assert.IsTrue(isNullable);
+            Assert.IsTrue((nullableUnionType as InputNullableType)!.Type is InputUnionType);
+            var nullableUnionVariantTypes = ((nullableUnionType as InputNullableType)!.Type as InputUnionType)!.VariantTypes;
+            foreach (var variantType in nullableUnionVariantTypes)
+            {
+                Assert.IsTrue(((InputModelType)variantType).IsDynamicModel);
+            }
         }
 
         [Test]
