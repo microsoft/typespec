@@ -57,7 +57,7 @@ Defines the separator string that is inserted before the action name in auto-gen
 
 ##### Target
 
-`Model | ModelProperty | Operation`
+`Operation | Interface | Namespace`
 
 ##### Parameters
 
