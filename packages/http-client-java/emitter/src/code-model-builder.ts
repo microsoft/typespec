@@ -528,10 +528,11 @@ export class CodeModelBuilder {
         // skip models under "com.azure.core." in java, or "Azure." in typespec, if branded
         !(
           (
-            this.isBranded() &&
-            (schema.language.java?.namespace?.startsWith("com.azure.core.") ||
-              schema.language.default?.namespace?.startsWith("Azure.") ||
-              schema.language.java?.namespace?.startsWith("com.azure.v2.core.") ||
+            (this.isBranded() &&
+              (schema.language.java?.namespace?.startsWith("com.azure.core.") ||
+                schema.language.default?.namespace?.startsWith("Azure.") ||
+                schema.language.java?.namespace?.startsWith("com.azure.v2.core."))) ||
+            (!this.isBranded() &&
               schema.language.java?.namespace?.startsWith("io.clientcore.core."))
           ) // because azure core v2 uses clientcore types
         )
