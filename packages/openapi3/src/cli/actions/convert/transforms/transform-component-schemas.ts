@@ -88,10 +88,10 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
     schema: OpenAPI3Schema,
   ): void {
     const { name, scope } = getScopeAndName(rawName);
-    
+
     // Unwrap single anyOf/oneOf members to get the actual schema
     const effectiveSchema = unwrapSingleAnyOfOneOf(schema);
-    
+
     const allOfDetails = getAllOfDetails(effectiveSchema, scope);
     const isParent = getModelIs(effectiveSchema, scope);
     const refName = `#/components/schemas/${rawName}`;
@@ -106,7 +106,10 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
       scope,
       decorators: [...getDecoratorsForSchema(effectiveSchema)],
       doc: effectiveSchema.description || schema.description,
-      properties: [...getModelPropertiesFromObjectSchema(effectiveSchema), ...allOfDetails.properties],
+      properties: [
+        ...getModelPropertiesFromObjectSchema(effectiveSchema),
+        ...allOfDetails.properties,
+      ],
       additionalProperties:
         effectiveSchema.additionalProperties === true
           ? {} // Use empty object to represent Record<unknown>
