@@ -2304,9 +2304,6 @@ importers:
 
   packages/typespec-vscode:
     devDependencies:
-      '@azure-tools/typespec-azure-core':
-        specifier: ~0.60.0
-        version: 0.60.0(@typespec/compiler@packages+compiler)(@typespec/http@1.4.0(@typespec/compiler@packages+compiler)(@typespec/streams@0.74.0(@typespec/compiler@packages+compiler)))(@typespec/rest@0.74.0(@typespec/compiler@packages+compiler)(@typespec/http@1.4.0(@typespec/compiler@packages+compiler)(@typespec/streams@0.74.0(@typespec/compiler@packages+compiler))))
       '@types/cross-spawn':
         specifier: ~6.0.6
         version: 6.0.6
@@ -2788,14 +2785,6 @@ packages:
 
   '@azu/style-format@1.0.1':
     resolution: {integrity: sha512-AHcTojlNBdD/3/KxIKlg8sxIWHfOtQszLvOpagLTO+bjC3u7SAszu1lf//u7JJC50aUSH+BVWDD/KvaA6Gfn5g==}
-
-  '@azure-tools/typespec-azure-core@0.60.0':
-    resolution: {integrity: sha512-Pmm7blxnEZZ7lhMJWWsiIqMrFthaCK6uu7f+ONN7dq0Mjc/O9w8+43tAIXwnGz1OKAWmiToh3EDbaxeWyt/FhQ==}
-    engines: {node: '>=20.0.0'}
-    peerDependencies:
-      '@typespec/compiler': ^1.4.0
-      '@typespec/http': ^1.4.0
-      '@typespec/rest': ^0.74.0
 
   '@azure/abort-controller@2.1.2':
     resolution: {integrity: sha512-nBrLsEWm4J2u5LpAPjxADTlq3trDgVZZXHNKabeXZtpq3d3AbN/KGO82R87rdDz5/lYB024rtEf10/q0urNgsA==}
@@ -6203,29 +6192,6 @@ packages:
   '@typescript-eslint/visitor-keys@8.43.0':
     resolution: {integrity: sha512-T+S1KqRD4sg/bHfLwrpF/K3gQLBM1n7Rp7OjjikjTEssI2YJzQpi5WXoynOaQ93ERIuq3O8RBTOUYDKszUCEHw==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
-
-  '@typespec/http@1.4.0':
-    resolution: {integrity: sha512-Y0PDDtBu+oZnwivfhbL0lN6Mk3QiCxZ66DgB5kFjcgKNpnXf0u440PPyaL42a8lbchzz5lVwz+cinyIMI89FIQ==}
-    engines: {node: '>=20.0.0'}
-    peerDependencies:
-      '@typespec/compiler': ^1.4.0
-      '@typespec/streams': ^0.74.0
-    peerDependenciesMeta:
-      '@typespec/streams':
-        optional: true
-
-  '@typespec/rest@0.74.0':
-    resolution: {integrity: sha512-dE+Xmv01AQ7m8jUvEbGsUQLSVo3sLzMpnHRbQEOnJX42oDqtIsz/2GEOXKQpNm1AKBISK66E2FFB5boz999Ziw==}
-    engines: {node: '>=20.0.0'}
-    peerDependencies:
-      '@typespec/compiler': ^1.4.0
-      '@typespec/http': ^1.4.0
-
-  '@typespec/streams@0.74.0':
-    resolution: {integrity: sha512-LIWizQgzGt8qN8ravte4DrPLPNOk9ge73bV9Us2TOECagTVQWwgMVy7+o/Beff3sOLQO/sEOwfzvmnNpSlauHg==}
-    engines: {node: '>=20.0.0'}
-    peerDependencies:
-      '@typespec/compiler': ^1.4.0
 
   '@typespec/ts-http-runtime@0.3.0':
     resolution: {integrity: sha512-sOx1PKSuFwnIl7z4RN0Ls7N9AQawmR9r66eI5rFCzLDIs8HTIYrIpH9QjYWoX0lkgGrkLxXhi4QnK7MizPRrIg==}
@@ -13748,12 +13714,6 @@ snapshots:
     dependencies:
       '@azu/format-text': 1.0.2
 
-  '@azure-tools/typespec-azure-core@0.60.0(@typespec/compiler@packages+compiler)(@typespec/http@1.4.0(@typespec/compiler@packages+compiler)(@typespec/streams@0.74.0(@typespec/compiler@packages+compiler)))(@typespec/rest@0.74.0(@typespec/compiler@packages+compiler)(@typespec/http@1.4.0(@typespec/compiler@packages+compiler)(@typespec/streams@0.74.0(@typespec/compiler@packages+compiler))))':
-    dependencies:
-      '@typespec/compiler': link:packages/compiler
-      '@typespec/http': 1.4.0(@typespec/compiler@packages+compiler)(@typespec/streams@0.74.0(@typespec/compiler@packages+compiler))
-      '@typespec/rest': 0.74.0(@typespec/compiler@packages+compiler)(@typespec/http@1.4.0(@typespec/compiler@packages+compiler)(@typespec/streams@0.74.0(@typespec/compiler@packages+compiler)))
-
   '@azure/abort-controller@2.1.2':
     dependencies:
       tslib: 2.8.1
@@ -18612,22 +18572,6 @@ snapshots:
     dependencies:
       '@typescript-eslint/types': 8.43.0
       eslint-visitor-keys: 4.2.1
-
-  '@typespec/http@1.4.0(@typespec/compiler@packages+compiler)(@typespec/streams@0.74.0(@typespec/compiler@packages+compiler))':
-    dependencies:
-      '@typespec/compiler': link:packages/compiler
-    optionalDependencies:
-      '@typespec/streams': 0.74.0(@typespec/compiler@packages+compiler)
-
-  '@typespec/rest@0.74.0(@typespec/compiler@packages+compiler)(@typespec/http@1.4.0(@typespec/compiler@packages+compiler)(@typespec/streams@0.74.0(@typespec/compiler@packages+compiler)))':
-    dependencies:
-      '@typespec/compiler': link:packages/compiler
-      '@typespec/http': 1.4.0(@typespec/compiler@packages+compiler)(@typespec/streams@0.74.0(@typespec/compiler@packages+compiler))
-
-  '@typespec/streams@0.74.0(@typespec/compiler@packages+compiler)':
-    dependencies:
-      '@typespec/compiler': link:packages/compiler
-    optional: true
 
   '@typespec/ts-http-runtime@0.3.0':
     dependencies:
