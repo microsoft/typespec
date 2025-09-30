@@ -27,7 +27,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// Indicates whether this method should be generated as a partial method.
         /// When true, the custom code provides the signature declaration and the generated code provides the implementation.
         /// </summary>
-        public bool IsPartialMethod { get; internal set; }
+        public bool IsPartialMethod { get; set; }
 
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.

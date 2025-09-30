@@ -328,6 +328,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             foreach (var method in BuildMethods())
             {
+                // If the method is already marked as partial (e.g., by ScmMethodProviderCollection),
+                // use it as-is without further processing
+                if (method.IsPartialMethod)
+                {
+                    methods.Add(method);
+                    continue;
+                }
+
                 // Check if there's a matching partial method declaration in custom code
                 var matchingPartialDeclaration = partialMethodDeclarations
                     .FirstOrDefault(customMethod => IsMatch(customMethod.Signature, method.Signature));
