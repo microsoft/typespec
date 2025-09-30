@@ -282,6 +282,7 @@
     "test:extension": "vitest run --root test/extension"
   },
   "devDependencies": {
+    "@azure-tools/typespec-azure-core": "~0.60.0",
     "@types/cross-spawn": "~6.0.6",
     "@types/mocha": "^10.0.9",
     "@types/node": "~24.3.0",
