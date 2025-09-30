@@ -1487,4 +1487,75 @@ describe("requestBody", () => {
 
     await validateTsp(tsp);
   });
+
+  it("filters non-multipart content types when multipart/form-data is present", async () => {
+    const tsp = await renderTypeSpecForOpenAPI3({
+      schemas: {
+        RealtimeCallCreateRequest: {
+          type: "object",
+          required: ["sdp", "session"],
+          properties: {
+            sdp: {
+              type: "string",
+              description: "sdp",
+            },
+            session: {
+              type: "object",
+              properties: {
+                user_id: {
+                  type: "string",
+                  description: "User ID",
+                },
+              },
+            },
+          },
+        },
+      },
+      paths: {
+        "/realtime/calls": {
+          post: {
+            operationId: "create-realtime-call",
+            summary: "Create call",
+            parameters: [],
+            requestBody: {
+              required: true,
+              content: {
+                "multipart/form-data": {
+                  schema: {
+                    $ref: "#/components/schemas/RealtimeCallCreateRequest",
+                  },
+                  encoding: {
+                    sdp: {
+                      contentType: "application/sdp",
+                    },
+                    session: {
+                      contentType: "application/json",
+                    },
+                  },
+                },
+                "application/sdp": {
+                  schema: {
+                    type: "string",
+                    description: "SDP",
+                  },
+                },
+              },
+            },
+            responses: {
+              "204": {
+                description: "No Content",
+              },
+            },
+          },
+        },
+      },
+    });
+
+    expect(tsp).toContain("@multipartBody");
+    expect(tsp).toContain('contentType: "multipart/form-data"');
+    expect(tsp).not.toContain('"application/sdp"');
+    expect(tsp).not.toContain("string |");
+
+    await validateTsp(tsp);
+  });
 });

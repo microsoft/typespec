@@ -183,6 +183,13 @@ namespace Microsoft.TypeSpec.Generator.Input
                     }
                 }
             }
+            else if (inputType is InputUnionType unionType)
+            {
+                foreach (var type in unionType.VariantTypes)
+                {
+                    MarkModelsAsDynamicRecursive(type, visited);
+                }
+            }
             else if (inputType is InputArrayType arrayType)
             {
                 MarkModelsAsDynamicRecursive(arrayType.ValueType, visited);

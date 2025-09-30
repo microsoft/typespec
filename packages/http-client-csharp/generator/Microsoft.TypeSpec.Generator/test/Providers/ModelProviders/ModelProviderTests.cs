@@ -990,6 +990,77 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsTrue(moreItemsProperty!.Type.Equals(typeof(IReadOnlyDictionary<string, string>)));
         }
 
+        [TestCase(true)]
+        [TestCase(false)]
+        public async Task BackCompat_ReadOnlyCollectionModelPropertiesAreRetained(bool useStruct)
+        {
+            var elementModel = InputFactory.Model(
+                "ElementModel",
+                modelAsStruct: useStruct,
+                properties:
+                [
+                    InputFactory.Property("name", InputPrimitiveType.String)
+                ]);
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                properties:
+                [
+                    InputFactory.Property("items", InputFactory.Array(elementModel)),
+                    InputFactory.Property("moreItems", InputFactory.Dictionary(elementModel))
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel, elementModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(useStruct.ToString()));
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            var elementModelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "ElementModel") as ModelProvider;
+
+            var itemsProperty = modelProvider!.Properties.FirstOrDefault(p => p.Name == "Items");
+            Assert.IsNotNull(itemsProperty);
+            Assert.IsTrue(itemsProperty!.Type.Equals(new CSharpType(typeof(IReadOnlyList<>), elementModelProvider!.Type)));
+
+            var moreItemsProperty = modelProvider.Properties.FirstOrDefault(p => p.Name == "MoreItems");
+            Assert.IsNotNull(moreItemsProperty);
+            Assert.IsTrue(moreItemsProperty!.Type.Equals(new CSharpType(typeof(IReadOnlyDictionary<,>), typeof(string), elementModelProvider.Type)));
+        }
+
+        [Test]
+        public async Task BackCompat_ReadOnlyCollectionEnumPropertiesAreRetained()
+        {
+            var elementEnum = InputFactory.StringEnum(
+                "ElementEnum",
+                [("value1", "value1"), ("value2", "value2")],
+                isExtensible: true);
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                properties:
+                [
+                    InputFactory.Property("items", InputFactory.Array(elementEnum)),
+                    InputFactory.Property("moreItems", InputFactory.Dictionary(elementEnum))
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                inputEnumTypes: [elementEnum],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            var elementEnumProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "ElementEnum") as EnumProvider;
+
+            var itemsProperty = modelProvider!.Properties.FirstOrDefault(p => p.Name == "Items");
+            Assert.IsNotNull(itemsProperty);
+            Assert.IsTrue(itemsProperty!.Type.Equals(new CSharpType(typeof(IReadOnlyList<>), elementEnumProvider!.Type)));
+
+            var moreItemsProperty = modelProvider.Properties.FirstOrDefault(p => p.Name == "MoreItems");
+            Assert.IsNotNull(moreItemsProperty);
+            Assert.IsTrue(moreItemsProperty!.Type.Equals(new CSharpType(typeof(IReadOnlyDictionary<,>), typeof(string), elementEnumProvider.Type)));
+        }
+
         [Test]
         public async Task BackCompat_InternalTypesAreIgnored()
         {
