@@ -17,7 +17,6 @@ let shouldSkip = false;
 
 shouldSkip = tryInstallAndHandle("@typespec/http") || shouldSkip;
 shouldSkip = tryInstallAndHandle("@typespec/http-client-csharp") || shouldSkip;
-execSync("pnpm list", { stdio: "inherit" });
 
 enum EmitProjectTriggerType {
   Command = "Command",
