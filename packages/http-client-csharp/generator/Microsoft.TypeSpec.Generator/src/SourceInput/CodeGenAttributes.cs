@@ -15,6 +15,8 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
 
         public const string CodeGenMemberAttributeName = "CodeGenMemberAttribute";
 
+        public const string CodeGenMethodAttributeName = "CodeGenMethodAttribute";
+
         public const string CodeGenTypeAttributeName = "CodeGenTypeAttribute";
 
         public const string CodeGenSerializationAttributeName = "CodeGenSerializationAttribute";
@@ -29,6 +31,16 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
         {
             name = null;
             if (attributeData.AttributeClass?.Name != CodeGenMemberAttributeName)
+                return false;
+
+            name = attributeData.ConstructorArguments.FirstOrDefault().Value as string;
+            return name != null;
+        }
+
+        internal static bool TryGetCodeGenMethodAttributeValue(AttributeData attributeData, [MaybeNullWhen(false)] out string name)
+        {
+            name = null;
+            if (attributeData.AttributeClass?.Name != CodeGenMethodAttributeName)
                 return false;
 
             name = attributeData.ConstructorArguments.FirstOrDefault().Value as string;

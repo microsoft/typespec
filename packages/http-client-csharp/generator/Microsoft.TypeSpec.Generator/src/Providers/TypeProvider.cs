@@ -319,9 +319,57 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private MethodProvider[] BuildMethodsInternal()
         {
             var methods = new List<MethodProvider>();
+            var customCodeView = CustomCodeView as NamedTypeSymbolProvider;
+            var codeGenMethodCustomizations = customCodeView?.CodeGenMethodCustomizations ?? new Dictionary<string, MethodProvider>();
+
             foreach (var method in BuildMethods())
             {
-                if (ShouldGenerate(method))
+                // Check if this method has a CodeGenMethod customization
+                var methodFullName = GetFullMethodName(method.Signature);
+                if (codeGenMethodCustomizations.TryGetValue(methodFullName, out var customMethod))
+                {
+                    // Generate as a partial method with the custom signature but original implementation
+                    var customizedSignature = customMethod.Signature;
+
+                    // Add Partial modifier to the signature
+                    var modifiers = customizedSignature.Modifiers | MethodSignatureModifiers.Partial;
+
+                    // Create a new signature with the partial modifier
+                    var partialSignature = new MethodSignature(
+                        customizedSignature.Name,
+                        customizedSignature.Description,
+                        modifiers,
+                        customizedSignature.ReturnType,
+                        customizedSignature.ReturnDescription,
+                        customizedSignature.Parameters,
+                        customizedSignature.Attributes,
+                        customizedSignature.GenericArguments,
+                        customizedSignature.GenericParameterConstraints,
+                        customizedSignature.ExplicitInterface,
+                        customizedSignature.NonDocumentComment);
+
+                    // Create a new method provider with the custom signature and original implementation
+                    var partialMethod = new MethodProvider(
+                        partialSignature,
+                        method.BodyStatements ?? MethodBodyStatement.Empty,
+                        method.EnclosingType,
+                        method.XmlDocs,
+                        method.Suppressions);
+
+                    if (method.BodyExpression != null)
+                    {
+                        partialMethod = new MethodProvider(
+                            partialSignature,
+                            method.BodyExpression,
+                            method.EnclosingType,
+                            method.XmlDocs,
+                            method.Suppressions);
+                    }
+
+                    partialMethod.IsPartialMethod = true;
+                    methods.Add(partialMethod);
+                }
+                else if (ShouldGenerate(method))
                 {
                     methods.Add(method);
                 }

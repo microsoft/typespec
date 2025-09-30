@@ -95,6 +95,7 @@ namespace Microsoft.TypeSpec.Generator
         [
             new CodeGenTypeAttributeDefinition(),
             new CodeGenMemberAttributeDefinition(),
+            new CodeGenMethodAttributeDefinition(),
             new CodeGenSuppressAttributeDefinition(),
             new CodeGenSerializationAttributeDefinition()
         ];

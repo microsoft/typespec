@@ -21,10 +21,65 @@ namespace Microsoft.TypeSpec.Generator.Providers
     internal sealed class NamedTypeSymbolProvider : TypeProvider
     {
         private INamedTypeSymbol _namedTypeSymbol;
+        private Dictionary<string, MethodProvider>? _codeGenMethodCustomizations;
 
         public NamedTypeSymbolProvider(INamedTypeSymbol namedTypeSymbol)
         {
             _namedTypeSymbol = namedTypeSymbol;
+        }
+
+        /// <summary>
+        /// Gets the mapping of original method names to customized method providers for methods
+        /// decorated with CodeGenMethodAttribute.
+        /// Key: Original method name from the attribute
+        /// Value: The customized method provider from custom code
+        /// </summary>
+        public IReadOnlyDictionary<string, MethodProvider> CodeGenMethodCustomizations
+        {
+            get
+            {
+                if (_codeGenMethodCustomizations == null)
+                {
+                    BuildCodeGenMethodCustomizations();
+                }
+                return _codeGenMethodCustomizations!;
+            }
+        }
+
+        private void BuildCodeGenMethodCustomizations()
+        {
+            _codeGenMethodCustomizations = new Dictionary<string, MethodProvider>();
+
+            foreach (var methodSymbol in _namedTypeSymbol.GetMembers().OfType<IMethodSymbol>())
+            {
+                // Check if the method has CodeGenMethodAttribute
+                foreach (var attribute in methodSymbol.GetAttributes())
+                {
+                    if (CodeGenAttributes.TryGetCodeGenMethodAttributeValue(attribute, out var originalName))
+                    {
+                        // Build the method provider for this customized method
+                        var modifiers = GetAccessModifier(methodSymbol.DeclaredAccessibility);
+                        var format = new SymbolDisplayFormat(
+                            memberOptions: SymbolDisplayMemberOptions.None,
+                            kindOptions: SymbolDisplayKindOptions.None);
+
+                        AddAdditionalModifiers(methodSymbol, ref modifiers);
+                        var explicitInterface = methodSymbol.ExplicitInterfaceImplementations.FirstOrDefault();
+                        var signature = new MethodSignature(
+                            methodSymbol.ToDisplayString(format),
+                            GetSymbolXmlDoc(methodSymbol, "summary"),
+                            explicitInterface != null ? modifiers & ~MethodSignatureModifiers.Private : modifiers,
+                            GetNullableCSharpType(methodSymbol.ReturnType),
+                            GetSymbolXmlDoc(methodSymbol, "returns"),
+                            [.. methodSymbol.Parameters.Select(p => ConvertToParameterProvider(methodSymbol, p))],
+                            ExplicitInterface: explicitInterface?.ContainingType?.GetCSharpType());
+
+                        var methodProvider = new MethodProvider(signature, MethodBodyStatement.Empty, this);
+                        _codeGenMethodCustomizations[originalName] = methodProvider;
+                        break; // Only process the first CodeGenMethodAttribute
+                    }
+                }
+            }
         }
 
         private protected sealed override NamedTypeSymbolProvider? BuildCustomCodeView(string? generatedTypeName = default, string? generatedTypeNamespace = default) => null;

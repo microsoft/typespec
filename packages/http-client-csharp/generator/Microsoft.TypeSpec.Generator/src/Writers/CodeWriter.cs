@@ -804,7 +804,8 @@ namespace Microsoft.TypeSpec.Generator
 
             if (methodBase is MethodSignature method)
             {
-                AppendRawIf("virtual ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Virtual))
+                AppendRawIf("partial ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Partial))
+                    .AppendRawIf("virtual ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Virtual))
                     .AppendRawIf("override ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Override))
                     .AppendRawIf("new ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.New))
                     .AppendRawIf("async ", methodBase.Modifiers.HasFlag(MethodSignatureModifiers.Async));
