@@ -11,7 +11,7 @@ namespace Sample
     /// <summary></summary>
     public partial class TestClient
     {
-        [CodeGenMethod("HelloAgain")]
+        [SampleTypeSpec.CodeGenMethod("HelloAgain")]
         public partial void CustomHelloAgain(string[] items, RequestOptions options);
     }
 }
