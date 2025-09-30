@@ -340,14 +340,28 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     // Ensure the partial modifier is set
                     var modifiers = customSignature.Modifiers | MethodSignatureModifiers.Partial;
 
-                    // Create a new signature with the partial modifier
+                    // For partial methods, all parameters must be required (no default values)
+                    // Create new parameter list with default values removed
+                    var requiredParameters = customSignature.Parameters
+                        .Select(p => p.DefaultValue != null
+                            ? new ParameterProvider(p.Name, p.Description, p.Type, defaultValue: null,
+                                isRef: p.IsRef, isOut: p.IsOut, isIn: p.IsIn, isParams: p.IsParams,
+                                attributes: p.Attributes, property: p.Property)
+                            {
+                                Validation = p.Validation,
+                                Field = p.Field
+                            }
+                            : p)
+                        .ToList();
+
+                    // Create a new signature with the partial modifier and required parameters
                     var partialSignature = new MethodSignature(
                         customSignature.Name,
                         customSignature.Description,
                         modifiers,
                         customSignature.ReturnType,
                         customSignature.ReturnDescription,
-                        customSignature.Parameters,
+                        requiredParameters,
                         customSignature.Attributes,
                         customSignature.GenericArguments,
                         customSignature.GenericParameterConstraints,
