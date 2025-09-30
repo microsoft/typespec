@@ -1,10 +1,12 @@
 import {
   CharCode,
   codePointBefore,
+  isAsciiDocIdentifierContinue,
   isAsciiIdentifierContinue,
   isAsciiIdentifierStart,
   isBinaryDigit,
   isDigit,
+  isDocIdentifierContinue,
   isHexDigit,
   isIdentifierContinue,
   isIdentifierStart,
@@ -536,6 +538,12 @@ export interface Scanner {
    * getTokenText().
    */
   getTokenValue(): string;
+
+  /**
+   * Scan a documentation identifier that supports hyphens.
+   * This method should be used in doc comment parsing context.
+   */
+  scanDocIdentifier(): Token.Identifier;
 }
 
 export enum TokenFlags {
@@ -616,6 +624,7 @@ export function createScanner(
     eof,
     getTokenText,
     getTokenValue,
+    scanDocIdentifier,
   };
 
   function eof() {
@@ -873,7 +882,7 @@ export function createScanner(
       }
 
       if (isAsciiIdentifierStart(ch)) {
-        return scanIdentifier();
+        return scanDocIdentifier();
       }
 
       if (ch <= CharCode.MaxAscii) {
@@ -882,7 +891,7 @@ export function createScanner(
 
       const cp = input.codePointAt(position)!;
       if (isIdentifierStart(cp)) {
-        return scanNonAsciiIdentifier(cp);
+        return scanNonAsciiDocIdentifier(cp);
       }
 
       return scanUnknown(Token.DocText);
@@ -1528,6 +1537,40 @@ export function createScanner(
         return scanNonAsciiIdentifier(cp);
       }
     }
+
+    return (token = Token.Identifier);
+  }
+
+  function scanDocIdentifier(): Token.Identifier {
+    tokenPosition = position;
+    tokenFlags = TokenFlags.None;
+    let ch: number;
+
+    do {
+      position++;
+      if (eof()) {
+        return (token = Token.Identifier);
+      }
+    } while (isAsciiDocIdentifierContinue((ch = input.charCodeAt(position))));
+
+    if (ch > CharCode.MaxAscii) {
+      const cp = input.codePointAt(position)!;
+      if (isNonAsciiIdentifierCharacter(cp)) {
+        return scanNonAsciiDocIdentifier(cp);
+      }
+    }
+
+    return (token = Token.Identifier);
+  }
+
+  function scanNonAsciiDocIdentifier(startCodePoint: number): Token.Identifier {
+    tokenFlags |= TokenFlags.NonAscii;
+    let cp = startCodePoint;
+    do {
+      position += utf16CodeUnits(cp);
+      if (eof()) break;
+      cp = input.codePointAt(position)!;
+    } while (isDocIdentifierContinue(cp));
 
     return (token = Token.Identifier);
   }
