@@ -2323,8 +2323,8 @@ importers:
         specifier: ^3.0.4
         version: 3.0.4
       '@typespec/compiler':
-        specifier: 1.4.0
-        version: 1.4.0(@types/node@24.3.1)
+        specifier: workspace:^
+        version: link:../compiler
       '@typespec/internal-build-utils':
         specifier: workspace:^
         version: link:../internal-build-utils
@@ -6192,11 +6192,6 @@ packages:
   '@typescript-eslint/visitor-keys@8.43.0':
     resolution: {integrity: sha512-T+S1KqRD4sg/bHfLwrpF/K3gQLBM1n7Rp7OjjikjTEssI2YJzQpi5WXoynOaQ93ERIuq3O8RBTOUYDKszUCEHw==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
-
-  '@typespec/compiler@1.4.0':
-    resolution: {integrity: sha512-/AFiU3ImuhH/vHKzSGv7I2peewdJ7YLhgMCfFDNk6Ae0a5Ylrc8R1GOATVilisEPBFG9lnjHn3uUcyaZs5VWRw==}
-    engines: {node: '>=20.0.0'}
-    hasBin: true
 
   '@typespec/ts-http-runtime@0.3.0':
     resolution: {integrity: sha512-sOx1PKSuFwnIl7z4RN0Ls7N9AQawmR9r66eI5rFCzLDIs8HTIYrIpH9QjYWoX0lkgGrkLxXhi4QnK7MizPRrIg==}
@@ -18578,28 +18573,6 @@ snapshots:
       '@typescript-eslint/types': 8.43.0
       eslint-visitor-keys: 4.2.1
 
-  '@typespec/compiler@1.4.0(@types/node@24.3.1)':
-    dependencies:
-      '@babel/code-frame': 7.27.1
-      '@inquirer/prompts': 7.8.4(@types/node@24.3.1)
-      ajv: 8.17.1
-      change-case: 5.4.4
-      env-paths: 3.0.0
-      globby: 14.1.0
-      is-unicode-supported: 2.1.0
-      mustache: 4.2.0
-      picocolors: 1.1.1
-      prettier: 3.6.2
-      semver: 7.7.2
-      tar: 7.4.3
-      temporal-polyfill: 0.3.0
-      vscode-languageserver: 9.0.1
-      vscode-languageserver-textdocument: 1.0.12
-      yaml: 2.8.1
-      yargs: 18.0.0
-    transitivePeerDependencies:
-      - '@types/node'
-
   '@typespec/ts-http-runtime@0.3.0':
     dependencies:
       http-proxy-agent: 7.0.2
@@ -19146,7 +19119,7 @@ snapshots:
       algoliasearch: 4.25.2
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
       diff: 5.2.0
-      ink: 3.2.0(@types/react@18.3.24)(react@17.0.2)
+      ink: 3.2.0(@types/react@18.3.24)(react@18.3.1)
       ink-text-input: 4.0.3(ink@3.2.0(@types/react@18.3.24)(react@17.0.2))(react@17.0.2)
       react: 17.0.2
       semver: 7.7.2
@@ -19339,7 +19312,7 @@ snapshots:
       '@yarnpkg/plugin-git': 3.1.3(@yarnpkg/core@4.4.3(typanion@3.14.0))(typanion@3.14.0)
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
       es-toolkit: 1.39.10
-      ink: 3.2.0(@types/react@18.3.24)(react@18.3.1)
+      ink: 3.2.0(@types/react@18.3.24)(react@17.0.2)
       react: 17.0.2
       semver: 7.7.2
       tslib: 2.8.1

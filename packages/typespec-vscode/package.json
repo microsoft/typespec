@@ -288,7 +288,7 @@
     "@types/semver": "^7.5.8",
     "@types/vscode": "~1.104.0",
     "@types/which": "^3.0.4",
-    "@typespec/compiler": "1.4.0",
+    "@typespec/compiler": "workspace:^",
     "@typespec/internal-build-utils": "workspace:^",
     "@vitest/coverage-v8": "^3.1.2",
     "@vitest/ui": "^3.1.2",
