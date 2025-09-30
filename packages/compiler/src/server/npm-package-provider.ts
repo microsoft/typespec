@@ -202,22 +202,8 @@ export class NpmPackage {
         return undefined;
       }
       const entrypoint = module.type === "file" ? module.path : module.mainFile;
-      const oldExit = process.exit;
-      try {
-        // override process.exit to prevent the process from exiting because of it's called in loaded js file
-        let result: any;
-        process.exit = (() => {
-          // for module that calls process.exit when being imported, create an empty object as it's exports to avoid load it again
-          result = {};
-          throw new Error(
-            "process.exit is called unexpectedly when loading js file: " + entrypoint,
-          );
-        }) as any;
-        const [file] = await loadJsFile(host, entrypoint, NoTarget);
-        return result ?? file?.esmExports;
-      } finally {
-        process.exit = oldExit;
-      }
+      const [file] = await loadJsFile(host, entrypoint, NoTarget);
+      return file?.esmExports;
     } catch (e) {
       return undefined;
     }
