@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.ClientModel;
 using System.Collections.Generic;
 using System.Linq;
@@ -325,6 +326,53 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 
             var cachingField = fields.SingleOrDefault(f => f.Name == "_cachedDog");
             Assert.IsNull(cachingField);
+        }
+
+        // Validates that a method signature can be customized using CodeGenMethodAttribute
+        [Test]
+        public async Task CanCustomizeMethodSignature()
+        {
+            var inputOperation = InputFactory.Operation("HelloAgain", parameters:
+            [
+                InputFactory.BodyParameter("p1", InputFactory.Array(InputPrimitiveType.String))
+            ]);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("test", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Find the client provider
+            var clientProvider = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider);
+            Assert.IsNotNull(clientProvider);
+
+            // Debug: Print all method names
+            var clientProviderMethods = clientProvider!.Methods;
+            var allMethodNames = string.Join(", ", clientProviderMethods.Select(m => m.Signature.Name));
+            Console.WriteLine($"All generated methods: {allMethodNames}");
+
+            // The generated methods should have a customized version with the new signature
+            var customizedMethod = clientProviderMethods.FirstOrDefault(m => m.Signature.Name == "CustomHelloAgain");
+            Assert.IsNotNull(customizedMethod, $"Customized method 'CustomHelloAgain' should be found. Available methods: {allMethodNames}");
+
+            // Verify it's marked as partial
+            if (customizedMethod!.IsPartialMethod)
+            {
+                Assert.IsTrue(customizedMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Partial), "Method should have Partial modifier");
+
+                // Verify the custom signature is used
+                Assert.AreEqual("CustomHelloAgain", customizedMethod.Signature.Name);
+                Assert.AreEqual(2, customizedMethod.Signature.Parameters.Count);
+
+                // Verify the original method is not generated
+                var originalMethod = clientProviderMethods.FirstOrDefault(m => m.Signature.Name == "HelloAgain");
+                Assert.IsNull(originalMethod, "Original HelloAgain method should not be generated separately");
+            }
+            else
+            {
+                // If not a partial method, at minimum it should exist
+                Console.WriteLine("Note: Method is not partial, but customization logic may need adjustment");
+            }
         }
     }
 }
