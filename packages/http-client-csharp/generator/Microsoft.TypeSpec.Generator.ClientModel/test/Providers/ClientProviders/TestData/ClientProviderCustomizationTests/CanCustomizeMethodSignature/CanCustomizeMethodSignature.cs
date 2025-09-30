@@ -11,7 +11,7 @@ namespace Sample
     /// <summary></summary>
     public partial class TestClient
     {
-        [SampleTypeSpec.CodeGenMethod("HelloAgain")]
-        public partial void CustomHelloAgain(string[] items, RequestOptions options);
+        // Partial method declaration - matches protocol method signature
+        public partial ClientResult HelloAgain(BinaryContent content, RequestOptions options);
     }
 }

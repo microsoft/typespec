@@ -45,12 +45,5 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var codeGenTypeAttribute = new CodeGenTypeAttribute("PropertyName");
             Assert.AreEqual("PropertyName", codeGenTypeAttribute.OriginalName);
         }
-
-        [Test]
-        public void CodeGenMethodAttributeEmitted()
-        {
-            var codeGenMethodAttribute = new CodeGenMethodAttribute("MethodName");
-            Assert.AreEqual("MethodName", codeGenMethodAttribute.OriginalName);
-        }
     }
 }

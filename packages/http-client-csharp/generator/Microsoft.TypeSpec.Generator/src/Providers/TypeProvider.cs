@@ -319,34 +319,40 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private MethodProvider[] BuildMethodsInternal()
         {
             var methods = new List<MethodProvider>();
-            var customCodeView = CustomCodeView as NamedTypeSymbolProvider;
-            var codeGenMethodCustomizations = customCodeView?.CodeGenMethodCustomizations ?? new Dictionary<string, MethodProvider>();
+            var customMethods = CustomCodeView?.Methods ?? [];
+
+            // Build a list of partial method declarations from custom code
+            var partialMethodDeclarations = customMethods
+                .Where(m => m.IsPartialMethod)
+                .ToList();
 
             foreach (var method in BuildMethods())
             {
-                // Check if this method has a CodeGenMethod customization
-                var methodFullName = GetFullMethodName(method.Signature);
-                if (codeGenMethodCustomizations.TryGetValue(methodFullName, out var customMethod))
-                {
-                    // Generate as a partial method with the custom signature but original implementation
-                    var customizedSignature = customMethod.Signature;
+                // Check if there's a matching partial method declaration in custom code
+                var matchingPartialDeclaration = partialMethodDeclarations
+                    .FirstOrDefault(customMethod => IsMatch(customMethod.Signature, method.Signature));
 
-                    // Add Partial modifier to the signature
-                    var modifiers = customizedSignature.Modifiers | MethodSignatureModifiers.Partial;
+                if (matchingPartialDeclaration != null)
+                {
+                    // Generate as a partial method implementation with the custom signature
+                    var customSignature = matchingPartialDeclaration.Signature;
+
+                    // Ensure the partial modifier is set
+                    var modifiers = customSignature.Modifiers | MethodSignatureModifiers.Partial;
 
                     // Create a new signature with the partial modifier
                     var partialSignature = new MethodSignature(
-                        customizedSignature.Name,
-                        customizedSignature.Description,
+                        customSignature.Name,
+                        customSignature.Description,
                         modifiers,
-                        customizedSignature.ReturnType,
-                        customizedSignature.ReturnDescription,
-                        customizedSignature.Parameters,
-                        customizedSignature.Attributes,
-                        customizedSignature.GenericArguments,
-                        customizedSignature.GenericParameterConstraints,
-                        customizedSignature.ExplicitInterface,
-                        customizedSignature.NonDocumentComment);
+                        customSignature.ReturnType,
+                        customSignature.ReturnDescription,
+                        customSignature.Parameters,
+                        customSignature.Attributes,
+                        customSignature.GenericArguments,
+                        customSignature.GenericParameterConstraints,
+                        customSignature.ExplicitInterface,
+                        customSignature.NonDocumentComment);
 
                     // Create a new method provider with the custom signature and original implementation
                     var partialMethod = new MethodProvider(
@@ -636,6 +642,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var customMethods = method.EnclosingType.CustomCodeView?.Methods ?? [];
             foreach (var customMethod in customMethods)
             {
+                // Skip partial method declarations - they will be handled separately in BuildMethodsInternal
+                if (customMethod.IsPartialMethod)
+                {
+                    continue;
+                }
+
                 if (IsMatch(customMethod.Signature, method.Signature))
                 {
                     return false;
