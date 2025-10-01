@@ -244,6 +244,75 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             }
         }
 
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ValidateParameterIsIn(bool isIn)
+        {
+            // setup
+            var namedSymbol = new NamedSymbol(parameterIsIn: isIn);
+            _namedSymbol = namedSymbol;
+            var compilation = CompilationHelper.LoadCompilation([namedSymbol, new PropertyType()]);
+            var iNamedSymbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, "NamedSymbol");
+
+            _namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!);
+
+            var method = _namedTypeSymbolProvider.Methods.FirstOrDefault(m => m.Signature.Name == "Method1");
+            Assert.IsNotNull(method);
+
+            var parameters = method!.Signature.Parameters;
+            Assert.AreEqual(1, parameters.Count);
+
+            var parameter = parameters[0];
+
+            Assert.AreEqual(isIn, parameter.IsIn);
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ValidateParameterIsOut(bool isOut)
+        {
+            // setup
+            var namedSymbol = new NamedSymbol(parameterIsOut: isOut);
+            _namedSymbol = namedSymbol;
+            var compilation = CompilationHelper.LoadCompilation([namedSymbol, new PropertyType()]);
+            var iNamedSymbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, "NamedSymbol");
+
+            _namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!);
+
+            var method = _namedTypeSymbolProvider.Methods.FirstOrDefault(m => m.Signature.Name == "Method1");
+            Assert.IsNotNull(method);
+
+            var parameters = method!.Signature.Parameters;
+            Assert.AreEqual(1, parameters.Count);
+
+            var parameter = parameters[0];
+
+            Assert.AreEqual(isOut, parameter.IsOut);
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ValidateParameterIsRef(bool isRef)
+        {
+            // setup
+            var namedSymbol = new NamedSymbol(parameterIsRef: isRef);
+            _namedSymbol = namedSymbol;
+            var compilation = CompilationHelper.LoadCompilation([namedSymbol, new PropertyType()]);
+            var iNamedSymbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, "NamedSymbol");
+
+            _namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!);
+
+            var method = _namedTypeSymbolProvider.Methods.FirstOrDefault(m => m.Signature.Name == "Method1");
+            Assert.IsNotNull(method);
+
+            var parameters = method!.Signature.Parameters;
+            Assert.AreEqual(1, parameters.Count);
+
+            var parameter = parameters[0];
+
+            Assert.AreEqual(isRef, parameter.IsRef);
+        }
+
         [Test]
         public void ValidateMethods()
         {
