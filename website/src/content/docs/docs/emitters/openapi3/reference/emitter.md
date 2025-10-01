@@ -127,3 +127,14 @@ Determines how to emit examples on parameters.
 Note: This is an experimental feature and may change in future versions.
 See https://spec.openapis.org/oas/v3.0.4.html#style-examples for parameter example serialization rules
 See https://github.com/OAI/OpenAPI-Specification/discussions/4622 for discussion on handling parameter examples.
+
+### `operation-id-strategy`
+
+**Type:** `"parent-underscore" | "fqn"`
+
+Determines how to generate operation IDs when `@operationId` is not used.
+Avaliable options are:
+
+- `parent-underscore`: Uses the parent namespace and operation name to generate the ID.
+- `fqn`: Uses the fully qualified name of the operation to generate the ID.
+- `none`: Do not generate operation ids.
