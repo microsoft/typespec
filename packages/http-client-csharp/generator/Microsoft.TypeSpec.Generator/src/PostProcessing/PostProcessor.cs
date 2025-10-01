@@ -16,18 +16,18 @@ namespace Microsoft.TypeSpec.Generator
     internal class PostProcessor
     {
         private readonly string? _modelFactoryFullName;
-        private readonly IEnumerable<string>? _additionalNonRootTypeFullNames;
+        private readonly HashSet<string> _additionalNonRootTypeNames;
         private readonly HashSet<string> _typesToKeep;
         private INamedTypeSymbol? _modelFactorySymbol;
 
         public PostProcessor(
             HashSet<string> typesToKeep,
             string? modelFactoryFullName = null,
-            IEnumerable<string>? additionalNonRootTypeFullNames = null)
+            IEnumerable<string>? additionalNonRootTypeNames = null)
         {
             _typesToKeep = typesToKeep;
             _modelFactoryFullName = modelFactoryFullName;
-            _additionalNonRootTypeFullNames = additionalNonRootTypeFullNames;
+            _additionalNonRootTypeNames = new HashSet<string>(additionalNonRootTypeNames ?? []);
         }
 
         private record TypeSymbols(
@@ -58,26 +58,15 @@ namespace Microsoft.TypeSpec.Generator
                 _modelFactorySymbol = compilation.GetTypeByMetadataName(_modelFactoryFullName);
             }
 
-            var additionalNonRootTypeSymbols = new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default);
-            if (_additionalNonRootTypeFullNames != null)
-            {
-                foreach (var typeFullName in _additionalNonRootTypeFullNames)
-                {
-                    var typeSymbol = compilation.GetTypeByMetadataName(typeFullName);
-                    if (typeSymbol != null)
-                    {
-                        additionalNonRootTypeSymbols.Add(typeSymbol);
-                    }
-                }
-            }
-
             foreach (var document in project.Documents)
             {
                 if (ShouldIncludeDocument(document))
                 {
                     var root = await document.GetSyntaxRootAsync();
                     if (root == null)
+                    {
                         continue;
+                    }
 
                     var semanticModel = compilation.GetSemanticModel(root.SyntaxTree);
 
@@ -85,24 +74,30 @@ namespace Microsoft.TypeSpec.Generator
                     {
                         var symbol = semanticModel.GetDeclaredSymbol(typeDeclaration);
                         if (symbol == null)
+                        {
                             continue;
-                        if (CodeModelGenerator.Instance.TypesToKeepPublic.Contains(symbol.Name))
-                            continue; //skip types that are explicitly marked to keep public
+                        }
 
                         if (publicOnly && symbol.DeclaredAccessibility != Accessibility.Public &&
                             !document.Name.StartsWith("Internal/", StringComparison.Ordinal))
-                            continue;
-
-                        // we do not add the model factory and aspDotNetExtension symbol to the declared symbol list so that it will never be included in any process of internalization or removal
-                        if (!SymbolEqualityComparer.Default.Equals(symbol, _modelFactorySymbol)
-                            && !additionalNonRootTypeSymbols.Contains(symbol))
                         {
-                            result.Add(symbol);
+                            continue;
                         }
 
                         AddInList(declarationCache, symbol, typeDeclaration);
                         AddInList(documentCache, document, symbol,
                             () => new HashSet<INamedTypeSymbol>(SymbolEqualityComparer.Default));
+
+                        // we do not add the model factory and additionalNonRootTypeSymbols to the declared symbol list
+                        // so that it will never be included in any process of internalization or removal
+                        if (SymbolEqualityComparer.Default.Equals(symbol, _modelFactorySymbol)
+                            || _additionalNonRootTypeNames.Contains(symbol.Name)
+                            || _additionalNonRootTypeNames.Contains(symbol.GetFullyQualifiedName()))
+                        {
+                            continue;
+                        }
+
+                        result.Add(symbol);
                     }
                 }
             }
