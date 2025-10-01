@@ -136,14 +136,7 @@ See https://github.com/OAI/OpenAPI-Specification/discussions/4622 for discussion
 
 ### `operation-id-strategy`
 
-**Type:** `"parent-container" | "fqn" | "explicit-only"`
-
-Determines how to generate operation IDs when `@operationId` is not used.
-Avaliable options are:
-
-- `parent-container`: Uses the parent namespace and operation name to generate the ID.
-- `fqn`: Uses the fully qualified name of the operation to generate the ID.
-- `explicit-only`: Only use explicitly defined operation IDs.
+**Type:** `undefined`
 
 ## Decorators
 
