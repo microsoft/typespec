@@ -91,7 +91,19 @@ export interface OpenAPI3EmitterOptions {
    * @see https://github.com/OAI/OpenAPI-Specification/discussions/4622 for discussion on handling parameter examples.
    */
   "experimental-parameter-examples"?: ExperimentalParameterExamplesStrategy;
+
+  /**
+   * How should operation ID be generated when `@operationId` is not used.
+   * Available options are
+   * - `parent-underscore`: Uses the parent namespace/interface and operation name to generate the ID.
+   * - `fqn`: Uses the fully qualified name(from service root) of the operation to generate the ID.
+   * - `none`: Do not generate operation ids.
+   * @default parent-underscore
+   */
+  "operation-id-strategy"?: OperationIdStrategy;
 }
+
+export type OperationIdStrategy = "parent-underscore" | "fqn" | "none";
 
 const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
   type: "object",
@@ -199,6 +211,19 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
         "Note: This is an experimental feature and may change in future versions.",
         "See https://spec.openapis.org/oas/v3.0.4.html#style-examples for parameter example serialization rules",
         "See https://github.com/OAI/OpenAPI-Specification/discussions/4622 for discussion on handling parameter examples.",
+      ].join("\n"),
+    },
+    "operation-id-strategy": {
+      type: "string",
+      enum: ["parent-underscore", "fqn"],
+      nullable: true,
+      default: "parent-underscore",
+      description: [
+        "Determines how to generate operation IDs when `@operationId` is not used.",
+        "Avaliable options are:",
+        " - `parent-underscore`: Uses the parent namespace and operation name to generate the ID.",
+        " - `fqn`: Uses the fully qualified name of the operation to generate the ID.",
+        " - `none`: Do not generate operation ids.",
       ].join("\n"),
     },
   },
