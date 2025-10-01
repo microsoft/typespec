@@ -2,15 +2,21 @@ import { isGlobalNamespace, isService, type Operation, type Program } from "@typ
 import { getOperationId } from "@typespec/openapi";
 import { OperationIdStrategy } from "../lib.js";
 
+export interface OperationIdResolverOptions {
+  strategy: OperationIdStrategy;
+  separator?: string;
+}
 export class OperationIdResolver {
   #program: Program;
   #strategy: OperationIdStrategy;
   #used = new Set<string>();
   #cache = new Map<Operation, string>();
+  #separator: string;
 
-  constructor(program: Program, strategy: OperationIdStrategy) {
+  constructor(program: Program, options: OperationIdResolverOptions) {
     this.#program = program;
-    this.#strategy = strategy;
+    this.#strategy = options.strategy;
+    this.#separator = options.separator ?? ".";
   }
 
   /**
@@ -55,9 +61,9 @@ export class OperationIdResolver {
 
     switch (this.#strategy) {
       case "parent-container":
-        return operationPath.slice(-2).join("_");
+        return operationPath.slice(-2).join(this.#separator);
       case "fqn":
-        return operationPath.join(".");
+        return operationPath.join(this.#separator);
       case "explicit-only":
         return undefined;
     }

@@ -10,7 +10,10 @@ async function testResolveOperationId(code: string, strategy: OperationIdStrateg
   ok(foo);
   strictEqual(foo.entityKind, "Type");
   strictEqual(foo.kind, "Operation");
-  const resolver = new OperationIdResolver(program, strategy);
+  const resolver = new OperationIdResolver(program, {
+    strategy,
+    separator: strategy === "parent-container" ? "_" : ".",
+  });
   return resolver.resolve(foo);
 }
 
@@ -88,7 +91,10 @@ describe("parent-container strategy", () => {
         }
       }
     `);
-    const resolver = new OperationIdResolver(program, "parent-container");
+    const resolver = new OperationIdResolver(program, {
+      strategy: "parent-container",
+      separator: "_",
+    });
     expect(resolver.resolve(op1 as any)).toEqual("One_test");
     expect(resolver.resolve(op2 as any)).toEqual("One_test_2");
   });

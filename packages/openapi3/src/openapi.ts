@@ -137,7 +137,6 @@ const defaultOptions = {
   "include-x-typespec-name": "never",
   "safeint-strategy": "int64",
   "seal-object-schemas": false,
-  "operation-id-strategy": "parent-container",
 } as const;
 
 export async function $onEmit(context: EmitContext<OpenAPI3EmitterOptions>) {
@@ -208,7 +207,6 @@ export function resolveOptions(
   const openapiVersions = resolvedOptions["openapi-versions"] ?? ["3.0.0"];
 
   const specDir = openapiVersions.length > 1 ? "{openapi-version}" : "";
-
   return {
     fileType,
     newLine: resolvedOptions["new-line"],
@@ -219,8 +217,35 @@ export function resolveOptions(
     openapiVersions,
     sealObjectSchemas: resolvedOptions["seal-object-schemas"],
     parameterExamplesStrategy: resolvedOptions["experimental-parameter-examples"],
-    operationIdStrategy: resolvedOptions["operation-id-strategy"],
+    operationIdStrategy: resolveOperationIdStrategy(resolvedOptions["operation-id-strategy"]),
   };
+}
+
+const defaultOperationIdStrategy = { kind: "parent-container", separator: "_" } as const;
+function resolveOperationIdStrategy(
+  strategy?: OperationIdStrategy | { kind: OperationIdStrategy; separator?: string },
+): { kind: OperationIdStrategy; separator: string } {
+  if (strategy === undefined) {
+    return defaultOperationIdStrategy;
+  }
+  if (typeof strategy === "string") {
+    return { kind: strategy, separator: resolveOperationIdDefaultStrategySeparator(strategy) };
+  }
+  return {
+    kind: strategy.kind,
+    separator: strategy.separator ?? resolveOperationIdDefaultStrategySeparator(strategy.kind),
+  };
+}
+
+function resolveOperationIdDefaultStrategySeparator(strategy: OperationIdStrategy) {
+  switch (strategy) {
+    case "parent-container":
+      return "_";
+    case "fqn":
+      return ".";
+    case "explicit-only":
+      return "";
+  }
 }
 
 export interface ResolvedOpenAPI3EmitterOptions {
@@ -233,7 +258,7 @@ export interface ResolvedOpenAPI3EmitterOptions {
   safeintStrategy: "double-int" | "int64";
   sealObjectSchemas: boolean;
   parameterExamplesStrategy?: "data" | "serialized";
-  operationIdStrategy: OperationIdStrategy;
+  operationIdStrategy: { kind: OperationIdStrategy; separator: string };
 }
 
 function createOAPIEmitter(
@@ -377,7 +402,10 @@ function createOAPIEmitter(
       options,
       optionalDependencies,
     });
-    operationIdResolver = new OperationIdResolver(program, options.operationIdStrategy);
+    operationIdResolver = new OperationIdResolver(program, {
+      strategy: options.operationIdStrategy.kind,
+      separator: options.operationIdStrategy.separator,
+    });
 
     const securitySchemes = getOpenAPISecuritySchemes(allHttpAuthentications);
     const security = getOpenAPISecurity(defaultAuth);
@@ -740,7 +768,7 @@ function createOAPIEmitter(
   }
 
   function computeSharedOperationId(shared: SharedHttpOperation) {
-    if (options.operationIdStrategy === "explicit-only") return undefined;
+    if (options.operationIdStrategy.kind === "explicit-only") return undefined;
     const operationIds = shared.operations.map((op) => operationIdResolver.resolve(op.operation)!);
     const uniqueOpIds = new Set<string>(operationIds);
     if (uniqueOpIds.size === 1) return uniqueOpIds.values().next().value;
