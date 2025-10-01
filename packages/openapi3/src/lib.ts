@@ -95,15 +95,15 @@ export interface OpenAPI3EmitterOptions {
   /**
    * How should operation ID be generated when `@operationId` is not used.
    * Available options are
-   * - `parent-underscore`: Uses the parent namespace/interface and operation name to generate the ID.
+   * - `parent-container`: Uses the parent namespace/interface and operation name to generate the ID.
    * - `fqn`: Uses the fully qualified name(from service root) of the operation to generate the ID.
-   * - `none`: Do not generate operation ids.
-   * @default parent-underscore
+   * - `explicit-only`: Only use explicitly defined operation IDs.
+   * @default parent-container
    */
   "operation-id-strategy"?: OperationIdStrategy;
 }
 
-export type OperationIdStrategy = "parent-underscore" | "fqn" | "none";
+export type OperationIdStrategy = "parent-container" | "fqn" | "explicit-only";
 
 const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
   type: "object",
@@ -215,15 +215,15 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
     },
     "operation-id-strategy": {
       type: "string",
-      enum: ["parent-underscore", "fqn"],
+      enum: ["parent-container", "fqn", "explicit-only"],
       nullable: true,
-      default: "parent-underscore",
+      default: "parent-container",
       description: [
         "Determines how to generate operation IDs when `@operationId` is not used.",
         "Avaliable options are:",
-        " - `parent-underscore`: Uses the parent namespace and operation name to generate the ID.",
+        " - `parent-container`: Uses the parent namespace and operation name to generate the ID.",
         " - `fqn`: Uses the fully qualified name of the operation to generate the ID.",
-        " - `none`: Do not generate operation ids.",
+        " - `explicit-only`: Only use explicitly defined operation IDs.",
       ].join("\n"),
     },
   },

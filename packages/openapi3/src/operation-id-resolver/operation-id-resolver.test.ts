@@ -14,9 +14,9 @@ async function testResolveOperationId(code: string, strategy: OperationIdStrateg
   return resolver.resolve(foo);
 }
 
-describe("parent-underscore strategy", () => {
+describe("parent-container strategy", () => {
   it("return operation name if operation is defined at the root", async () => {
-    const id = await testResolveOperationId(`@test op foo(): string;`, "parent-underscore");
+    const id = await testResolveOperationId(`@test op foo(): string;`, "parent-container");
     expect(id).toEqual("foo");
   });
 
@@ -27,7 +27,7 @@ describe("parent-underscore strategy", () => {
 
       @test op foo(): string;
     `,
-      "parent-underscore",
+      "parent-container",
     );
     expect(id).toEqual("foo");
   });
@@ -39,7 +39,7 @@ describe("parent-underscore strategy", () => {
           @test op foo(): string;
         }
       `,
-      "parent-underscore",
+      "parent-container",
     );
     expect(id).toEqual("Bar_foo");
   });
@@ -53,7 +53,7 @@ describe("parent-underscore strategy", () => {
           @test op foo(): string;
         }
       `,
-      "parent-underscore",
+      "parent-container",
     );
     expect(id).toEqual("Bar_foo");
   });
@@ -69,7 +69,7 @@ describe("parent-underscore strategy", () => {
           }
         }
       `,
-      "parent-underscore",
+      "parent-container",
     );
     expect(id).toEqual("Bar_foo");
   });
@@ -88,7 +88,7 @@ describe("parent-underscore strategy", () => {
         }
       }
     `);
-    const resolver = new OperationIdResolver(program, "parent-underscore");
+    const resolver = new OperationIdResolver(program, "parent-container");
     expect(resolver.resolve(op1 as any)).toEqual("One_test");
     expect(resolver.resolve(op2 as any)).toEqual("One_test_2");
   });
@@ -155,16 +155,16 @@ describe("fqn", () => {
   });
 });
 
-describe("none", () => {
+describe("explicit-only", () => {
   it("return operationId explicitly set", async () => {
     const id = await testResolveOperationId(
       `@test @OpenAPI.operationId("explicit_foo") op foo(): string;`,
-      "none",
+      "explicit-only",
     );
     expect(id).toEqual("explicit_foo");
   });
   it("return undefined", async () => {
-    const id = await testResolveOperationId(`@test op foo(): string;`, "none");
+    const id = await testResolveOperationId(`@test op foo(): string;`, "explicit-only");
     expect(id).toEqual(undefined);
   });
 });

@@ -137,7 +137,7 @@ const defaultOptions = {
   "include-x-typespec-name": "never",
   "safeint-strategy": "int64",
   "seal-object-schemas": false,
-  "operation-id-strategy": "parent-underscore",
+  "operation-id-strategy": "parent-container",
 } as const;
 
 export async function $onEmit(context: EmitContext<OpenAPI3EmitterOptions>) {
@@ -740,7 +740,7 @@ function createOAPIEmitter(
   }
 
   function computeSharedOperationId(shared: SharedHttpOperation) {
-    if (options.operationIdStrategy === "none") return undefined;
+    if (options.operationIdStrategy === "explicit-only") return undefined;
     const operationIds = shared.operations.map((op) => operationIdResolver.resolve(op.operation)!);
     const uniqueOpIds = new Set<string>(operationIds);
     if (uniqueOpIds.size === 1) return uniqueOpIds.values().next().value;

@@ -54,11 +54,11 @@ export class OperationIdResolver {
     const operationPath = this.#getOperationPath(operation);
 
     switch (this.#strategy) {
-      case "parent-underscore":
+      case "parent-container":
         return operationPath.slice(-2).join("_");
       case "fqn":
         return operationPath.join(".");
-      case "none":
+      case "explicit-only":
         return undefined;
     }
   }
