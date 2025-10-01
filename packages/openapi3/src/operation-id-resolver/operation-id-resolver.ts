@@ -6,6 +6,7 @@ export class OperationIdResolver {
   #program: Program;
   #strategy: OperationIdStrategy;
   #used = new Set<string>();
+  #cache = new Map<Operation, string>();
 
   constructor(program: Program, strategy: OperationIdStrategy) {
     this.#program = program;
@@ -20,6 +21,13 @@ export class OperationIdResolver {
    * This will deduplicate operation ids
    */
   resolve(operation: Operation): string | undefined {
+    const existing = this.#cache.get(operation);
+    if (existing) return existing;
+    const explicitOperationId = getOperationId(this.#program, operation);
+    if (explicitOperationId) {
+      return explicitOperationId;
+    }
+
     let name = this.#resolveInternal(operation);
     if (name === undefined) return undefined;
 
@@ -27,6 +35,7 @@ export class OperationIdResolver {
       name = this.#findNextAvailableName(name);
     }
     this.#used.add(name);
+    this.#cache.set(operation, name);
     return name;
   }
 
@@ -42,11 +51,6 @@ export class OperationIdResolver {
   }
 
   #resolveInternal(operation: Operation): string | undefined {
-    const explicitOperationId = getOperationId(this.#program, operation);
-    if (explicitOperationId) {
-      return explicitOperationId;
-    }
-
     const operationPath = this.#getOperationPath(operation);
 
     switch (this.#strategy) {
