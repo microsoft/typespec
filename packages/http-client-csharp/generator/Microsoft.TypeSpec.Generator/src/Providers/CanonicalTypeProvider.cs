@@ -92,6 +92,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     specProperty = candidateSpecProperty;
                     customProperty.WireInfo = new PropertyWireInformation(specProperty);
                     customProperty.IsDiscriminator = customProperty.WireInfo.IsDiscriminator;
+                    customProperty.Update(description: customProperty.WireInfo.Description);
+
                     _propertyProviderMap[specProperty] = customProperty;
                 }
 
@@ -208,6 +210,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     specProperty = candidateSpecProperty;
                     customField.WireInfo = new PropertyWireInformation(specProperty);
+                    customField.Update(description: customField.WireInfo.Description);
                 }
 
                 string? serializedName = specProperty?.SerializedName;

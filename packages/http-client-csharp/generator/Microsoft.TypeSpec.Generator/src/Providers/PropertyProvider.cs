@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection.Metadata;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
@@ -278,6 +279,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (description != null)
             {
                 _customDescription = description;
+                if (_parameter.IsValueCreated)
+                {
+                    AsParameter.Update(description: description);
+                }
+                else
+                {
+                    InitializeParameter(description);
+                }
             }
             if (modifiers != null)
             {
