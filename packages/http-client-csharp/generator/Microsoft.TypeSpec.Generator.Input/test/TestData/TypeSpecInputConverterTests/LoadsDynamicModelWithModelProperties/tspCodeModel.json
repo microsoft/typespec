@@ -1,0 +1,166 @@
+{
+    "name": "Sample.TypeSpec",
+    "models": [
+        {
+            "$id": "9",
+            "kind": "model",
+            "name": "YetAnotherModel",
+            "namespace": "SampleTypeSpec",
+            "crossLanguageDefinitionId": "SampleTypeSpec.AnotherModel",
+            "usage": "Output,Spread,Json",
+            "doc": "this is not a friendly model but with a friendly name",
+            "properties": [
+                {
+                    "$id": "10",
+                    "kind": "property",
+                    "name": "name",
+                    "serializedName": "name",
+                    "doc": "name of the NotFriend",
+                    "type": {
+                        "$id": "11",
+                        "kind": "string",
+                        "name": "string",
+                        "crossLanguageDefinitionId": "TypeSpec.string",
+                        "decorators": []
+                    },
+                    "optional": false,
+                    "readOnly": false,
+                    "discriminator": false,
+                    "flatten": false,
+                    "decorators": [],
+                    "crossLanguageDefinitionId": "SampleTypeSpec.NotFriend.name",
+                    "serializationOptions": {
+                        "json": {
+                            "name": "name"
+                        }
+                    },
+                    "isHttpMetadata": false
+                }
+            ]
+        },
+        {
+            "$id": "7",
+            "kind": "model",
+            "name": "AnotherModel",
+            "namespace": "SampleTypeSpec",
+            "crossLanguageDefinitionId": "SampleTypeSpec.AnotherModel",
+            "usage": "Output,Spread,Json",
+            "doc": "this is not a friendly model but with a friendly name",
+            "properties": [
+                {
+                    "$id": "5",
+                    "kind": "property",
+                    "name": "name",
+                    "serializedName": "name",
+                    "doc": "name of the NotFriend",
+                    "type": {
+                        "$id": "15",
+                        "kind": "string",
+                        "name": "string",
+                        "crossLanguageDefinitionId": "TypeSpec.string",
+                        "decorators": []
+                    },
+                    "optional": false,
+                    "readOnly": false,
+                    "discriminator": false,
+                    "flatten": false,
+                    "decorators": [],
+                    "crossLanguageDefinitionId": "SampleTypeSpec.NotFriend.name",
+                    "serializationOptions": {
+                        "json": {
+                            "name": "name"
+                        }
+                    },
+                    "isHttpMetadata": false
+                },
+                {
+                    "$id": "13",
+                    "kind": "property",
+                    "name": "AnotherDynamicProperty",
+                    "serializedName": "anotherDynamicProperty",
+                    "doc": "name of the NotFriend",
+                    "type": {
+                        "$ref": "9"
+                    },
+                    "optional": false,
+                    "readOnly": false,
+                    "discriminator": false,
+                    "flatten": false,
+                    "decorators": [],
+                    "crossLanguageDefinitionId": "SampleTypeSpec.NotFriend.name",
+                    "serializationOptions": {
+                        "json": {
+                            "name": "name"
+                        }
+                    },
+                    "isHttpMetadata": false
+                }
+            ]
+        },
+        {
+            "$id": "1",
+            "kind": "model",
+            "name": "Friend",
+            "namespace": "SampleTypeSpec",
+            "crossLanguageDefinitionId": "SampleTypeSpec.NotFriend",
+            "usage": "Output,Spread,Json",
+            "doc": "this is not a friendly model but with a friendly name",
+            "decorators": [
+                {
+                    "name": "TypeSpec.HttpClient.CSharp.@dynamicModel",
+                    "arguments": {}
+                }
+            ],
+            "properties": [
+                {
+                    "$id": "2",
+                    "kind": "property",
+                    "name": "name",
+                    "serializedName": "name",
+                    "doc": "name of the NotFriend",
+                    "type": {
+                        "$id": "3",
+                        "kind": "string",
+                        "name": "string",
+                        "crossLanguageDefinitionId": "TypeSpec.string",
+                        "decorators": []
+                    },
+                    "optional": false,
+                    "readOnly": false,
+                    "discriminator": false,
+                    "flatten": false,
+                    "decorators": [],
+                    "crossLanguageDefinitionId": "SampleTypeSpec.NotFriend.name",
+                    "serializationOptions": {
+                        "json": {
+                            "name": "name"
+                        }
+                    },
+                    "isHttpMetadata": false
+                },
+                {
+                    "$id": "6",
+                    "kind": "property",
+                    "name": "dynamicProperty",
+                    "serializedName": "dynamicProperty",
+                    "doc": "name of the NotFriend",
+                    "type": {
+                        "$ref": "7"
+                    },
+                    "optional": false,
+                    "readOnly": false,
+                    "discriminator": false,
+                    "flatten": false,
+                    "decorators": [],
+                    "crossLanguageDefinitionId": "SampleTypeSpec.NotFriend.name",
+                    "serializationOptions": {
+                        "json": {
+                            "name": "name"
+                        }
+                    },
+                    "isHttpMetadata": false
+                }
+            ]
+        }
+    ]
+}

@@ -9,23 +9,26 @@ using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.SourceInput;
+using Microsoft.TypeSpec.Generator.Statements;
 
 namespace Microsoft.TypeSpec.Generator.Providers
 {
     internal class CanonicalTypeProvider : TypeProvider
     {
         private readonly TypeProvider _generatedTypeProvider;
-        private readonly Dictionary<string, InputProperty> _specPropertiesMap;
+        private readonly Dictionary<string, InputModelProperty> _specPropertiesMap;
         private readonly Dictionary<string, string?> _serializedNameMap;
+        private readonly Dictionary<InputModelProperty, PropertyProvider> _propertyProviderMap = new();
         private readonly HashSet<string> _renamedProperties;
         private readonly HashSet<string> _renamedFields;
+        private readonly IReadOnlyList<InputModelProperty> _specProperties;
 
         public CanonicalTypeProvider(TypeProvider generatedTypeProvider, InputType? inputType)
         {
             _generatedTypeProvider = generatedTypeProvider;
             var inputModel = inputType as InputModelType;
-            var specProperties = inputModel?.Properties ?? [];
-            _specPropertiesMap = specProperties.ToDictionary(p => p.Name.ToIdentifierName(), p => p);
+            _specProperties = inputModel?.Properties ?? [];
+            _specPropertiesMap = _specProperties.ToDictionary(p => p.Name.ToIdentifierName(), p => p);
             _serializedNameMap = BuildSerializationNameMap();
             _renamedProperties = (_generatedTypeProvider.CustomCodeView?.Properties ?? [])
                 .Where(p => p.OriginalName != null).Select(p => p.OriginalName!).ToHashSet();
@@ -39,6 +42,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected override string BuildNamespace() => _generatedTypeProvider.Type.Namespace;
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers() => _generatedTypeProvider.DeclarationModifiers;
+
+        protected override IReadOnlyList<MethodBodyStatement> BuildAttributes()
+        {
+            return [.. _generatedTypeProvider.Attributes, .. _generatedTypeProvider.CustomCodeView?.Attributes ?? []];
+        }
 
         private protected override PropertyProvider[] FilterCustomizedProperties(PropertyProvider[] canonicalProperties) => canonicalProperties;
         private protected override FieldProvider[] FilterCustomizedFields(FieldProvider[] canonicalFields) => canonicalFields;
@@ -67,17 +75,23 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     generatedProperty.WireInfo!.SerializedName = serializedName;
                 }
+
+                if (generatedProperty.InputProperty is InputModelProperty specProperty)
+                {
+                    _propertyProviderMap[specProperty] = generatedProperty;
+                }
             }
 
             foreach (var customProperty in customProperties)
             {
-                InputProperty? specProperty = null;
+                InputModelProperty? specProperty = null;
 
-                if (TryGetCandidateSpecProperty(customProperty, out var candidateSpecProperty))
+                if (TryGetSpecProperty(customProperty, out var candidateSpecProperty))
                 {
                     specProperty = candidateSpecProperty;
                     customProperty.WireInfo = new PropertyWireInformation(specProperty);
                     customProperty.IsDiscriminator = customProperty.WireInfo.IsDiscriminator;
+                    _propertyProviderMap[specProperty] = customProperty;
                 }
 
                 string? serializedName = specProperty?.SerializedName;
@@ -103,7 +117,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                             !customProperty.Body.HasSetter,
                             customProperty.Type.IsNullable,
                             false,
-                            serializedName ?? customProperty.Name.ToVariableName());
+                            serializedName ?? customProperty.Name.ToVariableName(),
+                            false);
                     }
                     else
                     {
@@ -114,6 +129,59 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 customProperty.Type = EnsureCorrectTypeRepresentation(specProperty, customProperty.Type);
             }
 
+            if (_specProperties.Count > 0)
+            {
+                // Input properties will only contain this types properties, i.e. it won't include base type properties.
+                var inputProperties = new HashSet<InputProperty>(_specProperties.Count);
+                var nonSpecProperties = new List<PropertyProvider>();
+
+                // Process all properties in single pass, categorizing them
+                foreach (var prop in generatedProperties)
+                {
+                    if (prop.InputProperty != null)
+                    {
+                        inputProperties.Add(prop.InputProperty);
+                    }
+                    else
+                    {
+                        nonSpecProperties.Add(prop);
+                    }
+                }
+
+                foreach (var prop in customProperties)
+                {
+                    // Check if custom property is in spec
+                    if (_specPropertiesMap.TryGetValue(prop.Name, out var specProp) ||
+                        (prop.OriginalName != null && _specPropertiesMap.TryGetValue(prop.OriginalName, out specProp)))
+                    {
+                        inputProperties.Add(specProp);
+                    }
+                    else
+                    {
+                        nonSpecProperties.Add(prop);
+                    }
+                }
+
+                var specCount = _specProperties.Count(p => inputProperties.Contains(p));
+                var result = new List<PropertyProvider>(specCount + nonSpecProperties.Count);
+
+                // Add spec properties in order
+                foreach (var specProp in _specProperties)
+                {
+                    if (inputProperties.Contains(specProp) &&
+                        _propertyProviderMap.TryGetValue(specProp, out var provider))
+                    {
+                        result.Add(provider);
+                    }
+                }
+
+                // Add non-spec properties
+                result.AddRange(nonSpecProperties);
+
+                return [..result];
+            }
+
+            // For other types, there is no canonical order, so we can just return generated followed by custom properties.
             return [..generatedProperties, ..customProperties];
         }
 
@@ -135,7 +203,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 InputProperty? specProperty = null;
 
-                if (TryGetCandidateSpecProperty(customField, out var candidateSpecProperty))
+                if (TryGetSpecProperty(customField, out var candidateSpecProperty))
                 {
                     specProperty = candidateSpecProperty;
                     customField.WireInfo = new PropertyWireInformation(specProperty);
@@ -164,7 +232,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                             true,
                             customField.Type.IsNullable,
                             false,
-                            serializedName ?? customField.Name.ToVariableName());
+                            serializedName ?? customField.Name.ToVariableName(),
+                            false);
                     }
                     else
                     {
@@ -175,6 +244,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 customField.Type = EnsureCorrectTypeRepresentation(specProperty, customField.Type);
             }
 
+            // Order is not important for fields, so we can just return generated followed by custom fields
             return [..generatedFields, ..customFields];
         }
 
@@ -218,21 +288,27 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // ensure literal types are correctly represented in the custom field using the info from the spec property
             customType = EnsureLiteral(specProperty, customType);
 
-            // Ensure the namespace is populated for custom model/enum types
+            // Ensure the namespace is populated for properties that customize generated model/enum types
+            // The namespaces are not able to be resolved by Roslyn since the generated types are not part of the compilation.
             if (string.IsNullOrEmpty(customType.Namespace))
             {
-                var modelType = GetInputModelType(specProperty?.Type);
-                if (modelType != null)
+                InputType? inputType = GetInputModelType(specProperty?.Type);
+                if (inputType == null)
                 {
-                    customType.Namespace = modelType.Namespace;
+                    inputType = GetInputEnumType(specProperty?.Type);
                 }
-                else
+
+                if (inputType == null)
                 {
-                    var enumValueType = GetInputEnumType(specProperty?.Type);
-                    if (enumValueType != null)
-                    {
-                        customType.Namespace = enumValueType.Namespace;
-                    }
+                    return customType;
+                }
+
+                // Use the TypeFactory to get the correct namespace for the type which respects any customizations that have
+                // been applied to the generated types.
+                var type = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputType);
+                if (type != null)
+                {
+                    customType.Namespace = type.Namespace;
                 }
             }
 
@@ -310,9 +386,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             };
         }
 
-        private bool TryGetCandidateSpecProperty(
+        private bool TryGetSpecProperty(
             PropertyProvider customProperty,
-            [NotNullWhen(true)] out InputProperty? candidateSpecProperty)
+            [NotNullWhen(true)] out InputModelProperty? candidateSpecProperty)
         {
             if (customProperty.OriginalName != null && _specPropertiesMap.TryGetValue(customProperty.OriginalName, out candidateSpecProperty))
             {
@@ -330,7 +406,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return false;
         }
 
-        private bool TryGetCandidateSpecProperty(FieldProvider customField, [NotNullWhen(true)] out InputProperty? candidateSpecProperty)
+        private bool TryGetSpecProperty(FieldProvider customField, [NotNullWhen(true)] out InputModelProperty? candidateSpecProperty)
         {
             if (customField.OriginalName != null && _specPropertiesMap.TryGetValue(customField.OriginalName, out candidateSpecProperty))
             {

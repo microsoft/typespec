@@ -45,6 +45,7 @@ import { getJsScalar } from "../../common/scalar.js";
 import {
   requiresJsonSerialization,
   transposeExpressionFromJson,
+  transposeExpressionToJson,
 } from "../../common/serialization/json.js";
 import { getFullyQualifiedTypeName } from "../../util/name.js";
 import { canonicalizeHttpOperation } from "../operation.js";
@@ -250,13 +251,6 @@ function* emitRawServerOperation(
 
         if (requiresJsonSerialization(ctx, module, body.type)) {
           if (body.type.kind === "Model" && isArrayModelType(ctx.program, body.type)) {
-            const innerTypeName = emitTypeReference(
-              ctx,
-              body.type.indexer.value,
-              body.type,
-              module,
-              { requireDeclaration: true },
-            );
             yield `        const __arrayBody = JSON.parse(body);`;
             yield `        if (!Array.isArray(__arrayBody)) {`;
             yield `          ${names.ctx}.errorHandlers.onInvalidRequest(`;
@@ -266,16 +260,8 @@ function* emitRawServerOperation(
             yield `          );`;
             yield `          return reject();`;
             yield `        }`;
-            value = `__arrayBody.map((item) => ${innerTypeName}.fromJsonObject(JSON.parse(item)))`;
+            value = transposeExpressionFromJson(ctx, body.type, `__arrayBody`, module);
           } else if (body.type.kind === "Model" && isRecordModelType(ctx.program, body.type)) {
-            const innerTypeName = emitTypeReference(
-              ctx,
-              body.type.indexer.value,
-              body.type,
-              module,
-              { requireDeclaration: true },
-            );
-
             yield `        const __recordBody = JSON.parse(body);`;
             yield `        if (typeof __recordBody !== "object" || __recordBody === null) {`;
             yield `          ${names.ctx}.errorHandlers.onInvalidRequest(`;
@@ -285,11 +271,11 @@ function* emitRawServerOperation(
             yield `          );`;
             yield `          return reject();`;
             yield `        }`;
-            value = `Object.fromEntries(Object.entries(__recordBody).map(([key, value]) => [key, ${innerTypeName}.fromJsonObject(value)]))`;
+            value = transposeExpressionFromJson(ctx, body.type, `__recordBody`, module);
           } else if (body.type.kind === "Scalar") {
             value = transposeExpressionFromJson(ctx, body.type, `JSON.parse(body)`, module);
           } else {
-            value = `${bodyTypeName}.fromJsonObject(JSON.parse(body))`;
+            value = `${bodyTypeName}.fromJsonObject(globalThis.JSON.parse(body))`;
           }
         } else {
           value = `JSON.parse(body)`;
@@ -580,7 +566,7 @@ function* emitResultProcessingForType(
       case "unknown":
         yield `${names.ctx}.response.statusCode = 200;`;
         yield `${names.ctx}.response.setHeader("content-type", "application/json");`;
-        yield `${names.ctx}.response.end(JSON.stringify(${names.result}));`;
+        yield `${names.ctx}.response.end(globalThis.JSON.stringify(${names.result}));`;
         return;
       case "never":
         yield `return ${names.ctx}.errorHandlers.onInternalError(${names.ctx}, "Internal server error.");`;
@@ -647,9 +633,45 @@ function* emitResultProcessingForType(
         altName: namer.getAltName("Body"),
         requireDeclaration: true,
       });
-      yield `${names.ctx}.response.end(JSON.stringify(${typeReference}.toJsonObject(${names.result}.${bodyCase.camelCase})))`;
+      yield `${names.ctx}.response.end(globalThis.JSON.stringify(${typeReference}.toJsonObject(${names.result}.${bodyCase.camelCase})))`;
     } else {
-      yield `${names.ctx}.response.end(JSON.stringify(${names.result}.${bodyCase.camelCase}));`;
+      yield `${names.ctx}.response.end(globalThis.JSON.stringify(${names.result}.${bodyCase.camelCase}));`;
+    }
+  } else if (isArrayModelType(ctx.program, target)) {
+    const itemType = target.indexer.value;
+
+    const serializationRequired = isSerializationRequired(
+      ctx,
+      module,
+      itemType,
+      "application/json",
+    );
+    requireSerialization(ctx, itemType, "application/json");
+
+    yield `${names.ctx}.response.setHeader("content-type", "application/json");`;
+
+    if (serializationRequired) {
+      yield `${names.ctx}.response.end(globalThis.JSON.stringify(${transposeExpressionToJson(ctx, target, names.result, module)}));`;
+    } else {
+      yield `${names.ctx}.response.end(globalThis.JSON.stringify(${names.result}));`;
+    }
+  } else if (isRecordModelType(ctx.program, target)) {
+    const itemType = target.indexer.value;
+
+    const serializationRequired = isSerializationRequired(
+      ctx,
+      module,
+      itemType,
+      "application/json",
+    );
+    requireSerialization(ctx, itemType, "application/json");
+
+    yield `${names.ctx}.response.setHeader("content-type", "application/json");`;
+
+    if (serializationRequired) {
+      yield `${names.ctx}.response.end(globalThis.JSON.stringify(${transposeExpressionToJson(ctx, target, names.result, module)}));`;
+    } else {
+      yield `${names.ctx}.response.end(globalThis.JSON.stringify(${names.result}));`;
     }
   } else {
     if (allMetadataIsRemoved) {
@@ -670,9 +692,9 @@ function* emitResultProcessingForType(
           altName: namer.getAltName("Result"),
           requireDeclaration: true,
         });
-        yield `${names.ctx}.response.end(JSON.stringify(${typeReference}.toJsonObject(${names.result} as ${typeReference})));`;
+        yield `${names.ctx}.response.end(globalThis.JSON.stringify(${typeReference}.toJsonObject(${names.result} as ${typeReference})));`;
       } else {
-        yield `${names.ctx}.response.end(JSON.stringify(${names.result}));`;
+        yield `${names.ctx}.response.end(globalThis.JSON.stringify(${names.result}));`;
       }
     }
   }

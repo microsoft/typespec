@@ -27,7 +27,7 @@ def main():
     venv_context = create_venv_with_package_manager(venv_path)
 
     try:
-        install_packages(["-r", f"{_ROOT_DIR}/generator/dev_requirements.txt"], venv_context)
+        install_packages(["-r", f"{_ROOT_DIR}/generator/dev_requirements.txt"], venv_context, cwd=_ROOT_DIR)
     except FileNotFoundError as e:
         raise ValueError(e.filename)
 

@@ -8,8 +8,21 @@ namespace Microsoft.TypeSpec.Generator
 {
     internal static class Conversions
     {
-        public static ParameterLocation ToParameterLocation(this InputRequestLocation location)
-            => location switch
+        public static ParameterLocation ToParameterLocation(this InputParameter inputParameter)
+            => inputParameter switch
+            {
+                InputBodyParameter => ParameterLocation.Body,
+                InputPathParameter => ParameterLocation.Path,
+                InputQueryParameter => ParameterLocation.Query,
+                InputHeaderParameter => ParameterLocation.Header,
+                InputEndpointParameter => ParameterLocation.Uri,
+                InputMethodParameter inputMethodParameter => GetMethodParameterLocation(inputMethodParameter),
+                _ => ParameterLocation.Unknown,
+            };
+
+        private static ParameterLocation GetMethodParameterLocation(InputMethodParameter inputMethodParameter)
+        {
+            return inputMethodParameter.Location switch
             {
                 InputRequestLocation.Body => ParameterLocation.Body,
                 InputRequestLocation.Uri => ParameterLocation.Uri,
@@ -18,5 +31,6 @@ namespace Microsoft.TypeSpec.Generator
                 InputRequestLocation.Header => ParameterLocation.Header,
                 _ => ParameterLocation.Unknown,
             };
+        }
     }
 }

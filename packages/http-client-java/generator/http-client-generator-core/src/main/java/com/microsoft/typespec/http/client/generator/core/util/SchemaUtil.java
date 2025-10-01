@@ -178,9 +178,10 @@ public class SchemaUtil {
      * @return whether response of the operation contains headers
      */
     public static boolean responseContainsHeaderSchemas(Operation operation, JavaSettings settings) {
-        if (operation.isLro() && (settings.isFluent() || settings.isDataPlaneClient())) {
+        if ((operation.isLro() || operation.isPageable()) && (settings.isFluent() || settings.isDataPlaneClient())) {
             // Response headers will be omitted, as LRO method has return type as SyncPoller or PollerFlux, not
             // Response.
+            // Same for pageable methods, as they return PagedFlux or PagedIterable. And PagedResponse contains headers.
             return false;
         }
         return operation.hasHeaderSchemaResponse();

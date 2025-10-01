@@ -10,7 +10,7 @@ using Sample;
 
 namespace Sample.Models
 {
-    public partial class MockInputModel : global::System.ClientModel.Primitives.IJsonModel<global::Sample.Models.MockInputModel>
+    public partial class MockInputModel : global::Sample.Models.BaseModel, global::System.ClientModel.Primitives.IJsonModel<global::Sample.Models.MockInputModel>
     {
         internal MockInputModel()
         {

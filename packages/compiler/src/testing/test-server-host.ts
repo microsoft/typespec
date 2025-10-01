@@ -1,11 +1,13 @@
 import { pathToFileURL } from "url";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { Diagnostic, FileChangeType } from "vscode-languageserver/node.js";
+import { Diagnostic, FileChangeType, TextDocumentIdentifier } from "vscode-languageserver/node.js";
+import { CompilerOptions } from "../core/options.js";
 import { parse, visitChildren } from "../core/parser.js";
 import { resolvePath } from "../core/path-utils.js";
 import { IdentifierNode, SyntaxKind } from "../core/types.js";
 import { createClientConfigProvider } from "../server/client-config-provider.js";
 import { Server, ServerHost, createServer } from "../server/index.js";
+import { ServerCompileOptions } from "../server/server-compile-manager.js";
 import { createStringMap } from "../utils/misc.js";
 import { createTestFileSystem } from "./fs.js";
 import { StandardTestLibrary, TestHostOptions } from "./test-compiler-host.js";
@@ -55,6 +57,10 @@ export async function createTestServerHost(options?: TestHostOptions & { workspa
       const document = TextDocument.create(url, "typespec", version, content);
       documents.set(url, document);
       fileSystem.addTypeSpecFile(path, ""); // force virtual file system to create directory where document lives.
+      if (!oldDocument) {
+        server.documentOpened({ document });
+      }
+      server.checkChange({ document });
       return document;
     },
     openDocument(path) {
@@ -64,7 +70,7 @@ export async function createTestServerHost(options?: TestHostOptions & { workspa
     getDiagnostics(path) {
       return diagnostics.get(this.getURL(path)) ?? [];
     },
-    sendDiagnostics(params) {
+    async sendDiagnostics(params) {
       if (params.version && documents.get(params.uri)?.version !== params.version) {
         return;
       }
@@ -119,6 +125,20 @@ export async function createTestServerHost(options?: TestHostOptions & { workspa
     workspaceFolders: null,
   });
   server.initialized({});
+  const serverCompile = server.compile;
+  server.compile = async (
+    document: TextDocument | TextDocumentIdentifier,
+    additionalOptions: CompilerOptions | undefined,
+    serverCompileOptions: ServerCompileOptions,
+  ) => {
+    // Wrap the compile to report diagnostics after compile in test to make sure existing tests
+    // that rely on diagnostics to work without having to change each of them to call reportDiagnostics explicitly.
+    const result = await serverCompile(document, additionalOptions, serverCompileOptions);
+    if (result) {
+      await server.reportDiagnostics(result);
+    }
+    return result;
+  };
   serverHost.server = server;
   return serverHost;
 }

@@ -8,3 +8,4 @@ packages:
 
 overrides:
   "cross-spawn@>=7.0.0 <7.0.5": "^7.0.5"
+  rollup: 4.49.0 # Regression in 4.50.0 https://github.com/rollup/rollup/issues/6099

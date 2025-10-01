@@ -82,8 +82,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                     MethodSignatureModifiers.Public,
                     null,
                     $"",
-                    [new ParameterProvider("foo", $"Foo description", typeof(int))]),
-                attributes: attributes);
+                    [new ParameterProvider("foo", $"Foo description", typeof(int))],
+                Attributes: attributes));
             var updatedMethods = typeProvider.CanonicalView.Methods;
             Assert.IsNotNull(updatedMethods);
             Assert.AreEqual(1, updatedMethods!.Count);
@@ -105,12 +105,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual("/// <param name=\"foo\"> Foo description. </param>\n", xmlDocParamStatement.ToDisplayString());
 
             // Validate that the attributes are updated
-            Assert.IsNotNull(updatedMethod.Attributes);
-            Assert.AreEqual(attributes.Count, updatedMethod.Attributes.Count);
+            Assert.IsNotNull(updatedMethod.Signature.Attributes);
+            Assert.AreEqual(attributes.Count, updatedMethod.Signature.Attributes.Count);
             for (int i = 0; i < attributes.Count; i++)
             {
-                Assert.AreEqual(attributes[i].Type, updatedMethod.Attributes[i].Type);
-                Assert.IsTrue(updatedMethod.Attributes[i].Arguments.SequenceEqual(attributes[i].Arguments));
+                Assert.AreEqual(attributes[i].Type, updatedMethod.Signature.Attributes[i].Type);
+                Assert.IsTrue(updatedMethod.Signature.Attributes[i].Arguments.SequenceEqual(attributes[i].Arguments));
             }
 
             using var writer = new CodeWriter();
@@ -133,17 +133,16 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             };
             var typeProvider = new TestTypeProvider();
             var method = new MethodProvider(
-                new MethodSignature("Test", $"", MethodSignatureModifiers.Public, null, $"", []),
+                new MethodSignature("Test", $"", MethodSignatureModifiers.Public, null, $"", [], Attributes: attributes),
                 Throw(Null),
-                typeProvider,
-                attributes: attributes);
+                typeProvider);
 
-            Assert.IsNotNull(method.Attributes);
-            Assert.AreEqual(attributes.Count, method.Attributes.Count);
+            Assert.IsNotNull(method.Signature.Attributes);
+            Assert.AreEqual(attributes.Count, method.Signature.Attributes.Count);
             for (int i = 0; i < attributes.Count; i++)
             {
-                Assert.AreEqual(attributes[i].Type, method.Attributes[i].Type);
-                Assert.IsTrue(method.Attributes[i].Arguments.SequenceEqual(attributes[i].Arguments));
+                Assert.AreEqual(attributes[i].Type, method.Signature.Attributes[i].Type);
+                Assert.IsTrue(method.Signature.Attributes[i].Arguments.SequenceEqual(attributes[i].Arguments));
             }
 
             // validate the attributes are written correctly

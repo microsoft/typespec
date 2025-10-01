@@ -39,21 +39,23 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
     private String apiVersion;
     private Boolean useRestProxy;
     private Boolean useDefaultHttpStatusCodeToExceptionTypeMapping = true;
+    private Boolean clientSideValidations = false;
     private DevOptions devOptions;
 
     // mgmt
+    private Boolean premium = false;
     private String renameModel;
     private String addInner;
     private String removeInner;
     private String preserveModel;
     private Boolean generateAsyncMethods;
+    private String propertyIncludeAlways;
     private List<ResourceCollectionAssociation> resourceCollectionAssociations = new ArrayList<>();
 
     // internal
     private String outputDir;
     private Boolean arm = false;
     private String licenseHeader;
-    private Boolean premium = false;
 
     public String getNamespace() {
         return namespace;
@@ -157,6 +159,14 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
         return useRestProxy;
     }
 
+    public Boolean getUseDefaultHttpStatusCodeToExceptionTypeMapping() {
+        return useDefaultHttpStatusCodeToExceptionTypeMapping;
+    }
+
+    public Boolean getClientSideValidations() {
+        return clientSideValidations;
+    }
+
     public String getRenameModel() {
         return renameModel;
     }
@@ -177,16 +187,16 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
         return generateAsyncMethods;
     }
 
+    public String getPropertyIncludeAlways() {
+        return propertyIncludeAlways;
+    }
+
     public Boolean getPremium() {
         return premium;
     }
 
     public List<ResourceCollectionAssociation> getResourceCollectionAssociations() {
         return resourceCollectionAssociations;
-    }
-
-    public Boolean getUseDefaultHttpStatusCodeToExceptionTypeMapping() {
-        return useDefaultHttpStatusCodeToExceptionTypeMapping;
     }
 
     @Override
@@ -255,10 +265,14 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
                 options.preserveModel = reader.getNullable(EmitterOptions::getStringOrList);
             } else if ("generate-async-methods".equals(fieldName)) {
                 options.generateAsyncMethods = reader.getNullable(EmitterOptions::getBoolean);
+            } else if ("property-include-always".equals(fieldName)) {
+                options.propertyIncludeAlways = reader.getNullable(EmitterOptions::getStringOrList);
             } else if ("resource-collection-associations".equals(fieldName)) {
                 options.resourceCollectionAssociations = reader.readArray(ResourceCollectionAssociation::fromJson);
             } else if ("premium".equals(fieldName)) {
                 options.premium = reader.getNullable(EmitterOptions::getBoolean);
+            } else if ("client-side-validations".equals(fieldName)) {
+                options.clientSideValidations = reader.getNullable(EmitterOptions::getBoolean);
             } else {
                 reader.skipChildren();
             }

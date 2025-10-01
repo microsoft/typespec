@@ -14,6 +14,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSe
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Client;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.TypeSpecMetadata;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.mgmt.FluentGen;
@@ -24,7 +25,7 @@ import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import com.microsoft.typespec.http.client.generator.model.EmitterOptions;
 import com.microsoft.typespec.http.client.generator.util.FileUtil;
 import com.microsoft.typespec.http.client.generator.util.MetadataUtil;
-import java.io.File;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +53,9 @@ public class TypeSpecFluentPlugin extends FluentGen {
         }
         if (options.getGenerateTests() != null) {
             SETTINGS_MAP.put("generate-tests", options.getGenerateTests());
+        }
+        if (options.getClientSideValidations() != null) {
+            SETTINGS_MAP.put("client-side-validations", options.getClientSideValidations());
         }
         if (options.getArm()) {
             if (options.getPremium()) {
@@ -88,6 +92,10 @@ public class TypeSpecFluentPlugin extends FluentGen {
         if (options.getGenerateAsyncMethods() != null) {
             SETTINGS_MAP.put("generate-async-methods", options.getGenerateAsyncMethods());
         }
+        if (options.getPropertyIncludeAlways() != null) {
+            // always serialize this property, even if the value is null
+            SETTINGS_MAP.put("property-include-always", options.getPropertyIncludeAlways());
+        }
         if (options.getResourceCollectionAssociations() != null) {
             SETTINGS_MAP.put("resource-collection-associations", options.getResourceCollectionAssociations());
         }
@@ -118,7 +126,8 @@ public class TypeSpecFluentPlugin extends FluentGen {
 
         if (emitterOptions.getIncludeApiViewProperties() == Boolean.TRUE) {
             TypeSpecMetadata metadata = new TypeSpecMetadata(FluentUtils.getArtifactId(), emitterOptions.getFlavor(),
-                apiVersion, collectCrossLanguageDefinitions(client));
+                apiVersion, collectCrossLanguageDefinitions(client),
+                FileUtil.filterForJavaSourceFiles(javaPackage.getJavaFiles().stream().map(JavaFile::getFilePath)));
             javaPackage.addTypeSpecMetadata(metadata);
         }
 
@@ -127,8 +136,8 @@ public class TypeSpecFluentPlugin extends FluentGen {
 
     @Override
     public void writeFile(String fileName, String content, List<Object> sourceMap) {
-        File outputFile = FileUtil.writeToFile(emitterOptions.getOutputDir(), fileName, content);
-        LOGGER.info("Write file: {}", outputFile.getAbsolutePath());
+        Path outputFile = FileUtil.writeToFile(emitterOptions.getOutputDir(), fileName, content);
+        LOGGER.info("Write file: {}", outputFile.toAbsolutePath());
     }
 
     @Override
@@ -158,26 +167,7 @@ public class TypeSpecFluentPlugin extends FluentGen {
         SETTINGS_MAP.put("null-byte-array-maps-to-empty-array", true);
         SETTINGS_MAP.put("graal-vm-config", true);
         SETTINGS_MAP.put("sync-methods", "all");
-        SETTINGS_MAP.put("client-side-validations", true);
         SETTINGS_MAP.put("stream-style-serialization", false);
-//        SETTINGS_MAP.put("pipeline.fluentgen.naming.override", getNamingOverrides());
-    }
-
-    private static Map<String, String> getNamingOverrides() {
-        Map<String, String> namingOverrides = new HashMap<>();
-        namingOverrides.put("eTag", "etag");
-        namingOverrides.put("userName", "username");
-        namingOverrides.put("metaData", "metadata");
-        namingOverrides.put("timeStamp", "timestamp");
-        namingOverrides.put("hostName", "hostname");
-        namingOverrides.put("webHook", "webhook");
-        namingOverrides.put("coolDown", "cooldown");
-        namingOverrides.put("resourceregion", "resourceRegion");
-        namingOverrides.put("sTag", "stag");
-        namingOverrides.put("tagname", "tagName");
-        namingOverrides.put("tagvalue", "tagValue");
-
-        return namingOverrides;
     }
 
     @SuppressWarnings("unchecked")

@@ -10,11 +10,12 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
+using SampleTypeSpec.Models.Custom;
 
 namespace SampleTypeSpec
 {
     /// <summary> this is a model with a client name. </summary>
-    public partial class RenamedModelCustom : IJsonModel<RenamedModelCustom>
+    public partial class RenamedModelCustom : Friend, IJsonModel<RenamedModelCustom>
     {
         /// <summary> Initializes a new instance of <see cref="RenamedModelCustom"/> for deserialization. </summary>
         internal RenamedModelCustom()
@@ -32,39 +33,25 @@ namespace SampleTypeSpec
 
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        protected override void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
             string format = options.Format == "W" ? ((IPersistableModel<RenamedModelCustom>)this).GetFormatFromOptions(options) : options.Format;
             if (format != "J")
             {
                 throw new FormatException($"The model {nameof(RenamedModelCustom)} does not support writing '{format}' format.");
             }
-            writer.WritePropertyName("name"u8);
-            writer.WriteStringValue(Name);
-            if (options.Format != "W" && _additionalBinaryDataProperties != null)
-            {
-                foreach (var item in _additionalBinaryDataProperties)
-                {
-                    writer.WritePropertyName(item.Key);
-#if NET6_0_OR_GREATER
-                    writer.WriteRawValue(item.Value);
-#else
-                    using (JsonDocument document = JsonDocument.Parse(item.Value))
-                    {
-                        JsonSerializer.Serialize(writer, document.RootElement);
-                    }
-#endif
-                }
-            }
+            base.JsonModelWriteCore(writer, options);
+            writer.WritePropertyName("otherName"u8);
+            writer.WriteStringValue(OtherName);
         }
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        RenamedModelCustom IJsonModel<RenamedModelCustom>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
+        RenamedModelCustom IJsonModel<RenamedModelCustom>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => (RenamedModelCustom)JsonModelCreateCore(ref reader, options);
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual RenamedModelCustom JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+        protected override Friend JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
             string format = options.Format == "W" ? ((IPersistableModel<RenamedModelCustom>)this).GetFormatFromOptions(options) : options.Format;
             if (format != "J")
@@ -85,6 +72,7 @@ namespace SampleTypeSpec
             }
             string name = default;
             IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
+            string otherName = default;
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("name"u8))
@@ -92,19 +80,24 @@ namespace SampleTypeSpec
                     name = prop.Value.GetString();
                     continue;
                 }
+                if (prop.NameEquals("otherName"u8))
+                {
+                    otherName = prop.Value.GetString();
+                    continue;
+                }
                 if (options.Format != "W")
                 {
                     additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
                 }
             }
-            return new RenamedModelCustom(name, additionalBinaryDataProperties);
+            return new RenamedModelCustom(name, additionalBinaryDataProperties, otherName);
         }
 
         /// <param name="options"> The client options for reading and writing models. </param>
         BinaryData IPersistableModel<RenamedModelCustom>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        protected override BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
         {
             string format = options.Format == "W" ? ((IPersistableModel<RenamedModelCustom>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
@@ -118,11 +111,11 @@ namespace SampleTypeSpec
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        RenamedModelCustom IPersistableModel<RenamedModelCustom>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
+        RenamedModelCustom IPersistableModel<RenamedModelCustom>.Create(BinaryData data, ModelReaderWriterOptions options) => (RenamedModelCustom)PersistableModelCreateCore(data, options);
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual RenamedModelCustom PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
+        protected override Friend PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
         {
             string format = options.Format == "W" ? ((IPersistableModel<RenamedModelCustom>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)

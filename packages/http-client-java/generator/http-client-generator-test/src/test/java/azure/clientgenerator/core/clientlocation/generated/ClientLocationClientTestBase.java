@@ -11,6 +11,7 @@ package azure.clientgenerator.core.clientlocation.generated;
 import azure.clientgenerator.core.clientlocation.ArchiveOperationsClient;
 import azure.clientgenerator.core.clientlocation.ClientLocationClient;
 import azure.clientgenerator.core.clientlocation.ClientLocationClientBuilder;
+import azure.clientgenerator.core.clientlocation.MoveMethodParameterToBlobOperationsClient;
 import azure.clientgenerator.core.clientlocation.MoveToExistingSubAdminOperationsClient;
 import azure.clientgenerator.core.clientlocation.MoveToExistingSubUserOperationsClient;
 import azure.clientgenerator.core.clientlocation.MoveToNewSubProductOperationsClient;
@@ -32,12 +33,15 @@ class ClientLocationClientTestBase extends TestProxyTestBase {
 
     protected MoveToRootResourceOperationsClient moveToRootResourceOperationsClient;
 
+    protected MoveMethodParameterToBlobOperationsClient moveMethodParameterToBlobOperationsClient;
+
     protected ArchiveOperationsClient archiveOperationsClient;
 
     @Override
     protected void beforeTest() {
         ClientLocationClientBuilder clientLocationClientbuilder = new ClientLocationClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
+            .storageAccount(Configuration.getGlobalConfiguration().get("STORAGEACCOUNT", "storageaccount"))
             .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.RECORD) {
@@ -47,6 +51,7 @@ class ClientLocationClientTestBase extends TestProxyTestBase {
 
         ClientLocationClientBuilder moveToExistingSubAdminOperationsClientbuilder = new ClientLocationClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
+            .storageAccount(Configuration.getGlobalConfiguration().get("STORAGEACCOUNT", "storageaccount"))
             .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.RECORD) {
@@ -57,6 +62,7 @@ class ClientLocationClientTestBase extends TestProxyTestBase {
 
         ClientLocationClientBuilder moveToExistingSubUserOperationsClientbuilder = new ClientLocationClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
+            .storageAccount(Configuration.getGlobalConfiguration().get("STORAGEACCOUNT", "storageaccount"))
             .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.RECORD) {
@@ -67,6 +73,7 @@ class ClientLocationClientTestBase extends TestProxyTestBase {
 
         ClientLocationClientBuilder moveToNewSubProductOperationsClientbuilder = new ClientLocationClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
+            .storageAccount(Configuration.getGlobalConfiguration().get("STORAGEACCOUNT", "storageaccount"))
             .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.RECORD) {
@@ -77,6 +84,7 @@ class ClientLocationClientTestBase extends TestProxyTestBase {
 
         ClientLocationClientBuilder moveToRootResourceOperationsClientbuilder = new ClientLocationClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
+            .storageAccount(Configuration.getGlobalConfiguration().get("STORAGEACCOUNT", "storageaccount"))
             .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.RECORD) {
@@ -85,8 +93,20 @@ class ClientLocationClientTestBase extends TestProxyTestBase {
         moveToRootResourceOperationsClient
             = moveToRootResourceOperationsClientbuilder.buildMoveToRootResourceOperationsClient();
 
+        ClientLocationClientBuilder moveMethodParameterToBlobOperationsClientbuilder = new ClientLocationClientBuilder()
+            .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
+            .storageAccount(Configuration.getGlobalConfiguration().get("STORAGEACCOUNT", "storageaccount"))
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
+            .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
+        if (getTestMode() == TestMode.RECORD) {
+            moveMethodParameterToBlobOperationsClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
+        }
+        moveMethodParameterToBlobOperationsClient
+            = moveMethodParameterToBlobOperationsClientbuilder.buildMoveMethodParameterToBlobOperationsClient();
+
         ClientLocationClientBuilder archiveOperationsClientbuilder = new ClientLocationClientBuilder()
             .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
+            .storageAccount(Configuration.getGlobalConfiguration().get("STORAGEACCOUNT", "storageaccount"))
             .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
             .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.RECORD) {

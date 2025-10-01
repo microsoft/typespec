@@ -32,7 +32,10 @@ import payload.pageable.implementation.PageableClientImpl;
  * A builder for creating a new instance of the PageableClient type.
  */
 @ServiceClientBuilder(
-    serviceClients = { ServerDrivenPaginationClient.class, ServerDrivenPaginationContinuationTokenClient.class })
+    serviceClients = {
+        PageableClient.class,
+        ServerDrivenPaginationClient.class,
+        ServerDrivenPaginationContinuationTokenClient.class })
 public final class PageableClientBuilder implements HttpTrait<PageableClientBuilder>, ProxyTrait<PageableClientBuilder>,
     ConfigurationTrait<PageableClientBuilder>, EndpointTrait<PageableClientBuilder> {
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -221,6 +224,17 @@ public final class PageableClientBuilder implements HttpTrait<PageableClientBuil
         policies.add(new HttpInstrumentationPolicy(localHttpInstrumentationOptions));
         policies.forEach(httpPipelineBuilder::addPolicy);
         return httpPipelineBuilder.httpClient(httpClient).build();
+    }
+
+    /**
+     * Builds an instance of PageableClient class.
+     * 
+     * @return an instance of PageableClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public PageableClient buildClient() {
+        PageableClientImpl innerClient = buildInnerClient();
+        return new PageableClient(innerClient, innerClient.getInstrumentation());
     }
 
     /**

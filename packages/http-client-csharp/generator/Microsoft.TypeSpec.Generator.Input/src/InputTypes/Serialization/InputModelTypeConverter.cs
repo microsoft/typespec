@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -10,6 +11,7 @@ namespace Microsoft.TypeSpec.Generator.Input
 {
     internal sealed class InputModelTypeConverter : JsonConverter<InputModelType>
     {
+        private const string DynamicModelDecorator = "TypeSpec.HttpClient.CSharp.@dynamicModel";
         private readonly TypeSpecReferenceHandler _referenceHandler;
 
         public InputModelTypeConverter(TypeSpecReferenceHandler referenceHandler)
@@ -50,7 +52,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                 discriminatedSubtypes: null!,
                 additionalProperties: null,
                 modelAsStruct: false,
-                serializationOptions: null!);
+                serializationOptions: null!,
+                isDynamicModel: false);
             resolver.AddReference(id, model);
 
             string? @namespace = null;
@@ -60,11 +63,11 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? summary = null;
             string? doc = null;
             string? usageString = null;
-            InputProperty? discriminatorProperty = null;
+            InputModelProperty? discriminatorProperty = null;
             string? discriminatorValue = null;
             InputType? additionalProperties = null;
             InputModelType? baseModel = null;
-            IReadOnlyList<InputProperty>? properties = null;
+            IReadOnlyList<InputModelProperty>? properties = null;
             IReadOnlyDictionary<string, InputModelType>? discriminatedSubtypes = null;
             bool modelAsStruct = false;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
@@ -105,7 +108,10 @@ namespace Microsoft.TypeSpec.Generator.Input
             model.Summary = summary;
             model.Doc = doc;
             var parsedUsage = Enum.TryParse<InputModelTypeUsage>(usageString, ignoreCase: true, out var usage) ? usage : InputModelTypeUsage.None;
-            model.Usage = parsedUsage;
+
+            // All models are given a usage of JSON so that they can be persisted regardless of whether
+            // they are used in requests or responses.
+            model.Usage = parsedUsage | InputModelTypeUsage.Json;
             model.DiscriminatorValue = discriminatorValue;
             model.DiscriminatorProperty = discriminatorProperty;
             model.AdditionalProperties = additionalProperties;
@@ -127,6 +133,10 @@ namespace Microsoft.TypeSpec.Generator.Input
             if (decorators != null)
             {
                 model.Decorators = decorators;
+                if (model.Decorators.Any(d => d.Name.Equals(DynamicModelDecorator)))
+                {
+                    MarkModelsAsDynamicRecursive(model);
+                }
             }
 
             // if this model has a base, it means this model is a derived model of the base model, add it into the list.
@@ -136,6 +146,37 @@ namespace Microsoft.TypeSpec.Generator.Input
             }
 
             return model;
+        }
+
+        private static void MarkModelsAsDynamicRecursive(InputType inputType)
+        {
+            if (inputType is InputModelType modelType)
+            {
+                modelType.IsDynamicModel = true;
+                foreach (var property in modelType.Properties)
+                {
+                    if (property.Type is InputModelType propertyType)
+                    {
+                        MarkModelsAsDynamicRecursive(propertyType);
+                    }
+                    else if (property.Type is InputArrayType arrayType)
+                    {
+                        MarkModelsAsDynamicRecursive(arrayType.ValueType);
+                    }
+                    else if (property.Type is InputDictionaryType dictionaryType)
+                    {
+                        MarkModelsAsDynamicRecursive(dictionaryType.ValueType);
+                    }
+                }
+            }
+            else if (inputType is InputArrayType arrayType)
+            {
+                MarkModelsAsDynamicRecursive(arrayType.ValueType);
+            }
+            else if (inputType is InputDictionaryType dictionaryType)
+            {
+                MarkModelsAsDynamicRecursive(dictionaryType.ValueType);
+            }
         }
     }
 }

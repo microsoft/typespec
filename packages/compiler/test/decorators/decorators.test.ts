@@ -650,6 +650,7 @@ describe("compiler: built-in decorators", () => {
         ["utcDateTime", "unixTimestamp", "int32"],
         ["duration", "ISO8601", undefined],
         ["duration", "seconds", "int32"],
+        ["duration", "milliseconds", "int32"],
         ["bytes", "base64", undefined],
         ["bytes", "base64url", undefined],
         // Do not block unknown encoding
@@ -694,6 +695,13 @@ describe("compiler: built-in decorators", () => {
         ],
         [
           "duration",
+          "milliseconds",
+          undefined,
+          "invalid-encode",
+          `Encoding 'milliseconds' on type 's' is expected to be serialized as 'numeric' but got 'string'. Set '@encode' 2nd parameter to be of type numeric. e.g. '@encode("milliseconds", int32)'`,
+        ],
+        [
+          "duration",
           "rfc3339",
           undefined,
           "invalid-encode",
@@ -709,6 +717,14 @@ describe("compiler: built-in decorators", () => {
         [
           "duration",
           "seconds",
+          '"int32"',
+          // TODO: Arguably this should be improved.
+          "invalid-argument",
+          `Argument of type '"int32"' is not assignable to parameter of type 'Scalar'`,
+        ],
+        [
+          "duration",
+          "milliseconds",
           '"int32"',
           // TODO: Arguably this should be improved.
           "invalid-argument",

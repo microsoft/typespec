@@ -80,12 +80,6 @@ model ServiceOptions {
  * @service(#{title: "Pet store"})
  * namespace PetStore;
  * ```
- *
- * @example Setting service version
- * ```typespec
- * @service(#{version: "1.0"})
- * namespace PetStore;
- * ```
  */
 extern dec service(target: Namespace, options?: valueof ServiceOptions);
 
@@ -487,9 +481,14 @@ enum DurationKnownEncoding {
   ISO8601: "ISO8601",
 
   /**
-   * Encode to integer or float
+   * Encode to integer or float as seconds
    */
   seconds: "seconds",
+
+  /**
+   * Encode to integer or float as milliseconds
+   */
+  milliseconds: "milliseconds",
 }
 
 /**
