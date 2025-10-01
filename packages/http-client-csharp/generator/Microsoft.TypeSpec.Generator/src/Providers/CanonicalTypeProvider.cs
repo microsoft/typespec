@@ -92,6 +92,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     specProperty = candidateSpecProperty;
                     customProperty.WireInfo = new PropertyWireInformation(specProperty);
                     customProperty.IsDiscriminator = customProperty.WireInfo.IsDiscriminator;
+
+                    //var parameterDescription = customProperty.WireInfo.Description ?? customProperty.AsParameter.Description;
+                    //customProperty.AsParameter.Update(description: parameterDescription);
+
                     _propertyProviderMap[specProperty] = customProperty;
                 }
 
