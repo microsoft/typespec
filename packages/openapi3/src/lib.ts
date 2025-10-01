@@ -234,9 +234,7 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
       ].join("\n"),
     },
     "operation-id-strategy": {
-      type: [],
-      nullable: true,
-      anyOf: [
+      oneOf: [
         operationIdStrategySchema,
         {
           type: "object",
@@ -247,11 +245,11 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
               nullable: true,
               description: "Separator used to join segment in the operation name.",
             },
-            required: ["kind"],
           },
+          required: ["kind"],
         },
       ],
-    },
+    } as any,
   },
   required: [],
 };
