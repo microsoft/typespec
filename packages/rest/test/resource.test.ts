@@ -6,6 +6,21 @@ import { getSegment } from "../src/rest.js";
 import { Tester, compileOperations, getRoutesFor } from "./test-host.js";
 
 describe("circular resource parents", () => {
+  it("report resource with parent resource of itself", async () => {
+    const diagnostics = await Tester.diagnose(`
+      @service namespace My;
+
+      @resource("A")
+      @parentResource(A)
+      model A { @key a: string }
+    `);
+    expectDiagnostics(diagnostics, [
+      {
+        code: "@typespec/rest/circular-parent-resource",
+        message: "Resource has a parent cycle (My.A -> My.A)",
+      },
+    ]);
+  });
   it("report resource with circular parents", async () => {
     const diagnostics = await Tester.diagnose(`
       @service namespace My;
