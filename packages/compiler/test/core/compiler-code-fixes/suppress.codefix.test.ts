@@ -100,3 +100,23 @@ it("it suppress for model property with message", async () => {
       }
     `);
 });
+
+it("it does suppress for model property twice", async () => {
+  await expectCodeFixOnAst(
+    `
+      model Foo {
+        #suppress "foo" ""
+        a: ┆int32;
+      }
+    `,
+    (node) => {
+      strictEqual(node.kind, SyntaxKind.Identifier);
+      return createSuppressCodeFix(node, "foo");
+    },
+  ).toChangeTo(`
+      model Foo {
+        #suppress "foo" ""
+        a: int32;
+      }
+    `);
+});
