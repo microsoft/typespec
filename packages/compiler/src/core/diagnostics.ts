@@ -45,8 +45,17 @@ export function getRelatedLocations(diagnostic: Diagnostic): RelatedSourceLocati
 
 /**
  * Find the syntax node for a TypeSpec diagnostic target.
- * @param target Diagnostic target
- * @returns undefined if target is a type or symbol without a node.
+ *
+ * This function extracts the AST node from various types of diagnostic targets:
+ * - For template instance targets: returns the node of the template declaration
+ * - For symbols: returns the first declaration node (or symbol source for using symbols)
+ * - For AST nodes: returns the node itself
+ * - For types: returns the node associated with the type
+ *
+ * @param target The diagnostic target to extract a node from. Can be a template instance,
+ *               symbol, AST node, or type.
+ * @returns The AST node associated with the target, or undefined if the target is a type
+ *          or symbol that doesn't have an associated node.
  */
 export function getNodeForTarget(target: TypeSpecDiagnosticTarget): Node | undefined {
   if (!("kind" in target) && !("entityKind" in target)) {
