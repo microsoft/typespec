@@ -208,6 +208,7 @@ export const [
 
   /**
    * Set parent resource for a resource.
+   * Same as applying `@parentResource` decorator.
    */
   setParentResource,
 ] = useStateMap<Model, Model>(createStateSymbol("parentResourceTypes"));
