@@ -3,7 +3,6 @@ import {
   getTypeName,
   listServices,
   Model,
-  navigateProgram,
   navigateTypesInNamespace,
   Program,
 } from "@typespec/compiler";
@@ -12,36 +11,6 @@ import { isSharedRoute } from "@typespec/http";
 import { reportDiagnostic } from "./lib.js";
 import { getParentResource, getResourceTypeKey, ResourceKey } from "./resource.js";
 import { getActionDetails, getCollectionActionDetails } from "./rest.js";
-import { CycleTracker } from "./utils/cycle-tracker/cycle-tracker.js";
-
-function checkForCircularParents(program: Program) {
-  const resourceInCycle = new Set<Model>();
-
-  navigateProgram(program, {
-    model: (model: Model) => {
-      if (model.name === "") return;
-      const cycleTracker = new CycleTracker<Model>();
-      let currentType: Model | undefined = model;
-      while (currentType) {
-        const cycle = cycleTracker.add(currentType);
-        if (cycle) {
-          for (const type of cycle) {
-            if (!resourceInCycle.has(type)) {
-              resourceInCycle.add(type);
-              reportDiagnostic(program, {
-                code: "circular-parent-resource",
-                format: { cycle: [...cycle, cycle[0]].map((x) => getTypeName(x)).join(" -> ") },
-                target: type,
-              });
-            }
-          }
-          break;
-        }
-        currentType = getParentResource(program, currentType);
-      }
-    },
-  });
-}
 
 function checkForDuplicateResourceKeyNames(program: Program) {
   const seenTypes = new Set<string>();
@@ -125,7 +94,6 @@ function checkForSharedRouteUnnamedActions(program: Program) {
 }
 
 export function $onValidate(program: Program) {
-  checkForCircularParents(program);
   // Make sure any defined resource types don't have any conflicts with parent
   // resource type key names
   checkForDuplicateResourceKeyNames(program);
