@@ -44,8 +44,9 @@ export function getRelatedLocations(diagnostic: Diagnostic): RelatedSourceLocati
 }
 
 /**
- * Find the syntax node for a typespec diagnostic target.
- * Returns undefined if target is a type or symbol without a node.
+ * Find the syntax node for a TypeSpec diagnostic target.
+ * @param target Diagnostic target
+ * @returns undefined if target is a type or symbol without a node.
  */
 export function getNodeForTarget(target: TypeSpecDiagnosticTarget): Node | undefined {
   if (!("kind" in target) && !("entityKind" in target)) {
