@@ -4,9 +4,19 @@ description: "Language basics - identifiers"
 llmstxt: true
 ---
 
-Identifiers are used to name models, enums, properties, and other entities in TypeSpec. An identifier is a sequence of one or more characters that must start with a letter, emoji, underscore, or dollar sign, and be followed by letters, numbers, emoji, underscores, or dollar signs. TypeSpec implements [UAX31-R1b stable identifiers](http://www.unicode.org/reports/tr31/#R1b) with the [emoji profile](http://www.unicode.org/reports/tr31/#Emoji_Profile).
+Identifiers are names used to reference models, enums, operations, properties, and other entities in TypeSpec. Understanding identifier rules is essential for writing valid TypeSpec code.
 
-Examples:
+## Identifier syntax rules
+
+An identifier must follow these rules:
+
+- **Start with**: A letter (a-z, A-Z), emoji, underscore (`_`), or dollar sign (`$`)
+- **Followed by**: Any combination of letters, numbers (0-9), emoji, underscores, or dollar signs
+- **Length**: One or more characters
+
+TypeSpec implements [UAX31-R1b stable identifiers](http://www.unicode.org/reports/tr31/#R1b) with the [emoji profile](http://www.unicode.org/reports/tr31/#Emoji_Profile), providing full Unicode support for international characters.
+
+### Examples
 
 - ✅ `cat`
 - ✅ `Dog`
@@ -17,10 +27,21 @@ Examples:
 - ❌ `1cat`
 - ❌ `*dog`
 
-## Reserved identifiers
+## Escaping identifiers
 
-All keywords are reserved identifiers in TypeSpec. However they can still be used when escaping with wrapping with `\`` characters.
+When you need to use reserved keywords or invalid identifiers, TypeSpec provides an escaping mechanism using backticks (`` ` ``). This allows you to use:
+
+- Reserved keywords as identifiers
+- Identifiers that don't follow normal syntax rules
+- Identifiers with special characters or unusual formats
+
+#### Examples
 
 ```tsp
 model `enum` {}
+model `interface` {}
+op `import`(): void;
+model `123InvalidName` {}
+model `my-special-model` {}
+model `User Profile` {}
 ```
