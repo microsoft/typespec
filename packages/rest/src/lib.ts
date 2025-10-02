@@ -45,6 +45,12 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`An operation marked as '@sharedRoute' must have an explicit collection action name passed to '${"decoratorName"}'.`,
       },
     },
+    "circular-parent-resource": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Resource has a parent cycle (${"cycle"})`,
+      },
+    },
   },
 });
 

@@ -4,6 +4,7 @@ import {
   $visibility,
   DecoratorContext,
   getKeyName,
+  getTypeName,
   isErrorType,
   isKey,
   Model,
@@ -12,9 +13,11 @@ import {
   setTypeSpecNamespace,
   Type,
 } from "@typespec/compiler";
+import { useStateMap } from "@typespec/compiler/utils";
 import { $path } from "@typespec/http";
 import { ParentResourceDecorator } from "../generated-defs/TypeSpec.Rest.js";
 import { createStateSymbol, reportDiagnostic } from "./lib.js";
+import { CycleTracker } from "./utils/cycle-tracker/cycle-tracker.js";
 
 export interface ResourceKey {
   resourceType: Model;
@@ -181,10 +184,34 @@ export function $copyResourceKeyParameters(
   }
 }
 
-const parentResourceTypesKey = createStateSymbol("parentResourceTypes");
-export function getParentResource(program: Program, resourceType: Model): Model | undefined {
-  return program.stateMap(parentResourceTypesKey).get(resourceType);
-}
+export const [
+  /**
+   * Get the parent resource type for a given resource model.
+   *
+   * @param program The TypeSpec program instance
+   * @param type The resource model to get the parent for
+   * @returns The parent resource model if one exists, otherwise `undefined`
+   *
+   * @example
+   *
+   * ```tsp
+   * @parentResource(Organization)
+   * model User {}
+   * ```
+   *
+   * ```typescript
+   * const parentType = getParentResource(program, userModel);
+   * // parentType would be the Organization model
+   * ```
+   */
+  getParentResource,
+
+  /**
+   * Set parent resource for a resource.
+   * Same as applying `@parentResource` decorator.
+   */
+  setParentResource,
+] = useStateMap<Model, Model>(createStateSymbol("parentResourceTypes"));
 
 /**
  * `@parentResource` marks a model with a reference to its parent resource type
@@ -197,10 +224,34 @@ export function getParentResource(program: Program, resourceType: Model): Model 
  */
 export const $parentResource: ParentResourceDecorator = (
   context: DecoratorContext,
-  entity: Type,
+  entity: Model,
   parentType: Model,
 ) => {
   const { program } = context;
-
-  program.stateMap(parentResourceTypesKey).set(entity, parentType);
+  if (!checkCircularParentResource(program, entity, parentType)) {
+    return;
+  }
+  setParentResource(program, entity, parentType);
 };
+
+function checkCircularParentResource(program: Program, entity: Model, parentType: Model): boolean {
+  const cycleTracker = new CycleTracker<Model>();
+  cycleTracker.add(entity);
+  let currentType: Model | undefined = parentType;
+  while (currentType) {
+    const cycle = cycleTracker.add(currentType);
+    if (cycle) {
+      for (const type of cycle) {
+        cycleTracker.add(type);
+        reportDiagnostic(program, {
+          code: "circular-parent-resource",
+          format: { cycle: [...cycle, cycle[0]].map((x) => getTypeName(x)).join(" -> ") },
+          target: type,
+        });
+      }
+      return false;
+    }
+    currentType = getParentResource(program, currentType);
+  }
+  return true;
+}
