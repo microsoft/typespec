@@ -11,7 +11,6 @@ using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
-using Microsoft.TypeSpec.Generator.Utilities;
 
 namespace Microsoft.TypeSpec.Generator.Providers
 {
@@ -103,7 +102,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             WireInfo = new PropertyWireInformation(inputProperty);
             Attributes = [];
 
-            InitializeParameter(DocHelpers.GetFormattableDescription(inputProperty.Summary, inputProperty.Doc) ?? FormattableStringHelpers.Empty);
+            InitializeParameter();
             BuildDocs();
         }
 
@@ -130,7 +129,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             EnclosingType = enclosingType;
             Attributes = (attributes as IReadOnlyList<AttributeStatement>) ?? [];
 
-            InitializeParameter(description ?? FormattableStringHelpers.Empty);
+            InitializeParameter();
             _customDescription = description;
             BuildDocs();
         }
@@ -139,8 +138,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             if (InputProperty != null)
             {
-                Description = DocHelpers.GetFormattableDescription(InputProperty.Summary, InputProperty.Doc) ??
-                              PropertyDescriptionBuilder.CreateDefaultPropertyDescription(Name, !Body.HasSetter);
+                Description = WireInfo?.Description ?? PropertyDescriptionBuilder.CreateDefaultPropertyDescription(Name, !Body.HasSetter);
                 XmlDocs = new XmlDocProvider(PropertyDescriptionBuilder.BuildPropertyDescription(
                     Type,
                     _serializationFormat,
@@ -168,8 +166,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         [MemberNotNull(nameof(_parameter))]
-        private void InitializeParameter(FormattableString description)
+        private void InitializeParameter()
         {
+            var description = _customDescription ?? WireInfo?.Description ?? FormattableStringHelpers.Empty;
             _parameter = new(() => new ParameterProvider(Name.ToVariableName(), description, Type, property: this));
         }
 

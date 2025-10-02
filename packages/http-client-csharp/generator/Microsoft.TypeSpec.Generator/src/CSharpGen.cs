@@ -31,7 +31,7 @@ namespace Microsoft.TypeSpec.Generator
             var outputPath = CodeModelGenerator.Instance.Configuration.OutputDirectory;
             var generatedSourceOutputPath = CodeModelGenerator.Instance.Configuration.ProjectGeneratedDirectory;
 
-            GeneratedCodeWorkspace customCodeWorkspace = await GeneratedCodeWorkspace.Create();
+            GeneratedCodeWorkspace customCodeWorkspace = await GeneratedCodeWorkspace.Create(isCustomCodeProject: true);
             // The generated attributes need to be added into the workspace before loading the custom code. Otherwise,
             // Roslyn doesn't load the attributes completely and we are unable to get the attribute arguments.
 
@@ -47,7 +47,7 @@ namespace Microsoft.TypeSpec.Generator
                 await customCodeWorkspace.GetCompilationAsync(),
                 await GeneratedCodeWorkspace.LoadBaselineContract());
 
-            GeneratedCodeWorkspace generatedCodeWorkspace = await GeneratedCodeWorkspace.Create();
+            GeneratedCodeWorkspace generatedCodeWorkspace = await GeneratedCodeWorkspace.Create(isCustomCodeProject: false);
 
             var output = CodeModelGenerator.Instance.OutputLibrary;
             Directory.CreateDirectory(Path.Combine(generatedSourceOutputPath, "Models"));
