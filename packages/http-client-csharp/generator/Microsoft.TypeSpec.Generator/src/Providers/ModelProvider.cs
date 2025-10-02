@@ -67,9 +67,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _inputModel = inputModel;
             _isAbstract = _inputModel.DiscriminatorProperty is not null && _inputModel.DiscriminatorValue is null;
 
-            if (inputModel.BaseModel is not null)
+            if (_inputModel.BaseModel is not null)
             {
                 DiscriminatorValueExpression = EnsureDiscriminatorValueExpression();
+            }
+
+            if (_inputModel.Access == "public")
+            {
+                CodeModelGenerator.Instance.AddTypeToKeep(this);
             }
         }
 

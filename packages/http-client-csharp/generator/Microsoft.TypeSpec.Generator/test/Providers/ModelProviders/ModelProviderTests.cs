@@ -1087,5 +1087,39 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsNotNull(moreItemsProperty);
             Assert.IsTrue(moreItemsProperty!.Type.Equals(typeof(IDictionary<string, string>)));
         }
+
+        [Test]
+        public void PublicModelsAreIncludedInAdditionalRootTypes()
+        {
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                access: "public");
+
+            MockHelpers.LoadMockGenerator(
+                inputModelTypes: [inputModel]);
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            var rootTypes = CodeModelGenerator.Instance.AdditionalRootTypes;
+            Assert.IsTrue(rootTypes.Contains("Sample.Models.MockInputModel"));
+        }
+
+        [Test]
+        public void InternalModelsAreNotIncludedInAdditionalRootTypes()
+        {
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                access: "internal");
+
+            MockHelpers.LoadMockGenerator(
+                inputModelTypes: [inputModel]);
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            var rootTypes = CodeModelGenerator.Instance.AdditionalRootTypes;
+            Assert.IsFalse(rootTypes.Contains("Sample.Models.MockInputModel"));
+        }
     }
 }

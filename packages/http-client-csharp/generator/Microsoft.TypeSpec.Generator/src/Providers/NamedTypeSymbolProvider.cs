@@ -226,13 +226,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override CSharpType BuildEnumUnderlyingType() => GetIsEnum() ? new CSharpType(typeof(int)) : throw new InvalidOperationException("This type is not an enum");
 
-        private ParameterProvider ConvertToParameterProvider(IMethodSymbol methodSymbol, IParameterSymbol parameterSymbol)
+        private static ParameterProvider ConvertToParameterProvider(IMethodSymbol methodSymbol, IParameterSymbol parameterSymbol)
         {
             return new ParameterProvider(
                 parameterSymbol.Name,
                 FormattableStringHelpers.FromString(GetParameterXmlDocumentation(methodSymbol, parameterSymbol)) ?? FormattableStringHelpers.Empty,
                 parameterSymbol.Type.GetCSharpType(),
-                defaultValue: CreateDefaultValue(parameterSymbol));
+                defaultValue: CreateDefaultValue(parameterSymbol),
+                isIn: parameterSymbol.RefKind == RefKind.In,
+                isOut: parameterSymbol.RefKind == RefKind.Out,
+                isRef: parameterSymbol.RefKind == RefKind.Ref);
         }
 
         private void AddAdditionalModifiers(IMethodSymbol methodSymbol, ref MethodSignatureModifiers modifiers)
