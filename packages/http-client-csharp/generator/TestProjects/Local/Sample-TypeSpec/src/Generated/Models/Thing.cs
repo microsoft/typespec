@@ -121,7 +121,7 @@ namespace SampleTypeSpec
         public BinaryData RequiredUnion { get; set; }
 
         /// <summary> required literal string. </summary>
-        public string RequiredLiteralString { get; } = "accept";
+        internal string RequiredLiteralString { get; } = "accept";
 
         /// <summary> required nullable string. </summary>
         public string RequiredNullableString { get; set; }
@@ -130,13 +130,13 @@ namespace SampleTypeSpec
         public string OptionalNullableString { get; set; }
 
         /// <summary> required literal int. </summary>
-        public int RequiredLiteralInt { get; } = 123;
+        internal int RequiredLiteralInt { get; } = 123;
 
         /// <summary> required literal float. </summary>
-        public float RequiredLiteralFloat { get; } = 1.23F;
+        internal float RequiredLiteralFloat { get; } = 1.23F;
 
         /// <summary> required literal bool. </summary>
-        public bool RequiredLiteralBool { get; } = false;
+        internal bool RequiredLiteralBool { get; } = false;
 
         /// <summary> optional literal string. </summary>
         public string OptionalLiteralString { get; set; }

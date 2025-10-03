@@ -94,7 +94,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             Type = inputProperty.IsReadOnly ? propertyType.OutputType : propertyType;
             IsDiscriminator = IsDiscriminatorProperty(inputProperty);
-            Modifiers = IsDiscriminator ? MethodSignatureModifiers.Internal : MethodSignatureModifiers.Public;
+            IsRequiredNonNullableConstant = inputProperty.IsRequired && propertyType is { IsLiteral: true, IsNullable: false };
+            Modifiers = IsDiscriminator || IsRequiredNonNullableConstant ? MethodSignatureModifiers.Internal : MethodSignatureModifiers.Public;
             Name = inputProperty.Name == enclosingType.Name
                 ? $"{inputProperty.Name.ToIdentifierName()}Property"
                 : inputProperty.Name.ToIdentifierName();
@@ -106,6 +107,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             InitializeParameter(DocHelpers.GetFormattableDescription(inputProperty.Summary, inputProperty.Doc) ?? FormattableStringHelpers.Empty);
             BuildDocs();
         }
+
+        internal bool IsRequiredNonNullableConstant { get; }
 
         public PropertyProvider(
             FormattableString? description,

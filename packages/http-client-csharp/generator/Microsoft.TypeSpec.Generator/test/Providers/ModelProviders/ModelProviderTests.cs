@@ -1121,5 +1121,39 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var rootTypes = CodeModelGenerator.Instance.AdditionalRootTypes;
             Assert.IsFalse(rootTypes.Contains("Sample.Models.MockInputModel"));
         }
+
+        [TestCase(true, true, true)]
+        [TestCase(true, false, false)]
+        [TestCase(false, true, true)]
+        [TestCase(false, false, true)]
+        public void ConstantPropertiesHaveCorrectAccessModifiers(bool isRequired, bool isNullable, bool shouldBePublic)
+        {
+            var inputType = InputFactory.Literal.String("constant", "prop1");
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                properties:
+                [
+                    InputFactory.Property("prop1", isNullable? new InputNullableType(inputType) : inputType, isRequired: isRequired),
+                ]);
+
+            MockHelpers.LoadMockGenerator(
+                inputModelTypes: [inputModel]);
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            var prop = modelProvider!.Properties.FirstOrDefault(p => p.Name == "Prop1");
+            Assert.IsNotNull(prop);
+            if (shouldBePublic)
+            {
+                Assert.IsTrue(prop!.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+                Assert.IsFalse(prop.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+            }
+            else
+            {
+                Assert.IsTrue(prop!.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+                Assert.IsFalse(prop.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            }
+        }
     }
 }
