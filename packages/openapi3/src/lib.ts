@@ -91,7 +91,39 @@ export interface OpenAPI3EmitterOptions {
    * @see https://github.com/OAI/OpenAPI-Specification/discussions/4622 for discussion on handling parameter examples.
    */
   "experimental-parameter-examples"?: ExperimentalParameterExamplesStrategy;
+
+  /**
+   * How should operation ID be generated when `@operationId` is not used.
+   * Available options are
+   * - `parent-container`: Uses the parent namespace/interface and operation name to generate the ID.
+   * - `fqn`: Uses the fully qualified name(from service root) of the operation to generate the ID.
+   * - `explicit-only`: Only use explicitly defined operation IDs.
+   * @default parent-container
+   */
+  "operation-id-strategy"?:
+    | OperationIdStrategy
+    | {
+        /** Strategy used to generate the operation ID. */
+        kind: OperationIdStrategy;
+        /** Separator used to join segment in the operation name. */
+        separator?: string;
+      };
 }
+
+export type OperationIdStrategy = "parent-container" | "fqn" | "explicit-only";
+
+const operationIdStrategySchema = {
+  type: "string",
+  enum: ["parent-container", "fqn", "explicit-only"],
+  default: "parent-container",
+  description: [
+    "Determines how to generate operation IDs when `@operationId` is not used.",
+    "Avaliable options are:",
+    " - `parent-container`: Uses the parent namespace and operation name to generate the ID.",
+    " - `fqn`: Uses the fully qualified name of the operation to generate the ID.",
+    " - `explicit-only`: Only use explicitly defined operation IDs.",
+  ].join("\n"),
+} as const;
 
 const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
   type: "object",
@@ -201,6 +233,23 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
         "See https://github.com/OAI/OpenAPI-Specification/discussions/4622 for discussion on handling parameter examples.",
       ].join("\n"),
     },
+    "operation-id-strategy": {
+      oneOf: [
+        operationIdStrategySchema,
+        {
+          type: "object",
+          properties: {
+            kind: operationIdStrategySchema,
+            separator: {
+              type: "string",
+              nullable: true,
+              description: "Separator used to join segment in the operation name.",
+            },
+          },
+          required: ["kind"],
+        },
+      ],
+    } as any,
   },
   required: [],
 };

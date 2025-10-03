@@ -78,15 +78,21 @@ import {
   getParameterKey,
   getTagsMetadata,
   isReadonlyProperty,
-  resolveOperationId,
   shouldInline,
 } from "@typespec/openapi";
 import { stringify } from "yaml";
 import { getRef } from "./decorators.js";
 import { getExampleOrExamples, OperationExamples, resolveOperationExamples } from "./examples.js";
 import { JsonSchemaModule, resolveJsonSchemaModule } from "./json-schema.js";
-import { createDiagnostic, FileType, OpenAPI3EmitterOptions, OpenAPIVersion } from "./lib.js";
+import {
+  createDiagnostic,
+  FileType,
+  OpenAPI3EmitterOptions,
+  OpenAPIVersion,
+  OperationIdStrategy,
+} from "./lib.js";
 import { getOpenApiSpecProps } from "./openapi-spec-mappings.js";
+import { OperationIdResolver } from "./operation-id-resolver/operation-id-resolver.js";
 import { getParameterStyle } from "./parameters.js";
 import { getOpenAPI3StatusCodes } from "./status-codes.js";
 import {
@@ -201,7 +207,6 @@ export function resolveOptions(
   const openapiVersions = resolvedOptions["openapi-versions"] ?? ["3.0.0"];
 
   const specDir = openapiVersions.length > 1 ? "{openapi-version}" : "";
-
   return {
     fileType,
     newLine: resolvedOptions["new-line"],
@@ -212,7 +217,35 @@ export function resolveOptions(
     openapiVersions,
     sealObjectSchemas: resolvedOptions["seal-object-schemas"],
     parameterExamplesStrategy: resolvedOptions["experimental-parameter-examples"],
+    operationIdStrategy: resolveOperationIdStrategy(resolvedOptions["operation-id-strategy"]),
   };
+}
+
+const defaultOperationIdStrategy = { kind: "parent-container", separator: "_" } as const;
+function resolveOperationIdStrategy(
+  strategy?: OperationIdStrategy | { kind: OperationIdStrategy; separator?: string },
+): { kind: OperationIdStrategy; separator: string } {
+  if (strategy === undefined) {
+    return defaultOperationIdStrategy;
+  }
+  if (typeof strategy === "string") {
+    return { kind: strategy, separator: resolveOperationIdDefaultStrategySeparator(strategy) };
+  }
+  return {
+    kind: strategy.kind,
+    separator: strategy.separator ?? resolveOperationIdDefaultStrategySeparator(strategy.kind),
+  };
+}
+
+function resolveOperationIdDefaultStrategySeparator(strategy: OperationIdStrategy) {
+  switch (strategy) {
+    case "parent-container":
+      return "_";
+    case "fqn":
+      return ".";
+    case "explicit-only":
+      return "";
+  }
 }
 
 export interface ResolvedOpenAPI3EmitterOptions {
@@ -225,6 +258,7 @@ export interface ResolvedOpenAPI3EmitterOptions {
   safeintStrategy: "double-int" | "int64";
   sealObjectSchemas: boolean;
   parameterExamplesStrategy?: "data" | "serialized";
+  operationIdStrategy: { kind: OperationIdStrategy; separator: string };
 }
 
 function createOAPIEmitter(
@@ -241,7 +275,7 @@ function createOAPIEmitter(
   } = getOpenApiSpecProps(specVersion);
   const program = context.program;
   let schemaEmitter: AssetEmitter<OpenAPI3Schema | OpenAPISchema3_1, OpenAPI3EmitterOptions>;
-
+  let operationIdResolver: OperationIdResolver;
   let root: SupportedOpenAPIDocuments;
   let diagnostics: DiagnosticCollector;
   let currentService: Service;
@@ -367,6 +401,10 @@ function createOAPIEmitter(
       visibilityUsage,
       options,
       optionalDependencies,
+    });
+    operationIdResolver = new OperationIdResolver(program, {
+      strategy: options.operationIdStrategy.kind,
+      separator: options.operationIdStrategy.separator,
     });
 
     const securitySchemes = getOpenAPISecuritySchemes(allHttpAuthentications);
@@ -730,7 +768,8 @@ function createOAPIEmitter(
   }
 
   function computeSharedOperationId(shared: SharedHttpOperation) {
-    const operationIds = shared.operations.map((op) => resolveOperationId(program, op.operation));
+    if (options.operationIdStrategy.kind === "explicit-only") return undefined;
+    const operationIds = shared.operations.map((op) => operationIdResolver.resolve(op.operation)!);
     const uniqueOpIds = new Set<string>(operationIds);
     if (uniqueOpIds.size === 1) return uniqueOpIds.values().next().value;
     return operationIds.join("_");
@@ -842,7 +881,7 @@ function createOAPIEmitter(
       parameterExamplesStrategy: options.parameterExamplesStrategy,
     });
     const oai3Operation: OpenAPI3Operation = {
-      operationId: resolveOperationId(program, operation.operation),
+      operationId: operationIdResolver.resolve(operation.operation),
       summary: getSummary(program, operation.operation),
       description: getDoc(program, operation.operation),
       parameters: getEndpointParameters(parameters.properties, visibility, examples),

@@ -2021,7 +2021,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             condition = isReadOnly ? _isNotEqualToWireConditionSnippet.And(isDefinedCondition) : isDefinedCondition;
-
             if (isRequired && isNullable)
             {
                 if (shouldCheckJsonPath)
@@ -2045,7 +2044,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     serializedName,
                     condition,
                     writePropertySerializationStatement,
-                    _utf8JsonWriterSnippet.WriteNull(serializedName));
+                    null);
             }
 
             return new IfStatement(condition) { writePropertySerializationStatement };
