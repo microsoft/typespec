@@ -21,6 +21,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
         {
             Assert.AreEqual(model.Rename, model2.Rename);
             Assert.AreEqual(model.RequiredUnion.ToString(), model2.RequiredUnion.ToString());
+            Assert.AreEqual(model.RequiredLiteralString, model2.RequiredLiteralString);
+            Assert.AreEqual(model.RequiredLiteralInt, model2.RequiredLiteralInt);
+            Assert.AreEqual(model.RequiredLiteralFloat, model2.RequiredLiteralFloat);
+            Assert.AreEqual(model.RequiredLiteralBool, model2.RequiredLiteralBool);
             Assert.AreEqual(model.OptionalLiteralString, model2.OptionalLiteralString);
             Assert.AreEqual(model.OptionalLiteralInt, model2.OptionalLiteralInt);
             Assert.AreEqual(model.OptionalLiteralFloat, model2.OptionalLiteralFloat);
@@ -49,6 +53,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
             Assert.AreEqual(parsedWireJson.GetProperty("requiredBadDescription").GetString(), model.RequiredBadDescription);
             Assert.AreEqual(JsonValueKind.Null, parsedWireJson.GetProperty("requiredNullableList").ValueKind);
             Assert.IsEmpty(model.RequiredNullableList);
+            Assert.AreEqual("accept", model.RequiredLiteralString);
+            Assert.AreEqual(123, model.RequiredLiteralInt);
+            Assert.AreEqual(1.23f, model.RequiredLiteralFloat);
+            Assert.AreEqual(parsedWireJson.GetProperty("requiredLiteralBool").GetBoolean(), model.RequiredLiteralBool);
             Assert.AreEqual("hi", model.OptionalLiteralString);
             Assert.AreEqual(456, model.OptionalLiteralInt);
             Assert.AreEqual(4.56f, model.OptionalLiteralFloat);
