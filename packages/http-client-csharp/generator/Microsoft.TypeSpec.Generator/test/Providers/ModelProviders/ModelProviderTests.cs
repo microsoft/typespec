@@ -1122,15 +1122,26 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsFalse(rootTypes.Contains("Sample.Models.MockInputModel"));
         }
 
-        [TestCase(true, true, true)]
-        [TestCase(true, false, false)]
-        [TestCase(false, true, true)]
-        [TestCase(false, false, true)]
-        public void ConstantPropertiesHaveCorrectAccessModifiers(bool isRequired, bool isNullable, bool shouldBePublic)
+        [TestCase(true, true, InputModelTypeUsage.Output, true, false)]
+        [TestCase(true, false, InputModelTypeUsage.Output, true, false)]
+        [TestCase(false, true, InputModelTypeUsage.Output, true, false)]
+        [TestCase(false, false,InputModelTypeUsage.Output, true, false)]
+        [TestCase(true, true, InputModelTypeUsage.Input, true, false)]
+        [TestCase(true, true, InputModelTypeUsage.Input | InputModelTypeUsage.Output, true, true)]
+        [TestCase(true, false, InputModelTypeUsage.Input, false, false)]
+        [TestCase(false, true, InputModelTypeUsage.Input, true, true)]
+        [TestCase(false, false, InputModelTypeUsage.Input, true, true)]
+        public void ConstantPropertiesAccessibility(
+            bool isRequired,
+            bool isNullable,
+            InputModelTypeUsage usage,
+            bool shouldBePublic,
+            bool shouldHaveSetter)
         {
             var inputType = InputFactory.Literal.String("constant", "prop1");
             var inputModel = InputFactory.Model(
                 "MockInputModel",
+                usage: usage,
                 properties:
                 [
                     InputFactory.Property("prop1", isNullable? new InputNullableType(inputType) : inputType, isRequired: isRequired),
@@ -1144,16 +1155,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             var prop = modelProvider!.Properties.FirstOrDefault(p => p.Name == "Prop1");
             Assert.IsNotNull(prop);
-            if (shouldBePublic)
-            {
-                Assert.IsTrue(prop!.Modifiers.HasFlag(MethodSignatureModifiers.Public));
-                Assert.IsFalse(prop.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
-            }
-            else
-            {
-                Assert.IsTrue(prop!.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
-                Assert.IsFalse(prop.Modifiers.HasFlag(MethodSignatureModifiers.Public));
-            }
+            Assert.AreEqual(shouldBePublic, prop!.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.AreEqual(shouldHaveSetter, prop.Body.HasSetter);
         }
     }
 }

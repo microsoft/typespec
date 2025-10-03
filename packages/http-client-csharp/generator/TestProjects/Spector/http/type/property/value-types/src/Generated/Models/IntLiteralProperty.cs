@@ -7,5 +7,7 @@ namespace _Type.Property.ValueTypes
     public partial class IntLiteralProperty
     {
         public IntLiteralProperty() => throw null;
+
+        public int Property => throw null;
     }
 }
