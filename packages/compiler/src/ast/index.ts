@@ -11,6 +11,7 @@
 
 export { NodeFlags, SyntaxKind } from "../core/types.js";
 
+export { getNodeForTarget } from "../core/diagnostics.js";
 export { printTypeSpecNode } from "../core/formatter.js";
 export {
   exprIsBareIdentifier,
