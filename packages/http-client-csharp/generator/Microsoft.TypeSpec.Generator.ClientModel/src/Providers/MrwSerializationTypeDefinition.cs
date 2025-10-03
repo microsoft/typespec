@@ -679,8 +679,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 bool addedWriteToJsonPatch = false;
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-                if (_inputModel.DiscriminatedSubtypes.Count == 0
-                    && (DeclarationModifiers & (TypeSignatureModifiers.Abstract | TypeSignatureModifiers.Protected)) == 0)
+                if (_inputModel.DiscriminatedSubtypes.Count == 0)
                 {
                     writePropertiesStatements.AddRange(
                         MethodBodyStatement.EmptyLine,
