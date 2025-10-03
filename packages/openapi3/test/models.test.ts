@@ -1010,6 +1010,26 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) 
       });
     });
   });
+
+  describe("can use special words as properties", () => {
+    it.each(["set", "constructor"])("%s", async (property) => {
+      const res = await oapiForModel(
+        "Test",
+        `
+        model Test {
+          before: string;
+          ${property}: string;
+          after: string;
+        };
+        `,
+      );
+      expect(res.schemas.Test.properties).toEqual({
+        before: { type: "string" },
+        [property]: { type: "string" },
+        after: { type: "string" },
+      });
+    });
+  });
 });
 
 worksFor(["3.0.0"], ({ oapiForModel }) => {
