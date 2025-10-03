@@ -667,29 +667,38 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodBodyStatement[] BuildJsonModelWriteCoreMethodBody()
         {
+            var propertiesStatements = CreateWritePropertiesStatements();
+            var additionalPropertiesStatements = CreateWriteAdditionalPropertiesStatement();
             List<MethodBodyStatement> writePropertiesStatements =
             [
-                CreateWritePropertiesStatements(),
-                CreateWriteAdditionalPropertiesStatement(),
+                propertiesStatements,
+                additionalPropertiesStatements,
             ];
 
             if (_jsonPatchProperty != null)
             {
+                bool addedWriteToJsonPatch = false;
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-                if ((DeclarationModifiers & (TypeSignatureModifiers.Abstract | TypeSignatureModifiers.Protected)) == 0)
+                if (_inputModel.DiscriminatedSubtypes.Count == 0
+                    && (DeclarationModifiers & (TypeSignatureModifiers.Abstract | TypeSignatureModifiers.Protected)) == 0)
                 {
                     writePropertiesStatements.AddRange(
                         MethodBodyStatement.EmptyLine,
                         _jsonPatchProperty.As<JsonPatch>().WriteTo(_utf8JsonWriterSnippet).Terminate());
+                    addedWriteToJsonPatch = true;
                 }
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-                writePropertiesStatements =
-                [
-                    new SuppressionStatement(
-                        writePropertiesStatements,
-                        Literal(ScmModelProvider.ScmEvaluationTypeDiagnosticId),
-                        ScmModelProvider.ScmEvaluationTypeSuppressionJustification)
-                ];
+
+                if (addedWriteToJsonPatch || (propertiesStatements.Length > 0 || additionalPropertiesStatements != MethodBodyStatement.Empty))
+                {
+                    writePropertiesStatements =
+                    [
+                        new SuppressionStatement(
+                            writePropertiesStatements,
+                            Literal(ScmModelProvider.ScmEvaluationTypeDiagnosticId),
+                            ScmModelProvider.ScmEvaluationTypeSuppressionJustification)
+                    ];
+                }
             }
 
             return
