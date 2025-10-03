@@ -7,7 +7,5 @@ namespace _Type.Property.ValueTypes
     public partial class StringLiteralProperty
     {
         public StringLiteralProperty() => throw null;
-
-        public string Property => throw null;
     }
 }
