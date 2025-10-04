@@ -107,7 +107,7 @@ export function fromSdkType<T extends SdkType>(
     case "constant":
       if (
         sdkProperty &&
-        (sdkProperty.optional || sdkProperty?.type.kind == "nullable") &&
+        (sdkProperty.optional || sdkProperty?.type.kind === "nullable") &&
         sdkProperty?.type.kind !== "boolean" &&
         sdkType.valueType.kind !== "boolean"
       ) {

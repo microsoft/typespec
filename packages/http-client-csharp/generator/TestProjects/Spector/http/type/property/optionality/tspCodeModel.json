@@ -5,8 +5,8 @@
     {
       "$id": "1",
       "kind": "enum",
-      "name": "UnionStringLiteralPropertyProperty",
-      "crossLanguageDefinitionId": "Type.Property.Optional.UnionStringLiteralProperty.property.anonymous",
+      "name": "StringLiteralPropertyProperty",
+      "crossLanguageDefinitionId": "",
       "valueType": {
         "$id": "2",
         "kind": "string",
@@ -14,30 +14,84 @@
         "crossLanguageDefinitionId": "TypeSpec.string",
         "decorators": []
       },
+      "values": [],
+      "namespace": "Type.Property.Optional",
+      "isFixed": false,
+      "isFlags": false,
+      "decorators": []
+    },
+    {
+      "$id": "3",
+      "kind": "enum",
+      "name": "IntLiteralPropertyProperty",
+      "crossLanguageDefinitionId": "",
+      "valueType": {
+        "$id": "4",
+        "kind": "int32",
+        "name": "int32",
+        "crossLanguageDefinitionId": "TypeSpec.int32",
+        "decorators": []
+      },
+      "values": [],
+      "namespace": "Type.Property.Optional",
+      "isFixed": false,
+      "isFlags": false,
+      "decorators": []
+    },
+    {
+      "$id": "5",
+      "kind": "enum",
+      "name": "FloatLiteralPropertyProperty",
+      "crossLanguageDefinitionId": "",
+      "valueType": {
+        "$id": "6",
+        "kind": "float32",
+        "name": "float32",
+        "crossLanguageDefinitionId": "TypeSpec.float32",
+        "decorators": []
+      },
+      "values": [],
+      "namespace": "Type.Property.Optional",
+      "isFixed": false,
+      "isFlags": false,
+      "decorators": []
+    },
+    {
+      "$id": "7",
+      "kind": "enum",
+      "name": "UnionStringLiteralPropertyProperty",
+      "crossLanguageDefinitionId": "Type.Property.Optional.UnionStringLiteralProperty.property.anonymous",
+      "valueType": {
+        "$id": "8",
+        "kind": "string",
+        "name": "string",
+        "crossLanguageDefinitionId": "TypeSpec.string",
+        "decorators": []
+      },
       "values": [
         {
-          "$id": "3",
+          "$id": "9",
           "kind": "enumvalue",
           "name": "hello",
           "value": "hello",
           "valueType": {
-            "$ref": "2"
+            "$ref": "8"
           },
           "enumType": {
-            "$ref": "1"
+            "$ref": "7"
           },
           "decorators": []
         },
         {
-          "$id": "4",
+          "$id": "10",
           "kind": "enumvalue",
           "name": "world",
           "value": "world",
           "valueType": {
-            "$ref": "2"
+            "$ref": "8"
           },
           "enumType": {
-            "$ref": "1"
+            "$ref": "7"
           },
           "decorators": []
         }
@@ -49,12 +103,12 @@
       "decorators": []
     },
     {
-      "$id": "5",
+      "$id": "11",
       "kind": "enum",
       "name": "UnionIntLiteralPropertyProperty",
       "crossLanguageDefinitionId": "Type.Property.Optional.UnionIntLiteralProperty.property.anonymous",
       "valueType": {
-        "$id": "6",
+        "$id": "12",
         "kind": "int32",
         "name": "int32",
         "crossLanguageDefinitionId": "TypeSpec.int32",
@@ -62,28 +116,28 @@
       },
       "values": [
         {
-          "$id": "7",
+          "$id": "13",
           "kind": "enumvalue",
           "name": "1",
           "value": 1,
           "valueType": {
-            "$ref": "6"
+            "$ref": "12"
           },
           "enumType": {
-            "$ref": "5"
+            "$ref": "11"
           },
           "decorators": []
         },
         {
-          "$id": "8",
+          "$id": "14",
           "kind": "enumvalue",
           "name": "2",
           "value": 2,
           "valueType": {
-            "$ref": "6"
+            "$ref": "12"
           },
           "enumType": {
-            "$ref": "5"
+            "$ref": "11"
           },
           "decorators": []
         }
@@ -95,12 +149,12 @@
       "decorators": []
     },
     {
-      "$id": "9",
+      "$id": "15",
       "kind": "enum",
       "name": "UnionFloatLiteralPropertyProperty",
       "crossLanguageDefinitionId": "Type.Property.Optional.UnionFloatLiteralProperty.property.anonymous",
       "valueType": {
-        "$id": "10",
+        "$id": "16",
         "kind": "float32",
         "name": "float32",
         "crossLanguageDefinitionId": "TypeSpec.float32",
@@ -108,28 +162,28 @@
       },
       "values": [
         {
-          "$id": "11",
+          "$id": "17",
           "kind": "enumvalue",
           "name": "1.25",
           "value": 1.25,
           "valueType": {
-            "$ref": "10"
+            "$ref": "16"
           },
           "enumType": {
-            "$ref": "9"
+            "$ref": "15"
           },
           "decorators": []
         },
         {
-          "$id": "12",
+          "$id": "18",
           "kind": "enumvalue",
           "name": "2.375",
           "value": 2.375,
           "valueType": {
-            "$ref": "10"
+            "$ref": "16"
           },
           "enumType": {
-            "$ref": "9"
+            "$ref": "15"
           },
           "decorators": []
         }
@@ -142,54 +196,6 @@
     }
   ],
   "constants": [
-    {
-      "$id": "13",
-      "kind": "constant",
-      "name": "StringLiteralPropertyProperty",
-      "namespace": "Type.Property.Optional",
-      "usage": "Input,Output,Json",
-      "valueType": {
-        "$id": "14",
-        "kind": "string",
-        "name": "string",
-        "crossLanguageDefinitionId": "TypeSpec.string",
-        "decorators": []
-      },
-      "value": "hello",
-      "decorators": []
-    },
-    {
-      "$id": "15",
-      "kind": "constant",
-      "name": "IntLiteralPropertyProperty",
-      "namespace": "Type.Property.Optional",
-      "usage": "Input,Output,Json",
-      "valueType": {
-        "$id": "16",
-        "kind": "int32",
-        "name": "int32",
-        "crossLanguageDefinitionId": "TypeSpec.int32",
-        "decorators": []
-      },
-      "value": 1,
-      "decorators": []
-    },
-    {
-      "$id": "17",
-      "kind": "constant",
-      "name": "FloatLiteralPropertyProperty",
-      "namespace": "Type.Property.Optional",
-      "usage": "Input,Output,Json",
-      "valueType": {
-        "$id": "18",
-        "kind": "float32",
-        "name": "float32",
-        "crossLanguageDefinitionId": "TypeSpec.float32",
-        "decorators": []
-      },
-      "value": 1.25,
-      "decorators": []
-    },
     {
       "$id": "19",
       "kind": "constant",
@@ -1581,7 +1587,7 @@
           "serializedName": "property",
           "doc": "Property",
           "type": {
-            "$ref": "13"
+            "$ref": "1"
           },
           "optional": true,
           "readOnly": false,
@@ -1615,7 +1621,7 @@
           "serializedName": "property",
           "doc": "Property",
           "type": {
-            "$ref": "15"
+            "$ref": "3"
           },
           "optional": true,
           "readOnly": false,
@@ -1649,7 +1655,7 @@
           "serializedName": "property",
           "doc": "Property",
           "type": {
-            "$ref": "17"
+            "$ref": "5"
           },
           "optional": true,
           "readOnly": false,
@@ -1717,7 +1723,7 @@
           "serializedName": "property",
           "doc": "Property",
           "type": {
-            "$ref": "1"
+            "$ref": "7"
           },
           "optional": true,
           "readOnly": false,
@@ -1751,7 +1757,7 @@
           "serializedName": "property",
           "doc": "Property",
           "type": {
-            "$ref": "5"
+            "$ref": "11"
           },
           "optional": true,
           "readOnly": false,
@@ -1785,7 +1791,7 @@
           "serializedName": "property",
           "doc": "Property",
           "type": {
-            "$ref": "9"
+            "$ref": "15"
           },
           "optional": true,
           "readOnly": false,
