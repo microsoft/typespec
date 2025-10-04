@@ -804,12 +804,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     && inputParam is InputMethodParameter inputMethodParameter
                     && inputMethodParameter.Location == InputRequestLocation.Body)
                 {
-                    // var spreadProperty = spreadSource.Properties.FirstOrDefault(p => p.WireInfo?.SerializedName == parameter.Name);
-                    // if (spreadProperty?.IsRequiredNonNullableConstant == true)
-                    // {
-                    //     // Skip parameters that are required constants
-                    //     continue;
-                    // }
                     parameter.SpreadSource = spreadSource;
                 }
 

@@ -265,7 +265,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         expressions.Add(convenienceParam);
                     }
                 }
-                else if (param.Property is { IsRequiredNonNullableConstant: true, Body: AutoPropertyBody { InitializationExpression: not null } body })
+                else if (param.Property is { Body: AutoPropertyBody { InitializationExpression: not null } body })
                 {
                     expressions.Add(body.InitializationExpression);
                 }
