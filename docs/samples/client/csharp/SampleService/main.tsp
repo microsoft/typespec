@@ -124,6 +124,9 @@ model Thing {
 
   @doc("optional literal string")
   optionalLiteralString?: "reject";
+  
+  @doc("required nullable literal string")
+  requiredNullableLiteralString: "someValue" | null;
 
   @doc("optional literal int")
   optionalLiteralInt?: 456;

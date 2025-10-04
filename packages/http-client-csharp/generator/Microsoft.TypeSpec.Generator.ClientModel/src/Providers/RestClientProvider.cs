@@ -768,6 +768,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                 }
 
+                if (inputParam is { IsRequired: true, Type: InputLiteralType })
+                {
+                    continue;
+                }
+
                 ParameterProvider? parameter = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(inputParam)?.ToPublicInputParameter();
                 if (parameter is null)
                 {
@@ -799,6 +804,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     && inputParam is InputMethodParameter inputMethodParameter
                     && inputMethodParameter.Location == InputRequestLocation.Body)
                 {
+                    // var spreadProperty = spreadSource.Properties.FirstOrDefault(p => p.WireInfo?.SerializedName == parameter.Name);
+                    // if (spreadProperty?.IsRequiredNonNullableConstant == true)
+                    // {
+                    //     // Skip parameters that are required constants
+                    //     continue;
+                    // }
                     parameter.SpreadSource = spreadSource;
                 }
 

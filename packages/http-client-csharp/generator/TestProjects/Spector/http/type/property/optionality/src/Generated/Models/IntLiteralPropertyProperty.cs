@@ -11,6 +11,8 @@ namespace _Type.Property.Optional
     {
         public IntLiteralPropertyProperty(int value) => throw null;
 
+        public static IntLiteralPropertyProperty _1 => throw null;
+
         public static bool operator ==(IntLiteralPropertyProperty left, IntLiteralPropertyProperty right) => throw null;
 
         public static bool operator !=(IntLiteralPropertyProperty left, IntLiteralPropertyProperty right) => throw null;

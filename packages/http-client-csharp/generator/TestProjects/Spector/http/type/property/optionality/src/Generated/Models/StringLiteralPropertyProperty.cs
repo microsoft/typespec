@@ -11,6 +11,8 @@ namespace _Type.Property.Optional
     {
         public StringLiteralPropertyProperty(string value) => throw null;
 
+        public static StringLiteralPropertyProperty Hello => throw null;
+
         public static bool operator ==(StringLiteralPropertyProperty left, StringLiteralPropertyProperty right) => throw null;
 
         public static bool operator !=(StringLiteralPropertyProperty left, StringLiteralPropertyProperty right) => throw null;

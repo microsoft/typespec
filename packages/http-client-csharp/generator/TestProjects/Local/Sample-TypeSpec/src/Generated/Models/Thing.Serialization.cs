@@ -77,6 +77,15 @@ namespace SampleTypeSpec
                 writer.WritePropertyName("optionalLiteralString"u8);
                 writer.WriteStringValue(OptionalLiteralString.Value.ToString());
             }
+            if (Optional.IsDefined(RequiredNullableLiteralString))
+            {
+                writer.WritePropertyName("requiredNullableLiteralString"u8);
+                writer.WriteStringValue(RequiredNullableLiteralString.Value.ToString());
+            }
+            else
+            {
+                writer.WriteNull("requiredNullableLiteralString"u8);
+            }
             if (Optional.IsDefined(OptionalLiteralInt))
             {
                 writer.WritePropertyName("optionalLiteralInt"u8);
@@ -169,6 +178,7 @@ namespace SampleTypeSpec
             float requiredLiteralFloat = default;
             bool requiredLiteralBool = default;
             ThingOptionalLiteralString? optionalLiteralString = default;
+            ThingRequiredNullableLiteralString1? requiredNullableLiteralString = default;
             ThingOptionalLiteralInt? optionalLiteralInt = default;
             ThingOptionalLiteralFloat? optionalLiteralFloat = default;
             bool? optionalLiteralBool = default;
@@ -235,6 +245,16 @@ namespace SampleTypeSpec
                         continue;
                     }
                     optionalLiteralString = new ThingOptionalLiteralString(prop.Value.GetString());
+                    continue;
+                }
+                if (prop.NameEquals("requiredNullableLiteralString"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        requiredNullableLiteralString = null;
+                        continue;
+                    }
+                    requiredNullableLiteralString = new ThingRequiredNullableLiteralString1(prop.Value.GetString());
                     continue;
                 }
                 if (prop.NameEquals("optionalLiteralInt"u8))
@@ -313,6 +333,7 @@ namespace SampleTypeSpec
                 requiredLiteralFloat,
                 requiredLiteralBool,
                 optionalLiteralString,
+                requiredNullableLiteralString,
                 optionalLiteralInt,
                 optionalLiteralFloat,
                 optionalLiteralBool,

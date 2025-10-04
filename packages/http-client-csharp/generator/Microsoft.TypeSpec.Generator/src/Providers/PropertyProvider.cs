@@ -52,7 +52,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal Lazy<NamedTypeSymbolProvider?>? CustomProvider { get; init; }
 
-        internal bool IsRequiredNonNullableConstant { get; }
+        public bool IsRequiredNonNullableConstant { get; }
 
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.

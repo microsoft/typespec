@@ -11,6 +11,8 @@ namespace _Type.Property.Optional
     {
         public FloatLiteralPropertyProperty(float value) => throw null;
 
+        public static FloatLiteralPropertyProperty _125 => throw null;
+
         public static bool operator ==(FloatLiteralPropertyProperty left, FloatLiteralPropertyProperty right) => throw null;
 
         public static bool operator !=(FloatLiteralPropertyProperty left, FloatLiteralPropertyProperty right) => throw null;

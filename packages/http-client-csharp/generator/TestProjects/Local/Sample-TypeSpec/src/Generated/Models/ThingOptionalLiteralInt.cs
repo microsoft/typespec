@@ -15,6 +15,7 @@ namespace SampleTypeSpec
     public readonly partial struct ThingOptionalLiteralInt : IEquatable<ThingOptionalLiteralInt>
     {
         private readonly int _value;
+        private const int _456Value = 456;
 
         /// <summary> Initializes a new instance of <see cref="ThingOptionalLiteralInt"/>. </summary>
         /// <param name="value"> The value. </param>
@@ -22,6 +23,9 @@ namespace SampleTypeSpec
         {
             _value = value;
         }
+
+        /// <summary> Gets the _456. </summary>
+        public static ThingOptionalLiteralInt _456 { get; } = new ThingOptionalLiteralInt(_456Value);
 
         /// <summary> Determines if two <see cref="ThingOptionalLiteralInt"/> values are the same. </summary>
         /// <param name="left"> The left value to compare. </param>

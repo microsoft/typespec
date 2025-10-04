@@ -15,6 +15,7 @@ namespace SampleTypeSpec
     public readonly partial struct ThingOptionalLiteralFloat : IEquatable<ThingOptionalLiteralFloat>
     {
         private readonly float _value;
+        private const float _456Value = 4.56F;
 
         /// <summary> Initializes a new instance of <see cref="ThingOptionalLiteralFloat"/>. </summary>
         /// <param name="value"> The value. </param>
@@ -22,6 +23,9 @@ namespace SampleTypeSpec
         {
             _value = value;
         }
+
+        /// <summary> Gets the _456. </summary>
+        public static ThingOptionalLiteralFloat _456 { get; } = new ThingOptionalLiteralFloat(_456Value);
 
         /// <summary> Determines if two <see cref="ThingOptionalLiteralFloat"/> values are the same. </summary>
         /// <param name="left"> The left value to compare. </param>
