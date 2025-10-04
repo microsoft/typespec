@@ -107,6 +107,12 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`Namespace '${"namespace"}' contains reserved Java keywords, replaced it with '${"processedNamespace"}'.`,
       },
     },
+    "nested-page-items-not-supported": {
+      severity: "warning",
+      messages: {
+        default: "Nested pageItems is not supported in Azure V1.",
+      },
+    },
   },
   emitter: {
     options: EmitterOptionsSchema,

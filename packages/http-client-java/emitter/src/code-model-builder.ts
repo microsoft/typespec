@@ -528,10 +528,11 @@ export class CodeModelBuilder {
         // skip models under "com.azure.core." in java, or "Azure." in typespec, if branded
         !(
           (
-            this.isBranded() &&
-            (schema.language.java?.namespace?.startsWith("com.azure.core.") ||
-              schema.language.default?.namespace?.startsWith("Azure.") ||
-              schema.language.java?.namespace?.startsWith("com.azure.v2.core.") ||
+            (this.isBranded() &&
+              (schema.language.java?.namespace?.startsWith("com.azure.core.") ||
+                schema.language.default?.namespace?.startsWith("Azure.") ||
+                schema.language.java?.namespace?.startsWith("com.azure.v2.core."))) ||
+            (!this.isBranded() &&
               schema.language.java?.namespace?.startsWith("io.clientcore.core."))
           ) // because azure core v2 uses clientcore types
         )
@@ -1072,6 +1073,22 @@ export class CodeModelBuilder {
         ? pageItemsResponseProperty[0].serializedName
         : undefined;
 
+    if (
+      this.isAzureV1() &&
+      (pageItemsResponseProperty === undefined || pageItemsResponseProperty.length > 1)
+    ) {
+      // TCGC should have verified that pageItems exists
+
+      // Azure V1 does not support nested page items
+      reportDiagnostic(this.program, {
+        code: "nested-page-items-not-supported",
+        target:
+          sdkMethod.response.resultSegments?.[sdkMethod.response.resultSegments.length - 1]
+            ?.__raw ?? NoTarget,
+      });
+      return;
+    }
+
     // nextLink
     // TODO: nextLink can also be a response header, similar to "sdkMethod.pagingMetadata.continuationTokenResponseSegments"
     const nextLinkResponseProperty = findResponsePropertySegments(
@@ -1088,7 +1105,7 @@ export class CodeModelBuilder {
     let continuationTokenParameter: Parameter | undefined;
     let continuationTokenResponseProperty: Property[] | undefined;
     let continuationTokenResponseHeader: HttpHeader | undefined;
-    if (!this.isBranded()) {
+    if (!this.isAzureV1()) {
       // parameter would either be query or header parameter, so taking the last segment would be enough
       const continuationTokenParameterSegment =
         sdkMethod.pagingMetadata.continuationTokenParameterSegments?.at(-1);
@@ -1807,7 +1824,10 @@ export class CodeModelBuilder {
           }
         }
 
-        const schemaName = groupToRequestConditions ? "RequestConditions" : "MatchConditions";
+        let schemaName = groupToRequestConditions ? "RequestConditions" : "MatchConditions";
+        if (!this.isBranded()) {
+          schemaName = "Http" + schemaName;
+        }
         const schemaDescription = groupToRequestConditions
           ? "Specifies HTTP options for conditional requests based on modification time."
           : "Specifies HTTP options for conditional requests.";
