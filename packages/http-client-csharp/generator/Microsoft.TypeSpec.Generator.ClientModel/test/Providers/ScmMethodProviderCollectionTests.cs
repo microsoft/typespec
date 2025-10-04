@@ -919,6 +919,56 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.AreEqual(new CSharpType(typeof(ClientResult<BinaryData>)), responseType);
         }
 
+        [Test]
+        public void RequiredLiteralParametersAreFilteredFromParameters()
+        {
+            var inputUnionFooType = InputFactory.Union([InputFactory.Model("Foo", properties:
+            [
+                InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+            ])], "foo");
+            var inputType = InputFactory.Union([inputUnionFooType], "bar");
+            var inputOperation = InputFactory.Operation(
+                "GetOperation",
+                parameters:
+                [
+                    InputFactory.QueryParameter("queryParam", InputFactory.Literal.String("value"), isRequired: true),
+                    InputFactory.HeaderParameter("headerParam", InputFactory.Literal.String("value"), isRequired: true),
+                    InputFactory.BodyParameter("bodyParam", InputFactory.Literal.String("value"), isRequired: true)
+                ],
+                responses: [InputFactory.OperationResponse([200], inputType!)]);
+
+            var inputServiceMethod = InputFactory.BasicServiceMethod(
+                "GetOperation",
+                inputOperation,
+                parameters:
+                [
+                    InputFactory.MethodParameter("queryParam", InputFactory.Literal.String("value"), isRequired: true, location: InputRequestLocation.Query),
+                    InputFactory.MethodParameter("headerParam", InputFactory.Literal.String("value"), isRequired: true, location: InputRequestLocation.Header),
+                    InputFactory.MethodParameter("bodyParam", InputFactory.Literal.String("value"), isRequired: true, location: InputRequestLocation.Body)
+                ]);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator();
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+            Assert.IsNotNull(methodCollection);
+
+            var convenienceMethod = methodCollection.FirstOrDefault(m
+                => m.Signature.Parameters.All(p => p.Name != "options")
+                   && m.Signature.Name == $"{inputOperation.Name.ToIdentifierName()}");
+
+            Assert.IsNotNull(convenienceMethod);
+            Assert.AreEqual(1, convenienceMethod!.Signature.Parameters.Count);
+
+            var protocolMethod = methodCollection.FirstOrDefault(m
+                => m.Signature.Parameters.Any(p => p.Name == "options")
+                   && m.Signature.Name == $"{inputOperation.Name.ToIdentifierName()}");
+            Assert.IsNotNull(protocolMethod);
+            Assert.AreEqual(1, protocolMethod!.Signature.Parameters.Count);
+        }
+
         [TestCase(typeof(int))]
         [TestCase(typeof(long))]
         [TestCase(typeof(float))]

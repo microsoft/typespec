@@ -125,6 +125,9 @@ model Thing {
   @doc("optional literal string")
   optionalLiteralString?: "reject";
 
+  @doc("required nullable literal string")
+  requiredNullableLiteralString: "someValue" | null;
+
   @doc("optional literal int")
   optionalLiteralInt?: 456;
 
@@ -376,7 +379,11 @@ op patchAction(@body body: Thing): Thing;
 @doc("body parameter without body decorator")
 @post
 @convenientAPI(true)
-op anonymousBody(...Thing): Thing;
+op anonymousBody(
+  ...Thing,
+  @query requiredQueryParam: "someRequiredLiteralQueryParam",
+  @header requiredHeader: "someRequiredLiteralHeader",
+): Thing;
 
 @route("/friendlyName")
 @doc("Model can have its friendly name")

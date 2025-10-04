@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
@@ -343,6 +344,31 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             StringAssert.Contains(
                 "return new global::Sample.Models.ChildModel(\"stringPropVal\", modelProp, listProp.ToList(), additionalBinaryDataProperties: null, default)",
                 childMethod!.BodyStatements!.ToDisplayString());
+        }
+
+        [Test]
+        public void RequiredConstantPropertiesAreNotExposedAsParameters()
+        {
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                properties:
+                [
+                    InputFactory.Property("prop1", InputFactory.Literal.String("constant", "prop1"), isRequired: true),
+                    InputFactory.Property("prop2", InputPrimitiveType.String, isRequired: true)
+                ]);
+
+            MockHelpers.LoadMockGenerator(
+                inputModelTypes: [inputModel]);
+
+            var modelFactoryProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<ModelFactoryProvider>().SingleOrDefault();
+            Assert.IsNotNull(modelFactoryProvider);
+
+            var factoryMethod = modelFactoryProvider!.Methods.FirstOrDefault(p => p.Signature.Name == "MockInputModel");
+            Assert.IsNotNull(factoryMethod);
+            Assert.AreEqual(1, factoryMethod!.Signature.Parameters.Count);
+            Assert.AreEqual("prop2", factoryMethod.Signature.Parameters[0].Name);
+
+            Assert.AreEqual("return new global::Sample.Models.MockInputModel(\"constant\", prop2, additionalBinaryDataProperties: null);\n", factoryMethod.BodyStatements!.ToDisplayString());
         }
 
         private static InputModelType[] GetTestModels()

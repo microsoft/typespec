@@ -451,11 +451,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                 if ((isBinaryDataParam && !modelProvider.SupportsBinaryDataAdditionalProperties) ||
                     param.Name.Equals(JsonPatchParameterName) && param.IsIn)
+                {
                     continue;
+                }
 
                 // skip discriminator parameters if the model has a discriminator value as those shouldn't be exposed in the factory methods
                 if (param.Property?.IsDiscriminator == true && modelProvider.DiscriminatorValue != null)
+                {
                     continue;
+                }
+
+                if (param.Property?.IsRequiredNonNullableConstant == true)
+                {
+                    continue;
+                }
 
                 parameters.Add(GetModelFactoryParam(param));
             }
