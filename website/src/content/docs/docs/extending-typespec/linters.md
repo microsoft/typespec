@@ -52,7 +52,7 @@ export const requiredDocRule = createRule({
         if (!getDoc(context.program, type)) {
           context.reportDiagnostic({
             messageId: "enums",
-            format: {enumName: type.name},
+            format: { enumName: type.name },
             target: type,
           });
         }
@@ -154,7 +154,11 @@ To test a linter rule, a rule tester is provided, allowing you to test a specifi
 First, you'll want to create an instance of the rule tester using `createLinterRuleTester`, passing it the rule that is being tested. You can then provide different tests to check whether the rule passes or fails.
 
 ```ts
-import { type LinterRuleTester, createLinterRuleTester, createTestRunner } from "@typespec/compiler/testing";
+import {
+  type LinterRuleTester,
+  createLinterRuleTester,
+  createTestRunner,
+} from "@typespec/compiler/testing";
 import { requiredDocRule } from "./rules/required-doc.rule.js";
 
 describe("required-doc rule", () => {
