@@ -17,6 +17,7 @@ import {
   SdkUnionType,
   UsageFlags,
   getAccessOverride,
+  getUsage,
   isHttpMetadata,
 } from "@azure-tools/typespec-client-generator-core";
 import { Model, NoTarget } from "@typespec/compiler";
@@ -71,6 +72,8 @@ type InputReturnType<T extends SdkType> = T extends { kind: "nullable" }
 export function fromSdkType<T extends SdkType>(
   sdkContext: CSharpEmitterContext,
   sdkType: T,
+  sdkProperty?: SdkModelPropertyType,
+  sdkModel?: SdkModelType,
 ): InputReturnType<T> {
   let retVar = sdkContext.__typeCache.types.get(sdkType);
   if (retVar) {
@@ -102,7 +105,17 @@ export function fromSdkType<T extends SdkType>(
       retVar = fromSdkArrayType(sdkContext, sdkType);
       break;
     case "constant":
-      retVar = fromSdkConstantType(sdkContext, sdkType);
+      if (
+        sdkProperty &&
+        (sdkProperty.optional || sdkProperty?.type.kind == "nullable") &&
+        sdkProperty?.type.kind !== "boolean" &&
+        sdkType.valueType.kind !== "boolean"
+      ) {
+        // turn the constant into an extensible enum
+        retVar = createEnumType(sdkContext, sdkType, sdkModel!.namespace);
+      } else {
+        retVar = fromSdkConstantType(sdkContext, sdkType);
+      }
       break;
     case "union":
       retVar = fromUnionType(sdkContext, sdkType);
@@ -189,7 +202,7 @@ function fromSdkModelType(
 
   const properties: InputModelProperty[] = [];
   for (const property of modelType.properties) {
-    const ourProperty = fromSdkModelProperty(sdkContext, property);
+    const ourProperty = fromSdkModelProperty(sdkContext, property, modelType);
 
     if (ourProperty) {
       properties.push(ourProperty);
@@ -197,7 +210,7 @@ function fromSdkModelType(
   }
 
   inputModelType.discriminatorProperty = modelType.discriminatorProperty
-    ? fromSdkModelProperty(sdkContext, modelType.discriminatorProperty)
+    ? fromSdkModelProperty(sdkContext, modelType.discriminatorProperty, modelType)
     : undefined;
 
   inputModelType.baseModel = modelType.baseModel
@@ -221,6 +234,7 @@ function fromSdkModelType(
 function fromSdkModelProperty(
   sdkContext: CSharpEmitterContext,
   sdkProperty: SdkModelPropertyType,
+  sdkModel: SdkModelType,
 ): InputModelProperty | undefined {
   // TODO -- this returns undefined because some properties we do not support yet.
   let property = sdkContext.__typeCache.properties.get(sdkProperty) as
@@ -240,7 +254,7 @@ function fromSdkModelProperty(
     serializedName: serializedName,
     summary: sdkProperty.summary,
     doc: sdkProperty.doc,
-    type: fromSdkType(sdkContext, sdkProperty.type),
+    type: fromSdkType(sdkContext, sdkProperty.type, sdkProperty, sdkModel),
     optional: sdkProperty.optional,
     readOnly: isReadOnly(sdkProperty),
     discriminator: sdkProperty.discriminator,
@@ -260,29 +274,38 @@ function fromSdkModelProperty(
 }
 
 function fromSdkEnumType(sdkContext: CSharpEmitterContext, enumType: SdkEnumType): InputEnumType {
-  const enumName = enumType.name;
+  return createEnumType(sdkContext, enumType, enumType.namespace);
+}
+
+function createEnumType(
+  sdkContext: CSharpEmitterContext,
+  sdkType: SdkConstantType | SdkEnumType,
+  namespace: string,
+): InputEnumType {
   const values: InputEnumValueType[] = [];
+  const sdkEnumType = sdkType as SdkEnumType;
   const inputEnumType: InputEnumType = {
     kind: "enum",
-    name: enumName,
-    crossLanguageDefinitionId: enumType.crossLanguageDefinitionId,
-    valueType: fromSdkType(sdkContext, enumType.valueType) as InputPrimitiveType,
+    name: sdkType.name,
+    crossLanguageDefinitionId: sdkEnumType?.crossLanguageDefinitionId ?? "",
+    valueType: fromSdkType(sdkContext, sdkType.valueType) as InputPrimitiveType,
     values: values,
-    access: getAccessOverride(sdkContext, enumType.__raw as any),
-    namespace: enumType.namespace,
-    deprecation: enumType.deprecation,
-    summary: enumType.summary,
-    doc: enumType.doc,
-    isFixed: enumType.isFixed,
-    isFlags: enumType.isFlags,
-    usage: enumType.usage,
-    decorators: enumType.decorators,
+    access: getAccessOverride(sdkContext, sdkType.__raw as any),
+    namespace: namespace,
+    deprecation: sdkType.deprecation,
+    summary: sdkType.summary,
+    doc: sdkType.doc,
+    isFixed: sdkEnumType?.isFixed ?? false,
+    isFlags: sdkEnumType?.isFlags ?? false,
+    usage: getUsage(sdkContext, sdkType.__raw as any),
+    decorators: sdkType.decorators,
   };
-  sdkContext.__typeCache.updateSdkTypeReferences(enumType, inputEnumType);
-  for (const v of enumType.values) {
-    values.push(fromSdkType(sdkContext, v));
+  sdkContext.__typeCache.updateSdkTypeReferences(sdkType, inputEnumType);
+  if (sdkType.kind === "enum") {
+    for (const v of sdkType.values) {
+      values.push(fromSdkType(sdkContext, v));
+    }
   }
-
   return inputEnumType;
 }
 
