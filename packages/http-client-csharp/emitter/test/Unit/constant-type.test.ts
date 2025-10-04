@@ -90,7 +90,7 @@ describe("Constant enum conversion", () => {
   beforeEach(async () => {
     runner = await createEmitterTestHost();
   });
-  it.only("nullable constants should be converted to enums", async () => {
+  it("nullable constants should be converted to enums", async () => {
     const program = await typeSpecCompile(
       `
       model TestModel {
@@ -138,12 +138,10 @@ describe("Constant enum conversion", () => {
     const testModel = root.models.find((m) => m.name === "TestModel");
     ok(testModel);
     const propertyType = testModel.properties[0].type;
-    strictEqual(propertyType.kind, "nullable");
-    const valueType = (propertyType as InputNullableType).type;
-    strictEqual(valueType.kind, "enum");
-    const enumType = valueType as InputEnumType;
+    strictEqual(propertyType.kind, "enum");
+    const enumType = propertyType as InputEnumType;
     strictEqual(enumType.name, "TestModelProp");
-    strictEqual(enumType.valueType, "string");
+    strictEqual(enumType.valueType.kind, "string");
     strictEqual(enumType.values.length, 1);
     strictEqual(enumType.values[0].name, "someValue");
     strictEqual(enumType.values[0].value, "someValue");
