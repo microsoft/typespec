@@ -1,42 +1,37 @@
-import { createTestHost, createTestWrapper } from "@typespec/compiler/testing";
-import { HttpTestLibrary } from "@typespec/http/testing";
-import { JsonSchemaTestLibrary } from "@typespec/json-schema/testing";
-import { RestTestLibrary } from "@typespec/rest/testing";
-import { VersioningTestLibrary } from "@typespec/versioning/testing";
+import { resolvePath } from "@typespec/compiler";
+import { createTester, TesterInstance } from "@typespec/compiler/testing";
 import { CSharpServiceEmitterOptions } from "../src/lib/lib.js";
-import { CSharpServiceEmitterTestLibrary } from "../src/lib/testing/index.js";
 
-export async function createCSharpServiceEmitterTestHost() {
-  const result = await createTestHost({
-    libraries: [
-      HttpTestLibrary,
-      RestTestLibrary,
-      VersioningTestLibrary,
-      CSharpServiceEmitterTestLibrary,
-      JsonSchemaTestLibrary,
-    ],
-  });
+const libraryName = "@typespec/http-server-csharp";
 
-  return result;
-}
+export const Tester = createTester(resolvePath(import.meta.dirname, ".."), {
+  libraries: [
+    "@typespec/http",
+    "@typespec/rest",
+    "@typespec/versioning",
+    "@typespec/json-schema",
+    libraryName,
+  ],
+})
+  .importLibraries()
+  .using("TypeSpec.Http")
+  .using("TypeSpec.Rest")
+  .using("TypeSpec.Versioning")
+  .using("TypeSpec.JsonSchema");
 
-export async function createCSharpServiceEmitterTestRunner(
+export async function compileAndDiagnose(
+  tester: TesterInstance,
+  code: string,
   emitterOptions: CSharpServiceEmitterOptions = { "skip-format": true },
 ) {
-  const host = await createCSharpServiceEmitterTestHost();
-
-  const result = createTestWrapper(host, {
-    autoUsings: ["TypeSpec.Http", "TypeSpec.Rest", "TypeSpec.Versioning", "TypeSpec.JsonSchema"],
+  return await tester.compileAndDiagnose(code, {
     compilerOptions: {
-      emit: ["@typespec/http-server-csharp"],
+      emit: [libraryName],
       options: {
-        [CSharpServiceEmitterTestLibrary.name]: emitterOptions as any,
+        [libraryName]: emitterOptions as any,
       },
-      noEmit: false,
     },
   });
-
-  return result;
 }
 
 export function getStandardService(code: string, ns?: string): string {
