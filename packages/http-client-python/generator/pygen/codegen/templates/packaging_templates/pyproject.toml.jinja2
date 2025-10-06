@@ -34,7 +34,9 @@ requires-python = ">={{ MIN_PYTHON_VERSION }}"
 description = "{{ options.get('package-name') }}"
 {% endif %}
 {% if code_model.is_azure_flavor %}
-keywords = ["azure", "azure sdk"]
+keywords = ["azure", "azure sdk"{% if KEEP_FIELDS and KEEP_FIELDS.get('project.keywords') %}{% for kw in KEEP_FIELDS.get('project.keywords') %}, "{{ kw }}"{% endfor %}{% endif %}]
+{% elif KEEP_FIELDS and KEEP_FIELDS.get('project.keywords') %}
+keywords = [{% for kw in KEEP_FIELDS.get('project.keywords') %}"{{ kw }}"{% if not loop.last %}, {% endif %}{% endfor %}]
 {% endif %}
 
 dependencies = [
@@ -78,6 +80,17 @@ version = "{{ options.get("package-version", "unknown") }}"
 
 [project.urls]
 repository = "https://github.com/Azure/azure-sdk-for-python"
+{% if KEEP_FIELDS and KEEP_FIELDS.get('project.urls') %}
+{% for key, val in KEEP_FIELDS.get('project.urls').items() %}
+{{ key }} = "{{ val }}"
+{% endfor %}
+{% endif %}
+{% elif KEEP_FIELDS and KEEP_FIELDS.get('project.urls') %}
+
+[project.urls]
+{% for key, val in KEEP_FIELDS.get('project.urls').items() %}
+{{ key }} = "{{ val }}"
+{% endfor %}
 {% endif %}
 
 [tool.setuptools.dynamic]
