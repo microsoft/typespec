@@ -4,7 +4,7 @@ import { CSharpServiceEmitterOptions } from "../src/lib/lib.js";
 
 const libraryName = "@typespec/http-server-csharp";
 
-export const Tester = createTester(resolvePath(import.meta.dirname, ".."), {
+export const ApiTester = createTester(resolvePath(import.meta.dirname, ".."), {
   libraries: [
     "@typespec/http",
     "@typespec/rest",
@@ -14,10 +14,12 @@ export const Tester = createTester(resolvePath(import.meta.dirname, ".."), {
   ],
 })
   .importLibraries()
-  .using("TypeSpec.Http")
-  .using("TypeSpec.Rest")
-  .using("TypeSpec.Versioning")
-  .using("TypeSpec.JsonSchema");
+  .using("Http")
+  .using("Rest")
+  .using("Versioning")
+  .using("JsonSchema");
+
+export const EmitterTester = ApiTester.emit(libraryName);
 
 export async function compileAndDiagnose(
   tester: TesterInstance,

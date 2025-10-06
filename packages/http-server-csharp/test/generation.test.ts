@@ -4,7 +4,7 @@ import assert, { deepStrictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { CSharpServiceEmitterOptions } from "../src/lib/lib.js";
 import { getPropertySource, getSourceModel } from "../src/lib/utils.js";
-import { compileAndDiagnose, getStandardService, Tester } from "./test-host.js";
+import { ApiTester, compileAndDiagnose, getStandardService } from "./test-host.js";
 
 function getGeneratedFile(fs: TestFileSystem, fileName: string): [string, string] {
   const result = [...fs.fs.entries()].filter((e) => e[0].includes(`/${fileName}`));
@@ -97,7 +97,7 @@ async function compileAndValidateMultiple(
 let tester: TesterInstance;
 
 beforeEach(async () => {
-  tester = await Tester.createInstance();
+  tester = await ApiTester.createInstance();
 });
 
 it("can source properties", async () => {
