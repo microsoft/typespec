@@ -88,7 +88,7 @@ async function createTesterFs(base: string, options: TesterOptions) {
     if (specifier.subPath !== "") {
       // eslint-disable-next-line no-console
       console.warn(
-        `Warning: Defining a subpath of a library is unnecessary. Just import the library. Ignoring the subpath in '${lib}'`,
+        `Warning: Defining a subpath '${lib}' of a library is unnecessary. Just import the library. Ignoring the subpath in '${lib}'`,
       );
       continue;
     }
