@@ -52,6 +52,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal Lazy<NamedTypeSymbolProvider?>? CustomProvider { get; init; }
 
+        internal bool IsRequiredNonNullableConstant { get; }
+
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         protected PropertyProvider()
@@ -89,12 +91,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             EnclosingType = enclosingType;
             _serializationFormat = CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputProperty.Type);
+            IsRequiredNonNullableConstant = inputProperty.IsRequired && propertyType is { IsLiteral: true, IsNullable: false };
             var propHasSetter = PropertyHasSetter(propertyType, inputProperty);
             MethodSignatureModifiers setterModifier = propHasSetter ? MethodSignatureModifiers.Public : MethodSignatureModifiers.None;
 
             Type = inputProperty.IsReadOnly ? propertyType.OutputType : propertyType;
             IsDiscriminator = IsDiscriminatorProperty(inputProperty);
-            Modifiers = IsDiscriminator ? MethodSignatureModifiers.Internal : MethodSignatureModifiers.Public;
+            var hasOutputUsage = inputProperty.EnclosingType?.Usage.HasFlag(InputModelTypeUsage.Output) ?? false;
+            Modifiers = IsDiscriminator || (!hasOutputUsage && IsRequiredNonNullableConstant) ? MethodSignatureModifiers.Internal : MethodSignatureModifiers.Public;
             Name = inputProperty.Name == enclosingType.Name
                 ? $"{inputProperty.Name.ToIdentifierName()}Property"
                 : inputProperty.Name.ToIdentifierName();
@@ -195,7 +199,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return false;
             }
 
-            if (type.IsLiteral && inputProperty.IsRequired)
+            if (IsRequiredNonNullableConstant)
             {
                 return false;
             }
