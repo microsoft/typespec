@@ -24,7 +24,7 @@ it("add library base export", async () => {
     "node_modules/mylib/index.js": mockFile.js({}),
     "node_modules/mylib/main.tsp": "model FromMyLib {}",
   });
-  const Tester = createTester(resolveVirtualPath("/test"), {
+  const Tester = createTester(resolveVirtualPath(""), {
     host: fs,
     libraries: ["mylib"],
   });
@@ -44,7 +44,7 @@ it("subpath typespec export get added to the test host", async () => {
     "node_modules/mylib/index.js": mockFile.js({}),
     "node_modules/mylib/subpath.tsp": "",
   });
-  const Tester = createTester(resolveVirtualPath("/test"), {
+  const Tester = createTester(resolveVirtualPath(""), {
     host: fs,
     libraries: ["mylib"],
   });
