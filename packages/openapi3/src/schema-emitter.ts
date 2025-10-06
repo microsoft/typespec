@@ -11,6 +11,7 @@ import {
   Scope,
   SourceFileScope,
   TypeEmitter,
+  setProperty,
 } from "@typespec/asset-emitter";
 import {
   BooleanLiteral,
@@ -191,18 +192,18 @@ export class OpenAPI3SchemaEmitterBase<
           // Here we are saying that this property will always validate as true for this schema.
           // This is because the `allOf` subSchema will contain the more specific validation
           // for this property.
-          props.set(key, {});
+          setProperty(props, key, {});
         }
       }
       if (Object.keys(props).length > 0) {
-        schema.set("properties", props);
+        setProperty(schema, "properties", props);
       }
     }
 
     const additionalPropertiesSchema = shouldSeal
       ? { not: {} }
       : this.emitter.emitTypeReference(model.indexer!.value);
-    schema.set("additionalProperties", additionalPropertiesSchema);
+    setProperty(schema, "additionalProperties", additionalPropertiesSchema);
   }
 
   modelDeclaration(model: Model, _: string): EmitterOutput<object> {
@@ -226,7 +227,11 @@ export class OpenAPI3SchemaEmitterBase<
     this.#applyExternalDocs(model, schema);
 
     if (model.baseModel) {
-      schema.set("allOf", Builders.array([this.emitter.emitTypeReference(model.baseModel)]));
+      setProperty(
+        schema,
+        "allOf",
+        Builders.array([this.emitter.emitTypeReference(model.baseModel)]),
+      );
     }
 
     const baseName = getOpenAPITypeName(program, model, this.#typeNameOptions());
@@ -375,12 +380,13 @@ export class OpenAPI3SchemaEmitterBase<
       }
       const result = this.emitter.emitModelProperty(prop);
       const encodedName = resolveEncodedName(program, prop, contentType);
-      props.set(encodedName, result);
+
+      setProperty(props, encodedName, result);
     }
 
     const discriminator = getDiscriminator(program, model);
     if (discriminator && !(discriminator.propertyName in props)) {
-      props.set(discriminator.propertyName, {
+      setProperty(props, discriminator.propertyName, {
         type: "string",
         description: `Discriminator property for ${model.name}.`,
       });
@@ -467,7 +473,7 @@ export class OpenAPI3SchemaEmitterBase<
 
       const merged = new ObjectBuilder(schema);
       for (const [key, value] of Object.entries(additionalProps)) {
-        merged.set(key, value);
+        setProperty(merged, key, value);
       }
 
       return merged;
@@ -792,7 +798,7 @@ export class OpenAPI3SchemaEmitterBase<
 
   #inlineType(type: Type, schema: ObjectBuilder<any>) {
     if (this._options.includeXTypeSpecName !== "never") {
-      schema.set("x-typespec-name", getTypeName(type, this.#typeNameOptions()));
+      setProperty(schema, "x-typespec-name", getTypeName(type, this.#typeNameOptions()));
     }
     return schema;
   }
@@ -816,7 +822,7 @@ export class OpenAPI3SchemaEmitterBase<
 
     const title = getSummary(this.emitter.getProgram(), type);
     if (title) {
-      schema.set("title", title);
+      setProperty(schema, "title", title);
     }
 
     const usage = this._visibilityUsage.getUsage(type);
@@ -861,7 +867,7 @@ export const Builders = {
   object: <T extends Record<string, unknown>>(obj: T): ObjectBuilder<T[string]> => {
     const builder = new ObjectBuilder<T[string]>();
     for (const [key, value] of Object.entries(obj)) {
-      builder.set(key, value as any);
+      setProperty(builder, key, value as any);
     }
     return builder;
   },

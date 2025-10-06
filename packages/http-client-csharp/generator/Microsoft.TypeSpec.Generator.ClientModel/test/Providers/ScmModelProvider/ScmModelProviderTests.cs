@@ -342,5 +342,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
 
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
+
+        [Test]
+        public async Task TestDynamicModelWithCustomFullConstructor()
+        {
+            var catModel = InputFactory.Model("cat", isDynamicModel: true, properties:
+            [
+                InputFactory.Property("meows", InputPrimitiveType.Boolean, isRequired: true)
+            ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                inputModels: () => [catModel]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(catModel) as ClientModel.Providers.ScmModelProvider;
+
+            Assert.IsNotNull(model);
+            Assert.IsTrue(model!.HasDynamicModelSupport);
+
+            var customCtor = model.CustomCodeView?.Constructors.FirstOrDefault(c => c.Signature.Parameters.Count > 0);
+            Assert.IsNotNull(customCtor);
+
+            var patchParam = customCtor!.Signature.Parameters.FirstOrDefault(p => p.Name == "patch");
+            Assert.IsNotNull(patchParam);
+            Assert.IsTrue(patchParam!.IsIn);
+        }
     }
 }

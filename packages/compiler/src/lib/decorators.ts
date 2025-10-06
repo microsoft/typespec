@@ -824,19 +824,15 @@ export const $maxValueExclusive: MaxValueExclusiveDecorator = (
 const [isSecret, markSecret] = useStateSet(createStateSymbol("secretTypes"));
 
 /**
- * Mark a string as a secret value that should be treated carefully to avoid exposure
+ * Mark a value as a secret value that should be treated carefully to avoid exposure
  * @param context Decorator context
- * @param target Decorator target, either a string model or a property with type string.
+ * @param target Decorator target: a scalar, model property, model, union, or enum.
  */
 export const $secret: SecretDecorator = (
   context: DecoratorContext,
-  target: Scalar | ModelProperty,
+  target: Scalar | ModelProperty | Model | Union | Enum,
 ) => {
   validateDecoratorUniqueOnNode(context, target, $secret);
-
-  if (!validateTargetingAString(context, target, "@secret")) {
-    return;
-  }
   markSecret(context.program, target);
 };
 

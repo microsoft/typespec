@@ -1,6 +1,12 @@
 import { isWhiteSpace } from "../charcode.js";
-import { defineCodeFix, getSourceLocation } from "../diagnostics.js";
-import type { CodeFix, DiagnosticTarget, SourceLocation } from "../types.js";
+import { defineCodeFix, getNodeForTarget, getSourceLocation } from "../diagnostics.js";
+import {
+  SyntaxKind,
+  type CodeFix,
+  type DiagnosticTarget,
+  type Node,
+  type SourceLocation,
+} from "../types.js";
 
 export function createSuppressCodeFix(
   diagnosticTarget: DiagnosticTarget,
@@ -11,7 +17,10 @@ export function createSuppressCodeFix(
     id: "suppress",
     label: `Suppress warning: "${warningCode}"`,
     fix: (context) => {
-      const location = getSourceLocation(diagnosticTarget);
+      const location = findSuppressTarget(diagnosticTarget);
+      if (!location) {
+        return undefined;
+      }
       const { lineStart, indent } = findLineStartAndIndent(location);
       const updatedLocation = { ...location, pos: lineStart };
       return context.prependText(
@@ -20,6 +29,31 @@ export function createSuppressCodeFix(
       );
     },
   });
+}
+
+function findSuppressTarget(target: DiagnosticTarget): SourceLocation | undefined {
+  if ("file" in target) {
+    return target;
+  }
+
+  const nodeTarget = getNodeForTarget(target);
+  if (!nodeTarget) return undefined;
+
+  const node = findSuppressNode(nodeTarget);
+  return getSourceLocation(node);
+}
+
+/** Find the node where the suppression should be applied */
+function findSuppressNode(node: Node): Node {
+  switch (node.kind) {
+    case SyntaxKind.Identifier:
+    case SyntaxKind.TypeReference:
+    case SyntaxKind.UnionExpression:
+    case SyntaxKind.ModelExpression:
+      return findSuppressNode(node.parent!);
+    default:
+      return node;
+  }
 }
 
 function findLineStartAndIndent(location: SourceLocation): { lineStart: number; indent: string } {

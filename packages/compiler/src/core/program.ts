@@ -31,6 +31,7 @@ import { createLogger } from "./logger/index.js";
 import { createTracer } from "./logger/tracer.js";
 import { createDiagnostic } from "./messages.js";
 import { createResolver } from "./name-resolver.js";
+import { NameResolver, createResolver } from "./name-resolver.js";
 import { Numeric } from "./numeric.js";
 import { CompilerOptions } from "./options.js";
 import { parse, parseStandaloneTypeReference } from "./parser.js";
@@ -92,6 +93,9 @@ export interface Program {
    * API are not subject to the same stability guarantees see See https://typespec.io/docs/handbook/breaking-change-policy/
    */
   checker: Checker;
+  /** @internal */
+  resolver: NameResolver;
+
   emitters: EmitterRef[];
   readonly diagnostics: readonly Diagnostic[];
   /** @internal */
@@ -224,6 +228,7 @@ async function createProgram(
   const resolvedMain = await resolveTypeSpecEntrypoint(host, mainFile, reportDiagnostic);
   const program: Program = {
     checker: undefined!,
+    resolver: undefined!,
     compilerOptions: resolveOptions(options),
     sourceFiles: new Map(),
     jsSourceFiles: new Map(),
@@ -291,11 +296,11 @@ async function createProgram(
   // let GC reclaim old program, we do not reuse it beyond this point.
   oldProgram = undefined;
 
-  const resolver = createResolver(program);
+  const resolver = (program.resolver = createResolver(program));
   runtimeStats.resolver = time(() => resolver.resolveProgram());
 
   const linter = createLinter(program, (name) => loadLibrary(basedir, name));
-  linter.registerLinterLibrary(builtInLinterLibraryName, createBuiltInLinterLibrary(resolver));
+  linter.registerLinterLibrary(builtInLinterLibraryName, createBuiltInLinterLibrary());
   if (options.linterRuleSet) {
     program.reportDiagnostics(await linter.extendRuleSet(options.linterRuleSet));
   }

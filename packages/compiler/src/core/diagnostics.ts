@@ -14,6 +14,7 @@ import {
   SymbolFlags,
   SyntaxKind,
   Type,
+  TypeSpecDiagnosticTarget,
 } from "./types.js";
 
 export type WriteLine = (text?: string) => void;
@@ -40,6 +41,42 @@ export function getRelatedLocations(diagnostic: Diagnostic): RelatedSourceLocati
       location: getSourceLocation(x),
     };
   });
+}
+
+/**
+ * Find the syntax node for a TypeSpec diagnostic target.
+ *
+ * This function extracts the AST node from various types of diagnostic targets:
+ * - For template instance targets: returns the node of the template declaration
+ * - For symbols: returns the first declaration node (or symbol source for using symbols)
+ * - For AST nodes: returns the node itself
+ * - For types: returns the node associated with the type
+ *
+ * @param target The diagnostic target to extract a node from. Can be a template instance,
+ *               symbol, AST node, or type.
+ * @returns The AST node associated with the target, or undefined if the target is a type
+ *          or symbol that doesn't have an associated node.
+ */
+export function getNodeForTarget(target: TypeSpecDiagnosticTarget): Node | undefined {
+  if (!("kind" in target) && !("entityKind" in target)) {
+    // TemplateInstanceTarget
+    if (!("declarations" in target)) {
+      return target.node;
+    }
+
+    // symbol
+    if (target.flags & SymbolFlags.Using) {
+      target = target.symbolSource!;
+    }
+
+    return target.declarations[0];
+  } else if ("kind" in target && typeof target.kind === "number") {
+    // node
+    return target as Node;
+  } else {
+    // type
+    return (target as Type).node;
+  }
 }
 
 export interface SourceLocationOptions {
@@ -73,35 +110,8 @@ export function getSourceLocation(
     return target;
   }
 
-  if (!("kind" in target) && !("entityKind" in target)) {
-    // TemplateInstanceTarget
-    if (!("declarations" in target)) {
-      return getSourceLocationOfNode(target.node, options);
-    }
-
-    // symbol
-    if (target.flags & SymbolFlags.Using) {
-      target = target.symbolSource!;
-    }
-
-    if (!target.declarations[0]) {
-      return createSyntheticSourceLocation();
-    }
-
-    return getSourceLocationOfNode(target.declarations[0], options);
-  } else if ("kind" in target && typeof target.kind === "number") {
-    // node
-    return getSourceLocationOfNode(target as Node, options);
-  } else {
-    // type
-    const targetNode = (target as Type).node;
-
-    if (targetNode) {
-      return getSourceLocationOfNode(targetNode, options);
-    }
-
-    return createSyntheticSourceLocation();
-  }
+  const node = getNodeForTarget(target);
+  return node ? getSourceLocationOfNode(node, options) : createSyntheticSourceLocation();
 }
 
 /**

@@ -125,6 +125,25 @@ const testScenarios: TestScenario[] = [
     },
     expected: "{bar?: boolean; ...Record<string>}",
   },
+  // Test for additionalProperties: true (should be Record<unknown>)
+  {
+    schema: { type: "object", additionalProperties: true },
+    expected: "Record<unknown>",
+  },
+  // Test for additionalProperties: {} (should be Record<unknown>, same as above)
+  {
+    schema: { type: "object", additionalProperties: {} },
+    expected: "Record<unknown>",
+  },
+  // Test for additionalProperties: true with properties
+  {
+    schema: {
+      type: "object",
+      additionalProperties: true,
+      properties: { bar: { type: "boolean" } },
+    },
+    expected: "{bar?: boolean; ...Record<unknown>}",
+  },
   {
     schema: {
       type: "object",

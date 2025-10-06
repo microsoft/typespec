@@ -19,6 +19,9 @@ namespace Microsoft.TypeSpec.Generator.Tests
         private readonly string _typeName;
         private readonly string _typeNamespace;
         private readonly bool _isStruct;
+        private readonly bool _parameterIsIn;
+        private readonly bool _parameterIsOut;
+        private readonly bool _parameterIsRef;
         protected override string BuildRelativeFilePath() => ".";
 
         protected override string BuildName() => _typeName;
@@ -31,7 +34,10 @@ namespace Microsoft.TypeSpec.Generator.Tests
             ValueExpression? parameterDefaultValue = null,
             string name = "NamedSymbol",
             string @namespace = "Sample.Models",
-            bool isStruct = false)
+            bool isStruct = false,
+            bool parameterIsIn = false,
+            bool parameterIsOut = false,
+            bool parameterIsRef = false)
         {
             _propertyType = propertyType;
             _parameterType = parameterType;
@@ -39,6 +45,9 @@ namespace Microsoft.TypeSpec.Generator.Tests
             _typeName = name;
             _typeNamespace = @namespace;
             _isStruct = isStruct;
+            _parameterIsIn = parameterIsIn;
+            _parameterIsOut = parameterIsOut;
+            _parameterIsRef = parameterIsRef;
         }
 
         protected override FieldProvider[] BuildFields()
@@ -102,11 +111,24 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var parameterType = _parameterType ?? typeof(int);
             if (_parameterDefaultValue != null)
             {
-                parameters.Add(new ParameterProvider("p1", $"param", new CSharpType(parameterType), _parameterDefaultValue));
+                parameters.Add(new ParameterProvider(
+                    "p1",
+                    $"param",
+                    new CSharpType(parameterType),
+                    _parameterDefaultValue,
+                    isIn: _parameterIsIn,
+                    isOut: _parameterIsOut,
+                    isRef: _parameterIsRef));
             }
             else
             {
-                parameters.Add(new ParameterProvider("intParam", $"intParam", new CSharpType(parameterType)));
+                parameters.Add(new ParameterProvider(
+                    "intParam",
+                    $"intParam",
+                    new CSharpType(parameterType),
+                    isIn: _parameterIsIn,
+                    isOut: _parameterIsOut,
+                    isRef: _parameterIsRef));
             }
 
             return
