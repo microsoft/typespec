@@ -44,6 +44,8 @@ export interface ResolvedModule {
 }
 
 export interface NodePackage extends PackageJson {
+  /** Package root dir(Where package.json is located) */
+  readonly dir: string;
   readonly file: {
     readonly path: string;
     readonly text: string;

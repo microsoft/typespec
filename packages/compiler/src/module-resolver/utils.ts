@@ -1,3 +1,4 @@
+import { dirname } from "path";
 import type { NodePackage, ResolveModuleHost } from "./types.js";
 
 export interface NodeModuleSpecifier {
@@ -27,6 +28,7 @@ export async function readPackage(host: ResolveModuleHost, pkgfile: string): Pro
   const content = await host.readFile(pkgfile);
   return {
     ...JSON.parse(content),
+    dir: dirname(pkgfile),
     file: {
       path: pkgfile,
       text: content,

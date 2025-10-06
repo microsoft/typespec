@@ -109,13 +109,13 @@ export async function resolveModule(
   }
   const moduleSpecifier = parseNodeModuleSpecifier(specifier);
   if (moduleSpecifier !== null) {
-    // Try to resolve package itself.
-    const self = await resolveSelf(moduleSpecifier, absoluteStart);
-    if (self) return self;
-
-    // Try to resolve as a node_module package.
-    const module = await resolveAsNodeModule(moduleSpecifier, absoluteStart);
-    if (module) return module;
+    const pkg =
+      // Try to resolve package itself.
+      (await resolveSelfPackage(moduleSpecifier, absoluteStart)) ??
+      // Try to resolve as a node_module package.
+      (await resolvePackageFromNodeModules(moduleSpecifier, absoluteStart));
+    const n = pkg && (await loadPackage(pkg, moduleSpecifier.subPath));
+    if (n) return n;
   }
 
   throw new ResolveModuleError(
@@ -149,21 +149,42 @@ export async function resolveModule(
   }
 
   /**
-   * Equivalent implementation to node LOAD_PACKAGE_SELF
-   * Resolve if the import is importing the current package.
+   * Resolve the NodePackage for the given specifier
+   * Implementation from LOAD_PACKAGE_SELF minus the exports resolution which is called separately.
    */
-  async function resolveSelf(
+  async function resolveSelfPackage(
     specifier: NodeModuleSpecifier,
     baseDir: string,
-  ): Promise<ResolvedModule | undefined> {
+  ): Promise<NodePackage | undefined> {
     for (const dir of listDirHierarchy(baseDir)) {
       const pkgFile = resolvePath(dir, "package.json");
       if (!(await isFile(host, pkgFile))) continue;
       const pkg = await readPackage(host, pkgFile);
       if (pkg.name === specifier.packageName) {
-        return loadPackage(dir, pkg, specifier.subPath);
+        return pkg;
       } else {
         return undefined;
+      }
+    }
+    return undefined;
+  }
+
+  /**
+   * Resolve a node package from `node_modules`. Follows the implementation of LOAD_NODE_MODULES minus following the exports field.
+   */
+  async function resolvePackageFromNodeModules(
+    specifier: NodeModuleSpecifier,
+    baseDir: string,
+  ): Promise<NodePackage | undefined> {
+    const dirs = listDirHierarchy(baseDir);
+
+    for (const dir of dirs) {
+      const path = joinPaths(dir, "node_modules", specifier.packageName);
+      const pkgFile = resolvePath(path, "package.json");
+
+      if (await isFile(host, pkgFile)) {
+        const pkg = await readPackage(host, pkgFile);
+        if (pkg) return pkg;
       }
     }
     return undefined;
@@ -177,16 +198,12 @@ export async function resolveModule(
     specifier: NodeModuleSpecifier,
     baseDir: string,
   ): Promise<ResolvedModule | undefined> {
-    const dirs = listDirHierarchy(baseDir);
-
-    for (const dir of dirs) {
-      const n = await loadPackageAtPath(
-        joinPaths(dir, "node_modules", specifier.packageName),
-        specifier.subPath,
-      );
-      if (n) return n;
+    const pkg = await resolvePackageFromNodeModules(specifier, baseDir);
+    if (pkg) {
+      return await loadPackage(pkg, specifier.subPath);
+    } else {
+      return undefined;
     }
-    return undefined;
   }
 
   async function loadPackageAtPath(
@@ -197,7 +214,7 @@ export async function resolveModule(
     if (!(await isFile(host, pkgFile))) return undefined;
 
     const pkg = await readPackage(host, pkgFile);
-    const n = await loadPackage(path, pkg, subPath);
+    const n = await loadPackage(pkg, subPath);
     if (n) return n;
     return undefined;
   }
@@ -330,17 +347,16 @@ export async function resolveModule(
   }
 
   async function loadPackage(
-    directory: string,
     pkg: NodePackage,
     subPath?: string,
   ): Promise<ResolvedModule | undefined> {
-    const e = await resolveNodePackageExports(subPath ?? "", pkg, directory);
+    const e = await resolveNodePackageExports(subPath ?? "", pkg, pkg.dir);
     if (e) return e;
 
     if (subPath !== undefined && subPath !== "") {
       return undefined;
     }
-    return loadPackageLegacy(directory, pkg);
+    return loadPackageLegacy(pkg.dir, pkg);
   }
 
   async function loadPackageLegacy(
