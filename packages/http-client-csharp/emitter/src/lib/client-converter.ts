@@ -53,7 +53,7 @@ function fromSdkClient(
     doc: client.doc,
     summary: client.summary,
     methods: client.methods
-      .map((m) => fromSdkServiceMethod(sdkContext, m, uri, rootApiVersions))
+      .map((m) => fromSdkServiceMethod(sdkContext, m, uri, rootApiVersions, client.namespace))
       .filter((m) => m !== undefined),
     parameters: clientParameters,
     decorators: client.decorators,
