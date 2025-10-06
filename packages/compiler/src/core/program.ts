@@ -30,7 +30,6 @@ import {
 import { createLogger } from "./logger/index.js";
 import { createTracer } from "./logger/tracer.js";
 import { createDiagnostic } from "./messages.js";
-import { createResolver } from "./name-resolver.js";
 import { NameResolver, createResolver } from "./name-resolver.js";
 import { Numeric } from "./numeric.js";
 import { CompilerOptions } from "./options.js";
