@@ -141,7 +141,7 @@ class GeneralSerializer(BaseSerializer):
                             dep_version = self._extract_min_dependency(dep)
                             if dep_version > default_version:
                                 VERSION_MAP[dep_name] = str(dep_version)
-                                _LOGGER.info(f"Keeping field dependency: {dep_name} {dep_version}")
+                                _LOGGER.info(f"Keeping field dependency: {dep}")
             
             if deps:
                 if "project.dependencies" not in params["KEEP_FIELDS"]:
