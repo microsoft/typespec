@@ -165,6 +165,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual("stringProp", parameters[0].Name);
             Assert.AreEqual("modelProp", parameters[1].Name);
             Assert.AreEqual("listProp", parameters[2].Name);
+            foreach (var param in parameters)
+            {
+                Assert.IsNull(param.DefaultValue);
+            }
 
             var currentParameters = currentOverloadMethod!.Signature.Parameters;
             Assert.AreEqual(4, currentParameters.Count);
@@ -172,6 +176,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual("modelProp", currentParameters[1].Name);
             Assert.AreEqual("listProp", currentParameters[2].Name);
             Assert.AreEqual("dictProp", currentParameters[3].Name);
+            foreach (var param in currentParameters)
+            {
+                Assert.IsNotNull(param.DefaultValue);
+            }
 
             Assert.IsTrue(parameters[0].Type.AreNamesEqual(currentParameters[0].Type));
             Assert.IsTrue(parameters[1].Type.AreNamesEqual(currentParameters[1].Type));
@@ -217,6 +225,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual("stringProp", parameters[1].Name);
             Assert.AreEqual("listProp", parameters[2].Name);
             Assert.AreEqual("dictProp", parameters[3].Name);
+            foreach (var param in parameters)
+            {
+                Assert.IsNotNull(param.DefaultValue);
+            }
 
             var model2BackCompatMethod = factoryMethods
                .First(m => m.Signature.Name == "PublicModel2");
@@ -285,6 +297,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual("modelProp", currentParameters[1].Name);
             Assert.AreEqual("listProp", currentParameters[2].Name);
             Assert.AreEqual("dictProp", currentParameters[3].Name);
+            foreach (var param in currentParameters)
+            {
+                Assert.IsNotNull(param.DefaultValue);
+            }
 
             Assert.IsTrue(parameters[0].Type.AreNamesEqual(currentParameters[0].Type));
 
