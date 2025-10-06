@@ -1,4 +1,5 @@
 import { dirname } from "path";
+import { getDirectoryPath } from "../core/path-utils.js";
 import type { NodePackage, ResolveModuleHost } from "./types.js";
 
 export interface NodeModuleSpecifier {
@@ -67,4 +68,18 @@ export function fileURLToPath(url: string) {
   }
 
   return decodeURIComponent(pathname);
+}
+
+/**
+ * Returns a list of all the parent directory and the given one.
+ */
+export function listDirHierarchy(baseDir: string): string[] {
+  const paths = [baseDir];
+  let current = getDirectoryPath(baseDir);
+  while (current !== paths[paths.length - 1]) {
+    paths.push(current);
+    current = getDirectoryPath(current);
+  }
+
+  return paths;
 }

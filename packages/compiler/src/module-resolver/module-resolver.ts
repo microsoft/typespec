@@ -1,4 +1,4 @@
-import { getDirectoryPath, joinPaths, normalizePath, resolvePath } from "../core/path-utils.js";
+import { joinPaths, normalizePath, resolvePath } from "../core/path-utils.js";
 import { resolvePackageExports } from "./esm/resolve-package-exports.js";
 import { resolvePackageImports } from "./esm/resolve-package-imports.js";
 import {
@@ -6,6 +6,7 @@ import {
   InvalidPackageTargetError,
   NoMatchingConditionsError,
 } from "./esm/utils.js";
+import { NodePackageResolver } from "./node-package-resolver.js";
 import {
   ModuleResolutionResult,
   NodePackage,
@@ -16,6 +17,7 @@ import {
 import {
   fileURLToPath,
   isFile,
+  listDirHierarchy,
   NodeModuleSpecifier,
   parseNodeModuleSpecifier,
   pathToFileURL,
@@ -83,6 +85,7 @@ export async function resolveModule(
   specifier: string,
   options: ResolveModuleOptions,
 ): Promise<ModuleResolutionResult> {
+  const nodePackageResolver = new NodePackageResolver(host);
   const { baseDir } = options;
   const absoluteStart = await realpath(resolvePath(baseDir));
 
@@ -109,11 +112,7 @@ export async function resolveModule(
   }
   const moduleSpecifier = parseNodeModuleSpecifier(specifier);
   if (moduleSpecifier !== null) {
-    const pkg =
-      // Try to resolve package itself.
-      (await resolveSelfPackage(moduleSpecifier, absoluteStart)) ??
-      // Try to resolve as a node_module package.
-      (await resolvePackageFromNodeModules(moduleSpecifier, absoluteStart));
+    const pkg = await nodePackageResolver.resolve(moduleSpecifier.packageName, absoluteStart);
     const n = pkg && (await loadPackage(pkg, moduleSpecifier.subPath));
     if (n) return n;
   }
@@ -135,62 +134,6 @@ export async function resolveModule(
   }
 
   /**
-   * Returns a list of all the parent directory and the given one.
-   */
-  function listDirHierarchy(baseDir: string): string[] {
-    const paths = [baseDir];
-    let current = getDirectoryPath(baseDir);
-    while (current !== paths[paths.length - 1]) {
-      paths.push(current);
-      current = getDirectoryPath(current);
-    }
-
-    return paths;
-  }
-
-  /**
-   * Resolve the NodePackage for the given specifier
-   * Implementation from LOAD_PACKAGE_SELF minus the exports resolution which is called separately.
-   */
-  async function resolveSelfPackage(
-    specifier: NodeModuleSpecifier,
-    baseDir: string,
-  ): Promise<NodePackage | undefined> {
-    for (const dir of listDirHierarchy(baseDir)) {
-      const pkgFile = resolvePath(dir, "package.json");
-      if (!(await isFile(host, pkgFile))) continue;
-      const pkg = await readPackage(host, pkgFile);
-      if (pkg.name === specifier.packageName) {
-        return pkg;
-      } else {
-        return undefined;
-      }
-    }
-    return undefined;
-  }
-
-  /**
-   * Resolve a node package from `node_modules`. Follows the implementation of LOAD_NODE_MODULES minus following the exports field.
-   */
-  async function resolvePackageFromNodeModules(
-    specifier: NodeModuleSpecifier,
-    baseDir: string,
-  ): Promise<NodePackage | undefined> {
-    const dirs = listDirHierarchy(baseDir);
-
-    for (const dir of dirs) {
-      const path = joinPaths(dir, "node_modules", specifier.packageName);
-      const pkgFile = resolvePath(path, "package.json");
-
-      if (await isFile(host, pkgFile)) {
-        const pkg = await readPackage(host, pkgFile);
-        if (pkg) return pkg;
-      }
-    }
-    return undefined;
-  }
-
-  /**
    * Equivalent implementation to node LOAD_NODE_MODULES with a few non supported features.
    * Cannot load any random file under the load path(only packages).
    */
@@ -198,7 +141,7 @@ export async function resolveModule(
     specifier: NodeModuleSpecifier,
     baseDir: string,
   ): Promise<ResolvedModule | undefined> {
-    const pkg = await resolvePackageFromNodeModules(specifier, baseDir);
+    const pkg = await nodePackageResolver.resolveFromNodeModules(specifier.packageName, baseDir);
     if (pkg) {
       return await loadPackage(pkg, specifier.subPath);
     } else {
