@@ -3,13 +3,12 @@ import { EmitterOptions } from "../config/types.js";
 import { validateEncodedNamesConflicts } from "../lib/encoded-names.js";
 import { validatePagingOperations } from "../lib/paging.js";
 import { MANIFEST } from "../manifest.js";
+import { ResolveModuleError, resolveModule } from "../module-resolver/module-resolver.js";
 import {
   ModuleResolutionResult,
-  ResolveModuleError,
   ResolveModuleHost,
   ResolvedModule,
-  resolveModule,
-} from "../module-resolver/module-resolver.js";
+} from "../module-resolver/types.js";
 import { PackageJson } from "../types/package-json.js";
 import { findProjectRoot } from "../utils/io.js";
 import { deepEquals, isDefined, mapEquals, mutate } from "../utils/misc.js";

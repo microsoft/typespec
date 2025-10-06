@@ -97,7 +97,7 @@ import { validateTemplateDefinitions } from "../init/init-template-validate.js";
 import { InitTemplate } from "../init/init-template.js";
 import { scaffoldNewProject } from "../init/scaffold.js";
 import { typespecVersion } from "../manifest.js";
-import { resolveModule, ResolveModuleHost } from "../module-resolver/module-resolver.js";
+import { resolveModule, ResolveModuleHost } from "../module-resolver/index.js";
 import { listAllFilesInDir } from "../utils/fs-utils.js";
 import { getNormalizedRealPath, resolveTspMain } from "../utils/misc.js";
 import { getSemanticTokens } from "./classify.js";
