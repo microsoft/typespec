@@ -87,6 +87,26 @@ async function createTesterFs(base: string, options: TesterOptions) {
         resolvePath("node_modules", lib, "package.json"),
         (resolved.manifest as any).file.text,
       );
+
+      if (typeof resolved.manifest.exports === "object" && resolved.manifest.exports !== null) {
+        for (const [key, value] of Object.entries(resolved.manifest.exports)) {
+          if (key === ".") continue; // already handled
+          if (typeof value === "object" && value !== null && "typespec" in value) {
+            await sl.importPath(
+              resolvePath(resolved.path, value["typespec"] as string),
+              NoTarget,
+              lib,
+              {
+                type: "library",
+                metadata: {
+                  type: "module",
+                  name: resolved.manifest.name,
+                },
+              },
+            );
+          }
+        }
+      }
     }
   }
 

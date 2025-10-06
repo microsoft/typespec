@@ -35,8 +35,8 @@
       "default": "./dist/src/testing/index.js"
     },
     "./module-resolver": {
-      "types": "./dist/module-resolver/module-resolver.d.ts",
-      "default": "./dist/src/module-resolver/module-resolver.js"
+      "types": "./dist/module-resolver/index.d.ts",
+      "default": "./dist/src/module-resolver/index.js"
     },
     "./ast": {
       "import": "./dist/src/ast/index.js"

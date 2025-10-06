@@ -206,7 +206,7 @@ export {
   type ModuleResolutionResult,
   type ResolveModuleHost,
   type ResolveModuleOptions,
-} from "./module-resolver/module-resolver.js";
+} from "./module-resolver/index.js";
 export {
   CompileResult,
   createServer,

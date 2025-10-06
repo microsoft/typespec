@@ -1,5 +1,4 @@
 import { getDirectoryPath, joinPaths, normalizePath, resolvePath } from "../core/path-utils.js";
-import type { PackageJson } from "../types/package-json.js";
 import { resolvePackageExports } from "./esm/resolve-package-exports.js";
 import { resolvePackageImports } from "./esm/resolve-package-imports.js";
 import {
@@ -7,7 +6,20 @@ import {
   InvalidPackageTargetError,
   NoMatchingConditionsError,
 } from "./esm/utils.js";
-import { parseNodeModuleSpecifier } from "./utils.js";
+import {
+  ModuleResolutionResult,
+  NodePackage,
+  ResolvedFile,
+  ResolvedModule,
+  ResolveModuleHost,
+} from "./types.js";
+import {
+  fileURLToPath,
+  isFile,
+  parseNodeModuleSpecifier,
+  pathToFileURL,
+  readPackage,
+} from "./utils.js";
 
 // Resolve algorithm of node https://nodejs.org/api/modules.html#modules_all_together
 
@@ -36,23 +48,6 @@ export interface ResolveModuleOptions {
   readonly fallbackOnMissingCondition?: boolean;
 }
 
-export interface ResolveModuleHost {
-  /**
-   * Resolve the real path for the current host.
-   */
-  realpath(path: string): Promise<string>;
-
-  /**
-   * Get information about the given path
-   */
-  stat(path: string): Promise<{ isDirectory(): boolean; isFile(): boolean }>;
-
-  /**
-   * Read a utf-8 encoded file.
-   */
-  readFile(path: string): Promise<string>;
-}
-
 type ResolveModuleErrorCode =
   | "MODULE_NOT_FOUND"
   | "INVALID_MAIN"
@@ -66,39 +61,13 @@ export class ResolveModuleError extends Error {
   public constructor(
     public code: ResolveModuleErrorCode,
     message: string,
-    public pkgJson?: PackageJsonFile,
+    public pkgJson?: NodePackage,
   ) {
     super(message);
   }
 }
 
 const defaultDirectoryIndexFiles = ["index.mjs", "index.js"];
-
-export type ModuleResolutionResult = ResolvedFile | ResolvedModule;
-
-export interface ResolvedFile {
-  type: "file";
-  path: string;
-}
-
-export interface ResolvedModule {
-  type: "module";
-
-  /**
-   * Root of the package. (Same level as package.json)
-   */
-  path: string;
-
-  /**
-   * Resolved main file for the module.
-   */
-  mainFile: string;
-
-  /**
-   * Value of package.json.
-   */
-  manifest: PackageJson;
-}
 
 /**
  * Resolve a module
@@ -230,7 +199,7 @@ export async function resolveModule(
   }
 
   async function resolveNodePackageImports(
-    pkg: PackageJsonFile,
+    pkg: NodePackage,
     pkgDir: string,
   ): Promise<ResolvedModule | undefined> {
     if (!pkg.imports) return undefined;
@@ -277,7 +246,7 @@ export async function resolveModule(
    */
   async function resolveNodePackageExports(
     subPath: string,
-    pkg: PackageJsonFile,
+    pkg: NodePackage,
     pkgDir: string,
   ): Promise<ResolvedModule | undefined> {
     if (!pkg.exports) return undefined;
@@ -324,7 +293,7 @@ export async function resolveModule(
     };
   }
 
-  async function resolveEsmMatch(match: string, isImports: boolean, pkg: PackageJsonFile) {
+  async function resolveEsmMatch(match: string, isImports: boolean, pkg: NodePackage) {
     const resolved = await realpath(fileURLToPath(match));
     if (await isFile(host, resolved)) {
       return resolved;
@@ -351,7 +320,11 @@ export async function resolveModule(
     return undefined;
   }
 
-  async function loadPackage(directory: string, pkg: PackageJsonFile, subPath?: string) {
+  async function loadPackage(
+    directory: string,
+    pkg: NodePackage,
+    subPath?: string,
+  ): Promise<ResolvedModule | undefined> {
     const e = await resolveNodePackageExports(subPath ?? "", pkg, directory);
     if (e) return e;
 
@@ -363,7 +336,7 @@ export async function resolveModule(
 
   async function loadPackageLegacy(
     directory: string,
-    pkg: PackageJsonFile,
+    pkg: NodePackage,
   ): Promise<ResolvedModule | undefined> {
     const mainFile = options.resolveMain ? options.resolveMain(pkg) : pkg.main;
     if (mainFile === undefined || mainFile === null) {
@@ -430,55 +403,4 @@ export async function resolveModule(
   async function resolvedFile(path: string): Promise<ResolvedFile> {
     return { type: "file", path: await realpath(path) };
   }
-}
-
-interface PackageJsonFile extends PackageJson {
-  readonly file: {
-    readonly path: string;
-    readonly text: string;
-  };
-}
-
-async function readPackage(host: ResolveModuleHost, pkgfile: string): Promise<PackageJsonFile> {
-  const content = await host.readFile(pkgfile);
-  return {
-    ...JSON.parse(content),
-    file: {
-      path: pkgfile,
-      text: content,
-    },
-  };
-}
-
-async function isFile(host: ResolveModuleHost, path: string) {
-  try {
-    const stats = await host.stat(path);
-    return stats.isFile();
-  } catch (e: any) {
-    if (e.code === "ENOENT" || e.code === "ENOTDIR") {
-      return false;
-    }
-    throw e;
-  }
-}
-function pathToFileURL(path: string): string {
-  return `file://${path}`;
-}
-
-function fileURLToPath(url: string) {
-  if (!url.startsWith("file://")) throw new Error("Cannot convert non file: URL to path");
-
-  const pathname = url.slice("file://".length);
-
-  for (let n = 0; n < pathname.length; n++) {
-    if (pathname[n] === "%") {
-      const third = pathname.codePointAt(n + 2)! | 0x20;
-
-      if (pathname[n + 1] === "2" && third === 102) {
-        throw new Error("Invalid url to path: must not include encoded / characters");
-      }
-    }
-  }
-
-  return decodeURIComponent(pathname);
 }

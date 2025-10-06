@@ -3,7 +3,7 @@ import {
   resolveModule,
   ResolveModuleError,
   type ResolveModuleHost,
-} from "../../src/module-resolver/module-resolver.js";
+} from "../../src/module-resolver/index.js";
 import { TestHostError } from "../../src/testing/types.js";
 
 function mkFs(files: Record<string, string>): {
