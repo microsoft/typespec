@@ -1,4 +1,3 @@
-import { dirname } from "path";
 import { getDirectoryPath } from "../core/path-utils.js";
 import type { NodePackage, ResolveModuleHost } from "./types.js";
 
@@ -29,7 +28,7 @@ export async function readPackage(host: ResolveModuleHost, pkgfile: string): Pro
   const content = await host.readFile(pkgfile);
   return {
     ...JSON.parse(content),
-    dir: dirname(pkgfile),
+    dir: getDirectoryPath(pkgfile),
     file: {
       path: pkgfile,
       text: content,
