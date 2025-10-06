@@ -1,3 +1,5 @@
+// TODO: rename?
+
 import { strictEqual } from "assert";
 import { describe, expect, expectTypeOf, it } from "vitest";
 import { resolvePath } from "../../src/core/path-utils.js";
@@ -9,6 +11,7 @@ import {
   Model,
   navigateProgram,
   ObjectValue,
+  Program,
 } from "../../src/index.js";
 import { mockFile } from "../../src/testing/fs.js";
 import { t } from "../../src/testing/marked-template.js";
@@ -16,6 +19,26 @@ import { resolveVirtualPath } from "../../src/testing/test-utils.js";
 import { createTester } from "../../src/testing/tester.js";
 
 const Tester = createTester(resolvePath(import.meta.dirname, "../.."), { libraries: [] });
+
+it("generic type", async () => {
+  const res = await Tester.compile(t.code`
+      model ${t.model("Foo")} {} 
+      enum ${t.enum("Bar")} {} 
+      union /*Baz*/Baz {} 
+    `);
+  expect(res.Foo.kind).toBe("Model");
+
+  expectTypeOf({
+    Foo: res.Foo,
+    Bar: res.Bar,
+    Baz: res.Baz,
+    program: res.program,
+  }).toExtend<{
+    Foo: Model;
+    Bar: Enum;
+    program: Program;
+  }>();
+});
 
 describe("extract types", () => {
   it("generic type", async () => {
