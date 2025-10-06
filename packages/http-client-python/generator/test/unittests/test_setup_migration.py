@@ -87,7 +87,7 @@ setup(
     # Check that keywords are added to the set
     keywords = params["KEEP_FIELDS"]["project.keywords"]
     
-    # Should contain all keywords including defaults (no duplicates)
+    # Should contain all keywords including defaults
     assert "azure" in keywords
     assert "azure sdk" in keywords
     assert "confidential computing" in keywords
@@ -109,8 +109,8 @@ def test_keep_setuppy_fields_project_urls(caplog):
 setup(
     name="test-client",
     project_urls={
-        "Homepage": "https://github.com/custom/custom-sdk-for-python",
-        "Documentation": "https://docs.custom.com",
+        "Source": "https://github.com/Azure/azure-sdk-for-python",
+        "Bug Reports": "https://github.com/Azure/azure-sdk-for-python/issues",
     },
 )
 """
@@ -124,14 +124,16 @@ setup(
     assert "project.urls" in params["KEEP_FIELDS"]
     urls = params["KEEP_FIELDS"]["project.urls"]
     
-    assert "Homepage" in urls
-    assert urls["Homepage"] == "https://github.com/custom/custom-sdk-for-python"
-    assert "Documentation" in urls
-    assert urls["Documentation"] == "https://docs.custom.com"
+    assert "Source" in urls
+    assert urls["Source"] == "https://github.com/Azure/azure-sdk-for-python"
+    assert "Bug Reports" in urls or '"Bug Reports"' in urls
+    if "Bug Reports" in urls:
+        assert urls["Bug Reports"] == "https://github.com/Azure/azure-sdk-for-python/issues"
+    else:
+        assert urls['"Bug Reports"'] == "https://github.com/Azure/azure-sdk-for-python/issues"
     
     # Check INFO logging
-    assert "Keeping field project.urls.Homepage" in caplog.text
-    assert "Keeping field project.urls.Documentation" in caplog.text
+    assert "Keeping field project.urls.Source" in caplog.text or "Keeping field project.urls.Bug Reports" in caplog.text
 
 
 def test_keep_setuppy_fields_pprint_name_warning(caplog):

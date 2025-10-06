@@ -4,6 +4,7 @@
 # license information.
 # --------------------------------------------------------------------------
 import json
+import logging
 from typing import Any
 import re
 import tomli as tomllib
@@ -18,6 +19,8 @@ from ..models import (
 from ..models.utils import NamespaceType
 from .client_serializer import ClientSerializer, ConfigSerializer
 from .base_serializer import BaseSerializer
+
+_LOGGER = logging.getLogger(__name__)
 
 VERSION_MAP = {
     "msrest": "0.7.1",
@@ -111,8 +114,6 @@ class GeneralSerializer(BaseSerializer):
     def _keep_setuppy_fields(self, setuppy_content: str, params: dict) -> None:
         """Parse setup.py file to extract fields that should be kept when migrating to pyproject.toml.
         Mutates params in place."""
-        import logging
-        _LOGGER = logging.getLogger(__name__)
         
         _LOGGER.info("Keeping the following fields from setup.py when generating pyproject.toml.")
         
@@ -160,12 +161,15 @@ class GeneralSerializer(BaseSerializer):
                     if key_val_match:
                         key = key_val_match.group(1)
                         value = key_val_match.group(2)
-                        # Only keep if it's not the default Azure SDK URL
-                        if "github.com/Azure/azure-sdk-for-python" not in value:
-                            if "project.urls" not in params["KEEP_FIELDS"]:
-                                params["KEEP_FIELDS"]["project.urls"] = {}
+                        # Keep all URLs (even default Azure SDK URLs)
+                        if "project.urls" not in params["KEEP_FIELDS"]:
+                            params["KEEP_FIELDS"]["project.urls"] = {}
+                        # Add quotes around multi-word keys for TOML compatibility
+                        if ' ' in key:
+                            params["KEEP_FIELDS"]["project.urls"][f'"{key}"'] = value
+                        else:
                             params["KEEP_FIELDS"]["project.urls"][key] = value
-                            _LOGGER.info(f"Keeping field project.urls.{key}: {value}")
+                        _LOGGER.info(f"Keeping field project.urls.{key}: {value}")
         
         # Extract keywords
         keywords_match = re.search(r'keywords\s*=\s*["\']([^"\']+)["\']', setuppy_content)

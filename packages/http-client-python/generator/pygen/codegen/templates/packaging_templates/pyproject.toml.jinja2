@@ -74,18 +74,12 @@ version = "{{ options.get("package-version", "unknown") }}"
 ]
 {% endfor %}
 {% endif %}
+
+[project.urls]
 {% if code_model.is_azure_flavor %}
-
-[project.urls]
 repository = "https://github.com/Azure/azure-sdk-for-python"
-{% if KEEP_FIELDS and KEEP_FIELDS.get('project.urls') %}
-{% for key, val in KEEP_FIELDS.get('project.urls').items() %}
-{{ key }} = "{{ val }}"
-{% endfor %}
 {% endif %}
-{% elif KEEP_FIELDS and KEEP_FIELDS.get('project.urls') %}
-
-[project.urls]
+{% if KEEP_FIELDS and KEEP_FIELDS.get('project.urls') %}
 {% for key, val in KEEP_FIELDS.get('project.urls').items() %}
 {{ key }} = "{{ val }}"
 {% endfor %}
