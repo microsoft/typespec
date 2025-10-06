@@ -16,6 +16,7 @@ import {
 import {
   fileURLToPath,
   isFile,
+  NodeModuleSpecifier,
   parseNodeModuleSpecifier,
   pathToFileURL,
   readPackage,
@@ -106,14 +107,16 @@ export async function resolveModule(
       if (module) return module;
     }
   }
+  const moduleSpecifier = parseNodeModuleSpecifier(specifier);
+  if (moduleSpecifier !== null) {
+    // Try to resolve package itself.
+    const self = await resolveSelf(moduleSpecifier, absoluteStart);
+    if (self) return self;
 
-  // Try to resolve package itself.
-  const self = await resolveSelf(specifier, absoluteStart);
-  if (self) return self;
-
-  // Try to resolve as a node_module package.
-  const module = await resolveAsNodeModule(specifier, absoluteStart);
-  if (module) return module;
+    // Try to resolve as a node_module package.
+    const module = await resolveAsNodeModule(moduleSpecifier, absoluteStart);
+    if (module) return module;
+  }
 
   throw new ResolveModuleError(
     "MODULE_NOT_FOUND",
@@ -149,13 +152,16 @@ export async function resolveModule(
    * Equivalent implementation to node LOAD_PACKAGE_SELF
    * Resolve if the import is importing the current package.
    */
-  async function resolveSelf(name: string, baseDir: string): Promise<ResolvedModule | undefined> {
+  async function resolveSelf(
+    specifier: NodeModuleSpecifier,
+    baseDir: string,
+  ): Promise<ResolvedModule | undefined> {
     for (const dir of listDirHierarchy(baseDir)) {
       const pkgFile = resolvePath(dir, "package.json");
       if (!(await isFile(host, pkgFile))) continue;
       const pkg = await readPackage(host, pkgFile);
-      if (pkg.name === name) {
-        return loadPackage(dir, pkg);
+      if (pkg.name === specifier.packageName) {
+        return loadPackage(dir, pkg, specifier.subPath);
       } else {
         return undefined;
       }
@@ -168,17 +174,15 @@ export async function resolveModule(
    * Cannot load any random file under the load path(only packages).
    */
   async function resolveAsNodeModule(
-    importSpecifier: string,
+    specifier: NodeModuleSpecifier,
     baseDir: string,
   ): Promise<ResolvedModule | undefined> {
-    const module = parseNodeModuleSpecifier(importSpecifier);
-    if (module === null) return undefined;
     const dirs = listDirHierarchy(baseDir);
 
     for (const dir of dirs) {
       const n = await loadPackageAtPath(
-        joinPaths(dir, "node_modules", module.packageName),
-        module.subPath,
+        joinPaths(dir, "node_modules", specifier.packageName),
+        specifier.subPath,
       );
       if (n) return n;
     }
@@ -214,7 +218,12 @@ export async function resolveModule(
           conditions: options.conditions ?? [],
           ignoreDefaultCondition: options.fallbackOnMissingCondition,
           resolveId: async (id, baseDir) => {
-            const resolved = await resolveAsNodeModule(id, fileURLToPath(baseDir.toString()));
+            const specifier = parseNodeModuleSpecifier(id);
+            if (specifier === null) return undefined;
+            const resolved = await resolveAsNodeModule(
+              specifier,
+              fileURLToPath(baseDir.toString()),
+            );
             return resolved && pathToFileURL(resolved.mainFile);
           },
         },

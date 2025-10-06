@@ -403,6 +403,27 @@ describe("resolve self", () => {
     });
   });
 
+  it("loads self sub exports", async () => {
+    const { host } = mkFs({
+      "/ws/proj/package.json": JSON.stringify({
+        name: "@scope/proj",
+        exports: { ".": "./entry.js", "./subpath": "./subpath.js" },
+      }),
+      "/ws/proj/entry.js": "",
+      "/ws/proj/subpath.js": "",
+    });
+
+    const resolved = await resolveModule(host, "@scope/proj/subpath", {
+      baseDir: "/ws/proj/node_modules/test-lib/nested",
+    });
+    const path = "/ws/proj";
+    expect(resolved).toMatchObject({
+      type: "module",
+      path,
+      mainFile: `${path}/subpath.js`,
+    });
+  });
+
   it("prioritize local node_modules over self from multiple parent up", async () => {
     const { host } = mkFs({
       "/ws/proj/package.json": JSON.stringify({ name: "@scope/proj", main: "entry.js" }),
