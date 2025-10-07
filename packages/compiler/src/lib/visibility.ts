@@ -681,7 +681,7 @@ function createVisibilityFilterMutator(
             realm.remove(clone);
             modified = true;
           } else {
-            const mutated = mutateSubgraph(program, [mpMutator], prop);
+            const mutated = cachedMutateSubgraph(program, mpMutator, prop);
 
             clone.properties.set(key, mutated.type as ModelProperty);
 
