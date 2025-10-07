@@ -110,6 +110,12 @@ class GeneralSerializer(BaseSerializer):
                 existing_keywords = loaded_pyproject_toml["project"]["keywords"]
                 if existing_keywords:
                     params["KEEP_FIELDS"]["project.keywords"].update(existing_keywords)
+            
+            # Keep project URLs
+            if "urls" in loaded_pyproject_toml["project"]:
+                if "project.urls" not in params["KEEP_FIELDS"]:
+                    params["KEEP_FIELDS"]["project.urls"] = {}
+                params["KEEP_FIELDS"]["project.urls"].update(loaded_pyproject_toml["project"]["urls"])
 
     def _keep_setuppy_fields(self, setuppy_content: str, params: dict) -> None:
         """Parse setup.py file to extract fields that should be kept when migrating to pyproject.toml.
@@ -165,10 +171,8 @@ class GeneralSerializer(BaseSerializer):
                         if "project.urls" not in params["KEEP_FIELDS"]:
                             params["KEEP_FIELDS"]["project.urls"] = {}
                         # Add quotes around multi-word keys for TOML compatibility
-                        if ' ' in key:
-                            params["KEEP_FIELDS"]["project.urls"][f'"{key}"'] = value
-                        else:
-                            params["KEEP_FIELDS"]["project.urls"][key] = value
+                        formatted_key = f'"{key}"' if ' ' in key else key
+                        params["KEEP_FIELDS"]["project.urls"][formatted_key] = value
                         _LOGGER.info(f"Keeping field project.urls.{key}: {value}")
         
         # Extract keywords

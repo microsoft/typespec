@@ -126,11 +126,8 @@ setup(
     
     assert "Source" in urls
     assert urls["Source"] == "https://github.com/Azure/azure-sdk-for-python"
-    assert "Bug Reports" in urls or '"Bug Reports"' in urls
-    if "Bug Reports" in urls:
-        assert urls["Bug Reports"] == "https://github.com/Azure/azure-sdk-for-python/issues"
-    else:
-        assert urls['"Bug Reports"'] == "https://github.com/Azure/azure-sdk-for-python/issues"
+    assert '"Bug Reports"' in urls
+    assert urls['"Bug Reports"'] == "https://github.com/Azure/azure-sdk-for-python/issues"
     
     # Check INFO logging
     assert "Keeping field project.urls.Source" in caplog.text or "Keeping field project.urls.Bug Reports" in caplog.text
