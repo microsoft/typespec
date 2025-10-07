@@ -1249,12 +1249,12 @@ importers:
       '@apidevtools/swagger-parser':
         specifier: ~12.0.0
         version: 12.0.0(openapi-types@12.1.3)
+      '@scalar/openapi-types':
+        specifier: ^0.4.0
+        version: 0.4.0
       '@typespec/asset-emitter':
         specifier: workspace:^
         version: link:../asset-emitter
-      openapi-types:
-        specifier: ~12.1.3
-        version: 12.1.3
       yaml:
         specifier: ~2.8.0
         version: 2.8.1
@@ -5536,6 +5536,10 @@ packages:
     peerDependenciesMeta:
       '@types/node':
         optional: true
+
+  '@scalar/openapi-types@0.4.0':
+    resolution: {integrity: sha512-vdFLzz7vETw6kS3bxWUHCBeFtJOnr1bk/+FXKyxKkd6TbcyT6USXkoelI704IaBdoXyOgGX10FD1IVrs4FwUow==}
+    engines: {node: '>=20'}
 
   '@scarf/scarf@1.4.0':
     resolution: {integrity: sha512-xxeapPiUXdZAE3che6f3xogoJPeZgig6omHEy1rIY5WVsB3H2BHNnZH+gHG6x91SCWyQCzWGsuL2Hh3ClO5/qQ==}
@@ -13338,6 +13342,9 @@ packages:
   zod@3.25.76:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
 
+  zod@4.1.11:
+    resolution: {integrity: sha512-WPsqwxITS2tzx1bzhIKsEs19ABD5vmCVa4xBo2tq/SrV4RNZtfws1EnCWQXM6yh8bD08a1idvkB5MZSBiZsjwg==}
+
   zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
 
@@ -17732,6 +17739,10 @@ snapshots:
   '@rushstack/worker-pool@0.4.9(@types/node@24.3.1)':
     optionalDependencies:
       '@types/node': 24.3.1
+
+  '@scalar/openapi-types@0.4.0':
+    dependencies:
+      zod: 4.1.11
 
   '@scarf/scarf@1.4.0': {}
 
@@ -27410,5 +27421,7 @@ snapshots:
       zod: 3.25.76
 
   zod@3.25.76: {}
+
+  zod@4.1.11: {}
 
   zwitch@2.0.4: {}

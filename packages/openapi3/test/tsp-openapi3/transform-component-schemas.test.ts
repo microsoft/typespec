@@ -1,5 +1,5 @@
 import OpenAPIParser from "@apidevtools/swagger-parser";
-import { OpenAPI } from "openapi-types";
+import { OpenAPI } from "@scalar/openapi-types";
 import { beforeAll, describe, expect, it } from "vitest";
 import { TypeSpecModel } from "../../src/cli/actions/convert/interfaces.js";
 import { transformComponentSchemas } from "../../src/cli/actions/convert/transforms/transform-component-schemas.js";
