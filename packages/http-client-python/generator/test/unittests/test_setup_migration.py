@@ -62,7 +62,7 @@ setup(
     
     # Check INFO logging
     assert "Keeping field dependency: cryptography>=41.0.0" in caplog.text
-    assert "Keeping field dependency: isodate 100.0.0" in caplog.text
+    assert "Keeping field dependency: isodate>=100.0.0" in caplog.text
     
     # Restore original VERSION_MAP
     VERSION_MAP["isodate"] = original_isodate
