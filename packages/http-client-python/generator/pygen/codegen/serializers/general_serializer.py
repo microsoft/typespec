@@ -119,8 +119,7 @@ class GeneralSerializer(BaseSerializer):
             if dep_version > default_version:
                 VERSION_MAP[dep_name] = str(dep_version)
                 _LOGGER.info("Keeping field dependency: %s", dep)
-                return dep
-            # Don't keep tracked dependencies with default or lower versions
+            # Don't keep tracked dependencies in the dependencies list since they're handled by the template
             return None
 
         # Keep non-default dependencies
