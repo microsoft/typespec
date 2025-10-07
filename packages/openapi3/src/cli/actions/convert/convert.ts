@@ -1,4 +1,4 @@
-import OpenAPIParser from "@apidevtools/swagger-parser";
+import OpenAPIParser from "@scalar/openapi-parser";
 import { formatTypeSpec } from "@typespec/compiler";
 import { OpenAPI3Document } from "../../../types.js";
 import { generateMain } from "./generators/generate-main.js";

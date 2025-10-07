@@ -1,4 +1,4 @@
-import type OpenAPIParser from "@apidevtools/swagger-parser";
+import type OpenAPIParser from "@scalar/openapi-parser";
 import { OpenAPI3Document, OpenAPI3Encoding, OpenAPI3Schema, Refable } from "../../../../types.js";
 import { Logger } from "../../../types.js";
 import { SchemaToExpressionGenerator } from "../generators/generate-types.js";

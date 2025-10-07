@@ -1,4 +1,4 @@
-import OpenAPIParser from "@apidevtools/swagger-parser";
+import OpenAPIParser from "@scalar/openapi-parser";
 import { OpenAPI } from "@scalar/openapi-types";
 import { beforeAll, describe, expect, it } from "vitest";
 import { createContext } from "../../src/cli/actions/convert/utils/context.js";
