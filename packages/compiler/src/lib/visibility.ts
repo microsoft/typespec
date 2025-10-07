@@ -480,7 +480,9 @@ export const $withLifecycleUpdate: WithLifecycleUpdateDecorator = (
       any: new Set([lifecycle.members.get("Create")!, lifecycle.members.get("Update")!]),
     };
 
-    const createOrUpdateMutator = createVisibilityFilterMutator(lifecycleCreateOrUpdate);
+    const createOrUpdateMutator = createVisibilityFilterMutator(lifecycleCreateOrUpdate, {
+      nameTemplate,
+    });
 
     mutator = createVisibilityFilterMutator(lifecycleUpdate, {
       recur: createOrUpdateMutator,

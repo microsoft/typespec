@@ -737,31 +737,33 @@ describe("compiler: visibility core", () => {
           @invisible(Lifecycle)
           invisible: string;
 
-          nested: {
-            @visibility(${Lifecycle.Read})
-            r: string;
-
-            cru: string;
-
-            @visibility(${Lifecycle.Create}, ${Lifecycle.Read})
-            cr: string;
-
-            @visibility(${Lifecycle.Create}, ${Lifecycle.Update})
-            cu: string;
-
-            @visibility(${Lifecycle.Create})
-            c: string;
-
-            @visibility(${Lifecycle.Update}, ${Lifecycle.Read})
-            ru: string;
-
-            @visibility(${Lifecycle.Update})
-            u: string;
-
-            @invisible(Lifecycle)
-            invisible: string;
-          };
+          nested: Nested;
         }
+
+        model Nested {
+          @visibility(${Lifecycle.Read})
+          r: string;
+
+          cru: string;
+
+          @visibility(${Lifecycle.Create}, ${Lifecycle.Read})
+          cr: string;
+
+          @visibility(${Lifecycle.Create}, ${Lifecycle.Update})
+          cu: string;
+
+          @visibility(${Lifecycle.Create})
+          c: string;
+
+          @visibility(${Lifecycle.Update}, ${Lifecycle.Read})
+          ru: string;
+
+          @visibility(${Lifecycle.Update})
+          u: string;
+
+          @invisible(Lifecycle)
+          invisible: string;
+        };
 
         // This ensures the transforms are non-side-effecting.
         model ReadExample is Read<Example>;
@@ -1280,6 +1282,7 @@ function validateCreateOrUpdateTransform(
 
   ok(nested);
   ok(nested.type.kind === "Model");
+  ok(nested.type.name === "CreateOrUpdateNested");
 
   const nestedProps = getProperties(nested.type);
 
@@ -1333,6 +1336,7 @@ function validateUpdateTransform(
 
   ok(nested);
   ok(nested.type.kind === "Model");
+  ok(nested.type.name === "UpdateNested");
 
   // Nested properties work differently in Lifecycle Update transforms, requiring nested create-only properties to
   // additionally be visible
@@ -1388,6 +1392,7 @@ function validateCreateTransform(
 
   ok(nested);
   ok(nested.type.kind === "Model");
+  ok(nested.type.name === "CreateNested");
 
   const nestedProps = getProperties(nested.type);
 
@@ -1442,6 +1447,7 @@ function validateReadTransform(
 
   ok(nested);
   ok(nested.type.kind === "Model");
+  ok(nested.type.name === "ReadNested");
 
   const nestedProps = getProperties(nested.type);
 
