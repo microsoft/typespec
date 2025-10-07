@@ -5,7 +5,7 @@
 # --------------------------------------------------------------------------
 import json
 import logging
-from typing import Any
+from typing import Any, Optional
 import re
 import tomli as tomllib
 from packaging.version import parse as parse_version
@@ -81,20 +81,9 @@ class GeneralSerializer(BaseSerializer):
             if "dependencies" in loaded_pyproject_toml["project"]:
                 kept_deps = []
                 for dep in loaded_pyproject_toml["project"]["dependencies"]:
-                    dep_name = re.split(r"[<>=\[]", dep)[0].strip()
-
-                    # Check if dependency is one we track in VERSION_MAP
-                    if dep_name in VERSION_MAP:
-                        # For tracked dependencies, check if the version is higher than our default
-                        default_version = parse_version(VERSION_MAP[dep_name])
-                        dep_version = self._extract_min_dependency(dep)
-                        # If the version is higher than the default, update VERSION_MAP
-                        # with higher min dependency version
-                        if dep_version > default_version:
-                            VERSION_MAP[dep_name] = str(dep_version)
-                    else:
-                        # Keep non-default dependencies
-                        kept_deps.append(dep)
+                    processed_dep = self._process_dependency(dep)
+                    if processed_dep:
+                        kept_deps.append(processed_dep)
 
                 if kept_deps:
                     params["KEEP_FIELDS"]["project.dependencies"] = kept_deps
@@ -104,56 +93,71 @@ class GeneralSerializer(BaseSerializer):
                 params["KEEP_FIELDS"]["project.optional-dependencies"] = loaded_pyproject_toml["project"][
                     "optional-dependencies"
                 ]
-            
+
             # Check for existing keywords and add to the set
             if "keywords" in loaded_pyproject_toml["project"]:
                 existing_keywords = loaded_pyproject_toml["project"]["keywords"]
                 if existing_keywords:
                     params["KEEP_FIELDS"]["project.keywords"].update(existing_keywords)
-            
+
             # Keep project URLs
             if "urls" in loaded_pyproject_toml["project"]:
                 if "project.urls" not in params["KEEP_FIELDS"]:
                     params["KEEP_FIELDS"]["project.urls"] = {}
                 params["KEEP_FIELDS"]["project.urls"].update(loaded_pyproject_toml["project"]["urls"])
 
+    def _process_dependency(self, dep: str) -> Optional[str]:
+        """Process a single dependency and return it if it should be kept, None otherwise."""
+        dep_name = re.split(r"[<>=\[]", dep)[0].strip()
+
+        # Check if dependency is one we track in VERSION_MAP
+        if dep_name in VERSION_MAP:
+            # For tracked dependencies, check if the version is higher than our default
+            default_version = parse_version(VERSION_MAP[dep_name])
+            dep_version = self._extract_min_dependency(dep)
+            # If the version is higher than the default, update VERSION_MAP
+            if dep_version > default_version:
+                VERSION_MAP[dep_name] = str(dep_version)
+                _LOGGER.info("Keeping field dependency: %s", dep)
+                return dep
+            # Don't keep tracked dependencies with default or lower versions
+            return None
+
+        # Keep non-default dependencies
+        _LOGGER.info("Keeping field dependency: %s", dep)
+        return dep
+
+    def _parse_dependencies(self, deps_str: str) -> list:
+        """Parse the dependencies list from setup.py install_requires."""
+        deps = []
+        for line in deps_str.split('\n'):
+            line = line.strip()
+            if line and not line.startswith('#'):
+                # Remove quotes and trailing comma
+                dep = line.strip(',').strip().strip('"').strip("'")
+                if dep:
+                    processed_dep = self._process_dependency(dep)
+                    if processed_dep:
+                        deps.append(processed_dep)
+        return deps
+
     def _keep_setuppy_fields(self, setuppy_content: str, params: dict) -> None:
         """Parse setup.py file to extract fields that should be kept when migrating to pyproject.toml.
         Mutates params in place."""
-        
+
         _LOGGER.info("Keeping the following fields from setup.py when generating pyproject.toml.")
-        
+
         # Extract install_requires (dependencies)
         install_requires_match = re.search(r'install_requires\s*=\s*\[(.*?)\]', setuppy_content, re.DOTALL)
         if install_requires_match:
             deps_str = install_requires_match.group(1)
-            # Parse the dependencies list
-            deps = []
-            for line in deps_str.split('\n'):
-                line = line.strip()
-                if line and not line.startswith('#'):
-                    # Remove quotes and trailing comma
-                    dep = line.strip(',').strip().strip('"').strip("'")
-                    if dep:
-                        # Check if this is a tracked dependency
-                        dep_name = re.split(r"[<>=\[]", dep)[0].strip()
-                        if dep_name not in VERSION_MAP:
-                            # Keep non-default dependencies
-                            deps.append(dep)
-                            _LOGGER.info(f"Keeping field dependency: {dep}")
-                        else:
-                            # For tracked dependencies, check if version is higher than default
-                            default_version = parse_version(VERSION_MAP[dep_name])
-                            dep_version = self._extract_min_dependency(dep)
-                            if dep_version > default_version:
-                                VERSION_MAP[dep_name] = str(dep_version)
-                                _LOGGER.info(f"Keeping field dependency: {dep}")
-            
+            deps = self._parse_dependencies(deps_str)
+
             if deps:
                 if "project.dependencies" not in params["KEEP_FIELDS"]:
                     params["KEEP_FIELDS"]["project.dependencies"] = []
                 params["KEEP_FIELDS"]["project.dependencies"].extend(deps)
-        
+
         # Extract project_urls
         project_urls_match = re.search(r'project_urls\s*=\s*\{(.*?)\}', setuppy_content, re.DOTALL)
         if project_urls_match:
@@ -173,8 +177,8 @@ class GeneralSerializer(BaseSerializer):
                         # Add quotes around multi-word keys for TOML compatibility
                         formatted_key = f'"{key}"' if ' ' in key else key
                         params["KEEP_FIELDS"]["project.urls"][formatted_key] = value
-                        _LOGGER.info(f"Keeping field project.urls.{key}: {value}")
-        
+                        _LOGGER.info("Keeping field project.urls.%s: %s", key, value)
+
         # Extract keywords
         keywords_match = re.search(r'keywords\s*=\s*["\']([^"\']+)["\']', setuppy_content)
         if keywords_match:
@@ -183,8 +187,8 @@ class GeneralSerializer(BaseSerializer):
             keywords = [kw.strip() for kw in keywords_str.split(',')]
             # Add keywords to the existing set (no filtering)
             params["KEEP_FIELDS"]["project.keywords"].update(keywords)
-            _LOGGER.info(f"Keeping field project.keywords: {keywords}")
-        
+            _LOGGER.info("Keeping field project.keywords: %s", keywords)
+
         # Check PACKAGE_PPRINT_NAME and warn if different
         pprint_match = re.search(r'PACKAGE_PPRINT_NAME\s*=\s*["\']([^"\']+)["\']', setuppy_content)
         if pprint_match:
@@ -192,26 +196,30 @@ class GeneralSerializer(BaseSerializer):
             generated_pprint_name = self.code_model.options.get("package-pprint-name", "")
             if existing_pprint_name != generated_pprint_name:
                 _LOGGER.warning(
-                    f"Generated package-pprint-name '{generated_pprint_name}' does not match existing "
-                    f"PACKAGE_PPRINT_NAME '{existing_pprint_name}'. Ensure the new package-pprint-name is correct, "
-                    f"otherwise change this value in the tspconfig.yaml."
+                    "Generated package-pprint-name '%s' does not match existing "
+                    "PACKAGE_PPRINT_NAME '%s'. Ensure the new package-pprint-name is correct, "
+                    "otherwise change this value in the tspconfig.yaml.",
+                    generated_pprint_name,
+                    existing_pprint_name
                 )
 
-    def serialize_package_file(self, template_name: str, file_content: str, setuppy_file_content: str = "", **kwargs: Any) -> str:
+    def serialize_package_file(
+        self, template_name: str, file_content: str, setuppy_file_content: str = "", **kwargs: Any
+    ) -> str:
         template = self.env.get_template(template_name)
 
         # Add fields to keep from an existing pyproject.toml
         if template_name == "pyproject.toml.jinja2":
             # Initialize params with default keywords
             params: dict = {"KEEP_FIELDS": {"project.keywords": {"azure", "azure sdk"}}}
-            
+
             # Add default Azure SDK repository URL if Azure flavor
             if self.code_model.is_azure_flavor:
                 params["KEEP_FIELDS"]["project.urls"] = {"repository": "https://github.com/Azure/azure-sdk-for-python"}
-            
+
             # Mutate params with fields from pyproject.toml
             self._keep_pyproject_fields(file_content, params)
-            
+
             # If setup.py exists, mutate params with fields from it
             if setuppy_file_content:
                 self._keep_setuppy_fields(setuppy_file_content, params)
