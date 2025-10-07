@@ -1,18 +1,42 @@
-{% macro wrap_string(string, wrapstring, width=95) %}
+{% macro wrap_string(string, wrapstring, width=95, suffix_string="", escape_backslashes=true) %}
+{%- if width is string -%}
+    {# Handle legacy wrap_model_string calls: wrap_string(text, wrapstring, suffix_string) #}
+    {%- set actual_width = 95 -%}
+    {%- set actual_suffix = width -%}
+    {%- set actual_escape = false -%}
+{%- else -%}
+    {# Handle normal wrap_string calls: wrap_string(text, wrapstring, width, suffix_string, escape_backslashes) #}
+    {%- set actual_width = width -%}
+    {%- set actual_suffix = suffix_string -%}
+    {%- set actual_escape = escape_backslashes -%}
+{%- endif -%}
+
 {%- set lines = string.split('\n') -%}
 {%- set processed_lines = [] -%}
 {%- for line in lines -%}
     {%- set stripped = line.strip() -%}
     {%- if stripped.startswith('* ') -%}
-        {%- set bullet_with_indent = stripped -%}
-        {%- set wrapped = bullet_with_indent | wordwrap(width=width, break_long_words=False, break_on_hyphens=False, wrapstring=wrapstring + '  ') -%}
+        {%- set bullet_line = '     * ' + stripped[2:] -%}
+        {%- set wrapped = bullet_line | wordwrap(width=actual_width, break_long_words=False, break_on_hyphens=False, wrapstring=wrapstring + '       ') -%}
         {%- set _ = processed_lines.append(wrapped) -%}
     {%- elif stripped -%}
-        {%- set wrapped = line | wordwrap(width=width, break_long_words=False, break_on_hyphens=False, wrapstring=wrapstring) -%}
+        {%- set wrapped = stripped | wordwrap(width=actual_width, break_long_words=False, break_on_hyphens=False, wrapstring=wrapstring) -%}
         {%- set _ = processed_lines.append(wrapped) -%}
     {%- endif -%}
 {%- endfor -%}
-{{ processed_lines | join('\n') | replace("\\", "\\\\") }}{%- endmacro %}
+{%- set original_result = processed_lines | join('\n') -%}
+
+{%- if actual_suffix -%}
+{% set list_result = original_result.split('\n') %}
+{% for line in list_result %}
+    {% set prefix = "" if loop.index == 1 else " " %}
+    {% set suffix = actual_suffix if list_result | length == loop.index %}
+{{ prefix }}{{ line }}{{ suffix }}
+{% endfor %}
+{%- else -%}
+{{ original_result | replace("\\", "\\\\") if actual_escape else original_result }}
+{%- endif -%}
+{% endmacro %}
 
 {% macro description(builder, serializer) %}
 {% set example_template = serializer.example_template(builder) %}
