@@ -209,10 +209,10 @@ class GeneralSerializer(BaseSerializer):
         # Add fields to keep from an existing pyproject.toml
         if template_name == "pyproject.toml.jinja2":
             # Initialize params with default keywords
-            params: dict = {"KEEP_FIELDS": {"project.keywords": {"azure", "azure sdk"}}}
-
+            params: dict = {"KEEP_FIELDS": {}}
             # Add default Azure SDK repository URL if Azure flavor
             if self.code_model.is_azure_flavor:
+                params["KEEP_FIELDS"]["project.keywords"] = {"azure", "azure sdk"}
                 params["KEEP_FIELDS"]["project.urls"] = {"repository": "https://github.com/Azure/azure-sdk-for-python"}
 
             # Mutate params with fields from pyproject.toml
