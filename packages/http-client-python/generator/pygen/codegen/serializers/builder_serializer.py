@@ -1117,7 +1117,8 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                             [
                                 "        error = self._deserialize.failsafe_deserialize(",
                                 f"            {type_annotation},{pylint_disable}",
-                                "            pipeline_response" "        )",
+                                "            pipeline_response",
+                                "        )",
                             ]
                         )
                     condition = "elif"
