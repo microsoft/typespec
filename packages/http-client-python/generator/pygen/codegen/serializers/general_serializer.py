@@ -162,7 +162,7 @@ class GeneralSerializer(BaseSerializer):
             for line in urls_str.split('\n'):
                 line = line.strip()
                 if line and ':' in line:
-                    # Parse "key": "value" format
+                    # Parse "key": "value" or 'key': 'value' format (allows mixed quotes)
                     key_val_match = re.search(r'["\']([^"\']+)["\']\s*:\s*["\']([^"\']+)["\']', line)
                     if key_val_match:
                         key = key_val_match.group(1)
@@ -204,6 +204,10 @@ class GeneralSerializer(BaseSerializer):
         if template_name == "pyproject.toml.jinja2":
             # Initialize params with default keywords
             params: dict = {"KEEP_FIELDS": {"project.keywords": {"azure", "azure sdk"}}}
+            
+            # Add default Azure SDK repository URL if Azure flavor
+            if self.code_model.is_azure_flavor:
+                params["KEEP_FIELDS"]["project.urls"] = {"repository": "https://github.com/Azure/azure-sdk-for-python"}
             
             # Mutate params with fields from pyproject.toml
             self._keep_pyproject_fields(file_content, params)
