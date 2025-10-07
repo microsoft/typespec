@@ -78,7 +78,7 @@ version = "{{ options.get("package-version", "unknown") }}"
 [project.urls]
 {% if KEEP_FIELDS and KEEP_FIELDS.get('project.urls') %}
 {% for key, val in KEEP_FIELDS.get('project.urls').items() %}
-{{ key }} = "{{ val }}"
+{% if ' ' in key %}"{{ key }}"{% else %}{{ key }}{% endif %} = "{{ val }}"
 {% endfor %}
 {% endif %}
 

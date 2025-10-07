@@ -173,9 +173,8 @@ class GeneralSerializer(BaseSerializer):
                         # Keep all URLs (even default Azure SDK URLs)
                         if "project.urls" not in params["KEEP_FIELDS"]:
                             params["KEEP_FIELDS"]["project.urls"] = {}
-                        # Add quotes around multi-word keys for TOML compatibility
-                        formatted_key = f'"{key}"' if ' ' in key else key
-                        params["KEEP_FIELDS"]["project.urls"][formatted_key] = value
+                        # Store the key as-is, template will handle TOML formatting
+                        params["KEEP_FIELDS"]["project.urls"][key] = value
                         _LOGGER.info("Keeping field project.urls.%s: %s", key, value)
 
         # Extract keywords
