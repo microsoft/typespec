@@ -1049,14 +1049,22 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                             is_operation_file=True, skip_quote=True, serialize_namespace=self.serialize_namespace
                         )
                         if self.code_model.options["models-mode"] == "dpg":
-                            retval.append(
-                                f"        error = _failsafe_deserialize({type_annotation},{pylint_disable}\n  response)"
+                            retval.extend(
+                                [
+                                    "        error = _failsafe_deserialize(",
+                                    f"            {type_annotation},{pylint_disable}",
+                                    "            response,",
+                                    "        )",
+                                ]
                             )
                         else:
-                            retval.append(
-                                "        error = self._deserialize.failsafe_deserialize("
-                                f"{type_annotation},{pylint_disable}\n "
-                                "pipeline_response)"
+                            retval.extend(
+                                [
+                                    "        error = self._deserialize.failsafe_deserialize(",
+                                    f"            {type_annotation},{pylint_disable}",
+                                    "            pipeline_response",
+                                    "        )",
+                                ]
                             )
                         # add build-in error type
                         # TODO: we should decide whether need to this wrapper for customized error type
@@ -1087,20 +1095,31 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                     )
                     if self.code_model.options["models-mode"] == "dpg":
                         if xml_serializable(str(e.default_content_type)):
-                            retval.append(
-                                "        error = _failsafe_deserialize_xml("
-                                f"{type_annotation},{pylint_disable}\n  response)"
+                            retval.extend(
+                                [
+                                    "        error = _failsafe_deserialize_xml("
+                                    f"            {type_annotation},{pylint_disable}",
+                                    "            response",
+                                    "        )",
+                                ]
                             )
                         else:
-                            retval.append(
-                                "        error = _failsafe_deserialize("
-                                f"{type_annotation},{pylint_disable}\n  response)"
+                            retval.extend(
+                                [
+                                    "        error = _failsafe_deserialize(",
+                                    f"            {type_annotation},{pylint_disable}",
+                                    "            response",
+                                    "        )",
+                                ]
                             )
                     else:
-                        retval.append(
-                            "        error = self._deserialize.failsafe_deserialize("
-                            f"{type_annotation},{pylint_disable}\n  "
-                            "pipeline_response)"
+                        retval.extend(
+                            [
+                                "        error = self._deserialize.failsafe_deserialize(",
+                                f"            {type_annotation},{pylint_disable}",
+                                "            pipeline_response",
+                                "        )",
+                            ]
                         )
                     condition = "elif"
         # default error handling
@@ -1111,11 +1130,20 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             if builder.non_default_errors:
                 retval.append("    else:")
             if self.code_model.options["models-mode"] == "dpg":
-                retval.append(f"{indent}error = _failsafe_deserialize({default_error_deserialization}, response)")
+                retval.extend(
+                    [
+                        f"{indent}error = _failsafe_deserialize(",
+                        f"{indent}   {default_error_deserialization}",
+                        f"{indent}    response,",
+                        f"{indent})",
+                    ]
+                )
             else:
-                retval.append(
-                    f"{indent}error = self._deserialize.failsafe_deserialize({default_error_deserialization}, "
-                    "pipeline_response)"
+                retval.extend(
+                    [
+                        f"{indent}error = self._deserialize.failsafe_deserialize(",
+                        f"{indent}    {default_error_deserialization}," f"{indent}    pipeline_response" f"{indent})",
+                    ]
                 )
         retval.append(
             "    raise HttpResponseError(response=response{}{})".format(
