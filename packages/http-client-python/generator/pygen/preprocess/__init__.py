@@ -108,27 +108,27 @@ def add_overloads_for_body_param(yaml_data: dict[str, Any]) -> None:
 def update_description(description: Optional[str], default_description: str = "") -> str:
     if not description:
         description = default_description
-    
+
     # Preserve bullet point structure by temporarily replacing bullet point patterns
     # Match patterns like "- item" or "* item" at the start of lines
     bullet_pattern = r'\n\s*([*-])\s+'
     bullets = []
-    
+
     def preserve_bullet(match):
         bullets.append(match.group(0))
         return f"__BULLET_{len(bullets)-1}__"
-    
+
     # Temporarily replace bullet points with placeholders
     description = re.sub(bullet_pattern, preserve_bullet, description)
-    
+
     # Now normalize other whitespace: replace multiple spaces/newlines with single spaces
     description = re.sub(r'\s+', ' ', description).strip()
-    
+
     # Restore bullet points with proper formatting
-    for i, bullet in enumerate(bullets):
+    for i, _ in enumerate(bullets):
         # Convert bullet points to start on new lines with "* " format
         description = description.replace(f"__BULLET_{i}__", "\n* ")
-    
+
     description = description.rstrip(" ")
     if description and description[-1] != ".":
         description += "."
