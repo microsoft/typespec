@@ -1222,6 +1222,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual("Prop1", canonicalView.Properties[0].Name);
             Assert.IsTrue(canonicalView.Properties[0].Type.IsLiteral);
             Assert.AreEqual(typeof(string), canonicalView.Properties[0].Type.FrameworkType);
+            var body = canonicalView.Properties[0].Body as AutoPropertyBody;
+            Assert.AreEqual("\"val1\"", body!.InitializationExpression!.ToDisplayString());
         }
 
         [Test]
@@ -1238,6 +1240,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual("Prop1", canonicalView.Properties[0].Name);
             Assert.IsTrue(canonicalView.Properties[0].Type.IsLiteral);
             Assert.AreEqual(typeof(int), canonicalView.Properties[0].Type.FrameworkType);
+            var body = canonicalView.Properties[0].Body as AutoPropertyBody;
+            Assert.AreEqual("42", body!.InitializationExpression!.ToDisplayString());
         }
 
         [Test]
@@ -1254,6 +1258,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual("Prop1", canonicalView.Properties[0].Name);
             Assert.IsTrue(canonicalView.Properties[0].Type.IsLiteral);
             Assert.AreEqual(typeof(bool), canonicalView.Properties[0].Type.FrameworkType);
+            var body = canonicalView.Properties[0].Body as AutoPropertyBody;
+            Assert.AreEqual("true", body!.InitializationExpression!.ToDisplayString());
         }
 
         [Test]

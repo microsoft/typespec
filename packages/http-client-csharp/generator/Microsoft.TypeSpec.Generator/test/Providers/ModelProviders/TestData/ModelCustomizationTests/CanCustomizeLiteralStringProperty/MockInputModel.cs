@@ -7,6 +7,6 @@ namespace Sample.Models
 {
     public partial class MockInputModel
     {
-        public string Prop1 { get; } = "val1"
+        public string Prop1 { get; } = "val1";
     }
 }
