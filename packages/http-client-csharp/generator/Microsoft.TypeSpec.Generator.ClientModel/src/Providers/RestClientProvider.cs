@@ -768,7 +768,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                 }
 
-                if (inputParam is { IsRequired: true, Type: InputLiteralType })
+                if (inputParam is { IsRequired: true, Type: InputLiteralType or InputEnumTypeValue })
                 {
                     continue;
                 }

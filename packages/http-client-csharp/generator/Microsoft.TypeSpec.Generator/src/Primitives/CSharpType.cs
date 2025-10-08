@@ -201,7 +201,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             }
         }
         private readonly CSharpType? _baseType;
-        public bool IsStruct { get; private init; }
+        public bool IsStruct { get; internal set; }
         public Type FrameworkType => _type ?? throw new InvalidOperationException("Not a framework type");
         public object Literal => _literal ?? throw new InvalidOperationException("Not a literal type");
         public Type UnderlyingEnumType => _underlyingType ?? throw new InvalidOperationException("Not an enum type");

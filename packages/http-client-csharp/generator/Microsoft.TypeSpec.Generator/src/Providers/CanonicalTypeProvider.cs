@@ -128,6 +128,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
 
                 customProperty.Type = customProperty.Type.ApplyInputSpecProperty(specProperty);
+                customProperty.InputProperty = specProperty;
             }
 
             if (_specProperties.Count > 0)
