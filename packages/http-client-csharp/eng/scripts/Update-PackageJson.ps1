@@ -33,6 +33,44 @@ $InjectedDependencies = @(
     '@azure-tools/typespec-autorest'
 )
 
+# Function to check if a package version exists
+function Test-PackageVersion {
+    param(
+        [string]$PackageName,
+        [string]$Version
+    )
+    
+    Write-Host "Checking if $PackageName@$Version exists..."
+    $checkResult = & npm view "$PackageName@$Version" version 2>&1
+    
+    if ($LASTEXITCODE -eq 0) {
+        Write-Host "✓ Found $PackageName@$Version"
+        return $true
+    } else {
+        Write-Warning "✗ Package $PackageName@$Version not found"
+        return $false
+    }
+}
+
+# Function to get the latest available version for a package
+function Get-LatestPackageVersion {
+    param(
+        [string]$PackageName
+    )
+    
+    Write-Host "Getting latest version for $PackageName..."
+    $latestResult = & npm view "$PackageName" version 2>&1
+    
+    if ($LASTEXITCODE -eq 0) {
+        $latestVersion = $latestResult.Trim()
+        Write-Host "Latest version for $PackageName is $latestVersion"
+        return $latestVersion
+    } else {
+        Write-Error "Failed to get latest version for $PackageName : $latestResult"
+        return $null
+    }
+}
+
 # Resolve paths
 $PackageJsonPath = Resolve-Path $PackageJsonPath
 
@@ -67,12 +105,36 @@ try {
     }
 
     $tcgcVersion = $packageJson.devDependencies.PSObject.Properties[$tcgc].Value
-    Write-Host "Using version $tcgcVersion for injected dependencies"
+    Write-Host "Using version $tcgcVersion as base version for injected dependencies"
 
-    # Inject the required dependencies with the same version
-    Write-Host "Injecting required dependencies..."
+    # Validate and inject the required dependencies
+    Write-Host "Validating and injecting required dependencies..."
+    $dependencyVersions = @{}
+    
     foreach ($dependency in $InjectedDependencies) {
-        $packageJson.devDependencies | Add-Member -Type NoteProperty -Name $dependency -Value $tcgcVersion -Force
+        $versionToUse = $tcgcVersion
+        
+        # Check if the tcgc version exists for this dependency
+        if (-not (Test-PackageVersion -PackageName $dependency -Version $tcgcVersion)) {
+            Write-Warning "Version $tcgcVersion not found for $dependency"
+            
+            # Try to get the latest available version as fallback
+            $latestVersion = Get-LatestPackageVersion -PackageName $dependency
+            if ($latestVersion) {
+                $versionToUse = $latestVersion
+                Write-Host "Using latest version $versionToUse for $dependency"
+            } else {
+                Write-Error "Could not determine a valid version for $dependency"
+                exit 1
+            }
+        }
+        
+        # Store the version to use for this dependency
+        $dependencyVersions[$dependency] = $versionToUse
+        
+        # Add the dependency to devDependencies
+        $packageJson.devDependencies | Add-Member -Type NoteProperty -Name $dependency -Value $versionToUse -Force
+        Write-Host "Added $dependency@$versionToUse to devDependencies"
     }
 
     # Create array of all peerDependencies plus the injected dependencies
@@ -89,6 +151,12 @@ try {
     # Write the updated package.json back
     Write-Host "Writing updated package.json..."
     $packageJson | ConvertTo-Json -Depth 10 | Set-Content $PackageJsonPath
+
+    # Display summary of injected dependencies
+    Write-Host "`nSummary of injected dependencies:"
+    foreach ($dep in $dependencyVersions.Keys) {
+        Write-Host "  $dep@$($dependencyVersions[$dep])"
+    }
 
     # Validate dependencies by running npm install
     Write-Host "Validating dependencies with npm install..."
