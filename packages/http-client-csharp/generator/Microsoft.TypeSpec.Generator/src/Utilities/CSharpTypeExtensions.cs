@@ -129,6 +129,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             {
                 InputNullableType nullableType => GetInputEnumType(nullableType.Type),
                 InputEnumType enumType => enumType,
+                InputEnumTypeValue enumValueType => enumValueType.EnumType,
                 InputArrayType arrayType => GetInputEnumType(arrayType.ValueType),
                 InputDictionaryType dictionaryType => GetInputEnumType(dictionaryType.ValueType),
                 _ => null
