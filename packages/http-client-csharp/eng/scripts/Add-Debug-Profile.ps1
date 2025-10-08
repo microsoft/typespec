@@ -151,6 +151,90 @@ function Test-IsManagementSdk {
     return $dirName -like "*ResourceManager*"
 }
 
+# Read and parse tsp-location.yaml to get emitter configuration
+function Get-EmitterFromTspLocation {
+    param([string]$SdkPath)
+    
+    $tspLocationPath = Join-Path $SdkPath "tsp-location.yaml"
+    
+    if (-not (Test-Path $tspLocationPath)) {
+        Write-Host "tsp-location.yaml not found at $tspLocationPath" -ForegroundColor Yellow
+        return $null
+    }
+    
+    try {
+        # Read the YAML file
+        $content = Get-Content $tspLocationPath -Raw
+        
+        # Simple parsing for emit field - look for lines containing emitter packages
+        # This handles both single emit lines and array format
+        if ($content -match 'emit:\s*\n?\s*-?\s*["\']?@azure-typespec/http-client-csharp-mgmt["\']?') {
+            return "@azure-typespec/http-client-csharp-mgmt"
+        }
+        elseif ($content -match 'emit:\s*\n?\s*-?\s*["\']?@azure-typespec/http-client-csharp["\']?') {
+            return "@azure-typespec/http-client-csharp"
+        }
+        elseif ($content -match 'emit:\s*\n?\s*-?\s*["\']?@typespec/http-client-csharp["\']?') {
+            return "@typespec/http-client-csharp"
+        }
+        else {
+            Write-Host "Could not determine emitter from tsp-location.yaml" -ForegroundColor Yellow
+            return $null
+        }
+    }
+    catch {
+        Write-Warning "Failed to parse tsp-location.yaml: $($_.Exception.Message)"
+        return $null
+    }
+}
+
+# Map emitter package name to generator name and package name
+function Get-GeneratorConfig {
+    param(
+        [string]$EmitterPackage,
+        [string]$SdkPath
+    )
+    
+    # If no emitter specified, fall back to auto-detection based on path
+    if (-not $EmitterPackage) {
+        $isManagementSdk = Test-IsManagementSdk $SdkPath
+        if ($isManagementSdk) {
+            return @{
+                PackageName = "http-client-csharp-mgmt"
+                GeneratorName = "ManagementClientGenerator"
+            }
+        } else {
+            return @{
+                PackageName = "http-client-csharp"
+                GeneratorName = "AzureClientGenerator"
+            }
+        }
+    }
+    
+    # Map emitter package to generator configuration
+    switch -Regex ($EmitterPackage) {
+        ".*http-client-csharp-mgmt" {
+            return @{
+                PackageName = "http-client-csharp-mgmt"
+                GeneratorName = "ManagementClientGenerator"
+            }
+        }
+        ".*http-client-csharp" {
+            return @{
+                PackageName = "http-client-csharp"
+                GeneratorName = "AzureClientGenerator"
+            }
+        }
+        default {
+            Write-Warning "Unknown emitter package: $EmitterPackage, using default AzureClientGenerator"
+            return @{
+                PackageName = "http-client-csharp"
+                GeneratorName = "AzureClientGenerator"
+            }
+        }
+    }
+}
+
 # Rebuild the local generator solution to ensure fresh DLLs
 function Build-LocalGeneratorSolution {
     param([string]$PackageRoot)
@@ -237,17 +321,13 @@ function Add-DebugProfile {
     $profileName = Get-ProfileName $SdkPath
     $resolvedSdkPath = Resolve-Path $SdkPath
     
-    # Automatically determine if this is a management SDK
-    $isManagementSdk = Test-IsManagementSdk $SdkPath
+    # Try to read emitter configuration from tsp-location.yaml
+    $emitterPackage = Get-EmitterFromTspLocation $SdkPath
     
-    # Determine the package and generator based on auto-detected management flag
-    if ($isManagementSdk) {
-        $packageName = "http-client-csharp-mgmt"
-        $generatorName = "ManagementClientGenerator"
-    } else {
-        $packageName = "http-client-csharp"
-        $generatorName = "AzureClientGenerator"
-    }
+    # Get generator configuration based on emitter package (falls back to auto-detection if not found)
+    $generatorConfig = Get-GeneratorConfig $emitterPackage $SdkPath
+    $packageName = $generatorConfig.PackageName
+    $generatorName = $generatorConfig.GeneratorName
     
     # Copy local DLLs to the node_modules location
     Copy-LocalGeneratorDlls $resolvedSdkPath $packageName
@@ -271,8 +351,13 @@ function Add-DebugProfile {
     Write-Host "Profile configuration:" -ForegroundColor Cyan
     Write-Host "  - Executable: dotnet" -ForegroundColor White
     Write-Host "  - Arguments: $dllPath `"$resolvedSdkPath`" -g $generatorName" -ForegroundColor White
-    Write-Host "  - Generator: $generatorName (auto-detected: management=$isManagementSdk)" -ForegroundColor White
+    Write-Host "  - Generator: $generatorName" -ForegroundColor White
     Write-Host "  - Package: $packageName" -ForegroundColor White
+    if ($emitterPackage) {
+        Write-Host "  - Emitter: $emitterPackage (from tsp-location.yaml)" -ForegroundColor White
+    } else {
+        Write-Host "  - Emitter: auto-detected from SDK path" -ForegroundColor White
+    }
     
     return $profileName
 }
