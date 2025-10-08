@@ -1137,7 +1137,9 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                 retval.extend(
                     [
                         f"{indent}error = self._deserialize.failsafe_deserialize(",
-                        f"{indent}    {default_error_deserialization}," f"{indent}    pipeline_response" f"{indent})",
+                        f"{indent}    {default_error_deserialization}",
+                        f"{indent}    pipeline_response,",
+                        f"{indent})",
                     ]
                 )
         retval.append(
