@@ -105,9 +105,10 @@ def add_overloads_for_body_param(yaml_data: dict[str, Any]) -> None:
     content_type_param["optional"] = True
 
 
-def update_description(description: Optional[str], default_description: str = "") -> str:
+def normalize_property_description(description: Optional[str]) -> str:
+    """Normalize property descriptions that may have embedded newlines from TypeSpec."""
     if not description:
-        description = default_description
+        return ""
 
     # Preserve bullet point structure by temporarily replacing bullet point patterns
     # Match patterns like "- item" or "* item" at the start of lines
@@ -119,22 +120,27 @@ def update_description(description: Optional[str], default_description: str = ""
         return f"__BULLET_{len(bullets)-1}__"
 
     # Temporarily replace bullet points with placeholders
-    description = re.sub(bullet_pattern, preserve_bullet, description)
+    normalized = re.sub(bullet_pattern, preserve_bullet, description)
 
     # Now normalize other whitespace: replace multiple spaces/newlines with single spaces
-    description = re.sub(r'\s+', ' ', description).strip()
+    normalized = re.sub(r'\s+', ' ', normalized).strip()
 
     # Restore bullet points with proper formatting
     for i, _ in enumerate(bullets):
         # Convert bullet points to start on new lines with "* " format
-        description = description.replace(f"__BULLET_{i}__", "\n* ")
+        normalized = normalized.replace(f"__BULLET_{i}__", "\n* ")
 
+    return normalized
+
+
+def update_description(description: Optional[str], default_description: str = "") -> str:
+    if not description:
+        description = default_description
+    
     description = description.rstrip(" ")
     if description and description[-1] != ".":
         description += "."
     return description
-
-
 def update_operation_group_class_name(prefix: str, class_name: str) -> str:
     if class_name == "":
         return prefix + "OperationsMixin"
@@ -278,7 +284,9 @@ class PreProcessPlugin(YamlUpdatePlugin):
     def update_types(self, yaml_data: list[dict[str, Any]]) -> None:
         for type in yaml_data:
             for property in type.get("properties", []):
-                property["description"] = update_description(property.get("description", ""))
+                # Use targeted normalization for property descriptions to handle TypeSpec embedded newlines
+                normalized_desc = normalize_property_description(property.get("description", ""))
+                property["description"] = update_description(normalized_desc)
                 property["clientName"] = self.pad_reserved_words(property["clientName"].lower(), PadType.PROPERTY)
                 add_redefined_builtin_info(property["clientName"], property)
             if type.get("name"):
