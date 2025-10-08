@@ -44,6 +44,27 @@ describe("go to imports", () => {
     ]);
   });
 
+
+  it("go to directory import", async () => {
+    const locations = await goToDefinitionAtCursor(
+      `
+    import "./┆models";
+  `,
+      {
+        "models/main.tsp": "model MyModel {}",
+      },
+    );
+    expect(locations).toEqual([
+      {
+        range: {
+          end: { character: 0, line: 0 },
+          start: { character: 0, line: 0 },
+        },
+        uri: resolveVirtualPathUri("models/main.tsp"),
+      },
+    ]);
+  });
+
   it("go to library import", async () => {
     const locations = await goToDefinitionAtCursor(
       `
