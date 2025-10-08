@@ -1130,8 +1130,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         public async Task CanCustomizeLiteralEnumProperty()
         {
             await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
-            var enumVal1 = InputFactory.EnumMember.String("val1", "val1", InputFactory.StringEnum("mockInputEnum", []));
-            var inputModel = InputFactory.Model("mockInputModel", properties: [InputFactory.Property("prop1", enumVal1)]);
+            var enumVal = InputFactory.EnumMember.String("val1", "val1", InputFactory.StringEnum("mockInputEnum", []));
+            var inputModel = InputFactory.Model("mockInputModel", properties: [InputFactory.Property("prop1", enumVal)]);
             var modelTypeProvider = new ModelProvider(inputModel);
 
             var canonicalView = modelTypeProvider.CanonicalView;
