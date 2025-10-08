@@ -19,7 +19,7 @@
           "name": "keyword.operator.assignment.tsp"
         }
       },
-      "end": "(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
+      "end": "(?=,|;|@|#[a-z]|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
       "patterns": [
         {
           "include": "#expression"
@@ -37,7 +37,7 @@
           "name": "entity.name.type.tsp"
         }
       },
-      "end": "(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
+      "end": "(?=,|;|@|#[a-z]|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
       "patterns": [
         {
           "include": "#alias-id"
@@ -58,7 +58,7 @@
           "name": "entity.name.tag.tsp"
         }
       },
-      "end": "(?=([_$[:alpha:]]|`))|(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
+      "end": "(?=([_$[:alpha:]]|`))|(?=,|;|@|#[a-z]|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
       "patterns": [
         {
           "include": "#token"
@@ -117,7 +117,7 @@
           "name": "variable.name.tsp"
         }
       },
-      "end": "(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
+      "end": "(?=,|;|@|#[a-z]|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
       "patterns": [
         {
           "include": "#type-annotation"
@@ -141,7 +141,7 @@
           "name": "entity.name.tag.tsp"
         }
       },
-      "end": "(?=([_$[:alpha:]]|`))|(?=#)|(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
+      "end": "(?=([_$[:alpha:]]|`))|(?=,|;|@|#[a-z]|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
       "patterns": [
         {
           "include": "#token"
@@ -165,7 +165,7 @@
           "name": "entity.name.function.tsp"
         }
       },
-      "end": "(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
+      "end": "(?=,|;|@|#[a-z]|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
       "patterns": [
         {
           "include": "#token"
@@ -186,7 +186,7 @@
           "name": "keyword.directive.name.tsp"
         }
       },
-      "end": "$|(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
+      "end": "$|(?=,|;|@|#[a-z]|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
       "patterns": [
         {
           "include": "#string-literal"
@@ -311,7 +311,7 @@
           "name": "keyword.operator.type.annotation.tsp"
         }
       },
-      "end": "(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
+      "end": "(?=,|;|@|#[a-z]|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
       "patterns": [
         {
           "include": "#token"
@@ -332,7 +332,7 @@
           "name": "entity.name.type.tsp"
         }
       },
-      "end": "(?<=\\})|(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
+      "end": "(?<=\\})|(?=,|;|@|#[a-z]|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
       "patterns": [
         {
           "include": "#token"
@@ -400,7 +400,7 @@
           "name": "entity.name.function.tsp"
         }
       },
-      "end": "(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
+      "end": "(?=,|;|@|#[a-z]|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
       "patterns": [
         {
           "include": "#token"
@@ -425,7 +425,7 @@
           "name": "keyword.other.tsp"
         }
       },
-      "end": "(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
+      "end": "(?=,|;|@|#[a-z]|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
       "patterns": [
         {
           "include": "#token"
@@ -493,7 +493,7 @@
           "name": "entity.name.function.tsp"
         }
       },
-      "end": "(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
+      "end": "(?=,|;|@|#[a-z]|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
       "patterns": [
         {
           "include": "#token"
@@ -511,7 +511,7 @@
           "name": "keyword.other.tsp"
         }
       },
-      "end": "(?<=\\})|(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
+      "end": "(?<=\\})|(?=,|;|@|#[a-z]|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
       "patterns": [
         {
           "include": "#token"
@@ -598,7 +598,7 @@
           "name": "string.quoted.double.tsp"
         }
       },
-      "end": "(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
+      "end": "(?=,|;|@|#[a-z]|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
       "patterns": [
         {
           "include": "#token"
@@ -622,7 +622,7 @@
           "name": "keyword.other.tsp"
         }
       },
-      "end": "(?<=\\})|(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
+      "end": "(?<=\\})|(?=,|;|@|#[a-z]|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
       "patterns": [
         {
           "include": "#token"
@@ -661,7 +661,7 @@
     "namespace-name": {
       "name": "meta.namespace-name.typespec",
       "begin": "(?=([_$[:alpha:]]|`))",
-      "end": "((?=\\{)|(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b))",
+      "end": "((?=\\{)|(?=,|;|@|#[a-z]|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b))",
       "patterns": [
         {
           "include": "#identifier-expression"
@@ -679,7 +679,7 @@
           "name": "keyword.other.tsp"
         }
       },
-      "end": "((?<=\\})|(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b))",
+      "end": "((?<=\\})|(?=,|;|@|#[a-z]|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b))",
       "patterns": [
         {
           "include": "#token"
@@ -739,7 +739,7 @@
           "name": "keyword.operator.type.annotation.tsp"
         }
       },
-      "end": "(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
+      "end": "(?=,|;|@|#[a-z]|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
       "patterns": [
         {
           "include": "#token"
@@ -757,7 +757,7 @@
           "name": "keyword.other.tsp"
         }
       },
-      "end": "(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
+      "end": "(?=,|;|@|#[a-z]|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
       "patterns": [
         {
           "include": "#expression"
@@ -823,7 +823,7 @@
           "name": "entity.name.function.tsp"
         }
       },
-      "end": "(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
+      "end": "(?=,|;|@|#[a-z]|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
       "patterns": [
         {
           "include": "#token"
@@ -912,7 +912,7 @@
           "name": "entity.name.function.tsp"
         }
       },
-      "end": "(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
+      "end": "(?=,|;|@|#[a-z]|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
       "patterns": [
         {
           "include": "#token"
@@ -951,7 +951,7 @@
           "name": "entity.name.type.tsp"
         }
       },
-      "end": "(?<=\\})|(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
+      "end": "(?<=\\})|(?=,|;|@|#[a-z]|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
       "patterns": [
         {
           "include": "#token"
@@ -975,7 +975,7 @@
           "name": "keyword.operator.spread.tsp"
         }
       },
-      "end": "(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
+      "end": "(?=,|;|@|#[a-z]|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
       "patterns": [
         {
           "include": "#expression"
@@ -1183,7 +1183,7 @@
           "name": "keyword.operator.assignment.tsp"
         }
       },
-      "end": "(?=>)|(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
+      "end": "(?=>)|(?=,|;|@|#[a-z]|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
       "endCaptures": {
         "0": {
           "name": "keyword.operator.assignment.tsp"
@@ -1235,7 +1235,7 @@
           "name": "entity.name.type.tsp"
         }
       },
-      "end": "(?=>)|(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
+      "end": "(?=>)|(?=,|;|@|#[a-z]|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
       "patterns": [
         {
           "include": "#token"
@@ -1256,7 +1256,7 @@
           "name": "keyword.other.tsp"
         }
       },
-      "end": "(?=>)|(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
+      "end": "(?=>)|(?=,|;|@|#[a-z]|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
       "patterns": [
         {
           "include": "#expression"
@@ -1271,7 +1271,7 @@
           "name": "keyword.operator.assignment.tsp"
         }
       },
-      "end": "(?=>)|(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
+      "end": "(?=>)|(?=,|;|@|#[a-z]|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
       "patterns": [
         {
           "include": "#expression"
@@ -1309,7 +1309,7 @@
           "name": "keyword.other.tsp"
         }
       },
-      "end": "(?=>)|(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
+      "end": "(?=>)|(?=,|;|@|#[a-z]|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
       "patterns": [
         {
           "include": "#expression"
@@ -1362,7 +1362,7 @@
           "name": "entity.name.type.tsp"
         }
       },
-      "end": "(?<=\\})|(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
+      "end": "(?<=\\})|(?=,|;|@|#[a-z]|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
       "patterns": [
         {
           "include": "#token"
@@ -1383,7 +1383,7 @@
           "name": "keyword.operator.type.annotation.tsp"
         }
       },
-      "end": "(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
+      "end": "(?=,|;|@|#[a-z]|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
       "patterns": [
         {
           "include": "#token"
@@ -1401,7 +1401,7 @@
           "name": "keyword.other.tsp"
         }
       },
-      "end": "(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
+      "end": "(?=,|;|@|#[a-z]|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
       "patterns": [
         {
           "include": "#token"
@@ -1422,7 +1422,7 @@
           "name": "keyword.other.tsp"
         }
       },
-      "end": "(?=>)|(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
+      "end": "(?=>)|(?=,|;|@|#[a-z]|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
       "patterns": [
         {
           "include": "#expression"

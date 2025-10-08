@@ -452,6 +452,24 @@ function testColorization(description: string, tokenize: Tokenize) {
           Token.punctuation.closeParen,
         ]);
       });
+
+      it("decorator with object value parameter", async () => {
+        const tokens = await tokenize(`@foo(#{}, #{val: 123})`);
+        deepStrictEqual(tokens, [
+          Token.identifiers.tag("@"),
+          Token.identifiers.tag("foo"),
+          Token.punctuation.openParen,
+          Token.punctuation.openHashBrace,
+          Token.punctuation.closeBrace,
+          Token.punctuation.comma,
+          Token.punctuation.openHashBrace,
+          Token.identifiers.variable("val"),
+          Token.operators.typeAnnotation,
+          Token.literals.numeric("123"),
+          Token.punctuation.closeBrace,
+          Token.punctuation.closeParen,
+        ]);
+      });
     });
 
     describe("augment decorators", () => {

@@ -67,7 +67,7 @@ const qualifiedIdentifier = `\\b${identifierStart}(?:${identifierContinue}|\\.${
 const stringPattern = '\\"(?:[^\\"\\\\]|\\\\.)*\\"';
 const modifierKeyword = `\\b(?:extern)\\b`;
 const statementKeyword = `\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b`;
-const universalEnd = `(?=,|;|@|\\)|\\}|${modifierKeyword}|${statementKeyword})`;
+const universalEnd = `(?=,|;|@|#[a-z]|\\)|\\}|${modifierKeyword}|${statementKeyword})`;
 const universalEndExceptComma = `(?=;|@|\\)|\\}|${modifierKeyword}|${statementKeyword})`;
 
 /**
@@ -292,7 +292,7 @@ const decorator: BeginEndRule = {
     "1": { scope: "entity.name.tag.tsp" },
     "2": { scope: "entity.name.tag.tsp" },
   },
-  end: `${beforeIdentifier}|(?=#)|${universalEnd}`,
+  end: `${beforeIdentifier}|${universalEnd}`,
   patterns: [token, parenthesizedExpression],
 };
 
