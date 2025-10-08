@@ -50,6 +50,14 @@ export function TypeExpression(props: TypeExpressionProps): Children {
     return code`void`;
   }
 
+  return (
+    <Experimental_OverridableComponent reference type={props.type}>
+      <ErrorComponent kind={props.type.kind} type={props.type} />
+    </Experimental_OverridableComponent>
+  );
+}
+
+function ErrorComponent(props: { kind: string; type: Type }): Children {
   throw new Error(
     `Unsupported type for TypeExpression: ${props.type.kind} (${getTypeName(props.type)})`,
   );

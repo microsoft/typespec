@@ -1,6 +1,6 @@
-import { For } from "@alloy-js/core";
+import { For, type Children } from "@alloy-js/core";
 import { Reference, ValueExpression } from "@alloy-js/typescript";
-import type { IntrinsicType, Model, Scalar, Type } from "@typespec/compiler";
+import type { IntrinsicType, Model, Program, Scalar, Type } from "@typespec/compiler";
 import type { Typekit } from "@typespec/compiler/typekit";
 import { Experimental_OverridableComponent } from "../../core/components/overrides/component-overrides.jsx";
 import { useTsp } from "../../core/context/tsp-context.js";
@@ -77,9 +77,18 @@ export function TypeExpression(props: TypeExpressionProps) {
     case "Operation":
       return <FunctionType type={type} />;
     default:
-      reportTypescriptDiagnostic($.program, { code: "typescript-unsupported-type", target: type });
-      return "any";
+      <Experimental_OverridableComponent reference type={type}>
+        <DefaultTypeExpression kind={type.kind} type={type} program={$.program} />
+      </Experimental_OverridableComponent>;
   }
+}
+
+function DefaultTypeExpression(props: { kind: string; type: Type; program: Program }): Children {
+  reportTypescriptDiagnostic(props.program, {
+    code: "typescript-unsupported-type",
+    target: props.type,
+  });
+  return "any";
 }
 
 const intrinsicNameToTSType = new Map<string, string | null>([
