@@ -141,7 +141,7 @@
           "name": "entity.name.tag.tsp"
         }
       },
-      "end": "(?=([_$[:alpha:]]|`))|(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
+      "end": "(?=([_$[:alpha:]]|`))|(?=#)|(?=,|;|@|\\)|\\}|\\b(?:extern)\\b|\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b)",
       "patterns": [
         {
           "include": "#token"
@@ -177,9 +177,12 @@
     },
     "directive": {
       "name": "meta.directive.typespec",
-      "begin": "\\s*(#\\b[_$[:alpha:]][_$[:alnum:]]*\\b)",
+      "begin": "\\s*(#)(\\b[_$[:alpha:]][_$[:alnum:]]*\\b)",
       "beginCaptures": {
         "1": {
+          "name": "keyword.directive.name.tsp"
+        },
+        "2": {
           "name": "keyword.directive.name.tsp"
         }
       },

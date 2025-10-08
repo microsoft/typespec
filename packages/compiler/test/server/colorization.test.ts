@@ -50,6 +50,17 @@ const Token = {
     const: createToken("const", "keyword.other.tsp"),
     using: createToken("using", "keyword.other.tsp"),
     other: (text: string) => createToken(text, "keyword.other.tsp"),
+    directives: {
+      directive: (name: string) => createToken(name, "keyword.directive.name.tsp"),
+      suppress: [
+        createToken("#", "keyword.directive.name.tsp"),
+        createToken("suppress", "keyword.directive.name.tsp"),
+      ],
+      deprecated: [
+        createToken("#", "keyword.directive.name.tsp"),
+        createToken("deprecated", "keyword.directive.name.tsp"),
+      ],
+    },
   },
 
   meta: (text: string, meta: string) => createToken(text, `meta.${meta}.tsp`),
@@ -358,6 +369,53 @@ function testColorization(description: string, tokenize: Tokenize) {
           Token.literals.stringQuoted("abc"),
           Token.punctuation.typeParameters.end,
           Token.punctuation.semicolon,
+        ]);
+      });
+    });
+
+    describe("directives", () => {
+      it("single directive", async () => {
+        const tokens = await tokenize(`#suppress "foo" "bar"`);
+        deepStrictEqual(tokens, [
+          ...Token.keywords.directives.suppress,
+          Token.literals.stringQuoted("foo"),
+          Token.literals.stringQuoted("bar"),
+        ]);
+      });
+
+      it("multiple directives", async () => {
+        const tokens = await tokenize(`
+          #suppress "foo" "bar"
+          #deprecated "use something else"
+        `);
+        deepStrictEqual(tokens, [
+          ...Token.keywords.directives.suppress,
+          Token.literals.stringQuoted("foo"),
+          Token.literals.stringQuoted("bar"),
+          ...Token.keywords.directives.deprecated,
+          Token.literals.stringQuoted("use something else"),
+        ]);
+      });
+
+      it("work within decorators", async () => {
+        const tokens = await tokenize(`
+          #suppress "foo"
+          @foo
+          #suppress "bar"
+          @bar("something")
+        `);
+        deepStrictEqual(tokens, [
+          ...Token.keywords.directives.suppress,
+          Token.literals.stringQuoted("foo"),
+          Token.identifiers.tag("@"),
+          Token.identifiers.tag("foo"),
+          ...Token.keywords.directives.suppress,
+          Token.literals.stringQuoted("bar"),
+          Token.identifiers.tag("@"),
+          Token.identifiers.tag("bar"),
+          Token.punctuation.openParen,
+          Token.literals.stringQuoted("something"),
+          Token.punctuation.closeParen,
         ]);
       });
     });
@@ -1626,7 +1684,11 @@ export async function tokenizeSemantic(input: string): Promise<Token[]> {
       case SemanticTokenKind.Macro:
         return Token.identifiers.tag(text);
       case SemanticTokenKind.Keyword:
-        return Token.keywords.other(text);
+        if (text === "suppress" || text === "deprecated" || text === "#") {
+          return Token.keywords.directives.directive(text);
+        } else {
+          return Token.keywords.other(text);
+        }
       case SemanticTokenKind.String:
         return text.startsWith(`"""`)
           ? Token.literals.stringTriple(text)

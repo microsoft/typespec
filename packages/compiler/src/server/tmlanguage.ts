@@ -292,7 +292,7 @@ const decorator: BeginEndRule = {
     "1": { scope: "entity.name.tag.tsp" },
     "2": { scope: "entity.name.tag.tsp" },
   },
-  end: `${beforeIdentifier}|${universalEnd}`,
+  end: `${beforeIdentifier}|(?=#)|${universalEnd}`,
   patterns: [token, parenthesizedExpression],
 };
 
@@ -476,9 +476,10 @@ const spreadExpression: BeginEndRule = {
 const directive: BeginEndRule = {
   key: "directive",
   scope: meta,
-  begin: `\\s*(#${simpleIdentifier})`,
+  begin: `\\s*(#)(${simpleIdentifier})`,
   beginCaptures: {
     "1": { scope: "keyword.directive.name.tsp" },
+    "2": { scope: "keyword.directive.name.tsp" },
   },
   end: `$|${universalEnd}`,
   patterns: [stringLiteral, identifierExpression],
