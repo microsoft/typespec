@@ -3,10 +3,10 @@
 {% set exist_constant = (model.properties | selectattr('constant') | first) is defined %}
 
 {{ serializer.declare_model(model) }}
-    """{{ op_tools.wrap_string(model.description(is_operation_file=False), "\n    ") }}
+    """{{ op_tools.wrap_string(model.description(is_operation_file=False), "\n    ", 95, "") }}
     {% if model.discriminated_subtypes %}
 
-    {{ serializer.discriminator_docstring(model) | wordwrap(width=95, break_long_words=False, break_on_hyphens=False, wrapstring='\n    ') }}
+    {{ op_tools.wrap_string(serializer.discriminator_docstring(model), '\n    ', 95, "") }}
     {% endif %}
     {% if model.has_readonly_or_constant_property %}
 
@@ -20,7 +20,7 @@
     {% if model.properties != None %}
         {% for p in model.properties %}
             {% for line in serializer.variable_documentation_string(p) %}
-    {{ op_tools.wrap_string(line, '\n    ') }}
+    {{ op_tools.wrap_string(line, '\n    ', 95, "") }}
             {% endfor %}
         {% endfor %}
     {% endif %}
@@ -72,7 +72,7 @@
         {% for p in model.properties %}
             {% if p.is_input %}
                 {% for line in serializer.input_documentation_string(p) %}
-        {{ op_tools.wrap_string(line, '\n        ') }}
+        {{ op_tools.wrap_string(line, '\n        ', 95, "") }}
                 {% endfor %}
             {% endif %}
         {% endfor %}

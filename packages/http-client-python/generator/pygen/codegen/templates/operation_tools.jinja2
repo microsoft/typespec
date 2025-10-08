@@ -16,11 +16,18 @@
 {%- for line in lines -%}
     {%- set stripped = line.strip() -%}
     {%- if stripped.startswith('* ') -%}
-        {%- set bullet_line = '     * ' + stripped[2:] -%}
-        {%- set wrapped = bullet_line | wordwrap(width=actual_width, break_long_words=False, break_on_hyphens=False, wrapstring=wrapstring + '       ') -%}
+        {%- set bullet_content = stripped[2:] -%}
+        {%- set bullet_line = '     * ' + bullet_content -%}
+        {%- set wrapped = bullet_line | wordwrap(width=actual_width, break_long_words=False, break_on_hyphens=False, wrapstring=wrapstring + '   ') -%}
         {%- set _ = processed_lines.append(wrapped) -%}
     {%- elif stripped -%}
-        {%- set wrapped = stripped | wordwrap(width=actual_width, break_long_words=False, break_on_hyphens=False, wrapstring=wrapstring) -%}
+        {%- if width is string or suffix_string is defined -%}
+            {# Model documentation mode - add extra space for continuation #}
+            {%- set wrapped = stripped | wordwrap(width=actual_width, break_long_words=False, break_on_hyphens=False, wrapstring=wrapstring + ' ') -%}
+        {%- else -%}
+            {# Operation documentation mode - no extra space #}
+            {%- set wrapped = stripped | wordwrap(width=actual_width, break_long_words=False, break_on_hyphens=False, wrapstring=wrapstring) -%}
+        {%- endif -%}
         {%- set _ = processed_lines.append(wrapped) -%}
     {%- endif -%}
 {%- endfor -%}
@@ -43,7 +50,7 @@
 {% set param_description_and_response_docstring = serializer.param_description_and_response_docstring(builder) %}
 {% set ns = namespace(line_too_long=false) %}
 {% for item in param_description_and_response_docstring %}
-    {% if item and serializer.line_too_long(wrap_string(item, wrapstring='\n ').split('\n'), 8) %}
+    {% if item and serializer.line_too_long(wrap_string(item, wrapstring='\n').split('\n'), 8) %}
         {% set ns.line_too_long = true %}
     {% endif %}
 {% endfor %}
@@ -57,7 +64,7 @@
     {% endfor %}
     {% for description in param_description_and_response_docstring %}
         {% if description %}
-{% set description = wrap_string(description, wrapstring='\n ') %}
+{% set description = wrap_string(description, wrapstring='\n') %}
 {{ " " if description[0] != ":" and description[0] != " " else "" }}{{ description}}
         {% else %}
 
