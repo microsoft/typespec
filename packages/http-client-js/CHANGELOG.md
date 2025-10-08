@@ -1,5 +1,12 @@
 # Changelog - @typespec/http-client-js
 
+## 0.10.0
+
+### Bug Fixes
+
+- [#8613](https://github.com/microsoft/typespec/pull/8613) Remove warning when no explicit content type is provided to a multipart part
+
+
 ## 0.9.0
 
 ### Features

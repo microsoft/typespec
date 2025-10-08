@@ -1,5 +1,9 @@
 # Changelog - @typespec/http-server-js
 
+## 0.58.0-alpha.20
+
+No changes, version bump only.
+
 ## 0.58.0-alpha.19
 
 ### Bump dependencies

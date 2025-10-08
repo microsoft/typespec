@@ -1,5 +1,16 @@
 # Changelog - @typespec/asset-emitter
 
+## 0.75.0
+
+### Deprecations
+
+- [#8605](https://github.com/microsoft/typespec/pull/8605) Deprecate use of `ObjectBuilder#set` in favor of `setProperty`
+    ```diff lang=ts
+    - builder.set("key", value);
+    + setProperty(builder, "key", value);
+    ```
+
+
 ## 0.74.0
 
 ### Bump dependencies
