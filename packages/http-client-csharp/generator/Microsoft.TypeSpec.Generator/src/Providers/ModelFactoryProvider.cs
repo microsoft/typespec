@@ -468,9 +468,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var parameters = new List<ParameterProvider>(modelCtorParams.Count);
             bool isCustomConstructor = fullConstructor != modelProvider.FullConstructor;
 
-            // Ensure that the canonical view properties are built so that get proper handling for customized properties
-            _ = modelProvider.CanonicalView.Properties;
-
             foreach (var param in modelCtorParams)
             {
                 bool isBinaryDataParam = param.Name.Equals(AdditionalBinaryDataParameterName)
