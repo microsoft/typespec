@@ -9,7 +9,13 @@
     1. Installs tsp-client if not already installed
     2. Runs tsp-client sync in the target SDK directory
     3. Runs tsp-client generate --save-inputs to create tspCodeModel.json
-    4. Adds a new debug profile to launchSettings.json that targets the DLL
+    4. Reads the emitter configuration from tsp-location.yaml to determine the generator
+    5. Adds a new debug profile to launchSettings.json that targets the DLL
+    
+    The script automatically detects which emitter/generator to use by:
+    - First checking tsp-location.yaml for the configured emitter package
+    - Falling back to auto-detection based on SDK path if tsp-location.yaml is not found
+      (e.g., paths containing "ResourceManager" use ManagementClientGenerator)
 
 .PARAMETER SdkDirectory
     Path to the target SDK service directory
