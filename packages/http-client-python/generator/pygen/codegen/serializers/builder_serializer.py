@@ -1037,6 +1037,11 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             condition = "if"
             retval.append("    error = None")
             for e in builder.non_default_errors:
+                # single status code
+                if isinstance(e.type, ModelType) and e.type.internal:
+                    pylint_disable = "  # pylint: disable=protected-access"
+                else:
+                    pylint_disable = ""
                 if isinstance(e.status_codes[0], int):
                     for status_code in e.status_codes:
                         retval.append(f"    {condition} response.status_code == {status_code}:")
@@ -1047,7 +1052,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                             retval.extend(
                                 [
                                     "        error = _failsafe_deserialize(",
-                                    f"            {type_annotation}",
+                                    f"            {type_annotation},{pylint_disable}",
                                     "            response,",
                                     "        )",
                                 ]
@@ -1056,8 +1061,8 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                             retval.extend(
                                 [
                                     "        error = self._deserialize.failsafe_deserialize(",
-                                    f"            {type_annotation}",
-                                    "            pipeline_response",
+                                    f"            {type_annotation},{pylint_disable}",
+                                    "            pipeline_response,",
                                     "        )",
                                 ]
                             )
@@ -1093,7 +1098,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                             retval.extend(
                                 [
                                     "        error = _failsafe_deserialize_xml("
-                                    f"            {type_annotation}",
+                                    f"            {type_annotation},{pylint_disable}",
                                     "            response",
                                     "        )",
                                 ]
@@ -1102,7 +1107,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                             retval.extend(
                                 [
                                     "        error = _failsafe_deserialize(",
-                                    f"            {type_annotation}",
+                                    f"            {type_annotation},{pylint_disable}",
                                     "            response",
                                     "        )",
                                 ]
@@ -1111,8 +1116,8 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                         retval.extend(
                             [
                                 "        error = self._deserialize.failsafe_deserialize(",
-                                f"            {type_annotation}",
-                                "            pipeline_response",
+                                f"            {type_annotation},{pylint_disable}",
+                                "            pipeline_response,",
                                 "        )",
                             ]
                         )
