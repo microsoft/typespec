@@ -29,16 +29,16 @@
             "$id": "4",
             "kind": "enum",
             "decorators": [],
+            "doc": "Service versions",
             "name": "Versions",
             "isGeneratedName": false,
             "namespace": "Server.Path.Multiple",
-            "doc": "Service versions",
             "valueType": {
               "$id": "5",
               "kind": "string",
               "decorators": [],
-              "name": "string",
               "doc": "A sequence of textual characters.",
+              "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string"
             },
             "values": [
@@ -46,9 +46,9 @@
                 "$id": "6",
                 "kind": "enumvalue",
                 "decorators": [],
+                "doc": "Version 1.0",
                 "name": "v1_0",
                 "value": "v1.0",
-                "doc": "Version 1.0",
                 "enumType": {
                   "$ref": "4"
                 },

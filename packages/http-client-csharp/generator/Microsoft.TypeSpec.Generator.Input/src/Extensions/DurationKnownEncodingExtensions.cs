@@ -14,6 +14,8 @@ namespace Microsoft.TypeSpec.Generator.Input.Extensions
                 "iso8601" => DurationKnownEncoding.Iso8601,
                 "seconds" => DurationKnownEncoding.Seconds,
                 "duration-constant" => DurationKnownEncoding.Constant,
+                // TODO implement milliseconds encoding https://github.com/microsoft/typespec/issues/8503
+                "milliseconds" => DurationKnownEncoding.Milliseconds,
                 _ => null
             };
 
