@@ -208,11 +208,13 @@ function Get-GeneratorConfig {
             return @{
                 PackageName = "http-client-csharp-mgmt"
                 GeneratorName = "ManagementClientGenerator"
+                ScopeName = "@azure-typespec"
             }
         } else {
             return @{
                 PackageName = "http-client-csharp"
                 GeneratorName = "ScmCodeModelGenerator"
+                ScopeName = "@azure-typespec"
             }
         }
     }
@@ -223,12 +225,21 @@ function Get-GeneratorConfig {
             return @{
                 PackageName = "http-client-csharp-mgmt"
                 GeneratorName = "ManagementClientGenerator"
+                ScopeName = "@azure-typespec"
+            }
+        }
+        "@typespec/http-client-csharp" {
+            return @{
+                PackageName = "http-client-csharp"
+                GeneratorName = "ScmCodeModelGenerator"
+                ScopeName = "@typespec"
             }
         }
         ".*http-client-csharp" {
             return @{
                 PackageName = "http-client-csharp"
                 GeneratorName = "AzureClientGenerator"
+                ScopeName = "@azure-typespec"
             }
         }
         default {
@@ -236,6 +247,7 @@ function Get-GeneratorConfig {
             return @{
                 PackageName = "http-client-csharp"
                 GeneratorName = "AzureClientGenerator"
+                ScopeName = "@azure-typespec"
             }
         }
     }
@@ -273,14 +285,15 @@ function Build-LocalGeneratorSolution {
 function Copy-LocalGeneratorDlls {
     param(
         [string]$SdkPath,
-        [string]$PackageName
+        [string]$PackageName,
+        [string]$ScopeName
     )
     
     $scriptDir = Split-Path $MyInvocation.PSCommandPath -Parent
     $packageRoot = Split-Path (Split-Path $scriptDir -Parent) -Parent
     $sourceDir = Join-Path $packageRoot "dist/generator"
     
-    $targetDir = Join-Path $SdkPath "TempTypeSpecFiles/node_modules/@azure-typespec/$PackageName/dist/generator"
+    $targetDir = Join-Path $SdkPath "TempTypeSpecFiles/node_modules/$ScopeName/$PackageName/dist/generator"
     
     # Rebuild the solution first to ensure fresh DLLs
     $buildSuccess = Build-LocalGeneratorSolution $packageRoot
@@ -334,12 +347,13 @@ function Add-DebugProfile {
     $generatorConfig = Get-GeneratorConfig $emitterPackage $SdkPath
     $packageName = $generatorConfig.PackageName
     $generatorName = $generatorConfig.GeneratorName
+    $scopeName = $generatorConfig.ScopeName
     
     # Copy local DLLs to the node_modules location
-    Copy-LocalGeneratorDlls $resolvedSdkPath $packageName
+    Copy-LocalGeneratorDlls $resolvedSdkPath $packageName $scopeName
     
     # Use the node_modules DLL path
-    $dllPath = "`"$resolvedSdkPath/TempTypeSpecFiles/node_modules/@azure-typespec/$packageName/dist/generator/Microsoft.TypeSpec.Generator.dll`""
+    $dllPath = "`"$resolvedSdkPath/TempTypeSpecFiles/node_modules/$scopeName/$packageName/dist/generator/Microsoft.TypeSpec.Generator.dll`""
     
     # Create the new profile
     $newProfile = @{
