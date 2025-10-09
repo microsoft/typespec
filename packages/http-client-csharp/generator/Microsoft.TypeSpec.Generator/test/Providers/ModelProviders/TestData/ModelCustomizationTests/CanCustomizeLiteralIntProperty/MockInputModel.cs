@@ -7,12 +7,6 @@ namespace Sample.Models
 {
     public partial class MockInputModel
     {
-        public MockInputEnum Prop1 { get; } = MockInputEnum.Val1;
-    }
-
-    public enum MockInputEnum
-    {
-        Val1,
-        Val2
+        public int Prop1 { get; } = 42;
     }
 }

@@ -26,7 +26,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             var compilation = CompilationHelper.LoadCompilation([_namedSymbol, new PropertyType()]);
             _iNamedSymbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, "NamedSymbol")!;
 
-            _namedTypeSymbolProvider = new NamedTypeSymbolProvider(_iNamedSymbol);
+            _namedTypeSymbolProvider = new NamedTypeSymbolProvider(_iNamedSymbol, compilation);
         }
 
         [Test]
@@ -69,7 +69,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             var compilation = CompilationHelper.LoadCompilation([namedSymbol, new PropertyType()]);
             var iNamedSymbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, "NamedSymbol")!;
 
-            var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol);
+            var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol, compilation);
             Assert.IsNull(namedTypeSymbolProvider.Type.BaseType!);
         }
 
@@ -148,7 +148,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             var compilation = CompilationHelper.LoadCompilation([namedSymbol, new PropertyType()]);
             var iNamedSymbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, "NamedSymbol");
 
-            _namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!);
+            _namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!, compilation);
 
             Assert.AreEqual(_namedSymbol.Properties.Count, _namedTypeSymbolProvider.Properties.Count);
 
@@ -200,7 +200,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             var compilation = CompilationHelper.LoadCompilation([namedSymbol, new PropertyType()]);
             var iNamedSymbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, "NamedSymbol");
 
-            _namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!);
+            _namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!, compilation);
 
             var method = _namedTypeSymbolProvider.Methods.FirstOrDefault(m => m.Signature.Name == "Method1");
             Assert.IsNotNull(method);
@@ -254,7 +254,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             var compilation = CompilationHelper.LoadCompilation([namedSymbol, new PropertyType()]);
             var iNamedSymbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, "NamedSymbol");
 
-            _namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!);
+            _namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!, compilation);
 
             var method = _namedTypeSymbolProvider.Methods.FirstOrDefault(m => m.Signature.Name == "Method1");
             Assert.IsNotNull(method);
@@ -277,7 +277,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             var compilation = CompilationHelper.LoadCompilation([namedSymbol, new PropertyType()]);
             var iNamedSymbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, "NamedSymbol");
 
-            _namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!);
+            _namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!, compilation);
 
             var method = _namedTypeSymbolProvider.Methods.FirstOrDefault(m => m.Signature.Name == "Method1");
             Assert.IsNotNull(method);
@@ -300,7 +300,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             var compilation = CompilationHelper.LoadCompilation([namedSymbol, new PropertyType()]);
             var iNamedSymbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, "NamedSymbol");
 
-            _namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!);
+            _namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!, compilation);
 
             var method = _namedTypeSymbolProvider.Methods.FirstOrDefault(m => m.Signature.Name == "Method1");
             Assert.IsNotNull(method);

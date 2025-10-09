@@ -21,10 +21,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
     internal sealed class NamedTypeSymbolProvider : TypeProvider
     {
         private INamedTypeSymbol _namedTypeSymbol;
+        private readonly Compilation _compilation;
 
-        public NamedTypeSymbolProvider(INamedTypeSymbol namedTypeSymbol)
+        public NamedTypeSymbolProvider(INamedTypeSymbol namedTypeSymbol, Compilation compilation)
         {
             _namedTypeSymbol = namedTypeSymbol;
+            _compilation = compilation;
         }
 
         private protected sealed override NamedTypeSymbolProvider? BuildCustomCodeView(string? generatedTypeName = default, string? generatedTypeNamespace = default) => null;
@@ -139,17 +141,45 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     GetAccessModifier(propertySymbol.DeclaredAccessibility),
                     propertySymbol.Type.GetCSharpType(),
                     propertySymbol.Name,
-                    new AutoPropertyBody(propertySymbol.SetMethod is not null),
+                    new AutoPropertyBody(
+                        propertySymbol.SetMethod is not null,
+                        InitializationExpression: GetPropertyInitializer(propertySymbol)),
                     this)
                 {
                     OriginalName = GetOriginalName(propertySymbol),
                     CustomProvider = new(() => propertySymbol.Type is INamedTypeSymbol propertyNamedTypeSymbol
-                        ? new NamedTypeSymbolProvider(propertyNamedTypeSymbol)
+                        ? new NamedTypeSymbolProvider(propertyNamedTypeSymbol, _compilation)
                         : null)
                 };
                 properties.Add(propertyProvider);
             }
             return [.. properties];
+        }
+
+        private ValueExpression? GetPropertyInitializer(IPropertySymbol propertySymbol)
+        {
+            var syntaxReference = propertySymbol.DeclaringSyntaxReferences.FirstOrDefault();
+            if (syntaxReference?.GetSyntax() is PropertyDeclarationSyntax propertySyntax)
+            {
+                var initializerValue = propertySyntax.Initializer?.Value;
+                if (initializerValue == null)
+                {
+                    return null;
+                }
+
+                // Get the semantic model to evaluate constant values
+                var semanticModel = _compilation.GetSemanticModel(propertySyntax.SyntaxTree);
+                var constantValue = semanticModel.GetConstantValue(initializerValue);
+
+                if (constantValue.HasValue)
+                {
+                    return Literal(constantValue.Value);
+                }
+
+                // For non-constant expressions, return the expression text
+                return Literal(initializerValue.ToString());
+            }
+            return null;
         }
 
         private static string? GetOriginalName(ISymbol symbol)
