@@ -27,8 +27,8 @@
             "$id": "4",
             "kind": "string",
             "decorators": [],
-            "name": "string",
             "doc": "A sequence of textual characters.",
+            "name": "string",
             "crossLanguageDefinitionId": "TypeSpec.string"
           },
           "enumType": {
@@ -64,8 +64,8 @@
             "$id": "8",
             "kind": "string",
             "decorators": [],
-            "name": "string",
             "doc": "A sequence of textual characters.",
+            "name": "string",
             "crossLanguageDefinitionId": "TypeSpec.string"
           },
           "enumType": {
@@ -101,8 +101,8 @@
             "$id": "12",
             "kind": "int32",
             "decorators": [],
-            "name": "int32",
             "doc": "A 32-bit integer. (`-2,147,483,648` to `2,147,483,647`)",
+            "name": "int32",
             "crossLanguageDefinitionId": "TypeSpec.int32"
           },
           "enumType": {
@@ -138,8 +138,8 @@
             "$id": "16",
             "kind": "float32",
             "decorators": [],
-            "name": "float32",
             "doc": "A 32 bit floating point number. (`±1.5 x 10^−45` to `±3.4 x 10^38`)",
+            "name": "float32",
             "crossLanguageDefinitionId": "TypeSpec.float32"
           },
           "enumType": {
@@ -178,16 +178,16 @@
             "$id": "20",
             "kind": "enum",
             "decorators": [],
+            "doc": "Simple enum",
             "name": "StringFixedEnum",
             "isGeneratedName": false,
             "namespace": "SampleTypeSpec",
-            "doc": "Simple enum",
             "valueType": {
               "$id": "21",
               "kind": "string",
               "decorators": [],
-              "name": "string",
               "doc": "A sequence of textual characters.",
+              "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string"
             },
             "values": [
@@ -304,16 +304,16 @@
             "$id": "30",
             "kind": "enum",
             "decorators": [],
+            "doc": "Extensible enum",
             "name": "StringExtensibleEnum",
             "isGeneratedName": false,
             "namespace": "SampleTypeSpec",
-            "doc": "Extensible enum",
             "valueType": {
               "$id": "31",
               "kind": "string",
               "decorators": [],
-              "name": "string",
               "doc": "A sequence of textual characters.",
+              "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string"
             },
             "values": [
@@ -430,16 +430,16 @@
             "$id": "40",
             "kind": "enum",
             "decorators": [],
+            "doc": "Int based extensible enum",
             "name": "IntExtensibleEnum",
             "isGeneratedName": false,
             "namespace": "SampleTypeSpec",
-            "doc": "Int based extensible enum",
             "valueType": {
               "$id": "41",
               "kind": "int32",
               "decorators": [],
-              "name": "int32",
               "doc": "A 32-bit integer. (`-2,147,483,648` to `2,147,483,647`)",
+              "name": "int32",
               "crossLanguageDefinitionId": "TypeSpec.int32"
             },
             "values": [
@@ -556,16 +556,16 @@
             "$id": "50",
             "kind": "enum",
             "decorators": [],
+            "doc": "Float based extensible enum",
             "name": "FloatExtensibleEnum",
             "isGeneratedName": false,
             "namespace": "SampleTypeSpec",
-            "doc": "Float based extensible enum",
             "valueType": {
               "$id": "51",
               "kind": "float32",
               "decorators": [],
-              "name": "float32",
               "doc": "A 32 bit floating point number. (`±1.5 x 10^−45` to `±3.4 x 10^38`)",
+              "name": "float32",
               "crossLanguageDefinitionId": "TypeSpec.float32"
             },
             "values": [
@@ -682,16 +682,16 @@
             "$id": "60",
             "kind": "enum",
             "decorators": [],
+            "doc": "float fixed enum",
             "name": "FloatExtensibleEnumWithIntValue",
             "isGeneratedName": false,
             "namespace": "SampleTypeSpec",
-            "doc": "float fixed enum",
             "valueType": {
               "$id": "61",
               "kind": "float32",
               "decorators": [],
-              "name": "float32",
               "doc": "A 32 bit floating point number. (`±1.5 x 10^−45` to `±3.4 x 10^38`)",
+              "name": "float32",
               "crossLanguageDefinitionId": "TypeSpec.float32"
             },
             "values": [
@@ -808,16 +808,16 @@
             "$id": "70",
             "kind": "enum",
             "decorators": [],
+            "doc": "float fixed enum",
             "name": "FloatFixedEnum",
             "isGeneratedName": false,
             "namespace": "SampleTypeSpec",
-            "doc": "float fixed enum",
             "valueType": {
               "$id": "71",
               "kind": "float32",
               "decorators": [],
-              "name": "float32",
               "doc": "A 32 bit floating point number. (`±1.5 x 10^−45` to `±3.4 x 10^38`)",
+              "name": "float32",
               "crossLanguageDefinitionId": "TypeSpec.float32"
             },
             "values": [
@@ -934,16 +934,16 @@
             "$id": "80",
             "kind": "enum",
             "decorators": [],
+            "doc": "float fixed enum",
             "name": "FloatFixedEnumWithIntValue",
             "isGeneratedName": false,
             "namespace": "SampleTypeSpec",
-            "doc": "float fixed enum",
             "valueType": {
               "$id": "81",
               "kind": "int32",
               "decorators": [],
-              "name": "int32",
               "doc": "A 32-bit integer. (`-2,147,483,648` to `2,147,483,647`)",
+              "name": "int32",
               "crossLanguageDefinitionId": "TypeSpec.int32"
             },
             "values": [
@@ -1060,16 +1060,16 @@
             "$id": "90",
             "kind": "enum",
             "decorators": [],
+            "doc": "int fixed enum",
             "name": "IntFixedEnum",
             "isGeneratedName": false,
             "namespace": "SampleTypeSpec",
-            "doc": "int fixed enum",
             "valueType": {
               "$id": "91",
               "kind": "int32",
               "decorators": [],
-              "name": "int32",
               "doc": "A 32-bit integer. (`-2,147,483,648` to `2,147,483,647`)",
+              "name": "int32",
               "crossLanguageDefinitionId": "TypeSpec.int32"
             },
             "values": [
@@ -1193,8 +1193,8 @@
               "$id": "101",
               "kind": "string",
               "decorators": [],
-              "name": "string",
               "doc": "A sequence of textual characters.",
+              "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string"
             },
             "values": [
@@ -6030,8 +6030,8 @@
                       "$id": "472",
                       "kind": "string",
                       "decorators": [],
-                      "name": "string",
                       "doc": "A sequence of textual characters.",
+                      "name": "string",
                       "crossLanguageDefinitionId": "TypeSpec.string"
                     },
                     "enumType": {
@@ -6100,8 +6100,8 @@
                       "$id": "478",
                       "kind": "int32",
                       "decorators": [],
-                      "name": "int32",
                       "doc": "A 32-bit integer. (`-2,147,483,648` to `2,147,483,647`)",
+                      "name": "int32",
                       "crossLanguageDefinitionId": "TypeSpec.int32"
                     },
                     "enumType": {
@@ -6152,8 +6152,8 @@
                       "$id": "483",
                       "kind": "float32",
                       "decorators": [],
-                      "name": "float32",
                       "doc": "A 32 bit floating point number. (`±1.5 x 10^−45` to `±3.4 x 10^38`)",
+                      "name": "float32",
                       "crossLanguageDefinitionId": "TypeSpec.float32"
                     },
                     "enumType": {
