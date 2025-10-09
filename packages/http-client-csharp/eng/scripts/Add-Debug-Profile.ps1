@@ -374,9 +374,9 @@ function Add-DebugProfile {
     Write-Host "  - Generator: $generatorName" -ForegroundColor White
     Write-Host "  - Package: $packageName" -ForegroundColor White
     if ($emitterPackage) {
-        Write-Host "  - Emitter: $emitterPackage (from tsp-location.yaml)" -ForegroundColor White
+        Write-Host "  - Emitter: $packageName (from tsp-location.yaml)" -ForegroundColor White
     } else {
-        Write-Host "  - Emitter: auto-detected from SDK path" -ForegroundColor White
+        Write-Host "  - Emitter: $packageName (based on SDK path)" -ForegroundColor White
     }
     
     return $profileName
