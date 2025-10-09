@@ -52,21 +52,24 @@ function Test-PackageVersion {
     }
 }
 
-# Function to get the latest available version for a package
-function Get-LatestPackageVersion {
+# Function to get a specific dependency version from a package
+function Get-PackageDependencyVersion {
     param(
-        [string]$PackageName
+        [string]$PackageName,
+        [string]$PackageVersion,
+        [string]$DependencyName
     )
     
-    Write-Host "Getting latest version for $PackageName..."
-    $latestResult = & npm view "$PackageName" version 2>&1
+    Write-Host "Getting $DependencyName version from $PackageName@$PackageVersion..."
+    $result = & npm view "$PackageName@$PackageVersion" devDependencies.$DependencyName 2>&1
     
-    if ($LASTEXITCODE -eq 0) {
-        $latestVersion = $latestResult.Trim()
-        Write-Host "Latest version for $PackageName is $latestVersion"
-        return $latestVersion
+    if ($LASTEXITCODE -eq 0 -and $result) {
+        $dependencyVersion = $result.Trim()
+        $dependencyVersion = $dependencyVersion -replace '^[\^~]', ''
+        Write-Host "Found $DependencyName version: $dependencyVersion"
+        return $dependencyVersion
     } else {
-        Write-Error "Failed to get latest version for $PackageName : $latestResult"
+        Write-Warning "Could not find $DependencyName in dependencies of $PackageName@$PackageVersion"
         return $null
     }
 }
@@ -107,6 +110,12 @@ try {
     $tcgcVersion = $packageJson.devDependencies.PSObject.Properties[$tcgc].Value
     Write-Host "Using version $tcgcVersion as base version for injected dependencies"
 
+    # Get the fallback version from tcgc's @azure-tools/typespec-azure-core dependency
+    $fallbackVersion = Get-PackageDependencyVersion -PackageName $tcgc -PackageVersion $tcgcVersion -DependencyName '@azure-tools/typespec-azure-core'
+    if ($fallbackVersion) {
+        Write-Host "Fallback version available: $fallbackVersion"
+    }
+
     # Validate and inject the required dependencies
     Write-Host "Validating and injecting required dependencies..."
     $dependencyVersions = @{}
@@ -118,13 +127,12 @@ try {
         if (-not (Test-PackageVersion -PackageName $dependency -Version $tcgcVersion)) {
             Write-Warning "Version $tcgcVersion not found for $dependency"
             
-            # Try to get the latest available version as fallback
-            $latestVersion = Get-LatestPackageVersion -PackageName $dependency
-            if ($latestVersion) {
-                $versionToUse = $latestVersion
-                Write-Host "Using latest version $versionToUse for $dependency"
+            # Use the version from tcgc's @azure-tools/typespec-azure-core dependency as fallback
+            if ($fallbackVersion) {
+                Write-Host "Using fallback version $fallbackVersion for all injected dependencies"
+                $versionToUse = $fallbackVersion
             } else {
-                Write-Error "Could not determine a valid version for $dependency"
+                Write-Error "Could not determine a valid version for $dependency (no fallback available)"
                 exit 1
             }
         }
