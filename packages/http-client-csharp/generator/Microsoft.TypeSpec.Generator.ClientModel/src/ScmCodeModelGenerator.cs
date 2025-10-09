@@ -39,8 +39,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             AddMetadataReference(MetadataReference.CreateFromFile(typeof(ClientResult).Assembly.Location));
             AddMetadataReference(MetadataReference.CreateFromFile(typeof(BinaryData).Assembly.Location));
             AddMetadataReference(MetadataReference.CreateFromFile(typeof(JsonSerializer).Assembly.Location));
-            AddTypeToKeepPublic(ModelReaderWriterContextDefinition.s_name);
-            AddNonRootType(ModelReaderWriterContextDefinition.s_name);
+            AddTypeToKeep(ModelReaderWriterContextDefinition.s_name, isRoot: false);
         }
     }
 }

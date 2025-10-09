@@ -135,7 +135,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                 model.Decorators = decorators;
                 if (model.Decorators.Any(d => d.Name.Equals(DynamicModelDecorator)))
                 {
-                    MarkModelsAsDynamicRecursive(model);
+                    MarkModelsAsDynamicRecursive(model, []);
                 }
             }
 
@@ -148,34 +148,55 @@ namespace Microsoft.TypeSpec.Generator.Input
             return model;
         }
 
-        private static void MarkModelsAsDynamicRecursive(InputType inputType)
+        private static void MarkModelsAsDynamicRecursive(InputType inputType, HashSet<InputType> visited)
         {
+            if (!visited.Add(inputType))
+            {
+                return;
+            }
+
             if (inputType is InputModelType modelType)
             {
                 modelType.IsDynamicModel = true;
                 foreach (var property in modelType.Properties)
                 {
-                    if (property.Type is InputModelType propertyType)
+                    switch (property.Type)
                     {
-                        MarkModelsAsDynamicRecursive(propertyType);
+                        case InputModelType propertyType:
+                            MarkModelsAsDynamicRecursive(propertyType, visited);
+                            break;
+                        case InputArrayType arrayType:
+                            MarkModelsAsDynamicRecursive(arrayType.ValueType, visited);
+                            break;
+                        case InputDictionaryType dictionaryType:
+                            MarkModelsAsDynamicRecursive(dictionaryType.ValueType, visited);
+                            break;
+                        case InputNullableType nullableType:
+                            MarkModelsAsDynamicRecursive(nullableType.Type, visited);
+                            break;
+                        case InputUnionType unionType:
+                            foreach (var type in unionType.VariantTypes)
+                            {
+                                MarkModelsAsDynamicRecursive(type, visited);
+                            }
+                            break;
                     }
-                    else if (property.Type is InputArrayType arrayType)
-                    {
-                        MarkModelsAsDynamicRecursive(arrayType.ValueType);
-                    }
-                    else if (property.Type is InputDictionaryType dictionaryType)
-                    {
-                        MarkModelsAsDynamicRecursive(dictionaryType.ValueType);
-                    }
+                }
+            }
+            else if (inputType is InputUnionType unionType)
+            {
+                foreach (var type in unionType.VariantTypes)
+                {
+                    MarkModelsAsDynamicRecursive(type, visited);
                 }
             }
             else if (inputType is InputArrayType arrayType)
             {
-                MarkModelsAsDynamicRecursive(arrayType.ValueType);
+                MarkModelsAsDynamicRecursive(arrayType.ValueType, visited);
             }
             else if (inputType is InputDictionaryType dictionaryType)
             {
-                MarkModelsAsDynamicRecursive(dictionaryType.ValueType);
+                MarkModelsAsDynamicRecursive(dictionaryType.ValueType, visited);
             }
         }
     }

@@ -151,6 +151,7 @@ export default tsEslint.config(
       "**/.docusaurus/**/*",
       "website/src/assets/**/*",
       "packages/compiler/templates/**/*", // Ignore the templates which might have invalid code and not follow exactly our rules.
+      "packages/typespec-vscode/templates/**/*", // Ignore the templates which might have invalid code and not follow exactly our rules.
       "packages/http-client-js/test/e2e/generated", // Ignore the generated http client
       "packages/http-client-js/sample/output/**/*", // Ignore the generated http client
       "packages/http-server-js/test/e2e/generated", // Ignore the generated http server

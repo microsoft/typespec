@@ -54,7 +54,7 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
 
         public TypeProvider? FindForTypeInLastContract(string ns, string name, string? declaringTypeName = null)
         {
-            return FindTypeInCompilation(LastContract, ns, name, true, declaringTypeName);
+            return FindTypeInCompilation(LastContract, ns, name, true, declaringTypeName, includeInternal: false);
         }
 
         private TypeProvider? FindTypeInCompilation(
@@ -62,7 +62,8 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
             string ns,
             string name,
             bool includeReferencedAssemblies,
-            string? declaringTypeName = null)
+            string? declaringTypeName,
+            bool includeInternal = true)
         {
             if (compilation == null)
             {
@@ -71,8 +72,12 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
             string fullyQualifiedMetadataName = GetFullyQualifiedMetadataName(ns, name, declaringTypeName);
 
             var type = FindNamedTypeSymbol(compilation, includeReferencedAssemblies, fullyQualifiedMetadataName);
+            if (!includeInternal && type != null && type.DeclaredAccessibility != Accessibility.Public)
+            {
+                type = null;
+            }
 
-            return type != null ? new NamedTypeSymbolProvider(type) : null;
+            return type != null ? new NamedTypeSymbolProvider(type, compilation) : null;
         }
 
         private static INamedTypeSymbol? FindNamedTypeSymbol(Compilation compilation, bool includeReferencedAssemblies, string fullyQualifiedMetadataName)
@@ -105,7 +110,7 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
                 type = FindNamedTypeSymbol(compilation, includeReferencedAssemblies, fullyQualifiedMetadataName);
             }
 
-            return type != null ? new NamedTypeSymbolProvider(type) : null;
+            return type != null ? new NamedTypeSymbolProvider(type, compilation) : null;
         }
 
         private bool TryGetName(ISymbol symbol, [NotNullWhen(true)] out string? name)

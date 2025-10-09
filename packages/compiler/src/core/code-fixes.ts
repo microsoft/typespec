@@ -46,10 +46,10 @@ async function applyCodeFixEdits(host: CompilerHost, edits: CodeFixEdit[]) {
   }
 }
 
-function applyCodeFixEditsOnText(content: string, edits: CodeFixEdit[]): string {
+export function applyCodeFixEditsOnText(content: string, edits: CodeFixEdit[]): string {
   const segments = [];
   let last = 0;
-  for (const edit of edits) {
+  for (const edit of edits.sort((a, b) => a.pos - b.pos)) {
     switch (edit.kind) {
       case "insert-text":
         segments.push(content.slice(last, edit.pos));
@@ -66,7 +66,7 @@ function applyCodeFixEditsOnText(content: string, edits: CodeFixEdit[]): string 
   return segments.join("");
 }
 
-function createCodeFixContext(): CodeFixContext {
+export function createCodeFixContext(): CodeFixContext {
   return {
     prependText,
     appendText,

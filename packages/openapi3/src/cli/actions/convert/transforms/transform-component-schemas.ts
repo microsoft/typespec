@@ -88,8 +88,12 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
     schema: OpenAPI3Schema,
   ): void {
     const { name, scope } = getScopeAndName(rawName);
-    const allOfDetails = getAllOfDetails(schema, scope);
-    const isParent = getModelIs(schema, scope);
+
+    // Unwrap single anyOf/oneOf members to get the actual schema
+    const effectiveSchema = unwrapSingleAnyOfOneOf(schema);
+
+    const allOfDetails = getAllOfDetails(effectiveSchema, scope);
+    const isParent = getModelIs(effectiveSchema, scope);
     const refName = `#/components/schemas/${rawName}`;
     const isModelReferencedAsMultipartRequestBody =
       context.isSchemaReferenceRegisteredForMultipartForm(refName);
@@ -100,14 +104,21 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
       kind: "model",
       name,
       scope,
-      decorators: [...getDecoratorsForSchema(schema)],
-      doc: schema.description,
-      properties: [...getModelPropertiesFromObjectSchema(schema), ...allOfDetails.properties],
+      decorators: [...getDecoratorsForSchema(effectiveSchema)],
+      doc: effectiveSchema.description || schema.description,
+      properties: [
+        ...getModelPropertiesFromObjectSchema(effectiveSchema),
+        ...allOfDetails.properties,
+      ],
       additionalProperties:
-        typeof schema.additionalProperties === "object" ? schema.additionalProperties : undefined,
+        effectiveSchema.additionalProperties === true
+          ? {} // Use empty object to represent Record<unknown>
+          : typeof effectiveSchema.additionalProperties === "object"
+            ? effectiveSchema.additionalProperties
+            : undefined,
       extends: allOfDetails.extends,
       is: isParent,
-      type: schema.type,
+      type: effectiveSchema.type,
       spread: allOfDetails.spread,
       isModelReferencedAsMultipartRequestBody,
       encoding,
@@ -243,6 +254,48 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
   }
 }
 
+/**
+ * Unwraps a schema with single anyOf/oneOf member to extract the actual schema.
+ * If there's a single meaningful (non-null, non-ref) inline object member in anyOf/oneOf,
+ * returns that member's schema merged with any properties from the parent schema.
+ * Otherwise, returns the original schema.
+ */
+function unwrapSingleAnyOfOneOf(schema: OpenAPI3Schema): OpenAPI3Schema {
+  const unionMembers = schema.anyOf || schema.oneOf;
+  if (!unionMembers) {
+    return schema;
+  }
+
+  const meaningfulInlineMembers = unionMembers.filter((member) => {
+    // Exclude $ref members and null types
+    if ("$ref" in member) return false;
+    if (!("type" in member)) return false;
+    // In OpenAPI 3.1, type can be "null" (JsonSchemaType includes "null")
+    // In OpenAPI 3.0, nullable is used instead, but we still check type here for consistency
+    return (member as any).type !== "null";
+  });
+
+  // If there's exactly one meaningful inline member AND it's an object type, unwrap it
+  if (meaningfulInlineMembers.length === 1) {
+    const member = meaningfulInlineMembers[0];
+    // Only unwrap if the member is an object schema
+    if (!("$ref" in member) && (member.type === "object" || member.properties)) {
+      // Merge the member schema with any top-level properties from the parent schema
+      // Priority: member properties > parent properties
+      // Use member's description if available, otherwise use parent's description
+      return {
+        ...schema,
+        ...member,
+        description: member.description || schema.description,
+        anyOf: undefined,
+        oneOf: undefined,
+      };
+    }
+  }
+
+  return schema;
+}
+
 function getModelPropertiesFromObjectSchema({
   properties,
   required = [],
@@ -279,6 +332,28 @@ function getTypeSpecKind(schema: OpenAPI3Schema): TypeSpecDataTypes["kind"] {
     schema.nullable ||
     (Array.isArray(schema.type) && schema.type.includes("null"))
   ) {
+    // Check if anyOf/oneOf has a single meaningful inline object schema
+    const unionMembers = schema.anyOf || schema.oneOf;
+    if (unionMembers) {
+      const meaningfulInlineMembers = unionMembers.filter((member) => {
+        // Exclude $ref members and null types
+        if ("$ref" in member) return false;
+        if (!("type" in member)) return false;
+        // In OpenAPI 3.1, type can be "null" (JsonSchemaType includes "null")
+        // In OpenAPI 3.0, nullable is used instead, but we still check type here for consistency
+        return (member as any).type !== "null";
+      });
+
+      // If there's exactly one meaningful inline member AND it's an object type, treat it as a model
+      if (meaningfulInlineMembers.length === 1) {
+        const member = meaningfulInlineMembers[0];
+        // Only unwrap if the member is an object schema
+        if (!("$ref" in member) && (member.type === "object" || member.properties)) {
+          return "model";
+        }
+      }
+    }
+
     return "union";
   } else if (
     schema.type === "object" ||

@@ -768,6 +768,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                 }
 
+                if (inputParam is { IsRequired: true, Type: InputLiteralType or InputEnumTypeValue })
+                {
+                    continue;
+                }
+
                 ParameterProvider? parameter = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(inputParam)?.ToPublicInputParameter();
                 if (parameter is null)
                 {

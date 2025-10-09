@@ -1,14 +1,19 @@
-import { BasicTestRunner, expectDiagnostics } from "@typespec/compiler/testing";
+import {
+  EmitterTesterInstance,
+  expectDiagnostics,
+  TestEmitterCompileResult,
+} from "@typespec/compiler/testing";
 import { beforeEach, it } from "vitest";
-import { createCSharpServiceEmitterTestRunner, getStandardService } from "./test-host.js";
-let runner: BasicTestRunner;
+import { EmitterTester, getStandardService } from "./test-host.js";
+
+let tester: EmitterTesterInstance<TestEmitterCompileResult>;
 
 beforeEach(async () => {
-  runner = await createCSharpServiceEmitterTestRunner();
+  tester = await EmitterTester.createInstance();
 });
 
 it("warns for custom scalars", async () => {
-  const [_, diagnostics] = await runner.compileAndDiagnose(
+  const diagnostics = await tester.diagnose(
     getStandardService(`
       /** bar scalar */
       scalar bar;
@@ -25,7 +30,7 @@ it("warns for custom scalars", async () => {
 });
 
 it("warns for integer", async () => {
-  const [_, diagnostics] = await runner.compileAndDiagnose(
+  const diagnostics = await tester.diagnose(
     getStandardService(`
       /** the foo */
       model Foo {
@@ -45,7 +50,7 @@ it("warns for integer", async () => {
 });
 
 it("warns for float", async () => {
-  const [_, diagnostics] = await runner.compileAndDiagnose(
+  const diagnostics = await tester.diagnose(
     getStandardService(`
       /** the foo */
       model Foo {
@@ -65,7 +70,7 @@ it("warns for float", async () => {
 });
 
 it("warns for numeric", async () => {
-  const [_, diagnostics] = await runner.compileAndDiagnose(
+  const diagnostics = await tester.diagnose(
     getStandardService(`
       /** the foo */
       model Foo {
@@ -85,7 +90,7 @@ it("warns for numeric", async () => {
 });
 
 it("warns for invalid identifiers", async () => {
-  const [_, diagnostics] = await runner.compileAndDiagnose(
+  const diagnostics = await tester.diagnose(
     getStandardService(`
       /** A simple test model*/
     model Foo {
@@ -106,7 +111,7 @@ it("warns for invalid identifiers", async () => {
 });
 
 it("warns for invalid interpolation", async () => {
-  const [_, diagnostics] = await runner.compileAndDiagnose(
+  const diagnostics = await tester.diagnose(
     getStandardService(`
       /** A simple test model*/
       model Foo {
@@ -128,24 +133,24 @@ it("warns for invalid interpolation", async () => {
 });
 
 it("warns for anonymous models", async () => {
-  const [_, diagnostics] = await runner.compileAndDiagnose(
+  const diagnostics = await tester.diagnose(
     getStandardService(`
       /** A simple test model*/
       model Foo {
         /** Numeric literal */
         intProp: [8, 10];
-        
+
         /** A complex property */
         modelProp: {
           bar: string;
         };
-        
+
         anotherModelProp: {
           baz: string;
         };
-        
+
         yetAnother: Foo.modelProp;
-        
+
       }
 
       @route("/foo") op foo(): void;
@@ -167,7 +172,7 @@ it("warns for anonymous models", async () => {
 });
 
 it("warns for GET requests with explicit body parameters", async () => {
-  const [_, diagnostics] = await runner.compileAndDiagnose(
+  const diagnostics = await tester.diagnose(
     getStandardService(
       `
       #suppress "@typespec/http-server-csharp/anonymous-model" "Test"

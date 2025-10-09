@@ -1,5 +1,9 @@
 # Change Log - @typespec/openapi
 
+## 1.5.0
+
+No changes, version bump only.
+
 ## 1.4.0
 
 ### Bump dependencies

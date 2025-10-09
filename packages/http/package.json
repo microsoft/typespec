@@ -1,6 +1,6 @@
 {
   "name": "@typespec/http",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec HTTP protocol binding",
   "homepage": "https://github.com/microsoft/typespec",
