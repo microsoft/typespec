@@ -212,7 +212,7 @@ function Get-GeneratorConfig {
         } else {
             return @{
                 PackageName = "http-client-csharp"
-                GeneratorName = "AzureClientGenerator"
+                GeneratorName = "ScmCodeModelGenerator"
             }
         }
     }
