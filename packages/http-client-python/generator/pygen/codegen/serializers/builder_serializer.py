@@ -1049,13 +1049,8 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                             is_operation_file=True, skip_quote=True, serialize_namespace=self.serialize_namespace
                         )
                         if self.code_model.options["models-mode"] == "dpg":
-                            retval.extend(
-                                [
-                                    "        error = _failsafe_deserialize(",
-                                    f"            {type_annotation},{pylint_disable}",
-                                    "            response,",
-                                    "        )",
-                                ]
+                            retval.append(
+                                f"        error = _failsafe_deserialize({type_annotation},{pylint_disable}\n  response)"
                             )
                         else:
                             retval.extend(
@@ -1095,22 +1090,14 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                     )
                     if self.code_model.options["models-mode"] == "dpg":
                         if xml_serializable(str(e.default_content_type)):
-                            retval.extend(
-                                [
-                                    "        error = _failsafe_deserialize_xml("
-                                    f"            {type_annotation},{pylint_disable}",
-                                    "            response",
-                                    "        )",
-                                ]
+                            retval.append(
+                                "        error = _failsafe_deserialize_xml("
+                                f"{type_annotation},{pylint_disable}\n  response)"
                             )
                         else:
-                            retval.extend(
-                                [
-                                    "        error = _failsafe_deserialize(",
-                                    f"            {type_annotation},{pylint_disable}",
-                                    "            response",
-                                    "        )",
-                                ]
+                            retval.append(
+                                "        error = _failsafe_deserialize("
+                                f"{type_annotation},{pylint_disable}\n  response)"
                             )
                     else:
                         retval.extend(
@@ -1130,14 +1117,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             if builder.non_default_errors:
                 retval.append("    else:")
             if self.code_model.options["models-mode"] == "dpg":
-                retval.extend(
-                    [
-                        f"{indent}error = _failsafe_deserialize(",
-                        f"{indent}   {default_error_deserialization}",
-                        f"{indent}    response,",
-                        f"{indent})",
-                    ]
-                )
+                retval.append(f"{indent}error = _failsafe_deserialize({default_error_deserialization}, response)")
             else:
                 retval.extend(
                     [
