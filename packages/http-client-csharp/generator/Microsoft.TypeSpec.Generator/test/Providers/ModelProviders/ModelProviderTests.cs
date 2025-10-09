@@ -990,6 +990,77 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsTrue(moreItemsProperty!.Type.Equals(typeof(IReadOnlyDictionary<string, string>)));
         }
 
+        [TestCase(true)]
+        [TestCase(false)]
+        public async Task BackCompat_ReadOnlyCollectionModelPropertiesAreRetained(bool useStruct)
+        {
+            var elementModel = InputFactory.Model(
+                "ElementModel",
+                modelAsStruct: useStruct,
+                properties:
+                [
+                    InputFactory.Property("name", InputPrimitiveType.String)
+                ]);
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                properties:
+                [
+                    InputFactory.Property("items", InputFactory.Array(elementModel)),
+                    InputFactory.Property("moreItems", InputFactory.Dictionary(elementModel))
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel, elementModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(useStruct.ToString()));
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            var elementModelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "ElementModel") as ModelProvider;
+
+            var itemsProperty = modelProvider!.Properties.FirstOrDefault(p => p.Name == "Items");
+            Assert.IsNotNull(itemsProperty);
+            Assert.IsTrue(itemsProperty!.Type.Equals(new CSharpType(typeof(IReadOnlyList<>), elementModelProvider!.Type)));
+
+            var moreItemsProperty = modelProvider.Properties.FirstOrDefault(p => p.Name == "MoreItems");
+            Assert.IsNotNull(moreItemsProperty);
+            Assert.IsTrue(moreItemsProperty!.Type.Equals(new CSharpType(typeof(IReadOnlyDictionary<,>), typeof(string), elementModelProvider.Type)));
+        }
+
+        [Test]
+        public async Task BackCompat_ReadOnlyCollectionEnumPropertiesAreRetained()
+        {
+            var elementEnum = InputFactory.StringEnum(
+                "ElementEnum",
+                [("value1", "value1"), ("value2", "value2")],
+                isExtensible: true);
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                properties:
+                [
+                    InputFactory.Property("items", InputFactory.Array(elementEnum)),
+                    InputFactory.Property("moreItems", InputFactory.Dictionary(elementEnum))
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                inputEnumTypes: [elementEnum],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            var elementEnumProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "ElementEnum") as EnumProvider;
+
+            var itemsProperty = modelProvider!.Properties.FirstOrDefault(p => p.Name == "Items");
+            Assert.IsNotNull(itemsProperty);
+            Assert.IsTrue(itemsProperty!.Type.Equals(new CSharpType(typeof(IReadOnlyList<>), elementEnumProvider!.Type)));
+
+            var moreItemsProperty = modelProvider.Properties.FirstOrDefault(p => p.Name == "MoreItems");
+            Assert.IsNotNull(moreItemsProperty);
+            Assert.IsTrue(moreItemsProperty!.Type.Equals(new CSharpType(typeof(IReadOnlyDictionary<,>), typeof(string), elementEnumProvider.Type)));
+        }
+
         [Test]
         public async Task BackCompat_InternalTypesAreIgnored()
         {
@@ -1015,6 +1086,77 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var moreItemsProperty = modelProvider.Properties.FirstOrDefault(p => p.Name == "MoreItems");
             Assert.IsNotNull(moreItemsProperty);
             Assert.IsTrue(moreItemsProperty!.Type.Equals(typeof(IDictionary<string, string>)));
+        }
+
+        [Test]
+        public void PublicModelsAreIncludedInAdditionalRootTypes()
+        {
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                access: "public");
+
+            MockHelpers.LoadMockGenerator(
+                inputModelTypes: [inputModel]);
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            var rootTypes = CodeModelGenerator.Instance.AdditionalRootTypes;
+            Assert.IsTrue(rootTypes.Contains("Sample.Models.MockInputModel"));
+        }
+
+        [Test]
+        public void InternalModelsAreNotIncludedInAdditionalRootTypes()
+        {
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                access: "internal");
+
+            MockHelpers.LoadMockGenerator(
+                inputModelTypes: [inputModel]);
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            var rootTypes = CodeModelGenerator.Instance.AdditionalRootTypes;
+            Assert.IsFalse(rootTypes.Contains("Sample.Models.MockInputModel"));
+        }
+
+        [TestCase(true, true, InputModelTypeUsage.Output, true, false)]
+        [TestCase(true, false, InputModelTypeUsage.Output, true, false)]
+        [TestCase(false, true, InputModelTypeUsage.Output, true, false)]
+        [TestCase(false, false,InputModelTypeUsage.Output, true, false)]
+        [TestCase(true, true, InputModelTypeUsage.Input, true, false)]
+        [TestCase(true, true, InputModelTypeUsage.Input | InputModelTypeUsage.Output, true, true)]
+        [TestCase(true, false, InputModelTypeUsage.Input, false, false)]
+        [TestCase(false, true, InputModelTypeUsage.Input, true, true)]
+        [TestCase(false, false, InputModelTypeUsage.Input, true, true)]
+        public void ConstantPropertiesAccessibility(
+            bool isRequired,
+            bool isNullable,
+            InputModelTypeUsage usage,
+            bool shouldBePublic,
+            bool shouldHaveSetter)
+        {
+            var inputType = InputFactory.Literal.String("constant", "prop1");
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                usage: usage,
+                properties:
+                [
+                    InputFactory.Property("prop1", isNullable? new InputNullableType(inputType) : inputType, isRequired: isRequired),
+                ]);
+
+            MockHelpers.LoadMockGenerator(
+                inputModelTypes: [inputModel]);
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            var prop = modelProvider!.Properties.FirstOrDefault(p => p.Name == "Prop1");
+            Assert.IsNotNull(prop);
+            Assert.AreEqual(shouldBePublic, prop!.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.AreEqual(shouldHaveSetter, prop.Body.HasSetter);
         }
     }
 }

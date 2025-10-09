@@ -22,7 +22,7 @@ const argv = parseArgs({
 });
 
 // Add this near the top with other constants
-const SKIP_SPECS = ["type/union/discriminated", "client-operation-group"];
+const SKIP_SPECS = ["type/union/discriminated"];
 
 // Get the directory of the current file
 const PLUGIN_DIR = argv.values.pluginDir
@@ -97,8 +97,15 @@ const AZURE_EMITTER_OPTIONS: Record<string, Record<string, string> | Record<stri
   "azure/payload/pageable": {
     namespace: "specs.azure.payload.pageable",
   },
+  "azure/versioning/previewVersion": {
+    namespace: "specs.azure.versioning.previewversion",
+  },
   "client/structure/default": {
     namespace: "client.structure.service",
+  },
+  "client/structure/client-operation-group": {
+    "package-name": "client-structure-clientoperationgroup",
+    namespace: "client.structure.clientoperationgroup",
   },
   "client/structure/multi-client": {
     "package-name": "client-structure-multiclient",

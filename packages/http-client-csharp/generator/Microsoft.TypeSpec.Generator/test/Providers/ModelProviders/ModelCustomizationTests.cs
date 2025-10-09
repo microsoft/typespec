@@ -1127,6 +1127,22 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task CanCustomizeLiteralEnumProperty()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var enumVal = InputFactory.EnumMember.String("val1", "val1", InputFactory.StringEnum("mockInputEnum", []));
+            var inputModel = InputFactory.Model("mockInputModel", properties: [InputFactory.Property("prop1", enumVal)]);
+            var modelTypeProvider = new ModelProvider(inputModel);
+
+            var canonicalView = modelTypeProvider.CanonicalView;
+            Assert.IsNotNull(canonicalView);
+            Assert.AreEqual(1, canonicalView.Properties.Count);
+            Assert.AreEqual("Prop1", canonicalView.Properties[0].Name);
+            Assert.AreEqual("MockInputEnum", canonicalView.Properties[0].Type.Name);
+            Assert.AreEqual("Sample.Models", canonicalView.Properties[0].Type.Namespace);
+        }
+
+        [Test]
         public void CanCustomizeRelativeFilePath()
         {
             MockHelpers.LoadMockGenerator();

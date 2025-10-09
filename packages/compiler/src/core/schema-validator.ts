@@ -35,6 +35,7 @@ export function createJSONSchemaValidator<T>(
   const ajv = new Ajv({
     strict: options.strict,
     coerceTypes: options.coerceTypes,
+    allowUnionTypes: true,
     allErrors: true,
   } satisfies Options);
 

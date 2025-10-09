@@ -1,6 +1,6 @@
 {
   "name": "@typespec/openapi3",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for emitting OpenAPI 3.0 and OpenAPI 3.1 from the TypeSpec REST protocol binding and converting OpenAPI3 to TypeSpec",
   "homepage": "https://typespec.io",
@@ -32,6 +32,9 @@
       "types": "./dist/src/testing/index.d.ts",
       "default": "./dist/src/testing/index.js"
     }
+  },
+  "imports": {
+    "#test/*": "./test/*"
   },
   "engines": {
     "node": ">=20.0.0"

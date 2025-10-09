@@ -25,12 +25,19 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // Check to see if there is custom code that customizes the enum.
             var customCodeView = fixedEnumProvider.CustomCodeView ?? extensibleEnumProvider.CustomCodeView;
 
-            return customCodeView switch
+            EnumProvider provider = customCodeView switch
             {
                 { Type: { IsValueType: true, IsStruct: true } } => extensibleEnumProvider,
                 { Type: { IsValueType: true, IsStruct: false } } => fixedEnumProvider,
                 _ => input.IsExtensible ? extensibleEnumProvider : fixedEnumProvider
             };
+
+            if (input.Access == "public")
+            {
+                CodeModelGenerator.Instance.AddTypeToKeep(provider);
+            }
+
+            return provider;
         }
 
         protected EnumProvider(InputEnumType input)

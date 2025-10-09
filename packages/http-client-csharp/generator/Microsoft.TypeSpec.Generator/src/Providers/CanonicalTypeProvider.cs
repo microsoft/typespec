@@ -10,6 +10,7 @@ using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Utilities;
 
 namespace Microsoft.TypeSpec.Generator.Providers
 {
@@ -91,6 +92,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     specProperty = candidateSpecProperty;
                     customProperty.WireInfo = new PropertyWireInformation(specProperty);
                     customProperty.IsDiscriminator = customProperty.WireInfo.IsDiscriminator;
+                    customProperty.Update(description: customProperty.WireInfo.Description);
+
                     _propertyProviderMap[specProperty] = customProperty;
                 }
 
@@ -126,7 +129,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     }
                 }
 
-                customProperty.Type = EnsureCorrectTypeRepresentation(specProperty, customProperty.Type);
+                customProperty.Type = customProperty.Type.ApplyInputSpecProperty(specProperty);
             }
 
             if (_specProperties.Count > 0)
@@ -207,6 +210,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     specProperty = candidateSpecProperty;
                     customField.WireInfo = new PropertyWireInformation(specProperty);
+                    customField.Update(description: customField.WireInfo.Description);
                 }
 
                 string? serializedName = specProperty?.SerializedName;
@@ -241,149 +245,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     }
                 }
 
-                customField.Type = EnsureCorrectTypeRepresentation(specProperty, customField.Type);
+                customField.Type = customField.Type.ApplyInputSpecProperty(specProperty);
             }
 
             // Order is not important for fields, so we can just return generated followed by custom fields
             return [..generatedFields, ..customFields];
-        }
-
-        private static bool IsCustomizedEnumProperty(
-            InputProperty? inputProperty,
-            CSharpType customType,
-            [NotNullWhen(true)] out InputType? specValueType)
-        {
-            var enumValueType = GetInputPrimitiveType(inputProperty?.Type);
-            if (enumValueType != null)
-            {
-                specValueType = enumValueType;
-                return true;
-            }
-            if (customType.IsEnum && inputProperty != null)
-            {
-                specValueType = inputProperty.Type is InputNullableType nullableType ? nullableType.Type : inputProperty.Type;
-                return true;
-            }
-            specValueType = null;
-            return false;
-        }
-
-        private static CSharpType EnsureCorrectTypeRepresentation(InputProperty? specProperty, CSharpType customType)
-        {
-            if (customType.IsCollection)
-            {
-                var elementType = EnsureCorrectTypeRepresentation(specProperty, customType.ElementType);
-                if (customType.IsList)
-                {
-                    customType = new CSharpType(customType.FrameworkType, [elementType], customType.IsNullable);
-                }
-                else if (customType.IsDictionary)
-                {
-                    customType = new CSharpType(customType.FrameworkType, [customType.Arguments[0], elementType], customType.IsNullable);
-                }
-            }
-
-            // handle customized enums - we need to pull the type information from the spec property
-            customType = EnsureEnum(specProperty, customType);
-            // ensure literal types are correctly represented in the custom field using the info from the spec property
-            customType = EnsureLiteral(specProperty, customType);
-
-            // Ensure the namespace is populated for properties that customize generated model/enum types
-            // The namespaces are not able to be resolved by Roslyn since the generated types are not part of the compilation.
-            if (string.IsNullOrEmpty(customType.Namespace))
-            {
-                InputType? inputType = GetInputModelType(specProperty?.Type);
-                if (inputType == null)
-                {
-                    inputType = GetInputEnumType(specProperty?.Type);
-                }
-
-                if (inputType == null)
-                {
-                    return customType;
-                }
-
-                // Use the TypeFactory to get the correct namespace for the type which respects any customizations that have
-                // been applied to the generated types.
-                var type = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputType);
-                if (type != null)
-                {
-                    customType.Namespace = type.Namespace;
-                }
-            }
-
-            return customType;
-        }
-
-        private static CSharpType EnsureLiteral(InputProperty? specProperty, CSharpType customType)
-        {
-            if (specProperty?.Type is InputLiteralType inputLiteral && (customType.IsFrameworkType || customType.IsEnum))
-            {
-                return CSharpType.FromLiteral(customType, inputLiteral.Value);
-            }
-
-            return customType;
-        }
-
-        private static CSharpType EnsureEnum(InputProperty? specProperty, CSharpType customType)
-        {
-            if (!customType.IsFrameworkType && IsCustomizedEnumProperty(specProperty, customType, out var specType))
-            {
-                if (specType is InputLiteralType literalType)
-                {
-                    specType = literalType.ValueType;
-                }
-                return new CSharpType(
-                    customType.Name,
-                    customType.Namespace,
-                    customType.IsValueType,
-                    customType.IsNullable,
-                    customType.DeclaringType,
-                    customType.Arguments,
-                    customType.IsPublic,
-                    customType.IsStruct,
-                    customType.BaseType,
-                    TypeFactory.CreatePrimitiveCSharpTypeCore(specType));
-            }
-            return customType;
-        }
-
-        private static InputPrimitiveType? GetInputPrimitiveType(InputType? type)
-        {
-            return type switch
-            {
-                InputNullableType nullableType => GetInputPrimitiveType(nullableType.Type),
-                InputEnumTypeValue enumValueType => enumValueType.ValueType,
-                InputEnumType enumType => enumType.ValueType,
-                InputLiteralType inputLiteral => inputLiteral.ValueType,
-                InputArrayType arrayType => GetInputPrimitiveType(arrayType.ValueType),
-                InputDictionaryType dictionaryType => GetInputPrimitiveType(dictionaryType.ValueType),
-                _ => null
-            };
-        }
-
-        private static InputEnumType? GetInputEnumType(InputType? type)
-        {
-            return type switch
-            {
-                InputNullableType nullableType => GetInputEnumType(nullableType.Type),
-                InputEnumType enumType => enumType,
-                InputArrayType arrayType => GetInputEnumType(arrayType.ValueType),
-                InputDictionaryType dictionaryType => GetInputEnumType(dictionaryType.ValueType),
-                _ => null
-            };
-        }
-
-        private static InputModelType? GetInputModelType(InputType? type)
-        {
-            return type switch
-            {
-                InputNullableType nullableType => GetInputModelType(nullableType.Type),
-                InputModelType modelType => modelType,
-                InputArrayType arrayType => GetInputModelType(arrayType.ValueType),
-                InputDictionaryType dictionaryType => GetInputModelType(dictionaryType.ValueType),
-                _ => null
-            };
         }
 
         private bool TryGetSpecProperty(

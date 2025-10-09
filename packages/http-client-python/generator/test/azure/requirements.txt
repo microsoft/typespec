@@ -36,6 +36,7 @@ azure-mgmt-core==1.6.0
 -e ./generated/client-naming-enum-conflict
 -e ./generated/client-overload
 -e ./generated/client-structure-default
+-e ./generated/client-structure-clientoperationgroup
 -e ./generated/client-structure-multiclient
 -e ./generated/client-structure-renamedoperation
 -e ./generated/client-structure-twooperationgroup

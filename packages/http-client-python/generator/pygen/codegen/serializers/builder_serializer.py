@@ -1014,7 +1014,9 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                 retval.extend(deserialize_code)
         return retval
 
-    def handle_error_response(self, builder: OperationType) -> list[str]:
+    def handle_error_response(  # pylint: disable=too-many-statements, too-many-branches
+        self, builder: OperationType
+    ) -> list[str]:
         async_await = "await " if self.async_mode else ""
         retval = [f"if response.status_code not in {str(builder.success_status_codes)}:"]
         response_read = [
@@ -1036,6 +1038,10 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             retval.append("    error = None")
             for e in builder.non_default_errors:
                 # single status code
+                if isinstance(e.type, ModelType) and e.type.internal:
+                    pylint_disable = "  # pylint: disable=protected-access"
+                else:
+                    pylint_disable = ""
                 if isinstance(e.status_codes[0], int):
                     for status_code in e.status_codes:
                         retval.append(f"    {condition} response.status_code == {status_code}:")
@@ -1043,11 +1049,22 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                             is_operation_file=True, skip_quote=True, serialize_namespace=self.serialize_namespace
                         )
                         if self.code_model.options["models-mode"] == "dpg":
-                            retval.append(f"        error = _failsafe_deserialize({type_annotation},  response)")
+                            retval.extend(
+                                [
+                                    "        error = _failsafe_deserialize(",
+                                    f"            {type_annotation},{pylint_disable}",
+                                    "            response,",
+                                    "        )",
+                                ]
+                            )
                         else:
-                            retval.append(
-                                f"        error = self._deserialize.failsafe_deserialize({type_annotation}, "
-                                "pipeline_response)"
+                            retval.extend(
+                                [
+                                    "        error = self._deserialize.failsafe_deserialize(",
+                                    f"            {type_annotation},{pylint_disable}",
+                                    "            pipeline_response",
+                                    "        )",
+                                ]
                             )
                         # add build-in error type
                         # TODO: we should decide whether need to this wrapper for customized error type
@@ -1078,13 +1095,31 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                     )
                     if self.code_model.options["models-mode"] == "dpg":
                         if xml_serializable(str(e.default_content_type)):
-                            retval.append(f"        error = _failsafe_deserialize_xml({type_annotation}, response)")
+                            retval.extend(
+                                [
+                                    "        error = _failsafe_deserialize_xml("
+                                    f"            {type_annotation},{pylint_disable}",
+                                    "            response",
+                                    "        )",
+                                ]
+                            )
                         else:
-                            retval.append(f"        error = _failsafe_deserialize({type_annotation}, response)")
+                            retval.extend(
+                                [
+                                    "        error = _failsafe_deserialize(",
+                                    f"            {type_annotation},{pylint_disable}",
+                                    "            response",
+                                    "        )",
+                                ]
+                            )
                     else:
-                        retval.append(
-                            f"        error = self._deserialize.failsafe_deserialize({type_annotation}, "
-                            "pipeline_response)"
+                        retval.extend(
+                            [
+                                "        error = self._deserialize.failsafe_deserialize(",
+                                f"            {type_annotation},{pylint_disable}",
+                                "            pipeline_response",
+                                "        )",
+                            ]
                         )
                     condition = "elif"
         # default error handling
@@ -1095,11 +1130,20 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             if builder.non_default_errors:
                 retval.append("    else:")
             if self.code_model.options["models-mode"] == "dpg":
-                retval.append(f"{indent}error = _failsafe_deserialize({default_error_deserialization}, response)")
+                retval.extend(
+                    [
+                        f"{indent}error = _failsafe_deserialize(",
+                        f"{indent}   {default_error_deserialization}",
+                        f"{indent}    response,",
+                        f"{indent})",
+                    ]
+                )
             else:
-                retval.append(
-                    f"{indent}error = self._deserialize.failsafe_deserialize({default_error_deserialization}, "
-                    "pipeline_response)"
+                retval.extend(
+                    [
+                        f"{indent}error = self._deserialize.failsafe_deserialize(",
+                        f"{indent}    {default_error_deserialization}," f"{indent}    pipeline_response" f"{indent})",
+                    ]
                 )
         retval.append(
             "    raise HttpResponseError(response=response{}{})".format(

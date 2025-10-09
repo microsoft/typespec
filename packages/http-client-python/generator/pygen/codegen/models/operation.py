@@ -198,8 +198,13 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
             return None
         exception_schema = default_exceptions[0].type
         if isinstance(exception_schema, ModelType):
-            return exception_schema.type_annotation(skip_quote=True, serialize_namespace=serialize_namespace)
-        return None if self.code_model.options["models-mode"] == "dpg" else "'object'"
+            pylint_disable = "  # pylint: disable=protected-access" if exception_schema.internal else ""
+            return (
+                exception_schema.type_annotation(skip_quote=True, serialize_namespace=serialize_namespace)
+                + ", "
+                + pylint_disable
+            )
+        return None if self.code_model.options["models-mode"] == "dpg" else "'object',"
 
     @property
     def non_default_errors(self) -> list[Response]:
