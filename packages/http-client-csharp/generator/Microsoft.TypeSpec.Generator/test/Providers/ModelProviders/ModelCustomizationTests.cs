@@ -302,7 +302,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var elementType = listProp.Type.ElementType;
             Assert.AreEqual("global::Sample.Models.Foo", elementType.ToString());
             Assert.AreEqual("Sample.Models", elementType.Namespace);
-            Assert.IsFalse(elementType.IsNullable);
+            Assert.IsTrue(elementType.IsNullable);
         }
 
         [Test]
@@ -336,9 +336,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsTrue(listProp.Type.IsList);
 
             var elementType = listProp.Type.ElementType;
-            Assert.AreEqual("global::Sample.Models.Foo", elementType.ToString());
+            Assert.AreEqual("global::Sample.Models.Foo?", elementType.ToString());
             Assert.AreEqual("Sample.Models", elementType.Namespace);
-            Assert.IsFalse(elementType.IsNullable);
+            Assert.IsTrue(elementType.IsNullable);
             Assert.IsFalse(elementType.IsStruct);
             Assert.IsFalse(elementType.IsLiteral);
         }
@@ -414,7 +414,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var elementType = listProp.Type.ElementType;
             Assert.AreEqual("global::Sample.Models.Foo", elementType.ToString());
             Assert.AreEqual("Sample.Models", elementType.Namespace);
-            Assert.IsFalse(elementType.IsNullable);
+            Assert.IsTrue(elementType.IsNullable);
         }
 
         [Test]
@@ -424,7 +424,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             {
                 InputFactory.Property("Prop1", InputFactory.Model(
                     "Foo",
-                    usage: InputModelTypeUsage.Input))
+                    usage: InputModelTypeUsage.Input),
+                    isRequired: true)
             };
 
             var inputModel = InputFactory.Model("mockInputModel", properties: props);
@@ -482,7 +483,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             var modelProp = modelTypeProvider.CanonicalView.Properties[0];
             Assert.AreEqual("Prop1", modelProp.Name);
-            Assert.IsFalse(modelProp.Type.IsNullable);
+            Assert.IsTrue(modelProp.Type.IsNullable);
             Assert.IsFalse(modelProp.Body.HasSetter);
             Assert.AreEqual("global::Updated.Namespace.Models.Foo", modelProp.Type.ToString());
             Assert.AreEqual("Updated.Namespace.Models", modelProp.Type.Namespace);

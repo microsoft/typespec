@@ -54,8 +54,8 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
                 // Use the TypeFactory to get the correct namespace for the type which respects any customizations that have
                 // been applied to the generated types.
-                var newType = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(specProperty!.Type);
-                if (!specProperty.IsRequired && newType?.IsCollection == false)
+                var newType = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputType);
+                if (specProperty?.IsRequired == false && newType?.IsCollection == false)
                 {
                     newType = newType.WithNullable(true);
                 }
