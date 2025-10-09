@@ -1,4 +1,4 @@
-import { readFile, realpath } from "fs/promises";
+import { realpath } from "fs/promises";
 import { pathToFileURL } from "url";
 import { compilerAssert } from "../core/diagnostics.js";
 import { getEntityName } from "../core/helpers/type-name-utils.js";
@@ -10,8 +10,11 @@ import { Program, compile as coreCompile } from "../core/program.js";
 import { createSourceLoader } from "../core/source-loader.js";
 import { CompilerHost, Diagnostic, Entity, NoTarget, SourceFile } from "../core/types.js";
 import { resolveModule } from "../module-resolver/module-resolver.js";
+import { NodePackageResolver } from "../module-resolver/node-package-resolver.js";
+import { ResolveModuleHost } from "../module-resolver/types.js";
+import { parseNodeModuleSpecifier } from "../module-resolver/utils.js";
 import { expectDiagnosticEmpty } from "./expect.js";
-import { PositionedMarker, extractMarkers } from "./fourslash.js";
+import { extractMarkers } from "./fourslash.js";
 import { createTestFileSystem } from "./fs.js";
 import { GetMarkedEntities, Marker, TemplateWithMarkers } from "./marked-template.js";
 import { StandardTestLibrary, addTestLib } from "./test-compiler-host.js";
@@ -20,6 +23,7 @@ import type {
   EmitterTester,
   EmitterTesterInstance,
   MockFile,
+  PositionedMarkerInFile,
   TestCompileOptions,
   TestCompileResult,
   TestEmitterCompileResult,
@@ -31,6 +35,12 @@ import type {
 
 export interface TesterOptions {
   libraries: string[];
+
+  /**
+   * System host for loading libraries
+   * @internal
+   */
+  host?: CompilerHost;
 }
 export function createTester(base: string, options: TesterOptions): Tester {
   return createTesterInternal({
@@ -50,8 +60,7 @@ function once<T>(fn: () => Promise<T>): () => Promise<T> {
 
 async function createTesterFs(base: string, options: TesterOptions) {
   const fs = createTestFileSystem();
-
-  const host: CompilerHost = {
+  const host: CompilerHost = options.host ?? {
     ...NodeHost,
     // We want to keep the original path in the file map but we do still want to resolve the full path when loading JS to prevent duplicate imports.
     realpath: async (x: string) => x,
@@ -61,23 +70,39 @@ async function createTesterFs(base: string, options: TesterOptions) {
   };
 
   const sl = await createSourceLoader(host);
-  const selfName = JSON.parse(await readFile(resolvePath(base, "package.json"), "utf8")).name;
+  const selfName = JSON.parse((await host.readFile(resolvePath(base, "package.json"))).text).name;
+  const moduleHost: ResolveModuleHost = {
+    realpath: async (x) => x,
+    stat: host.stat,
+    readFile: async (path) => {
+      const file = await host.readFile(path);
+      return file.text;
+    },
+  };
+  const nodePackageResolver = new NodePackageResolver(moduleHost);
   for (const lib of options.libraries) {
-    await sl.importPath(lib, NoTarget, base);
+    const specifier = parseNodeModuleSpecifier(lib);
+    if (specifier === null) {
+      throw new Error(`Library imports must be bare module specifiers. Got: ${lib}`);
+    }
+    if (specifier.subPath !== "") {
+      // eslint-disable-next-line no-console
+      console.warn(
+        `Warning: Defining a subpath '${lib}' of a library is unnecessary. Just import the library. Ignoring the subpath in '${lib}'`,
+      );
+      continue;
+    }
 
+    const pkg = await nodePackageResolver.resolve(specifier.packageName, base);
+    for (const key of Object.keys(pkg?.exports ?? {})) {
+      const spec = resolvePath(specifier.packageName, key);
+      await sl.importPath(spec, NoTarget, base);
+    }
     // We also need to load the library js entrypoint for emitters and linters.
-    const resolved = await resolveModule(
-      {
-        realpath: async (x) => x,
-        stat: NodeHost.stat,
-        readFile: async (path) => {
-          const file = await NodeHost.readFile(path);
-          return file.text;
-        },
-      },
-      lib,
-      { baseDir: base, conditions: ["import", "default"] },
-    );
+    const resolved = await resolveModule(moduleHost, lib, {
+      baseDir: base,
+      conditions: ["import", "default"],
+    });
     if (resolved.type === "module") {
       const virtualPath = computeRelativePath(lib, resolved.mainFile);
       fs.addJsFile(virtualPath, await host.getJsImport(resolved.mainFile));
@@ -334,11 +359,11 @@ async function createTesterInstance(params: TesterInternalParams): Promise<Teste
       const codeStr = TemplateWithMarkers.is(value) ? value.code : value;
 
       const actualCode = filename === "main.tsp" ? wrapMain(codeStr) : codeStr;
+      const markers = extractMarkers(actualCode);
+      for (const marker of markers) {
+        markerPositions.push({ ...marker, filename });
+      }
       if (TemplateWithMarkers.is(value)) {
-        const markers = extractMarkers(actualCode);
-        for (const marker of markers) {
-          markerPositions.push({ ...marker, filename });
-        }
         for (const [markerName, markerConfig] of Object.entries(value.markers)) {
           if (markerConfig) {
             markerConfigs[markerName] = markerConfig;
@@ -386,13 +411,17 @@ async function createTesterInstance(params: TesterInternalParams): Promise<Teste
     savedProgram = program;
 
     const entities = extractMarkedEntities(program, markerPositions, markerConfigs);
-    return [{ program, fs, ...typesCollected, ...entities } as any, program.diagnostics];
+    return [
+      {
+        program,
+        fs,
+        pos: Object.fromEntries(markerPositions.map((x) => [x.name, x])) as any,
+        ...(typesCollected as GetMarkedEntities<T>),
+        ...entities,
+      },
+      program.diagnostics,
+    ];
   }
-}
-
-interface PositionedMarkerInFile extends PositionedMarker {
-  /** The file where the marker is located */
-  readonly filename: string;
 }
 
 function extractMarkedEntities(

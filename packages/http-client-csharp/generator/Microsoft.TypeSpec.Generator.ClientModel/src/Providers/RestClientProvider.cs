@@ -160,7 +160,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 statements.AddRange([
                     declareUri,
-                    uri.Reset(ScmKnownParameters.NextPage.AsExpression()).Terminate()
+                    uri.Reset(ScmKnownParameters.NextPage.AsVariable()).Terminate()
                 ]);
 
                 // handle reinjected parameters for URI
@@ -766,6 +766,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     {
                         continue;
                     }
+                }
+
+                if (inputParam is { IsRequired: true, Type: InputLiteralType or InputEnumTypeValue })
+                {
+                    continue;
                 }
 
                 ParameterProvider? parameter = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(inputParam)?.ToPublicInputParameter();

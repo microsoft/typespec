@@ -45,8 +45,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private protected virtual TypeProvider? BuildLastContractView(string? generatedTypeName = null, string? generatedTypeNamespace = null)
             => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(
-                generatedTypeNamespace ?? BuildNamespace(),
-                generatedTypeName ?? BuildName(),
+                generatedTypeNamespace ?? CustomCodeView?.Type.Namespace ?? BuildNamespace(),
+                generatedTypeName ?? CustomCodeView?.Name ?? BuildName(),
                 DeclaringTypeProvider?.Type.Name);
 
         public TypeProvider? CustomCodeView => _customCodeView.Value;
@@ -198,7 +198,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected virtual CSharpType? BuildBaseType() => null;
 
-        public CSharpType? BaseType => _baseType ??= CustomCodeView?.BaseType ?? BuildBaseType();
+        public CSharpType? BaseType => _baseType ??= BuildBaseType() ?? CustomCodeView?.BaseType;
         private CSharpType? _baseType;
 
         public WhereExpression? WhereClause => _whereClause ??= BuildWhereClause();
@@ -497,8 +497,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 // Reset the custom code view to reflect the new name
                 _customCodeView = new(BuildCustomCodeView(name, Type.Namespace));
-                _lastContractView = new(BuildLastContractView(name, Type.Namespace));
                 // Give precedence to the custom code view name if it exists
+                _lastContractView = new(BuildLastContractView(
+                    _customCodeView.Value?.Name ?? name,
+                    _customCodeView.Value?.Type.Namespace ?? Type.Namespace));
                 Type.Update(name: _customCodeView.Value?.Name ?? name, @namespace: _customCodeView.Value?.Type.Namespace);
             }
 

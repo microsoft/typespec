@@ -45,6 +45,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             {
                 return new InputLiteralType(name ?? string.Empty, @namespace ?? string.Empty, InputPrimitiveType.Int32, value);
             }
+
+            public static InputLiteralType Bool(bool value, string? name = null, string? @namespace = null)
+            {
+                return new InputLiteralType(name ?? string.Empty, @namespace ?? string.Empty, InputPrimitiveType.Boolean, value);
+            }
         }
 
         public static class Constant
@@ -443,7 +448,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             InputType? additionalProperties = null,
             IDictionary<string, InputModelType>? discriminatedModels = null,
             IEnumerable<InputModelType>? derivedModels = null,
-            InputModelProperty? discriminatorProperty = null)
+            InputModelProperty? discriminatorProperty = null,
+            bool isDynamicModel = false)
         {
             IEnumerable<InputModelProperty> propertiesList = properties ?? [Property("StringProperty", InputPrimitiveType.String)];
 
@@ -460,15 +466,20 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 baseModel,
                 derivedModels is null ? [] : [.. derivedModels],
                 discriminatedKind,
-                discriminatorProperty ?? propertiesList.FirstOrDefault(p => p is InputModelProperty modelProperty && modelProperty.IsDiscriminator),
-                discriminatedModels is null ? new Dictionary<string, InputModelType>() : discriminatedModels.AsReadOnly(),
+                discriminatorProperty ?? propertiesList.FirstOrDefault(p =>
+                    p is InputModelProperty modelProperty && modelProperty.IsDiscriminator),
+                discriminatedModels is null
+                    ? new Dictionary<string, InputModelType>()
+                    : discriminatedModels.AsReadOnly(),
                 additionalProperties,
                 modelAsStruct,
-                new());
+                new(),
+                isDynamicModel);
             if (baseModel is not null)
             {
                 _addDerivedModelMethod.Invoke(baseModel, new object[] { model });
             }
+
             return model;
         }
 

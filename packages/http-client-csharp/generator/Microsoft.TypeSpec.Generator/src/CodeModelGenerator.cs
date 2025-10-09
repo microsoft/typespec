@@ -127,46 +127,34 @@ namespace Microsoft.TypeSpec.Generator
             _sharedSourceDirectories.Add(sharedSourceDirectory);
         }
 
-        internal HashSet<string> TypesToKeep { get; } = [];
+        internal HashSet<string> AdditionalRootTypes { get; } = [];
 
-        internal HashSet<string> TypesToKeepPublic { get; } = [];
         internal HashSet<string> NonRootTypes { get; } = [];
 
         /// <summary>
         /// Adds a type to the list of types to keep.
         /// </summary>
         /// <param name="typeName">Either a fully qualified type name or simple type name.</param>
-        public void AddTypeToKeep(string typeName)
+        /// <param name="isRoot">Whether to treat the type as a root type. Any dependencies of root types will
+        /// not have their accessibility changed regardless of the 'unreferenced-types-handling' value.</param>
+        public void AddTypeToKeep(string typeName, bool isRoot = true)
         {
-            TypesToKeep.Add(typeName);
+            if (isRoot)
+            {
+                AdditionalRootTypes.Add(typeName);
+            }
+            else
+            {
+                NonRootTypes.Add(typeName);
+            }
         }
 
         /// <summary>
         /// Adds a type to the list of types to keep.
         /// </summary>
         /// <param name="type">The type provider representing the type.</param>
-        public void AddTypeToKeep(TypeProvider type) => AddTypeToKeep(type.Type.FullyQualifiedName);
-
-        /// <summary>
-        /// Adds a type to the list of types to keep as public.
-        /// </summary>
-        /// <param name="typeName">Either a fully qualified type name or simple type name.</param>
-        public void AddTypeToKeepPublic(string typeName) => TypesToKeepPublic.Add(typeName);
-
-        /// <summary>
-        /// Adds a type to the list of non-root type providers. Non-root type providers are types whose
-        /// references do not contribute to usages of the generated code. Therefore, if the 'unreferenced-types-handling' property
-        /// is not set to 'keepAll', any types referenced by non-root type providers will not automatically be kept.
-        /// </summary>
-        /// <param name="typeName">Either a fully qualified type name or simple type name.</param>
-        public void AddNonRootType(string typeName) => NonRootTypes.Add(typeName);
-
-        /// <summary>
-        /// Adds a type to the list of non-root type providers. Non-root type providers are types whose
-        /// references do not contribute to usages of the generated code. Therefore, if the 'unreferenced-types-handling' property
-        /// is not set to 'keepAll', any types referenced by non-root type providers will not automatically be kept.
-        /// </summary>
-        /// <param name="type">The type provider representing the type.</param>
-        public void AddNonRootType(TypeProvider type) => AddNonRootType(type.Type.FullyQualifiedName);
+        /// <param name="isRoot">Whether to treat the type as a root type. Any dependencies of root types will
+        /// not have their accessibility changed regardless of the 'unreferenced-types-handling' value.</param>
+        public void AddTypeToKeep(TypeProvider type, bool isRoot = true) => AddTypeToKeep(type.Type.FullyQualifiedName, isRoot);
     }
 }

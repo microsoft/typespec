@@ -22,7 +22,7 @@ const argv = parseArgs({
 });
 
 // Add this near the top with other constants
-const SKIP_SPECS = ["type/union/discriminated", "client-operation-group"];
+const SKIP_SPECS = ["type/union/discriminated"];
 
 // Get the directory of the current file
 const PLUGIN_DIR = argv.values.pluginDir
@@ -42,6 +42,9 @@ interface TspCommand {
 const AZURE_EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, string>[]> = {
   "azure/client-generator-core/access": {
     namespace: "specs.azure.clientgenerator.core.access",
+  },
+  "azure/client-generator-core/alternate-type": {
+    namespace: "specs.azure.clientgenerator.core.alternatetype",
   },
   "azure/client-generator-core/api-version": {
     namespace: "specs.azure.clientgenerator.core.apiversion",
@@ -97,8 +100,15 @@ const AZURE_EMITTER_OPTIONS: Record<string, Record<string, string> | Record<stri
   "azure/payload/pageable": {
     namespace: "specs.azure.payload.pageable",
   },
+  "azure/versioning/previewVersion": {
+    namespace: "specs.azure.versioning.previewversion",
+  },
   "client/structure/default": {
     namespace: "client.structure.service",
+  },
+  "client/structure/client-operation-group": {
+    "package-name": "client-structure-clientoperationgroup",
+    namespace: "client.structure.clientoperationgroup",
   },
   "client/structure/multi-client": {
     "package-name": "client-structure-multiclient",

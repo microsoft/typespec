@@ -4,6 +4,7 @@ import {
   EmitterOutput,
   ObjectBuilder,
   Placeholder,
+  setProperty,
   TypeEmitter,
 } from "@typespec/asset-emitter";
 import {
@@ -74,7 +75,7 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
     const program = this.emitter.getProgram();
     const examples = getExamples(program, type);
     if (examples.length > 0) {
-      target.set("example", serializeValueAsJson(program, examples[0].value, type));
+      setProperty(target, "example", serializeValueAsJson(program, examples[0].value, type));
     }
   }
 
@@ -229,7 +230,7 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
         } else {
           const merged = new ObjectBuilder<OpenAPI3Schema>(schema);
           for (const [key, value] of Object.entries(additionalProps)) {
-            merged.set(key, value);
+            setProperty(merged, key, value);
           }
           return merged;
         }

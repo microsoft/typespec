@@ -156,8 +156,10 @@ namespace SampleTypeSpec
             ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/anonymousBody", false);
+            uri.AppendQuery("requiredQueryParam", "someRequiredLiteralQueryParam", true);
             PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "POST", PipelineMessageClassifier200);
             PipelineRequest request = message.Request;
+            request.Headers.Set("required-header", "someRequiredLiteralHeader");
             request.Headers.Set("Content-Type", "application/json");
             request.Headers.Set("Accept", "application/json");
             request.Content = content;
@@ -386,6 +388,19 @@ namespace SampleTypeSpec
             {
                 request.Headers.Set("optional-header", optionalHeader);
             }
+            request.Headers.Set("Content-Type", "application/json");
+            request.Content = content;
+            message.Apply(options);
+            return message;
+        }
+
+        internal PipelineMessage CreateDynamicModelOperationRequest(BinaryContent content, RequestOptions options)
+        {
+            ClientUriBuilder uri = new ClientUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/dynamicModel", false);
+            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "POST", PipelineMessageClassifier204);
+            PipelineRequest request = message.Request;
             request.Headers.Set("Content-Type", "application/json");
             request.Content = content;
             message.Apply(options);

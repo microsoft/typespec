@@ -1,12 +1,13 @@
-import { Program, Type, navigateProgram } from "@typespec/compiler";
-import { BasicTestRunner, resolveVirtualPath } from "@typespec/compiler/testing";
+import { Entity, navigateProgram, Program } from "@typespec/compiler";
+import { resolveVirtualPath, TesterInstance, TestFileSystem } from "@typespec/compiler/testing";
 import assert, { deepStrictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
+import { CSharpServiceEmitterOptions } from "../src/lib/lib.js";
 import { getPropertySource, getSourceModel } from "../src/lib/utils.js";
-import { createCSharpServiceEmitterTestRunner, getStandardService } from "./test-host.js";
+import { ApiTester, compileAndDiagnose, getStandardService } from "./test-host.js";
 
-function getGeneratedFile(runner: BasicTestRunner, fileName: string): [string, string] {
-  const result = [...runner.fs.entries()].filter((e) => e[0].includes(`/${fileName}`));
+function getGeneratedFile(fs: TestFileSystem, fileName: string): [string, string] {
+  const result = [...fs.fs.entries()].filter((e) => e[0].includes(`/${fileName}`));
   assert.strictEqual(
     result === null || result === undefined,
     false,
@@ -48,34 +49,35 @@ function assertFileDoesNotContain(
 }
 
 async function compileAndValidateSingleModel(
-  runner: BasicTestRunner,
+  tester: TesterInstance,
   code: string,
   fileToCheck: string,
   expectedContent: string[],
 ): Promise<void> {
-  await compileAndValidateMultiple(runner, code, [[fileToCheck, expectedContent]]);
+  await compileAndValidateMultiple(tester, code, [[fileToCheck, expectedContent]]);
 }
 
 async function compile(
-  runner: BasicTestRunner,
+  tester: TesterInstance,
   code: string,
-): Promise<{ program: Program; types: Record<string, Type> }> {
+): Promise<{ program: Program; types: Record<string, Entity> }> {
   const spec = getStandardService(code);
-  const [types, _] = await runner.compileAndDiagnose(spec);
-  return { program: runner.program, types: types };
+  const [result, _] = await compileAndDiagnose(tester, spec);
+  return { program: result.program, types: { ...result } };
 }
 
 async function compileAndValidateMultiple(
-  runner: BasicTestRunner,
+  tester: TesterInstance,
   code: string | [string, string],
   fileChecks: [string, string[]][],
   notFileChecks?: [string, string[]][],
-): Promise<void> {
+  emitterOptions: CSharpServiceEmitterOptions = { "skip-format": true },
+): Promise<TestFileSystem> {
   const spec =
     typeof code === "string" ? getStandardService(code) : getStandardService(code[0], code[1]);
-  await runner.compile(spec);
+  const [result, _] = await compileAndDiagnose(tester, spec, emitterOptions);
   for (const [fileToCheck, expectedContent] of fileChecks) {
-    const [modelKey, modelContents] = getGeneratedFile(runner, fileToCheck);
+    const [modelKey, modelContents] = getGeneratedFile(result.fs, fileToCheck);
     expectedContent.forEach((element) => {
       assertFileContains(modelKey, modelContents, element);
     });
@@ -83,23 +85,24 @@ async function compileAndValidateMultiple(
 
   if (notFileChecks) {
     for (const [fileToCheck, expectedContent] of notFileChecks) {
-      const [modelKey, modelContents] = getGeneratedFile(runner, fileToCheck);
+      const [modelKey, modelContents] = getGeneratedFile(result.fs, fileToCheck);
       expectedContent.forEach((element) => {
         assertFileDoesNotContain(modelKey, modelContents, element);
       });
     }
   }
+  return result.fs;
 }
 
-let runner: BasicTestRunner;
+let tester: TesterInstance;
 
 beforeEach(async () => {
-  runner = await createCSharpServiceEmitterTestRunner();
+  tester = await ApiTester.createInstance();
 });
 
 it("can source properties", async () => {
   const result = await compile(
-    runner,
+    tester,
     `
       model Foo {
         @visibility("update");
@@ -128,7 +131,7 @@ it("can source properties", async () => {
 
 it("can source models", async () => {
   const result = await compile(
-    runner,
+    tester,
     `
       model Foo {
         @visibility("update");
@@ -156,7 +159,7 @@ it("can source models", async () => {
 
 it("generates standard scalar properties", async () => {
   await compileAndValidateSingleModel(
-    runner,
+    tester,
     `
       /** A simple test model*/
       model Foo {
@@ -244,7 +247,7 @@ it("generates standard scalar properties", async () => {
 
 it("generates numeric constraints", async () => {
   await compileAndValidateSingleModel(
-    runner,
+    tester,
     `
       /** A simple test model*/
       model Foo {
@@ -276,7 +279,7 @@ it("generates numeric constraints", async () => {
 
 it("generates string constraints", async () => {
   await compileAndValidateSingleModel(
-    runner,
+    tester,
     `
       /** A simple test model*/
       model Foo {
@@ -299,7 +302,7 @@ it("generates string constraints", async () => {
 
 it("handles scalar extensions", async () => {
   await compileAndValidateSingleModel(
-    runner,
+    tester,
     `
       /** A secret value */
       @secret
@@ -318,7 +321,7 @@ it("handles scalar extensions", async () => {
 
 it("handles scalar templates", async () => {
   await compileAndValidateSingleModel(
-    runner,
+    tester,
     `
 
       /** A simple test model*/
@@ -334,7 +337,7 @@ it("handles scalar templates", async () => {
 
 it("handles encoded property names", async () => {
   await compileAndValidateSingleModel(
-    runner,
+    tester,
     `
       /** A secret value */
       @secret
@@ -358,7 +361,7 @@ it("handles encoded property names", async () => {
 
 it("generates default model namespaces", async () => {
   await compileAndValidateSingleModel(
-    runner,
+    tester,
     `
       /** A secret value */
       @secret
@@ -383,7 +386,7 @@ it("generates default model namespaces", async () => {
 
 it("generates literal properties", async () => {
   await compileAndValidateSingleModel(
-    runner,
+    tester,
     `
       /** A simple test model*/
       model Foo {
@@ -407,7 +410,7 @@ it("generates literal properties", async () => {
 
 it("generates default values in properties", async () => {
   await compileAndValidateSingleModel(
-    runner,
+    tester,
     `
       /** A simple test model*/
       model Foo {
@@ -428,9 +431,10 @@ it("generates default values in properties", async () => {
     ],
   );
 });
+
 it("generates default values in required properties", async () => {
   await compileAndValidateSingleModel(
-    runner,
+    tester,
     `
       /** A simple test model*/
       model Foo {
@@ -454,7 +458,7 @@ it("generates default values in required properties", async () => {
 
 it("generates standard scalar array properties", async () => {
   await compileAndValidateSingleModel(
-    runner,
+    tester,
     `
       /** A simple test model*/
       model Foo {
@@ -520,7 +524,7 @@ it("generates standard scalar array properties", async () => {
 
 it("generates standard scalar array constraints", async () => {
   await compileAndValidateSingleModel(
-    runner,
+    tester,
     `
       /** A simple test model*/
       model Foo {
@@ -546,19 +550,19 @@ it("generates standard scalar array constraints", async () => {
 
 it("generates standard scalar array for uniqueItems properties", async () => {
   await compileAndValidateMultiple(
-    runner,
-    `    
+    tester,
+    `
       /** A simple test model*/
       model Foo {
         /** Names */
-        @uniqueItems 
+        @uniqueItems
         arrUniqueNames: string[];
 
         /** Colors */
         @uniqueItems
         arrUniqueColors: Array<string>;
       }
-        
+
      @patch(#{implicitOptionality: true}) @route("/Foo") op update(...Foo): Foo;
 
       `,
@@ -581,8 +585,8 @@ it("generates standard scalar array for uniqueItems properties", async () => {
 
 it("generates standard scalar array for uniqueItems model", async () => {
   await compileAndValidateSingleModel(
-    runner,
-    `    
+    tester,
+    `
       /** A simple test model*/
       @uniqueItems
       model Foo is Array<string>;
@@ -596,8 +600,8 @@ it("generates standard scalar array for uniqueItems model", async () => {
 
 it("generates standard array properties", async () => {
   await compileAndValidateMultiple(
-    runner,
-    `    
+    tester,
+    `
       /** A simple test model*/
       model Foo {
         /** Names */
@@ -606,7 +610,7 @@ it("generates standard array properties", async () => {
         /** Colors */
         arrColors: Array<string>;
       }
-        
+
      @patch(#{implicitOptionality: true})@route("/Foo") op update(...Foo): Foo[];
 
       `,
@@ -626,10 +630,11 @@ it("generates standard array properties", async () => {
     ],
   );
 });
+
 it("generates bytes array properties", async () => {
   await compileAndValidateMultiple(
-    runner,
-    `    
+    tester,
+    `
       /** A simple test model*/
       model Foo {
         /** Names */
@@ -638,7 +643,7 @@ it("generates bytes array properties", async () => {
         /** Colors */
         arrSBytes: int8[];
       }
-        
+
      @patch(#{implicitOptionality: true})@route("/Foo") op update(...Foo): int8[];
 
       `,
@@ -658,7 +663,7 @@ it("generates bytes array properties", async () => {
 
 it("handles enum, complex type properties, and circular references", async () => {
   await compileAndValidateMultiple(
-    runner,
+    tester,
     `
       /** A simple enum */
       enum SimpleBar { /** one */ One, /** two */Two, /** three */ Three}
@@ -737,7 +742,7 @@ it("handles enum, complex type properties, and circular references", async () =>
 
 it("handles integer enums", async () => {
   await compileAndValidateMultiple(
-    runner,
+    tester,
     `
       /** An integer enum */
       enum IntegerEnum { /** one */ One: 1, /** three */Three: 3, /** five */ Five: 5}
@@ -765,7 +770,7 @@ it("handles integer enums", async () => {
 
 it("handles non-integer numeric enums", async () => {
   await compileAndValidateMultiple(
-    runner,
+    tester,
     `
       /** A floating point enum */
       enum DoubleEnum { /** one */ One: 1.1, /** three */Three: 3.333, /** five */ Five: 5.55555}
@@ -800,7 +805,7 @@ it("handles non-integer numeric enums", async () => {
 
 it("handles extensible enums and discriminators for inheritance", async () => {
   await compileAndValidateMultiple(
-    runner,
+    tester,
     `
       /** An extensible string union */
       union PetType { /** Dog */ Dog: "dog", /** Cat */ Cat: "cat", string}
@@ -822,7 +827,7 @@ it("handles extensible enums and discriminators for inheritance", async () => {
         /** Age in years */
         age: safeint;
       }
-      
+
       /** A leaf instance */
       model Dog extends Pet {
         /** specific kind */
@@ -838,7 +843,7 @@ it("handles extensible enums and discriminators for inheritance", async () => {
         /** hair length */
         hair: "long" | "short" | "hairless";
       }
-      
+
       /** A base animal */
       @discriminator("kind")
       model Animal {
@@ -938,7 +943,7 @@ it("handles extensible enums and discriminators for inheritance", async () => {
 
 it("processes sub-namespaces of a service", async () => {
   await compileAndValidateSingleModel(
-    runner,
+    tester,
     `
       namespace Bar {
       /** A simple test model*/
@@ -960,7 +965,7 @@ it("processes sub-namespaces of a service", async () => {
 
 it("creates Valid Identifiers", async () => {
   await compileAndValidateSingleModel(
-    runner,
+    tester,
     `
       /** A simple test model*/
       model Foo {
@@ -981,7 +986,7 @@ it("creates Valid Identifiers", async () => {
 
 it("Coalesces union types", async () => {
   await compileAndValidateSingleModel(
-    runner,
+    tester,
     `
       /** A simple test model*/
       model Foo {
@@ -1002,14 +1007,14 @@ it("Coalesces union types", async () => {
 
 it("Generates types for named model instantiation", async () => {
   await compileAndValidateSingleModel(
-    runner,
+    tester,
     `
        using Rest.Resource;
 
        model Toy {
         @key("toyId")
         id: int64;
-      
+
         petId: int64;
         name: string;
       }
@@ -1023,14 +1028,14 @@ it("Generates types for named model instantiation", async () => {
 
 it("Generates types for generic model instantiation", async () => {
   await compileAndValidateSingleModel(
-    runner,
+    tester,
     `
        using Rest.Resource;
 
        model Toy {
         @key("toyId")
         id: int64;
-      
+
         petId: int64;
         name: string;
       }
@@ -1044,14 +1049,14 @@ it("Generates types for generic model instantiation", async () => {
 
 it("Generates good name for model instantiation without hints", async () => {
   await compileAndValidateSingleModel(
-    runner,
+    tester,
     `
        using Rest.Resource;
 
        model Toy {
         @key("toyId")
         id: int64;
-      
+
         petId: int64;
         name: string;
       }
@@ -1069,14 +1074,14 @@ it("Generates good name for model instantiation without hints", async () => {
 
 it("Generates good names for anonymous responses", async () => {
   await compileAndValidateMultiple(
-    runner,
+    tester,
     `
        using Rest.Resource;
 
        model Toy {
         @key("toyId")
         id: int64;
-      
+
         petId: int64;
         name: string;
       }
@@ -1109,7 +1114,7 @@ it("Generates good names for anonymous responses", async () => {
 
 it("Generates types and controllers in a service subnamespace", async () => {
   await compileAndValidateMultiple(
-    runner,
+    tester,
     `
        using Rest.Resource;
 
@@ -1117,7 +1122,7 @@ it("Generates types and controllers in a service subnamespace", async () => {
          model Toy {
           @key("toyId")
           id: int64;
-      
+
           petId: int64;
           name: string;
         }
@@ -1138,9 +1143,9 @@ it("Generates types and controllers in a service subnamespace", async () => {
 
 it("Handles MergePatchUpdate", async () => {
   await compileAndValidateMultiple(
-    runner,
+    tester,
     `
-      
+
 model Widget {
   id: string;
   weight: int32;
@@ -1201,7 +1206,7 @@ interface Widgets {
 
 it("Handles user-defined model templates", async () => {
   await compileAndValidateMultiple(
-    runner,
+    tester,
     `
        using Rest.Resource;
 
@@ -1209,7 +1214,7 @@ it("Handles user-defined model templates", async () => {
          model Toy {
           @key("toyId")
           id: int64;
-      
+
           petId: int64;
           name: string;
         }
@@ -1242,7 +1247,7 @@ it("Handles user-defined model templates", async () => {
 
 it("Handles void type in operations", async () => {
   await compileAndValidateMultiple(
-    runner,
+    tester,
     `
        using Rest.Resource;
 
@@ -1250,7 +1255,7 @@ it("Handles void type in operations", async () => {
          model Toy {
           @key("toyId")
           id: int64;
-      
+
           petId: int64;
           name: string;
         }
@@ -1276,8 +1281,8 @@ it("Handles void type in operations", async () => {
 });
 
 it("Handles empty body 2xx as void", async () => {
-  await compileAndValidateMultiple(
-    runner,
+  const fs = await compileAndValidateMultiple(
+    tester,
     `
        using Rest.Resource;
 
@@ -1285,7 +1290,7 @@ it("Handles empty body 2xx as void", async () => {
          model Toy {
           @key("toyId")
           id: int64;
-      
+
           petId: int64;
           name: string;
         }
@@ -1315,12 +1320,12 @@ it("Handles empty body 2xx as void", async () => {
       ["Toy.cs", ["public partial class Toy"]],
     ],
   );
-  deepStrictEqual([...runner.fs.keys()].filter((k) => k.includes("OkResponse.cs")).length, 0);
+  deepStrictEqual([...fs.fs.keys()].filter((k) => k.includes("OkResponse.cs")).length, 0);
 });
 
 it("generates appropriate types for literals", async () => {
   await compileAndValidateSingleModel(
-    runner,
+    tester,
     `
       /** A simple test model*/
       model Foo {
@@ -1353,7 +1358,7 @@ it("generates appropriate types for literals", async () => {
 
 it("generates appropriate types for literals in operation parameters", async () => {
   await compileAndValidateMultiple(
-    runner,
+    tester,
     `
       /** A simple test model*/
       model Foo {
@@ -1404,7 +1409,7 @@ it("generates appropriate types for literals in operation parameters", async () 
 
 it("generates appropriate types for records", async () => {
   await compileAndValidateMultiple(
-    runner,
+    tester,
     `
       /** A simple test model*/
       model BarResponse {
@@ -1462,11 +1467,11 @@ it("generates appropriate types for records", async () => {
 
 it("generates appropriate types for inherited instantiated models", async () => {
   await compileAndValidateMultiple(
-    runner,
+    tester,
     `
       /** A simple test model*/
       model BarResponse extends File {
-        
+
       }
 
       @route("/foo") @post op foo(recordProp: Record<string>): Record<unknown>;
@@ -1519,7 +1524,7 @@ it("generates appropriate types for inherited instantiated models", async () => 
 
 it("generates appropriate types for arrays", async () => {
   await compileAndValidateMultiple(
-    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "mocks-and-project-files" }),
+    tester,
     [
       `
       @doc("Template to have Array operations")
@@ -1527,7 +1532,7 @@ it("generates appropriate types for arrays", async () => {
         /** Get an array value */
         @get
         get(): TArr;
- 
+
         /** Put an array value */
         @put
         put(@body body: TArr): void;
@@ -1586,12 +1591,13 @@ it("generates appropriate types for arrays", async () => {
       ["INullableModelValue.cs", ["using TypeSpec.Service", "using undefined"]],
       ["NullableModelValueController.cs", ["using TypeSpec.Service", "using undefined"]],
     ],
+    { "emit-mocks": "mocks-and-project-files" },
   );
 });
 
 it("generates appropriate types for literal tuples in operation parameters", async () => {
   await compileAndValidateMultiple(
-    runner,
+    tester,
     `
       /** A simple test model*/
       model Foo {
@@ -1645,7 +1651,7 @@ it("generates appropriate types for literal tuples in operation parameters", asy
 
 it("generates valid code for overridden parameters", async () => {
   await compileAndValidateMultiple(
-    runner,
+    tester,
     `
       /** A base model */
       model FooBase {
@@ -1655,7 +1661,7 @@ it("generates valid code for overridden parameters", async () => {
       model Foo extends FooBase {
         /** Numeric literal */
         intProp: [8, 10];
-        
+
       }
 
       @route("/foo") op foo(): void;
@@ -1674,7 +1680,7 @@ it("generates valid code for overridden parameters", async () => {
 
 it("generates valid code for anonymous models", async () => {
   await compileAndValidateMultiple(
-    runner,
+    tester,
     `
       /** A simple test model*/
       model Foo {
@@ -1689,9 +1695,9 @@ it("generates valid code for anonymous models", async () => {
         anotherModelProp: {
           baz: string;
         };
-        
+
         yetAnother: Foo.modelProp;
-        
+
       }
 
       @route("/foo") op foo(): void;
@@ -1717,7 +1723,7 @@ it("generates valid code for anonymous models", async () => {
 
 it("handles nullable types correctly", async () => {
   await compileAndValidateMultiple(
-    runner,
+    tester,
     `
       /** A simple test model*/
       model Foo {
@@ -1734,9 +1740,9 @@ it("handles nullable types correctly", async () => {
         anotherModelProp: {
           baz: string;
         };
-        
+
         yetAnother: Foo.modelProp | null;
-        
+
       }
 
       @route("/foo") op foo(): void;
@@ -1763,7 +1769,7 @@ it("handles nullable types correctly", async () => {
 
 it("handles implicit request body models correctly", async () => {
   await compileAndValidateMultiple(
-    runner,
+    tester,
     `
       #suppress "@typespec/http-server-csharp/anonymous-model" "Test"
       @route("/foo") @post op foo(intProp?: int32, arrayProp?: string[]): void;
@@ -1783,8 +1789,8 @@ it("handles implicit request body models correctly", async () => {
 });
 
 it("handles multipartBody requests and shared routes", async () => {
-  await compileAndValidateMultiple(
-    runner,
+  const fs = await compileAndValidateMultiple(
+    tester,
     `
       model Bar<T extends {}> {
         ...T;
@@ -1800,20 +1806,20 @@ it("handles multipartBody requests and shared routes", async () => {
       }
 
       @sharedRoute
-      @route("/foo/{id}") 
-      @post 
+      @route("/foo/{id}")
+      @post
       op fooBinary(
         @path id: string,
-        @header("content-type") contentType: "multipart/form-data", 
+        @header("content-type") contentType: "multipart/form-data",
         @multipartBody body: FooRequest
       ): void;
 
       @sharedRoute
-      @route("/foo/{id}") 
-      @post 
+      @route("/foo/{id}")
+      @post
       op fooJson(
         @path id: string,
-        @header("content-type") contentType: "application/json", 
+        @header("content-type") contentType: "application/json",
         @body body: FooJsonRequest
       ): void;
       `,
@@ -1859,7 +1865,7 @@ it("handles multipartBody requests and shared routes", async () => {
     ],
   );
 
-  const files = [...runner.fs.keys()];
+  const files = [...fs.fs.keys()];
   assert.deepStrictEqual(
     files.some((k) => k.endsWith("HttpPartFile.cs")),
     false,
@@ -1871,8 +1877,8 @@ it("handles multipartBody requests and shared routes", async () => {
 });
 
 it("handles complex multipartBody requests", async () => {
-  await compileAndValidateMultiple(
-    runner,
+  const fs = await compileAndValidateMultiple(
+    tester,
     `
       model Bar<T extends {}> {
         ...T;
@@ -1882,7 +1888,7 @@ it("handles complex multipartBody requests", async () => {
         filename: string;
         contentType: string;
       }
-        
+
       model Address {
         city: string;
       }
@@ -1902,20 +1908,20 @@ it("handles complex multipartBody requests", async () => {
       }
 
       @sharedRoute
-      @route("/foo/{id}") 
-      @post 
+      @route("/foo/{id}")
+      @post
       op fooBinary(
         @path id: string,
-        @header("content-type") contentType: "multipart/form-data", 
+        @header("content-type") contentType: "multipart/form-data",
         @multipartBody body: FooRequest
       ): void;
 
       @sharedRoute
-      @route("/foo/{id}") 
-      @post 
+      @route("/foo/{id}")
+      @post
       op fooJson(
         @path id: string,
-        @header("content-type") contentType: "application/json", 
+        @header("content-type") contentType: "application/json",
         @body body: FooJsonRequest
       ): void;
       `,
@@ -1953,7 +1959,7 @@ it("handles complex multipartBody requests", async () => {
     ],
   );
 
-  const files = [...runner.fs.keys()];
+  const files = [...fs.fs.keys()];
   assert.deepStrictEqual(
     files.some((k) => k.endsWith("HttpPartFile.cs")),
     false,
@@ -1966,7 +1972,7 @@ it("handles complex multipartBody requests", async () => {
 
 it("Produces NoContent result", async () => {
   await compileAndValidateMultiple(
-    runner,
+    tester,
     `
       @error
   model NotFoundErrorResponse {
@@ -2066,7 +2072,7 @@ op createFileAttachment(
 
 it("Produces correct scaffolding", async () => {
   await compileAndValidateMultiple(
-    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "mocks-and-project-files" }),
+    tester,
     multipartSpec,
     [
       ["IInitializer.cs", ["public interface IInitializer"]],
@@ -2085,42 +2091,46 @@ it("Produces correct scaffolding", async () => {
       ["usage.md", [`**controllers**`]],
       ["emitter.md", [`@typespec/http-server-csharp`]],
     ],
+    undefined,
+    { "emit-mocks": "mocks-and-project-files" },
   );
 });
 
 it("Does not overwrite mock files", async () => {
-  const runner = await createCSharpServiceEmitterTestRunner({
-    "emit-mocks": "mocks-and-project-files",
-  });
-  runner.fs.set(
+  tester.fs.fs.set(
     resolveVirtualPath("@typespec", "http-server-csharp", "ServiceProject.csproj"),
     "ServiceProject\n",
   );
-  await compileAndValidateMultiple(runner, multipartSpec, [
-    ["ServiceProject.csproj", ["ServiceProject"]],
-  ]);
+  await compileAndValidateMultiple(
+    tester,
+    multipartSpec,
+    [["ServiceProject.csproj", ["ServiceProject"]]],
+    undefined,
+    {
+      "emit-mocks": "mocks-and-project-files",
+    },
+  );
 });
 
 it("Does overwrite mock files with overWrite option", async () => {
-  const runner = await createCSharpServiceEmitterTestRunner({
-    "emit-mocks": "mocks-and-project-files",
-    overwrite: true,
-  });
-  runner.fs.set(
+  tester.fs.fs.set(
     resolveVirtualPath("@typespec", "http-server-csharp", "ServiceProject.csproj"),
     "ServiceProject\n",
   );
-  await compileAndValidateMultiple(runner, multipartSpec, [
-    ["ServiceProject.csproj", ["<TargetFramework>net9.0</TargetFramework>"]],
-  ]);
+  await compileAndValidateMultiple(
+    tester,
+    multipartSpec,
+    [["ServiceProject.csproj", ["<TargetFramework>net9.0</TargetFramework>"]]],
+    undefined,
+    {
+      "emit-mocks": "mocks-and-project-files",
+      overwrite: true,
+    },
+  );
 });
 
 it("reads default location for OpenAPI from config", async () => {
-  const runner = await createCSharpServiceEmitterTestRunner({
-    "emit-mocks": "mocks-and-project-files",
-    "use-swaggerui": true,
-  });
-  runner.fs.set(
+  tester.fs.fs.set(
     resolveVirtualPath("tspconfig.yaml"),
     `
 emit:
@@ -2132,25 +2142,34 @@ options:
 
 `,
   );
-  await compileAndValidateMultiple(runner, multipartSpec, [
+  await compileAndValidateMultiple(
+    tester,
+    multipartSpec,
     [
-      "Program.cs",
       [
-        "builder.Services.AddSwaggerGen();",
-        "app.UseSwagger();",
-        "app.UseSwaggerUI( c=> {",
-        `c.DocumentTitle = "TypeSpec Generated OpenAPI Viewer";`,
-        `c.SwaggerEndpoint("/openapi.yaml", "TypeSpec Generated OpenAPI Docs");`,
-        `c.RoutePrefix = "swagger";`,
-        `var externalFilePath = "../../openapi/openapi.yaml"; // Full path to the file outside the project`,
+        "Program.cs",
+        [
+          "builder.Services.AddSwaggerGen();",
+          "app.UseSwagger();",
+          "app.UseSwaggerUI( c=> {",
+          `c.DocumentTitle = "TypeSpec Generated OpenAPI Viewer";`,
+          `c.SwaggerEndpoint("/openapi.yaml", "TypeSpec Generated OpenAPI Docs");`,
+          `c.RoutePrefix = "swagger";`,
+          `var externalFilePath = "../../openapi/openapi.yaml"; // Full path to the file outside the project`,
+        ],
       ],
     ],
-  ]);
+    undefined,
+    {
+      "emit-mocks": "mocks-and-project-files",
+      "use-swaggerui": true,
+    },
+  );
 });
 
 it("Handles spread parameters", async () => {
   await compileAndValidateMultiple(
-    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "mocks-and-project-files" }),
+    tester,
     `
     model Widget {
       @path id: string;
@@ -2193,12 +2212,14 @@ it("Handles spread parameters", async () => {
       ],
       ["Program.cs", ["MockRegistration"]],
     ],
+    undefined,
+    { "emit-mocks": "mocks-and-project-files" },
   );
 });
 
 it("Handles bodyRoot parameters", async () => {
   await compileAndValidateMultiple(
-    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "mocks-and-project-files" }),
+    tester,
     `
     model Widget {
       @visibility(Lifecycle.Update, Lifecycle.Read)
@@ -2231,12 +2252,14 @@ it("Handles bodyRoot parameters", async () => {
       ],
       ["Program.cs", ["MockRegistration"]],
     ],
+    undefined,
+    { "emit-mocks": "mocks-and-project-files" },
   );
 });
 
 it("Initializes enum types", async () => {
   await compileAndValidateMultiple(
-    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "mocks-and-project-files" }),
+    tester,
     `
     enum Color {
       Red,
@@ -2289,12 +2312,14 @@ it("Initializes enum types", async () => {
       ],
       ["Program.cs", ["MockRegistration"]],
     ],
+    undefined,
+    { "emit-mocks": "mocks-and-project-files" },
   );
 });
 
 it("emits correct code for GET requests with body parameters", async () => {
   await compileAndValidateMultiple(
-    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "mocks-and-project-files" }),
+    tester,
     `
       #suppress "@typespec/http-server-csharp/get-request-body" "Test"
       @route("/foo") @get op foo(intProp?: int32): void;
@@ -2310,12 +2335,14 @@ it("emits correct code for GET requests with body parameters", async () => {
         ["public class ContosoOperations : IContosoOperations", "public Task FooAsync( )"],
       ],
     ],
+    undefined,
+    { "emit-mocks": "mocks-and-project-files" },
   );
 });
 
 it("emits correct code for GET requests with explicit body parameters", async () => {
   await compileAndValidateMultiple(
-    await createCSharpServiceEmitterTestRunner({ "emit-mocks": "mocks-and-project-files" }),
+    tester,
     `
       #suppress "@typespec/http-server-csharp/anonymous-model" "Test"
       #suppress "@typespec/http-server-csharp/get-request-body" "Test"
@@ -2332,12 +2359,14 @@ it("emits correct code for GET requests with explicit body parameters", async ()
         ["public class ContosoOperations : IContosoOperations", "public Task FooAsync( )"],
       ],
     ],
+    undefined,
+    { "emit-mocks": "mocks-and-project-files" },
   );
 });
 
 it("generates one line `@doc` decorator comments", async () => {
   await compileAndValidateSingleModel(
-    runner,
+    tester,
     `
       model Pet {
         @doc("Pet name in the format of a string")
@@ -2357,7 +2386,7 @@ it("generates one line `@doc` decorator comments", async () => {
 
 it("generates multiline jsdoc comments", async () => {
   await compileAndValidateSingleModel(
-    runner,
+    tester,
     `
     model Pet {
       /**
@@ -2383,7 +2412,7 @@ it("generates multiline jsdoc comments", async () => {
 
 it("generates multiline jsdoc comments with long non-space words", async () => {
   await compileAndValidateSingleModel(
-    runner,
+    tester,
     `
     model Pet {
       /**
@@ -2408,7 +2437,7 @@ it("generates multiline jsdoc comments with long non-space words", async () => {
 
 it("generates correct (awkward) multiline jsdoc comments without multiline asterisk", async () => {
   await compileAndValidateSingleModel(
-    runner,
+    tester,
     `
     /**
      * A multiline comment.
@@ -2450,13 +2479,13 @@ it("generates correct (awkward) multiline jsdoc comments without multiline aster
 
 it("generates correct multiline jsdoc comments for operations", async () => {
   await compileAndValidateSingleModel(
-    runner,
+    tester,
     `
     model Pet {
       /** Pet name string */
       name?: string;
     }
-    
+
     @route("/pets")
     interface Pets {
       /**
@@ -2464,7 +2493,7 @@ it("generates correct multiline jsdoc comments for operations", async () => {
        * Provide top/skip or filter by name if needed
        */
       @get op listPets(
-        @query top?: int32 = 50, 
+        @query top?: int32 = 50,
         @query skip?: int32 = 0,
         @query nameFilter?: string = "*"
       ) : Pet[];
@@ -2483,13 +2512,13 @@ it("generates correct multiline jsdoc comments for operations", async () => {
 
 it("generates correct multiline jsdoc long comments for operations", async () => {
   await compileAndValidateSingleModel(
-    runner,
+    tester,
     `
     model Pet {
       /** Pet name string */
       name?: string;
     }
-    
+
     @route("/pets")
     interface Pets {
       /**
@@ -2501,7 +2530,7 @@ it("generates correct multiline jsdoc long comments for operations", async () =>
        * and a line afterward.
        */
       @get op listPets(
-        @query top?: string, 
+        @query top?: string,
         @query skip?: string
       ) : Pet[];
     }
@@ -2524,7 +2553,7 @@ it("generates correct multiline jsdoc long comments for operations", async () =>
 
 it("generates correct (awkward) multiline jsdoc comments with long non-space words  without multiline asterisk", async () => {
   await compileAndValidateSingleModel(
-    runner,
+    tester,
     `
     model Pet {
       /**
@@ -2549,7 +2578,7 @@ it("generates correct (awkward) multiline jsdoc comments with long non-space wor
 
 it("generates multiline `@doc` decorator comments", async () => {
   await compileAndValidateSingleModel(
-    runner,
+    tester,
     `
     model Pet {
       @doc("""
@@ -2575,7 +2604,7 @@ it("generates multiline `@doc` decorator comments", async () => {
 
 it("generates multiline `@doc` decorator comments with long non-space words", async () => {
   await compileAndValidateSingleModel(
-    runner,
+    tester,
     `
     model Pet {
       @doc("""
@@ -2600,7 +2629,7 @@ it("generates multiline `@doc` decorator comments with long non-space words", as
 
 it("generates single line `@doc` decorator comments", async () => {
   await compileAndValidateSingleModel(
-    runner,
+    tester,
     `
       model Pet {
         @doc("Pet name in the format of a string")
@@ -2620,7 +2649,7 @@ it("generates single line `@doc` decorator comments", async () => {
 
 it("generates jsdoc comments", async () => {
   await compileAndValidateSingleModel(
-    runner,
+    tester,
     `
       model Pet {
         /**
@@ -2643,7 +2672,7 @@ it("generates jsdoc comments", async () => {
 describe("emit correct code for `@error` models", () => {
   it("model has additional properties apart from `@statusCode`", async () => {
     await compileAndValidateSingleModel(
-      runner,
+      tester,
       `
         @error
         model NotFoundError {
@@ -2661,7 +2690,7 @@ describe("emit correct code for `@error` models", () => {
   });
   it("model only has `@statusCode` property", async () => {
     await compileAndValidateSingleModel(
-      runner,
+      tester,
       `
         @error
         model NotFoundError {
@@ -2677,7 +2706,7 @@ describe("emit correct code for `@error` models", () => {
   });
   it("emits `@min` value when `@statusCode` property is not defined but has `@min` and `@max` decorators", async () => {
     await compileAndValidateSingleModel(
-      runner,
+      tester,
       `
         @error
         model ErrorInRange {
@@ -2696,7 +2725,7 @@ describe("emit correct code for `@error` models", () => {
   });
   it("emits first value when `@statusCode` is defined with an union reference", async () => {
     await compileAndValidateSingleModel(
-      runner,
+      tester,
       `
         @error
         model Error {
@@ -2718,7 +2747,7 @@ describe("emit correct code for `@error` models", () => {
   });
   it("emits first value when `@statusCode` is defined with an union", async () => {
     await compileAndValidateSingleModel(
-      runner,
+      tester,
       `
         @error
         model Error {
@@ -2735,14 +2764,14 @@ describe("emit correct code for `@error` models", () => {
   });
   it("emits error models when they inherit the `@error` decorator and resolves all the inheritance correctly", async () => {
     await compileAndValidateMultiple(
-      runner,
+      tester,
       `
         @error
         model ApiError {
           code: string;
           message: string;
         }
-     
+
         model Error extends ApiError {
           @statusCode
           statusCode: 500;
@@ -2764,7 +2793,7 @@ describe("emit correct code for `@error` models", () => {
   });
   it("emit error constructor with parameters ordered by required followed by optional/default", async () => {
     await compileAndValidateSingleModel(
-      runner,
+      tester,
       `
         @error
         model Error {
@@ -2784,7 +2813,7 @@ describe("emit correct code for `@error` models", () => {
   });
   it("emit error with headers", async () => {
     await compileAndValidateSingleModel(
-      runner,
+      tester,
       `
         @error
         model Error {
@@ -2802,7 +2831,7 @@ describe("emit correct code for `@error` models", () => {
   });
   it("emit error constructor with value/regular properties", async () => {
     await compileAndValidateSingleModel(
-      runner,
+      tester,
       `
         @error
         model Error {
@@ -2819,7 +2848,7 @@ describe("emit correct code for `@error` models", () => {
   });
   it("emit error constructor properties and defined in body", async () => {
     await compileAndValidateSingleModel(
-      runner,
+      tester,
       `
         @error
         model Error {
@@ -2839,7 +2868,7 @@ describe("emit correct code for `@error` models", () => {
   });
   it("renames body properties that conflict with properties from exception", async () => {
     await compileAndValidateSingleModel(
-      runner,
+      tester,
       `
         @error
         model Error {
@@ -2889,8 +2918,8 @@ describe("emit correct code for `@error` models", () => {
 
   it("generates standard scalar array for uniqueItems model", async () => {
     await compileAndValidateSingleModel(
-      runner,
-      `    
+      tester,
+      `
         /** A simple test model*/
         model Foo is Array<string>;
         @get @route("/Foo") op list(): Foo[];
@@ -2914,7 +2943,7 @@ describe("collection type: defined as emitter option", () => {
     intArr: Array<int32>;
     stringArr: Array<string>;
     modelArr: Array<FooProp>;
-        
+
     @uniqueItems
     stringUnique: string[];
   }
@@ -2922,43 +2951,48 @@ describe("collection type: defined as emitter option", () => {
   model FooProp {
     name: string;
   }
-  
+
   model Bar is Array<string>;
 
   @route("/foo") op foo(): Foo[];
   @route("/Bar") op bar(): Bar[];
 `;
   it("defined collection type as enumerable", async () => {
-    const runner = await createCSharpServiceEmitterTestRunner({
-      "collection-type": "enumerable",
-    });
-    await compileAndValidateMultiple(runner, collectionTest, [
+    await compileAndValidateMultiple(
+      tester,
+      collectionTest,
       [
-        "Foo.cs",
         [
-          `public Byte[] ByteProp { get; set; }`,
-          "public SByte[] SbyteProp { get; set; }",
-          "public IEnumerable<int> IntProp { get; set; }",
-          "public IEnumerable<string> StringProp { get; set; }",
-          "public IEnumerable<FooProp> ModelProp { get; set; }",
-          "public IEnumerable<int> IntPropInitialized { get; } = new List<int> {8, 10};",
-          "public IEnumerable<int> IntArr { get; set; }",
-          "public IEnumerable<string> StringArr { get; set; }",
-          "public IEnumerable<FooProp> ModelArr { get; set; }",
-          "public ISet<string> StringUnique { get; set; }",
+          "Foo.cs",
+          [
+            `public Byte[] ByteProp { get; set; }`,
+            "public SByte[] SbyteProp { get; set; }",
+            "public IEnumerable<int> IntProp { get; set; }",
+            "public IEnumerable<string> StringProp { get; set; }",
+            "public IEnumerable<FooProp> ModelProp { get; set; }",
+            "public IEnumerable<int> IntPropInitialized { get; } = new List<int> {8, 10};",
+            "public IEnumerable<int> IntArr { get; set; }",
+            "public IEnumerable<string> StringArr { get; set; }",
+            "public IEnumerable<FooProp> ModelArr { get; set; }",
+            "public ISet<string> StringUnique { get; set; }",
+          ],
+        ],
+        [
+          "IContosoOperations.cs",
+          [
+            "Task<IEnumerable<Foo>> FooAsync( );",
+            "Task<IEnumerable<IEnumerable<string>>> BarAsync( );",
+          ],
         ],
       ],
-      [
-        "IContosoOperations.cs",
-        [
-          "Task<IEnumerable<Foo>> FooAsync( );",
-          "Task<IEnumerable<IEnumerable<string>>> BarAsync( );",
-        ],
-      ],
-    ]);
+      undefined,
+      {
+        "collection-type": "enumerable",
+      },
+    );
   });
   it("default collection is array", async () => {
-    await compileAndValidateMultiple(runner, collectionTest, [
+    await compileAndValidateMultiple(tester, collectionTest, [
       [
         "Foo.cs",
         [
@@ -2978,26 +3012,31 @@ describe("collection type: defined as emitter option", () => {
     ]);
   });
   it("array is explicitly defined", async () => {
-    const runner = await createCSharpServiceEmitterTestRunner({
-      "collection-type": "array",
-    });
-    await compileAndValidateMultiple(runner, collectionTest, [
+    await compileAndValidateMultiple(
+      tester,
+      collectionTest,
       [
-        "Foo.cs",
         [
-          `public Byte[] ByteProp { get; set; }`,
-          "public SByte[] SbyteProp { get; set; }",
-          "public int[] IntProp { get; set; }",
-          "public string[] StringProp { get; set; }",
-          "public FooProp[] ModelProp { get; set; }",
-          "public int[] IntPropInitialized { get; } = [8, 10];",
-          "public int[] IntArr { get; set; }",
-          "public string[] StringArr { get; set; }",
-          "public FooProp[] ModelArr { get; set; }",
-          "public ISet<string> StringUnique { get; set; }",
+          "Foo.cs",
+          [
+            `public Byte[] ByteProp { get; set; }`,
+            "public SByte[] SbyteProp { get; set; }",
+            "public int[] IntProp { get; set; }",
+            "public string[] StringProp { get; set; }",
+            "public FooProp[] ModelProp { get; set; }",
+            "public int[] IntPropInitialized { get; } = [8, 10];",
+            "public int[] IntArr { get; set; }",
+            "public string[] StringArr { get; set; }",
+            "public FooProp[] ModelArr { get; set; }",
+            "public ISet<string> StringUnique { get; set; }",
+          ],
         ],
+        ["IContosoOperations.cs", ["Task<Foo[]> FooAsync( );", "Task<string[][]> BarAsync( );"]],
       ],
-      ["IContosoOperations.cs", ["Task<Foo[]> FooAsync( );", "Task<string[][]> BarAsync( );"]],
-    ]);
+      undefined,
+      {
+        "collection-type": "array",
+      },
+    );
   });
 });

@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
@@ -20,10 +21,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
     internal sealed class NamedTypeSymbolProvider : TypeProvider
     {
         private INamedTypeSymbol _namedTypeSymbol;
+        private readonly Compilation _compilation;
 
-        public NamedTypeSymbolProvider(INamedTypeSymbol namedTypeSymbol)
+        public NamedTypeSymbolProvider(INamedTypeSymbol namedTypeSymbol, Compilation compilation)
         {
             _namedTypeSymbol = namedTypeSymbol;
+            _compilation = compilation;
         }
 
         private protected sealed override NamedTypeSymbolProvider? BuildCustomCodeView(string? generatedTypeName = default, string? generatedTypeNamespace = default) => null;
@@ -42,7 +45,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             if (_namedTypeSymbol.BaseType == null
                 || _namedTypeSymbol.BaseType.SpecialType == SpecialType.System_Object
-                || _namedTypeSymbol.BaseType.SpecialType == SpecialType.System_ValueType)
+                || _namedTypeSymbol.BaseType.SpecialType == SpecialType.System_ValueType
+                || _namedTypeSymbol.BaseType.SpecialType == SpecialType.System_Array
+                || _namedTypeSymbol.BaseType.SpecialType == SpecialType.System_Enum)
             {
                 return null;
             }
@@ -136,17 +141,45 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     GetAccessModifier(propertySymbol.DeclaredAccessibility),
                     propertySymbol.Type.GetCSharpType(),
                     propertySymbol.Name,
-                    new AutoPropertyBody(propertySymbol.SetMethod is not null),
+                    new AutoPropertyBody(
+                        propertySymbol.SetMethod is not null,
+                        InitializationExpression: GetPropertyInitializer(propertySymbol)),
                     this)
                 {
                     OriginalName = GetOriginalName(propertySymbol),
                     CustomProvider = new(() => propertySymbol.Type is INamedTypeSymbol propertyNamedTypeSymbol
-                        ? new NamedTypeSymbolProvider(propertyNamedTypeSymbol)
+                        ? new NamedTypeSymbolProvider(propertyNamedTypeSymbol, _compilation)
                         : null)
                 };
                 properties.Add(propertyProvider);
             }
             return [.. properties];
+        }
+
+        private ValueExpression? GetPropertyInitializer(IPropertySymbol propertySymbol)
+        {
+            var syntaxReference = propertySymbol.DeclaringSyntaxReferences.FirstOrDefault();
+            if (syntaxReference?.GetSyntax() is PropertyDeclarationSyntax propertySyntax)
+            {
+                var initializerValue = propertySyntax.Initializer?.Value;
+                if (initializerValue == null)
+                {
+                    return null;
+                }
+
+                // Get the semantic model to evaluate constant values
+                var semanticModel = _compilation.GetSemanticModel(propertySyntax.SyntaxTree);
+                var constantValue = semanticModel.GetConstantValue(initializerValue);
+
+                if (constantValue.HasValue)
+                {
+                    return Literal(constantValue.Value);
+                }
+
+                // For non-constant expressions, return the expression text
+                return Literal(initializerValue.ToString());
+            }
+            return null;
         }
 
         private static string? GetOriginalName(ISymbol symbol)
@@ -223,13 +256,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override CSharpType BuildEnumUnderlyingType() => GetIsEnum() ? new CSharpType(typeof(int)) : throw new InvalidOperationException("This type is not an enum");
 
-        private ParameterProvider ConvertToParameterProvider(IMethodSymbol methodSymbol, IParameterSymbol parameterSymbol)
+        private static ParameterProvider ConvertToParameterProvider(IMethodSymbol methodSymbol, IParameterSymbol parameterSymbol)
         {
             return new ParameterProvider(
                 parameterSymbol.Name,
                 FormattableStringHelpers.FromString(GetParameterXmlDocumentation(methodSymbol, parameterSymbol)) ?? FormattableStringHelpers.Empty,
                 parameterSymbol.Type.GetCSharpType(),
-                defaultValue: CreateDefaultValue(parameterSymbol));
+                defaultValue: CreateDefaultValue(parameterSymbol),
+                isIn: parameterSymbol.RefKind == RefKind.In,
+                isOut: parameterSymbol.RefKind == RefKind.Out,
+                isRef: parameterSymbol.RefKind == RefKind.Ref);
         }
 
         private void AddAdditionalModifiers(IMethodSymbol methodSymbol, ref MethodSignatureModifiers modifiers)
@@ -258,10 +294,70 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (!string.IsNullOrEmpty(xmlDocumentation))
             {
                 XDocument xDocument = ParseXml(propertySymbol, xmlDocumentation);
-                var summaryElement = xDocument.Descendants(tag).FirstOrDefault();
-                return FormattableStringHelpers.FromString(summaryElement?.Value.Trim());
+                XElement? tagElement = xDocument.Descendants(tag).FirstOrDefault();
+                try
+                {
+                    if (tagElement != null)
+                    {
+                        string processedContent = ProcessXmlContent(tagElement);
+                        return FormattableStringHelpers.FromString(processedContent);
+                    }
+                }
+                catch
+                {
+                    return FormattableStringHelpers.FromString(tagElement?.Value.Trim());
+                }
             }
             return null;
+        }
+
+        private static string ProcessXmlContent(XElement element)
+        {
+            const string SeeTagName = "see";
+            const string CrefAttributeName = "cref";
+            const string SeeTagOpen = "<see cref=\"";
+            const string SeeTagClose = "\"/>";
+
+            var result = new StringBuilder(Math.Max(128, element.ToString().Length));
+
+            foreach (var node in element.Nodes())
+            {
+                switch (node)
+                {
+                    case XText textNode:
+                        result.Append(textNode.Value);
+                        break;
+
+                    case XElement childElement when string.Equals(childElement.Name.LocalName, SeeTagName, StringComparison.Ordinal):
+                        var cref = childElement.Attribute(CrefAttributeName)?.Value;
+
+                        if (!string.IsNullOrEmpty(cref))
+                        {
+                            // Find the type prefix ('T:') separator and strip it
+                            int colonIndex = cref.IndexOf(':');
+                            string cleanCref = colonIndex >= 0 ? cref.Substring(colonIndex + 1) : cref;
+
+                            result.Append(SeeTagOpen)
+                                  .Append(cleanCref)
+                                  .Append(SeeTagClose);
+                        }
+                        else
+                        {
+                            result.Append(childElement.ToString());
+                        }
+                        break;
+
+                    case XElement childElement:
+                        result.Append(ProcessXmlContent(childElement));
+                        break;
+                }
+            }
+
+            string resultString = result.ToString();
+            return resultString.Length > 0 && (char.IsWhiteSpace(resultString[0]) ||
+                   char.IsWhiteSpace(resultString[resultString.Length - 1]))
+                ? resultString.Trim()
+                : resultString;
         }
 
         private static XDocument ParseXml(ISymbol docsSymbol, string xmlDocumentation)
