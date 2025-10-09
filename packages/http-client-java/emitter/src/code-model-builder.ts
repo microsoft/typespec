@@ -520,23 +520,33 @@ export class CodeModelBuilder {
 
   private deduplicateSchemaName() {
     // deduplicate model name
+
+    // packages to skip
+    const packagesToSkip: string[] = [];
+    if (!this.isBranded() || this.isAzureV2()) {
+      // clientcore
+      packagesToSkip.push("io.clientcore.core.");
+    }
+    if (this.isAzureV2()) {
+      // core v2
+      packagesToSkip.push("com.azure.v2.core.");
+    }
+    if (this.isAzureV1()) {
+      // core
+      packagesToSkip.push("com.azure.core.");
+    }
+
     const nameCount = new Map<string, number>();
     const deduplicateName = (schema: Schema) => {
+      // skip models under "com.azure.core." etc. in java, or "Azure." in typespec, if branded
+      // skip models under "io.clientcore.core." in java, if unbranded
+      const skipDeduplicate =
+        (this.isBranded() && schema.language.default?.namespace?.startsWith("Azure.")) ||
+        (schema.language.java?.namespace &&
+          packagesToSkip.some((it) => schema.language.java?.namespace.startsWith(it)));
+
       const name = schema.language.default.name;
-      if (
-        name &&
-        // skip models under "com.azure.core." in java, or "Azure." in typespec, if branded
-        !(
-          (
-            (this.isBranded() &&
-              (schema.language.java?.namespace?.startsWith("com.azure.core.") ||
-                schema.language.default?.namespace?.startsWith("Azure.") ||
-                schema.language.java?.namespace?.startsWith("com.azure.v2.core."))) ||
-            (!this.isBranded() &&
-              schema.language.java?.namespace?.startsWith("io.clientcore.core."))
-          ) // because azure core v2 uses clientcore types
-        )
-      ) {
+      if (name && !skipDeduplicate) {
         if (!nameCount.has(name)) {
           nameCount.set(name, 1);
         } else {
