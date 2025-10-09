@@ -220,8 +220,8 @@ function Get-GeneratorConfig {
     }
     
     # Map emitter package to generator configuration
-    switch -Regex ($EmitterPackage) {
-        ".*http-client-csharp-mgmt" {
+    switch ($EmitterPackage) {
+        "@azure-typespec/http-client-csharp-mgmt" {
             return @{
                 PackageName = "http-client-csharp-mgmt"
                 GeneratorName = "ManagementClientGenerator"
@@ -235,7 +235,7 @@ function Get-GeneratorConfig {
                 ScopeName = "@typespec"
             }
         }
-        ".*http-client-csharp" {
+        "@azure-typespec/http-client-csharp" {
             return @{
                 PackageName = "http-client-csharp"
                 GeneratorName = "AzureClientGenerator"
