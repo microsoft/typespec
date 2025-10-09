@@ -1,0 +1,27 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "_specs_.azure.clientgenerator.core.alternatetype.AlternateTypeAsyncClient": "_Specs_.Azure.ClientGenerator.Core.AlternateType.ExternalType",
+    "_specs_.azure.clientgenerator.core.alternatetype.AlternateTypeAsyncClient.getModel": "_Specs_.Azure.ClientGenerator.Core.AlternateType.ExternalType.getModel",
+    "_specs_.azure.clientgenerator.core.alternatetype.AlternateTypeAsyncClient.getModelWithResponse": "_Specs_.Azure.ClientGenerator.Core.AlternateType.ExternalType.getModel",
+    "_specs_.azure.clientgenerator.core.alternatetype.AlternateTypeAsyncClient.getProperty": "_Specs_.Azure.ClientGenerator.Core.AlternateType.ExternalType.getProperty",
+    "_specs_.azure.clientgenerator.core.alternatetype.AlternateTypeAsyncClient.getPropertyWithResponse": "_Specs_.Azure.ClientGenerator.Core.AlternateType.ExternalType.getProperty",
+    "_specs_.azure.clientgenerator.core.alternatetype.AlternateTypeAsyncClient.putModel": "_Specs_.Azure.ClientGenerator.Core.AlternateType.ExternalType.putModel",
+    "_specs_.azure.clientgenerator.core.alternatetype.AlternateTypeAsyncClient.putModelWithResponse": "_Specs_.Azure.ClientGenerator.Core.AlternateType.ExternalType.putModel",
+    "_specs_.azure.clientgenerator.core.alternatetype.AlternateTypeAsyncClient.putProperty": "_Specs_.Azure.ClientGenerator.Core.AlternateType.ExternalType.putProperty",
+    "_specs_.azure.clientgenerator.core.alternatetype.AlternateTypeAsyncClient.putPropertyWithResponse": "_Specs_.Azure.ClientGenerator.Core.AlternateType.ExternalType.putProperty",
+    "_specs_.azure.clientgenerator.core.alternatetype.AlternateTypeClient": "_Specs_.Azure.ClientGenerator.Core.AlternateType.ExternalType",
+    "_specs_.azure.clientgenerator.core.alternatetype.AlternateTypeClient.getModel": "_Specs_.Azure.ClientGenerator.Core.AlternateType.ExternalType.getModel",
+    "_specs_.azure.clientgenerator.core.alternatetype.AlternateTypeClient.getModelWithResponse": "_Specs_.Azure.ClientGenerator.Core.AlternateType.ExternalType.getModel",
+    "_specs_.azure.clientgenerator.core.alternatetype.AlternateTypeClient.getProperty": "_Specs_.Azure.ClientGenerator.Core.AlternateType.ExternalType.getProperty",
+    "_specs_.azure.clientgenerator.core.alternatetype.AlternateTypeClient.getPropertyWithResponse": "_Specs_.Azure.ClientGenerator.Core.AlternateType.ExternalType.getProperty",
+    "_specs_.azure.clientgenerator.core.alternatetype.AlternateTypeClient.putModel": "_Specs_.Azure.ClientGenerator.Core.AlternateType.ExternalType.putModel",
+    "_specs_.azure.clientgenerator.core.alternatetype.AlternateTypeClient.putModelWithResponse": "_Specs_.Azure.ClientGenerator.Core.AlternateType.ExternalType.putModel",
+    "_specs_.azure.clientgenerator.core.alternatetype.AlternateTypeClient.putProperty": "_Specs_.Azure.ClientGenerator.Core.AlternateType.ExternalType.putProperty",
+    "_specs_.azure.clientgenerator.core.alternatetype.AlternateTypeClient.putPropertyWithResponse": "_Specs_.Azure.ClientGenerator.Core.AlternateType.ExternalType.putProperty",
+    "_specs_.azure.clientgenerator.core.alternatetype.AlternateTypeClientBuilder": "_Specs_.Azure.ClientGenerator.Core.AlternateType",
+    "_specs_.azure.clientgenerator.core.alternatetype.externaltype.models.Feature": "_Specs_.Azure.ClientGenerator.Core.AlternateType.ExternalType.Feature",
+    "_specs_.azure.clientgenerator.core.alternatetype.externaltype.models.Geometry": "_Specs_.Azure.ClientGenerator.Core.AlternateType.ExternalType.Geometry",
+    "_specs_.azure.clientgenerator.core.alternatetype.externaltype.models.ModelWithFeatureProperty": "_Specs_.Azure.ClientGenerator.Core.AlternateType.ExternalType.ModelWithFeatureProperty"
+  }
+}
