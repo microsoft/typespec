@@ -27,16 +27,16 @@
             "$id": "4",
             "kind": "enum",
             "decorators": [],
+            "doc": "extensible enum type for discriminator",
             "name": "DogKind",
             "isGeneratedName": false,
             "namespace": "Type.Model.Inheritance.EnumDiscriminator",
-            "doc": "extensible enum type for discriminator",
             "valueType": {
               "$id": "5",
               "kind": "string",
               "decorators": [],
-              "name": "string",
               "doc": "A sequence of textual characters.",
+              "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string"
             },
             "values": [
@@ -44,8 +44,8 @@
                 "$id": "6",
                 "kind": "enumvalue",
                 "decorators": [],
-                "name": "Golden",
                 "doc": "Species golden",
+                "name": "Golden",
                 "value": "golden",
                 "valueType": {
                   "$ref": "5"
@@ -100,16 +100,16 @@
             "$id": "10",
             "kind": "enum",
             "decorators": [],
+            "doc": "fixed enum type for discriminator",
             "name": "SnakeKind",
             "isGeneratedName": false,
             "namespace": "Type.Model.Inheritance.EnumDiscriminator",
-            "doc": "fixed enum type for discriminator",
             "valueType": {
               "$id": "11",
               "kind": "string",
               "decorators": [],
-              "name": "string",
               "doc": "A sequence of textual characters.",
+              "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string"
             },
             "values": [
@@ -117,9 +117,9 @@
                 "$id": "12",
                 "kind": "enumvalue",
                 "decorators": [],
+                "doc": "Species cobra",
                 "name": "Cobra",
                 "value": "cobra",
-                "doc": "Species cobra",
                 "enumType": {
                   "$ref": "10"
                 },

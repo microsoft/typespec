@@ -30,16 +30,16 @@
             "$id": "4",
             "kind": "enum",
             "decorators": [],
+            "doc": "Service versions",
             "name": "Versions",
             "isGeneratedName": false,
             "namespace": "Resiliency.ServiceDriven",
-            "doc": "Service versions",
             "valueType": {
               "$id": "5",
               "kind": "string",
               "decorators": [],
-              "name": "string",
               "doc": "A sequence of textual characters.",
+              "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string"
             },
             "values": [
@@ -47,9 +47,9 @@
                 "$id": "6",
                 "kind": "enumvalue",
                 "decorators": [],
+                "doc": "Version 1",
                 "name": "v1",
                 "value": "v1",
-                "doc": "Version 1",
                 "enumType": {
                   "$ref": "4"
                 },
@@ -61,9 +61,9 @@
                 "$id": "7",
                 "kind": "enumvalue",
                 "decorators": [],
+                "doc": "Version 2",
                 "name": "v2",
                 "value": "v2",
-                "doc": "Version 2",
                 "enumType": {
                   "$ref": "4"
                 },

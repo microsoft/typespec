@@ -27,16 +27,16 @@
             "$id": "4",
             "kind": "enum",
             "decorators": [],
+            "doc": "Days of the week",
             "name": "DaysOfWeekExtensibleEnum",
             "isGeneratedName": false,
             "namespace": "Type.Enum.Extensible",
-            "doc": "Days of the week",
             "valueType": {
               "$id": "5",
               "kind": "string",
               "decorators": [],
-              "name": "string",
               "doc": "A sequence of textual characters.",
+              "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string"
             },
             "values": [
@@ -44,8 +44,8 @@
                 "$id": "6",
                 "kind": "enumvalue",
                 "decorators": [],
-                "name": "Monday",
                 "doc": "Monday.",
+                "name": "Monday",
                 "value": "Monday",
                 "valueType": {
                   "$ref": "5"
@@ -58,8 +58,8 @@
                 "$id": "7",
                 "kind": "enumvalue",
                 "decorators": [],
-                "name": "Tuesday",
                 "doc": "Tuesday.",
+                "name": "Tuesday",
                 "value": "Tuesday",
                 "valueType": {
                   "$ref": "5"
@@ -72,8 +72,8 @@
                 "$id": "8",
                 "kind": "enumvalue",
                 "decorators": [],
-                "name": "Wednesday",
                 "doc": "Wednesday.",
+                "name": "Wednesday",
                 "value": "Wednesday",
                 "valueType": {
                   "$ref": "5"
@@ -86,8 +86,8 @@
                 "$id": "9",
                 "kind": "enumvalue",
                 "decorators": [],
-                "name": "Thursday",
                 "doc": "Thursday.",
+                "name": "Thursday",
                 "value": "Thursday",
                 "valueType": {
                   "$ref": "5"
@@ -100,8 +100,8 @@
                 "$id": "10",
                 "kind": "enumvalue",
                 "decorators": [],
-                "name": "Friday",
                 "doc": "Friday.",
+                "name": "Friday",
                 "value": "Friday",
                 "valueType": {
                   "$ref": "5"
@@ -114,8 +114,8 @@
                 "$id": "11",
                 "kind": "enumvalue",
                 "decorators": [],
-                "name": "Saturday",
                 "doc": "Saturday.",
+                "name": "Saturday",
                 "value": "Saturday",
                 "valueType": {
                   "$ref": "5"
@@ -128,8 +128,8 @@
                 "$id": "12",
                 "kind": "enumvalue",
                 "decorators": [],
-                "name": "Sunday",
                 "doc": "Sunday.",
+                "name": "Sunday",
                 "value": "Sunday",
                 "valueType": {
                   "$ref": "5"

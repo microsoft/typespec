@@ -30,16 +30,16 @@
             "$id": "4",
             "kind": "enum",
             "decorators": [],
+            "doc": "The version of the API.",
             "name": "Versions",
             "isGeneratedName": false,
             "namespace": "Server.Versions.Versioned",
-            "doc": "The version of the API.",
             "valueType": {
               "$id": "5",
               "kind": "string",
               "decorators": [],
-              "name": "string",
               "doc": "A sequence of textual characters.",
+              "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string"
             },
             "values": [
@@ -47,9 +47,9 @@
                 "$id": "6",
                 "kind": "enumvalue",
                 "decorators": [],
+                "doc": "The version 2022-12-01-preview.",
                 "name": "v2021_01_01_preview",
                 "value": "2021-01-01-preview",
-                "doc": "The version 2022-12-01-preview.",
                 "enumType": {
                   "$ref": "4"
                 },
@@ -61,9 +61,9 @@
                 "$id": "7",
                 "kind": "enumvalue",
                 "decorators": [],
+                "doc": "The version 2022-12-01-preview.",
                 "name": "v2022_12_01_preview",
                 "value": "2022-12-01-preview",
-                "doc": "The version 2022-12-01-preview.",
                 "enumType": {
                   "$ref": "4"
                 },

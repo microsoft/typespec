@@ -34,8 +34,8 @@
               "$id": "5",
               "kind": "string",
               "decorators": [],
-              "name": "string",
               "doc": "A sequence of textual characters.",
+              "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string"
             },
             "values": [
@@ -155,8 +155,8 @@
               "$id": "15",
               "kind": "string",
               "decorators": [],
-              "name": "string",
               "doc": "A sequence of textual characters.",
+              "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string"
             },
             "values": [
@@ -250,8 +250,8 @@
               "$id": "23",
               "kind": "string",
               "decorators": [],
-              "name": "string",
               "doc": "A sequence of textual characters.",
+              "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string"
             },
             "values": [
@@ -345,8 +345,8 @@
               "$id": "31",
               "kind": "int32",
               "decorators": [],
-              "name": "int32",
               "doc": "A 32-bit integer. (`-2,147,483,648` to `2,147,483,647`)",
+              "name": "int32",
               "crossLanguageDefinitionId": "TypeSpec.int32"
             },
             "values": [
@@ -466,8 +466,8 @@
               "$id": "41",
               "kind": "float32",
               "decorators": [],
-              "name": "float32",
               "doc": "A 32 bit floating point number. (`±1.5 x 10^−45` to `±3.4 x 10^38`)",
+              "name": "float32",
               "crossLanguageDefinitionId": "TypeSpec.float32"
             },
             "values": [
@@ -587,8 +587,8 @@
               "$id": "51",
               "kind": "string",
               "decorators": [],
-              "name": "string",
               "doc": "A sequence of textual characters.",
+              "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string"
             },
             "values": [
@@ -734,8 +734,8 @@
               "$id": "63",
               "kind": "string",
               "decorators": [],
-              "name": "string",
               "doc": "A sequence of textual characters.",
+              "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string"
             },
             "values": [

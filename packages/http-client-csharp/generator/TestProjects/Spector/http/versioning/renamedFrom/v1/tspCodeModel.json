@@ -36,8 +36,8 @@
               "$id": "5",
               "kind": "string",
               "decorators": [],
-              "name": "string",
               "doc": "A sequence of textual characters.",
+              "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string"
             },
             "values": [
@@ -100,16 +100,16 @@
             "$id": "10",
             "kind": "enum",
             "decorators": [],
+            "doc": "The version of the API.",
             "name": "Versions",
             "isGeneratedName": false,
             "namespace": "Versioning.RenamedFrom",
-            "doc": "The version of the API.",
             "valueType": {
               "$id": "11",
               "kind": "string",
               "decorators": [],
-              "name": "string",
               "doc": "A sequence of textual characters.",
+              "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string"
             },
             "values": [
@@ -117,9 +117,9 @@
                 "$id": "12",
                 "kind": "enumvalue",
                 "decorators": [],
+                "doc": "The version v1.",
                 "name": "v1",
                 "value": "v1",
-                "doc": "The version v1.",
                 "enumType": {
                   "$ref": "10"
                 },

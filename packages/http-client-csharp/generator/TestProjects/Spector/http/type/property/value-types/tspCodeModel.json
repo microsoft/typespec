@@ -27,16 +27,16 @@
             "$id": "4",
             "kind": "enum",
             "decorators": [],
+            "doc": "Enum that will be used as a property for model EnumProperty. Non-extensible.",
             "name": "FixedInnerEnum",
             "isGeneratedName": false,
             "namespace": "Type.Property.ValueTypes",
-            "doc": "Enum that will be used as a property for model EnumProperty. Non-extensible.",
             "valueType": {
               "$id": "5",
               "kind": "string",
               "decorators": [],
-              "name": "string",
               "doc": "A sequence of textual characters.",
+              "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string"
             },
             "values": [
@@ -44,9 +44,9 @@
                 "$id": "6",
                 "kind": "enumvalue",
                 "decorators": [],
+                "doc": "First value.",
                 "name": "ValueOne",
                 "value": "ValueOne",
-                "doc": "First value.",
                 "enumType": {
                   "$ref": "4"
                 },
@@ -58,9 +58,9 @@
                 "$id": "7",
                 "kind": "enumvalue",
                 "decorators": [],
+                "doc": "Second value.",
                 "name": "ValueTwo",
                 "value": "ValueTwo",
-                "doc": "Second value.",
                 "enumType": {
                   "$ref": "4"
                 },
@@ -128,16 +128,16 @@
             "$id": "12",
             "kind": "enum",
             "decorators": [],
+            "doc": "Enum that will be used as a property for model EnumProperty. Extensible.",
             "name": "InnerEnum",
             "isGeneratedName": false,
             "namespace": "Type.Property.ValueTypes",
-            "doc": "Enum that will be used as a property for model EnumProperty. Extensible.",
             "valueType": {
               "$id": "13",
               "kind": "string",
               "decorators": [],
-              "name": "string",
               "doc": "A sequence of textual characters.",
+              "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string"
             },
             "values": [
@@ -145,8 +145,8 @@
                 "$id": "14",
                 "kind": "enumvalue",
                 "decorators": [],
-                "name": "ValueOne",
                 "doc": "First value.",
+                "name": "ValueOne",
                 "value": "ValueOne",
                 "valueType": {
                   "$ref": "13"
@@ -159,8 +159,8 @@
                 "$id": "15",
                 "kind": "enumvalue",
                 "decorators": [],
-                "name": "ValueTwo",
                 "doc": "Second value.",
+                "name": "ValueTwo",
                 "value": "ValueTwo",
                 "valueType": {
                   "$ref": "13"
@@ -236,8 +236,8 @@
               "$id": "21",
               "kind": "string",
               "decorators": [],
-              "name": "string",
               "doc": "A sequence of textual characters.",
+              "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string"
             },
             "values": [
@@ -331,8 +331,8 @@
               "$id": "29",
               "kind": "int32",
               "decorators": [],
-              "name": "int32",
               "doc": "A 32-bit integer. (`-2,147,483,648` to `2,147,483,647`)",
+              "name": "int32",
               "crossLanguageDefinitionId": "TypeSpec.int32"
             },
             "values": [
@@ -426,8 +426,8 @@
               "$id": "37",
               "kind": "float32",
               "decorators": [],
-              "name": "float32",
               "doc": "A 32 bit floating point number. (`±1.5 x 10^−45` to `±3.4 x 10^38`)",
+              "name": "float32",
               "crossLanguageDefinitionId": "TypeSpec.float32"
             },
             "values": [
@@ -521,8 +521,8 @@
               "$id": "45",
               "kind": "string",
               "decorators": [],
-              "name": "string",
               "doc": "A sequence of textual characters.",
+              "name": "string",
               "crossLanguageDefinitionId": "TypeSpec.string"
             },
             "values": [
