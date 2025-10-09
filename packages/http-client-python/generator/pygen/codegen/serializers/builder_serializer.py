@@ -1117,7 +1117,12 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             if builder.non_default_errors:
                 retval.append("    else:")
             if self.code_model.options["models-mode"] == "dpg":
-                retval.append(f"{indent}error = _failsafe_deserialize({default_error_deserialization}, response)")
+                retval.extend([
+                    f"{indent}error = _failsafe_deserialize(",
+                    f"{indent}    {default_error_deserialization}",
+                    f"{indent}    response,",
+                    f"{indent})",
+                ])
             else:
                 retval.extend(
                     [
