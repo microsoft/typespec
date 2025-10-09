@@ -5,4 +5,4 @@ packages:
   - "@typespec/compiler"
 ---
 
-[tmgrammar] Fix issue with directive used after decorators
+[TM Grammar] Fix issue with directive used after decorators
