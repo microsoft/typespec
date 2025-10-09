@@ -149,14 +149,6 @@ function Get-ProfileName {
     return $dirName -replace '[^a-zA-Z0-9\-_.]', '-'
 }
 
-# Determine if management mode should be used based on SDK path
-function Test-IsManagementSdk {
-    param([string]$SdkPath)
-    
-    $dirName = Split-Path $SdkPath -Leaf
-    return $dirName -like "*ResourceManager*"
-}
-
 # Read and parse tsp-location.yaml to get emitter configuration
 function Get-EmitterFromTspLocation {
     param([string]$SdkPath)
@@ -197,26 +189,12 @@ function Get-EmitterFromTspLocation {
 # Map emitter package name to generator name and package name
 function Get-GeneratorConfig {
     param(
-        [string]$EmitterPackage,
-        [string]$SdkPath
+        [string]$EmitterPackage
     )
     
-    # If no emitter specified, fall back to auto-detection based on path
+    # EmitterPackage must be set
     if (-not $EmitterPackage) {
-        $isManagementSdk = Test-IsManagementSdk $SdkPath
-        if ($isManagementSdk) {
-            return @{
-                PackageName = "http-client-csharp-mgmt"
-                GeneratorName = "ManagementClientGenerator"
-                ScopeName = "@azure-typespec"
-            }
-        } else {
-            return @{
-                PackageName = "http-client-csharp"
-                GeneratorName = "ScmCodeModelGenerator"
-                ScopeName = "@azure-typespec"
-            }
-        }
+        throw "EmitterPackage must be specified. Could not find emitter configuration in tsp-location.yaml"
     }
     
     # Map emitter package to generator configuration
@@ -243,12 +221,7 @@ function Get-GeneratorConfig {
             }
         }
         default {
-            Write-Warning "Unknown emitter package: $EmitterPackage, using default AzureClientGenerator"
-            return @{
-                PackageName = "http-client-csharp"
-                GeneratorName = "AzureClientGenerator"
-                ScopeName = "@azure-typespec"
-            }
+            throw "Unknown emitter package: $EmitterPackage. Supported packages are: @azure-typespec/http-client-csharp-mgmt, @azure-typespec/http-client-csharp, @typespec/http-client-csharp"
         }
     }
 }
@@ -343,8 +316,8 @@ function Add-DebugProfile {
     # Try to read emitter configuration from tsp-location.yaml
     $emitterPackage = Get-EmitterFromTspLocation $SdkPath
     
-    # Get generator configuration based on emitter package (falls back to auto-detection if not found)
-    $generatorConfig = Get-GeneratorConfig $emitterPackage $SdkPath
+    # Get generator configuration based on emitter package
+    $generatorConfig = Get-GeneratorConfig $emitterPackage
     $packageName = $generatorConfig.PackageName
     $generatorName = $generatorConfig.GeneratorName
     $scopeName = $generatorConfig.ScopeName
@@ -373,11 +346,7 @@ function Add-DebugProfile {
     Write-Host "  - Arguments: $dllPath `"$resolvedSdkPath`" -g $generatorName" -ForegroundColor White
     Write-Host "  - Generator: $generatorName" -ForegroundColor White
     Write-Host "  - Package: $packageName" -ForegroundColor White
-    if ($emitterPackage) {
-        Write-Host "  - Emitter: $emitterPackage (from tsp-location.yaml)" -ForegroundColor White
-    } else {
-        Write-Host "  - Emitter: $packageName (based on SDK path)" -ForegroundColor White
-    }
+    Write-Host "  - Emitter: $emitterPackage (from tsp-location.yaml)" -ForegroundColor White
     
     return $profileName
 }
