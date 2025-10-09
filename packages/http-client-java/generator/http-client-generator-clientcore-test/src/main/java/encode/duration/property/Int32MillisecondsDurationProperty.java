@@ -1,4 +1,4 @@
-package payload.pageable.implementation;
+package encode.duration.property;
 
 import io.clientcore.core.annotations.Metadata;
 import io.clientcore.core.annotations.MetadataProperties;
@@ -7,38 +7,36 @@ import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
 import io.clientcore.core.serialization.json.JsonWriter;
 import java.io.IOException;
-import java.util.List;
-import payload.pageable.Pet;
 
 /**
- * The ListWithoutContinuationResponse model.
+ * The Int32MillisecondsDurationProperty model.
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
-public final class ListWithoutContinuationResponse implements JsonSerializable<ListWithoutContinuationResponse> {
+public final class Int32MillisecondsDurationProperty implements JsonSerializable<Int32MillisecondsDurationProperty> {
     /*
-     * The pets property.
+     * The value property.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private final List<Pet> pets;
+    private final int value;
 
     /**
-     * Creates an instance of ListWithoutContinuationResponse class.
+     * Creates an instance of Int32MillisecondsDurationProperty class.
      * 
-     * @param pets the pets value to set.
+     * @param value the value value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private ListWithoutContinuationResponse(List<Pet> pets) {
-        this.pets = pets;
+    public Int32MillisecondsDurationProperty(int value) {
+        this.value = value;
     }
 
     /**
-     * Get the pets property: The pets property.
+     * Get the value property: The value property.
      * 
-     * @return the pets value.
+     * @return the value value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public List<Pet> getPets() {
-        return this.pets;
+    public int getValue() {
+        return this.value;
     }
 
     /**
@@ -48,34 +46,34 @@ public final class ListWithoutContinuationResponse implements JsonSerializable<L
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
-        jsonWriter.writeArrayField("pets", this.pets, (writer, element) -> writer.writeJson(element));
+        jsonWriter.writeIntField("value", this.value);
         return jsonWriter.writeEndObject();
     }
 
     /**
-     * Reads an instance of ListWithoutContinuationResponse from the JsonReader.
+     * Reads an instance of Int32MillisecondsDurationProperty from the JsonReader.
      * 
      * @param jsonReader The JsonReader being read.
-     * @return An instance of ListWithoutContinuationResponse if the JsonReader was pointing to an instance of it, or
+     * @return An instance of Int32MillisecondsDurationProperty if the JsonReader was pointing to an instance of it, or
      * null if it was pointing to JSON null.
      * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
-     * @throws IOException If an error occurs while reading the ListWithoutContinuationResponse.
+     * @throws IOException If an error occurs while reading the Int32MillisecondsDurationProperty.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public static ListWithoutContinuationResponse fromJson(JsonReader jsonReader) throws IOException {
+    public static Int32MillisecondsDurationProperty fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
-            List<Pet> pets = null;
+            int value = 0;
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
 
-                if ("pets".equals(fieldName)) {
-                    pets = reader.readArray(reader1 -> Pet.fromJson(reader1));
+                if ("value".equals(fieldName)) {
+                    value = reader.getInt();
                 } else {
                     reader.skipChildren();
                 }
             }
-            return new ListWithoutContinuationResponse(pets);
+            return new Int32MillisecondsDurationProperty(value);
         });
     }
 }
