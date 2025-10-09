@@ -1836,7 +1836,7 @@ export class CodeModelBuilder {
         }
 
         let schemaName = groupToRequestConditions ? "RequestConditions" : "MatchConditions";
-        if (!this.isBranded()) {
+        if (!this.isAzureV1()) {
           schemaName = "Http" + schemaName;
         }
         const schemaDescription = groupToRequestConditions
