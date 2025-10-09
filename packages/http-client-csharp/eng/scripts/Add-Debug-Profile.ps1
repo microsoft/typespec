@@ -174,13 +174,13 @@ function Get-EmitterFromTspLocation {
         
         # Simple parsing for emit field - look for lines containing emitter packages
         # This handles both array format (- item), single line arrays ([item]), and plain format
-        if ($content -match '[\[\-\s]["\']?@azure-typespec/http-client-csharp-mgmt["\']?') {
+        if ($content -match '[\[\-\s]["'']?@azure-typespec/http-client-csharp-mgmt["'']?') {
             return "@azure-typespec/http-client-csharp-mgmt"
         }
-        elseif ($content -match '[\[\-\s]["\']?@azure-typespec/http-client-csharp["\']?') {
+        elseif ($content -match '[\[\-\s]["'']?@azure-typespec/http-client-csharp["'']?') {
             return "@azure-typespec/http-client-csharp"
         }
-        elseif ($content -match '[\[\-\s]["\']?@typespec/http-client-csharp["\']?') {
+        elseif ($content -match '[\[\-\s]["'']?@typespec/http-client-csharp["'']?') {
             return "@typespec/http-client-csharp"
         }
         else {
