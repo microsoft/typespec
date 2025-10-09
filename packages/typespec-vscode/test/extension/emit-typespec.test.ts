@@ -15,9 +15,9 @@ import { CaseScreenshot, tempDir, test } from "./common/utils";
 
 let shouldSkip = false;
 
-shouldSkip = tryInstallAndHandle("@typespec/versioning") || shouldSkip;
 shouldSkip = tryInstallAndHandle("@typespec/http") || shouldSkip;
-shouldSkip = tryInstallAndHandle("@typespec/http-client-csharp") || shouldSkip;
+// Use "pnpm install --force" to avoid dependency conflicts. Remove "--force" when the conflict is resolved.
+shouldSkip = tryInstallAndHandle("@typespec/http-client-csharp --force") || shouldSkip;
 
 enum EmitProjectTriggerType {
   Command = "Command",
