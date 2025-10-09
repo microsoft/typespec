@@ -164,15 +164,16 @@ function Get-EmitterFromTspLocation {
         # Read the YAML file
         $content = Get-Content $tspLocationPath -Raw
         
-        # Simple parsing for emit field - look for lines containing emitter packages
-        # This handles both array format (- item), single line arrays ([item]), and plain format
-        if ($content -match '[\[\-\s]["'']?azure-typespec-http-client-csharp-mgmt["'']?') {
+        # Parse emitterPackageJsonPath field to determine emitter type
+        # Format: emitterPackageJsonPath: "eng/azure-typespec-http-client-csharp-mgmt-emitter-package.json"
+        # or: emitterPackageJsonPath: eng/http-client-csharp-emitter-package.json
+        if ($content -match 'emitterPackageJsonPath:\s*["'']?[^"''\n]*azure-typespec-http-client-csharp-mgmt[^"''\n]*["'']?') {
             return "@azure-typespec/http-client-csharp-mgmt"
         }
-        elseif ($content -match '[\[\-\s]["'']?azure-typespec-http-client-csharp["'']?') {
+        elseif ($content -match 'emitterPackageJsonPath:\s*["'']?[^"''\n]*azure-typespec-http-client-csharp[^"''\n]*["'']?') {
             return "@azure-typespec/http-client-csharp"
         }
-        elseif ($content -match '[\[\-\s]["'']?http-client-csharp["'']?') {
+        elseif ($content -match 'emitterPackageJsonPath:\s*["'']?[^"''\n]*http-client-csharp[^"''\n]*["'']?') {
             return "@typespec/http-client-csharp"
         }
         else {
