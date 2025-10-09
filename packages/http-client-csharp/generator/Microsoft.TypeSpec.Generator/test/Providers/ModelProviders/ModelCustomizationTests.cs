@@ -1263,6 +1263,28 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task CanCustomizeNullableStructProperty()
+        {
+            var inputEnum = InputFactory.StringEnum("someStruct", [("Foo", "foo")], isExtensible: true);
+            var inputModel = InputFactory.Model("mockInputModel", properties: [InputFactory.Property("prop1", inputEnum)]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                inputEnumTypes: [inputEnum],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelTypeProvider = new ModelProvider(inputModel);
+
+            var canonicalView = modelTypeProvider.CanonicalView;
+            Assert.IsNotNull(canonicalView);
+            Assert.AreEqual(1, canonicalView.Properties.Count);
+            Assert.AreEqual("Prop1", canonicalView.Properties[0].Name);
+            Assert.IsTrue(canonicalView.Properties[0].Type.IsEnum);
+            Assert.AreEqual("SomeStruct", canonicalView.Properties[0].Type.Name);
+            Assert.AreEqual("Sample.Models", canonicalView.Properties[0].Type.Namespace);
+            Assert.IsTrue(canonicalView.Properties[0].Type.IsNullable);
+        }
+
+        [Test]
         public void CanCustomizeRelativeFilePath()
         {
             MockHelpers.LoadMockGenerator();
