@@ -656,6 +656,7 @@ export class CodeModelBuilder {
 
       codeModelClient.apiVersions = [];
       for (const version of getFilteredApiVersions(
+        this.program,
         this.apiVersion,
         versions,
         this.options["service-version-exclude-preview"],

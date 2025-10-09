@@ -39,6 +39,7 @@ export function getServiceApiVersions(
  * @returns filtered api-versions
  */
 export function getFilteredApiVersions(
+  program: Program,
   pinnedApiVersion: string | undefined,
   versions: Version[],
   excludePreview: boolean = true,
@@ -49,11 +50,11 @@ export function getFilteredApiVersions(
   const filterPreviewApiVersions = excludePreview && isStableApiVersionString(pinnedApiVersion);
   return versions
     .slice(0, versions.findIndex((it) => it.value === pinnedApiVersion) + 1)
-    .filter((version) => !filterPreviewApiVersions || isStableApiVersion(version));
+    .filter((version) => !filterPreviewApiVersions || isStableApiVersion(program, version));
 }
 
-function isStableApiVersion(version: Version): boolean {
-  return !isPreviewVersion(version.enumMember) && isStableApiVersionString(version.value);
+function isStableApiVersion(program: Program, version: Version): boolean {
+  return !isPreviewVersion(program, version.enumMember) && isStableApiVersionString(version.value);
 }
 
 export function isStableApiVersionString(version: string): boolean {
