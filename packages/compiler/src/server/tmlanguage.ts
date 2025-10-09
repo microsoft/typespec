@@ -65,7 +65,7 @@ const simpleIdentifier = `\\b${identifierStart}${identifierContinue}*\\b`;
 const identifier = `${simpleIdentifier}|${escapedIdentifier}`;
 const qualifiedIdentifier = `\\b${identifierStart}(?:${identifierContinue}|\\.${identifierStart})*\\b`;
 const stringPattern = '\\"(?:[^\\"\\\\]|\\\\.)*\\"';
-const modifierKeyword = `\\b(?:extern)\\b`;
+const modifierKeyword = `\\b(?:extern|internal)\\b`;
 const statementKeyword = `\\b(?:namespace|model|op|using|import|enum|alias|union|interface|dec|fn)\\b`;
 const universalEnd = `(?=,|;|@|\\)|\\}|${modifierKeyword}|${statementKeyword})`;
 const universalEndExceptComma = `(?=;|@|\\)|\\}|${modifierKeyword}|${statementKeyword})`;

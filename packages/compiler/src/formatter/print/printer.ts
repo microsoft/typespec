@@ -249,6 +249,8 @@ export function printNode(
       );
     case SyntaxKind.ExternKeyword:
       return "extern";
+    case SyntaxKind.InternalKeyword:
+      return "internal";
     case SyntaxKind.VoidKeyword:
       return "void";
     case SyntaxKind.NeverKeyword:

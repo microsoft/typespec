@@ -935,6 +935,11 @@ export const enum SymbolFlags {
    */
   LateBound = 1 << 22,
 
+  /**
+   * An internal symbol that can only be referenced from a source file in the same package.
+   */
+  Internal = 1 << 23,
+
   ExportContainer = Namespace | SourceFile,
   /**
    * Symbols whose members will be late bound (and stored on the type)
@@ -1039,6 +1044,7 @@ export enum SyntaxKind {
   ConstStatement,
   CallExpression,
   ScalarConstructor,
+  InternalKeyword,
 }
 
 export const enum NodeFlags {
@@ -1219,8 +1225,9 @@ export interface ParseOptions {
   readonly docs?: boolean;
 }
 
-export interface TypeSpecScriptNode extends DeclarationNode, BaseNode {
+export interface TypeSpecScriptNode extends BaseNode {
   readonly kind: SyntaxKind.TypeSpecScript;
+  readonly id: IdentifierNode;
   readonly statements: readonly Statement[];
   readonly file: SourceFile;
   readonly inScopeNamespaces: readonly NamespaceStatementNode[]; // namespaces that declarations in this file belong to
@@ -1253,22 +1260,23 @@ export type Statement =
   | InvalidStatementNode;
 
 export interface DeclarationNode {
+  /**
+   * Identifier that this node declares.
+   */
   readonly id: IdentifierNode;
+
+  /**
+   * Modifier nodes applied to this declaration.
+   */
+  readonly modifiers: Modifier[];
+
+  /**
+   * Combined modifier flags for this declaration.
+   */
+  readonly modifierFlags: ModifierFlags;
 }
 
-export type Declaration =
-  | ModelStatementNode
-  | ScalarStatementNode
-  | InterfaceStatementNode
-  | UnionStatementNode
-  | NamespaceStatementNode
-  | OperationStatementNode
-  | TemplateParameterDeclarationNode
-  | EnumStatementNode
-  | AliasStatementNode
-  | ConstStatementNode
-  | DecoratorDeclarationStatementNode
-  | FunctionDeclarationStatementNode;
+export type Declaration = Extract<Statement, DeclarationNode>;
 
 export type ScopeNode =
   | NamespaceStatementNode
@@ -1595,6 +1603,10 @@ export interface ExternKeywordNode extends BaseNode {
   readonly kind: SyntaxKind.ExternKeyword;
 }
 
+export interface InternalKeywordNode extends BaseNode {
+  readonly kind: SyntaxKind.InternalKeyword;
+}
+
 export interface VoidKeywordNode extends BaseNode {
   readonly kind: SyntaxKind.VoidKeyword;
 }
@@ -1639,19 +1651,23 @@ export interface TemplateArgumentNode extends BaseNode {
   readonly argument: Expression;
 }
 
-export interface TemplateParameterDeclarationNode extends DeclarationNode, BaseNode {
+export interface TemplateParameterDeclarationNode extends BaseNode {
   readonly kind: SyntaxKind.TemplateParameterDeclaration;
   readonly constraint?: Expression;
   readonly default?: Expression;
   readonly parent?: TemplateableNode;
+  readonly id: IdentifierNode;
 }
 
 export const enum ModifierFlags {
   None,
   Extern = 1 << 1,
+  Internal = 1 << 2,
+
+  All = Extern | Internal,
 }
 
-export type Modifier = ExternKeywordNode;
+export type Modifier = ExternKeywordNode | InternalKeywordNode;
 
 /**
  * Represent a decorator declaration
@@ -1662,8 +1678,6 @@ export type Modifier = ExternKeywordNode;
  */
 export interface DecoratorDeclarationStatementNode extends BaseNode, DeclarationNode {
   readonly kind: SyntaxKind.DecoratorDeclarationStatement;
-  readonly modifiers: readonly Modifier[];
-  readonly modifierFlags: ModifierFlags;
   /**
    * Decorator target. First parameter.
    */
@@ -1701,8 +1715,6 @@ export interface FunctionParameterNode extends BaseNode {
  */
 export interface FunctionDeclarationStatementNode extends BaseNode, DeclarationNode {
   readonly kind: SyntaxKind.FunctionDeclarationStatement;
-  readonly modifiers: readonly Modifier[];
-  readonly modifierFlags: ModifierFlags;
   readonly parameters: FunctionParameterNode[];
   readonly returnType?: Expression;
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;

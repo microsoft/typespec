@@ -12,6 +12,7 @@ import {
 import { getDeprecationDetails, markDeprecated } from "./deprecation.js";
 import { compilerAssert, ignoreDiagnostics } from "./diagnostics.js";
 import { validateInheritanceDiscriminatedUnions } from "./helpers/discriminator-utils.js";
+import { getLocationContext } from "./helpers/location-context.js";
 import { explainStringTemplateNotSerializable } from "./helpers/string-template-utils.js";
 import { typeReferenceToString } from "./helpers/syntax-utils.js";
 import { getEntityName, getTypeName } from "./helpers/type-name-utils.js";
@@ -80,6 +81,7 @@ import {
   JsNamespaceDeclarationNode,
   LiteralNode,
   LiteralType,
+  LocationContext,
   MemberContainerNode,
   MemberContainerType,
   MemberExpressionNode,
@@ -3022,6 +3024,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
     mapper: TypeMapper | undefined,
     options?: Partial<SymbolResolutionOptions> | boolean,
+    locationContext?: LocationContext,
   ): Sym | undefined {
     const resolvedOptions: SymbolResolutionOptions =
       typeof options === "boolean"
@@ -3030,7 +3033,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     if (mapper === undefined && resolvedOptions.checkTemplateTypes && referenceSymCache.has(node)) {
       return referenceSymCache.get(node);
     }
-    const sym = resolveTypeReferenceSymInternal(node, mapper, resolvedOptions);
+
+    locationContext ??= getLocationContext(program, node);
+
+    const sym = resolveTypeReferenceSymInternal(node, mapper, resolvedOptions, locationContext);
     if (resolvedOptions.checkTemplateTypes) {
       referenceSymCache.set(node, sym);
     }
@@ -3041,6 +3047,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
     mapper: TypeMapper | undefined,
     options: SymbolResolutionOptions,
+    locationContext: LocationContext,
   ): Sym | undefined {
     if (hasParseError(node)) {
       // Don't report synthetic identifiers used for parser error recovery.
@@ -3048,7 +3055,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return undefined;
     }
     if (node.kind === SyntaxKind.TypeReference) {
-      return resolveTypeReferenceSym(node.target, mapper, options);
+      return resolveTypeReferenceSym(node.target, mapper, options, locationContext);
     } else if (node.kind === SyntaxKind.Identifier) {
       const links = resolver.getNodeLinks(node);
       if (mapper === undefined && links.resolutionResult) {
@@ -3070,13 +3077,21 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         }
       }
 
-      const sym = links.resolvedSymbol;
-      return sym?.symbolSource ?? sym;
+      const sym = links.resolvedSymbol?.symbolSource ?? links.resolvedSymbol;
+
+      checkSymbolAccess(locationContext, node, sym);
+
+      return sym;
     } else if (node.kind === SyntaxKind.MemberExpression) {
-      let base = resolveTypeReferenceSym(node.base, mapper, {
-        ...options,
-        resolveDecorators: false, // when resolving decorator the base cannot also be one
-      });
+      let base = resolveTypeReferenceSym(
+        node.base,
+        mapper,
+        {
+          ...options,
+          resolveDecorators: false, // when resolving decorator the base cannot also be one
+        },
+        locationContext,
+      );
 
       if (!base) {
         return undefined;
@@ -3103,10 +3118,60 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         }
         base = aliasedSym;
       }
-      return resolveMemberInContainer(base, node, options);
+      const sym = resolveMemberInContainer(base, node, options);
+
+      checkSymbolAccess(locationContext, node, sym);
+
+      return sym;
     }
 
     compilerAssert(false, `Unknown type reference kind "${SyntaxKind[(node as any).kind]}"`, node);
+  }
+
+  function checkSymbolAccess(sourceLocation: LocationContext, node: Node, symbol: Sym | undefined) {
+    if (!symbol) return;
+
+    if (symbol.flags & SymbolFlags.Internal) debugger;
+
+    const isInternalDeclaration =
+      (symbol.flags & (SymbolFlags.Internal | SymbolFlags.Declaration)) ===
+      (SymbolFlags.Internal | SymbolFlags.Declaration);
+
+    if (isInternalDeclaration) {
+      // The source location can access internal declaration symbols if:
+      // 1. The source location is synthetic.
+      // 2. The source location is in the compiler standard library.
+      // 3. SOME declaration of the target symbol meets the following:
+      //   1. The source location is in the user project, and the symbol is also declared in the user project.
+      //   2. The source location is in a library, and the symbol is also in the same library.
+
+      if (sourceLocation.type === "synthetic" || sourceLocation.type === "compiler") {
+        return;
+      }
+
+      const isDeclaredInCompatibleLocation = symbol.declarations.some((decl) => {
+        const declLocation = getLocationContext(program, decl);
+
+        if (declLocation.type !== sourceLocation.type) return false;
+
+        // Both are project
+        if (declLocation.type === "project") return true;
+
+        // Both are library, use reference equality to check if they are the same library.
+        return declLocation === sourceLocation;
+      });
+
+      if (isDeclaredInCompatibleLocation) return;
+
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "invalid-ref",
+          messageId: "internal",
+          format: { id: symbol.name },
+          target: node,
+        }),
+      );
+    }
   }
 
   function reportAmbiguousIdentifier(node: IdentifierNode, symbols: Sym[]) {

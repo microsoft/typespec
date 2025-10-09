@@ -325,6 +325,7 @@ const diagnostics = {
       member: paramMessage`${"kind"} doesn't have member ${"id"}`,
       metaProperty: paramMessage`${"kind"} doesn't have meta property ${"id"}`,
       node: paramMessage`Cannot resolve '${"id"}' in node ${"nodeName"} since it has no members. Did you mean to use "::" instead of "."?`,
+      internal: paramMessage`Symbol '${"id"}' is internal and can only be accessed from within its declaring package.`,
     },
   },
   "duplicate-property": {
