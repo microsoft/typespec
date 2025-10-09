@@ -44,7 +44,6 @@ describe("go to imports", () => {
     ]);
   });
 
-
   it("go to directory import", async () => {
     const locations = await goToDefinitionAtCursor(
       `
