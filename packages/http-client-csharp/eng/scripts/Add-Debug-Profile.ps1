@@ -221,9 +221,6 @@ function Get-GeneratorConfig {
                 ScopeName = "@azure-typespec"
             }
         }
-        default {
-            throw "Unknown emitter package: $EmitterPackage. Supported packages are: @azure-typespec/http-client-csharp-mgmt, @azure-typespec/http-client-csharp, @typespec/http-client-csharp"
-        }
     }
 }
 
