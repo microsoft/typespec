@@ -1205,7 +1205,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual(0, modelFactoryMethod!.Signature.Parameters.Count);
 
             // default value should be passed in the model factory method body
-            StringAssert.Contains("0,", modelFactoryMethod.BodyStatements!.ToDisplayString());
+            var result = modelFactoryMethod.BodyStatements!.ToDisplayString();
+            StringAssert.Contains("global::Sample.Models.MockInputEnum.Val1", result);
         }
 
         [Test]
