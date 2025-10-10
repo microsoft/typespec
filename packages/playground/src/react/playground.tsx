@@ -197,7 +197,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
 
   // Update state when Monaco model changes
   useEffect(() => {
-    const disposable = typespecModel.onDidChangeContent(async () => {
+    const disposable = typespecModel.onDidChangeContent(() => {
       const newContent = typespecModel.getValue();
       if (newContent !== content) {
         onContentChange(newContent);
