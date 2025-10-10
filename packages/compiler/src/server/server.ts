@@ -15,6 +15,7 @@ import {
 import { NodeHost } from "../core/node-host.js";
 import { typespecVersion } from "../manifest.js";
 import { createClientConfigProvider } from "./client-config-provider.js";
+import { mockProcess } from "./mock-process.js";
 import { createServer } from "./serverlib.js";
 import { CustomRequestName, Server, ServerHost, ServerLog } from "./types.js";
 
@@ -48,7 +49,19 @@ function main() {
   console.error = (data: any, ...args: any[]) => connection.console.error(format(data, ...args));
 
   const host: ServerHost = {
-    compilerHost: NodeHost,
+    compilerHost: {
+      ...NodeHost,
+      getJsImport: (path: string) => {
+        const oldProcess = globalThis.process;
+        try {
+          globalThis.process = mockProcess(path) as any;
+          const result = NodeHost.getJsImport(path);
+          return result;
+        } finally {
+          globalThis.process.stdin = oldProcess.stdin;
+        }
+      },
+    },
     sendDiagnostics(params: PublishDiagnosticsParams) {
       void connection.sendDiagnostics(params);
     },
