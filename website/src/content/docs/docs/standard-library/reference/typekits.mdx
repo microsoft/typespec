@@ -455,7 +455,7 @@ $(program).literal.createBoolean(value: boolean): BooleanLiteral;
  *
  * @param value - The numeric value.
  */
-$(program).literal.createNumeric(value: number): NumericLiteral;
+$(program).literal.createNumeric(value: number | Numeric): NumericLiteral;
 ```
 
 ### createString
@@ -1798,7 +1798,7 @@ $(program).value.createBoolean(value: boolean): BooleanValue;
  *
  * @param value - The numeric value.
  */
-$(program).value.createNumeric(value: number): NumericValue;
+$(program).value.createNumeric(value: number | Numeric): NumericValue;
 ```
 
 ### createString
@@ -1905,6 +1905,24 @@ $(program).value.isNumeric(type: Entity): type is NumericValue;
  * @param type - The type to check.
  */
 $(program).value.isObject(type: Entity): type is ObjectValue;
+```
+
+### isOfType <Badge variant="note" text="Diagnosable" />
+
+```ts
+/**
+ * Check if the source type can be assigned to the target type.
+ *
+ * @param source - Source type
+ *
+ * @param target - Target type
+ *
+ * @param diagnosticTarget - Target for the diagnostic
+ */
+$(program).value
+  .isOfType(source: Value, target: Type, diagnosticTarget?: Entity | Node): boolean;
+$(program).value.isOfType
+  .withDiagnostics(source: Value, target: Type, diagnosticTarget?: Entity | Node): [boolean, readonly Diagnostic[]];
 ```
 
 ### isScalar

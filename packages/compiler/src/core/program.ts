@@ -30,6 +30,7 @@ import { createLogger } from "./logger/index.js";
 import { createTracer } from "./logger/tracer.js";
 import { createDiagnostic } from "./messages.js";
 import { NameResolver, createResolver } from "./name-resolver.js";
+import { Numeric } from "./numeric.js";
 import { CompilerOptions } from "./options.js";
 import { parse, parseStandaloneTypeReference } from "./parser.js";
 import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
@@ -81,7 +82,7 @@ export interface Program {
   jsSourceFiles: Map<string, JsSourceFileNode>;
 
   /** @internal */
-  literalTypes: Map<string | number | boolean, LiteralType>;
+  literalTypes: Map<string | number | boolean | Numeric, LiteralType>;
   host: CompilerHost;
   tracer: Tracer;
   trace(area: string, message: string): void;
