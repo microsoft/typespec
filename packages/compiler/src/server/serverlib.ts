@@ -1135,6 +1135,11 @@ export function createServer(
     };
     const result = await compileInCoreMode(params.textDocument);
     if (result) {
+      console.log("Compiled", {
+        doc: result.document?.getText(),
+        main: result.program.sourceFiles.get("/test/main.tsp")?.file.text,
+        result,
+      });
       const { script, document, program } = result;
       if (!document || !script) {
         return completions;

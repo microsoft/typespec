@@ -197,14 +197,15 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
 
   // Update state when Monaco model changes
   useEffect(() => {
-    const disposable = typespecModel.onDidChangeContent(() => {
+    const disposable = typespecModel.onDidChangeContent(async () => {
+      await host.writeFile("main.tsp", typespecModel.getValue());
       const newContent = typespecModel.getValue();
       if (newContent !== content) {
         onContentChange(newContent);
       }
     });
     return () => disposable.dispose();
-  }, [typespecModel, content, onContentChange]);
+  }, [typespecModel, content, onContentChange, host]);
 
   const isSampleUntouched = useMemo(() => {
     return Boolean(selectedSampleName && content === props.samples?.[selectedSampleName]?.content);
