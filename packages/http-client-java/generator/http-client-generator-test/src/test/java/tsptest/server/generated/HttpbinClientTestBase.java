@@ -15,6 +15,7 @@ import com.azure.core.test.TestProxyTestBase;
 import com.azure.core.util.Configuration;
 import tsptest.server.HttpbinClient;
 import tsptest.server.HttpbinClientBuilder;
+import tsptest.server.contoso.models.APIVersions;
 import tsptest.server.contoso.sub.ContosoClient;
 import tsptest.server.contoso.sub.ContosoClientBuilder;
 
@@ -36,10 +37,11 @@ class HttpbinClientTestBase extends TestProxyTestBase {
         }
         httpbinClient = httpbinClientbuilder.buildClient();
 
-        ContosoClientBuilder contosoClientbuilder
-            = new ContosoClientBuilder().endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
-                .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
-                .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
+        ContosoClientBuilder contosoClientbuilder = new ContosoClientBuilder()
+            .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "endpoint"))
+            .apiVersion(APIVersions.fromString(Configuration.getGlobalConfiguration().get("APIVERSION", "apiversion")))
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
+            .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
         if (getTestMode() == TestMode.RECORD) {
             contosoClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
