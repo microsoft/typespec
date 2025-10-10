@@ -50,6 +50,16 @@ export function getOperationId(program: Program, entity: Operation): string | un
   return program.stateMap(operationIdsKey).get(entity);
 }
 
+/**
+ * Set a specific operation ID programmatically. Equivalent of using `@operationId` decorator.
+ * @param program TypeSpec Program
+ * @param entity Operation to set ID for
+ * @param opId Operation ID
+ */
+export function setOperationId(program: Program, entity: Operation, opId: string): void {
+  program.stateMap(operationIdsKey).set(entity, opId);
+}
+
 const openApiExtensionKey = createStateSymbol("openApiExtension");
 
 /** {@inheritdoc ExtensionDecorator} */
