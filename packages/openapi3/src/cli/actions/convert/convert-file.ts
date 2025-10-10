@@ -1,4 +1,4 @@
-import OpenAPIParser from "@scalar/openapi-parser";
+import { dereference } from "@scalar/openapi-parser";
 import { formatTypeSpec, resolvePath } from "@typespec/compiler";
 import { OpenAPI3Document } from "../../../types.js";
 import { CliHost } from "../../types.js";
@@ -11,9 +11,11 @@ import { createContext } from "./utils/context.js";
 export async function convertAction(host: CliHost, args: ConvertCliArgs) {
   // attempt to read the file
   const fullPath = resolvePath(process.cwd(), args.path);
-  const parser = new OpenAPIParser();
-  const model = await parser.bundle(fullPath);
-  const context = createContext(parser, model as OpenAPI3Document, console, args.namespace);
+  const { specification } = await dereference(fullPath);
+  if (!specification) {
+    throw new Error("Failed to dereference OpenAPI document");
+  }
+  const context = createContext(specification as OpenAPI3Document, console, args.namespace);
   const program = transform(context);
   let mainTsp: string;
   try {

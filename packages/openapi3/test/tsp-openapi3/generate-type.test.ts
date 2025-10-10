@@ -1,4 +1,4 @@
-import OpenAPIParser from "@scalar/openapi-parser";
+import { dereference } from "@scalar/openapi-parser";
 import { formatTypeSpec } from "@typespec/compiler";
 import { strictEqual } from "node:assert";
 import { beforeAll, describe, it } from "vitest";
@@ -279,13 +279,15 @@ const testScenarios: TestScenario[] = [
 describe("tsp-openapi: generate-type", () => {
   let context: Context;
   beforeAll(async () => {
-    const parser = new OpenAPIParser();
-    const doc = await parser.bundle({
+    const { specification } = await dereference({
       openapi: "3.0.0",
       info: { title: "Test", version: "1.0.0" },
       paths: {},
     });
-    context = createContext(parser, doc as OpenAPI3Document);
+    if (!specification) {
+      throw new Error("Failed to dereference OpenAPI document");
+    }
+    context = createContext(specification as OpenAPI3Document);
   });
   testScenarios.forEach((t) =>
     it(`${generateScenarioName(t)}`, async () => {

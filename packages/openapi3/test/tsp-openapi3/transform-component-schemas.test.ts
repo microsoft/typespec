@@ -1,4 +1,4 @@
-import OpenAPIParser from "@scalar/openapi-parser";
+import { dereference } from "@scalar/openapi-parser";
 import { OpenAPI } from "@scalar/openapi-types";
 import { beforeAll, describe, expect, it } from "vitest";
 import { TypeSpecModel } from "../../src/cli/actions/convert/interfaces.js";
@@ -7,12 +7,10 @@ import { createContext } from "../../src/cli/actions/convert/utils/context.js";
 import { OpenAPI3Document } from "../../src/types.js";
 
 describe("tsp-openapi: transform component schemas", () => {
-  let parser: OpenAPIParser;
   let doc: OpenAPI.Document<{}>;
 
   beforeAll(async () => {
-    parser = new OpenAPIParser();
-    doc = await parser.bundle({
+    const { specification } = await dereference({
       openapi: "3.0.0",
       info: { title: "Test", version: "1.0.0" },
       paths: {
@@ -52,10 +50,14 @@ describe("tsp-openapi: transform component schemas", () => {
         },
       },
     });
+    if (!specification) {
+      throw new Error("Failed to dereference OpenAPI document");
+    }
+    doc = specification;
   });
 
   it("adds the encoding to the model when available", () => {
-    const context = createContext(parser, doc as OpenAPI3Document);
+    const context = createContext(doc as OpenAPI3Document);
     context.registerMultipartSchema("#/components/schemas/MyModel", {
       id: { contentType: "text/plain" },
       name: { contentType: "text/plain" },

@@ -1,4 +1,4 @@
-import OpenAPIParser from "@scalar/openapi-parser";
+import { dereference } from "@scalar/openapi-parser";
 import { OpenAPI } from "@scalar/openapi-types";
 import { beforeAll, describe, expect, it } from "vitest";
 import { generateDataType } from "../../src/cli/actions/convert/generators/generate-model.js";
@@ -8,12 +8,10 @@ import { createContext } from "../../src/cli/actions/convert/utils/context.js";
 import { OpenAPI3Document } from "../../src/types.js";
 
 describe("tsp-openapi: union anyOf with null", () => {
-  let parser: OpenAPIParser;
   let doc: OpenAPI.Document<{}>;
 
   beforeAll(async () => {
-    parser = new OpenAPIParser();
-    doc = await parser.bundle({
+    const { specification } = await dereference({
       openapi: "3.1.0",
       info: { title: "Test", version: "1.0.0" },
       paths: {},
@@ -68,10 +66,14 @@ on reasoning in a response.`,
         },
       },
     });
+    if (!specification) {
+      throw new Error("Failed to dereference OpenAPI document");
+    }
+    doc = specification;
   });
 
   it("generates proper TypeSpec code with description and null", () => {
-    const context = createContext(parser, doc as OpenAPI3Document);
+    const context = createContext(doc as OpenAPI3Document);
     const types: TypeSpecUnion[] = [];
     transformComponentSchemas(context, types);
 
@@ -98,7 +100,7 @@ on reasoning in a response.`,
   });
 
   it("preserves description from oneOf members with constraints when one is null", () => {
-    const context = createContext(parser, doc as OpenAPI3Document);
+    const context = createContext(doc as OpenAPI3Document);
     const types: TypeSpecUnion[] = [];
     transformComponentSchemas(context, types);
 
@@ -117,7 +119,7 @@ on reasoning in a response.`,
   });
 
   it("handles reference + null anyOf correctly", () => {
-    const context = createContext(parser, doc as OpenAPI3Document);
+    const context = createContext(doc as OpenAPI3Document);
     const types: TypeSpecUnion[] = [];
     transformComponentSchemas(context, types);
 
@@ -134,7 +136,7 @@ on reasoning in a response.`,
   });
 
   it("handles oneOf with null type array properly", async () => {
-    const docWithTypeArray = await parser.bundle({
+    const { specification } = await dereference({
       openapi: "3.1.0",
       info: { title: "Test", version: "1.0.0" },
       paths: {},
@@ -155,8 +157,12 @@ on reasoning in a response.`,
         },
       },
     });
+    if (!specification) {
+      throw new Error("Failed to dereference OpenAPI document");
+    }
+    const docWithTypeArray = specification;
 
-    const context = createContext(parser, docWithTypeArray as OpenAPI3Document);
+    const context = createContext(docWithTypeArray as OpenAPI3Document);
     const types: TypeSpecUnion[] = [];
     transformComponentSchemas(context, types);
 
