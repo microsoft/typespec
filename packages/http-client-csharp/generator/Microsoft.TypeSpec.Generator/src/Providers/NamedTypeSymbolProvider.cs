@@ -245,6 +245,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     kindOptions: SymbolDisplayKindOptions.None);
 
                 AddAdditionalModifiers(methodSymbol, ref modifiers);
+
+                // Check if this is a partial method declaration (no body)
+                bool isPartialDeclaration = IsPartialMethodDeclaration(methodSymbol);
+                if (isPartialDeclaration)
+                {
+                    modifiers |= MethodSignatureModifiers.Partial;
+                }
+
                 var explicitInterface = methodSymbol.ExplicitInterfaceImplementations.FirstOrDefault();
                 var signature = new MethodSignature(
                     methodSymbol.ToDisplayString(format),
@@ -256,9 +264,37 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     [.. methodSymbol.Parameters.Select(p => ConvertToParameterProvider(methodSymbol, p))],
                     ExplicitInterface: explicitInterface?.ContainingType?.GetCSharpType());
 
-                methods.Add(new MethodProvider(signature, MethodBodyStatement.Empty, this));
+                var methodProvider = new MethodProvider(signature, MethodBodyStatement.Empty, this);
+                if (isPartialDeclaration)
+                {
+                    methodProvider.IsPartialMethod = true;
+                }
+
+                methods.Add(methodProvider);
             }
             return [.. methods];
+        }
+
+        private bool IsPartialMethodDeclaration(IMethodSymbol methodSymbol)
+        {
+            // Check each syntax reference for the method
+            foreach (var syntaxReference in methodSymbol.DeclaringSyntaxReferences)
+            {
+                var syntaxNode = syntaxReference.GetSyntax();
+                if (syntaxNode is MethodDeclarationSyntax methodSyntax)
+                {
+                    // Check if it has the partial modifier and no body
+                    bool hasPartialModifier = methodSyntax.Modifiers.Any(m => m.IsKind(SyntaxKind.PartialKeyword));
+                    bool hasNoBody = methodSyntax.Body == null && methodSyntax.ExpressionBody == null;
+
+                    if (hasPartialModifier && hasNoBody)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         protected override bool GetIsEnum() => _namedTypeSymbol.TypeKind == TypeKind.Enum;
