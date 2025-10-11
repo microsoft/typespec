@@ -458,7 +458,7 @@ async function preprocess(flags: RegenerateFlagsInput): Promise<void> {
       "generated",
       "authentication-api-key",
       "authentication",
-      "apiKey",
+      "apikey",
       "_operations",
     ];
     await promises.mkdir(join(GENERATED_FOLDER, ...folderParts), { recursive: true });
