@@ -210,3 +210,16 @@ export type InitProjectConfig = ScaffoldingConfig;
 export type InitProjectTemplate = InitTemplate;
 export type InitProjectTemplateLibrarySpec = InitTemplateLibrarySpec;
 export type InitProjectTemplateEmitterTemplate = EmitterTemplate;
+
+export interface ChatCompleteOptions {
+  modelPreferences?: string;
+}
+
+export interface ChatMessage {
+  role: "user" | "assist";
+  message: string;
+}
+
+export interface LmProvider {
+  chatComplete(messages: ChatMessage[], options: ChatCompleteOptions): Promise<string>;
+}

@@ -55,6 +55,27 @@
     {
       "type": "node",
       "request": "launch",
+      "name": "Compile for azure-linter",
+      "program": "${workspaceFolder}/packages/compiler/entrypoints/cli.js",
+      "args": [
+        "compile",
+        "C:/t/tspProj/p1/client.tsp",
+      ],
+      "smartStep": true,
+      "sourceMaps": true,
+      "skipFiles": ["<node_internals>/**/*.js"],
+      "outFiles": [
+        "${workspaceFolder}/packages/*/dist/**/*.js",
+        "${workspaceFolder}/packages/*/dist-dev/**/*.js"
+      ],
+      "cwd": "C:/t/tspProj/p1",
+      "presentation": {
+        "order": 2
+      }
+    },
+    {
+      "type": "node",
+      "request": "launch",
       "name": "Compile Scratch",
       "program": "${workspaceFolder}/packages/compiler/entrypoints/cli.js",
       "args": [
@@ -140,12 +161,12 @@
 
         // Set the telemetry key environment variable to use if you dont want to set it in package.json
         //"TYPESPEC_VSCODE_TELEMETRY_KEY": "{The instrumentation key of your Application Insights}",
+        
+        "ENABLE_SERVER_COMPILE_LOGGING": "true",
+        // "ENABLE_UPDATE_MANAGER_LOGGING": "true",
 
         "TYPESPEC_SERVER_NODE_OPTIONS": "--nolazy --inspect-brk=4242",
         "TYPESPEC_DEVELOPMENT_MODE": "true"
-
-        // "ENABLE_SERVER_COMPILE_LOGGING": "true",
-        // "ENABLE_UPDATE_MANAGER_LOGGING": "true"
       },
       "presentation": {
         "hidden": true
