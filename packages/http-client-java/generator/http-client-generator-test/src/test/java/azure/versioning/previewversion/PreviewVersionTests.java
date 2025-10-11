@@ -4,14 +4,12 @@
 package azure.versioning.previewversion;
 
 import azure.versioning.previewversion.models.UpdateWidgetColorRequest;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class PreviewVersionTests {
 
     private static final String widgetId = "widget-123";
 
-    @Disabled
     @Test
     public void testPreviewClient() {
         PreviewVersionClient client = new PreviewVersionClientBuilder().buildClient();
@@ -21,7 +19,6 @@ public class PreviewVersionTests {
         client.updateWidgetColor(widgetId, new UpdateWidgetColorRequest().setColor("red"));
     }
 
-    @Disabled
     @Test
     public void testStableClient() {
         PreviewVersionClient client

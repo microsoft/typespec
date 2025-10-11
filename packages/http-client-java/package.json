@@ -79,7 +79,7 @@
     "@microsoft/api-extractor-model": "^7.31.1",
     "@types/js-yaml": "~4.0.9",
     "@types/lodash": "~4.17.20",
-    "@types/node": "~24.7.0",
+    "@types/node": "~24.7.1",
     "@typespec/compiler": "1.5.0",
     "@typespec/events": "0.75.0",
     "@typespec/http": "1.5.0",

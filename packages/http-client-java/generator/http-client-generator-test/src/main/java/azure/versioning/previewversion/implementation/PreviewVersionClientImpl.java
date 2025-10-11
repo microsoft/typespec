@@ -13,6 +13,7 @@ import com.azure.core.annotation.Host;
 import com.azure.core.annotation.HostParam;
 import com.azure.core.annotation.Patch;
 import com.azure.core.annotation.PathParam;
+import com.azure.core.annotation.QueryParam;
 import com.azure.core.annotation.ReturnType;
 import com.azure.core.annotation.ServiceInterface;
 import com.azure.core.annotation.ServiceMethod;
@@ -154,7 +155,8 @@ public final class PreviewVersionClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Mono<Response<BinaryData>> getWidget(@HostParam("endpoint") String endpoint, @PathParam("id") String id,
-            @HeaderParam("Accept") String accept, RequestOptions requestOptions, Context context);
+            @QueryParam("api-version") String apiVersion, @HeaderParam("Accept") String accept,
+            RequestOptions requestOptions, Context context);
 
         @Get("/azure/versioning/previewVersion/widgets/{id}")
         @ExpectedResponses({ 200, 404 })
@@ -162,7 +164,8 @@ public final class PreviewVersionClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<BinaryData> getWidgetSync(@HostParam("endpoint") String endpoint, @PathParam("id") String id,
-            @HeaderParam("Accept") String accept, RequestOptions requestOptions, Context context);
+            @QueryParam("api-version") String apiVersion, @HeaderParam("Accept") String accept,
+            RequestOptions requestOptions, Context context);
 
         @Patch("/azure/versioning/previewVersion/widgets/{id}/color")
         @ExpectedResponses({ 200, 404 })
@@ -170,9 +173,9 @@ public final class PreviewVersionClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Mono<Response<BinaryData>> updateWidgetColor(@HostParam("endpoint") String endpoint, @PathParam("id") String id,
-            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/merge-patch+json") BinaryData colorUpdate, RequestOptions requestOptions,
-            Context context);
+            @HeaderParam("Content-Type") String contentType, @QueryParam("api-version") String apiVersion,
+            @HeaderParam("Accept") String accept, @BodyParam("application/merge-patch+json") BinaryData colorUpdate,
+            RequestOptions requestOptions, Context context);
 
         @Patch("/azure/versioning/previewVersion/widgets/{id}/color")
         @ExpectedResponses({ 200, 404 })
@@ -180,9 +183,9 @@ public final class PreviewVersionClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<BinaryData> updateWidgetColorSync(@HostParam("endpoint") String endpoint, @PathParam("id") String id,
-            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/merge-patch+json") BinaryData colorUpdate, RequestOptions requestOptions,
-            Context context);
+            @HeaderParam("Content-Type") String contentType, @QueryParam("api-version") String apiVersion,
+            @HeaderParam("Accept") String accept, @BodyParam("application/merge-patch+json") BinaryData colorUpdate,
+            RequestOptions requestOptions, Context context);
 
         @Get("/azure/versioning/previewVersion/widgets")
         @ExpectedResponses({ 200 })
@@ -191,7 +194,8 @@ public final class PreviewVersionClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Mono<Response<BinaryData>> listWidgets(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestOptions requestOptions, Context context);
+            @QueryParam("api-version") String apiVersion, @HeaderParam("Accept") String accept,
+            RequestOptions requestOptions, Context context);
 
         @Get("/azure/versioning/previewVersion/widgets")
         @ExpectedResponses({ 200 })
@@ -200,7 +204,8 @@ public final class PreviewVersionClientImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<BinaryData> listWidgetsSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestOptions requestOptions, Context context);
+            @QueryParam("api-version") String apiVersion, @HeaderParam("Accept") String accept,
+            RequestOptions requestOptions, Context context);
     }
 
     /**
@@ -228,8 +233,8 @@ public final class PreviewVersionClientImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> getWidgetWithResponseAsync(String id, RequestOptions requestOptions) {
         final String accept = "application/json";
-        return FluxUtil
-            .withContext(context -> service.getWidget(this.getEndpoint(), id, accept, requestOptions, context));
+        return FluxUtil.withContext(context -> service.getWidget(this.getEndpoint(), id,
+            this.getServiceVersion().getVersion(), accept, requestOptions, context));
     }
 
     /**
@@ -256,7 +261,8 @@ public final class PreviewVersionClientImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> getWidgetWithResponse(String id, RequestOptions requestOptions) {
         final String accept = "application/json";
-        return service.getWidgetSync(this.getEndpoint(), id, accept, requestOptions, Context.NONE);
+        return service.getWidgetSync(this.getEndpoint(), id, this.getServiceVersion().getVersion(), accept,
+            requestOptions, Context.NONE);
     }
 
     /**
@@ -296,8 +302,8 @@ public final class PreviewVersionClientImpl {
         RequestOptions requestOptions) {
         final String contentType = "application/merge-patch+json";
         final String accept = "application/json";
-        return FluxUtil.withContext(context -> service.updateWidgetColor(this.getEndpoint(), id, contentType, accept,
-            colorUpdate, requestOptions, context));
+        return FluxUtil.withContext(context -> service.updateWidgetColor(this.getEndpoint(), id, contentType,
+            this.getServiceVersion().getVersion(), accept, colorUpdate, requestOptions, context));
     }
 
     /**
@@ -337,8 +343,8 @@ public final class PreviewVersionClientImpl {
         RequestOptions requestOptions) {
         final String contentType = "application/merge-patch+json";
         final String accept = "application/json";
-        return service.updateWidgetColorSync(this.getEndpoint(), id, contentType, accept, colorUpdate, requestOptions,
-            Context.NONE);
+        return service.updateWidgetColorSync(this.getEndpoint(), id, contentType, this.getServiceVersion().getVersion(),
+            accept, colorUpdate, requestOptions, Context.NONE);
     }
 
     /**
@@ -377,8 +383,8 @@ public final class PreviewVersionClientImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> listWidgetsWithResponseAsync(RequestOptions requestOptions) {
         final String accept = "application/json";
-        return FluxUtil
-            .withContext(context -> service.listWidgets(this.getEndpoint(), accept, requestOptions, context));
+        return FluxUtil.withContext(context -> service.listWidgets(this.getEndpoint(),
+            this.getServiceVersion().getVersion(), accept, requestOptions, context));
     }
 
     /**
@@ -417,6 +423,7 @@ public final class PreviewVersionClientImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> listWidgetsWithResponse(RequestOptions requestOptions) {
         final String accept = "application/json";
-        return service.listWidgetsSync(this.getEndpoint(), accept, requestOptions, Context.NONE);
+        return service.listWidgetsSync(this.getEndpoint(), this.getServiceVersion().getVersion(), accept,
+            requestOptions, Context.NONE);
     }
 }
