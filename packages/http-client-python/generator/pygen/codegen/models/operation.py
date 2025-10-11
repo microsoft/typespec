@@ -200,8 +200,8 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
         if isinstance(exception_schema, ModelType):
             pylint_disable = "  # pylint: disable=protected-access" if exception_schema.internal else ""
             return (
-              f"{exception_schema.type_annotation(skip_quote=True, serialize_namespace=serialize_namespace)},"
-              f"{pylint_disable}"
+                f"{exception_schema.type_annotation(skip_quote=True, serialize_namespace=serialize_namespace)},"
+                f"{pylint_disable}"
             )
         return None if self.code_model.options["models-mode"] == "dpg" else "'object',"
 
