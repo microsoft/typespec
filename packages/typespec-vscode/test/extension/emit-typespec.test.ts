@@ -1,7 +1,7 @@
 import { execSync } from "child_process";
 import fs from "node:fs";
 import path from "node:path";
-import { beforeEach, describe } from "vitest";
+import { beforeEach, afterAll, describe } from "vitest";
 import {
   contrastResult,
   preContrastResult,
@@ -16,8 +16,7 @@ import { CaseScreenshot, tempDir, test } from "./common/utils";
 let shouldSkip = false;
 
 shouldSkip = tryInstallAndHandle("@typespec/http") || shouldSkip;
-// Use "pnpm install --force" to avoid dependency conflicts. Remove "--force" when the conflict is resolved.
-shouldSkip = tryInstallAndHandle("@typespec/http-client-csharp --force") || shouldSkip;
+shouldSkip = tryInstallAndHandle("@typespec/http-client-csharp") || shouldSkip;
 
 enum EmitProjectTriggerType {
   Command = "Command",
@@ -64,6 +63,26 @@ beforeEach(() => {
   }
 });
 
+afterAll(() => {
+  try {
+    execSync("pnpm uninstall @typespec/http", { stdio: "pipe" });
+  } catch (e) {
+    process.exit(1);
+  }
+
+  try {
+    execSync("pnpm uninstall @typespec/http-client-csharp", { stdio: "pipe" });
+  } catch (e) {
+    process.exit(1);  
+  }
+
+  try {
+    execSync("git restore ./../../pnpm-lock.yaml", { stdio: "pipe" });
+  } catch (e) {
+    process.exit(1);  
+  }
+});
+
 const describeFn = shouldSkip ? describe.skip : describe;
 describeFn.each(EmitCasesConfigList)("EmitTypespecProject", async (item) => {
   const { caseName, selectType, selectTypeLanguage, TspConfigHasEmit, expectedResults } = item;
@@ -101,16 +120,5 @@ describeFn.each(EmitCasesConfigList)("EmitTypespecProject", async (item) => {
     const resultFilePath = path.resolve(workspacePath, "./tsp-output/@typespec");
     await contrastResult(expectedResults, resultFilePath, cs);
     app.close();
-
-    try {
-      execSync("git restore ./package.json", { stdio: "inherit" });
-    } catch (e) {
-      process.exit(1);
-    }
-    try {
-      execSync("git restore ../../pnpm-lock.yaml", { stdio: "inherit" });
-    } catch (e) {
-      process.exit(1);
-    }
   });
 });

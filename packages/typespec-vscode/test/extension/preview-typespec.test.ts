@@ -2,7 +2,7 @@ import { execSync } from "child_process";
 import { rm } from "fs/promises";
 import fs from "node:fs";
 import path from "node:path";
-import { beforeEach, describe } from "vitest";
+import { beforeEach, afterAll, describe } from "vitest";
 import { startWithCommandPalette, tryInstallAndHandle } from "./common/common-steps";
 import { CaseScreenshot, retry, tempDir, test } from "./common/utils";
 
@@ -51,6 +51,26 @@ beforeEach(() => {
   }
 });
 
+afterAll(() => {
+  try {
+    execSync("pnpm uninstall @typespec/http", { stdio: "pipe" });
+  } catch (e) {
+    process.exit(1);
+  }
+
+  try {
+    execSync("pnpm uninstall @typespec/openapi3", { stdio: "pipe" });
+  } catch (e) {
+    process.exit(1);  
+  }
+
+  try {
+    execSync("git restore ./../../pnpm-lock.yaml", { stdio: "pipe" });
+  } catch (e) {
+    process.exit(1);  
+  }
+});
+
 const describeFn = shouldSkip ? describe.skip : describe;
 describeFn.each(PreviewCasesConfigList)("PreviewAPIDocument", async (item) => {
   const { caseName } = item;
@@ -80,15 +100,5 @@ describeFn.each(PreviewCasesConfigList)("PreviewAPIDocument", async (item) => {
     );
     await rm(cs.caseDir, { recursive: true });
     app.close();
-    try {
-      execSync("git restore ./package.json", { stdio: "inherit" });
-    } catch (e) {
-      process.exit(1);
-    }
-    try {
-      execSync("git restore ../../pnpm-lock.yaml", { stdio: "inherit" });
-    } catch (e) {
-      process.exit(1);
-    }
   });
 });
