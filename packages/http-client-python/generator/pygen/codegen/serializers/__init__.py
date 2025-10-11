@@ -122,6 +122,7 @@ class JinjaSerializer(ReaderAndWriter):
             # If parsing the version fails, we assume the version file is not valid and overwrite.
             return False
 
+    # pylint: disable=too-many-branches
     def serialize(self) -> None:
         # remove existing folders when generate from tsp
         if self.code_model.is_tsp and self.code_model.is_azure_flavor:
