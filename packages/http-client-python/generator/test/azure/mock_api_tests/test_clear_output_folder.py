@@ -9,6 +9,6 @@ GENERATED_PATH = Path(__file__).parent.parent.resolve() / "generated"
 
 
 def test_clear_output_folder():
-    folder = GENERATED_PATH / "authentication-api-key/authentication/apiKey/_operations"
+    folder = GENERATED_PATH / "authentication-api-key/authentication/apikey/_operations"
     assert folder.exists(), "Operations folder should exist"
     assert not (folder / "to_be_deleted.py").exists(), "File to_be_deleted.py should be deleted after regeneration"
