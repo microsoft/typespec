@@ -1,17 +1,20 @@
 import { execSync } from "child_process";
 import fs from "node:fs";
 import path from "node:path";
-import { beforeEach, describe } from "vitest";
-import { contrastResult, preContrastResult, startWithRightClick } from "./common/common-steps";
+import { afterAll, beforeEach, describe } from "vitest";
+import {
+  contrastResult,
+  preContrastResult,
+  startWithRightClick,
+  tryInstallAndHandle,
+} from "./common/common-steps";
 import { mockShowOpenDialog } from "./common/mock-dialogs";
 import { CaseScreenshot, tempDir, test } from "./common/utils";
 
-try {
-  execSync("pnpm install @typespec/openapi3", { stdio: "inherit" });
-  execSync("pnpm install @typespec/http", { stdio: "inherit" });
-} catch (e) {
-  process.exit(1);
-}
+let shouldSkip = false;
+
+shouldSkip = tryInstallAndHandle("@typespec/http") || shouldSkip;
+shouldSkip = tryInstallAndHandle("@typespec/openapi3") || shouldSkip;
 
 enum ImportProjectTriggerType {
   CommandPalette = "CommandPalette",
@@ -70,7 +73,26 @@ beforeEach(() => {
   }
 });
 
-describe.each(ImportCasesConfigList)("ImportTypespecFromOpenApi3", async (item) => {
+afterAll(() => {
+  try {
+    execSync("pnpm uninstall @typespec/http", { stdio: "pipe" });
+  } catch (e) {
+    process.exit(1);
+  }
+  try {
+    execSync("pnpm uninstall @typespec/openapi3", { stdio: "pipe" });
+  } catch (e) {
+    process.exit(1);
+  }
+  try {
+    execSync("git restore ./../../pnpm-lock.yaml", { stdio: "pipe" });
+  } catch (e) {
+    process.exit(1);
+  }
+});
+
+const describeFn = shouldSkip ? describe.skip : describe;
+describeFn.each(ImportCasesConfigList)("ImportTypespecFromOpenApi3", async (item) => {
   const { caseName, expectedResults } = item;
   test(caseName, async ({ launch }) => {
     const cs = new CaseScreenshot(caseName);
@@ -93,15 +115,5 @@ describe.each(ImportCasesConfigList)("ImportTypespecFromOpenApi3", async (item) 
     );
     await contrastResult(expectedResults, workspacePath, cs);
     app.close();
-    try {
-      execSync("git restore ./package.json", { stdio: "inherit" });
-    } catch (e) {
-      process.exit(1);
-    }
-    try {
-      execSync("git restore ../../pnpm-lock.yaml", { stdio: "inherit" });
-    } catch (e) {
-      process.exit(1);
-    }
   });
 });

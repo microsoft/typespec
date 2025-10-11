@@ -2,16 +2,14 @@ import { execSync } from "child_process";
 import { rm } from "fs/promises";
 import fs from "node:fs";
 import path from "node:path";
-import { beforeEach, describe } from "vitest";
-import { startWithCommandPalette } from "./common/common-steps";
+import { afterAll, beforeEach, describe } from "vitest";
+import { startWithCommandPalette, tryInstallAndHandle } from "./common/common-steps";
 import { CaseScreenshot, retry, tempDir, test } from "./common/utils";
 
-try {
-  execSync("pnpm install @typespec/http", { stdio: "inherit" });
-  execSync("pnpm install @typespec/openapi3", { stdio: "inherit" });
-} catch (e) {
-  process.exit(1);
-}
+let shouldSkip = false;
+
+shouldSkip = tryInstallAndHandle("@typespec/http") || shouldSkip;
+shouldSkip = tryInstallAndHandle("@typespec/openapi3") || shouldSkip;
 
 export enum PreviewProjectTriggerType {
   Command = "CommandPalette",
@@ -53,7 +51,26 @@ beforeEach(() => {
   }
 });
 
-describe.each(PreviewCasesConfigList)("PreviewAPIDocument", async (item) => {
+afterAll(() => {
+  try {
+    execSync("pnpm uninstall @typespec/http", { stdio: "pipe" });
+  } catch (e) {
+    process.exit(1);
+  }
+  try {
+    execSync("pnpm uninstall @typespec/openapi3", { stdio: "pipe" });
+  } catch (e) {
+    process.exit(1);
+  }
+  try {
+    execSync("git restore ./../../pnpm-lock.yaml", { stdio: "pipe" });
+  } catch (e) {
+    process.exit(1);
+  }
+});
+
+const describeFn = shouldSkip ? describe.skip : describe;
+describeFn.each(PreviewCasesConfigList)("PreviewAPIDocument", async (item) => {
   const { caseName } = item;
   test(caseName, async ({ launch }) => {
     const cs = new CaseScreenshot(caseName);
@@ -81,15 +98,5 @@ describe.each(PreviewCasesConfigList)("PreviewAPIDocument", async (item) => {
     );
     await rm(cs.caseDir, { recursive: true });
     app.close();
-    try {
-      execSync("git restore ./package.json", { stdio: "inherit" });
-    } catch (e) {
-      process.exit(1);
-    }
-    try {
-      execSync("git restore ../../pnpm-lock.yaml", { stdio: "inherit" });
-    } catch (e) {
-      process.exit(1);
-    }
   });
 });
