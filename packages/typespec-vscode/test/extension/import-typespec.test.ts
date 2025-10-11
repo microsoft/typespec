@@ -1,7 +1,7 @@
 import { execSync } from "child_process";
 import fs from "node:fs";
 import path from "node:path";
-import { beforeEach, afterAll, describe } from "vitest";
+import { afterAll, beforeEach, describe } from "vitest";
 import {
   contrastResult,
   preContrastResult,
@@ -79,17 +79,15 @@ afterAll(() => {
   } catch (e) {
     process.exit(1);
   }
-
   try {
     execSync("pnpm uninstall @typespec/openapi3", { stdio: "pipe" });
   } catch (e) {
-    process.exit(1);  
+    process.exit(1);
   }
-
   try {
     execSync("git restore ./../../pnpm-lock.yaml", { stdio: "pipe" });
   } catch (e) {
-    process.exit(1);  
+    process.exit(1);
   }
 });
 
