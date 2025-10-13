@@ -290,6 +290,16 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             var parameters = backwardCompatibilityMethod!.Signature.Parameters;
             Assert.AreEqual(1, parameters.Count);
             Assert.AreEqual("stringProp", parameters[0].Name);
+            foreach (var param in parameters)
+            {
+                Assert.IsNull(param.DefaultValue);
+            }
+            var attributes = backwardCompatibilityMethod!.Signature.Attributes;
+            Assert.AreEqual(1, attributes.Count);
+            var printedAttribute = attributes[0].ToDisplayString();
+            Assert.AreEqual(
+                "[global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]\n",
+                printedAttribute);
 
             var currentParameters = currentOverloadMethod!.Signature.Parameters;
             Assert.AreEqual(4, currentParameters.Count);

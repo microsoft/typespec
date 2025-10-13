@@ -1,5 +1,28 @@
 # Change Log - @typespec/openapi3
 
+## 1.5.0
+
+### Features
+
+- [#8632](https://github.com/microsoft/typespec/pull/8632) Add a new `operation-id-strategy` option.
+  
+  - `parent-container` (default and previous behavior) Join operation name with its parent if applicable with an underscore
+  - `fqn` Join the path from the service root to the operation with `.`
+  - `none` Do not generate operation ids, only include explicit ones set with `@operationId`
+
+### Bug Fixes
+
+- [#8584](https://github.com/microsoft/typespec/pull/8584) [importer] fixes import of additional properties : true {} to result in Record<unknown>
+- [#8621](https://github.com/microsoft/typespec/pull/8621) [importer] unwrap single any/oneOf to get semantically meaningful types
+- [#8419](https://github.com/microsoft/typespec/pull/8419) adds enum prefix for defaults values of enums on import
+- [#8434](https://github.com/microsoft/typespec/pull/8434) do not emit defaults for each member type when importing openapi descriptions
+- [#8514](https://github.com/microsoft/typespec/pull/8514) [converter] anyOf/oneOf type + type:null gets imported properly and maintains decorators, documentation,...
+- [#8623](https://github.com/microsoft/typespec/pull/8623) [importer] only import multipart request body when it's present
+- [#8432](https://github.com/microsoft/typespec/pull/8432) fixes a regression where a null valued default would make the import crash
+- [#8605](https://github.com/microsoft/typespec/pull/8605) Fix crash when using a property called `set`
+- [#8632](https://github.com/microsoft/typespec/pull/8632) Deduplicate operation ids that would resolve to the same one
+
+
 ## 1.4.0
 
 ### Features

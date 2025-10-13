@@ -9,7 +9,13 @@
     1. Installs tsp-client if not already installed
     2. Runs tsp-client sync in the target SDK directory
     3. Runs tsp-client generate --save-inputs to create tspCodeModel.json
-    4. Adds a new debug profile to launchSettings.json that targets the DLL
+    4. Reads the emitter configuration from tsp-location.yaml to determine the generator
+    5. Adds a new debug profile to launchSettings.json that targets the DLL
+    
+    The script automatically detects which emitter/generator to use by:
+    - First checking tsp-location.yaml for the configured emitter package
+    - Falling back to auto-detection based on SDK path if tsp-location.yaml is not found
+      (e.g., paths containing "ResourceManager" use ManagementClientGenerator)
 
 .PARAMETER SdkDirectory
     Path to the target SDK service directory
@@ -143,12 +149,79 @@ function Get-ProfileName {
     return $dirName -replace '[^a-zA-Z0-9\-_.]', '-'
 }
 
-# Determine if management mode should be used based on SDK path
-function Test-IsManagementSdk {
+# Read and parse tsp-location.yaml to get emitter configuration
+function Get-EmitterFromTspLocation {
     param([string]$SdkPath)
     
-    $dirName = Split-Path $SdkPath -Leaf
-    return $dirName -like "*ResourceManager*"
+    $tspLocationPath = Join-Path $SdkPath "tsp-location.yaml"
+    
+    if (-not (Test-Path $tspLocationPath)) {
+        Write-Host "tsp-location.yaml not found at $tspLocationPath" -ForegroundColor Yellow
+        return $null
+    }
+    
+    try {
+        # Read the YAML file
+        $content = Get-Content $tspLocationPath -Raw
+        
+        # Parse emitterPackageJsonPath field to determine emitter type
+        # Format: emitterPackageJsonPath: "eng/azure-typespec-http-client-csharp-mgmt-emitter-package.json"
+        # or: emitterPackageJsonPath: eng/http-client-csharp-emitter-package.json
+        if ($content -match 'emitterPackageJsonPath:\s*["'']?[^"''\n]*azure-typespec-http-client-csharp-mgmt[^"''\n]*["'']?') {
+            return "@azure-typespec/http-client-csharp-mgmt"
+        }
+        elseif ($content -match 'emitterPackageJsonPath:\s*["'']?[^"''\n]*azure-typespec-http-client-csharp[^"''\n]*["'']?') {
+            return "@azure-typespec/http-client-csharp"
+        }
+        elseif ($content -match 'emitterPackageJsonPath:\s*["'']?[^"''\n]*http-client-csharp[^"''\n]*["'']?') {
+            return "@typespec/http-client-csharp"
+        }
+        else {
+            Write-Host "Could not determine emitter from tsp-location.yaml" -ForegroundColor Yellow
+            return $null
+        }
+    }
+    catch {
+        Write-Warning "Failed to parse tsp-location.yaml: $($_.Exception.Message)"
+        return $null
+    }
+}
+
+# Map emitter package name to generator name and package name
+function Get-GeneratorConfig {
+    param(
+        [string]$EmitterPackage
+    )
+    
+    # EmitterPackage must be set
+    if (-not $EmitterPackage) {
+        throw "EmitterPackage must be specified. Could not find emitter configuration in tsp-location.yaml"
+    }
+    
+    # Map emitter package to generator configuration
+    switch ($EmitterPackage) {
+        "@azure-typespec/http-client-csharp-mgmt" {
+            return @{
+                PackageName = "http-client-csharp-mgmt"
+                GeneratorName = "ManagementClientGenerator"
+                ScopeName = "@azure-typespec"
+            }
+        }
+        "@typespec/http-client-csharp" {
+            return @{
+                PackageName = "http-client-csharp"
+                GeneratorName = "ScmCodeModelGenerator"
+                ScopeName = "@typespec"
+            }
+        }
+        "@azure-typespec/http-client-csharp" {
+            return @{
+                PackageName = "http-client-csharp"
+                GeneratorName = "AzureClientGenerator"
+                ScopeName = "@azure-typespec"
+            }
+        }
+    }
 }
 
 # Rebuild the local generator solution to ensure fresh DLLs
@@ -183,14 +256,15 @@ function Build-LocalGeneratorSolution {
 function Copy-LocalGeneratorDlls {
     param(
         [string]$SdkPath,
-        [string]$PackageName
+        [string]$PackageName,
+        [string]$ScopeName
     )
     
     $scriptDir = Split-Path $MyInvocation.PSCommandPath -Parent
     $packageRoot = Split-Path (Split-Path $scriptDir -Parent) -Parent
     $sourceDir = Join-Path $packageRoot "dist/generator"
     
-    $targetDir = Join-Path $SdkPath "TempTypeSpecFiles/node_modules/@azure-typespec/$PackageName/dist/generator"
+    $targetDir = Join-Path $SdkPath "TempTypeSpecFiles/node_modules/$ScopeName/$PackageName/dist/generator"
     
     # Rebuild the solution first to ensure fresh DLLs
     $buildSuccess = Build-LocalGeneratorSolution $packageRoot
@@ -237,23 +311,20 @@ function Add-DebugProfile {
     $profileName = Get-ProfileName $SdkPath
     $resolvedSdkPath = Resolve-Path $SdkPath
     
-    # Automatically determine if this is a management SDK
-    $isManagementSdk = Test-IsManagementSdk $SdkPath
+    # Try to read emitter configuration from tsp-location.yaml
+    $emitterPackage = Get-EmitterFromTspLocation $SdkPath
     
-    # Determine the package and generator based on auto-detected management flag
-    if ($isManagementSdk) {
-        $packageName = "http-client-csharp-mgmt"
-        $generatorName = "ManagementClientGenerator"
-    } else {
-        $packageName = "http-client-csharp"
-        $generatorName = "AzureClientGenerator"
-    }
+    # Get generator configuration based on emitter package
+    $generatorConfig = Get-GeneratorConfig $emitterPackage
+    $packageName = $generatorConfig.PackageName
+    $generatorName = $generatorConfig.GeneratorName
+    $scopeName = $generatorConfig.ScopeName
     
     # Copy local DLLs to the node_modules location
-    Copy-LocalGeneratorDlls $resolvedSdkPath $packageName
+    Copy-LocalGeneratorDlls $resolvedSdkPath $packageName $scopeName
     
     # Use the node_modules DLL path
-    $dllPath = "`"$resolvedSdkPath/TempTypeSpecFiles/node_modules/@azure-typespec/$packageName/dist/generator/Microsoft.TypeSpec.Generator.dll`""
+    $dllPath = "`"$resolvedSdkPath/TempTypeSpecFiles/node_modules/$scopeName/$packageName/dist/generator/Microsoft.TypeSpec.Generator.dll`""
     
     # Create the new profile
     $newProfile = @{
@@ -271,8 +342,9 @@ function Add-DebugProfile {
     Write-Host "Profile configuration:" -ForegroundColor Cyan
     Write-Host "  - Executable: dotnet" -ForegroundColor White
     Write-Host "  - Arguments: $dllPath `"$resolvedSdkPath`" -g $generatorName" -ForegroundColor White
-    Write-Host "  - Generator: $generatorName (auto-detected: management=$isManagementSdk)" -ForegroundColor White
+    Write-Host "  - Generator: $generatorName" -ForegroundColor White
     Write-Host "  - Package: $packageName" -ForegroundColor White
+    Write-Host "  - Emitter: $emitterPackage (from tsp-location.yaml)" -ForegroundColor White
     
     return $profileName
 }

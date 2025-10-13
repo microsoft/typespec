@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection.Metadata;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
@@ -20,7 +21,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
     {
         private VariableExpression? _variable;
         private Lazy<ParameterProvider> _parameter;
-        internal InputProperty? InputProperty { get; }
+        internal InputProperty? InputProperty { get; set; }
 
         private readonly SerializationFormat _serializationFormat;
         private FormattableString? _customDescription;
@@ -52,7 +53,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal Lazy<NamedTypeSymbolProvider?>? CustomProvider { get; init; }
 
-        internal bool IsRequiredNonNullableConstant { get; }
+        private readonly bool _isRequiredNonNullableConstant;
 
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -91,14 +92,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             EnclosingType = enclosingType;
             _serializationFormat = CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputProperty.Type);
-            IsRequiredNonNullableConstant = inputProperty.IsRequired && propertyType is { IsLiteral: true, IsNullable: false };
+            _isRequiredNonNullableConstant = inputProperty.IsRequired && propertyType is { IsLiteral: true, IsNullable: false };
             var propHasSetter = PropertyHasSetter(propertyType, inputProperty);
             MethodSignatureModifiers setterModifier = propHasSetter ? MethodSignatureModifiers.Public : MethodSignatureModifiers.None;
 
             Type = inputProperty.IsReadOnly ? propertyType.OutputType : propertyType;
             IsDiscriminator = IsDiscriminatorProperty(inputProperty);
             var hasOutputUsage = inputProperty.EnclosingType?.Usage.HasFlag(InputModelTypeUsage.Output) ?? false;
-            Modifiers = IsDiscriminator || (!hasOutputUsage && IsRequiredNonNullableConstant) ? MethodSignatureModifiers.Internal : MethodSignatureModifiers.Public;
+            Modifiers = IsDiscriminator || (!hasOutputUsage && _isRequiredNonNullableConstant) ? MethodSignatureModifiers.Internal : MethodSignatureModifiers.Public;
             Name = inputProperty.Name == enclosingType.Name
                 ? $"{inputProperty.Name.ToIdentifierName()}Property"
                 : inputProperty.Name.ToIdentifierName();
@@ -199,7 +200,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return false;
             }
 
-            if (IsRequiredNonNullableConstant)
+            if (_isRequiredNonNullableConstant)
             {
                 return false;
             }
@@ -278,6 +279,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (description != null)
             {
                 _customDescription = description;
+                if (_parameter.IsValueCreated)
+                {
+                    AsParameter.Update(description: description);
+                }
+                else
+                {
+                    InitializeParameter(description);
+                }
             }
             if (modifiers != null)
             {

@@ -37,11 +37,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     if (i == publicDerivedModels.Count - 1)
                     {
-                        derivedClassesDescription += $"{(i > 0 ? "and " : "")}<see cref=\"{publicDerivedModels[i].Name}\"/>.";
+                        derivedClassesDescription += $"{(i > 0 ? "and " : "")}<see cref=\"{publicDerivedModels[i].Type.FullyQualifiedName}\"/>.";
                     }
                     else
                     {
-                        derivedClassesDescription += $"<see cref=\"{publicDerivedModels[i].Name}\"/>{(addComma ? ", " : " ")}";
+                        derivedClassesDescription += $"<see cref=\"{publicDerivedModels[i].Type.FullyQualifiedName}\"/>{(addComma ? ", " : " ")}";
                     }
                 }
 

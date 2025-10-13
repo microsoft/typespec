@@ -309,7 +309,7 @@ function createEnumType(
 
   if (sdkType.kind === "enum") {
     for (const v of sdkType.values) {
-      values.push(fromSdkType(sdkContext, v));
+      values.push(createEnumValueType(sdkContext, v, inputEnumType));
     }
   } else {
     values.push(createEnumValueType(sdkContext, sdkType, inputEnumType));

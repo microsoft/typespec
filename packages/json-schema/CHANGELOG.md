@@ -1,5 +1,12 @@
 # Change Log - @typespec/json-schema
 
+## 1.5.0
+
+### Bug Fixes
+
+- [#8605](https://github.com/microsoft/typespec/pull/8605) Fix crash when using a property called `set`
+
+
 ## 1.4.0
 
 ### Bump dependencies

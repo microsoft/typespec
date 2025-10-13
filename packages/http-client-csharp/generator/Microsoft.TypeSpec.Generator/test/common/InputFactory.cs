@@ -45,6 +45,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             {
                 return new InputLiteralType(name ?? string.Empty, @namespace ?? string.Empty, InputPrimitiveType.Int32, value);
             }
+
+            public static InputLiteralType Bool(bool value, string? name = null, string? @namespace = null)
+            {
+                return new InputLiteralType(name ?? string.Empty, @namespace ?? string.Empty, InputPrimitiveType.Boolean, value);
+            }
         }
 
         public static class Constant
