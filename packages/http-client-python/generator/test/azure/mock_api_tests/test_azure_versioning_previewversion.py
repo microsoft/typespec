@@ -33,7 +33,7 @@ def test_update_widget_color(client: PreviewVersionClient):
     assert result.id == "widget-123"
     assert result.name == "Sample Widget"
     assert result.color == "red"
-    
+
     with pytest.raises(ValueError):
         with PreviewVersionClient(api_version="2024-06-01") as stable_client:
             stable_client.update_widget_color(id="widget-123", color_update=color_update)
@@ -44,7 +44,7 @@ def test_list_widgets(stable_client: PreviewVersionClient):
     assert len(result.widgets) == 1
     assert result.widgets[0].id == "widget-1"
     assert result.widgets[0].name == "test"
-    
+
     with pytest.raises(ValueError):
         with PreviewVersionClient(api_version="2024-06-01") as client:
             client.list_widgets(name="test", color="test")

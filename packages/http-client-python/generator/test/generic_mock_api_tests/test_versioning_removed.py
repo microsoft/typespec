@@ -5,7 +5,7 @@
 # --------------------------------------------------------------------------
 import pytest
 from versioning.removed import RemovedClient
-from versioning.removed.models import ModelV2, EnumV2
+from versioning.removed.models import ModelV2, EnumV2, ModelV3, EnumV3
 
 
 @pytest.fixture
@@ -20,7 +20,18 @@ def test_v2(client: RemovedClient):
     )
 
 
-def test_model_v3(client: RemovedClient):
-    result = client.model_v3({"id": "123", "enumProp": "enumMemberV1"})
-    assert result.id == "123"
-    assert result.enum_prop == "enumMemberV1"
+def test_model_v3():
+    client1 = RemovedClient(endpoint="http://localhost:3000", version="v1")
+    model1 = ModelV3(id="123", enum_prop=EnumV3.ENUM_MEMBER_V1)
+    result = client.model_v3(model1)
+    assert result == model1
+
+    client2 = RemovedClient(endpoint="http://localhost:3000", version="v2preview")
+    model2 = ModelV3(id="123")
+    result = client2.model_v3(model2)
+    assert result == model2
+
+    client3 = RemovedClient(endpoint="http://localhost:3000", version="v2")
+    model3 = ModelV3(id="123", enum_prop=EnumV3.ENUM_MEMBER_V1)
+    result = client3.model_v3(model3)
+    assert result == model3
