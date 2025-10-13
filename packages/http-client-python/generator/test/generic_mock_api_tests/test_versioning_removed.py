@@ -23,7 +23,7 @@ def test_v2(client: RemovedClient):
 def test_model_v3():
     client1 = RemovedClient(endpoint="http://localhost:3000", version="v1")
     model1 = ModelV3(id="123", enum_prop=EnumV3.ENUM_MEMBER_V1)
-    result = client.model_v3(model1)
+    result = client1.model_v3(model1)
     assert result == model1
 
     client2 = RemovedClient(endpoint="http://localhost:3000", version="v2preview")
