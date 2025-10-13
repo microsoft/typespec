@@ -4,8 +4,8 @@
 
 /**
  * <!-- start generated doc -->
- * Package containing the implementations for AlternateType.
+ * Package containing the classes for AlternateType.
  * Test for alternate type decorator.
  * <!-- end generated doc -->
  */
-package _specs_.azure.clientgenerator.core.alternatetype.implementation;
+package azure.clientgenerator.core.alternatetype;
