@@ -116,7 +116,7 @@ def normalize_property_description(description: Optional[str]) -> str:
 
     # Preserve bullet point structure by temporarily replacing bullet point patterns
     # Match patterns like "- item" or "* item" at the start of lines
-    bullet_pattern = r'\n\s*([*-])\s+'
+    bullet_pattern = r"\n\s*([*-])\s+"
     bullets = []
 
     def preserve_bullet(match):
@@ -127,7 +127,7 @@ def normalize_property_description(description: Optional[str]) -> str:
     normalized = re.sub(bullet_pattern, preserve_bullet, description)
 
     # Now normalize other whitespace: replace multiple spaces/newlines with single spaces
-    normalized = re.sub(r'\s+', ' ', normalized).strip()
+    normalized = re.sub(r"\s+", " ", normalized).strip()
 
     # Restore bullet points with proper formatting
     for i, _ in enumerate(bullets):
@@ -140,7 +140,6 @@ def normalize_property_description(description: Optional[str]) -> str:
 def update_description(description: Optional[str], default_description: str = "") -> str:
     if not description:
         description = default_description
-    
     # Don't do any special processing - just basic cleanup
     description = description.rstrip(" ")
     if description and description[-1] != ".":
