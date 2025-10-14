@@ -11,7 +11,7 @@
     {% if model.properties != None %}
         {% for p in model.properties %}
             {% for line in serializer.variable_documentation_string(p) %}
-    {{ op_tools.wrap_string(line, '\n     ', 95, "", True, True) }}
+    {{ op_tools.wrap_string(line, '\n    ', 95, "", True, True) }}
             {% endfor %}
         {% endfor %}
     {% endif %}
