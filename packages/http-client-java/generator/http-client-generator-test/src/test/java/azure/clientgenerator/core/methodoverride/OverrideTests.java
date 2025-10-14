@@ -9,18 +9,8 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Test scenarios for client override behavior.
- * 
- * These tests verify that @override decorator works correctly for:
- * 1. Reordering parameters in method signatures
- * 2. Grouping parameters into options models
  */
 public class OverrideTests {
-
-    private final ReorderParametersClient reorderParametersClient
-        = new OverrideClientBuilder().buildReorderParametersClient();
-
-    private final GroupParametersClient groupParametersClient
-        = new OverrideClientBuilder().buildGroupParametersClient();
 
     @Test
     public void testReorderParameters() {
@@ -35,7 +25,9 @@ public class OverrideTests {
         // param2: param2
         // Expected response: 204 No Content
 
-        reorderParametersClient.reorder("param1", "param2");
+        ReorderParametersClient client = new OverrideClientBuilder().buildReorderParametersClient();
+
+        client.reorder("param1", "param2");
     }
 
     @Test
@@ -51,8 +43,10 @@ public class OverrideTests {
         // param2: param2
         // Expected response: 204 No Content
 
+        GroupParametersClient client = new OverrideClientBuilder().buildGroupParametersClient();
+
         GroupParametersOptions options = new GroupParametersOptions("param1", "param2");
-        groupParametersClient.group(options);
+        client.group(options);
     }
 
     @Test
@@ -63,5 +57,17 @@ public class OverrideTests {
         // Verify the parameters are accessible through getters
         Assertions.assertEquals("value1", options.getParam1());
         Assertions.assertEquals("value2", options.getParam2());
+    }
+
+    @Test
+    public void testRequireOptionalParameter() {
+        RequireOptionalParameterClient client = new OverrideClientBuilder().buildRequireOptionalParameterClient();
+        client.requireOptional("param1", "param2");
+    }
+
+    @Test
+    public void testRemoveOptionalParameter() {
+        RemoveOptionalParameterClient client = new OverrideClientBuilder().buildRemoveOptionalParameterClient();
+        client.removeOptional("param1", "param2");
     }
 }

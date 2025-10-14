@@ -382,9 +382,56 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             }
         }
 
+        [Test]
+        public void ValidateEnumMemberInitializer()
+        {
+            var someEnumType = new TestEnumProvider();
+            var namedSymbol = new NamedSymbol(
+                propertyType: typeof(SomeEnum),
+                initializeEnumProperty: true);
+            var compilation = CompilationHelper.LoadCompilation([namedSymbol, someEnumType, new PropertyType()]);
+            var iNamedSymbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, "NamedSymbol");
+
+            var provider = new NamedTypeSymbolProvider(iNamedSymbol!, compilation);
+
+            var property = provider.Properties.FirstOrDefault(p => p.Name == "P1");
+            Assert.IsNotNull(property);
+
+            // Validate that the property has an initialization expression
+            Assert.IsInstanceOf<AutoPropertyBody>(property!.Body);
+            var autoPropertyBody = property.Body as AutoPropertyBody;
+            Assert.IsNotNull(autoPropertyBody);
+
+            var initExpression = autoPropertyBody!.InitializationExpression;
+            Assert.IsNotNull(initExpression);
+
+            // Validate that the initialization expression is a MemberExpression for the enum value
+            Assert.IsInstanceOf<MemberExpression>(initExpression);
+
+            var memberExpression = initExpression as MemberExpression;
+            Assert.IsNotNull(memberExpression);
+            Assert.AreEqual("Foo", memberExpression!.MemberName);
+        }
+
         public enum SomeEnum
         {
             Foo,
+        }
+
+        private class TestEnumProvider : TypeProvider
+        {
+            protected override string BuildRelativeFilePath() => ".";
+            protected override string BuildName() => "SomeEnum";
+            protected override string BuildNamespace() => "Sample.Models";
+            protected override TypeSignatureModifiers BuildDeclarationModifiers() => TypeSignatureModifiers.Public | TypeSignatureModifiers.Enum;
+
+            protected override FieldProvider[] BuildFields()
+            {
+                return
+                [
+                    new FieldProvider(FieldModifiers.Public | FieldModifiers.Static, typeof(int), "Foo", this, $"Foo"),
+                ];
+            }
         }
 
         public static IEnumerable<TestCaseData> TestParametersTestCases
