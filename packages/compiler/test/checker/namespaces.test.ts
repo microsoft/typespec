@@ -391,8 +391,8 @@ describe("compiler: blockless namespaces", () => {
   });
 
   // Regression test for https://github.com/microsoft/typespec/issues/8630
-  it.only("does stuff", async () => {
-    const { A, B, program } = await Tester.compile(t.code`
+  it("does stuff", async () => {
+    const { A, B } = await Tester.compile(t.code`
       namespace Top;
       
       namespace A {};
