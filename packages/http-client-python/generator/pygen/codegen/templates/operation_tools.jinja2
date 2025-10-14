@@ -11,6 +11,10 @@
     {%- set actual_escape = escape_backslashes -%}
 {%- endif -%}
 
+{# If the string contains code blocks, don't process it - just return as-is #}
+{%- if ".. code-block::" in string -%}
+{{ string | replace("\\", "\\\\") if actual_escape else string }}
+{%- else -%}
 {%- set lines = string.split('\n') -%}
 {%- set processed_lines = [] -%}
 {%- for line in lines -%}
@@ -42,6 +46,7 @@
 {% endfor %}
 {%- else -%}
 {{ original_result | replace("\\", "\\\\") if actual_escape else original_result }}
+{%- endif -%}
 {%- endif -%}
 {% endmacro %}
 

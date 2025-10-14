@@ -1,7 +1,7 @@
 {{ serializer.class_definition() }}
     """{{ op_tools.wrap_string(client.description, "\n") | indent }}
 
-    {{ op_tools.serialize_with_wrap(serializer.property_descriptions(async_mode), "\n ") | indent }}
+    {{ op_tools.serialize_with_wrap(serializer.property_descriptions(async_mode), "\n") | indent }}
     {{ serializer.init_signature_and_response_type_annotation(async_mode) | indent }}
     {% if serializer.should_init_super %}
         super().__init__()

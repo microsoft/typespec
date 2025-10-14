@@ -110,6 +110,10 @@ def normalize_property_description(description: Optional[str]) -> str:
     if not description:
         return ""
 
+    # If it contains code blocks, don't normalize - just return as-is
+    if ".. code-block::" in description:
+        return description
+
     # Preserve bullet point structure by temporarily replacing bullet point patterns
     # Match patterns like "- item" or "* item" at the start of lines
     bullet_pattern = r'\n\s*([*-])\s+'
@@ -137,10 +141,13 @@ def update_description(description: Optional[str], default_description: str = ""
     if not description:
         description = default_description
     
+    # Don't do any special processing - just basic cleanup
     description = description.rstrip(" ")
     if description and description[-1] != ".":
         description += "."
     return description
+
+
 def update_operation_group_class_name(prefix: str, class_name: str) -> str:
     if class_name == "":
         return prefix + "OperationsMixin"
@@ -293,7 +300,9 @@ class PreProcessPlugin(YamlUpdatePlugin):
                 pad_type = PadType.MODEL if type["type"] == "model" else PadType.ENUM_CLASS
                 name = self.pad_reserved_words(type["name"], pad_type)
                 type["name"] = name[0].upper() + name[1:]
-                type["description"] = update_description(type.get("description", ""), type["name"])
+                # Use targeted normalization for model descriptions to handle TypeSpec embedded newlines
+                normalized_desc = normalize_property_description(type.get("description", ""))
+                type["description"] = update_description(normalized_desc, type["name"])
                 type["snakeCaseName"] = to_snake_case(type["name"])
             if type.get("values"):
                 # we're enums

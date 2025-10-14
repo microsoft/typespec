@@ -6,7 +6,7 @@ class {{ client.name }}Configuration:  {{ client.config.pylint_disable() }}
 {% if client.config.parameters.method | first %}
 
 {% endif %}
-    {{ op_tools.serialize_with_wrap(serializer.property_descriptions(async_mode), "\n ") | indent }}
+    {{ op_tools.serialize_with_wrap(serializer.property_descriptions(async_mode), "\n") | indent }}
     {{ serializer.init_signature_and_response_type_annotation(async_mode) | indent }}
     {% if client.config.parameters.kwargs_to_pop %}
         {{ op_tools.serialize(serializer.pop_kwargs_from_signature()) | indent(8) }}
