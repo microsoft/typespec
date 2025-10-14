@@ -4,23 +4,15 @@ import { generateDocs } from "../../src/cli/actions/convert/utils/docs.js";
 
 it("returns empty string for empty docs", () => {
   strictEqual(generateDocs(""), "");
-  strictEqual(generateDocs([]), "");
 });
 
 it("returns single line doc", () => {
-  strictEqual(
-    generateDocs("Hello, World!"),
-    `
-/**
-* Hello, World!
-*/
-`.trim(),
-  );
+  strictEqual(generateDocs("Hello, World!"), `/** Hello, World! */`.trim());
 });
 
 it("returns multi-line doc", () => {
   strictEqual(
-    generateDocs(["Hello,", "World!"]),
+    generateDocs(["Hello,", "World!"].join("\n")),
     `
 /**
 * Hello,
@@ -42,13 +34,7 @@ it("returns multi-line docs when they contain newline characters", () => {
 
 it("does not automatically apply line-wrapping for very long lines", () => {
   const longLine = "This is a long line".repeat(20); // 380 characters
-  strictEqual(
-    generateDocs(longLine),
-    `
-/**
-* ${longLine}
-*/`.trim(),
-  );
+  strictEqual(generateDocs(longLine), `/** ${longLine} */`.trim());
 });
 
 it("handles different newline breaks", () => {
@@ -66,19 +52,20 @@ it("handles different newline breaks", () => {
   }
 });
 
-it("uses doc generator for @ and */", () => {
-  strictEqual(generateDocs("Hello, @World!"), `@doc("Hello, @World!")`);
-
+it("escape @ with \\@", () => {
+  strictEqual(generateDocs("Hello, @World!"), `/** Hello, \\@World! */`);
+});
+it("uses doc generator for */", () => {
   strictEqual(generateDocs("Hello, */World!"), `@doc("Hello, */World!")`);
 });
 
 it("supports multi-line with decorator", () => {
   strictEqual(
-    generateDocs(["Hello,", "@World!"]),
+    generateDocs(["Hello,", "*/World!"].join("\n")),
     `
 @doc("""
 Hello,
-@World!
+*/World!
 """)`.trim(),
   );
 });

@@ -1,19 +1,17 @@
-export function generateDocs(doc: string | string[]): string {
+import { stringLiteral } from "../generators/common.js";
+
+export function generateDocs(doc: string): string {
   if (isEmptyDoc(doc)) {
     return ``;
   }
 
-  const split = splitNewlines(doc);
-
-  for (let i = 0; i < split.length; i++) {
-    if (split[i].includes("@") || split[i].includes("*/")) {
-      if (split.length === 1) {
-        return `@doc("${split[0].replace(/\\/g, "\\\\").replace(/"/g, '\\"')}")`;
-      }
-      return `@doc("""\n${split.join("\n").replace(/\\/g, "\\\\").replace(/"/g, '\\"')}\n""")`;
-    }
+  if (doc.includes("*/")) {
+    return `@doc(${stringLiteral(doc)})`;
   }
-
+  const split = splitNewlines(doc.replaceAll("@", "\\@"));
+  if (split.length === 1) {
+    return `/** ${split[0]} */`;
+  }
   return `/**\n* ${split.join("\n* ")}\n*/`;
 }
 

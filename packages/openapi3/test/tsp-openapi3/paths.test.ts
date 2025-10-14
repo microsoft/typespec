@@ -1269,9 +1269,7 @@ model Foo {
       }
 
       @route("/") @get op getFoo(): {
-        /**
-         * my test header
-         */
+        /** my test header */
         @header("x-test") xTest?: string;
 
         @header("x-test2") xTest2?: string;
@@ -1338,9 +1336,7 @@ describe("requestBody", () => {
       }
 
       @route("/") @post op postFoo(
-        /**
-         * This is a test
-         */
+        /** This is a test */
         @body body: Foo,
       ): OkResponse;
       "
@@ -1407,9 +1403,7 @@ describe("requestBody", () => {
       }
 
       @route("/") @post op postFoo(
-        /**
-         * This is a test
-         */
+        /** This is a test */
         @body body: Foo,
       ): OkResponse;
       "
@@ -1477,9 +1471,7 @@ describe("requestBody", () => {
       }
 
       @route("/") @post op postFoo(
-        /**
-         * Overwritten description
-         */
+        /** Overwritten description */
         @body body: Foo,
       ): OkResponse;
       "

@@ -1,4 +1,5 @@
 import { TypeSpecServer, TypeSpecServerVariable } from "../interfaces.js";
+import { stringLiteral } from "./common.js";
 
 function generateServerVariable(variableName: string, variable: TypeSpecServerVariable): string {
   const { default: defaultValue, description, enum: enumValues } = variable;
@@ -25,8 +26,12 @@ export function generateServers(servers: TypeSpecServer[]): string {
         ${generateServerVariables(server.variables)}
       }`
         : "";
-    const description = server.description ? `, "${server.description}"` : variables ? `, ""` : "";
-    return `@server("${server.url}"${description}${variables})`;
+    const description = server.description
+      ? `, ${stringLiteral(server.description)}`
+      : variables
+        ? `, ""`
+        : "";
+    return `@server(${stringLiteral(server.url)}${description}${variables})`;
   });
   return definitions.join("\n");
 }
