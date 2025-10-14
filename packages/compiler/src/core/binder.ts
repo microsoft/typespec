@@ -191,9 +191,6 @@ export function createBinder(program: Program): Binder {
 
     const tracer = program.tracer.sub("bind.js");
 
-    if (name === "summary") {
-      console.log("Binding to ", name, nsParts);
-    }
     for (const part of nsParts) {
       const existingBinding = containerSymbol.exports!.get(part);
       const jsNamespaceNode: JsNamespaceDeclarationNode = {
@@ -551,12 +548,6 @@ export function createBinder(program: Program): Binder {
   }
 
   function declareScriptMember(node: Declaration, flags: SymbolFlags, name?: string) {
-    if (fileNamespace && fileNamespace !== scope) {
-      console.log("Binding to ", node.id.sv, name);
-      if (node.id.sv === "doc") {
-        console.log("OLd", fileNamespace.symbol.name, scope.symbol.name);
-      }
-    }
     const effectiveScope = scope;
     if (
       flags & SymbolFlags.Namespace &&
