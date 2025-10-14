@@ -1,14 +1,16 @@
-{% macro wrap_string(string, wrapstring, width=95, suffix_string="", escape_backslashes=true) %}
+{% macro wrap_string(string, wrapstring, width=95, suffix_string="", escape_backslashes=True, extra_space=false) %}
 {%- if width is string -%}
     {# Handle legacy wrap_model_string calls: wrap_string(text, wrapstring, suffix_string) #}
     {%- set actual_width = 95 -%}
     {%- set actual_suffix = width -%}
     {%- set actual_escape = false -%}
+    {%- set actual_extra_space = false -%}
 {%- else -%}
-    {# Handle normal wrap_string calls: wrap_string(text, wrapstring, width, suffix_string, escape_backslashes) #}
+    {# Handle normal wrap_string calls: wrap_string(text, wrapstring, width, suffix_string, escape_backslashes, extra_space) #}
     {%- set actual_width = width -%}
     {%- set actual_suffix = suffix_string -%}
     {%- set actual_escape = escape_backslashes -%}
+    {%- set actual_extra_space = extra_space -%}
 {%- endif -%}
 
 {# If the string contains code blocks, don't process it - just return as-is #}
@@ -25,11 +27,11 @@
         {%- set wrapped = bullet_line | wordwrap(width=actual_width, break_long_words=False, break_on_hyphens=False, wrapstring=wrapstring + '   ') -%}
         {%- set _ = processed_lines.append(wrapped) -%}
     {%- elif stripped -%}
-        {%- if width is string or suffix_string is defined -%}
-            {# Model documentation mode - add extra space for continuation #}
+        {%- if actual_extra_space -%}
+            {# Add extra space for property descriptions #}
             {%- set wrapped = stripped | wordwrap(width=actual_width, break_long_words=False, break_on_hyphens=False, wrapstring=wrapstring + ' ') -%}
         {%- else -%}
-            {# Operation documentation mode - no extra space #}
+            {# Normal indentation for model descriptions and operations #}
             {%- set wrapped = stripped | wordwrap(width=actual_width, break_long_words=False, break_on_hyphens=False, wrapstring=wrapstring) -%}
         {%- endif -%}
         {%- set _ = processed_lines.append(wrapped) -%}
@@ -69,7 +71,7 @@
     {% endfor %}
     {% for description in param_description_and_response_docstring %}
         {% if description %}
-{% set description = wrap_string(description, wrapstring='\n') %}
+{% set description = wrap_string(description, wrapstring='\n ') %}
 {{ " " if description[0] != ":" and description[0] != " " else "" }}{{ description}}
         {% else %}
 
