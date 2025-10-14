@@ -5,10 +5,14 @@ package encode.duration;
 
 import encode.duration.property.models.DefaultDurationProperty;
 import encode.duration.property.models.Float64SecondsDurationProperty;
+import encode.duration.property.models.FloatMillisecondsLargerUnitDurationProperty;
 import encode.duration.property.models.FloatSecondsDurationArrayProperty;
 import encode.duration.property.models.FloatSecondsDurationProperty;
+import encode.duration.property.models.FloatSecondsLargerUnitDurationProperty;
 import encode.duration.property.models.ISO8601DurationProperty;
+import encode.duration.property.models.Int32MillisecondsLargerUnitDurationProperty;
 import encode.duration.property.models.Int32SecondsDurationProperty;
+import encode.duration.property.models.Int32SecondsLargerUnitDurationProperty;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
@@ -24,6 +28,10 @@ public class EncodeDurationTests {
     private static final Duration DAY40 = Duration.ofDays(40);
     private static final Duration SECOND35 = Duration.ofSeconds(35, 625_000_000);
     private static final Duration SECOND36 = Duration.ofSeconds(36);
+    private static final Duration MINUTES2 = Duration.ofMinutes(2);
+    private static final Duration MINUTES2_5 = Duration.ofSeconds(150);
+    private static final Duration MINUTES3 = Duration.ofMinutes(3);
+    private static final Duration MINUTES3_5 = Duration.ofSeconds(210);
 
     @Test
     public void testQuery() {
@@ -38,6 +46,14 @@ public class EncodeDurationTests {
         queryClient.iso8601(DAY40);
 
         queryClient.int32SecondsArray(Arrays.asList(SECOND36, Duration.ofSeconds(47)));
+
+        queryClient.int32SecondsLargerUnit(MINUTES2);
+
+        queryClient.floatSecondsLargerUnit(MINUTES2_5);
+
+        queryClient.int32MillisecondsLargerUnit(MINUTES3);
+
+        queryClient.floatMillisecondsLargerUnit(MINUTES3_5);
     }
 
     @Test
@@ -53,6 +69,14 @@ public class EncodeDurationTests {
         headerClient.iso8601(DAY40);
 
         headerClient.iso8601Array(Arrays.asList(DAY40, Duration.ofDays(50)));
+
+        headerClient.int32SecondsLargerUnit(MINUTES2);
+
+        headerClient.floatSecondsLargerUnit(MINUTES2_5);
+
+        headerClient.int32MillisecondsLargerUnit(MINUTES3);
+
+        headerClient.floatMillisecondsLargerUnit(MINUTES3_5);
     }
 
     @Test
@@ -74,5 +98,17 @@ public class EncodeDurationTests {
         FloatSecondsDurationArrayProperty ret
             = propertyClient.floatSecondsArray(new FloatSecondsDurationArrayProperty(array));
         Assertions.assertEquals(array, ret.getValue());
+
+        Assertions.assertEquals(MINUTES2,
+            propertyClient.int32SecondsLargerUnit(new Int32SecondsLargerUnitDurationProperty(MINUTES2)).getValue());
+
+        Assertions.assertEquals(MINUTES2_5,
+            propertyClient.floatSecondsLargerUnit(new FloatSecondsLargerUnitDurationProperty(MINUTES2_5)).getValue());
+
+        Assertions.assertEquals(MINUTES3,
+            propertyClient.int32MillisecondsLargerUnit(new Int32MillisecondsLargerUnitDurationProperty(MINUTES3)).getValue());
+
+        Assertions.assertEquals(MINUTES3_5,
+            propertyClient.floatMillisecondsLargerUnit(new FloatMillisecondsLargerUnitDurationProperty(MINUTES3_5)).getValue());
     }
 }
