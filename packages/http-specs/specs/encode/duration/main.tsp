@@ -45,6 +45,19 @@ namespace Query {
     input: duration,
   ): NoContentResponse;
 
+  @route("/int32-seconds-larger-unit")
+  @scenario
+  @scenarioDoc("""
+    Test int32 seconds encode for a duration parameter where the duration is several minutes.
+    Languages that support duration primitives should use the largest possible unit, e.g. TimeSpan.FromMinutes(2) in C#.
+    Expected query parameter `input=120`
+    """)
+  op int32SecondsLargerUnit(
+    @query
+    @encode(DurationKnownEncoding.seconds, int32)
+    input: duration,
+  ): NoContentResponse;
+
   @route("/float-seconds")
   @scenario
   @scenarioDoc("""
@@ -52,6 +65,19 @@ namespace Query {
     Expected query parameter `input=35.625`
     """)
   op floatSeconds(
+    @query
+    @encode(DurationKnownEncoding.seconds, float)
+    input: duration,
+  ): NoContentResponse;
+
+  @route("/float-seconds-larger-unit")
+  @scenario
+  @scenarioDoc("""
+    Test float seconds encode for a duration parameter where the duration is several minutes.
+    Languages that support duration primitives should use the largest possible unit, e.g. TimeSpan.FromMinutes(2.5) in C#.
+    Expected query parameter `input=150.0`
+    """)
+  op floatSecondsLargerUnit(
     @query
     @encode(DurationKnownEncoding.seconds, float)
     input: duration,
@@ -81,6 +107,19 @@ namespace Query {
     input: duration,
   ): NoContentResponse;
 
+  @route("/int32-milliseconds-larger-unit")
+  @scenario
+  @scenarioDoc("""
+    Test int32 milliseconds encode for a duration parameter where the duration is several minutes.
+    Languages that support duration primitives should use the largest possible unit, e.g. TimeSpan.FromMinutes(3) in C#.
+    Expected query parameter `input=180000`
+    """)
+  op int32MillisecondsLargerUnit(
+    @query
+    @encode(DurationKnownEncoding.milliseconds, int32)
+    input: duration,
+  ): NoContentResponse;
+
   @route("/float-milliseconds")
   @scenario
   @scenarioDoc("""
@@ -88,6 +127,19 @@ namespace Query {
     Expected query parameter `input=35625`
     """)
   op floatMilliseconds(
+    @query
+    @encode(DurationKnownEncoding.milliseconds, float)
+    input: duration,
+  ): NoContentResponse;
+
+  @route("/float-milliseconds-larger-unit")
+  @scenario
+  @scenarioDoc("""
+    Test float milliseconds encode for a duration parameter where the duration is several minutes.
+    Languages that support duration primitives should use the largest possible unit, e.g. TimeSpan.FromMinutes(3.5) in C#.
+    Expected query parameter `input=210000.0`
+    """)
+  op floatMillisecondsLargerUnit(
     @query
     @encode(DurationKnownEncoding.milliseconds, float)
     input: duration,
@@ -172,6 +224,26 @@ namespace Property {
 
   model Float64MillisecondsDurationProperty {
     @encode(DurationKnownEncoding.milliseconds, float64)
+    value: duration;
+  }
+
+  model Int32SecondsLargerUnitDurationProperty {
+    @encode(DurationKnownEncoding.seconds, int32)
+    value: duration;
+  }
+
+  model FloatSecondsLargerUnitDurationProperty {
+    @encode(DurationKnownEncoding.seconds, float)
+    value: duration;
+  }
+
+  model Int32MillisecondsLargerUnitDurationProperty {
+    @encode(DurationKnownEncoding.milliseconds, int32)
+    value: duration;
+  }
+
+  model FloatMillisecondsLargerUnitDurationProperty {
+    @encode(DurationKnownEncoding.milliseconds, float)
     value: duration;
   }
 
@@ -390,6 +462,94 @@ namespace Property {
   op floatMillisecondsArray(
     @body body: FloatMillisecondsDurationArrayProperty,
   ): FloatMillisecondsDurationArrayProperty;
+
+  @route("/int32-seconds-larger-unit")
+  @scenario
+  @scenarioDoc("""
+    Test operation with request and response model contains a duration property with int32 seconds encode where the duration is several minutes.
+    Languages that support duration primitives should use the largest possible unit, e.g. TimeSpan.FromMinutes(2) in C#.
+    Expected request body:
+    ```json
+    {
+      "value": 120
+    }
+    ```
+    Expected response body:
+    ```json
+    {
+      "value": 120
+    }
+    ```
+    """)
+  op int32SecondsLargerUnit(
+    @body body: Int32SecondsLargerUnitDurationProperty,
+  ): Int32SecondsLargerUnitDurationProperty;
+
+  @route("/float-seconds-larger-unit")
+  @scenario
+  @scenarioDoc("""
+    Test operation with request and response model contains a duration property with float seconds encode where the duration is several minutes.
+    Languages that support duration primitives should use the largest possible unit, e.g. TimeSpan.FromMinutes(2.5) in C#.
+    Expected request body:
+    ```json
+    {
+      "value": 150.0
+    }
+    ```
+    Expected response body:
+    ```json
+    {
+      "value": 150.0
+    }
+    ```
+    """)
+  op floatSecondsLargerUnit(
+    @body body: FloatSecondsLargerUnitDurationProperty,
+  ): FloatSecondsLargerUnitDurationProperty;
+
+  @route("/int32-milliseconds-larger-unit")
+  @scenario
+  @scenarioDoc("""
+    Test operation with request and response model contains a duration property with int32 milliseconds encode where the duration is several minutes.
+    Languages that support duration primitives should use the largest possible unit, e.g. TimeSpan.FromMinutes(3) in C#.
+    Expected request body:
+    ```json
+    {
+      "value": 180000
+    }
+    ```
+    Expected response body:
+    ```json
+    {
+      "value": 180000
+    }
+    ```
+    """)
+  op int32MillisecondsLargerUnit(
+    @body body: Int32MillisecondsLargerUnitDurationProperty,
+  ): Int32MillisecondsLargerUnitDurationProperty;
+
+  @route("/float-milliseconds-larger-unit")
+  @scenario
+  @scenarioDoc("""
+    Test operation with request and response model contains a duration property with float milliseconds encode where the duration is several minutes.
+    Languages that support duration primitives should use the largest possible unit, e.g. TimeSpan.FromMinutes(3.5) in C#.
+    Expected request body:
+    ```json
+    {
+      "value": 210000.0
+    }
+    ```
+    Expected response body:
+    ```json
+    {
+      "value": 210000.0
+    }
+    ```
+    """)
+  op floatMillisecondsLargerUnit(
+    @body body: FloatMillisecondsLargerUnitDurationProperty,
+  ): FloatMillisecondsLargerUnitDurationProperty;
 }
 
 @route("/header")
@@ -443,6 +603,19 @@ namespace Header {
     duration: duration,
   ): NoContentResponse;
 
+  @route("/int32-seconds-larger-unit")
+  @scenario
+  @scenarioDoc("""
+    Test int32 seconds encode for a duration header where the duration is several minutes.
+    Languages that support duration primitives should use the largest possible unit, e.g. TimeSpan.FromMinutes(2) in C#.
+    Expected header `duration: 120`
+    """)
+  op int32SecondsLargerUnit(
+    @header
+    @encode(DurationKnownEncoding.seconds, int32)
+    duration: duration,
+  ): NoContentResponse;
+
   @route("/float-seconds")
   @scenario
   @scenarioDoc("""
@@ -450,6 +623,19 @@ namespace Header {
     Expected header `duration: 35.625`
     """)
   op floatSeconds(
+    @header
+    @encode(DurationKnownEncoding.seconds, float)
+    duration: duration,
+  ): NoContentResponse;
+
+  @route("/float-seconds-larger-unit")
+  @scenario
+  @scenarioDoc("""
+    Test float seconds encode for a duration header where the duration is several minutes.
+    Languages that support duration primitives should use the largest possible unit, e.g. TimeSpan.FromMinutes(2.5) in C#.
+    Expected header `duration: 150.0`
+    """)
+  op floatSecondsLargerUnit(
     @header
     @encode(DurationKnownEncoding.seconds, float)
     duration: duration,
@@ -479,6 +665,19 @@ namespace Header {
     duration: duration,
   ): NoContentResponse;
 
+  @route("/int32-milliseconds-larger-unit")
+  @scenario
+  @scenarioDoc("""
+    Test int32 milliseconds encode for a duration header where the duration is several minutes.
+    Languages that support duration primitives should use the largest possible unit, e.g. TimeSpan.FromMinutes(3) in C#.
+    Expected header `duration: 180000`
+    """)
+  op int32MillisecondsLargerUnit(
+    @header
+    @encode(DurationKnownEncoding.milliseconds, int32)
+    duration: duration,
+  ): NoContentResponse;
+
   @route("/float-milliseconds")
   @scenario
   @scenarioDoc("""
@@ -486,6 +685,19 @@ namespace Header {
     Expected header `duration: 35625`
     """)
   op floatMilliseconds(
+    @header
+    @encode(DurationKnownEncoding.milliseconds, float)
+    duration: duration,
+  ): NoContentResponse;
+
+  @route("/float-milliseconds-larger-unit")
+  @scenario
+  @scenarioDoc("""
+    Test float milliseconds encode for a duration header where the duration is several minutes.
+    Languages that support duration primitives should use the largest possible unit, e.g. TimeSpan.FromMinutes(3.5) in C#.
+    Expected header `duration: 210000.0`
+    """)
+  op floatMillisecondsLargerUnit(
     @header
     @encode(DurationKnownEncoding.milliseconds, float)
     duration: duration,
