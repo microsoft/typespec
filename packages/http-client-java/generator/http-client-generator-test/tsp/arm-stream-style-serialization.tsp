@@ -286,6 +286,16 @@ model ResultData {
   prop2: string;
 }
 
+model TrackedResourceList
+  is Azure.Core.Page<Azure.ResourceManager.Foundations.TrackedResource>;
+
+interface TrackedResources {
+  @route("/subscriptions/{subscriptionId}/resources")
+  @get
+  @list
+  list(...SubscriptionIdParameter): ArmResponse<TrackedResourceList>;
+}
+
 @@flattenProperty(Fish.properties);
 @@flattenProperty(FishProperties.tailProperties);
 @@flattenProperty(Fish.anotherProperties);

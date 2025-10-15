@@ -7,6 +7,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Class
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
+import com.microsoft.typespec.http.client.generator.mgmt.model.FluentType;
 import com.microsoft.typespec.http.client.generator.mgmt.model.ResourceTypeName;
 import java.util.Arrays;
 import java.util.Collections;
@@ -20,6 +21,7 @@ public class ResourceClientModel {
 
     private static final ClientModel MODEL_SUB_RESOURCE = new ClientModel.Builder().name(ResourceTypeName.SUB_RESOURCE)
         .packageName("com.azure.core.management")
+        .type(FluentType.SUB_RESOURCE)
         .properties(Collections.singletonList(new ClientModelProperty.Builder().name(ResourceTypeName.FIELD_ID)
             .serializedName(ResourceTypeName.FIELD_ID)
             .description("Fully qualified resource Id for the resource.")
@@ -30,6 +32,7 @@ public class ResourceClientModel {
     private static final ClientModel MODEL_PROXY_RESOURCE
         = new ClientModel.Builder().name(ResourceTypeName.PROXY_RESOURCE)
             .packageName("com.azure.core.management")
+            .type(FluentType.PROXY_RESOURCE)
             .properties(Arrays.asList(
                 new ClientModelProperty.Builder().name(ResourceTypeName.FIELD_ID)
                     .serializedName(ResourceTypeName.FIELD_ID)
@@ -61,6 +64,7 @@ public class ResourceClientModel {
         = new ClientModel.Builder().name(ResourceTypeName.RESOURCE)
             .packageName("com.azure.core.management")
             .parentModelName(ResourceTypeName.PROXY_RESOURCE)
+            .type(FluentType.RESOURCE)
             .properties(
                 Arrays
                     .asList(
@@ -89,6 +93,7 @@ public class ResourceClientModel {
 
         switch (modelName) {
             case ResourceTypeName.RESOURCE:
+            case ResourceTypeName.TRACKED_RESOURCE:
                 model = MODEL_RESOURCE;
                 break;
 

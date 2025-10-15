@@ -6,7 +6,10 @@ package com.microsoft.typespec.http.client.generator.mgmt.mapper;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ObjectSchema;
 import com.microsoft.typespec.http.client.generator.core.mapper.ObjectMapper;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.mgmt.model.FluentType;
+import com.microsoft.typespec.http.client.generator.mgmt.model.ResourceTypeName;
+import com.microsoft.typespec.http.client.generator.mgmt.model.arm.ResourceClientModel;
 import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
 import java.util.Collection;
 import java.util.HashSet;
@@ -31,21 +34,19 @@ public class FluentObjectMapper extends ObjectMapper {
 
     @Override
     protected ClassType mapPredefinedModel(ObjectSchema compositeType) {
-        ClassType result = null;
-        if (compositeType.getLanguage().getJava().getName().equals(FluentType.RESOURCE.getName())) {
-            result = FluentType.RESOURCE;
-        } else if (compositeType.getLanguage().getJava().getName().equals(FluentType.PROXY_RESOURCE.getName())) {
-            result = FluentType.PROXY_RESOURCE;
-        } else if (compositeType.getLanguage().getJava().getName().equals(FluentType.SUB_RESOURCE.getName())) {
-            result = FluentType.SUB_RESOURCE;
-        } else if (compositeType.getLanguage().getJava().getName().equals(FluentType.MANAGEMENT_ERROR.getName())) {
-            result = FluentType.MANAGEMENT_ERROR;
-        } else if (compositeType.getLanguage().getJava().getName().equals(FluentType.SYSTEM_DATA.getName())) {
-            result = FluentType.SYSTEM_DATA;
-        } else if (compositeType.getLanguage().getJava().getName().equals(FluentType.ADDITIONAL_INFO.getName())) {
-            result = FluentType.ADDITIONAL_INFO;
-        }
-        return result;
+        return ResourceClientModel.getResourceClientModel(compositeType.getLanguage().getJava().getName())
+            .map(model -> (ClassType) model.getType())
+            .orElseGet(() -> {
+                ClassType result = null;
+                if (compositeType.getLanguage().getJava().getName().equals(FluentType.MANAGEMENT_ERROR.getName())) {
+                    result = FluentType.MANAGEMENT_ERROR;
+                } else if (compositeType.getLanguage().getJava().getName().equals(FluentType.SYSTEM_DATA.getName())) {
+                    result = FluentType.SYSTEM_DATA;
+                } else if (compositeType.getLanguage().getJava().getName().equals(FluentType.ADDITIONAL_INFO.getName())) {
+                    result = FluentType.ADDITIONAL_INFO;
+                }
+                return result;
+            });
     }
 
     /**
