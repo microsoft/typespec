@@ -286,8 +286,7 @@ model ResultData {
   prop2: string;
 }
 
-model TrackedResourceList
-  is Azure.Core.Page<Azure.ResourceManager.Foundations.TrackedResource>;
+model TrackedResourceList is Azure.Core.Page<Azure.ResourceManager.Foundations.TrackedResource>;
 
 interface TrackedResources {
   @route("/subscriptions/{subscriptionId}/resources")
