@@ -16,7 +16,6 @@ export async function emitSchemaWithDiagnostics(
   options: JSONSchemaEmitterOptions = {},
   testOptions: {
     emitNamespace?: boolean;
-    emitTypes?: string[];
     decorators?: Record<string, any>;
   } = { emitNamespace: true },
 ): Promise<[Record<string, any>, readonly Diagnostic[]]> {
@@ -54,7 +53,6 @@ export async function emitSchema(
   options: JSONSchemaEmitterOptions = {},
   testOptions: {
     emitNamespace?: boolean;
-    emitTypes?: string[];
     decorators?: Record<string, any>;
   } = { emitNamespace: true },
 ) {
