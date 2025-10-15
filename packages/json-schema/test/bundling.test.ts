@@ -42,7 +42,6 @@ describe("bundling", () => {
       { bundleId: "test.json" },
       {
         emitNamespace: false,
-        emitTypes: ["testModel", "testArray", "testUnion", "testEnum", "testScalar"],
       },
     );
 

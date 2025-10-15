@@ -1,8 +1,6 @@
-import { createAssetEmitter } from "@typespec/asset-emitter";
 import { resolvePath, type Diagnostic } from "@typespec/compiler";
 import { createTester, expectDiagnosticEmpty, mockFile } from "@typespec/compiler/testing";
 import { parse } from "yaml";
-import { JsonSchemaEmitter } from "../src/json-schema-emitter.js";
 import type { JSONSchemaEmitterOptions } from "../src/lib.js";
 
 export const ApiTester = createTester(resolvePath(import.meta.dirname, ".."), {
@@ -28,43 +26,27 @@ export async function emitSchemaWithDiagnostics(
 
   code = testOptions.emitNamespace ? `@jsonSchema namespace test; ${code}` : code;
   const tester = testOptions.decorators
-    ? ApiTester.import("./dec.js").files({
+    ? Tester.import("./dec.js").files({
         "dec.js": mockFile.js(testOptions.decorators),
       })
-    : ApiTester;
-  const [{ program }] = await tester.compileAndDiagnose(code);
-  const emitter = createAssetEmitter(
-    program,
-    JsonSchemaEmitter as any,
-    {
-      emitterOutputDir: "tsp-output",
-      options,
-    } as any,
-  );
-  if (options.emitAllModels) {
-    emitter.emitProgram({ emitTypeSpecNamespace: false });
-  } else if (testOptions.emitTypes === undefined) {
-    emitter.emitType(program.resolveTypeReference("test")[0]!);
-  } else {
-    for (const name of testOptions.emitTypes) {
-      emitter.emitType(program.resolveTypeReference(name)[0]!);
-    }
-  }
+    : Tester;
 
-  await emitter.writeOutput();
+  const [{ outputs }, diagnostics] = await tester.compileAndDiagnose(code, {
+    compilerOptions: {
+      options: { "@typespec/json-schema": options as any },
+    },
+  });
   const schemas: Record<string, any> = {};
-  const files = await emitter.getProgram().host.readDir("./tsp-output");
 
-  for (const file of files) {
-    const sf = await emitter.getProgram().host.readFile(`./tsp-output/${file}`);
+  for (const [file, content] of Object.entries(outputs)) {
     if (options?.["file-type"] === "yaml") {
-      schemas[file] = parse(sf.text);
+      schemas[file] = parse(content);
     } else {
-      schemas[file] = JSON.parse(sf.text);
+      schemas[file] = JSON.parse(content);
     }
   }
 
-  return [schemas, program.diagnostics];
+  return [schemas, diagnostics];
 }
 
 export async function emitSchema(
