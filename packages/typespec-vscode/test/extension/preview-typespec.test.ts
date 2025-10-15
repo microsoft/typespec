@@ -4,7 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { beforeEach, describe } from "vitest";
 import { startWithCommandPalette } from "./common/common-steps";
-import { CaseScreenshot, retry, testfilesDir, test } from "./common/utils";
+import { CaseScreenshot, retry, test, testfilesDir } from "./common/utils";
 
 try {
   execSync("pnpm install @typespec/http", { stdio: "inherit" });

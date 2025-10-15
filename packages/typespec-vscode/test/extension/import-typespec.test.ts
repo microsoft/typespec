@@ -4,7 +4,7 @@ import path from "node:path";
 import { beforeEach, describe } from "vitest";
 import { contrastResult, preContrastResult, startWithRightClick } from "./common/common-steps";
 import { mockShowOpenDialog } from "./common/mock-dialogs";
-import { CaseScreenshot, testfilesDir, test } from "./common/utils";
+import { CaseScreenshot, test, testfilesDir } from "./common/utils";
 
 try {
   execSync("pnpm install @typespec/openapi3", { stdio: "inherit" });
