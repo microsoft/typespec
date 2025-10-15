@@ -29,7 +29,8 @@ it("allows a deeply nested @bodyRoot", async () => {
   deepStrictEqual(routes, [{ verb: "post", params: [], path: "/" }]);
 });
 
-it("@bodyIgnore doesn't include unannotated parameters", async () => {
+// Test for https://github.com/microsoft/typespec/issues/8667
+it("@bodyIgnore doesn't mark property as implicit body", async () => {
   const diagnostics = await diagnoseOperations(`
     op test(
         @bodyIgnore key: { 
