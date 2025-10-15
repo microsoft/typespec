@@ -1,26 +1,17 @@
 import { createAssetEmitter } from "@typespec/asset-emitter";
-import type { Diagnostic } from "@typespec/compiler";
-import { createTestHost, expectDiagnosticEmpty } from "@typespec/compiler/testing";
+import { resolvePath, type Diagnostic } from "@typespec/compiler";
+import { createTester, expectDiagnosticEmpty, mockFile } from "@typespec/compiler/testing";
 import { parse } from "yaml";
 import { JsonSchemaEmitter } from "../src/json-schema-emitter.js";
 import type { JSONSchemaEmitterOptions } from "../src/lib.js";
-import { JsonSchemaTestLibrary } from "../src/testing/index.js";
 
-export async function getHostForTspFile(contents: string, decorators?: Record<string, any>) {
-  const host = await createTestHost({
-    libraries: [JsonSchemaTestLibrary],
-  });
-  if (decorators) {
-    host.addJsFile("dec.js", decorators);
-    contents = `import "./dec.js";\n` + contents;
-  }
-  host.addTypeSpecFile("main.tsp", contents);
-  await host.compileAndDiagnose("main.tsp", {
-    noEmit: false,
-    outputDir: "tsp-output",
-  });
-  return host;
-}
+export const ApiTester = createTester(resolvePath(import.meta.dirname, ".."), {
+  libraries: ["@typespec/json-schema"],
+})
+  .import("@typespec/json-schema")
+  .using("JsonSchema");
+
+export const Tester = ApiTester.emit("@typespec/json-schema");
 
 export async function emitSchemaWithDiagnostics(
   code: string,
@@ -35,12 +26,15 @@ export async function emitSchemaWithDiagnostics(
     options["file-type"] = "json";
   }
 
-  code = testOptions.emitNamespace
-    ? `import "@typespec/json-schema"; using JsonSchema; @jsonSchema namespace test; ${code}`
-    : `import "@typespec/json-schema"; using JsonSchema; ${code}`;
-  const host = await getHostForTspFile(code, testOptions.decorators);
+  code = testOptions.emitNamespace ? `@jsonSchema namespace test; ${code}` : code;
+  const tester = testOptions.decorators
+    ? ApiTester.import("./dec.js").files({
+        "dec.js": mockFile.js(testOptions.decorators),
+      })
+    : ApiTester;
+  const [{ program }] = await tester.compileAndDiagnose(code);
   const emitter = createAssetEmitter(
-    host.program,
+    program,
     JsonSchemaEmitter as any,
     {
       emitterOutputDir: "tsp-output",
@@ -50,10 +44,10 @@ export async function emitSchemaWithDiagnostics(
   if (options.emitAllModels) {
     emitter.emitProgram({ emitTypeSpecNamespace: false });
   } else if (testOptions.emitTypes === undefined) {
-    emitter.emitType(host.program.resolveTypeReference("test")[0]!);
+    emitter.emitType(program.resolveTypeReference("test")[0]!);
   } else {
     for (const name of testOptions.emitTypes) {
-      emitter.emitType(host.program.resolveTypeReference(name)[0]!);
+      emitter.emitType(program.resolveTypeReference(name)[0]!);
     }
   }
 
@@ -70,7 +64,7 @@ export async function emitSchemaWithDiagnostics(
     }
   }
 
-  return [schemas, host.program.diagnostics];
+  return [schemas, program.diagnostics];
 }
 
 export async function emitSchema(
