@@ -80,4 +80,11 @@ public interface ArmResourceProviderManagementClient {
      * @return the ItemsClient object.
      */
     ItemsClient getItems();
+
+    /**
+     * Gets the TrackedResourcesClient object to access its operations.
+     * 
+     * @return the TrackedResourcesClient object.
+     */
+    TrackedResourcesClient getTrackedResources();
 }

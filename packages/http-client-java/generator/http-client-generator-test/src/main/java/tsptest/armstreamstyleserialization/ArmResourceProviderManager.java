@@ -38,11 +38,13 @@ import tsptest.armstreamstyleserialization.implementation.FunctionsImpl;
 import tsptest.armstreamstyleserialization.implementation.ItemsImpl;
 import tsptest.armstreamstyleserialization.implementation.PrioritiesImpl;
 import tsptest.armstreamstyleserialization.implementation.TopLevelArmResourcesImpl;
+import tsptest.armstreamstyleserialization.implementation.TrackedResourcesImpl;
 import tsptest.armstreamstyleserialization.models.Fishes;
 import tsptest.armstreamstyleserialization.models.Functions;
 import tsptest.armstreamstyleserialization.models.Items;
 import tsptest.armstreamstyleserialization.models.Priorities;
 import tsptest.armstreamstyleserialization.models.TopLevelArmResources;
+import tsptest.armstreamstyleserialization.models.TrackedResources;
 
 /**
  * Entry point to ArmResourceProviderManager.
@@ -58,6 +60,8 @@ public final class ArmResourceProviderManager {
     private Priorities priorities;
 
     private Items items;
+
+    private TrackedResources trackedResources;
 
     private final ArmResourceProviderManagementClient clientObject;
 
@@ -103,7 +107,7 @@ public final class ArmResourceProviderManager {
      * @return the Configurable instance allowing configurations.
      */
     public static Configurable configure() {
-        return new ArmResourceProviderManager.Configurable();
+        return new Configurable();
     }
 
     /**
@@ -332,6 +336,18 @@ public final class ArmResourceProviderManager {
             this.items = new ItemsImpl(clientObject.getItems(), this);
         }
         return items;
+    }
+
+    /**
+     * Gets the resource collection API of TrackedResources.
+     * 
+     * @return Resource collection API of TrackedResources.
+     */
+    public TrackedResources trackedResources() {
+        if (this.trackedResources == null) {
+            this.trackedResources = new TrackedResourcesImpl(clientObject.getTrackedResources(), this);
+        }
+        return trackedResources;
     }
 
     /**

@@ -40,6 +40,7 @@ import tsptest.armstreamstyleserialization.fluent.FunctionsClient;
 import tsptest.armstreamstyleserialization.fluent.ItemsClient;
 import tsptest.armstreamstyleserialization.fluent.PrioritiesClient;
 import tsptest.armstreamstyleserialization.fluent.TopLevelArmResourcesClient;
+import tsptest.armstreamstyleserialization.fluent.TrackedResourcesClient;
 
 /**
  * Initializes a new instance of the ArmResourceProviderManagementClientImpl type.
@@ -201,6 +202,20 @@ public final class ArmResourceProviderManagementClientImpl implements ArmResourc
     }
 
     /**
+     * The TrackedResourcesClient object to access its operations.
+     */
+    private final TrackedResourcesClient trackedResources;
+
+    /**
+     * Gets the TrackedResourcesClient object to access its operations.
+     * 
+     * @return the TrackedResourcesClient object.
+     */
+    public TrackedResourcesClient getTrackedResources() {
+        return this.trackedResources;
+    }
+
+    /**
      * Initializes an instance of ArmResourceProviderManagementClient client.
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
@@ -223,6 +238,7 @@ public final class ArmResourceProviderManagementClientImpl implements ArmResourc
         this.functions = new FunctionsClientImpl(this);
         this.priorities = new PrioritiesClientImpl(this);
         this.items = new ItemsClientImpl(this);
+        this.trackedResources = new TrackedResourcesClientImpl(this);
     }
 
     /**
