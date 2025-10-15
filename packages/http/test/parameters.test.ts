@@ -1,7 +1,7 @@
 import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual } from "assert";
 import { describe, it } from "vitest";
-import { compileOperations, getRoutesFor } from "./test-host.js";
+import { compileOperations, diagnoseOperations, getRoutesFor } from "./test-host.js";
 
 it("emit diagnostic for parameters with multiple http request annotations", async () => {
   const [_, diagnostics] = await compileOperations(`
@@ -29,8 +29,22 @@ it("allows a deeply nested @bodyRoot", async () => {
   deepStrictEqual(routes, [{ verb: "post", params: [], path: "/" }]);
 });
 
+it("@bodyIgnore doesn't include unannotated parameters", async () => {
+  const diagnostics = await diagnoseOperations(`
+    op test(
+        @bodyIgnore key: { 
+          @path id: string, 
+          @query id2: string 
+        }, 
+        @body body: bytes
+      ): void;
+  `);
+
+  expectDiagnosticEmpty(diagnostics);
+});
+
 it("emit diagnostic when there is an unannotated parameter and a @body param", async () => {
-  const [_, diagnostics] = await compileOperations(`
+  const diagnostics = await diagnoseOperations(`
       @get op get(param1: string, @body param2: string): string;
     `);
 

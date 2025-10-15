@@ -16,6 +16,7 @@ import {
   getPathOptions,
   getQueryOptions,
   isBody,
+  isBodyIgnore,
   isBodyRoot,
   isMultipartBodyProperty,
   isStatusCode,
@@ -102,7 +103,7 @@ function getHttpProperty(
   property: ModelProperty,
   path: (string | number)[],
   options: GetHttpPropertyOptions = {},
-): [HttpProperty, readonly Diagnostic[]] {
+): [HttpProperty | undefined, readonly Diagnostic[]] {
   const diagnostics: Diagnostic[] = [];
 
   function createResult<T extends Omit<HttpProperty, "path" | "property">>(
@@ -176,6 +177,9 @@ function getHttpProperty(
     });
   }
   if (defined.length === 0) {
+    if (isBodyIgnore(program, property)) {
+      return [undefined, []];
+    }
     return createResult({ kind: "bodyProperty" });
   } else if (defined.length > 1) {
     diagnostics.push(
@@ -249,6 +253,9 @@ export function resolvePayloadProperties(
       }
 
       let httpProperty = diagnostics.pipe(getHttpProperty(program, property, propPath, options));
+      if (!httpProperty) {
+        continue;
+      }
       if (shouldTreatAsBodyProperty(httpProperty, disposition)) {
         httpProperty = { kind: "bodyProperty", property, path: propPath };
       }
