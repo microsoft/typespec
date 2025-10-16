@@ -79,6 +79,11 @@ export interface StatusCodeProperty extends HttpPropertyBase {
 export interface BodyProperty extends HttpPropertyBase {
   readonly kind: "body";
 }
+
+/** Property annotated with `@bodyIgnore` */
+export interface BodyIgnoreProperty extends HttpPropertyBase {
+  readonly kind: "bodyIgnore";
+}
 export interface BodyRootProperty extends HttpPropertyBase {
   readonly kind: "bodyRoot";
 }
@@ -103,10 +108,10 @@ function getHttpProperty(
   property: ModelProperty,
   path: (string | number)[],
   options: GetHttpPropertyOptions = {},
-): [HttpProperty | undefined, readonly Diagnostic[]] {
+): [HttpProperty | BodyIgnoreProperty, readonly Diagnostic[]] {
   const diagnostics: Diagnostic[] = [];
 
-  function createResult<T extends Omit<HttpProperty, "path" | "property">>(
+  function createResult<T extends Omit<HttpProperty | BodyIgnoreProperty, "path" | "property">>(
     opts: T,
   ): [HttpProperty & T, readonly Diagnostic[]] {
     return [{ ...opts, property, path } as any, diagnostics];
@@ -177,10 +182,9 @@ function getHttpProperty(
     });
   }
   if (defined.length === 0) {
-    if (isBodyIgnore(program, property)) {
-      return [undefined, []];
-    }
-    return createResult({ kind: "bodyProperty" });
+    return isBodyIgnore(program, property)
+      ? createResult({ kind: "bodyIgnore" })
+      : createResult({ kind: "bodyProperty" });
   } else if (defined.length > 1) {
     diagnostics.push(
       createDiagnostic({
@@ -253,10 +257,10 @@ export function resolvePayloadProperties(
       }
 
       let httpProperty = diagnostics.pipe(getHttpProperty(program, property, propPath, options));
-      if (!httpProperty) {
-        continue;
-      }
-      if (shouldTreatAsBodyProperty(httpProperty, disposition)) {
+      if (
+        httpProperty.kind !== "bodyIgnore" &&
+        shouldTreatAsBodyProperty(httpProperty, disposition)
+      ) {
         httpProperty = { kind: "bodyProperty", property, path: propPath };
       }
 
@@ -294,7 +298,9 @@ export function resolvePayloadProperties(
       if (httpProperty.kind === "bodyProperty") {
         foundBodyProperty = true;
       }
-      httpProperties.set(property, httpProperty);
+      if (httpProperty.kind !== "bodyIgnore") {
+        httpProperties.set(property, httpProperty);
+      }
     }
     return foundBody && !foundBodyProperty;
   }
