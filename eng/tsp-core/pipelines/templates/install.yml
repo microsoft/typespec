@@ -22,7 +22,7 @@ steps:
       - task: UseDotNet@2
         displayName: Install .NET
         inputs:
-          version: 9.0.x
+          version: 8.0.x
 
   - task: Cache@2
     inputs:

@@ -16,7 +16,7 @@ import { CaseScreenshot, tempDir, test } from "./common/utils";
 let shouldSkip = false;
 
 shouldSkip = tryInstallAndHandle("@typespec/http") || shouldSkip;
-shouldSkip = tryInstallAndHandle("@typespec/http-client-csharp") || shouldSkip;
+shouldSkip = tryInstallAndHandle("@typespec/http-client-js") || shouldSkip;
 
 enum EmitProjectTriggerType {
   Command = "Command",
@@ -36,20 +36,20 @@ const EmitTypespecProjectFolderPath = path.resolve(tempDir, "EmitTypespecProject
 
 const EmitCasesConfigList: EmitConfigType[] = [
   {
-    caseName: "EmitTypespecProject ClientCode DotNet Trigger CommandPalette TspconfigHasEmit",
+    caseName: "EmitTypespecProject ClientCode Js Trigger CommandPalette TspconfigHasEmit",
     selectType: "Client Code",
-    selectTypeLanguage: ".NET",
+    selectTypeLanguage: "JavaScript",
     triggerType: EmitProjectTriggerType.Command,
     TspConfigHasEmit: true,
-    expectedResults: ["http-client-csharp"],
+    expectedResults: ["http-client-js"],
   },
   {
-    caseName: "EmitTypespecProject ClientCode DotNet Trigger CommandPalette TspconfigNoEmit",
+    caseName: "EmitTypespecProject ClientCode Js Trigger CommandPalette TspconfigNoEmit",
     selectType: "Client Code",
-    selectTypeLanguage: ".NET",
+    selectTypeLanguage: "JavaScript",
     triggerType: EmitProjectTriggerType.Command,
     TspConfigHasEmit: false,
-    expectedResults: ["http-client-csharp"],
+    expectedResults: ["http-client-js"],
   },
 ];
 
@@ -70,7 +70,7 @@ afterAll(() => {
     process.exit(1);
   }
   try {
-    execSync("pnpm uninstall @typespec/http-client-csharp", { stdio: "pipe" });
+    execSync("pnpm uninstall @typespec/http-client-js", { stdio: "pipe" });
   } catch (e) {
     process.exit(1);
   }
