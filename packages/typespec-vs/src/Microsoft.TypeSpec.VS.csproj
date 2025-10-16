@@ -56,7 +56,7 @@
     <!-- The 'Microsoft.VisualStudio.Shell.15.0' is not used directly but referenced by nuget package 'Microsoft.VisualStudio.Workspace.VSIntegration' -->
     <!-- Have to add it explicitly here because otherwise 'Microsoft.VisualStudio.Workspace.VSIntegration" will report warning NU1603 because its desired version not found and higher version will be used -->
     <!-- TODO: [#5368] remove this explicit reference after 'Microsoft.VisualStudio...' releases new version without the warning-->
-    <PackageReference Include="Microsoft.VisualStudio.Shell.15.0" Version="17.12.40392" />
+    <PackageReference Include="Microsoft.VisualStudio.Shell.15.0" Version="17.14.40264" />
     <PackageReference Include="Microsoft.VisualStudio.Workspace" Version="17.12.19" ExcludeAssets="Runtime" />
     <PackageReference Include="Microsoft.VisualStudio.Workspace.VSIntegration" Version="17.12.19" ExcludeAssets="Runtime" />
     <!-- https://github.com/advisories/GHSA-w3q9-fxm7-j8fq -->
