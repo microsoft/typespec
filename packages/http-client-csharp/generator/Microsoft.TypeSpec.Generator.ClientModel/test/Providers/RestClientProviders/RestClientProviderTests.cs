@@ -656,9 +656,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                     "TestOperation",
                     parameters:
                     [
-                        InputFactory.QueryParameter("readOnlyParam", InputPrimitiveType.String, isRequired: true, isReadOnly: true),
+                        // Read-only parameters are already filtered out from operation parameters
                         InputFactory.QueryParameter("normalParam", InputPrimitiveType.String, isRequired: true),
-                        InputFactory.HeaderParameter("readOnlyHeader", InputPrimitiveType.Int32, isRequired: true, isReadOnly: true),
                         InputFactory.HeaderParameter("normalHeader", InputPrimitiveType.Int32, isRequired: true)
                     ]),
                 parameters:
@@ -694,9 +693,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                     "TestOperation",
                     parameters:
                     [
-                        InputFactory.PathParameter("readOnlyPath", InputPrimitiveType.String, isRequired: true, isReadOnly: true),
+                        // Read-only parameters are already filtered out from operation parameters
                         InputFactory.PathParameter("normalPath", InputPrimitiveType.String, isRequired: true),
-                        InputFactory.BodyParameter("readOnlyBody", InputPrimitiveType.String, isRequired: true, isReadOnly: true),
                         InputFactory.BodyParameter("normalBody", InputPrimitiveType.String, isRequired: true)
                     ]),
                 parameters:
@@ -727,9 +725,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                     "TestOperation",
                     parameters:
                     [
-                        InputFactory.QueryParameter("readOnlyQuery", InputPrimitiveType.String, isRequired: true, isReadOnly: true),
+                        // Read-only parameters are already filtered out from operation parameters
                         InputFactory.QueryParameter("normalQuery", InputPrimitiveType.String, isRequired: true),
-                        InputFactory.HeaderParameter("readOnlyHeader", InputPrimitiveType.Boolean, isRequired: false, isReadOnly: true),
                         InputFactory.HeaderParameter("normalHeader", InputPrimitiveType.Boolean, isRequired: false)
                     ]),
                 parameters:
@@ -762,9 +759,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                     parameters:
                     [
                         InputFactory.PathParameter("normalPath", InputPrimitiveType.String, isRequired: true),
-                        InputFactory.QueryParameter("readOnlyQuery", InputPrimitiveType.String, isRequired: true, isReadOnly: true),
                         InputFactory.QueryParameter("normalQuery", InputPrimitiveType.String, isRequired: true),
-                        InputFactory.HeaderParameter("readOnlyHeader", InputPrimitiveType.String, isRequired: false, isReadOnly: true),
                         InputFactory.HeaderParameter("normalHeader", InputPrimitiveType.String, isRequired: false),
                         InputFactory.BodyParameter("normalBody", InputPrimitiveType.String, isRequired: true)
                     ]),
