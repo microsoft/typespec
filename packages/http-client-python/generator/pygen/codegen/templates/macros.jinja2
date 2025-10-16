@@ -1,18 +1,5 @@
 {% macro wrap_model_string(doc_string, wrap_string, suffix_string="") %}
-{%- set lines = doc_string.split('\n') -%}
-{%- set processed_lines = [] -%}
-{%- for line in lines -%}
-    {%- set stripped = line.strip() -%}
-    {%- if stripped.startswith('* ') -%}
-        {%- set bullet_with_indent = '    ' + stripped -%}
-        {%- set wrapped = bullet_with_indent | wordwrap(width=95, break_long_words=False, break_on_hyphens=False, wrapstring=wrap_string + '  ') -%}
-        {%- set _ = processed_lines.append(wrapped) -%}
-    {%- elif stripped -%}
-        {%- set wrapped = line | wordwrap(width=95, break_long_words=False, break_on_hyphens=False, wrapstring=wrap_string) -%}
-        {%- set _ = processed_lines.append(wrapped) -%}
-    {%- endif -%}
-{%- endfor -%}
-{%- set original_result = processed_lines | join('\n') -%}
+{% set original_result = doc_string | wordwrap(width=95, break_long_words=False, break_on_hyphens=False, wrapstring=wrap_string) %}
 {% set list_result = original_result.split('\n') %}
 {% for line in list_result %}
     {% set prefix = "" if loop.index == 1 else " " %}
