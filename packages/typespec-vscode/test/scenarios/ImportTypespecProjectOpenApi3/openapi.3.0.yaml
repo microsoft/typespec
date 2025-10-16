@@ -19,7 +19,7 @@ info:
     Dictionary lookup. Returns equivalent words for the source term in the target language.
 
     Dictionary example Returns grammatical structure and context examples for the source term and target term pair.
-  version: '3.0'
+  version: "3.0"
 tags: []
 paths:
   /breaksentence:
@@ -34,8 +34,8 @@ paths:
           description: A client-generated GUID to uniquely identify the request.
           schema:
             type: string
-        - $ref: '#/components/parameters/BreakSentenceParameters.language'
-        - $ref: '#/components/parameters/BreakSentenceParameters.script'
+        - $ref: "#/components/parameters/BreakSentenceParameters.language"
+        - $ref: "#/components/parameters/BreakSentenceParameters.script"
         - name: api-version
           in: query
           required: true
@@ -44,7 +44,7 @@ paths:
             type: string
           explode: false
       responses:
-        '200':
+        "200":
           description: Response for the Break SEntence API.
           headers:
             X-RequestId:
@@ -57,7 +57,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/BreakSentenceItem'
+                  $ref: "#/components/schemas/BreakSentenceItem"
         default:
           description: An unexpected error response.
           headers:
@@ -69,7 +69,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
       requestBody:
         required: true
         content:
@@ -77,7 +77,7 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/InputTextItem'
+                $ref: "#/components/schemas/InputTextItem"
         description: Defines the content of the request
   /dictionary/examples:
     post:
@@ -91,8 +91,8 @@ paths:
           description: A client-generated GUID to uniquely identify the request.
           schema:
             type: string
-        - $ref: '#/components/parameters/DictionaryExamplesParameters.from'
-        - $ref: '#/components/parameters/DictionaryExamplesParameters.to'
+        - $ref: "#/components/parameters/DictionaryExamplesParameters.from"
+        - $ref: "#/components/parameters/DictionaryExamplesParameters.to"
         - name: api-version
           in: query
           required: true
@@ -101,7 +101,7 @@ paths:
             type: string
           explode: false
       responses:
-        '200':
+        "200":
           description: Response for the dictionary examples API.
           headers:
             X-RequestId:
@@ -114,7 +114,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/DictionaryExampleItem'
+                  $ref: "#/components/schemas/DictionaryExampleItem"
         default:
           description: An unexpected error response.
           headers:
@@ -126,7 +126,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
       requestBody:
         required: true
         content:
@@ -134,7 +134,7 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/DictionaryExampleTextItem'
+                $ref: "#/components/schemas/DictionaryExampleTextItem"
         description: Defines the content of the request
   /dictionary/lookup:
     post:
@@ -148,8 +148,8 @@ paths:
           description: A client-generated GUID to uniquely identify the request.
           schema:
             type: string
-        - $ref: '#/components/parameters/DictionaryLookupParameters.from'
-        - $ref: '#/components/parameters/DictionaryLookupParameters.to'
+        - $ref: "#/components/parameters/DictionaryLookupParameters.from"
+        - $ref: "#/components/parameters/DictionaryLookupParameters.to"
         - name: api-version
           in: query
           required: true
@@ -158,7 +158,7 @@ paths:
             type: string
           explode: false
       responses:
-        '200':
+        "200":
           description: Response for the dictionary lookup API.
           headers:
             X-RequestId:
@@ -171,7 +171,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/DictionaryLookupItem'
+                  $ref: "#/components/schemas/DictionaryLookupItem"
         default:
           description: An unexpected error response.
           headers:
@@ -183,7 +183,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
       requestBody:
         required: true
         content:
@@ -191,7 +191,7 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/InputTextItem'
+                $ref: "#/components/schemas/InputTextItem"
         description: Defines the content of the request
   /languages:
     get:
@@ -205,9 +205,9 @@ paths:
           description: A client-generated GUID to uniquely identify the request.
           schema:
             type: string
-        - $ref: '#/components/parameters/GetSupportedLanguagesParameters.scope'
-        - $ref: '#/components/parameters/GetSupportedLanguagesParameters.acceptLanguage'
-        - $ref: '#/components/parameters/GetSupportedLanguagesParameters.ifNoneMatch'
+        - $ref: "#/components/parameters/GetSupportedLanguagesParameters.scope"
+        - $ref: "#/components/parameters/GetSupportedLanguagesParameters.acceptLanguage"
+        - $ref: "#/components/parameters/GetSupportedLanguagesParameters.ifNoneMatch"
         - name: api-version
           in: query
           required: true
@@ -216,7 +216,7 @@ paths:
             type: string
           explode: false
       responses:
-        '200':
+        "200":
           description: The request has succeeded.
           headers:
             X-RequestId:
@@ -235,7 +235,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetSupportedLanguagesResult'
+                $ref: "#/components/schemas/GetSupportedLanguagesResult"
         default:
           description: An unexpected error response.
           headers:
@@ -247,7 +247,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
   /translate:
     post:
       operationId: translate
@@ -260,18 +260,18 @@ paths:
           description: A client-generated GUID to uniquely identify the request.
           schema:
             type: string
-        - $ref: '#/components/parameters/TranslateParameters.to'
-        - $ref: '#/components/parameters/TranslateParameters.from'
-        - $ref: '#/components/parameters/TranslateParameters.textType'
-        - $ref: '#/components/parameters/TranslateParameters.category'
-        - $ref: '#/components/parameters/TranslateParameters.profanityAction'
-        - $ref: '#/components/parameters/TranslateParameters.profanityMarker'
-        - $ref: '#/components/parameters/TranslateParameters.includeAlignment'
-        - $ref: '#/components/parameters/TranslateParameters.includeSentenceLength'
-        - $ref: '#/components/parameters/TranslateParameters.suggestedFrom'
-        - $ref: '#/components/parameters/TranslateParameters.fromScript'
-        - $ref: '#/components/parameters/TranslateParameters.toScript'
-        - $ref: '#/components/parameters/TranslateParameters.allowFallback'
+        - $ref: "#/components/parameters/TranslateParameters.to"
+        - $ref: "#/components/parameters/TranslateParameters.from"
+        - $ref: "#/components/parameters/TranslateParameters.textType"
+        - $ref: "#/components/parameters/TranslateParameters.category"
+        - $ref: "#/components/parameters/TranslateParameters.profanityAction"
+        - $ref: "#/components/parameters/TranslateParameters.profanityMarker"
+        - $ref: "#/components/parameters/TranslateParameters.includeAlignment"
+        - $ref: "#/components/parameters/TranslateParameters.includeSentenceLength"
+        - $ref: "#/components/parameters/TranslateParameters.suggestedFrom"
+        - $ref: "#/components/parameters/TranslateParameters.fromScript"
+        - $ref: "#/components/parameters/TranslateParameters.toScript"
+        - $ref: "#/components/parameters/TranslateParameters.allowFallback"
         - name: api-version
           in: query
           required: true
@@ -280,7 +280,7 @@ paths:
             type: string
           explode: false
       responses:
-        '200':
+        "200":
           description: Response for the translation API.
           headers:
             X-RequestId:
@@ -312,7 +312,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/TranslatedTextItem'
+                  $ref: "#/components/schemas/TranslatedTextItem"
         default:
           description: An unexpected error response.
           headers:
@@ -324,7 +324,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
       requestBody:
         required: true
         content:
@@ -332,7 +332,7 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/InputTextItem'
+                $ref: "#/components/schemas/InputTextItem"
         description: Defines the content of the request
   /transliterate:
     post:
@@ -346,9 +346,9 @@ paths:
           description: A client-generated GUID to uniquely identify the request.
           schema:
             type: string
-        - $ref: '#/components/parameters/TransliterateParameters.language'
-        - $ref: '#/components/parameters/TransliterateParameters.fromScript'
-        - $ref: '#/components/parameters/TransliterateParameters.toScript'
+        - $ref: "#/components/parameters/TransliterateParameters.language"
+        - $ref: "#/components/parameters/TransliterateParameters.fromScript"
+        - $ref: "#/components/parameters/TransliterateParameters.toScript"
         - name: api-version
           in: query
           required: true
@@ -357,7 +357,7 @@ paths:
             type: string
           explode: false
       responses:
-        '200':
+        "200":
           description: Response for the transliteration API.
           headers:
             X-RequestId:
@@ -370,7 +370,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/TransliteratedText'
+                  $ref: "#/components/schemas/TransliteratedText"
         default:
           description: An unexpected error response.
           headers:
@@ -382,7 +382,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
       requestBody:
         required: true
         content:
@@ -390,7 +390,7 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/InputTextItem'
+                $ref: "#/components/schemas/InputTextItem"
         description: Defines the content of the request
 components:
   parameters:
@@ -571,7 +571,7 @@ components:
         Specifies how profanities should be treated in translations.
         Possible values are: NoAction (default), Marked or Deleted.
       schema:
-        $ref: '#/components/schemas/ProfanityAction'
+        $ref: "#/components/schemas/ProfanityAction"
         default: NoAction
       explode: false
     TranslateParameters.profanityMarker:
@@ -580,9 +580,9 @@ components:
       required: false
       description: |-
         Specifies how profanities should be marked in translations.
-        Possible values are: Asterisk (default) or Tag. 
+        Possible values are: Asterisk (default) or Tag.
       schema:
-        $ref: '#/components/schemas/ProfanityMarker'
+        $ref: "#/components/schemas/ProfanityMarker"
         default: Asterisk
       explode: false
     TranslateParameters.suggestedFrom:
@@ -604,7 +604,7 @@ components:
         Defines whether the text being translated is plain text or HTML text. Any HTML needs to be a well-formed, 
         complete element. Possible values are: plain (default) or html.
       schema:
-        $ref: '#/components/schemas/TextType'
+        $ref: "#/components/schemas/TextType"
         default: Plain
       explode: false
     TranslateParameters.to:
@@ -663,7 +663,7 @@ components:
     APIVersion:
       type: string
       enum:
-        - '3.0'
+        - "3.0"
       description: Text Translation supported versions
     BackTranslation:
       type: object
@@ -708,7 +708,7 @@ components:
       properties:
         detectedLanguage:
           allOf:
-            - $ref: '#/components/schemas/DetectedLanguage'
+            - $ref: "#/components/schemas/DetectedLanguage"
           description: The detectedLanguage property is only present in the result object when language auto-detection is requested.
         sentLen:
           type: array
@@ -793,7 +793,7 @@ components:
         examples:
           type: array
           items:
-            $ref: '#/components/schemas/DictionaryExample'
+            $ref: "#/components/schemas/DictionaryExample"
           description: A list of examples for the (source term, target term) pair.
       description: Dictionary Example element
     DictionaryExampleTextItem:
@@ -808,7 +808,7 @@ components:
             This should be the value from the normalizedTarget field in the translations list of the Dictionary 
             lookup response. The service will return examples for the specific source-target word-pair.
       allOf:
-        - $ref: '#/components/schemas/InputTextItem'
+        - $ref: "#/components/schemas/InputTextItem"
       description: Element containing the text with translation.
     DictionaryLookupItem:
       type: object
@@ -832,7 +832,7 @@ components:
         translations:
           type: array
           items:
-            $ref: '#/components/schemas/DictionaryTranslation'
+            $ref: "#/components/schemas/DictionaryTranslation"
           description: A list of translations for the source term.
       description: Dictionary Lookup Element
     DictionaryTranslation:
@@ -878,7 +878,7 @@ components:
         backTranslations:
           type: array
           items:
-            $ref: '#/components/schemas/BackTranslation'
+            $ref: "#/components/schemas/BackTranslation"
           description: |-
             A list of "back translations" of the target. For example, source words that the target can translate to.
             The list is guaranteed to contain the source word that was requested (e.g., if the source word being
@@ -906,7 +906,7 @@ components:
       properties:
         error:
           allOf:
-            - $ref: '#/components/schemas/ErrorDetails'
+            - $ref: "#/components/schemas/ErrorDetails"
           description: Error details.
       description: Representation of the Error Response from Translator Service.
     GetSupportedLanguagesResult:
@@ -915,17 +915,17 @@ components:
         translation:
           type: object
           additionalProperties:
-            $ref: '#/components/schemas/TranslationLanguage'
+            $ref: "#/components/schemas/TranslationLanguage"
           description: Languages that support translate API.
         transliteration:
           type: object
           additionalProperties:
-            $ref: '#/components/schemas/TransliterationLanguage'
+            $ref: "#/components/schemas/TransliterationLanguage"
           description: Languages that support transliteration API.
         dictionary:
           type: object
           additionalProperties:
-            $ref: '#/components/schemas/SourceDictionaryLanguage'
+            $ref: "#/components/schemas/SourceDictionaryLanguage"
           description: Languages that support dictionary API.
       description: Response for the languages API.
     InputTextItem:
@@ -962,7 +962,7 @@ components:
           description: Display name of the language in the locale native for the language.
         dir:
           allOf:
-            - $ref: '#/components/schemas/LanguageDirectionality'
+            - $ref: "#/components/schemas/LanguageDirectionality"
           description: Directionality, which is rtl for right-to-left languages or ltr for left-to-right languages.
       description: Common properties of language script
     ProfanityAction:
@@ -1017,12 +1017,12 @@ components:
           description: Display name of the language in the locale native for this language.
         dir:
           allOf:
-            - $ref: '#/components/schemas/LanguageDirectionality'
+            - $ref: "#/components/schemas/LanguageDirectionality"
           description: Directionality, which is rtl for right-to-left languages or ltr for left-to-right languages.
         translations:
           type: array
           items:
-            $ref: '#/components/schemas/TargetDictionaryLanguage'
+            $ref: "#/components/schemas/TargetDictionaryLanguage"
           description: List of languages with alterative translations and examples for the query expressed in the source language.
       description: Properties ot the source dictionary language
     SourceText:
@@ -1033,7 +1033,7 @@ components:
         text:
           type: string
           description: Input text in the default script of the source language.
-      description: 'Input text in the default script of the source language. '
+      description: "Input text in the default script of the source language. "
     TargetDictionaryLanguage:
       type: object
       required:
@@ -1050,7 +1050,7 @@ components:
           description: Display name of the language in the locale native for this language.
         dir:
           allOf:
-            - $ref: '#/components/schemas/LanguageDirectionality'
+            - $ref: "#/components/schemas/LanguageDirectionality"
           description: Directionality, which is rtl for right-to-left languages or ltr for left-to-right languages.
         code:
           type: string
@@ -1086,18 +1086,18 @@ components:
       properties:
         detectedLanguage:
           allOf:
-            - $ref: '#/components/schemas/DetectedLanguage'
+            - $ref: "#/components/schemas/DetectedLanguage"
           description: The detectedLanguage property is only present in the result object when language auto-detection is requested.
         translations:
           type: array
           items:
-            $ref: '#/components/schemas/TranslationText'
+            $ref: "#/components/schemas/TranslationText"
           description: |-
             An array of translation results. The size of the array matches the number of target 
             languages specified through the to query parameter.
         sourceText:
           allOf:
-            - $ref: '#/components/schemas/SourceText'
+            - $ref: "#/components/schemas/SourceText"
           description: |-
             Input text in the default script of the source language. sourceText property is present only when 
             the input is expressed in a script that's not the usual script for the language. For example, 
@@ -1119,7 +1119,7 @@ components:
           description: Display name of the language in the locale native for this language.
         dir:
           allOf:
-            - $ref: '#/components/schemas/LanguageDirectionality'
+            - $ref: "#/components/schemas/LanguageDirectionality"
           description: Directionality, which is rtl for right-to-left languages or ltr for left-to-right languages.
       description: |-
         The value of the translation property is a dictionary of (key, value) pairs. Each key is a BCP 47 language tag.
@@ -1138,15 +1138,15 @@ components:
           description: A string giving the translated text.
         transliteration:
           allOf:
-            - $ref: '#/components/schemas/TransliteratedText'
+            - $ref: "#/components/schemas/TransliteratedText"
           description: An object giving the translated text in the script specified by the toScript parameter.
         alignment:
           allOf:
-            - $ref: '#/components/schemas/TranslatedTextAlignment'
+            - $ref: "#/components/schemas/TranslatedTextAlignment"
           description: Alignment information.
         sentLen:
           allOf:
-            - $ref: '#/components/schemas/SentenceBoundaries'
+            - $ref: "#/components/schemas/SentenceBoundaries"
           description: Sentence boundaries in the input and output texts.
       description: Translation result
     TransliterableScript:
@@ -1157,10 +1157,10 @@ components:
         toScripts:
           type: array
           items:
-            $ref: '#/components/schemas/LanguageScript'
+            $ref: "#/components/schemas/LanguageScript"
           description: List of scripts available to convert text to.
       allOf:
-        - $ref: '#/components/schemas/LanguageScript'
+        - $ref: "#/components/schemas/LanguageScript"
       description: Script definition with list of script into which given script can be translitered.
     TransliteratedText:
       type: object
@@ -1191,18 +1191,17 @@ components:
         scripts:
           type: array
           items:
-            $ref: '#/components/schemas/TransliterableScript'
+            $ref: "#/components/schemas/TransliterableScript"
           description: List of scripts to convert from.
       description: |-
         The value of the transliteration property is a dictionary of (key, value) pairs. 
         Each key is a BCP 47 language tag. A key identifies a language for which text can be converted from one script 
         to another script.
 servers:
-  - url: '{Endpoint}'
+  - url: "{Endpoint}"
     description: Text translation is a cloud-based REST API feature of the Translator service that uses neural machine translation technology to enable quick and accurate source-to-target text translation in real time across all supported languages.
     variables:
       Endpoint:
-        default: ''
+        default: ""
         description: |-
-          Supported Text Translation endpoints (protocol and hostname, for example:
-              https://api.cognitive.microsofttranslator.com).
+          Supported Text Translation endpoints (protocol and hostname, for example:https://api.cognitive.microsofttranslator.com).

@@ -77,9 +77,6 @@ packages/http-client-js/dist-test
 # swagger-ui-dist lib files
 packages/typespec-vscode/swagger-ui/swagger-ui*
 
-# vscode test scenario yaml files
-packages/typespec-vscode/test/scenarios/**/*.yaml
-
 # Docs with code
 docs/samples/client/csharp/oauth/readme.md
 packages/http-client-csharp/generator/docs/architecture.md
