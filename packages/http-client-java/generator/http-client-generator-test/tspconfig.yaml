@@ -8,8 +8,9 @@ options:
     generate-tests: true
     examples-dir: "{project-root}/tsp/examples"
     flavor: "Azure"
+#    customization-class: ../customization/src/main/java/KeyVaultCustomization.java
     dev-options:
       generate-code-model: true
       loglevel: info
-      debug: false
+      debug: true
       profile: false
