@@ -324,7 +324,7 @@ async function createProgram(
   }
 
   // Linter stage
-  const lintResult = linter.lint();
+  const lintResult = await linter.lint();
   runtimeStats.linter = lintResult.stats.runtime;
   program.reportDiagnostics(lintResult.diagnostics);
 
