@@ -6752,7 +6752,7 @@ interface SymbolResolutionOptions {
   resolveDecorators: boolean;
 
   /**
-   * When resolving a symbol should it resolve to the declaration or template instance for ambigous cases
+   * When resolving a symbol should it resolve to the declaration or template instance for ambiguous cases
    * ```tsp
    * model Foo<T = string> {}
    * ```
