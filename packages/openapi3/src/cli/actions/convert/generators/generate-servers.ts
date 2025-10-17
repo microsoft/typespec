@@ -1,11 +1,12 @@
 import { TypeSpecServer, TypeSpecServerVariable } from "../interfaces.js";
+import { generateDocs } from "../utils/docs.js";
 import { stringLiteral } from "./common.js";
 
 function generateServerVariable(variableName: string, variable: TypeSpecServerVariable): string {
   const { default: defaultValue, description, enum: enumValues } = variable;
   const enumString = enumValues ? `${enumValues.map((x) => `"${x}"`).join(" | ")}` : "";
   return `
-    ${description ? `@doc("${description}")` : ""}
+    ${description ? generateDocs(description) + "\n" : ""}
     ${variableName}: ${enumString || "string"}${defaultValue ? ` = "${defaultValue}"` : ""},
   `;
 }
