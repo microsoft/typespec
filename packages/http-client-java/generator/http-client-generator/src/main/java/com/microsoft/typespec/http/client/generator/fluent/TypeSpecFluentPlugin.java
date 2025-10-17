@@ -100,7 +100,7 @@ public class TypeSpecFluentPlugin extends FluentGen {
             SETTINGS_MAP.put("resource-collection-associations", options.getResourceCollectionAssociations());
         }
         if (options.getMetadataSuffix() != null) {
-            SETTINGS_MAP.put("config-suffix", options.getMetadataSuffix());
+            SETTINGS_MAP.put("metadata-suffix", options.getMetadataSuffix());
         }
 
         JavaSettingsAccessor.setHost(this);

@@ -216,7 +216,7 @@ public class FluentJavaSettings {
         loadBooleanSetting("generate-samples",
             s -> generateSamples = (s ? SampleGeneration.AGGREGATED : SampleGeneration.NONE));
 
-        loadStringSetting("config-suffix", s -> metadataSuffix = s);
+        loadStringSetting("metadata-suffix", s -> metadataSuffix = s);
 
         loadBooleanSetting("sdk-integration", b -> sdkIntegration = b);
 
