@@ -3027,11 +3027,15 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       typeof options === "boolean"
         ? { ...defaultSymbolResolutionOptions, resolveDecorators: options }
         : { ...defaultSymbolResolutionOptions, ...(options ?? {}) };
-    if (mapper === undefined && resolvedOptions.checkTemplateTypes && referenceSymCache.has(node)) {
+    if (
+      mapper === undefined &&
+      !resolvedOptions.resolveDeclarationOfTemplate &&
+      referenceSymCache.has(node)
+    ) {
       return referenceSymCache.get(node);
     }
     const sym = resolveTypeReferenceSymInternal(node, mapper, resolvedOptions);
-    if (resolvedOptions.checkTemplateTypes) {
+    if (!resolvedOptions.resolveDeclarationOfTemplate) {
       referenceSymCache.set(node, sym);
     }
     return sym;
@@ -3102,7 +3106,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           return undefined;
         }
         base = aliasedSym;
-      } else if (options.checkTemplateTypes && isTemplatedNode(getSymNode(base))) {
+      } else if (!options.resolveDeclarationOfTemplate && isTemplatedNode(getSymNode(base))) {
         const aliasedSym = getContainerTemplateSymbol(base, node.base, mapper);
         if (!aliasedSym) {
           reportCheckerDiagnostic(
@@ -5155,7 +5159,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    */
   function checkAugmentDecorator(node: AugmentDecoratorStatementNode) {
     // This will validate the target type is pointing to a valid ref.
-    resolveTypeReferenceSym(node.targetType, undefined, { checkTemplateTypes: false });
+    resolveTypeReferenceSym(node.targetType, undefined, { resolveDeclarationOfTemplate: false });
     const links = resolver.getNodeLinks(node.targetType);
     if (links.isTemplateInstantiation) {
       program.reportDiagnostic(
@@ -6748,15 +6752,21 @@ interface SymbolResolutionOptions {
   resolveDecorators: boolean;
 
   /**
-   * Should the symbol resolution instantiate templates and do a late bind of symbols.
-   * @default true
+   * When resolving a symbol should it resolve to the declaration or template instance for ambigous cases
+   * ```tsp
+   * model Foo<T = string> {}
+   * ```
+   *
+   * Does `Foo` reference to the `Foo<T>` or `Foo<string>` instance. By default it is the instance. Only case looking for declaration are augment decorator target
+   *
+   * @default false
    */
-  checkTemplateTypes: boolean;
+  resolveDeclarationOfTemplate: boolean;
 }
 
 const defaultSymbolResolutionOptions: SymbolResolutionOptions = {
   resolveDecorators: false,
-  checkTemplateTypes: true,
+  resolveDeclarationOfTemplate: false,
 };
 
 function printTypeReferenceNode(
