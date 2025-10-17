@@ -78,6 +78,7 @@
       "namespace": "SampleTypeSpec",
       "isFixed": false,
       "isFlags": false,
+      "usage": "None",
       "decorators": []
     },
     {
@@ -5466,6 +5467,7 @@
                 "namespace": "SampleTypeSpec",
                 "isFixed": false,
                 "isFlags": false,
+                "usage": "None",
                 "decorators": []
               },
               "location": "Body",
@@ -5536,6 +5538,7 @@
                 "namespace": "SampleTypeSpec",
                 "isFixed": false,
                 "isFlags": false,
+                "usage": "None",
                 "decorators": []
               },
               "location": "Body",
@@ -5588,6 +5591,7 @@
                 "namespace": "SampleTypeSpec",
                 "isFixed": false,
                 "isFlags": false,
+                "usage": "None",
                 "decorators": []
               },
               "location": "Body",
