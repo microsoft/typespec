@@ -3107,24 +3107,11 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         }
         base = aliasedSym;
       } else if (!options.resolveDeclarationOfTemplate && isTemplatedNode(getSymNode(base))) {
-        const aliasedSym = getContainerTemplateSymbol(base, node.base, mapper);
-        if (!aliasedSym) {
-          reportCheckerDiagnostic(
-            createDiagnostic({
-              code: "invalid-ref",
-              messageId: "node",
-              format: {
-                id: node.id.sv,
-                nodeName: base.declarations[0]
-                  ? SyntaxKind[base.declarations[0].kind]
-                  : "Unknown node",
-              },
-              target: node,
-            }),
-          );
+        const baseSym = getContainerTemplateSymbol(base, node.base, mapper);
+        if (!baseSym) {
           return undefined;
         }
-        base = aliasedSym;
+        base = baseSym;
       }
       return resolveMemberInContainer(base, node, options);
     }
@@ -5646,6 +5633,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   ): Map<string, Operation> {
     const ownMembers = new Map<string, Operation>();
 
+    // Preregister each operation sym links instantiation to make sure there is no race condition when instantiating templated interface
+    for (const opNode of node.operations) {
+      const symbol = getSymbolForMember(opNode);
+      const links = symbol && getSymbolLinks(symbol);
+      if (links) {
+        links.instantiations = new TypeInstantiationMap();
+      }
+    }
     for (const opNode of node.operations) {
       const opType = checkOperation(opNode, mapper, interfaceType);
       if (ownMembers.has(opType.name)) {
