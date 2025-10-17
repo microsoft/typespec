@@ -344,6 +344,16 @@
       "commandLineArgs": "$(SolutionDir)/TestProjects/Local/Sample-TypeSpec -g ScmCodeModelGenerator",
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
+    },
+    "Azure.Security.KeyVault.Administration": {
+      "executablePath": "dotnet",
+      "commandName": "Executable",
+      "commandLineArgs": "\"C:\\Users\\jolov\\repos\\azure-sdk-for-net\\sdk\\keyvault\\Azure.Security.KeyVault.Administration/TempTypeSpecFiles/node_modules/@azure-typespec/http-client-csharp/dist/generator/Microsoft.TypeSpec.Generator.dll\" \"C:\\Users\\jolov\\repos\\azure-sdk-for-net\\sdk\\keyvault\\Azure.Security.KeyVault.Administration\" -g AzureClientGenerator"
+    },
+    "Azure.AI.ContentUnderstanding": {
+      "executablePath": "dotnet",
+      "commandName": "Executable",
+      "commandLineArgs": "\"C:\\Users\\jolov\\repos\\azure-sdk-for-net\\sdk\\contentunderstanding\\Azure.AI.ContentUnderstanding/TempTypeSpecFiles/node_modules/@azure-typespec/http-client-csharp/dist/generator/Microsoft.TypeSpec.Generator.dll\" \"C:\\Users\\jolov\\repos\\azure-sdk-for-net\\sdk\\contentunderstanding\\Azure.AI.ContentUnderstanding\" -g AzureClientGenerator"
     }
   }
 }
