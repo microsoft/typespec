@@ -185,6 +185,7 @@ To debug an Azure SDK project:
 ```
 
 This will:
+
 1. Install tsp-client if needed
 2. Run tsp-client sync and generate commands
 3. Copy local generator DLLs to the SDK's node_modules
@@ -199,6 +200,7 @@ To debug the OpenAI plugin:
 ```
 
 This will:
+
 1. Install dependencies in the OpenAI repository
 2. Build the codegen package
 3. Copy local generator DLLs to the OpenAI codegen dist directory
