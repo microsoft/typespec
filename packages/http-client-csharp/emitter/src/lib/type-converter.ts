@@ -294,7 +294,9 @@ function createEnumType(
         ? (fromSdkType(sdkContext, sdkType.valueType) as InputPrimitiveType)
         : fromSdkBuiltInType(sdkContext, sdkType.valueType),
     values: values,
-    access: getAccessOverride(sdkContext, sdkType.__raw as any),
+    // TODO - constants do not have access right now. TCGC will add it later
+    access:
+      sdkType.kind === "enum" ? getAccessOverride(sdkContext, sdkType.__raw as any) : undefined,
     namespace: namespace,
     deprecation: sdkType.deprecation,
     summary: sdkType.summary,
@@ -309,7 +311,7 @@ function createEnumType(
 
   if (sdkType.kind === "enum") {
     for (const v of sdkType.values) {
-      values.push(fromSdkType(sdkContext, v));
+      values.push(createEnumValueType(sdkContext, v, inputEnumType));
     }
   } else {
     values.push(createEnumValueType(sdkContext, sdkType, inputEnumType));

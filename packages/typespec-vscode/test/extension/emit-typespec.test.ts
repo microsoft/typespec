@@ -11,7 +11,7 @@ import {
   tryInstallAndHandle,
 } from "./common/common-steps";
 import { emiChooseEmitter, emitSelectLanguage, emitSelectType } from "./common/emit-steps";
-import { CaseScreenshot, tempDir, test } from "./common/utils";
+import { CaseScreenshot, test, testfilesDir } from "./common/utils";
 
 let shouldSkip = false;
 
@@ -32,7 +32,7 @@ type EmitConfigType = {
   expectedResults: string[];
 };
 
-const EmitTypespecProjectFolderPath = path.resolve(tempDir, "EmitTypespecProject");
+const EmitTypespecProjectFolderPath = path.resolve(testfilesDir, "EmitTypespecProject");
 
 const EmitCasesConfigList: EmitConfigType[] = [
   {

@@ -24,9 +24,7 @@ model Pet {
   name: string;
   weight?: float32;
 
-  /**
-   * Discriminator property for Pet.
-   */
+  /** Discriminator property for Pet. */
   kind?: string;
 }
 

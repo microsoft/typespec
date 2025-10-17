@@ -4,7 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { afterAll, beforeEach, describe } from "vitest";
 import { startWithCommandPalette, tryInstallAndHandle } from "./common/common-steps";
-import { CaseScreenshot, retry, tempDir, test } from "./common/utils";
+import { CaseScreenshot, retry, test, testfilesDir } from "./common/utils";
 
 let shouldSkip = false;
 
@@ -21,7 +21,7 @@ type PreviewConfigType = {
   triggerType: PreviewProjectTriggerType;
 };
 
-const PreviewTypespecProjectFolderPath = path.resolve(tempDir, "PreviewTypespecProject");
+const PreviewTypespecProjectFolderPath = path.resolve(testfilesDir, "PreviewTypespecProject");
 
 const PreviewCaseName = `PreviewTypespecProject`;
 const PreviewCasesConfigList: PreviewConfigType[] = [];

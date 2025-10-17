@@ -9,7 +9,7 @@ import {
   tryInstallAndHandle,
 } from "./common/common-steps";
 import { mockShowOpenDialog } from "./common/mock-dialogs";
-import { CaseScreenshot, tempDir, test } from "./common/utils";
+import { CaseScreenshot, test, testfilesDir } from "./common/utils";
 
 let shouldSkip = false;
 
@@ -29,9 +29,9 @@ type ImportConfigType = {
   expectedResults: string[];
 };
 
-const ImportTypespecProjectFolderPath = path.resolve(tempDir, "ImportTypespecProjectOpenApi3");
+const ImportTypespecProjectFolderPath = path.resolve(testfilesDir, "ImportTypespecProjectOpenApi3");
 const ImportTypespecProjectEmptyFolderPath = path.resolve(
-  tempDir,
+  testfilesDir,
   "ImportTypespecProjectOpenApi3/ImportTypespecProjectEmptyFolder",
 );
 

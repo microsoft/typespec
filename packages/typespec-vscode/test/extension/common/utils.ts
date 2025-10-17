@@ -9,6 +9,7 @@ export const PNPM_NO_MATCHING_VERSION_ERROR =
 const __dirname = import.meta.dirname;
 export const projectRoot = path.resolve(__dirname, "../../../");
 export const tempDir = path.resolve(projectRoot, "./temp");
+export const testfilesDir = path.resolve(projectRoot, "./test/scenarios");
 export const imagesPath = path.resolve(tempDir, "./images-linux");
 
 interface Context {

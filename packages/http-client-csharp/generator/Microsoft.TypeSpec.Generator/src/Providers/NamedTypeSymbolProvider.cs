@@ -169,6 +169,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                 // Get the semantic model to evaluate constant values
                 var semanticModel = _compilation.GetSemanticModel(propertySyntax.SyntaxTree);
+                // Check if this is an enum member access
+                var symbolInfo = semanticModel.GetSymbolInfo(initializerValue);
+                if (symbolInfo.Symbol is IFieldSymbol fieldSymbol
+                    && fieldSymbol.ContainingType?.TypeKind == TypeKind.Enum)
+                {
+                    var enumType = fieldSymbol.ContainingType.GetCSharpType();
+                    return new MemberExpression(TypeReferenceExpression.FromType(enumType), fieldSymbol.Name);
+                }
+
                 var constantValue = semanticModel.GetConstantValue(initializerValue);
 
                 if (constantValue.HasValue)
