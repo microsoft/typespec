@@ -3263,8 +3263,23 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     node: MemberExpressionNode | IdentifierNode,
     mapper: TypeMapper | undefined,
   ): Sym | undefined {
-    // Otherwise for templates we need to get the type and retrieve the late bound symbol.
+    if (pendingResolutions.has(sym, ResolutionKind.Type)) {
+      if (mapper === undefined) {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "circular-alias-type",
+            format: { typeName: sym.name },
+            target: node,
+          }),
+        );
+      }
+      return undefined;
+    }
+
+    pendingResolutions.start(sym, ResolutionKind.Type);
     const type = checkTypeReferenceSymbol(sym, node, mapper);
+    pendingResolutions.finish(sym, ResolutionKind.Type);
+
     return lateBindContainer(type, sym);
   }
 

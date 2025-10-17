@@ -266,6 +266,24 @@ describe("compiler: interfaces", () => {
     });
   });
 
+  it("report error if trying to reference another property in the same template", async () => {
+    const [{ pos }, diagnostics] = await Tester.compileAndDiagnose(`
+      interface Foo<T> {
+        bar(): T;
+        baz(): /*Foo*/Foo.bar;
+      }
+    `);
+
+    expectDiagnostics(diagnostics, [
+      {
+        code: "invalid-template-args",
+        message: "Template argument 'T' is required and not specified.",
+        pos: pos.Foo.pos,
+      },
+      { code: "invalid-ref" },
+    ]);
+  });
+
   describe("templated operations", () => {
     it("can instantiate template operation inside non-templated interface", async () => {
       const { Foo, bar } = (await runner.compile(`
