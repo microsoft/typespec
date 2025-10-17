@@ -2,7 +2,8 @@
 {# Check if this is a sphinx documentation line that should not have extra prefix spacing #}
 {%- set is_sphinx_doc = doc_string.strip().startswith(':ivar') or doc_string.strip().startswith(':vartype') or doc_string.strip().startswith(':param') or doc_string.strip().startswith(':type') -%}
 {# Custom handling for bullet points - normalization is now done in preprocessing #}
-{%- if '* ' in doc_string -%}
+{% set enable_custom_handling = "* " in doc_string %}
+{%- if enable_custom_handling -%}
     {%- set lines = doc_string.split('\n') -%}
     {%- set result_lines = [] -%}
     {%- for line in lines -%}
@@ -28,7 +29,7 @@
 {%- endif -%}
 {% set list_result = original_result.split('\n') %}
 {% for line in list_result %}
-    {%- if is_sphinx_doc -%}
+    {%- if is_sphinx_doc and enable_custom_handling -%}
         {%- set prefix = "" -%}
     {%- else -%}
         {%- set prefix = "" if loop.index == 1 else " " -%}
