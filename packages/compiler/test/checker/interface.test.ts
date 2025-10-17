@@ -10,6 +10,7 @@ import {
   createTestRunner,
   expectDiagnostics,
 } from "../../src/testing/index.js";
+import { Tester } from "../tester.js";
 
 describe("compiler: interfaces", () => {
   let testHost: TestHost;
@@ -247,6 +248,21 @@ describe("compiler: interfaces", () => {
     expectDiagnostics(diagnostics, {
       code: "extends-interface",
       message: "Interfaces can only extend other interfaces",
+    });
+  });
+
+  it("report error if trying to instantiate a templated interface without providing type arguments", async () => {
+    const [{ pos }, diagnostics] = await Tester.compileAndDiagnose(`
+      interface Foo<T> {
+        bar(): T;
+      }
+      op test is /*Foo*/Foo.bar;
+    `);
+
+    expectDiagnostics(diagnostics, {
+      code: "invalid-template-args",
+      message: "Template argument 'T' is required and not specified.",
+      pos: pos.Foo.pos,
     });
   });
 

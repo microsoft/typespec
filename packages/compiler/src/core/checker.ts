@@ -3102,6 +3102,25 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           return undefined;
         }
         base = aliasedSym;
+      } else if (options.checkTemplateTypes && isTemplatedNode(getSymNode(base))) {
+        const aliasedSym = getContainerTemplateSymbol(base, node.base, mapper);
+        if (!aliasedSym) {
+          reportCheckerDiagnostic(
+            createDiagnostic({
+              code: "invalid-ref",
+              messageId: "node",
+              format: {
+                id: node.id.sv,
+                nodeName: base.declarations[0]
+                  ? SyntaxKind[base.declarations[0].kind]
+                  : "Unknown node",
+              },
+              target: node,
+            }),
+          );
+          return undefined;
+        }
+        base = aliasedSym;
       }
       return resolveMemberInContainer(base, node, options);
     }
@@ -3226,23 +3245,43 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     // Otherwise for templates we need to get the type and retrieve the late bound symbol.
     const aliasType = getTypeForNode(node as AliasStatementNode, mapper);
-    if (isErrorType(aliasType)) {
+    return lateBindContainer(aliasType, aliasSymbol);
+  }
+
+  /** Check case where a template type member is referenced like
+   * ```
+   * model Foo<T> {t: T}
+   * model Test { t: Foo.t } // check `Foo` is correctly used as template
+   * ```
+   */
+  function getContainerTemplateSymbol(
+    sym: Sym,
+    node: MemberExpressionNode | IdentifierNode,
+    mapper: TypeMapper | undefined,
+  ): Sym | undefined {
+    // Otherwise for templates we need to get the type and retrieve the late bound symbol.
+    const type = checkTypeReferenceSymbol(sym, node, mapper);
+    return lateBindContainer(type, sym);
+  }
+
+  function lateBindContainer(type: Type, sym: Sym) {
+    if (isErrorType(type)) {
       return undefined;
     }
-    switch (aliasType.kind) {
+    switch (type.kind) {
       case "Model":
       case "Interface":
       case "Union":
-        if (isTemplateInstance(aliasType)) {
+        if (isTemplateInstance(type)) {
           // this is an alias for some instantiation, so late-bind the instantiation
-          lateBindMemberContainer(aliasType);
-          return aliasType.symbol!;
+          lateBindMemberContainer(type);
+          return type.symbol!;
         }
       // fallthrough
       default:
         // get the symbol from the node aliased type's node, or just return the base
         // if it doesn't have a symbol (which will likely result in an error later on)
-        return getMergedSymbol(aliasType.node!.symbol) ?? aliasSymbol;
+        return getMergedSymbol(type.node!.symbol) ?? sym;
     }
   }
 
@@ -5116,7 +5155,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    */
   function checkAugmentDecorator(node: AugmentDecoratorStatementNode) {
     // This will validate the target type is pointing to a valid ref.
-    resolveTypeReferenceSym(node.targetType, undefined);
+    resolveTypeReferenceSym(node.targetType, undefined, { checkTemplateTypes: false });
     const links = resolver.getNodeLinks(node.targetType);
     if (links.isTemplateInstantiation) {
       program.reportDiagnostic(
