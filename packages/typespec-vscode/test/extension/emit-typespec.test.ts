@@ -21,7 +21,7 @@ beforeAll(async () => {
 
   const packages = await packPackages();
   // Install those packages locally
-  await packagesInstall(packages);
+  await packagesInstall(packages, "Emit");
 }, 300000);
 
 enum EmitProjectTriggerType {

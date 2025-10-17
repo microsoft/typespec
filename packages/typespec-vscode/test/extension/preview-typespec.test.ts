@@ -1,9 +1,8 @@
-import { execSync } from "child_process";
 import { rm } from "fs/promises";
 import fs from "node:fs";
 import path from "node:path";
-import { afterAll, beforeAll, beforeEach, describe } from "vitest";
-import { startWithCommandPalette, tryInstallAndHandle } from "./common/common-steps";
+import { beforeAll, beforeEach, describe } from "vitest";
+import { packagesInstall, packPackages, startWithCommandPalette } from "./common/common-steps";
 import { CaseScreenshot, retry, tempDir, test, testfilesDir } from "./common/utils";
 
 // Test files are copied into the temporary directory before tests run
@@ -11,12 +10,11 @@ beforeAll(async () => {
   const src = path.resolve(testfilesDir, "PreviewTypespecProject");
   const dest = path.resolve(tempDir, "PreviewTypespecProject");
   fs.cpSync(src, dest, { recursive: true });
+
+  const packages = await packPackages();
+  // Install those packages locally
+  await packagesInstall(packages, "Preview");
 }, 300000);
-
-let shouldSkip = false;
-
-shouldSkip = tryInstallAndHandle("@typespec/http") || shouldSkip;
-shouldSkip = tryInstallAndHandle("@typespec/openapi3") || shouldSkip;
 
 export enum PreviewProjectTriggerType {
   Command = "CommandPalette",
@@ -45,9 +43,6 @@ beforeEach(() => {
     for (const file of fs.readdirSync(previewTypespec)) {
       if (file === "main.tsp") {
         hasMainTsp = true;
-      } else {
-        const filePath = path.resolve(previewTypespec, file);
-        fs.rmSync(filePath, { recursive: true, force: true });
       }
     }
     if (!hasMainTsp) {
@@ -58,26 +53,7 @@ beforeEach(() => {
   }
 });
 
-afterAll(() => {
-  try {
-    execSync("pnpm uninstall @typespec/http", { stdio: "pipe" });
-  } catch (e) {
-    process.exit(1);
-  }
-  try {
-    execSync("pnpm uninstall @typespec/openapi3", { stdio: "pipe" });
-  } catch (e) {
-    process.exit(1);
-  }
-  try {
-    execSync("git restore ./../../pnpm-lock.yaml", { stdio: "pipe" });
-  } catch (e) {
-    process.exit(1);
-  }
-});
-
-const describeFn = shouldSkip ? describe.skip : describe;
-describeFn.each(PreviewCasesConfigList)("PreviewAPIDocument", async (item) => {
+describe.each(PreviewCasesConfigList)("PreviewAPIDocument", async (item) => {
   const { caseName } = item;
   test(caseName, async ({ launch }) => {
     const cs = new CaseScreenshot(caseName);

@@ -1,18 +1,10 @@
-import { execSync } from "child_process";
 import { readdirSync } from "fs";
 import { rm } from "fs/promises";
 import fs, { rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { Locator, Page } from "playwright";
 import { RunOptions, runOrExit } from "../../../../internal-build-utils/dist/src/index.js";
-import {
-  CaseScreenshot,
-  npxCmd,
-  PNPM_NO_MATCHING_VERSION_ERROR,
-  repoRoot,
-  retry,
-  tempDir,
-} from "./utils";
+import { CaseScreenshot, npxCmd, repoRoot, retry, tempDir } from "./utils";
 
 /**
  * Waits for the specified text to appear on the page before proceeding.
@@ -148,32 +140,11 @@ export function restoreTspConfigFile(folderName: string, lines: string) {
 }
 
 /**
- * Attempt to install the specified npm package and handle the error of pnpm version mismatch.
- * @param pkg package name
- * @returns Return true to skip testing, otherwise return false.
- */
-export function tryInstallAndHandle(pkg: string): boolean {
-  try {
-    execSync(`pnpm install ${pkg}`, { stdio: "pipe" });
-    return false;
-  } catch (e: any) {
-    const errorOutput = (e.stdout && e.stdout.toString()) || "";
-    if (PNPM_NO_MATCHING_VERSION_ERROR.test(errorOutput)) {
-      const filteredLines = errorOutput
-        .split("\n")
-        .filter((line: any) => !line.trim().startsWith("../.."));
-      process.stderr.write(["SKIP_REASON:", ...filteredLines].join("\n") + "\n");
-    }
-    return true;
-  }
-}
-
-/**
  * Pack those packages in the repoRoot needed for testing and prepare to be linked
  * @returns packages path map
  */
 export async function packPackages() {
-  await runOrExit("pnpm", ["-w", "pack:all"], { cwd: repoRoot });
+  await runOrExit("pnpm", ["-w", "pack:all"], { cwd: repoRoot, stdio: "ignore" });
   const outputFolder = path.join(repoRoot, "/temp/artifacts");
   const files = readdirSync(outputFolder);
 
@@ -197,11 +168,19 @@ export async function packPackages() {
  * Install those packages needed for testing in the EmitTypespecProject folder
  * @param packages packages path map
  */
-export async function packagesInstall(packages: { [x: string]: string }) {
-  const testCurrentDir = path.join(tempDir, "EmitTypespecProject");
-  const outputDir = path.join(testCurrentDir, "tsp-output");
-  rmSync(outputDir, { recursive: true, force: true });
-
+export async function packagesInstall(packages: { [x: string]: string }, testType: string) {
+  let testCurrentDir: string;
+  if (testType === "Emit") {
+    testCurrentDir = path.join(tempDir, "EmitTypespecProject");
+    const outputDir = path.join(testCurrentDir, "tsp-output");
+    rmSync(outputDir, { recursive: true, force: true });
+  } else if (testType === "Import") {
+    testCurrentDir = path.join(tempDir, "ImportTypespecProjectOpenApi3");
+  } else if (testType === "Preview") {
+    testCurrentDir = path.join(tempDir, "PreviewTypespecProject");
+  } else {
+    throw new Error(`Unknown testType: ${testType}`);
+  }
   const packageJson = {
     name: "@typespec/e2e-test-typespec-vscode",
     dependencies: {
