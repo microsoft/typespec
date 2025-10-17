@@ -18,7 +18,6 @@ import {
   SdkUnionType,
   UsageFlags,
   getAccessOverride,
-  getUsage,
   isHttpMetadata,
 } from "@azure-tools/typespec-client-generator-core";
 import { Model, NoTarget } from "@typespec/compiler";
@@ -294,7 +293,7 @@ function createEnumType(
         ? (fromSdkType(sdkContext, sdkType.valueType) as InputPrimitiveType)
         : fromSdkBuiltInType(sdkContext, sdkType.valueType),
     values: values,
-    // TODO - constants do not have access right now. TCGC will add it later
+    // constantType.access, TODO - constant type now does not have access. TCGC will add it later
     access:
       sdkType.kind === "enum" ? getAccessOverride(sdkContext, sdkType.__raw as any) : undefined,
     namespace: namespace,
@@ -303,7 +302,8 @@ function createEnumType(
     doc: sdkType.doc,
     isFixed: sdkType.kind === "enum" ? sdkType.isFixed : false,
     isFlags: sdkType.kind === "enum" ? sdkType.isFlags : false,
-    usage: getUsage(sdkContext, sdkType.__raw as any),
+    // constantType.usage, TODO - constant type now does not have usage. TCGC will add it later
+    usage: sdkType.kind === "enum" ? sdkType.usage : UsageFlags.None,
     decorators: sdkType.decorators,
   };
 

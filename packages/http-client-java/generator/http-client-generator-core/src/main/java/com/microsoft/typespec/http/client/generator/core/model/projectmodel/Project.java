@@ -60,13 +60,13 @@ public class Project {
         // azure
         AZURE_CLIENT_SDK_PARENT("com.azure", "azure-client-sdk-parent", "1.7.0"),
         AZURE_CLIENT_SDK_PARENT_V2("com.azure.v2", "azure-client-sdk-parent", "2.0.0-beta.1"),
-        AZURE_CORE("com.azure", "azure-core", "1.56.0"),
+        AZURE_CORE("com.azure", "azure-core", "1.57.0"),
         AZURE_CORE_V2("com.azure.v2", "azure-core", "2.0.0-beta.1"),
-        AZURE_CORE_MANAGEMENT("com.azure", "azure-core-management", "1.19.0"),
-        AZURE_CORE_HTTP_NETTY("com.azure", "azure-core-http-netty", "1.16.0"),
-        AZURE_CORE_TEST("com.azure", "azure-core-test", "1.27.0-beta.11"),
-        AZURE_IDENTITY("com.azure", "azure-identity", "1.17.0"),
-        AZURE_CORE_EXPERIMENTAL("com.azure", "azure-core-experimental", "1.0.0-beta.63"),
+        AZURE_CORE_MANAGEMENT("com.azure", "azure-core-management", "1.19.2"),
+        AZURE_CORE_HTTP_NETTY("com.azure", "azure-core-http-netty", "1.16.2"),
+        AZURE_CORE_TEST("com.azure", "azure-core-test", "1.27.0-beta.13"),
+        AZURE_IDENTITY("com.azure", "azure-identity", "1.18.1"),
+        AZURE_CORE_EXPERIMENTAL("com.azure", "azure-core-experimental", "1.0.0-beta.65"),
 
         CLIENTCORE("io.clientcore", "core", "1.0.0-beta.11");
 
