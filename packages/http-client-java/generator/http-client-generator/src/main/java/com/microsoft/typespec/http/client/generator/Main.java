@@ -120,11 +120,12 @@ public class Main {
         deleteGeneratedJavaFiles(emitterOptions.getOutputDir(), javaPackage.getJavaFiles(), JavaSettings.getInstance());
 
         // write java files
-        Postprocessor.writeToFiles(
-            javaPackage.getJavaFiles()
-                .stream()
-                .collect(Collectors.toMap(JavaFile::getFilePath, file -> file.getContents().toString())),
-            fluentPlugin, fluentPlugin.getLogger());
+
+        // handle customization
+        // write output java files
+        new Postprocessor(fluentPlugin).postProcess(javaPackage.getJavaFiles()
+            .stream()
+            .collect(Collectors.toMap(JavaFile::getFilePath, file -> file.getContents().toString())));
 
         // XML include POM
         javaPackage.getXmlFiles()

@@ -26,6 +26,7 @@ import com.microsoft.typespec.http.client.generator.model.EmitterOptions;
 import com.microsoft.typespec.http.client.generator.util.FileUtil;
 import com.microsoft.typespec.http.client.generator.util.MetadataUtil;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -98,6 +99,11 @@ public class TypeSpecFluentPlugin extends FluentGen {
         }
         if (options.getResourceCollectionAssociations() != null) {
             SETTINGS_MAP.put("resource-collection-associations", options.getResourceCollectionAssociations());
+        }
+
+        if (options.getCustomizationClass() != null) {
+            SETTINGS_MAP.put("customization-class",
+                Paths.get(options.getOutputDir()).resolve(options.getCustomizationClass()).toAbsolutePath().toString());
         }
 
         JavaSettingsAccessor.setHost(this);
