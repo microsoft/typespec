@@ -78,7 +78,7 @@ public class FluentJavaSettings {
 
     private SampleGeneration generateSamples = SampleGeneration.NONE;
 
-    private String graalVmConfigSuffix = null;
+    private String metadataSuffix = null;
 
     private boolean sdkIntegration = false;
 
@@ -165,8 +165,8 @@ public class FluentJavaSettings {
         return generateSamples != SampleGeneration.NONE;
     }
 
-    public Optional<String> getGraalVmConfigSuffix() {
-        return Optional.ofNullable(graalVmConfigSuffix);
+    public Optional<String> getMetadataSuffix() {
+        return Optional.ofNullable(metadataSuffix);
     }
 
     public boolean isSdkIntegration() {
@@ -216,7 +216,7 @@ public class FluentJavaSettings {
         loadBooleanSetting("generate-samples",
             s -> generateSamples = (s ? SampleGeneration.AGGREGATED : SampleGeneration.NONE));
 
-        loadStringSetting("graalvm-config-suffix", s -> graalVmConfigSuffix = s);
+        loadStringSetting("config-suffix", s -> metadataSuffix = s);
 
         loadBooleanSetting("sdk-integration", b -> sdkIntegration = b);
 

@@ -255,8 +255,8 @@ public class FluentGen extends Javagen {
         // GraalVM config
         if (javaSettings.isGenerateGraalVmConfig()) {
             String artifactId = FluentUtils.getArtifactId();
-            if (fluentJavaSettings.getGraalVmConfigSuffix().isPresent()) {
-                artifactId = artifactId + "_" + fluentJavaSettings.getGraalVmConfigSuffix().get();
+            if (fluentJavaSettings.getMetadataSuffix().isPresent()) {
+                artifactId = artifactId + "_" + fluentJavaSettings.getMetadataSuffix().get();
             }
             javaPackage.addGraalVmConfig("com.azure.resourcemanager", artifactId, client.getGraalVmConfig());
         }

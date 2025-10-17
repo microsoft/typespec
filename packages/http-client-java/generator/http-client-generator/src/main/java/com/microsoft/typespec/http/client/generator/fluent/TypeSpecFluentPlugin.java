@@ -99,6 +99,9 @@ public class TypeSpecFluentPlugin extends FluentGen {
         if (options.getResourceCollectionAssociations() != null) {
             SETTINGS_MAP.put("resource-collection-associations", options.getResourceCollectionAssociations());
         }
+        if (options.getMetadataSuffix() != null) {
+            SETTINGS_MAP.put("config-suffix", options.getMetadataSuffix());
+        }
 
         JavaSettingsAccessor.setHost(this);
         LOGGER.info("Output folder: {}", options.getOutputDir());
@@ -128,7 +131,7 @@ public class TypeSpecFluentPlugin extends FluentGen {
             TypeSpecMetadata metadata = new TypeSpecMetadata(FluentUtils.getArtifactId(), emitterOptions.getFlavor(),
                 apiVersion, collectCrossLanguageDefinitions(client),
                 FileUtil.filterForJavaSourceFiles(javaPackage.getJavaFiles().stream().map(JavaFile::getFilePath)));
-            javaPackage.addTypeSpecMetadata(metadata);
+            javaPackage.addTypeSpecMetadata(metadata, getFluentJavaSettings().getMetadataSuffix().orElse(null));
         }
 
         return javaPackage;
