@@ -311,6 +311,7 @@ ignorePaths:
   - packages/http-client-java/generator/http-client-generator-clientcore-test/**
   - packages/http-client-js/test/e2e/**
   - packages/http-client-js/sample/**
+  - packages/typespec-vscode/test/scenarios/**
   - pnpm-lock.yaml
   - "**/*.mp4"
   - "**/*.plist"
