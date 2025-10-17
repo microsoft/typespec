@@ -16,18 +16,10 @@
     - First checking tsp-location.yaml for the configured emitter package
     - Falling back to auto-detection based on SDK path if tsp-location.yaml is not found
       (e.g., paths containing "ResourceManager" use ManagementClientGenerator)
-    
-    For OpenAI plugin debugging:
-    - Use -IsOpenAIPlugin switch
-    - The script will build the OpenAI codegen package
-    - Copy MTG DLLs to the OpenAI codegen dist directory
-    - Create a debug profile with OpenAILibraryGenerator
+    - Detecting OpenAI plugin by checking if the path contains "openai-dotnet"
 
 .PARAMETER SdkDirectory
     Path to the target SDK service directory (for Azure SDK) or OpenAI repository root (for OpenAI plugin)
-
-.PARAMETER IsOpenAIPlugin
-    Switch to indicate debugging the OpenAI plugin
 
 .EXAMPLE
     .\Add-Debug-Profile.ps1 -SdkDirectory "C:\path\to\azure-sdk-for-net\sdk\storage\Azure.Storage.Blobs"
@@ -36,15 +28,12 @@
     .\Add-Debug-Profile.ps1 -SdkDirectory ".\local-sdk-dir"
 
 .EXAMPLE
-    .\Add-Debug-Profile.ps1 -SdkDirectory "C:\path\to\openai-dotnet" -IsOpenAIPlugin
+    .\Add-Debug-Profile.ps1 -SdkDirectory "C:\path\to\openai-dotnet"
 #>
 
 param(
     [Parameter(Mandatory = $true)]
-    [string]$SdkDirectory,
-    
-    [Parameter(Mandatory = $false)]
-    [switch]$IsOpenAIPlugin
+    [string]$SdkDirectory
 )
 
 Import-Module "$PSScriptRoot\Generation.psm1" -DisableNameChecking -Force;
@@ -89,6 +78,18 @@ function Test-CommandExists {
     catch {
         return $false
     }
+}
+
+# Check if the SDK directory is an OpenAI plugin repository
+function Test-IsOpenAIPlugin {
+    param([string]$SdkPath)
+    
+    # Check if the path contains "openai-dotnet"
+    if ($SdkPath -match 'openai-dotnet') {
+        return $true
+    }
+    
+    return $false
 }
 
 # Check if tsp-client is installed
@@ -432,9 +433,12 @@ try {
         throw "npm is not installed or not in PATH"
     }
     
-    if ($IsOpenAIPlugin) {
+    # Auto-detect if this is an OpenAI plugin repository
+    $isOpenAI = Test-IsOpenAIPlugin $sdkPath
+    
+    if ($isOpenAI) {
         # OpenAI plugin workflow
-        Write-Host "Setting up debug profile for OpenAI plugin..." -ForegroundColor Cyan
+        Write-Host "Detected OpenAI plugin repository. Setting up debug profile..." -ForegroundColor Cyan
         
         # Build OpenAI codegen
         Build-OpenAICodegen $sdkPath
