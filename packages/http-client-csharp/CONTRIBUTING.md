@@ -8,6 +8,7 @@ Welcome! This guide will help you set up your development environment and contri
 - [Getting Started](#getting-started)
 - [Development Workflow](#development-workflow)
 - [Testing](#testing)
+- [Debugging](#debugging)
 - [Code Generation](#code-generation)
 - [Creating Pull Requests](#creating-pull-requests)
 - [Getting Help](#getting-help)
@@ -168,6 +169,42 @@ Generate test projects to validate the emitter and generator:
 # Generate with stubbed mode disabled
 ./eng/scripts/Generate.ps1 -Stubbed $false
 ```
+
+## Debugging
+
+### Setting Up Debug Profiles
+
+The `Add-Debug-Profile.ps1` script helps you set up debug profiles for debugging TypeSpec code generation in Visual Studio or VS Code.
+
+#### Debugging Azure SDK Projects
+
+To debug an Azure SDK project:
+
+```powershell
+./eng/scripts/Add-Debug-Profile.ps1 -SdkDirectory "C:\path\to\azure-sdk-for-net\sdk\storage\Azure.Storage.Blobs"
+```
+
+This will:
+1. Install tsp-client if needed
+2. Run tsp-client sync and generate commands
+3. Copy local generator DLLs to the SDK's node_modules
+4. Create a debug profile in launchSettings.json
+
+#### Debugging OpenAI Plugin
+
+To debug the OpenAI plugin:
+
+```powershell
+./eng/scripts/Add-Debug-Profile.ps1 -SdkDirectory "C:\path\to\openai-dotnet" -IsOpenAIPlugin
+```
+
+This will:
+1. Install dependencies in the OpenAI repository
+2. Build the codegen package
+3. Copy local generator DLLs to the OpenAI codegen dist directory
+4. Create a debug profile with OpenAILibraryGenerator
+
+After running the script, you can select the newly created debug profile in Visual Studio or VS Code to start debugging with breakpoints.
 
 ## Code Generation
 
