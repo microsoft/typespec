@@ -5159,7 +5159,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    */
   function checkAugmentDecorator(node: AugmentDecoratorStatementNode) {
     // This will validate the target type is pointing to a valid ref.
-    resolveTypeReferenceSym(node.targetType, undefined, { resolveDeclarationOfTemplate: false });
+    resolveTypeReferenceSym(node.targetType, undefined, { resolveDeclarationOfTemplate: true });
     const links = resolver.getNodeLinks(node.targetType);
     if (links.isTemplateInstantiation) {
       program.reportDiagnostic(
