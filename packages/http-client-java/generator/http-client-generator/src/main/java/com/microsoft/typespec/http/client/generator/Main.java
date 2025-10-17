@@ -18,6 +18,7 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaPac
 import com.microsoft.typespec.http.client.generator.core.postprocessor.Postprocessor;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.fluent.TypeSpecFluentPlugin;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentStatic;
 import com.microsoft.typespec.http.client.generator.mgmt.model.javamodel.FluentJavaPackage;
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import com.microsoft.typespec.http.client.generator.model.EmitterOptions;
@@ -118,7 +119,8 @@ public class Main {
         FluentJavaPackage javaPackage = fluentPlugin.processTemplates(codeModel, client);
 
         // delete generated Java files
-        deleteGeneratedJavaFiles(emitterOptions.getOutputDir(), javaPackage.getJavaFiles(), JavaSettings.getInstance());
+        deleteGeneratedJavaFiles(emitterOptions.getOutputDir(), javaPackage.getJavaFiles(), JavaSettings.getInstance(),
+            FluentStatic.getFluentJavaSettings().getMetadataSuffix().orElse(null));
 
         // write java files
 
@@ -162,7 +164,7 @@ public class Main {
         LOGGER.info("Count of text files: {}", javaPackage.getTextFiles().size());
 
         // delete generated Java files
-        deleteGeneratedJavaFiles(outputDir, javaPackage.getJavaFiles(), settings);
+        deleteGeneratedJavaFiles(outputDir, javaPackage.getJavaFiles(), settings, null);
 
         Map<String, String> javaFiles = new ConcurrentHashMap<>();
         javaPackage.getJavaFiles()
@@ -197,12 +199,14 @@ public class Main {
      * @param javaFiles the list of Java files to be generated
      * @param settings the Java settings
      */
-    private static void deleteGeneratedJavaFiles(String outputDir, List<JavaFile> javaFiles, JavaSettings settings) {
+    private static void deleteGeneratedJavaFiles(String outputDir, List<JavaFile> javaFiles, JavaSettings settings,
+        String suffix) {
         Set<String> filesToDelete = new HashSet<>();
 
         // clean up source code, based on metadata
         String metadataFilename = "src/main/resources/META-INF/"
-            + (settings.isFluent() ? FluentUtils.getArtifactId() : ClientModelUtil.getArtifactId()) + "_metadata.json";
+            + (settings.isFluent() ? FluentUtils.getArtifactId() : ClientModelUtil.getArtifactId()) + "_metadata"
+            + (suffix == null ? "" : "_" + suffix) + ".json";
         Path metadataFilePath = Paths.get(outputDir, metadataFilename).toAbsolutePath();
         if (Files.isRegularFile(metadataFilePath) && metadataFilePath.toFile().canRead()) {
             try (BufferedReader reader = Files.newBufferedReader(metadataFilePath, StandardCharsets.UTF_8);
