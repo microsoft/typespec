@@ -2,9 +2,16 @@ import { execSync } from "child_process";
 import { rm } from "fs/promises";
 import fs from "node:fs";
 import path from "node:path";
-import { afterAll, beforeEach, describe } from "vitest";
+import { afterAll, beforeAll, beforeEach, describe } from "vitest";
 import { startWithCommandPalette, tryInstallAndHandle } from "./common/common-steps";
-import { CaseScreenshot, retry, test, testfilesDir } from "./common/utils";
+import { CaseScreenshot, retry, tempDir, test, testfilesDir } from "./common/utils";
+
+// Test files are copied into the temporary directory before tests run
+beforeAll(async () => {
+  const src = path.resolve(testfilesDir, "PreviewTypespecProject");
+  const dest = path.resolve(tempDir, "PreviewTypespecProject");
+  fs.cpSync(src, dest, { recursive: true });
+}, 300000);
 
 let shouldSkip = false;
 
@@ -21,7 +28,7 @@ type PreviewConfigType = {
   triggerType: PreviewProjectTriggerType;
 };
 
-const PreviewTypespecProjectFolderPath = path.resolve(testfilesDir, "PreviewTypespecProject");
+const PreviewTypespecProjectFolderPath = path.resolve(tempDir, "PreviewTypespecProject");
 
 const PreviewCaseName = `PreviewTypespecProject`;
 const PreviewCasesConfigList: PreviewConfigType[] = [];

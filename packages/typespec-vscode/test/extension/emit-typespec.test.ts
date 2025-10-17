@@ -1,22 +1,28 @@
-import { execSync } from "child_process";
 import fs from "node:fs";
 import path from "node:path";
-import { afterAll, beforeEach, describe } from "vitest";
+import { beforeAll, beforeEach, describe } from "vitest";
 import {
   contrastResult,
+  packagesInstall,
+  packPackages,
   preContrastResult,
   readTspConfigFile,
   restoreTspConfigFile,
   startWithCommandPalette,
-  tryInstallAndHandle,
 } from "./common/common-steps";
 import { emiChooseEmitter, emitSelectLanguage, emitSelectType } from "./common/emit-steps";
-import { CaseScreenshot, test, testfilesDir } from "./common/utils";
+import { CaseScreenshot, tempDir, test, testfilesDir } from "./common/utils";
 
-let shouldSkip = false;
+// Test files are copied into the temporary directory before tests run
+beforeAll(async () => {
+  const src = path.resolve(testfilesDir, "EmitTypespecProject");
+  const dest = path.resolve(tempDir, "EmitTypespecProject");
+  fs.cpSync(src, dest, { recursive: true });
 
-shouldSkip = tryInstallAndHandle("@typespec/http") || shouldSkip;
-shouldSkip = tryInstallAndHandle("@typespec/http-client-js") || shouldSkip;
+  const packages = await packPackages();
+  // Install those packages locally
+  await packagesInstall(packages);
+}, 300000);
 
 enum EmitProjectTriggerType {
   Command = "Command",
@@ -32,7 +38,7 @@ type EmitConfigType = {
   expectedResults: string[];
 };
 
-const EmitTypespecProjectFolderPath = path.resolve(testfilesDir, "EmitTypespecProject");
+const EmitTypespecProjectFolderPath = path.resolve(tempDir, "EmitTypespecProject");
 
 const EmitCasesConfigList: EmitConfigType[] = [
   {
@@ -63,26 +69,7 @@ beforeEach(() => {
   }
 });
 
-afterAll(() => {
-  try {
-    execSync("pnpm uninstall @typespec/http", { stdio: "pipe" });
-  } catch (e) {
-    process.exit(1);
-  }
-  try {
-    execSync("pnpm uninstall @typespec/http-client-js", { stdio: "pipe" });
-  } catch (e) {
-    process.exit(1);
-  }
-  try {
-    execSync("git restore ./../../pnpm-lock.yaml", { stdio: "pipe" });
-  } catch (e) {
-    process.exit(1);
-  }
-});
-
-const describeFn = shouldSkip ? describe.skip : describe;
-describeFn.each(EmitCasesConfigList)("EmitTypespecProject", async (item) => {
+describe.each(EmitCasesConfigList)("EmitTypespecProject", async (item) => {
   const { caseName, selectType, selectTypeLanguage, TspConfigHasEmit, expectedResults } = item;
   test(caseName, async ({ launch }) => {
     const cs = new CaseScreenshot(caseName);

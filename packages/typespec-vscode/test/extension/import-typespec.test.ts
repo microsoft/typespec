@@ -1,7 +1,7 @@
 import { execSync } from "child_process";
 import fs from "node:fs";
 import path from "node:path";
-import { afterAll, beforeEach, describe } from "vitest";
+import { afterAll, beforeAll, beforeEach, describe } from "vitest";
 import {
   contrastResult,
   preContrastResult,
@@ -9,7 +9,14 @@ import {
   tryInstallAndHandle,
 } from "./common/common-steps";
 import { mockShowOpenDialog } from "./common/mock-dialogs";
-import { CaseScreenshot, test, testfilesDir } from "./common/utils";
+import { CaseScreenshot, tempDir, test, testfilesDir } from "./common/utils";
+
+// Test files are copied into the temporary directory before tests run
+beforeAll(async () => {
+  const src = path.resolve(testfilesDir, "ImportTypespecProjectOpenApi3");
+  const dest = path.resolve(tempDir, "ImportTypespecProjectOpenApi3");
+  fs.cpSync(src, dest, { recursive: true });
+}, 300000);
 
 let shouldSkip = false;
 
@@ -29,9 +36,9 @@ type ImportConfigType = {
   expectedResults: string[];
 };
 
-const ImportTypespecProjectFolderPath = path.resolve(testfilesDir, "ImportTypespecProjectOpenApi3");
+const ImportTypespecProjectFolderPath = path.resolve(tempDir, "ImportTypespecProjectOpenApi3");
 const ImportTypespecProjectEmptyFolderPath = path.resolve(
-  testfilesDir,
+  tempDir,
   "ImportTypespecProjectOpenApi3/ImportTypespecProjectEmptyFolder",
 );
 
