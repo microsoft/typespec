@@ -38,10 +38,11 @@ public class TypeSpecFluentPlugin extends FluentGen {
     private static final Logger LOGGER = LoggerFactory.getLogger(TypeSpecFluentPlugin.class);
     private final EmitterOptions emitterOptions;
 
-    public TypeSpecFluentPlugin(EmitterOptions options, boolean sdkIntegration) {
+    public TypeSpecFluentPlugin(EmitterOptions options, boolean sdkIntegration, String title) {
         super(new TypeSpecPlugin.MockConnection(), "dummy", "dummy");
         this.emitterOptions = options;
 
+        SETTINGS_MAP.put("title", title);
         SETTINGS_MAP.put("namespace", options.getNamespace());
         if (!CoreUtils.isNullOrEmpty(options.getOutputDir())) {
             SETTINGS_MAP.put("output-folder", options.getOutputDir());
