@@ -23,7 +23,8 @@ enum Versions {
   v2023_12_01_preview: "2023-12-01-preview",
 }
 
-model Vault is  Azure.ResourceManager.Legacy.TrackedResourceWithOptionalLocation<VaultProperties, false> {
+model Vault
+  is Azure.ResourceManager.Legacy.TrackedResourceWithOptionalLocation<VaultProperties, false> {
   ...ResourceNameParameter<
     Resource = Vault,
     KeyName = "vaultName",
@@ -35,7 +36,6 @@ model Vault is  Azure.ResourceManager.Legacy.TrackedResourceWithOptionalLocation
  * Properties of the vault
  */
 model VaultProperties {
-
   /**
    * Property to specify whether the vault will accept traffic from public internet. If set to 'disabled' all traffic except private endpoint traffic and that that originates from trusted services will be blocked. This will override the set firewall rules, meaning that even if the firewall rules are present we will not honor the rules.
    */
