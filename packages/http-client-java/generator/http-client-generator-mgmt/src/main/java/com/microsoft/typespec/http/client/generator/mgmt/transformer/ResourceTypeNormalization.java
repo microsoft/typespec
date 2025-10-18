@@ -63,7 +63,7 @@ class ResourceTypeNormalization {
         objectSchemas.forEach(compositeType -> {
             Optional<ObjectSchema> parentType = getObjectParent(compositeType);
             if (parentType.isPresent()) {
-                getSchemaResourceType(parentType.get()).ifPresent(type -> {
+                getSchemaResourceType(compositeType, parentType.get()).ifPresent(type -> {
                     correctDeduplicatedName(parentType.get());
                     adaptForParentSchema(compositeType, parentType.get(), type);
                 });
@@ -202,8 +202,8 @@ class ResourceTypeNormalization {
     }
 
     private static void tryAdaptAsResource(ObjectSchema compositeType) {
-        if (!getSchemaResourceType(compositeType).isPresent()) {
-            if (hasProperties(compositeType, RESOURCE_FIELDS)) {
+        if (getSchemaResourceType(compositeType, null).isEmpty()) {
+            if (hasDeclaredProperties(compositeType, RESOURCE_FIELDS)) {
                 addDummyParentType(compositeType, DUMMY_RESOURCE);
 
                 compositeType.getProperties()
@@ -211,7 +211,7 @@ class ResourceTypeNormalization {
                         || RESOURCE_EXTRA_FIELDS.contains(p.getSerializedName()));
 
                 LOGGER.info("Add parent Resource, for '{}'", Utils.getJavaName(compositeType));
-            } else if (hasProperties(compositeType, PROXY_RESOURCE_FIELDS)) {
+            } else if (hasDeclaredProperties(compositeType, PROXY_RESOURCE_FIELDS)) {
                 addDummyParentType(compositeType, DUMMY_PROXY_RESOURCE);
 
                 compositeType.getProperties()
@@ -236,15 +236,23 @@ class ResourceTypeNormalization {
     }
 
     /**
-     * Check the object schema, determine its resource type.
+     * Check the object schema and its parent schema, determine its resource type.
      *
      * @param compositeType the object schema to check
-     * @return the resource type
+     * @param parentType the parent object schema to check
+     * @return the resource type of the compositeType
      */
-    private static Optional<ResourceType> getSchemaResourceType(ObjectSchema compositeType) {
+    private static Optional<ResourceType> getSchemaResourceType(ObjectSchema compositeType, ObjectSchema parentType) {
+        if (compositeType == null) {
+            throw new IllegalArgumentException("compositeType cannot be null for [getSchemaResourceType]");
+        }
         ResourceType type = null;
+        ObjectSchema schemaForResourceNameMatch = parentType;
 
-        String javaName = Utils.getJavaName(compositeType);
+        if (parentType == null) {
+            schemaForResourceNameMatch = compositeType;
+        }
+        String javaName = Utils.getJavaName(schemaForResourceNameMatch);
         if (javaName.equals(ResourceTypeName.SUB_RESOURCE)
             || javaName.startsWith(ResourceTypeName.SUB_RESOURCE_AUTO_GENERATED)) {
             type = ResourceType.SUB_RESOURCE;
@@ -259,11 +267,11 @@ class ResourceTypeNormalization {
             || javaName.startsWith(ResourceTypeName.RESOURCE_AUTO_GENERATED)
             || javaName.equals(ResourceTypeName.AZURE_RESOURCE)
             || javaName.startsWith(ResourceTypeName.AZURE_RESOURCE_AUTO_GENERATED)) {
-            if (hasProperties(compositeType, RESOURCE_EXTRA_FIELDS)) {
+            if (hasDeclaredProperties(compositeType, RESOURCE_EXTRA_FIELDS)) {
                 type = ResourceType.RESOURCE;
-            } else if (hasProperties(compositeType, PROXY_RESOURCE_FIELDS)) {
+            } else if (hasDeclaredProperties(compositeType, PROXY_RESOURCE_FIELDS)) {
                 type = ResourceType.PROXY_RESOURCE;
-            } else if (hasProperties(compositeType, SUB_RESOURCE_FIELDS)) {
+            } else if (hasDeclaredProperties(compositeType, SUB_RESOURCE_FIELDS)) {
                 type = ResourceType.SUB_RESOURCE;
             }
         }
@@ -500,15 +508,12 @@ class ResourceTypeNormalization {
         addDummyParentType(compositeType, parentType);
     }
 
-    private static boolean hasProperties(ObjectSchema compositeType, Set<String> fieldNames) {
-        if (compositeType.getProperties() == null) {
-            return false;
-        }
-        return compositeType.getProperties()
-            .stream()
+    private static boolean hasDeclaredProperties(ObjectSchema compositeType, Set<String> fieldNames) {
+        return getDeclaredProperties(compositeType).stream()
             .map(Property::getSerializedName)
             .collect(Collectors.toSet())
             .containsAll(fieldNames);
+
     }
 
     private static boolean hasProperty(ObjectSchema compositeType, Property property) {
