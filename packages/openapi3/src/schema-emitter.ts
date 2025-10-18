@@ -543,8 +543,90 @@ export class OpenAPI3SchemaEmitterBase<
     throw new Error("Method not implemented.");
   }
 
-  discriminatedUnion(union: DiscriminatedUnion): ObjectBuilder<Schema> {
+  /**
+   * Mapping of cached envelope models for union variants.
+   */
+  #unionVariantEnvelopeVisibilityMap: WeakMap<
+    Union,
+    WeakMap<Type, { default: Model; byVisibility: Map<Visibility, Model> }>
+  > = new WeakMap();
+
+  /**
+   * Get or create an envelope model for a given discriminated union variant.
+   *
+   * This method is cached and will return the same model for the same variant according to visibility transforms,
+   * in order to prevent duplicate schema declarations.
+   *
+   * @param union - The discriminated union containing the variant.
+   * @param variantName - The name of the variant.
+   * @param variant - The type of the variant.
+   * @returns The envelope model for the variant.
+   */
+  #getOrCreateVariantEnvelopeModel(
+    union: DiscriminatedUnion,
+    variantName: string,
+    variant: Type,
+  ): Model {
     const tk = $(this.emitter.getProgram());
+
+    const usage = this._visibilityUsage.getUsage(union.type);
+
+    let map = this.#unionVariantEnvelopeVisibilityMap.get(union.type);
+
+    if (!map) {
+      map = new WeakMap();
+      this.#unionVariantEnvelopeVisibilityMap.set(union.type, map);
+    }
+
+    let entry = map.get(variant);
+    if (!entry) {
+      // Initialize entry
+      entry = { default: createEnvelopeModel(), byVisibility: new Map() };
+      map.set(variant, entry);
+
+      // Manually track the model's usage according to the union's usage.
+      if (usage) this._visibilityUsage.manuallyTrack(entry.default, usage);
+    }
+
+    const visibility = this.#getVisibilityContext();
+
+    // We only create envelope models per visibility if the variant type is transformed in that visibility.
+    // Otherwise, we will just use the default envelope model.
+    if (this._metadataInfo.isTransformed(variant, visibility)) {
+      let byVis = entry.byVisibility.get(visibility);
+
+      if (!byVis) {
+        byVis = createEnvelopeModel();
+
+        // Manually track the model's usage according to the union's usage.
+        if (usage) this._visibilityUsage.manuallyTrack(byVis, usage);
+
+        entry.byVisibility.set(visibility, byVis);
+      }
+
+      return byVis;
+    } else {
+      return entry.default;
+    }
+
+    function createEnvelopeModel(): Model {
+      return tk.model.create({
+        name: union.type.name + capitalize(variantName),
+        properties: {
+          [union.options.discriminatorPropertyName]: tk.modelProperty.create({
+            name: union.options.discriminatorPropertyName,
+            type: tk.literal.createString(variantName),
+          }),
+          [union.options.envelopePropertyName]: tk.modelProperty.create({
+            name: union.options.envelopePropertyName,
+            type: variant,
+          }),
+        },
+      });
+    }
+  }
+
+  discriminatedUnion(union: DiscriminatedUnion): ObjectBuilder<Schema> {
     let schema: any;
     if (union.options.envelope === "none") {
       const items = new ArrayBuilder();
@@ -562,22 +644,11 @@ export class OpenAPI3SchemaEmitterBase<
     } else {
       const envelopeVariants = new Map<string, Model>();
 
-      for (const [name, variant] of union.variants) {
-        const envelopeModel = tk.model.create({
-          name: union.type.name + capitalize(name),
-          properties: {
-            [union.options.discriminatorPropertyName]: tk.modelProperty.create({
-              name: union.options.discriminatorPropertyName,
-              type: tk.literal.createString(name),
-            }),
-            [union.options.envelopePropertyName]: tk.modelProperty.create({
-              name: union.options.envelopePropertyName,
-              type: variant,
-            }),
-          },
-        });
-
-        envelopeVariants.set(name, envelopeModel);
+      for (const [variantName, variant] of union.variants) {
+        envelopeVariants.set(
+          variantName,
+          this.#getOrCreateVariantEnvelopeModel(union, variantName, variant),
+        );
       }
 
       const items = new ArrayBuilder();
