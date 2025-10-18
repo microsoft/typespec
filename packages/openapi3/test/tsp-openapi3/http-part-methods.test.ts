@@ -1,4 +1,4 @@
-import OpenAPIParser from "@apidevtools/swagger-parser";
+import { dereference } from "@scalar/openapi-parser";
 import { formatTypeSpec } from "@typespec/compiler";
 import { strictEqual } from "node:assert";
 import { beforeAll, describe, it } from "vitest";
@@ -15,13 +15,12 @@ describe("tsp-openapi: HTTP part generation methods", () => {
   let context: Context;
 
   beforeAll(async () => {
-    const parser = new OpenAPIParser();
-    const doc = await parser.bundle({
+    const { specification } = await dereference({
       openapi: "3.0.0",
       info: { title: "Test", version: "1.0.0" },
       paths: {},
     });
-    context = createContext(parser, doc as OpenAPI3Document);
+    context = createContext(specification as OpenAPI3Document);
   });
 
   describe("basic HTTP part wrapping", () => {
