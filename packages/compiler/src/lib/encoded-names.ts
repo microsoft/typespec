@@ -106,7 +106,16 @@ export function validateEncodedNamesConflicts(program: Program) {
 
   for (const [target, map] of getEncodedNamesStateMap(program).entries()) {
     const scope = getScope(target);
-    if (scope === undefined) {
+    const memberValues = new Set(scope?.members.values());
+    if (
+      scope === undefined ||
+      // Workaround: exclude members that aren't actually in the scope. This can happen when types of
+      // properties, enum members, or union variants are cloned for one reason or another, but are not
+      // actually attached to the parent type. This should probably be fixed in cloning logic (mutator
+      // implementation) instead, but for now this workaround solves some problems with false positives
+      // in duplication tracking here.
+      !memberValues.has(target)
+    ) {
       return;
     }
     for (const [mimeType, name] of map.entries()) {
