@@ -1,23 +1,28 @@
-import { execSync } from "child_process";
 import fs from "node:fs";
 import path from "node:path";
-import { beforeEach, describe } from "vitest";
+import { beforeAll, beforeEach, describe } from "vitest";
 import {
   contrastResult,
+  packagesInstall,
+  packPackages,
   preContrastResult,
   readTspConfigFile,
   restoreTspConfigFile,
   startWithCommandPalette,
 } from "./common/common-steps";
 import { emiChooseEmitter, emitSelectLanguage, emitSelectType } from "./common/emit-steps";
-import { CaseScreenshot, test, testfilesDir } from "./common/utils";
+import { CaseScreenshot, tempDir, test, testfilesDir } from "./common/utils";
 
-try {
-  execSync("pnpm install @typespec/http-client-csharp", { stdio: "inherit" });
-  execSync("pnpm install @typespec/http", { stdio: "inherit" });
-} catch (e) {
-  process.exit(1);
-}
+// Test files are copied into the temporary directory before tests run
+beforeAll(async () => {
+  const src = path.resolve(testfilesDir, "EmitTypespecProject");
+  const dest = path.resolve(tempDir, "EmitTypespecProject");
+  fs.cpSync(src, dest, { recursive: true });
+
+  const packages = await packPackages();
+  // Install those packages locally
+  await packagesInstall(packages, "Emit");
+}, 300000);
 
 enum EmitProjectTriggerType {
   Command = "Command",
@@ -33,24 +38,24 @@ type EmitConfigType = {
   expectedResults: string[];
 };
 
-const EmitTypespecProjectFolderPath = path.resolve(testfilesDir, "EmitTypespecProject");
+const EmitTypespecProjectFolderPath = path.resolve(tempDir, "EmitTypespecProject");
 
 const EmitCasesConfigList: EmitConfigType[] = [
   {
-    caseName: "EmitTypespecProject ClientCode DotNet Trigger CommandPalette TspconfigHasEmit",
+    caseName: "EmitTypespecProject ClientCode Js Trigger CommandPalette TspconfigHasEmit",
     selectType: "Client Code",
-    selectTypeLanguage: ".NET",
+    selectTypeLanguage: "JavaScript",
     triggerType: EmitProjectTriggerType.Command,
     TspConfigHasEmit: true,
-    expectedResults: ["http-client-csharp"],
+    expectedResults: ["http-client-js"],
   },
   {
-    caseName: "EmitTypespecProject ClientCode DotNet Trigger CommandPalette TspconfigNoEmit",
+    caseName: "EmitTypespecProject ClientCode Js Trigger CommandPalette TspconfigNoEmit",
     selectType: "Client Code",
-    selectTypeLanguage: ".NET",
+    selectTypeLanguage: "JavaScript",
     triggerType: EmitProjectTriggerType.Command,
     TspConfigHasEmit: false,
-    expectedResults: ["http-client-csharp"],
+    expectedResults: ["http-client-js"],
   },
 ];
 
@@ -100,16 +105,5 @@ describe.each(EmitCasesConfigList)("EmitTypespecProject", async (item) => {
     const resultFilePath = path.resolve(workspacePath, "./tsp-output/@typespec");
     await contrastResult(expectedResults, resultFilePath, cs);
     app.close();
-
-    try {
-      execSync("git restore ./package.json", { stdio: "inherit" });
-    } catch (e) {
-      process.exit(1);
-    }
-    try {
-      execSync("git restore ../../pnpm-lock.yaml", { stdio: "inherit" });
-    } catch (e) {
-      process.exit(1);
-    }
   });
 });

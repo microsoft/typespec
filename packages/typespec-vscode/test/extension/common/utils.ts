@@ -5,9 +5,11 @@ import { test as baseTest, inject } from "vitest";
 
 const __dirname = import.meta.dirname;
 export const projectRoot = path.resolve(__dirname, "../../../");
+export const repoRoot = path.resolve(projectRoot, "../../");
 export const tempDir = path.resolve(projectRoot, "./temp");
 export const testfilesDir = path.resolve(projectRoot, "./test/scenarios");
 export const imagesPath = path.resolve(tempDir, "./images-linux");
+export const npxCmd = process.platform === "win32" ? "npx.cmd" : "npx";
 
 interface Context {
   page: Page;
