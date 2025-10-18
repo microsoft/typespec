@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.ClientModel;
 using System.Collections.Generic;
 using System.Linq;
@@ -325,6 +326,41 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 
             var cachingField = fields.SingleOrDefault(f => f.Name == "_cachedDog");
             Assert.IsNull(cachingField);
+        }
+
+        // Validates that a method signature can be customized using partial methods
+        [Test]
+        public async Task CanCustomizeMethodSignature()
+        {
+            var inputOperation = InputFactory.Operation("HelloAgain", parameters:
+            [
+                InputFactory.BodyParameter("p1", InputFactory.Array(InputPrimitiveType.String))
+            ]);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("test", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Find the client provider
+            var clientProvider = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ClientProvider);
+            Assert.IsNotNull(clientProvider);
+
+            // The generated methods should include HelloAgain as a partial method (protocol method)
+            var clientProviderMethods = clientProvider!.Methods;
+            var partialMethod = clientProviderMethods.FirstOrDefault(m =>
+                m.Signature.Name == "HelloAgain" &&
+                m.IsPartialMethod &&
+                m.Signature.Parameters.Any(p => p.Type.Name == "BinaryContent"));
+            Assert.IsNotNull(partialMethod, "HelloAgain protocol method should be generated as partial");
+
+            // Verify it's marked as partial
+            Assert.IsTrue(partialMethod!.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Partial), "Method should have Partial modifier");
+
+            // Verify the signature
+            Assert.AreEqual("HelloAgain", partialMethod.Signature.Name);
+            Assert.AreEqual(2, partialMethod.Signature.Parameters.Count);
+            Assert.AreEqual("content", partialMethod.Signature.Parameters[0].Name, "Parameter name should match custom declaration");
         }
     }
 }

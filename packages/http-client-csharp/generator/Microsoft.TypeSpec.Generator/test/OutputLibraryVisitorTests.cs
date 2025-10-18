@@ -202,6 +202,21 @@ namespace Microsoft.TypeSpec.Generator.Tests
             Assert.AreEqual("return newName;\n", testMethod?.BodyStatements!.ToDisplayString());
         }
 
+        [Test]
+        public void VisitMethodToUpdateSignature()
+        {
+            var parameter = new ParameterProvider("oldName", $"", typeof(string));
+            var testMethod = new MethodProvider(
+                new MethodSignature("TestMethod", $"", MethodSignatureModifiers.Public, null, $"", [parameter]),
+                Snippet.Return(parameter), new TestTypeProvider());
+
+            testMethod.Accept(new SignatureCustomizationVisitor());
+
+            Assert.AreEqual("CustomizedMethod", testMethod.Signature.Name);
+            Assert.AreEqual("customName", testMethod.Signature.Parameters.First().Name);
+            Assert.IsTrue(testMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+        }
+
         private class MethodVisitor : LibraryVisitor
         {
             protected internal override MethodProvider? VisitMethod(MethodProvider method)
@@ -213,6 +228,28 @@ namespace Microsoft.TypeSpec.Generator.Tests
                     {
                         parameter.Update("newName");
                     }
+                }
+                return base.VisitMethod(method);
+            }
+        }
+
+        private class SignatureCustomizationVisitor : LibraryVisitor
+        {
+            protected internal override MethodProvider? VisitMethod(MethodProvider method)
+            {
+                if (method.Signature.Name == "TestMethod")
+                {
+                    var newParams = new List<ParameterProvider>();
+                    foreach (var param in method.Signature.Parameters)
+                    {
+                        var newParam = new ParameterProvider("customName", param.Description, param.Type);
+                        newParams.Add(newParam);
+                    }
+
+                    method.Signature.Update(
+                        name: "CustomizedMethod",
+                        modifiers: MethodSignatureModifiers.Internal,
+                        parameters: newParams);
                 }
                 return base.VisitMethod(method);
             }
