@@ -271,10 +271,10 @@ function emitModel(context: PythonSdkContext, type: SdkModelType): Record<string
     };
   }
   if (type.external) {
-    return {
+    return getSimpleTypeResult({
       type: "external",
       externalTypeInfo: type.external,
-    }
+    });
   }
   const parents: Record<string, any>[] = [];
   const newValue = {

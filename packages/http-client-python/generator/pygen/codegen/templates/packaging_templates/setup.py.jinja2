@@ -108,6 +108,9 @@ setup(
         "corehttp[requests]>={{ VERSION_MAP["corehttp"] }}",
         {% endif %}
         "typing-extensions>={{ VERSION_MAP['typing-extensions'] }}",
+        {% for dep in ADDITIONAL_DEPENDENCIES %}
+        {{ dep }},
+        {% endfor %}
     ],
     {% if options["package-mode"] %}
     python_requires=">={{  MIN_PYTHON_VERSION }}",

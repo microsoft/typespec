@@ -628,7 +628,7 @@ class ExternalType(PrimitiveType):
 
     def type_annotation(self, **kwargs: Any) -> str:
         is_operation_file = kwargs.get("is_operation_file", False)
-        return self.identity if is_operation_file else f'"{self.identity}'
+        return self.identity if is_operation_file else f'"{self.identity}"'
 
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = super().imports(**kwargs)

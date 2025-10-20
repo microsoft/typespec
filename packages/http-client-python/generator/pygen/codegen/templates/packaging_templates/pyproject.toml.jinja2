@@ -57,7 +57,7 @@ dependencies = [
     {% endfor %}
     {% endif %}
     {% for dep in ADDITIONAL_DEPENDENCIES %}
-    {{ dep }},
+    "{{ dep }}",
     {% endfor %}
 ]
 dynamic = [
