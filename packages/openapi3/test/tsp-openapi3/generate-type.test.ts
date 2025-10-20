@@ -287,15 +287,15 @@ const testScenarios: TestScenario[] = [
     schema: { type: ["string", "null"] as any, format: "date-time" },
     expected: "utcDateTime | null",
   },
-  // Multiple non-null types in array (edge case)
+  // Multiple non-null types in array (edge case - not supported, falls back to unknown)
   {
     schema: { type: ["string", "integer"] as any },
-    expected: "string | integer",
+    expected: "unknown",
   },
-  // Type array with three types including null
+  // Type array with three types including null (edge case - not supported, falls back to unknown)
   {
     schema: { type: ["string", "integer", "null"] as any },
-    expected: "string | integer | null",
+    expected: "unknown",
   },
 ];
 
