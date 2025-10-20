@@ -46,7 +46,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var nameParameter = new ParameterProvider("name", $"The name.", typeof(string));
             var valueParameter = new ParameterProvider("value", $"The value.", new CSharpType(typeof(IEnumerable<>), _t));
             var delimiterParameter = new ParameterProvider("delimiter", $"The delimiter.", typeof(string));
-            var formatParameter = new ParameterProvider("format", $"The format.", typeof(string));
+            var serializationFormatType = new CSharpType(typeof(SerializationFormatDefinition));
+            var formatParameter = new ParameterProvider("format", $"The format.", serializationFormatType);
             var modifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Extension;
             var parameters = hasFormat
                 ? new[] { _pipelineRequestHeadersParam, nameParameter, valueParameter, delimiterParameter, formatParameter }

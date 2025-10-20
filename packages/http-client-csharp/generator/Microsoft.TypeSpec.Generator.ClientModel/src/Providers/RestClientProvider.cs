@@ -350,7 +350,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                     else
                     {
-                        statement = request.SetHeaderDelimited(inputHeaderParameter.SerializedName, valueExpression, Literal(inputHeaderParameter.ArraySerializationDelimiter), format != null ? Literal(format) : null);
+                        statement = request.SetHeaderDelimited(inputHeaderParameter.SerializedName, valueExpression, Literal(inputHeaderParameter.ArraySerializationDelimiter), GetSerializationFormatEnumValue(serializationFormat));
                     }
                 }
                 else
@@ -456,7 +456,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             list.Add(item.Key),
                             list.Add(item.Value)
                         },
-                        uri.AppendQueryDelimited(Literal(inputQueryParameter.SerializedName), list, format, true).Terminate()
+                        uri.AppendQueryDelimited(Literal(inputQueryParameter.SerializedName), list, GetSerializationFormatEnumValue(serializationFormat), true).Terminate()
                     };
                 }
             }
@@ -484,7 +484,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
                 else
                 {
-                    return uri.AppendQueryDelimited(Literal(inputQueryParameter.SerializedName), valueExpression, format, true, delimiter: delimiter).Terminate();
+                    return uri.AppendQueryDelimited(Literal(inputQueryParameter.SerializedName), valueExpression, GetSerializationFormatEnumValue(serializationFormat), true, delimiter: delimiter).Terminate();
                 }
             }
             else
@@ -766,6 +766,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                    serializationFormat == SerializationFormat.Duration_Milliseconds ||
                    serializationFormat == SerializationFormat.Duration_Milliseconds_Float ||
                    serializationFormat == SerializationFormat.Duration_Milliseconds_Double;
+        }
+
+        private static ValueExpression GetSerializationFormatEnumValue(SerializationFormat serializationFormat)
+        {
+            var serializationFormatType = new CSharpType(typeof(SerializationFormatDefinition));
+            var memberName = serializationFormat.ToString();
+            return new MemberExpression(serializationFormatType, memberName);
         }
 
         private static bool TryGetSpecialHeaderParam(InputParameter inputParameter, [NotNullWhen(true)] out ParameterProvider? parameterProvider)

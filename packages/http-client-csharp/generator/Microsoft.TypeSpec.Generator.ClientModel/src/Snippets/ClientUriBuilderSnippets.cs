@@ -2,7 +2,9 @@
 // Licensed under the MIT License.
 
 using System;
+using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Expressions;
+using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Snippets;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
@@ -22,11 +24,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
         public static InvokeMethodExpression AppendQuery(this ScopedApi uriBuilder, ValueExpression name, ValueExpression value, bool shouldEscape)
             => uriBuilder.Invoke("AppendQuery", [name, value, Literal(shouldEscape)]);
 
-        public static InvokeMethodExpression AppendQuery(this ScopedApi uriBuilder, ValueExpression name, ValueExpression value, string? format, bool shouldEscape)
-            => uriBuilder.Invoke("AppendQuery", [name, value, Literal(format), Literal(shouldEscape)]);
+        public static InvokeMethodExpression AppendQuery(this ScopedApi uriBuilder, ValueExpression name, ValueExpression value, ValueExpression format, bool shouldEscape)
+        {
+            var serializationFormatType = new CSharpType(typeof(SerializationFormatDefinition));
+            return uriBuilder.Invoke("AppendQuery", [name, value, format, Literal(shouldEscape)]);
+        }
 
-        public static InvokeMethodExpression AppendQueryDelimited(this ScopedApi uriBuilder, ValueExpression name, ValueExpression value, string? format, bool shouldEscape, string? delimiter = ",")
-            => uriBuilder.Invoke("AppendQueryDelimited", [name, value, Literal(delimiter), Literal(format), Literal(shouldEscape)]);
+        public static InvokeMethodExpression AppendQueryDelimited(this ScopedApi uriBuilder, ValueExpression name, ValueExpression value, ValueExpression? format, bool shouldEscape, string? delimiter = ",")
+        {
+            var serializationFormatType = new CSharpType(typeof(SerializationFormatDefinition));
+            var defaultFormat = new MemberExpression(serializationFormatType, "Default");
+            var formatValue = format ?? defaultFormat;
+            return uriBuilder.Invoke("AppendQueryDelimited", [name, value, Literal(delimiter), formatValue, Literal(shouldEscape)]);
+        }
 
         public static ScopedApi<Uri> ToUri(this ScopedApi uriBuilder)
             => uriBuilder.Invoke("ToUri").As<Uri>();

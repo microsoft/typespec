@@ -179,7 +179,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var valueParameter = new ParameterProvider("value", $"The value.", valueType);
             var escapeParameter = new ParameterProvider("escape", $"The escape.", typeof(bool), Bool(escapeDefaultValue));
-            var formatParameter = new ParameterProvider("format", $"The format", typeof(string));
+            var serializationFormatType = new CSharpType(typeof(SerializationFormatDefinition));
+            var formatParameter = new ParameterProvider("format", $"The format", serializationFormatType);
             var parameters = hasFormat
                 ? new[] { valueParameter, formatParameter, escapeParameter }
                 : new[] { valueParameter, escapeParameter };
@@ -250,7 +251,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var nameParameter = new ParameterProvider("name", $"The name.", typeof(string));
             var valueParameter = new ParameterProvider("value", $"The value.", valueType);
             var escapeParameter = new ParameterProvider("escape", $"The escape.", typeof(bool), Bool(escapeDefaultValue));
-            var formatParameter = new ParameterProvider("format", $"The format.", typeof(string));
+            var serializationFormatType = new CSharpType(typeof(SerializationFormatDefinition));
+            var formatParameter = new ParameterProvider("format", $"The format.", serializationFormatType);
             var parameters = hasFormat
                 ? new[] { nameParameter, valueParameter, formatParameter, escapeParameter }
                 : new[] { nameParameter, valueParameter, escapeParameter };
@@ -291,7 +293,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var valueParameter =
                 new ParameterProvider("value", $"The value.", new CSharpType(typeof(IEnumerable<>), _t));
             var delimiterParameter = new ParameterProvider("delimiter", $"The delimiter.", typeof(string));
-            var formatParameter = new ParameterProvider("format", $"The format.", typeof(string), Literal(null));
+            var serializationFormatType = new CSharpType(typeof(SerializationFormatDefinition));
+            var defaultFormat = new MemberExpression(serializationFormatType, "Default");
+            var formatParameter = new ParameterProvider("format", $"The format.", serializationFormatType, defaultFormat);
             var escapeParameter = new ParameterProvider("escape", $"The escape.", typeof(bool), Bool(true));
 
             var parameters = hasName
