@@ -125,6 +125,9 @@ namespace Microsoft.TypeSpec.Generator
                 case InputNullableType nullableType:
                     type = CreateCSharpType(nullableType.Type)?.WithNullable(true);
                     break;
+                case InputExternalType externalType:
+                    type = CreateExternalType(externalType);
+                    break;
                 default:
                     type = CreatePrimitiveCSharpTypeCore(inputType);
                     break;
@@ -228,6 +231,25 @@ namespace Microsoft.TypeSpec.Generator
 
         protected virtual EnumProvider? CreateEnumCore(InputEnumType enumType, TypeProvider? declaringType)
             => EnumProvider.Create(enumType, declaringType);
+
+        /// <summary>
+        /// Factory method for creating a <see cref="CSharpType"/> based on an external type reference <paramref name="externalType"/>.
+        /// </summary>
+        /// <param name="externalType">The <see cref="InputExternalType"/> to convert.</param>
+        /// <returns>A <see cref="CSharpType"/> representing the external type.</returns>
+        protected virtual CSharpType? CreateExternalType(InputExternalType externalType)
+        {
+            // Try to create a framework type from the fully qualified name
+            var frameworkType = CreateFrameworkType(externalType.Identity);
+            if (frameworkType != null)
+            {
+                return new CSharpType(frameworkType);
+            }
+
+            // If the type cannot be resolved as a framework type, create a generic CSharpType
+            // using the identity as the fully qualified name
+            return new CSharpType(externalType.Identity, isValueType: false, isNullable: false, null, null, null, true);
+        }
 
         /// <summary>
         /// Factory method for creating a <see cref="ParameterProvider"/> based on an input parameter <paramref name="parameter"/>.
