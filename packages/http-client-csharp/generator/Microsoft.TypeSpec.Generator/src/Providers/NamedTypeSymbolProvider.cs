@@ -120,7 +120,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         fieldSymbol.Type.GetCSharpType(),
                         fieldSymbol.Name,
                         this,
-                        GetSymbolXmlDoc(fieldSymbol, "summary"))
+                        GetSymbolXmlDoc(fieldSymbol, "summary"),
+                        initializationValue: GetFieldInitializer(fieldSymbol))
                     {
                         OriginalName = GetOriginalName(fieldSymbol)
                     };
@@ -188,6 +189,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // For non-constant expressions, return the expression text
                 return Literal(initializerValue.ToString());
             }
+            return null;
+        }
+
+        private static ValueExpression? GetFieldInitializer(IFieldSymbol fieldSymbol)
+        {
+            if (fieldSymbol.ContainingType?.TypeKind == TypeKind.Enum)
+            {
+                if (fieldSymbol.HasConstantValue && fieldSymbol.ConstantValue != null)
+                {
+                    return Literal(fieldSymbol.ConstantValue);
+                }
+                return null;
+            }
+
             return null;
         }
 
