@@ -1160,7 +1160,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
-        public void TestExternalType_ModelDecoratedWithAlternateType()
+        public void ExternalTypeModelUsedAsProperty()
         {
             // Test a model decorated with alternateType that references System.Uri
             var externalType = InputFactory.External("System.Uri");
@@ -1194,7 +1194,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
-        public void TestExternalType_PropertyDecoratedWithAlternateType()
+        public void ExternalTypePropertyIsResolved()
         {
             // Test a property decorated with alternateType
             var externalType = InputFactory.External("System.Net.IPAddress", "System.Net.Primitives", "4.3.0");
@@ -1226,7 +1226,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
-        public void TestExternalType_UnsupportedExternalType()
+        public void UnsupportedExternalTypeEmitsDiagnostic()
         {
             // Test an external type that cannot be resolved (non-framework type)
             var externalType = InputFactory.External("Azure.Core.Expressions.DataFactoryExpression");
