@@ -246,9 +246,33 @@ namespace Microsoft.TypeSpec.Generator
                 return new CSharpType(frameworkType);
             }
 
-            // If the type cannot be resolved as a framework type, create a generic CSharpType
-            // using the identity as the fully qualified name
-            return new CSharpType(externalType.Identity, isValueType: false, isNullable: false, null, null, null, true);
+            // If the type cannot be resolved as a framework type, parse the fully qualified name
+            // and create a CSharpType using the internal constructor
+            var lastDotIndex = externalType.Identity.LastIndexOf('.');
+            string ns;
+            string name;
+
+            if (lastDotIndex > 0)
+            {
+                ns = externalType.Identity.Substring(0, lastDotIndex);
+                name = externalType.Identity.Substring(lastDotIndex + 1);
+            }
+            else
+            {
+                // If no namespace, assume global namespace
+                ns = string.Empty;
+                name = externalType.Identity;
+            }
+
+            return new CSharpType(
+                name: name,
+                ns: ns,
+                isValueType: false,
+                isNullable: false,
+                declaringType: null,
+                args: Array.Empty<CSharpType>(),
+                isPublic: true,
+                isStruct: false);
         }
 
         /// <summary>
