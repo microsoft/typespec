@@ -57,7 +57,6 @@ class GeneralSerializer(BaseSerializer):
         m = re.search(r"[>=]=?([\d.]+(?:[a-z]+\d+)?)", s)
         return parse_version(m.group(1)) if m else parse_version("0")
 
-
     def _update_version_map(self, version_map: dict[str, str], dep_name: str, dep: str) -> None:
         # For tracked dependencies, check if the version is higher than our default
         default_version = parse_version(version_map[dep_name])
@@ -115,12 +114,12 @@ class GeneralSerializer(BaseSerializer):
 
         additional_version_map = {}
         if self.code_model.has_external_type:
-          for item in self.code_model.external_types:
-            if item.package_name:
-              if item.min_version:
-                additional_version_map[item.package_name] = item.min_version
-              else:
-                additional_version_map[item.package_name] = "0"
+            for item in self.code_model.external_types:
+                if item.package_name:
+                    if item.min_version:
+                        additional_version_map[item.package_name] = item.min_version
+                    else:
+                        additional_version_map[item.package_name] = "0"
 
         # Add fields to keep from an existing pyproject.toml
         if template_name == "pyproject.toml.jinja2":
@@ -141,9 +140,7 @@ class GeneralSerializer(BaseSerializer):
             dev_status = "4 - Beta"
         else:
             dev_status = "5 - Production/Stable"
-            
 
-                
         params |= {
             "code_model": self.code_model,
             "dev_status": dev_status,
@@ -154,7 +151,7 @@ class GeneralSerializer(BaseSerializer):
             "VERSION_MAP": VERSION_MAP,
             "MIN_PYTHON_VERSION": MIN_PYTHON_VERSION,
             "MAX_PYTHON_VERSION": MAX_PYTHON_VERSION,
-            "ADDITIONAL_DEPENDENCIES": [f'{item[0]}>={item[1]}' for item in additional_version_map.items()],
+            "ADDITIONAL_DEPENDENCIES": [f"{item[0]}>={item[1]}" for item in additional_version_map.items()],
         }
         params |= {"options": self.code_model.options}
         params |= kwargs

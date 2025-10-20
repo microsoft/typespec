@@ -614,6 +614,7 @@ class SdkCoreType(PrimitiveType):
     def serialization_type(self, **kwargs: Any) -> str:
         return self.name
 
+
 class ExternalType(PrimitiveType):
     def __init__(self, yaml_data: dict[str, Any], code_model: "CodeModel") -> None:
         super().__init__(yaml_data=yaml_data, code_model=code_model)
@@ -622,7 +623,7 @@ class ExternalType(PrimitiveType):
         self.submodule = ".".join(self.identity.split(".")[:-1])
         self.min_version = self.external_type_info.get("minVersion", "")
         self.package_name = self.external_type_info.get("package", "")
-    
+
     def docstring_type(self, **kwargs: Any) -> str:
         return f"~{self.identity}"
 

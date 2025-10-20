@@ -31,7 +31,7 @@ from .primitive_types import (
     SdkCoreType,
     DecimalType,
     MultiPartFileType,
-    ExternalType
+    ExternalType,
 )
 from .enum_type import EnumType, EnumValue
 from .base import BaseType

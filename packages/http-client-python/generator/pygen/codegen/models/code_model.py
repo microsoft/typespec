@@ -102,9 +102,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         self._operations_folder_name: dict[str, str] = {}
         self._relative_import_path: dict[str, str] = {}
         self.metadata: dict[str, Any] = yaml_data.get("metadata", {})
-        self.has_external_type = any(
-            isinstance(t, ExternalType) for t in self.types_map.values()
-        )
+        self.has_external_type = any(isinstance(t, ExternalType) for t in self.types_map.values())
 
     @staticmethod
     def get_imported_namespace_for_client(imported_namespace: str, async_mode: bool = False) -> str:
