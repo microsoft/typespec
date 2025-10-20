@@ -13,6 +13,7 @@ import { createContext } from "./utils/context.js";
 export async function convertAction(host: CliHost, args: ConvertCliArgs) {
   // attempt to read the file
   const fullPath = resolvePath(process.cwd(), args.path);
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
   const { filesystem } = await load(fullPath, {
     plugins: [fetchUrls(), readFiles()],
   });
