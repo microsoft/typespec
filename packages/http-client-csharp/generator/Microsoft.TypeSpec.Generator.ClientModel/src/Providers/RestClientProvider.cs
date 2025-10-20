@@ -336,11 +336,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     // For TimeSpan collections with duration encoding, handle directly instead of using SetHeaderDelimited
                     if (type.ElementType.FrameworkType == typeof(TimeSpan) && IsDurationEncodingFormat(serializationFormat))
                     {
+                        // Create a list to collect converted string values
+                        var listDeclaration = Declare("values", New.List<string>(), out var valuesList);
                         var foreachStatement = new ForEachStatement("item", valueExpression.As(type), out VariableExpression item);
                         var convertedValue = GetParameterValueExpression(item, type.ElementType, format, serializationFormat);
-                        foreachStatement.Add(request.SetHeaders([Literal(inputHeaderParameter.SerializedName), convertedValue.As<string>()]));
+                        foreachStatement.Add(valuesList.Invoke("Add", convertedValue).Terminate());
+
+                        // Join the values with delimiter and set the header
+                        var joinedValue = StringSnippets.Join(Literal(inputHeaderParameter.ArraySerializationDelimiter), valuesList);
+                        statements.Add(listDeclaration);
                         statements.Add(foreachStatement);
-                        continue;
+                        statement = request.SetHeaders([Literal(inputHeaderParameter.SerializedName), joinedValue.As<string>()]);
                     }
                     else
                     {
@@ -461,10 +467,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // For TimeSpan collections with duration encoding, handle directly instead of using AppendQueryDelimited
                 if (paramType.ElementType.FrameworkType == typeof(TimeSpan) && IsDurationEncodingFormat(serializationFormat))
                 {
+                    // Create a list to collect converted string values
+                    var listDeclaration = Declare("values", New.List<string>(), out var valuesList);
                     var foreachStatement = new ForEachStatement("item", valueExpression.As(paramType), out VariableExpression item);
                     var convertedValue = GetParameterValueExpression(item, paramType.ElementType, format, serializationFormat);
-                    foreachStatement.Add(uri.AppendQuery(Literal(inputQueryParameter.SerializedName), convertedValue, true).Terminate());
-                    return foreachStatement;
+                    foreachStatement.Add(valuesList.Invoke("Add", convertedValue).Terminate());
+
+                    // Join the values with delimiter and append as single query parameter
+                    var joinedValue = StringSnippets.Join(Literal(delimiter), valuesList);
+                    return new MethodBodyStatement[]
+                    {
+                        listDeclaration,
+                        foreachStatement,
+                        uri.AppendQuery(Literal(inputQueryParameter.SerializedName), joinedValue, true).Terminate()
+                    };
                 }
                 else
                 {
