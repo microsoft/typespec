@@ -102,13 +102,15 @@ export class SchemaToExpressionGenerator {
         } else {
           // Create a schema with a single type to reuse existing type extraction logic
           // Remove type array, nullable, and default to avoid double-processing
-          const singleTypeSchema: OpenAPI3Schema = { 
-            ...schema, 
+          const singleTypeSchema: OpenAPI3Schema = {
+            ...schema,
             type: t as any,
             nullable: undefined,
             default: undefined,
           };
-          types.push(this.getTypeFromSchema(singleTypeSchema, callingScope, isHttpPart, encoding, context));
+          types.push(
+            this.getTypeFromSchema(singleTypeSchema, callingScope, isHttpPart, encoding, context),
+          );
         }
       }
       type = types.join(" | ");
