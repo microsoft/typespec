@@ -270,6 +270,12 @@ function emitModel(context: PythonSdkContext, type: SdkModelType): Record<string
       submodule: "exceptions",
     };
   }
+  if (type.external) {
+    return {
+      type: "external",
+      externalTypeInfo: type.external,
+    }
+  }
   const parents: Record<string, any>[] = [];
   const newValue = {
     type: type.kind,

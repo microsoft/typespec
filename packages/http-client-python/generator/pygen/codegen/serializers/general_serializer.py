@@ -126,6 +126,16 @@ class GeneralSerializer(BaseSerializer):
             dev_status = "4 - Beta"
         else:
             dev_status = "5 - Production/Stable"
+            
+        additional_dependencies = []
+        if self.code_model.has_external_type:
+          for item in self.code_model.external_types:
+            if item.package_name:
+              if item.min_version:
+                additional_dependencies.append(f'"{item.package_name}>={item.min_version}"')
+              else:
+                additional_dependencies.append(f'"{item.package_name}"')
+                
         params |= {
             "code_model": self.code_model,
             "dev_status": dev_status,
@@ -136,6 +146,7 @@ class GeneralSerializer(BaseSerializer):
             "VERSION_MAP": VERSION_MAP,
             "MIN_PYTHON_VERSION": MIN_PYTHON_VERSION,
             "MAX_PYTHON_VERSION": MAX_PYTHON_VERSION,
+            "ADDITIONAL_DEPENDENCIES": additional_dependencies,
         }
         params |= {"options": self.code_model.options}
         params |= kwargs

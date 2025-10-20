@@ -31,6 +31,7 @@ from .primitive_types import (
     SdkCoreType,
     DecimalType,
     MultiPartFileType,
+    ExternalType
 )
 from .enum_type import EnumType, EnumValue
 from .base import BaseType
@@ -151,6 +152,7 @@ TYPE_TO_OBJECT = {
     "credential": StringType,
     "sdkcore": SdkCoreType,
     "multipartfile": MultiPartFileType,
+    "external": ExternalType,
 }
 _LOGGER = logging.getLogger(__name__)
 

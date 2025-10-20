@@ -56,6 +56,9 @@ dependencies = [
     "{{ dep }}",
     {% endfor %}
     {% endif %}
+    {% for dep in ADDITIONAL_DEPENDENCIES %}
+    {{ dep }},
+    {% endfor %}
 ]
 dynamic = [
     {% if options.get('package-mode') %}"version", {% endif %}"readme"

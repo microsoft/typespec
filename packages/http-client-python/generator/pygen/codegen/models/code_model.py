@@ -10,6 +10,7 @@ from .base import BaseType
 from .enum_type import EnumType
 from .model_type import ModelType, UsageFlags
 from .combined_type import CombinedType
+from .primitive_types import ExternalType
 from .client import Client
 from .request_builder import RequestBuilder, OverloadedRequestBuilder
 from .operation_group import OperationGroup
@@ -101,6 +102,9 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         self._operations_folder_name: dict[str, str] = {}
         self._relative_import_path: dict[str, str] = {}
         self.metadata: dict[str, Any] = yaml_data.get("metadata", {})
+        self.has_external_type = any(
+            isinstance(t, ExternalType) for t in self.types_map.values()
+        )
 
     @staticmethod
     def get_imported_namespace_for_client(imported_namespace: str, async_mode: bool = False) -> str:
@@ -488,3 +492,8 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
     @property
     def has_operation_named_list(self) -> bool:
         return any(o.name.lower() == "list" for c in self.clients for og in c.operation_groups for o in og.operations)
+
+    @property
+    def external_types(self) -> list[ExternalType]:
+        """All of the external types"""
+        return [t for t in self.types_map.values() if isinstance(t, ExternalType)]
