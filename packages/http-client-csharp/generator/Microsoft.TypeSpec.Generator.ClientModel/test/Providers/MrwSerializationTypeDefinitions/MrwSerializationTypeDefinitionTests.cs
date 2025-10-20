@@ -832,6 +832,38 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             return expr.ToDisplayString();
         }
 
+        [TestCase(SerializationFormat.Duration_Seconds, ExpectedResult = "global::System.TimeSpan.FromSeconds(foo.GetInt32())")]
+        [TestCase(SerializationFormat.Duration_Seconds_Float, ExpectedResult = "global::System.TimeSpan.FromSeconds(foo.GetDouble())")]
+        [TestCase(SerializationFormat.Duration_Seconds_Double, ExpectedResult = "global::System.TimeSpan.FromSeconds(foo.GetDouble())")]
+        [TestCase(SerializationFormat.Duration_ISO8601, ExpectedResult = "foo.GetTimeSpan(\"P\")")]
+        [TestCase(SerializationFormat.Duration_Constant, ExpectedResult = "foo.GetTimeSpan(\"c\")")]
+        public string TestTimeSpanDeserializeExpression(SerializationFormat format)
+        {
+            var expr = MrwSerializationTypeDefinition.DeserializeJsonValueCore(
+                typeof(TimeSpan),
+                new ScopedApi<JsonElement>(new VariableExpression(typeof(JsonElement), "foo")),
+                new ScopedApi<BinaryData>(new VariableExpression(typeof(BinaryData), "data")),
+                new ScopedApi<ModelReaderWriterOptions>(new VariableExpression(typeof(ModelReaderWriterOptions), "options")),
+                format);
+            return expr.ToDisplayString();
+        }
+
+        [TestCase(SerializationFormat.Duration_Seconds, ExpectedResult = "writer.WriteNumberValue(global::System.Convert.ToInt32(value.TotalSeconds));\n")]
+        [TestCase(SerializationFormat.Duration_Seconds_Float, ExpectedResult = "writer.WriteNumberValue(value.TotalSeconds);\n")]
+        [TestCase(SerializationFormat.Duration_Seconds_Double, ExpectedResult = "writer.WriteNumberValue(value.TotalSeconds);\n")]
+        [TestCase(SerializationFormat.Duration_ISO8601, ExpectedResult = "writer.WriteStringValue(value, \"P\");\n")]
+        [TestCase(SerializationFormat.Duration_Constant, ExpectedResult = "writer.WriteStringValue(value, \"c\");\n")]
+        public string TestTimeSpanSerializeStatement(SerializationFormat format)
+        {
+            var statement = MrwSerializationTypeDefinition.SerializeJsonValueCore(
+                typeof(TimeSpan),
+                new VariableExpression(typeof(TimeSpan), "value"),
+                new ScopedApi<Utf8JsonWriter>(new VariableExpression(typeof(Utf8JsonWriter), "writer")),
+                new ScopedApi<ModelReaderWriterOptions>(new VariableExpression(typeof(ModelReaderWriterOptions), "options")),
+                format);
+            return statement.ToDisplayString();
+        }
+
         [Test]
         public void ModelPropertiesAreNotEvaluatedInConstructor()
         {
