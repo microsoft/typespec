@@ -1,4 +1,6 @@
-import { dereference } from "@scalar/openapi-parser";
+import { dereference, load } from "@scalar/openapi-parser";
+import { fetchUrls } from "@scalar/openapi-parser/plugins/fetch-urls";
+import { readFiles } from "@scalar/openapi-parser/plugins/read-files";
 import { formatTypeSpec, resolvePath } from "@typespec/compiler";
 import { OpenAPI3Document } from "../../../types.js";
 import { CliHost } from "../../types.js";
@@ -11,11 +13,14 @@ import { createContext } from "./utils/context.js";
 export async function convertAction(host: CliHost, args: ConvertCliArgs) {
   // attempt to read the file
   const fullPath = resolvePath(process.cwd(), args.path);
-  const { specification } = await dereference(fullPath);
-  if (!specification) {
+  const { filesystem } = await load(fullPath, {
+    plugins: [fetchUrls(), readFiles()],
+  });
+  const { schema } = await dereference(filesystem);
+  if (!schema) {
     throw new Error("Failed to dereference OpenAPI document");
   }
-  const context = createContext(specification as OpenAPI3Document, console, args.namespace);
+  const context = createContext(schema as OpenAPI3Document, console, args.namespace);
   const program = transform(context);
   let mainTsp: string;
   try {
