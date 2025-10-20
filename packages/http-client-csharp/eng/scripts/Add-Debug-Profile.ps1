@@ -160,6 +160,10 @@ function Build-OpenAICodegen {
         Write-Host "Installing dependencies in OpenAI repo root..." -ForegroundColor Yellow
         Invoke-Command-Safe "npm ci" -WorkingDirectory $OpenAIRepoPath
         
+        # Clean the cache before building
+        Write-Host "Cleaning codegen cache..." -ForegroundColor Yellow
+        Invoke-Command-Safe "npm run clean" -WorkingDirectory $codegenPath
+        
         # Build the codegen package
         Write-Host "Building codegen package..." -ForegroundColor Yellow
         Invoke-Command-Safe "npm run build" -WorkingDirectory $codegenPath
