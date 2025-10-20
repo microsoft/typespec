@@ -236,7 +236,7 @@ namespace Microsoft.TypeSpec.Generator
         /// Factory method for creating a <see cref="CSharpType"/> based on an external type reference <paramref name="externalType"/>.
         /// </summary>
         /// <param name="externalType">The <see cref="InputExternalType"/> to convert.</param>
-        /// <returns>A <see cref="CSharpType"/> representing the external type.</returns>
+        /// <returns>A <see cref="CSharpType"/> representing the external type, or null if the type cannot be resolved.</returns>
         protected virtual CSharpType? CreateExternalType(InputExternalType externalType)
         {
             // Try to create a framework type from the fully qualified name
@@ -246,33 +246,9 @@ namespace Microsoft.TypeSpec.Generator
                 return new CSharpType(frameworkType);
             }
 
-            // If the type cannot be resolved as a framework type, parse the fully qualified name
-            // and create a CSharpType using the internal constructor
-            var lastDotIndex = externalType.Identity.LastIndexOf('.');
-            string ns;
-            string name;
-
-            if (lastDotIndex > 0)
-            {
-                ns = externalType.Identity.Substring(0, lastDotIndex);
-                name = externalType.Identity.Substring(lastDotIndex + 1);
-            }
-            else
-            {
-                // If no namespace, assume global namespace
-                ns = string.Empty;
-                name = externalType.Identity;
-            }
-
-            return new CSharpType(
-                name: name,
-                ns: ns,
-                isValueType: false,
-                isNullable: false,
-                declaringType: null,
-                args: Array.Empty<CSharpType>(),
-                isPublic: true,
-                isStruct: false);
+            // External types that cannot be resolved as framework types are not supported
+            // The emitter should have already reported a diagnostic for this case
+            return null;
         }
 
         /// <summary>
