@@ -93,7 +93,26 @@ export class SchemaToExpressionGenerator {
   ): string {
     let type = "unknown";
 
-    if (schema.const !== undefined) {
+    // Handle OpenAPI 3.1 type arrays like ["integer", "null"]
+    if (Array.isArray(schema.type)) {
+      const types: string[] = [];
+      for (const t of schema.type) {
+        if (t === "null") {
+          types.push("null");
+        } else {
+          // Create a schema with a single type to reuse existing type extraction logic
+          // Remove type array, nullable, and default to avoid double-processing
+          const singleTypeSchema: OpenAPI3Schema = { 
+            ...schema, 
+            type: t as any,
+            nullable: undefined,
+            default: undefined,
+          };
+          types.push(this.getTypeFromSchema(singleTypeSchema, callingScope, isHttpPart, encoding, context));
+        }
+      }
+      type = types.join(" | ");
+    } else if (schema.const !== undefined) {
       type = JSON.stringify(schema.const);
     } else if (schema.enum) {
       type = getEnum(schema.enum);

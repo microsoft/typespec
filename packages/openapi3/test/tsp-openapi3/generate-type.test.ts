@@ -274,6 +274,29 @@ const testScenarios: TestScenario[] = [
     },
     expected: "{missingTypeProp: { foo?: string}}",
   },
+  // OpenAPI 3.1 type arrays
+  { schema: { type: ["integer", "null"] as any, format: "int32" }, expected: "int32 | null" },
+  { schema: { type: ["string", "null"] as any }, expected: "string | null" },
+  { schema: { type: ["boolean", "null"] as any }, expected: "boolean | null" },
+  { schema: { type: ["number", "null"] as any, format: "float" }, expected: "float32 | null" },
+  {
+    schema: { type: ["integer", "null"] as any, format: "int32", minimum: 1, maximum: 20 },
+    expected: "int32 | null",
+  },
+  {
+    schema: { type: ["string", "null"] as any, format: "date-time" },
+    expected: "utcDateTime | null",
+  },
+  // Multiple non-null types in array (edge case)
+  {
+    schema: { type: ["string", "integer"] as any },
+    expected: "string | integer",
+  },
+  // Type array with three types including null
+  {
+    schema: { type: ["string", "integer", "null"] as any },
+    expected: "string | integer | null",
+  },
 ];
 
 describe("tsp-openapi: generate-type", () => {
