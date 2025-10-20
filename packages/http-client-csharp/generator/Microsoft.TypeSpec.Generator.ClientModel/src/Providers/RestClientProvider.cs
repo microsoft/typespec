@@ -333,25 +333,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 if (type?.IsCollection == true)
                 {
-                    // For TimeSpan collections with duration encoding, handle directly instead of using SetHeaderDelimited
-                    if (type.ElementType.FrameworkType == typeof(TimeSpan) && IsDurationEncodingFormat(serializationFormat))
-                    {
-                        // Create a list to collect converted string values
-                        var listDeclaration = Declare("values", New.List<string>(), out var valuesList);
-                        var foreachStatement = new ForEachStatement("item", valueExpression.As(type), out VariableExpression item);
-                        var convertedValue = GetParameterValueExpression(item, type.ElementType, format, serializationFormat);
-                        foreachStatement.Add(valuesList.Invoke("Add", convertedValue).Terminate());
-
-                        // Join the values with delimiter and set the header
-                        var joinedValue = StringSnippets.Join(Literal(inputHeaderParameter.ArraySerializationDelimiter), valuesList);
-                        statements.Add(listDeclaration);
-                        statements.Add(foreachStatement);
-                        statement = request.SetHeaders([Literal(inputHeaderParameter.SerializedName), joinedValue.As<string>()]);
-                    }
-                    else
-                    {
-                        statement = request.SetHeaderDelimited(inputHeaderParameter.SerializedName, valueExpression, Literal(inputHeaderParameter.ArraySerializationDelimiter), GetSerializationFormatEnumValue(serializationFormat));
-                    }
+                    statement = request.SetHeaderDelimited(inputHeaderParameter.SerializedName, valueExpression, Literal(inputHeaderParameter.ArraySerializationDelimiter), GetSerializationFormatEnumValue(serializationFormat));
                 }
                 else
                 {
@@ -464,28 +446,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Array handling
             if (!inputQueryParameter.Explode)
             {
-                // For TimeSpan collections with duration encoding, handle directly instead of using AppendQueryDelimited
-                if (paramType.ElementType.FrameworkType == typeof(TimeSpan) && IsDurationEncodingFormat(serializationFormat))
-                {
-                    // Create a list to collect converted string values
-                    var listDeclaration = Declare("values", New.List<string>(), out var valuesList);
-                    var foreachStatement = new ForEachStatement("item", valueExpression.As(paramType), out VariableExpression item);
-                    var convertedValue = GetParameterValueExpression(item, paramType.ElementType, format, serializationFormat);
-                    foreachStatement.Add(valuesList.Invoke("Add", convertedValue).Terminate());
-
-                    // Join the values with delimiter and append as single query parameter
-                    var joinedValue = StringSnippets.Join(Literal(delimiter), valuesList);
-                    return new MethodBodyStatement[]
-                    {
-                        listDeclaration,
-                        foreachStatement,
-                        uri.AppendQuery(Literal(inputQueryParameter.SerializedName), joinedValue, true).Terminate()
-                    };
-                }
-                else
-                {
-                    return uri.AppendQueryDelimited(Literal(inputQueryParameter.SerializedName), valueExpression, GetSerializationFormatEnumValue(serializationFormat), true, delimiter: delimiter).Terminate();
-                }
+                return uri.AppendQueryDelimited(Literal(inputQueryParameter.SerializedName), valueExpression, GetSerializationFormatEnumValue(serializationFormat), true, delimiter: delimiter).Terminate();
             }
             else
             {
@@ -494,11 +455,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (paramType.ElementType.IsEnum)
                 {
                     convertedItem = paramType.ElementType.ToSerial(item);
-                }
-                else if (paramType.ElementType.FrameworkType == typeof(TimeSpan))
-                {
-                    // For TimeSpan with duration encoding, convert to total seconds/milliseconds
-                    convertedItem = GetParameterValueExpression(item, paramType.ElementType, format, serializationFormat);
                 }
                 else
                 {
@@ -742,30 +698,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private static ValueExpression GetParameterValueExpression(ValueExpression valueExpression, CSharpType? type, string? format, SerializationFormat serializationFormat)
         {
-            // For TimeSpan with duration seconds/milliseconds encoding, use TotalSeconds/TotalMilliseconds instead of ToString
-            if (type?.FrameworkType == typeof(TimeSpan))
-            {
-                return serializationFormat switch
-                {
-                    SerializationFormat.Duration_Seconds => ConvertSnippets.InvokeToInt32(valueExpression.As<TimeSpan>().TotalSeconds()).InvokeToString(),
-                    SerializationFormat.Duration_Seconds_Float or SerializationFormat.Duration_Seconds_Double => valueExpression.As<TimeSpan>().TotalSeconds().InvokeToString(),
-                    SerializationFormat.Duration_Milliseconds => ConvertSnippets.InvokeToInt32(valueExpression.As<TimeSpan>().TotalMilliseconds()).InvokeToString(),
-                    SerializationFormat.Duration_Milliseconds_Float or SerializationFormat.Duration_Milliseconds_Double => valueExpression.As<TimeSpan>().TotalMilliseconds().InvokeToString(),
-                    _ => TypeFormattersSnippets.ConvertToString(valueExpression, Literal(format))
-                };
-            }
-
-            return TypeFormattersSnippets.ConvertToString(valueExpression, Literal(format));
-        }
-
-        private static bool IsDurationEncodingFormat(SerializationFormat serializationFormat)
-        {
-            return serializationFormat == SerializationFormat.Duration_Seconds ||
-                   serializationFormat == SerializationFormat.Duration_Seconds_Float ||
-                   serializationFormat == SerializationFormat.Duration_Seconds_Double ||
-                   serializationFormat == SerializationFormat.Duration_Milliseconds ||
-                   serializationFormat == SerializationFormat.Duration_Milliseconds_Float ||
-                   serializationFormat == SerializationFormat.Duration_Milliseconds_Double;
+            return TypeFormattersSnippets.ConvertToString(valueExpression, GetSerializationFormatEnumValue(serializationFormat));
         }
 
         private static ValueExpression GetSerializationFormatEnumValue(SerializationFormat serializationFormat)
