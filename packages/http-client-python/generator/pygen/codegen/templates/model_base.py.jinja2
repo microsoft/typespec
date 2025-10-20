@@ -25,6 +25,9 @@ from {{ code_model.core_library }}.exceptions import DeserializationError
 from {{ code_model.core_library }}{{ "" if code_model.is_azure_flavor else ".utils" }} import CaseInsensitiveEnumMeta
 from {{ code_model.core_library }}.{{ "" if code_model.is_azure_flavor else "runtime." }}pipeline import PipelineResponse
 from {{ code_model.core_library }}.serialization import _Null
+{% if code_model.is_azure_flavor %}
+from {{ code_model.core_library }}.serialization import TypeHandlerRegistry
+{% endif %}
 from {{ code_model.core_library }}.rest import HttpResponse
 
 _LOGGER = logging.getLogger(__name__)
@@ -33,6 +36,10 @@ __all__ = ["SdkJSONEncoder", "Model", "rest_field", "rest_discriminator"]
 
 TZ_UTC = timezone.utc
 _T = typing.TypeVar("_T")
+
+{% if code_model.is_azure_flavor %}
+TYPE_HANDLER_REGISTRY = TypeHandlerRegistry()
+{% endif %}
 
 
 def _timedelta_as_isostr(td: timedelta) -> str:
@@ -158,6 +165,11 @@ class SdkJSONEncoder(JSONEncoder):
             except AttributeError:
                 # This will be raised when it hits value.total_seconds in the method above
                 pass
+            {% if code_model.is_azure_flavor %}
+            custom_serializer = TYPE_HANDLER_REGISTRY.get_serializer(o)
+            if custom_serializer:
+                return custom_serializer(o)
+            {% endif %}
             return super(SdkJSONEncoder, self).default(o)
 
 
@@ -507,6 +519,14 @@ def _serialize(o, format: typing.Optional[str] = None):  # pylint: disable=too-m
     except AttributeError:
         # This will be raised when it hits value.total_seconds in the method above
         pass
+    
+    {% if code_model.is_azure_flavor %}
+    # Check if there's a custom serializer for the type
+    custom_serializer = TYPE_HANDLER_REGISTRY.get_serializer(o)
+    if custom_serializer:
+        return custom_serializer(o)
+    {% endif %}
+
     return o
 
 
@@ -887,6 +907,12 @@ def _get_deserialize_callable_from_annotation(  # pylint: disable=too-many-retur
 
     if get_deserializer(annotation, rf):
         return functools.partial(_deserialize_default, get_deserializer(annotation, rf))
+
+    {% if code_model.is_azure_flavor %}
+    deserializer = TYPE_HANDLER_REGISTRY.get_deserializer(annotation)
+    if deserializer:
+        return deserializer
+    {% endif %}
 
     return functools.partial(_deserialize_default, annotation)
 
