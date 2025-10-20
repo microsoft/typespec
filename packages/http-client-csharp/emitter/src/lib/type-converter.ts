@@ -476,30 +476,6 @@ function fromSdkExternalType(
   sdkType: SdkType,
 ): InputExternalType {
   const external = (sdkType as any).external;
-  
-  // Check if this is a known framework type - if not, emit a warning
-  // Common framework types that are likely to work
-  const knownFrameworkTypes = [
-    /^System\./,
-    /^Microsoft\.Extensions\./,
-    /^System\.Collections\./,
-    /^System\.Text\./,
-    /^System\.Net\./,
-  ];
-  
-  const isLikelyFrameworkType = knownFrameworkTypes.some(pattern => 
-    pattern.test(external.identity)
-  );
-  
-  if (!isLikelyFrameworkType) {
-    // Emit a warning for external types that are unlikely to be framework types
-    sdkContext.logger.reportDiagnostic({
-      code: "unsupported-external-type",
-      format: { identity: external.identity },
-      target: sdkType.__raw ?? NoTarget,
-    });
-  }
-  
   return {
     kind: "external",
     identity: external.identity,

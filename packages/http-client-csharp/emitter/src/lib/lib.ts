@@ -107,12 +107,6 @@ const diags: { [code: string]: DiagnosticDefinition<DiagnosticMessages> } = {
       default: paramMessage`Unsupported continuation location for operation ${"crossLanguageDefinitionId"}.`,
     },
   },
-  "unsupported-external-type": {
-    severity: "warning",
-    messages: {
-      default: paramMessage`External type '${"identity"}' cannot be resolved as a framework type and will not be generated. Only framework types are supported as external type references.`,
-    },
-  },
 };
 
 /**

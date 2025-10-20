@@ -247,7 +247,11 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             // External types that cannot be resolved as framework types are not supported
-            // The emitter should have already reported a diagnostic for this case
+            // Report a diagnostic to inform the user
+            CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                "unsupported-external-type",
+                $"External type '{externalType.Identity}' cannot be resolved as a framework type and will not be generated. Only framework types are supported as external type references.");
+
             return null;
         }
 
