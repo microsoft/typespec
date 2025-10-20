@@ -5,7 +5,7 @@ import { beforeEach, describe } from "vitest";
 import { contrastResult, preContrastResult, startWithCommandPalette } from "./common/common-steps";
 import { inputProjectName, selectEmitters, selectTemplate } from "./common/create-steps";
 import { mockShowOpenDialog } from "./common/mock-dialogs";
-import { CaseScreenshot, tempDir, test } from "./common/utils";
+import { CaseScreenshot, test, testfilesDir } from "./common/utils";
 
 enum CreateProjectTriggerType {
   Click = "RightClick",
@@ -21,7 +21,7 @@ type CreateConfigType = {
   expectedResults: string[];
 };
 
-const CreateTypespecProjectFolderPath = path.resolve(tempDir, "CreateTypespecProject");
+const CreateTypespecProjectFolderPath = path.resolve(testfilesDir, "CreateTypespecProject");
 
 const createCase = "CreateTypespecProject";
 const templateName = "Generic Rest API";

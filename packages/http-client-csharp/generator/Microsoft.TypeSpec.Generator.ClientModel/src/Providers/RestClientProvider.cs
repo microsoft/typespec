@@ -749,6 +749,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             foreach (InputParameter inputParam in inputParameters)
             {
+                if (inputParam.IsReadOnly)
+                {
+                    continue;
+                }
+
                 if (TryGetAcceptHeaderWithMultipleContentTypes(inputParam, serviceMethod.Operation, out _))
                 {
                     continue;

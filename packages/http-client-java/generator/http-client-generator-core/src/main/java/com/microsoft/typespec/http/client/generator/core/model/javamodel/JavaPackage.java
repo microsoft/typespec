@@ -370,8 +370,9 @@ public class JavaPackage {
         addJavaFile(javaFile);
     }
 
-    public void addTypeSpecMetadata(TypeSpecMetadata typeSpecMetadata) {
-        String filePath = "src/main/resources/META-INF/" + typeSpecMetadata.getArtifactId() + "_metadata.json";
+    public void addTypeSpecMetadata(TypeSpecMetadata typeSpecMetadata, String suffix) {
+        String filePath = "src/main/resources/META-INF/" + typeSpecMetadata.getArtifactId() + "_metadata"
+            + (suffix == null ? "" : "_" + suffix) + ".json";
         try {
             TextFile textFile = new TextFile(filePath, typeSpecMetadata.toJsonString());
             this.checkDuplicateFile(textFile.getFilePath());
