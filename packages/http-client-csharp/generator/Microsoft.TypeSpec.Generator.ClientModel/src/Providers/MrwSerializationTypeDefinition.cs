@@ -1905,6 +1905,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     SerializationFormat.Duration_Seconds => TimeSpanSnippets.FromSeconds(element.GetInt32()),
                     SerializationFormat.Duration_Seconds_Float or SerializationFormat.Duration_Seconds_Double => TimeSpanSnippets.FromSeconds(element.GetDouble()),
+                    SerializationFormat.Duration_Milliseconds => TimeSpanSnippets.FromMilliseconds(element.GetInt32()),
+                    SerializationFormat.Duration_Milliseconds_Float or SerializationFormat.Duration_Milliseconds_Double => TimeSpanSnippets.FromMilliseconds(element.GetDouble()),
                     _ => element.GetTimeSpan(format.ToFormatSpecifier())
                 },
                 _ => null,
@@ -1958,6 +1960,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 SerializationFormat.Duration_Seconds => utf8JsonWriter.WriteNumberValue(ConvertSnippets.InvokeToInt32(value.As<TimeSpan>().TotalSeconds())),
                 SerializationFormat.Duration_Seconds_Float or SerializationFormat.Duration_Seconds_Double => utf8JsonWriter.WriteNumberValue(value.As<TimeSpan>().TotalSeconds()),
+                SerializationFormat.Duration_Milliseconds => utf8JsonWriter.WriteNumberValue(ConvertSnippets.InvokeToInt32(value.As<TimeSpan>().TotalMilliseconds())),
+                SerializationFormat.Duration_Milliseconds_Float or SerializationFormat.Duration_Milliseconds_Double => utf8JsonWriter.WriteNumberValue(value.As<TimeSpan>().TotalMilliseconds()),
                 SerializationFormat.DateTime_Unix => utf8JsonWriter.WriteNumberValue(value, format),
                 _ => format is not null ? utf8JsonWriter.WriteStringValue(value, format) : utf8JsonWriter.WriteStringValue(value)
             };
