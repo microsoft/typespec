@@ -4,6 +4,7 @@
 using System;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Expressions;
+using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
@@ -39,17 +40,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
 
         public static ScopedApi<string> ConvertToString(this ValueExpression value, ValueExpression? format = null)
         {
+            var serializationFormatType = new CSharpType(typeof(SerializationFormatDefinition));
+            var defaultFormat = new MemberExpression(serializationFormatType, "Default");
             var arguments = format != null
                 ? new[] { value, format }
-                : [value];
+                : new[] { value, defaultFormat };
             return Static<TypeFormattersDefinition>().Invoke(ConvertToStringMethodName, arguments).As<string>();
         }
 
         public static ScopedApi<string> ConvertToString(this ParameterProvider value, ValueExpression? format = null)
         {
+            var serializationFormatType = new CSharpType(typeof(SerializationFormatDefinition));
+            var defaultFormat = new MemberExpression(serializationFormatType, "Default");
             var arguments = format != null
-                ? new[] { value, format }
-                : [value];
+                ? new ValueExpression[] { value, format }
+                : new ValueExpression[] { value, defaultFormat };
             return Static<TypeFormattersDefinition>().Invoke(ConvertToStringMethodName, arguments).As<string>();
         }
     }
