@@ -395,9 +395,9 @@ function Add-DebugProfile {
         $dllPath = "`"$resolvedSdkPath/TempTypeSpecFiles/node_modules/$scopeName/$packageName/dist/generator/Microsoft.TypeSpec.Generator.dll`""
     }
     
-    # Create the new profile with --debug flag
+    # Create the new profile
     $newProfile = @{
-        commandLineArgs = "$dllPath `"$resolvedSdkPath`" -g $generatorName --debug"
+        commandLineArgs = "$dllPath `"$resolvedSdkPath`" -g $generatorName"
         commandName = "Executable"
         executablePath = "dotnet"
     }
@@ -410,7 +410,7 @@ function Add-DebugProfile {
     Write-Host "Added debug profile '$profileName' to launchSettings.json" -ForegroundColor Green
     Write-Host "Profile configuration:" -ForegroundColor Cyan
     Write-Host "  - Executable: dotnet" -ForegroundColor White
-    Write-Host "  - Arguments: $dllPath `"$resolvedSdkPath`" -g $generatorName --debug" -ForegroundColor White
+    Write-Host "  - Arguments: $dllPath `"$resolvedSdkPath`" -g $generatorName" -ForegroundColor White
     Write-Host "  - Generator: $generatorName" -ForegroundColor White
     if (-not $IsOpenAI) {
         Write-Host "  - Package: $packageName" -ForegroundColor White
