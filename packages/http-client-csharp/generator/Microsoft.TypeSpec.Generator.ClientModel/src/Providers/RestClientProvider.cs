@@ -570,24 +570,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var isClientParameter = ClientProvider.ClientParameters.Any(p => p.Name == paramName);
                 CSharpType? type;
                 string? format;
+                SerializationFormat serializationFormat;
                 ValueExpression? valueExpression;
                 InputParameter? inputParam = null;
                 if (isClientParameter)
                 {
-                    GetParamInfo(paramMap[paramName], out type, out format, out valueExpression);
+                    GetParamInfo(paramMap[paramName], out type, out format, out serializationFormat, out valueExpression);
                 }
                 else
                 {
                     if (isClientParameter)
                     {
-                        GetParamInfo(paramMap[paramName], out type, out format, out valueExpression);
+                        GetParamInfo(paramMap[paramName], out type, out format, out serializationFormat, out valueExpression);
                     }
                     else
                     {
                         inputParam = inputParamMap[paramName];
                         if (inputParam is InputPathParameter || inputParam is InputEndpointParameter)
                         {
-                            GetParamInfo(paramMap, operation, inputParam, out type, out format, out valueExpression);
+                            GetParamInfo(paramMap, operation, inputParam, out type, out format, out serializationFormat, out valueExpression);
                             if (valueExpression == null)
                             {
                                 break;
@@ -705,16 +706,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return TypeFormattersSnippets.ConvertToString(valueExpression, Literal(format));
-        }
-
-        private static void GetParamInfo(Dictionary<string, ParameterProvider> paramMap, InputOperation operation, InputParameter inputParam, out CSharpType? type, out string? format, out ValueExpression? valueExpression)
-        {
-            GetParamInfo(paramMap, operation, inputParam, out type, out format, out _, out valueExpression);
-        }
-
-        private static void GetParamInfo(ParameterProvider paramProvider, out CSharpType? type, out string? format, out ValueExpression valueExpression)
-        {
-            GetParamInfo(paramProvider, out type, out format, out _, out valueExpression);
         }
 
         private static bool TryGetSpecialHeaderParam(InputParameter inputParameter, [NotNullWhen(true)] out ParameterProvider? parameterProvider)
