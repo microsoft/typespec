@@ -18,8 +18,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
         public static InvokeMethodExpression AppendPath(this ScopedApi uriBuilder, ValueExpression path, bool? shouldEscape)
             => uriBuilder.Invoke("AppendPath", path, Literal(shouldEscape));
 
-        public static InvokeMethodExpression AppendPathDelimited(this ScopedApi uriBuilder, ValueExpression path, string? format, bool? shouldEscape, string? delimiter = ",")
-            => uriBuilder.Invoke("AppendPathDelimited", [path, Literal(delimiter), Literal(format), Literal(shouldEscape)]);
+        public static InvokeMethodExpression AppendPathDelimited(this ScopedApi uriBuilder, ValueExpression path, ValueExpression? format, bool? shouldEscape, string? delimiter = ",")
+            => format != null
+                ? uriBuilder.Invoke("AppendPathDelimited", [path, Literal(delimiter), format, PositionalReference("escape", Literal(shouldEscape))])
+                : uriBuilder.Invoke("AppendPathDelimited", [path, Literal(delimiter), PositionalReference("escape", Literal(shouldEscape))]);
 
         public static InvokeMethodExpression AppendQuery(this ScopedApi uriBuilder, ValueExpression name, ValueExpression value, bool shouldEscape)
             => uriBuilder.Invoke("AppendQuery", [name, value, Literal(shouldEscape)]);

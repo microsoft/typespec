@@ -609,7 +609,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 bool escape = !inputPathParameter?.SkipUrlEncoding ?? true;
                 if (type?.OutputType.IsCollection == true)
                 {
-                    statements.Add(uri.AppendPathDelimited(valueExpression, format, escape).Terminate());
+                    statements.Add(uri.AppendPathDelimited(valueExpression, GetFormatEnumValue(serializationFormat), escape).Terminate());
                 }
                 else
                 {
