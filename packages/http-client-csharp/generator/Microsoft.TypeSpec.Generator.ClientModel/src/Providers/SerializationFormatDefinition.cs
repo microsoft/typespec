@@ -48,38 +48,38 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override IReadOnlyList<EnumTypeMember> BuildEnumValues()
         {
-            var enumValues = new List<(string Name, int Value)>
+            var enumValues = new List<(string Name, int Value, string Description)>
             {
-                ("Default", 0),
-                ("DateTime_RFC1123", 1),
-                ("DateTime_RFC3339", 2),
-                ("DateTime_RFC7231", 3),
-                ("DateTime_ISO8601", 4),
-                ("DateTime_Unix", 5),
-                ("Date_ISO8601", 6),
-                ("Duration_ISO8601", 7),
-                ("Duration_Constant", 8),
-                ("Duration_Seconds", 9),
-                ("Duration_Seconds_Float", 10),
-                ("Duration_Seconds_Double", 11),
-                ("Duration_Milliseconds", 12),
-                ("Duration_Milliseconds_Float", 13),
-                ("Duration_Milliseconds_Double", 14),
-                ("Time_ISO8601", 15),
-                ("Bytes_Base64Url", 16),
-                ("Bytes_Base64", 17),
+                (Default, 0, "The default serialization format."),
+                (DateTime_RFC1123, 1, "The RFC1123 date time format."),
+                (DateTime_RFC3339, 2, "The RFC3339 date time format."),
+                (DateTime_RFC7231, 3, "The RFC7231 date time format."),
+                (DateTime_ISO8601, 4, "The ISO8601 date time format."),
+                (DateTime_Unix, 5, "The Unix date time format."),
+                (Date_ISO8601, 6, "The ISO8601 date format."),
+                (Duration_ISO8601, 7, "The ISO8601 duration format."),
+                (Duration_Constant, 8, "The constant duration format."),
+                (Duration_Seconds, 9, "The seconds duration format."),
+                (Duration_Seconds_Float, 10, "The seconds duration format with float precision."),
+                (Duration_Seconds_Double, 11, "The seconds duration format with double precision."),
+                (Duration_Milliseconds, 12, "The milliseconds duration format."),
+                (Duration_Milliseconds_Float, 13, "The milliseconds duration format with float precision."),
+                (Duration_Milliseconds_Double, 14, "The milliseconds duration format with double precision."),
+                (Time_ISO8601, 15, "The ISO8601 time format."),
+                (Bytes_Base64Url, 16, "The Base64Url bytes format."),
+                (Bytes_Base64, 17 , "The Base64 bytes format."),
             };
 
             var members = new EnumTypeMember[enumValues.Count];
             for (int i = 0; i < enumValues.Count; i++)
             {
-                var (name, value) = (enumValues[i].Name, enumValues[i].Value);
+                var (name, value, description ) = enumValues[i];
                 var field = new FieldProvider(
                     FieldModifiers.Public | FieldModifiers.Static,
                     EnumUnderlyingType,
                     name,
                     this,
-                    $"{name}",
+                    $"{description}",
                     Int(value));
                 members[i] = new EnumTypeMember(name, field, value);
             }

@@ -9,41 +9,41 @@ namespace SampleTypeSpec
 {
     internal enum SerializationFormat
     {
-        /// <summary> Default. </summary>
+        /// <summary> The default serialization format. </summary>
         Default = 0,
-        /// <summary> DateTime_RFC1123. </summary>
+        /// <summary> The RFC1123 date time format. </summary>
         DateTime_RFC1123 = 1,
-        /// <summary> DateTime_RFC3339. </summary>
+        /// <summary> The RFC3339 date time format. </summary>
         DateTime_RFC3339 = 2,
-        /// <summary> DateTime_RFC7231. </summary>
+        /// <summary> The RFC7231 date time format. </summary>
         DateTime_RFC7231 = 3,
-        /// <summary> DateTime_ISO8601. </summary>
+        /// <summary> The ISO8601 date time format. </summary>
         DateTime_ISO8601 = 4,
-        /// <summary> DateTime_Unix. </summary>
+        /// <summary> The Unix date time format. </summary>
         DateTime_Unix = 5,
-        /// <summary> Date_ISO8601. </summary>
+        /// <summary> The ISO8601 date format. </summary>
         Date_ISO8601 = 6,
-        /// <summary> Duration_ISO8601. </summary>
+        /// <summary> The ISO8601 duration format. </summary>
         Duration_ISO8601 = 7,
-        /// <summary> Duration_Constant. </summary>
+        /// <summary> The constant duration format. </summary>
         Duration_Constant = 8,
-        /// <summary> Duration_Seconds. </summary>
+        /// <summary> The seconds duration format. </summary>
         Duration_Seconds = 9,
-        /// <summary> Duration_Seconds_Float. </summary>
+        /// <summary> The seconds duration format with float precision. </summary>
         Duration_Seconds_Float = 10,
-        /// <summary> Duration_Seconds_Double. </summary>
+        /// <summary> The seconds duration format with double precision. </summary>
         Duration_Seconds_Double = 11,
-        /// <summary> Duration_Milliseconds. </summary>
+        /// <summary> The milliseconds duration format. </summary>
         Duration_Milliseconds = 12,
-        /// <summary> Duration_Milliseconds_Float. </summary>
+        /// <summary> The milliseconds duration format with float precision. </summary>
         Duration_Milliseconds_Float = 13,
-        /// <summary> Duration_Milliseconds_Double. </summary>
+        /// <summary> The milliseconds duration format with double precision. </summary>
         Duration_Milliseconds_Double = 14,
-        /// <summary> Time_ISO8601. </summary>
+        /// <summary> The ISO8601 time format. </summary>
         Time_ISO8601 = 15,
-        /// <summary> Bytes_Base64Url. </summary>
+        /// <summary> The Base64Url bytes format. </summary>
         Bytes_Base64Url = 16,
-        /// <summary> Bytes_Base64. </summary>
+        /// <summary> The Base64 bytes format. </summary>
         Bytes_Base64 = 17
     }
 }
