@@ -229,17 +229,6 @@ export function isAsciiIdentifierContinue(ch: number) {
   );
 }
 
-export function isAsciiDocIdentifierContinue(ch: number) {
-  return (
-    (ch >= CharCode.A && ch <= CharCode.Z) ||
-    (ch >= CharCode.a && ch <= CharCode.z) ||
-    (ch >= CharCode._0 && ch <= CharCode._9) ||
-    ch === CharCode.$ ||
-    ch === CharCode._ ||
-    ch === CharCode.Minus // Support hyphen
-  );
-}
-
 export function isIdentifierStart(codePoint: number) {
   return (
     isAsciiIdentifierStart(codePoint) ||
@@ -250,13 +239,6 @@ export function isIdentifierStart(codePoint: number) {
 export function isIdentifierContinue(codePoint: number) {
   return (
     isAsciiIdentifierContinue(codePoint) ||
-    (codePoint > CharCode.MaxAscii && isNonAsciiIdentifierCharacter(codePoint))
-  );
-}
-
-export function isDocIdentifierContinue(codePoint: number) {
-  return (
-    isAsciiDocIdentifierContinue(codePoint) ||
     (codePoint > CharCode.MaxAscii && isNonAsciiIdentifierCharacter(codePoint))
   );
 }
