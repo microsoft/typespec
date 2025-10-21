@@ -1,6 +1,7 @@
 import { ApiVersions, Parameter } from "@autorest/codemodel";
 import { Operation } from "@typespec/compiler";
 import { Version } from "@typespec/versioning";
+import { isVersionEarlierThan, isVersionedByDate } from "./versioning-utils.js";
 
 export class ClientContext {
   baseUri: string;
@@ -45,6 +46,19 @@ export class ClientContext {
         }
         if (includeVersion) {
           addedVersions.push(version);
+        }
+      }
+
+      if (addedVersions.length === 0 && isVersionedByDate(addedVersion)) {
+        // try again with versioning by YYYY-MM-DD(-preview)
+        let includeVersion = false;
+        for (const version of this.apiVersions) {
+          if (isVersionedByDate(version) && isVersionEarlierThan(addedVersion, version)) {
+            includeVersion = true;
+          }
+          if (includeVersion) {
+            addedVersions.push(version);
+          }
         }
       }
     }
