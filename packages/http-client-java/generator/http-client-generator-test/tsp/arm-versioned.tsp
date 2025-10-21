@@ -8,10 +8,7 @@ import "@azure-tools/typespec-client-generator-core";
 using TypeSpec.Http;
 using TypeSpec.Rest;
 using TypeSpec.Versioning;
-using Azure.Core;
 using Azure.ResourceManager;
-using Azure.ClientGenerator.Core;
-using Azure.ClientGenerator.Core.Legacy;
 
 @armProviderNamespace
 @service(#{ title: "ArmVersioned" })
@@ -21,6 +18,7 @@ namespace TspTest.ArmVersioned;
 
 enum Versions {
   v2023_12_01: "2023-12-01",
+  v2024_10_01_preview: "2024-10-01-preview",
   v2024_12_01: "2024-12-01",
 }
 
@@ -39,7 +37,7 @@ model OpParameters {
   @query
   parameter?: string;
 
-  @added(Versions.v2024_12_01)
+  @added(Versions.v2024_10_01_preview)
   @query
   newParameter?: string;
 }
