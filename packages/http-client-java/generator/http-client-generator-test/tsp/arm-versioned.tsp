@@ -1,0 +1,58 @@
+import "@typespec/http";
+import "@typespec/rest";
+import "@typespec/versioning";
+import "@azure-tools/typespec-azure-core";
+import "@azure-tools/typespec-azure-resource-manager";
+import "@azure-tools/typespec-client-generator-core";
+
+using TypeSpec.Http;
+using TypeSpec.Rest;
+using TypeSpec.Versioning;
+using Azure.Core;
+using Azure.ResourceManager;
+using Azure.ClientGenerator.Core;
+using Azure.ClientGenerator.Core.Legacy;
+
+@armProviderNamespace
+@service(#{ title: "ArmVersioned" })
+@versioned(Versions)
+@doc("Arm Resource Provider management API.")
+namespace TspTest.ArmVersioned;
+
+enum Versions {
+  v2023_12_01: "2023-12-01",
+  v2024_12_01: "2024-12-01",
+}
+
+@resource("topLevelArmResources")
+model TopLevelArmResource is TrackedResource<TopLevelArmResourceProperties> {
+  ...ResourceNameParameter<TopLevelArmResourceProperties>;
+}
+
+@doc("Top Level Arm Resource Properties.")
+model TopLevelArmResourceProperties {
+  @visibility(Lifecycle.Read)
+  provisioningState?: ResourceProvisioningState;
+}
+
+model OpParameters {
+  @query
+  parameter?: string;
+
+  @added(Versions.v2024_12_01)
+  @query
+  newParameter?: string;
+}
+
+model Response {}
+
+interface TopLevelArmResources {
+  createOrUpdate is ArmResourceCreateOrUpdateAsync<TopLevelArmResource, Parameters = OpParameters>;
+  listBySubscription is ArmListBySubscription<TopLevelArmResource, Parameters = OpParameters>;
+  action is ArmResourceActionSync<
+    TopLevelArmResource,
+    Request = void,
+    Response = Response,
+    Parameters = OpParameters
+  >;
+}
