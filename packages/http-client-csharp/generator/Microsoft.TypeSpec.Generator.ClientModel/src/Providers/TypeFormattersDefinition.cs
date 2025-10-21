@@ -356,11 +356,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var value = (ValueExpression)valueParameter;
             var invariantCulture = new MemberExpression(typeof(CultureInfo), nameof(CultureInfo.InvariantCulture));
 
-            // Get the format specifier string from SerializationFormat
-            var formatSpecifier = Static(typeof(TypeFormattersDefinition)).Invoke(ToFormatSpecifierMethodName, formatParameter);
+            var body =
+                new[]
+                {
+                    // Get the format specifier string from SerializationFormat
+                    Declare("formatSpecifier", typeof(string), Static(typeof(TypeFormattersDefinition)).Invoke(ToFormatSpecifierMethodName, formatParameter), out var formatSpecifier),
+                    MethodBodyStatement.EmptyLine,
+                    Return(BuildSwitchExpression(value, formatParameter, formatSpecifier, serializationFormatType, invariantCulture))
+                };
 
-            var body = new SwitchExpression(value,
-            [
+            return new(signature, body, this, XmlDocProvider.Empty);
+        }
+
+        private ValueExpression BuildSwitchExpression(ValueExpression value, ValueExpression formatParameter, VariableExpression formatSpecifier, CSharpType serializationFormatType, ValueExpression invariantCulture)
+        {
+            return new SwitchExpression(
+                    value,
+                    [
                 new SwitchCaseExpression(Null, Literal("null")),
                 new SwitchCaseExpression(new DeclarationExpression(typeof(string), "s", out var s), s),
                 new SwitchCaseExpression(new DeclarationExpression(typeof(bool), "b", out var b), TypeFormattersSnippets.ToString(b)),
@@ -386,9 +398,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 new SwitchCaseExpression(new DeclarationExpression(typeof(Guid), "guid", out var guid), guid.Invoke("ToString")),
                 new SwitchCaseExpression(new DeclarationExpression(typeof(BinaryData), "binaryData", out var binaryData), TypeFormattersSnippets.ConvertToString(binaryData.As<BinaryData>().ToArray(), formatParameter)),
                 SwitchCaseExpression.Default(value.InvokeToString())
-            ]);
-
-            return new(signature, body, this, XmlDocProvider.Empty);
+                ]);
         }
 
         private static ValueExpression GetTypePattern(IReadOnlyList<CSharpType> types)
