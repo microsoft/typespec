@@ -10,7 +10,7 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
-    internal sealed class SerializationFormatDefinition : EnumProvider
+    public sealed class SerializationFormatDefinition : EnumProvider
     {
         public SerializationFormatDefinition() : base(null!)
         {
