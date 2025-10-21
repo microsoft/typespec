@@ -1246,6 +1246,9 @@ importers:
 
   packages/openapi3:
     dependencies:
+      '@scalar/json-magic':
+        specifier: ^0.6.1
+        version: 0.6.1
       '@scalar/openapi-parser':
         specifier: ^0.22.3
         version: 0.22.3

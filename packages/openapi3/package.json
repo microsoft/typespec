@@ -62,6 +62,7 @@
     "!dist/test/**"
   ],
   "dependencies": {
+    "@scalar/json-magic": "^0.6.1",
     "@scalar/openapi-parser": "^0.22.3",
     "@scalar/openapi-types": "^0.5.0",
     "@typespec/asset-emitter": "workspace:^",
