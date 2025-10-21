@@ -11,7 +11,7 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
 {
-    internal static class TypeFormattersSnippets
+    public static class TypeFormattersSnippets
     {
         private const string ToStringMethodName = "ToString";
         private const string ToBase64UrlStringMethodName = "ToBase64UrlString";
