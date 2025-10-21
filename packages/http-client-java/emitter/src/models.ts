@@ -36,7 +36,7 @@ export class ClientContext {
 
   getAddedVersions(versions: Version[]): string[] | undefined {
     // currently only allow one added version
-    let addedVersions: string[] = [];
+    const addedVersions: string[] = [];
     const addedVersion = versions.shift()!.value;
     if (this.apiVersions) {
       let includeVersion = false;
