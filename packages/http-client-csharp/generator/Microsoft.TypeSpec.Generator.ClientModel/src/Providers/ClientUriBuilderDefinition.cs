@@ -252,7 +252,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var valueParameter = new ParameterProvider("value", $"The value.", valueType);
             var escapeParameter = new ParameterProvider("escape", $"Whether to escape the value.", typeof(bool), Bool(escapeDefaultValue));
             var serializationFormatType = ScmCodeModelGenerator.Instance.SerializationFormatDefinition.Type;
-            var formatParameter = new ParameterProvider("format", $"The format.", serializationFormatType);
+            var formatParameter = new ParameterProvider("format", FormattableStringHelpers.Empty, serializationFormatType, new MemberExpression(serializationFormatType, "Default"));
             var parameters = hasFormat
                 ? new[] { nameParameter, valueParameter, formatParameter, escapeParameter }
                 : new[] { nameParameter, valueParameter, escapeParameter };

@@ -25,9 +25,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
 
         public static MethodBodyStatement SetHeaderDelimited(this HttpRequestApi pipelineRequest, string name, ValueExpression value, ValueExpression delimiter, ValueExpression? format = null)
         {
-            var serializationFormatType = new CSharpType(typeof(SerializationFormatDefinition));
-            var defaultFormat = new MemberExpression(serializationFormatType, "Default");
-            ValueExpression[] parameters = format != null ? [Literal(name), value, delimiter, format] : [Literal(name), value, delimiter, defaultFormat];
+            ValueExpression[] parameters = format != null ? [Literal(name), value, delimiter, format] : [Literal(name), value, delimiter];
             return pipelineRequest.Property(nameof(PipelineRequest.Headers)).Invoke("SetDelimited", parameters).Terminate();
         }
     }
