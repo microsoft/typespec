@@ -95,11 +95,7 @@ export class SchemaToExpressionGenerator {
 
     // Handle OpenAPI 3.1 type arrays like ["integer", "null"]
     // Only handle the case of exactly 2 types where one is "null"
-    if (
-      Array.isArray(schema.type) &&
-      schema.type.length === 2 &&
-      schema.type.includes("null")
-    ) {
+    if (Array.isArray(schema.type) && schema.type.length === 2 && schema.type.includes("null")) {
       const types: string[] = [];
       for (const t of schema.type) {
         if (t === "null") {

@@ -128,7 +128,11 @@ function generateUnion(union: TypeSpecUnion, context: Context): string {
           getVariantName(member) + context.generateTypeFromRefableSchema(member, union.scope) + ",",
       ),
     );
-  } else if (Array.isArray(schema.type) && schema.type.length === 2 && schema.type.includes("null")) {
+  } else if (
+    Array.isArray(schema.type) &&
+    schema.type.length === 2 &&
+    schema.type.includes("null")
+  ) {
     // Handle OpenAPI 3.1 type arrays like ["integer", "null"]
     // Only handle the case of exactly 2 types where one is "null"
     for (const t of schema.type) {
