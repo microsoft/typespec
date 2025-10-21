@@ -40,6 +40,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private ValueExpression UriBuilderPath => new MemberExpression(UriBuilderProperty, "Path");
         private ValueExpression UriBuilderQuery => new MemberExpression(UriBuilderProperty, "Query");
 
+        private readonly ParameterProvider _formatParameter = new ParameterProvider("format", $"The format.", ScmCodeModelGenerator.Instance.SerializationFormatDefinition.Type);
+
         private PropertyProvider? _pathBuilderProperty;
         private PropertyProvider PathBuilderProperty => _pathBuilderProperty ??= new(
             modifiers: MethodSignatureModifiers.Private,
@@ -179,10 +181,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var valueParameter = new ParameterProvider("value", $"The value.", valueType);
             var escapeParameter = new ParameterProvider("escape", $"The escape.", typeof(bool), Bool(escapeDefaultValue));
-            var serializationFormatType = ScmCodeModelGenerator.Instance.SerializationFormatDefinition.Type;
-            var formatParameter = new ParameterProvider("format", $"The format", serializationFormatType);
             var parameters = hasFormat
-                ? new[] { valueParameter, formatParameter, escapeParameter }
+                ? new[] { valueParameter, _formatParameter, escapeParameter }
                 : new[] { valueParameter, escapeParameter };
 
             var signature = new MethodSignature(
@@ -191,7 +191,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 Parameters: parameters,
                 ReturnType: null,
                 Description: null, ReturnDescription: null);
-            var convertToStringExpression = valueParameter.ConvertToString(hasFormat ? (ValueExpression)formatParameter : null);
+            var convertToStringExpression = valueParameter.ConvertToString(hasFormat ? (ValueExpression)_formatParameter : null);
             var body = new InvokeMethodExpression(null, AppendPathMethodName, [convertToStringExpression, escapeParameter]);
 
             return new(signature, body, this, XmlDocProvider.Empty);
@@ -252,7 +252,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var valueParameter = new ParameterProvider("value", $"The value.", valueType);
             var escapeParameter = new ParameterProvider("escape", $"Whether to escape the value.", typeof(bool), Bool(escapeDefaultValue));
             var serializationFormatType = ScmCodeModelGenerator.Instance.SerializationFormatDefinition.Type;
-            var formatParameter = new ParameterProvider("format", FormattableStringHelpers.Empty, serializationFormatType, new MemberExpression(serializationFormatType, "Default"));
+            var formatParameter = new ParameterProvider("format", $"The serialization format.", serializationFormatType, new MemberExpression(serializationFormatType, "Default"));
             var parameters = hasFormat
                 ? new[] { nameParameter, valueParameter, formatParameter, escapeParameter }
                 : new[] { nameParameter, valueParameter, escapeParameter };
@@ -293,13 +293,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var valueParameter =
                 new ParameterProvider("value", $"The value.", new CSharpType(typeof(IEnumerable<>), _t));
             var delimiterParameter = new ParameterProvider("delimiter", $"The delimiter.", typeof(string));
-            var serializationFormatType = ScmCodeModelGenerator.Instance.SerializationFormatDefinition.Type;
-            var formatParameter = new ParameterProvider("format", $"The format.", serializationFormatType);
             var escapeParameter = new ParameterProvider("escape", $"Whether to escape the value.", typeof(bool), Bool(true));
 
             var parameters = hasName
-                ? new[] { nameParameter, valueParameter, delimiterParameter, formatParameter, escapeParameter }
-                : new[] { valueParameter, delimiterParameter, formatParameter, escapeParameter };
+                ? new[] { nameParameter, valueParameter, delimiterParameter, _formatParameter, escapeParameter }
+                : new[] { valueParameter, delimiterParameter, _formatParameter, escapeParameter };
 
             var signature = new MethodSignature(
                 Name: appendDelimitedMethodName,
@@ -312,7 +310,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var value = valueParameter.As(_t);
 
             var v = new VariableExpression(_t, "v");
-            var convertToStringExpression = v.ConvertToString(formatParameter);
+            var convertToStringExpression = v.ConvertToString(_formatParameter);
             var selector = new FuncExpression([v.Declaration], convertToStringExpression).As<string>();
             var body = new[]
             {
