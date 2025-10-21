@@ -1,5 +1,27 @@
 # Change Log - @typespec/html-program-viewer
 
+## 0.74.0
+
+### Bump dependencies
+
+- [#8317](https://github.com/microsoft/typespec/pull/8317) Upgrade dependencies
+
+
+## 0.73.0
+
+### Features
+
+- [#8013](https://github.com/microsoft/typespec/pull/8013) Add button to bookmark types in the type graph into `window.vars`
+
+### Bump dependencies
+
+- [#7978](https://github.com/microsoft/typespec/pull/7978) Upgrade dependencies
+
+### Bug Fixes
+
+- [#7899](https://github.com/microsoft/typespec/pull/7899) Handle new `creating` property
+
+
 ## 0.72.0
 
 ### Features

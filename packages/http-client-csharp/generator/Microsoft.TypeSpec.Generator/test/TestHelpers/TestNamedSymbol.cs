@@ -18,6 +18,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
         private readonly ValueExpression? _parameterDefaultValue;
         private readonly string _typeName;
         private readonly string _typeNamespace;
+        private readonly bool _isStruct;
         protected override string BuildRelativeFilePath() => ".";
 
         protected override string BuildName() => _typeName;
@@ -29,13 +30,15 @@ namespace Microsoft.TypeSpec.Generator.Tests
             Type? parameterType = null,
             ValueExpression? parameterDefaultValue = null,
             string name = "NamedSymbol",
-            string @namespace = "Sample.Models")
+            string @namespace = "Sample.Models",
+            bool isStruct = false)
         {
             _propertyType = propertyType;
             _parameterType = parameterType;
             _parameterDefaultValue = parameterDefaultValue;
             _typeName = name;
             _typeNamespace = @namespace;
+            _isStruct = isStruct;
         }
 
         protected override FieldProvider[] BuildFields()
@@ -130,6 +133,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             return [new TestTypeProvider("Foo")];
         }
 
-        protected override TypeSignatureModifiers BuildDeclarationModifiers() => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Partial |TypeSignatureModifiers.Class;
+        protected override TypeSignatureModifiers BuildDeclarationModifiers()
+            => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Partial | (_isStruct ? TypeSignatureModifiers.Struct : TypeSignatureModifiers.Class);
     }
 }

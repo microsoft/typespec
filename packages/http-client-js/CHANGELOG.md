@@ -1,5 +1,32 @@
 # Changelog - @typespec/http-client-js
 
+## 0.9.0
+
+### Features
+
+- [#8145](https://github.com/microsoft/typespec/pull/8145) Enable component overrides for extensibility
+
+### Bump dependencies
+
+- [#8317](https://github.com/microsoft/typespec/pull/8317) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8362](https://github.com/microsoft/typespec/pull/8362) Upgrade alloy to 0.20
+
+
+## 0.8.0
+
+### Bump dependencies
+
+- [#8050](https://github.com/microsoft/typespec/pull/8050) Upgrade alloy 0.19
+- [#7978](https://github.com/microsoft/typespec/pull/7978) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8056](https://github.com/microsoft/typespec/pull/8056) Fix the missing `main` field issue in package.json
+
+
 ## 0.7.0
 
 ### Bump dependencies

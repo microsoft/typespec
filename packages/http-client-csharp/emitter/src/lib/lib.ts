@@ -83,6 +83,12 @@ const diags: { [code: string]: DiagnosticDefinition<DiagnosticMessages> } = {
       default: paramMessage`Cookie parameter is not supported: ${"parameterName"}, found in operation ${"path"}`,
     },
   },
+  "unsupported-parameter-kind": {
+    severity: "warning",
+    messages: {
+      default: paramMessage`Unsupported parameter kind: ${"parameterKind"}.`,
+    },
+  },
   "unsupported-patch-convenience-method": {
     severity: "warning",
     messages: {

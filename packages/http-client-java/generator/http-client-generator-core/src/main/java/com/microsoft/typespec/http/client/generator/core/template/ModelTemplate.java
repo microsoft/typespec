@@ -258,9 +258,9 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
                     ClientModelProperty targetProperty = propertyReference.getTargetProperty();
 
                     IType propertyClientType = property.getClientType();
-                    final boolean propertyIsReadOnly = immutableModel || property.isReadOnly();
+                    final boolean propertyIsReadOnly = immutableModel || propertyReference.isReadOnly();
 
-                    if (propertyClientType instanceof PrimitiveType && !targetProperty.isRequired()) {
+                    if (propertyClientType instanceof PrimitiveType && !propertyReference.isRequired()) {
                         // since the property to flattened client model is optional, the flattened property should be
                         // optional
                         propertyClientType = propertyClientType.asNullable();

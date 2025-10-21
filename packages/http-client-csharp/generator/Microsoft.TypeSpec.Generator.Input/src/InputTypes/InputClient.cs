@@ -20,7 +20,8 @@ namespace Microsoft.TypeSpec.Generator.Input
             IReadOnlyList<InputServiceMethod> methods,
             IReadOnlyList<InputParameter> parameters,
             InputClient? parent,
-            IReadOnlyList<InputClient>? children)
+            IReadOnlyList<InputClient>? children,
+            IReadOnlyList<string>? apiVersions)
         {
             Name = name;
             Namespace = @namespace;
@@ -31,9 +32,10 @@ namespace Microsoft.TypeSpec.Generator.Input
             Parameters = parameters;
             Parent = parent;
             Children = children ?? [];
+            ApiVersions = apiVersions ?? [];
         }
 
-        public InputClient() : this(string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, Array.Empty<InputServiceMethod>(), Array.Empty<InputParameter>(), null, null) { }
+        public InputClient() : this(string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, Array.Empty<InputServiceMethod>(), Array.Empty<InputParameter>(), null, null, null) { }
 
         public string Name { get; internal set; }
         public string Namespace { get; internal set; }
@@ -45,6 +47,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         public InputClient? Parent { get; internal set; }
         public IReadOnlyList<InputClient> Children { get; internal set; }
         public IReadOnlyList<InputDecoratorInfo> Decorators { get; internal set; } = new List<InputDecoratorInfo>();
+        public IReadOnlyList<string> ApiVersions { get; internal set; }
 
         public string Key
         {

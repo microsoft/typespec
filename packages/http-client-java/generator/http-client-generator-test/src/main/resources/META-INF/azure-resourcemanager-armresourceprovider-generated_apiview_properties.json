@@ -132,7 +132,7 @@
     "tsptest.armresourceprovider.fluent.models.TopLevelArmResourceUpdateProperties": "Azure.ResourceManager.Foundations.ResourceUpdateModelProperties",
     "tsptest.armresourceprovider.implementation.ArmClientBuilder": "TspTest.ArmResourceProvider",
     "tsptest.armresourceprovider.implementation.models.ChildExtensionResourceListResult": "Azure.ResourceManager.ResourceListResult",
-    "tsptest.armresourceprovider.implementation.models.ChildResourceListResult": "Azure.ResourceManager.ResourceListResult",
+    "tsptest.armresourceprovider.implementation.models.ChildResourceListResult": "TspTest.ArmResourceProvider.ChildResourceListResult",
     "tsptest.armresourceprovider.implementation.models.OperationListResult": "Azure.ResourceManager.CommonTypes.OperationListResult",
     "tsptest.armresourceprovider.implementation.models.ResourceListResult": "Azure.ResourceManager.ResourceListResult",
     "tsptest.armresourceprovider.models.ActionType": "Azure.ResourceManager.CommonTypes.ActionType",

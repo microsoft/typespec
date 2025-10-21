@@ -8,7 +8,7 @@ using System.Text.Json;
 
 namespace _Type.Property.AdditionalProperties
 {
-    internal partial class UnknownExtendsUnknownAdditionalPropertiesDiscriminated : IJsonModel<ExtendsUnknownAdditionalPropertiesDiscriminated>
+    internal partial class UnknownExtendsUnknownAdditionalPropertiesDiscriminated : ExtendsUnknownAdditionalPropertiesDiscriminated, IJsonModel<ExtendsUnknownAdditionalPropertiesDiscriminated>
     {
         internal UnknownExtendsUnknownAdditionalPropertiesDiscriminated() => throw null;
 

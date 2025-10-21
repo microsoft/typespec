@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 
 public class PageableTests {
 
+    private final PageableClient pageableClient = new PageableClientBuilder().buildClient();
     private final ServerDrivenPaginationClient client = new PageableClientBuilder().buildServerDrivenPaginationClient();
     private final ServerDrivenPaginationContinuationTokenClient tokenClient
         = new PageableClientBuilder().buildServerDrivenPaginationContinuationTokenClient();
@@ -81,5 +82,23 @@ public class PageableTests {
                 .flatMap(page -> page.getValue().stream())
                 .map(Pet::getId)
                 .collect(Collectors.toList()));
+    }
+
+    @Test
+    public void testListWithoutContinuation() {
+        PagedIterable<Pet> pagedIterable = pageableClient.listWithoutContinuation();
+
+        Assertions.assertEquals(4, pagedIterable.stream().count());
+        Assertions.assertEquals(List.of("1", "2", "3", "4"),
+            pagedIterable.stream().map(Pet::getId).collect(Collectors.toList()));
+    }
+
+    @Test
+    public void testLinkString() {
+        PagedIterable<Pet> pagedIterable = client.linkString();
+
+        Assertions.assertEquals(4, pagedIterable.stream().count());
+        Assertions.assertEquals(List.of("1", "2", "3", "4"),
+            pagedIterable.stream().map(Pet::getId).collect(Collectors.toList()));
     }
 }

@@ -312,6 +312,43 @@ function validateTargetingAString(
   return valid;
 }
 
+/**
+ * Get the actual type from a Type or ModelProperty for array validation
+ */
+function getTypeForArrayValidation(target: Type | ModelProperty): Type {
+  if (target.kind === "ModelProperty") {
+    return target.type;
+  } else {
+    return target.kind === "Model" ? target : (target as any).type;
+  }
+}
+
+/**
+ * Validate the given target is an array type or a union containing at least an array type.
+ */
+function validateTargetingAnArray(
+  context: DecoratorContext,
+  target: Type | ModelProperty,
+  decoratorName: string,
+) {
+  const targetType = getTypeForArrayValidation(target);
+  const valid = isTypeIn(
+    targetType,
+    (x) => x.kind === "Model" && isArrayModelType(context.program, x),
+  );
+  if (!valid) {
+    reportDiagnostic(context.program, {
+      code: "decorator-wrong-target",
+      format: {
+        decorator: decoratorName,
+        to: `non Array type`,
+      },
+      target: context.decoratorTarget,
+    });
+  }
+  return valid;
+}
+
 // -- @error decorator ----------------------
 
 const [getErrorState, setErrorState] = useStateSet<Model>(createStateSymbol("error"));
@@ -569,15 +606,8 @@ export const $minItems: MinItemsDecorator = (
 ) => {
   validateDecoratorUniqueOnNode(context, target, $minItems);
 
-  if (!isArrayModelType(context.program, target.kind === "Model" ? target : (target as any).type)) {
-    reportDiagnostic(context.program, {
-      code: "decorator-wrong-target",
-      format: {
-        decorator: "@minItems",
-        to: `non Array type`,
-      },
-      target: context.decoratorTarget,
-    });
+  if (!validateTargetingAnArray(context, target, "@minItems")) {
+    return;
   }
 
   if (!validateRange(context, minItems, getMaxItemsAsNumeric(context.program, target))) {
@@ -596,15 +626,8 @@ export const $maxItems: MaxItemsDecorator = (
 ) => {
   validateDecoratorUniqueOnNode(context, target, $maxItems);
 
-  if (!isArrayModelType(context.program, target.kind === "Model" ? target : (target as any).type)) {
-    reportDiagnostic(context.program, {
-      code: "decorator-wrong-target",
-      format: {
-        decorator: "@maxItems",
-        to: `non Array type`,
-      },
-      target: context.decoratorTarget,
-    });
+  if (!validateTargetingAnArray(context, target, "@maxItems")) {
+    return;
   }
   if (!validateRange(context, getMinItemsAsNumeric(context.program, target), maxItems)) {
     return;
@@ -746,7 +769,7 @@ export const $secret: SecretDecorator = (
 export { isSecret };
 
 export type DateTimeKnownEncoding = "rfc3339" | "rfc7231" | "unixTimestamp";
-export type DurationKnownEncoding = "ISO8601" | "seconds";
+export type DurationKnownEncoding = "ISO8601" | "seconds" | "milliseconds";
 export type BytesKnownEncoding = "base64" | "base64url";
 
 export interface EncodeData {
@@ -842,7 +865,9 @@ function validateEncodeData(context: DecoratorContext, target: Type, encodeData:
       const typeName = getTypeName(encodeData.type);
       reportDiagnostic(context.program, {
         code: "invalid-encode",
-        messageId: ["unixTimestamp", "seconds"].includes(encodeData.encoding ?? "string")
+        messageId: ["unixTimestamp", "seconds", "milliseconds"].includes(
+          encodeData.encoding ?? "string",
+        )
           ? "wrongNumericEncodingType"
           : "wrongEncodingType",
         format: {
@@ -864,6 +889,8 @@ function validateEncodeData(context: DecoratorContext, target: Type, encodeData:
     case "unixTimestamp":
       return check(["utcDateTime"], ["integer"]);
     case "seconds":
+      return check(["duration"], ["numeric"]);
+    case "milliseconds":
       return check(["duration"], ["numeric"]);
     case "base64":
       return check(["bytes"], ["string"]);

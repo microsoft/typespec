@@ -8,7 +8,7 @@ import logging
 from pathlib import Path
 import json
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Iterator, Optional, Union, List
+from typing import Any, Iterator, Optional, Union
 
 import yaml
 from .utils import TYPESPEC_PACKAGE_MODE, VALID_PACKAGE_MODE
@@ -25,27 +25,27 @@ class OptionsDict(MutableMapping):
         "azure-arm": False,
         "basic-setup-py": False,
         "client-side-validation": False,
-        "emit-cross-language-definition-file": False,
         "flavor": "azure",  # need to default to azure in shared code so we don't break swagger generation
         "from-typespec": False,
         "generate-sample": False,
+        "keep-setup-py": False,
         "generate-test": False,
         "head-as-boolean": True,
         "keep-version-file": False,
         "low-level-client": False,
-        "multiapi": False,
         "no-async": False,
         "no-namespace-folders": False,
         "polymorphic-examples": 5,
         "validate-versioning": True,
         "version-tolerant": True,
+        "generation-subdir": None,  # subdirectory to generate the code in
     }
 
-    def __init__(self, options: Optional[Dict[str, Any]] = None) -> None:
+    def __init__(self, options: Optional[dict[str, Any]] = None) -> None:
         self._data = options.copy() if options else {}
         self._validate_combinations()
 
-    def __getitem__(self, key: str) -> Any:
+    def __getitem__(self, key: str) -> Any:  # pylint: disable=too-many-return-statements
         if key == "head-as-boolean" and self.get("azure-arm"):
             # override to always true if azure-arm is set
             return True
@@ -60,6 +60,18 @@ class OptionsDict(MutableMapping):
         if key == "package-mode" and self._data.get("packaging-files-dir"):
             # if packaging-files-dir is set, use it as package-mode
             return self._data["packaging-files-dir"]
+        if key == "generation-subdir":
+            data = self._data.get("generation-subdir")
+            if data:
+                # Remove leading dot or ./ from generation-subdir
+                if data.startswith("./"):
+                    data = data[2:]
+                elif data.startswith("."):
+                    data = data[1:]
+                # Remove trailing slashes
+                if data.endswith("/") or data.endswith("\\"):
+                    data = data[:-1]
+            return data
         return self._get_default(key)
 
     def __setitem__(self, key: str, value: Any) -> None:
@@ -96,7 +108,12 @@ class OptionsDict(MutableMapping):
         if key == "combine-operation-files":
             return self.get("version-tolerant")
         if key == "package-pprint-name":
-            return " ".join([i.capitalize() for i in str(self.get("package-name", "")).split("-")])
+            package_names = self.get("package-name", "").split("-")
+            return (
+                (package_names[-1].capitalize() + " Management")
+                if self.get("azure-arm")
+                else " ".join([i.capitalize() for i in package_names])
+            )
         if key == "builders-visibility":
             # Default to public if low-level client is not set, otherwise embedded
             return "embedded" if not self.get("low-level-client") else "public"
@@ -106,6 +123,8 @@ class OptionsDict(MutableMapping):
                 models_mode_default = "dpg"
             # switch to falsy value for easier code writing
             return models_mode_default
+        if key == "emit-cross-language-definition-file":
+            return self.get("flavor") == "azure"
         return self.DEFAULTS[key]
 
     def _validate_combinations(self) -> None:
@@ -126,12 +145,6 @@ class OptionsDict(MutableMapping):
             raise ValueError(
                 "Can not combine operation files if you are not showing operations. "
                 "If you want operation files, pass in flag --show-operations"
-            )
-
-        if self.get("multiapi") and self.get("version-tolerant"):
-            raise ValueError(
-                "Can not currently generate version tolerant multiapi SDKs. "
-                "We are working on creating a new multiapi SDK for version tolerant and it is not available yet."
             )
 
         if self.get("client-side-validation") and self.get("version-tolerant"):
@@ -181,7 +194,7 @@ class OptionsDict(MutableMapping):
         for key in self.DEFAULTS:
             if key not in all_keys:
                 all_keys.add(key)
-        all_keys.update(self.DEFAULTS.keys())
+        all_keys |= self.DEFAULTS.keys()
         return KeysView({key: None for key in all_keys})
 
     def values(self) -> ValuesView[Any]:
@@ -194,7 +207,7 @@ class OptionsDict(MutableMapping):
 class ReaderAndWriter:
     def __init__(self, *, output_folder: Union[str, Path], **kwargs: Any) -> None:
         self.output_folder = Path(output_folder)
-        self._list_file: List[str] = []
+        self._list_file: list[str] = []
         try:
             with open(
                 Path(self.output_folder) / Path("..") / Path("python.json"),
@@ -227,7 +240,15 @@ class ReaderAndWriter:
         with open(self.output_folder / Path(filename), "w", encoding="utf-8") as fd:
             fd.write(file_content)
 
-    def list_file(self) -> List[str]:
+    def remove_file(self, filename: Union[str, Path]) -> None:
+        try:
+            file_path = self.output_folder / Path(filename)
+            if file_path.is_file():
+                file_path.unlink()
+        except FileNotFoundError:
+            pass
+
+    def list_file(self) -> list[str]:
         return [str(f.relative_to(self.output_folder)) for f in self.output_folder.glob("**/*") if f.is_file()]
 
 
@@ -251,7 +272,7 @@ class Plugin(ReaderAndWriter, ABC):
 class YamlUpdatePlugin(Plugin):
     """A plugin that update the YAML as input."""
 
-    def get_yaml(self) -> Dict[str, Any]:
+    def get_yaml(self) -> dict[str, Any]:
         # tsp file doesn't have to be relative to output folder
         with open(self.options["tsp_file"], "r", encoding="utf-8-sig") as fd:
             return yaml.safe_load(fd.read())
@@ -272,7 +293,7 @@ class YamlUpdatePlugin(Plugin):
         return True
 
     @abstractmethod
-    def update_yaml(self, yaml_data: Dict[str, Any]) -> None:
+    def update_yaml(self, yaml_data: dict[str, Any]) -> None:
         """The code-model-v4-no-tags yaml model tree.
 
         :rtype: updated yaml

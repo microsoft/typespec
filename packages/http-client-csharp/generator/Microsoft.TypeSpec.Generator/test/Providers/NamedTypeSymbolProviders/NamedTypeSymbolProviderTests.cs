@@ -57,6 +57,23 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
         }
 
         [Test]
+        public void ValidateBaseType()
+        {
+            Assert.IsNull(_namedTypeSymbolProvider.Type.BaseType!);
+        }
+
+        [Test]
+        public void ValidateBaseTypeStruct()
+        {
+            var namedSymbol = new NamedSymbol(isStruct: true);
+            var compilation = CompilationHelper.LoadCompilation([namedSymbol, new PropertyType()]);
+            var iNamedSymbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, "NamedSymbol")!;
+
+            var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol);
+            Assert.IsNull(namedTypeSymbolProvider.Type.BaseType!);
+        }
+
+        [Test]
         public void ValidateNamespaceNestedType()
         {
             // Get all members, including nested types

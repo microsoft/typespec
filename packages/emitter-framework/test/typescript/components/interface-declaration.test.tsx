@@ -1,10 +1,10 @@
+import { getProgram } from "#test/utils.js";
 import { For, List } from "@alloy-js/core";
 import { SourceFile } from "@alloy-js/typescript";
 import type { Namespace } from "@typespec/compiler";
 import { describe, expect, it } from "vitest";
 import { Output } from "../../../src/core/components/output.jsx";
 import { InterfaceDeclaration } from "../../../src/typescript/components/interface-declaration.js";
-import { getProgram } from "../test-host.js";
 
 describe("Typescript Interface", () => {
   describe("Interface bound to Typespec Types", () => {

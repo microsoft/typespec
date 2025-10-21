@@ -68,6 +68,7 @@ export default defineConfig({
   },
   vite: {
     plugins: [
+      // @ts-expect-error incompatible types due to version mismatch
       nodePolyfills({
         include: ["buffer"],
         globals: {

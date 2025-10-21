@@ -4,7 +4,13 @@ import { TestHost } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it, vi } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
-import { InputParameterKind } from "../../src/type/input-parameter-kind.js";
+import { InputParameterScope } from "../../src/type/input-parameter-scope.js";
+import {
+  InputBodyParameter,
+  InputHeaderParameter,
+  InputPathParameter,
+  InputQueryParameter,
+} from "../../src/type/input-type.js";
 import { RequestLocation } from "../../src/type/request-location.js";
 import {
   createCSharpSdkContext,
@@ -48,9 +54,8 @@ describe("Test Parameter Explode", () => {
         const type = inputParam.type;
 
         strictEqual(type.kind, "string");
-        strictEqual(inputParam.location, RequestLocation.Path);
+        strictEqual(inputParam.kind, "path");
         strictEqual(inputParam.explode, true);
-        strictEqual(inputParam.arraySerializationDelimiter, undefined);
       });
 
       it("is true with array parameter type", async () => {
@@ -79,9 +84,8 @@ describe("Test Parameter Explode", () => {
         const type = inputParam.type;
 
         strictEqual(type.kind, "array");
-        strictEqual(inputParam.location, RequestLocation.Path);
+        strictEqual(inputParam.kind, "path");
         strictEqual(inputParam.explode, true);
-        strictEqual(inputParam.arraySerializationDelimiter, undefined);
       });
 
       it("is true with record parameter type", async () => {
@@ -110,9 +114,10 @@ describe("Test Parameter Explode", () => {
         const type = inputParam.type;
 
         strictEqual(type.kind, "dict");
-        strictEqual(inputParam.location, RequestLocation.Path);
-        strictEqual(inputParam.explode, true);
-        strictEqual(inputParam.arraySerializationDelimiter, undefined);
+        strictEqual(inputParam.kind, "path");
+
+        const inputPathParam = inputParam as InputPathParameter;
+        strictEqual(inputPathParam.explode, true);
       });
     });
 
@@ -143,9 +148,8 @@ describe("Test Parameter Explode", () => {
         const type = inputParam.type;
 
         strictEqual(type.kind, "string");
-        strictEqual(inputParam.location, RequestLocation.Path);
+        strictEqual(inputParam.kind, "path");
         strictEqual(inputParam.explode, true);
-        strictEqual(inputParam.arraySerializationDelimiter, undefined);
       });
 
       it("is true with array parameter type", async () => {
@@ -174,9 +178,8 @@ describe("Test Parameter Explode", () => {
         const type = inputParam.type;
 
         strictEqual(type.kind, "array");
-        strictEqual(inputParam.location, RequestLocation.Path);
+        strictEqual(inputParam.kind, "path");
         strictEqual(inputParam.explode, true);
-        strictEqual(inputParam.arraySerializationDelimiter, undefined);
       });
 
       it("is true with record parameter type", async () => {
@@ -205,9 +208,8 @@ describe("Test Parameter Explode", () => {
         const type = inputParam.type;
 
         strictEqual(type.kind, "dict");
-        strictEqual(inputParam.location, RequestLocation.Path);
+        strictEqual(inputParam.kind, "path");
         strictEqual(inputParam.explode, true);
-        strictEqual(inputParam.arraySerializationDelimiter, undefined);
       });
     });
 
@@ -238,9 +240,8 @@ describe("Test Parameter Explode", () => {
         const type = inputParam.type;
 
         strictEqual(type.kind, "string");
-        strictEqual(inputParam.location, RequestLocation.Path);
+        strictEqual(inputParam.kind, "path");
         strictEqual(inputParam.explode, true);
-        strictEqual(inputParam.arraySerializationDelimiter, undefined);
       });
 
       it("is true with array parameter type", async () => {
@@ -269,9 +270,8 @@ describe("Test Parameter Explode", () => {
         const type = inputParam.type;
 
         strictEqual(type.kind, "array");
-        strictEqual(inputParam.location, RequestLocation.Path);
+        strictEqual(inputParam.kind, "path");
         strictEqual(inputParam.explode, true);
-        strictEqual(inputParam.arraySerializationDelimiter, undefined);
       });
 
       it("is true with record parameter type", async () => {
@@ -300,9 +300,8 @@ describe("Test Parameter Explode", () => {
         const type = inputParam.type;
 
         strictEqual(type.kind, "dict");
-        strictEqual(inputParam.location, RequestLocation.Path);
+        strictEqual(inputParam.kind, "path");
         strictEqual(inputParam.explode, true);
-        strictEqual(inputParam.arraySerializationDelimiter, undefined);
       });
     });
 
@@ -333,9 +332,8 @@ describe("Test Parameter Explode", () => {
         const type = inputParam.type;
 
         strictEqual(type.kind, "string");
-        strictEqual(inputParam.location, RequestLocation.Path);
+        strictEqual(inputParam.kind, "path");
         strictEqual(inputParam.explode, true);
-        strictEqual(inputParam.arraySerializationDelimiter, undefined);
       });
 
       it("is true with array parameter type", async () => {
@@ -364,9 +362,8 @@ describe("Test Parameter Explode", () => {
         const type = inputParam.type;
 
         strictEqual(type.kind, "array");
-        strictEqual(inputParam.location, RequestLocation.Path);
+        strictEqual(inputParam.kind, "path");
         strictEqual(inputParam.explode, true);
-        strictEqual(inputParam.arraySerializationDelimiter, undefined);
       });
 
       it("is true with record parameter type", async () => {
@@ -395,9 +392,8 @@ describe("Test Parameter Explode", () => {
         const type = inputParam.type;
 
         strictEqual(type.kind, "dict");
-        strictEqual(inputParam.location, RequestLocation.Path);
+        strictEqual(inputParam.kind, "path");
         strictEqual(inputParam.explode, true);
-        strictEqual(inputParam.arraySerializationDelimiter, undefined);
       });
     });
   });
@@ -430,7 +426,7 @@ describe("Test Parameter Explode", () => {
         const type = inputParam.type;
 
         strictEqual(type.kind, "string");
-        strictEqual(inputParam.location, RequestLocation.Query);
+        strictEqual(inputParam.kind, "query");
         strictEqual(inputParam.explode, true);
         strictEqual(inputParam.arraySerializationDelimiter, undefined);
       });
@@ -461,7 +457,7 @@ describe("Test Parameter Explode", () => {
         const type = inputParam.type;
 
         strictEqual(type.kind, "array");
-        strictEqual(inputParam.location, RequestLocation.Query);
+        strictEqual(inputParam.kind, "query");
         strictEqual(inputParam.explode, true);
         strictEqual(inputParam.arraySerializationDelimiter, undefined);
       });
@@ -492,7 +488,7 @@ describe("Test Parameter Explode", () => {
         const type = inputParam.type;
 
         strictEqual(type.kind, "dict");
-        strictEqual(inputParam.location, RequestLocation.Query);
+        strictEqual(inputParam.kind, "query");
         strictEqual(inputParam.explode, true);
         strictEqual(inputParam.arraySerializationDelimiter, undefined);
       });
@@ -525,7 +521,7 @@ describe("Test Parameter Explode", () => {
         const type = inputParam.type;
 
         strictEqual(type.kind, "string");
-        strictEqual(inputParam.location, RequestLocation.Query);
+        strictEqual(inputParam.kind, "query");
         strictEqual(inputParam.explode, true);
         strictEqual(inputParam.arraySerializationDelimiter, undefined);
       });
@@ -556,7 +552,7 @@ describe("Test Parameter Explode", () => {
         const type = inputParam.type;
 
         strictEqual(type.kind, "array");
-        strictEqual(inputParam.location, RequestLocation.Query);
+        strictEqual(inputParam.kind, "query");
         strictEqual(inputParam.explode, true);
         strictEqual(inputParam.arraySerializationDelimiter, undefined);
       });
@@ -587,7 +583,7 @@ describe("Test Parameter Explode", () => {
         const type = inputParam.type;
 
         strictEqual(type.kind, "dict");
-        strictEqual(inputParam.location, RequestLocation.Query);
+        strictEqual(inputParam.kind, "query");
         strictEqual(inputParam.explode, true);
         strictEqual(inputParam.arraySerializationDelimiter, undefined);
       });
@@ -694,8 +690,12 @@ describe("Endpoint parameters", () => {
     const client = codeModel.clients[0];
     ok(client);
     ok(client.parameters);
-    const endpointParameter = client.parameters.find((p) => p.isEndpoint);
+
+    strictEqual(client.parameters.length, 1);
+
+    const endpointParameter = client.parameters[0];
     ok(endpointParameter);
+    strictEqual(endpointParameter.kind, "endpoint");
     strictEqual(endpointParameter.type.kind, "string");
     strictEqual(endpointParameter.type.crossLanguageDefinitionId, "TypeSpec.string");
     strictEqual(endpointParameter.serverUrlTemplate, "https://{param1}");
@@ -726,8 +726,12 @@ describe("Endpoint parameters", () => {
     const client = codeModel.clients[0];
     ok(client);
     ok(client.parameters);
-    const endpointParameter = client.parameters.find((p) => p.isEndpoint);
+
+    strictEqual(client.parameters.length, 1);
+
+    const endpointParameter = client.parameters[0];
     ok(endpointParameter);
+    strictEqual(endpointParameter.kind, "endpoint");
     strictEqual(endpointParameter.type.kind, "url");
     strictEqual(endpointParameter.type.crossLanguageDefinitionId, "TypeSpec.url");
     strictEqual(endpointParameter.serverUrlTemplate, "{param1}");
@@ -781,8 +785,8 @@ describe("Test Spread Parameters", () => {
 
     const testParam = operation.parameters.find((p) => p.name === "test");
     ok(testParam);
-    strictEqual(testParam.type.kind, "model");
-    strictEqual(testParam.kind, InputParameterKind.Spread);
+    strictEqual(testParam.kind, "body");
+    strictEqual(testParam.scope, InputParameterScope.Spread);
   });
 
   it("Parameters that are constants", async () => {
@@ -828,6 +832,156 @@ describe("Test Spread Parameters", () => {
     const testParam = operation.parameters.find((p) => p.name === "animal");
     ok(testParam);
     strictEqual(testParam.type.kind, "model");
-    strictEqual(testParam.kind, InputParameterKind.Spread);
+    strictEqual(testParam.kind, "body");
+    strictEqual(testParam.scope, InputParameterScope.Spread);
+  });
+});
+
+describe("Test Operation Parameters", () => {
+  let runner: TestHost;
+
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
+
+  describe("Query parameters", () => {
+    it("should return InputQueryParameter for query parameter", async () => {
+      const program = await typeSpecCompile(
+        `
+          @route("test")
+          op test(@query queryParam: string): void;
+        `,
+        runner,
+      );
+      const context = createEmitterContext(program);
+      const sdkContext = await createCSharpSdkContext(context);
+      const root = createModel(sdkContext);
+
+      const operation = root.clients[0].methods[0].operation;
+      const queryParam = operation.parameters.find((p) => p.name === "queryParam");
+
+      ok(queryParam);
+      strictEqual(queryParam.kind, "query");
+
+      const typedParam = queryParam as InputQueryParameter;
+      strictEqual(typedParam.explode, false);
+      strictEqual(typedParam.type.kind, "string");
+      strictEqual(typedParam.serializedName, "queryParam");
+    });
+  });
+
+  describe("Path parameters", () => {
+    it("should return InputPathParameter for path parameter", async () => {
+      const program = await typeSpecCompile(
+        `
+          @route("test/{pathParam}")
+          op test(@path pathParam: string): void;
+        `,
+        runner,
+      );
+      const context = createEmitterContext(program);
+      const sdkContext = await createCSharpSdkContext(context);
+      const root = createModel(sdkContext);
+
+      const operation = root.clients[0].methods[0].operation;
+      const pathParam = operation.parameters.find((p) => p.name === "pathParam");
+
+      ok(pathParam);
+      strictEqual(pathParam.kind, "path");
+
+      const typedParam = pathParam as InputPathParameter;
+      strictEqual(typedParam.explode, false);
+      strictEqual(typedParam.style, "simple");
+      strictEqual(typedParam.allowReserved, false);
+      strictEqual(typedParam.skipUrlEncoding, false);
+      strictEqual(typedParam.type.kind, "string");
+      strictEqual(typedParam.serializedName, "pathParam");
+    });
+  });
+
+  describe("Header parameters", () => {
+    it("should return InputHeaderParameter for header parameter", async () => {
+      const program = await typeSpecCompile(
+        `
+          @route("test")
+          op test(@header headerParam: string): void;
+        `,
+        runner,
+      );
+      const context = createEmitterContext(program);
+      const sdkContext = await createCSharpSdkContext(context);
+      const root = createModel(sdkContext);
+
+      const operation = root.clients[0].methods[0].operation;
+      const headerParam = operation.parameters.find((p) => p.name === "headerParam");
+
+      ok(headerParam);
+      strictEqual(headerParam.kind, "header");
+
+      const typedParam = headerParam as InputHeaderParameter;
+      strictEqual(typedParam.isContentType, false);
+      strictEqual(typedParam.type.kind, "string");
+      // Header names are normalized to kebab-case by the SDK
+      strictEqual(typedParam.serializedName, "header-param");
+    });
+
+    it("should identify content-type header parameter", async () => {
+      const program = await typeSpecCompile(
+        `
+          model TestModel {
+            name: string;
+          }
+          
+          @route("test")
+          @post
+          op test(@header contentType: "application/json", @body body: TestModel): void;
+        `,
+        runner,
+      );
+      const context = createEmitterContext(program);
+      const sdkContext = await createCSharpSdkContext(context);
+      const root = createModel(sdkContext);
+
+      const operation = root.clients[0].methods[0].operation;
+      const contentTypeParam = operation.parameters.find((p) => p.name === "contentType");
+
+      ok(contentTypeParam);
+      strictEqual(contentTypeParam.kind, "header");
+
+      const typedParam = contentTypeParam as InputHeaderParameter;
+      strictEqual(typedParam.isContentType, true);
+      strictEqual(typedParam.type.kind, "constant");
+    });
+  });
+
+  describe("Body parameters", () => {
+    it("should return InputBodyParameter for body parameter", async () => {
+      const program = await typeSpecCompile(
+        `
+          model TestModel {
+            name: string;
+            value: int32;
+          }
+          
+          @route("test")
+          op test(@body bodyParam: TestModel): void;
+        `,
+        runner,
+      );
+      const context = createEmitterContext(program);
+      const sdkContext = await createCSharpSdkContext(context);
+      const root = createModel(sdkContext);
+
+      const operation = root.clients[0].methods[0].operation;
+      const bodyParam = operation.parameters.find((p) => p.name === "bodyParam");
+
+      ok(bodyParam);
+      strictEqual(bodyParam.kind, "body");
+
+      const typedParam = bodyParam as InputBodyParameter;
+      strictEqual(typedParam.type.kind, "model");
+      strictEqual(typedParam.serializedName, "bodyParam");
+      ok(typedParam.contentTypes.includes("application/json"));
+    });
   });
 });

@@ -176,7 +176,7 @@ async function AddCompletionNonTrivia(
         break;
       case SyntaxKind.Identifier:
         addDirectiveCompletion(context, node);
-        addIdentifierCompletion(context, node);
+        await addIdentifierCompletion(context, node);
         break;
       case SyntaxKind.StringLiteral:
         if (node.parent && node.parent.kind === SyntaxKind.ImportStatement) {
@@ -186,7 +186,7 @@ async function AddCompletionNonTrivia(
       case SyntaxKind.ModelStatement:
       case SyntaxKind.ObjectLiteral:
       case SyntaxKind.ModelExpression:
-        addModelCompletion(context, posDetail);
+        await addModelCompletion(context, posDetail);
         break;
     }
   }
@@ -363,7 +363,7 @@ async function addRelativePathCompletion(
   }
 }
 
-function addModelCompletion(context: CompletionContext, posDetail: PositionDetail) {
+async function addModelCompletion(context: CompletionContext, posDetail: PositionDetail) {
   const node = posDetail.node;
   if (
     !node ||
@@ -395,14 +395,14 @@ function addModelCompletion(context: CompletionContext, posDetail: PositionDetai
       flags: NodeFlags.None,
       parent: fakeProp,
     };
-    addIdentifierCompletion(context, fakeId as IdentifierNode);
+    await addIdentifierCompletion(context, fakeId as IdentifierNode);
   }
 }
 
 /**
  * Add completion options for an identifier.
  */
-function addIdentifierCompletion(
+async function addIdentifierCompletion(
   { program, completions }: CompletionContext,
   node: IdentifierNode,
 ) {
@@ -429,7 +429,7 @@ function addIdentifierCompletion(
       kind = getCompletionItemKind(program, type);
       deprecated = getDeprecationDetails(program, type) !== undefined;
     }
-    const documentation = getSymbolDetails(program, sym);
+    const documentation = await getSymbolDetails(program, sym);
 
     const item: CompletionItem = {
       label: label ?? key,

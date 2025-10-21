@@ -67,9 +67,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override string BuildNamespace() => _clientProvider.Type.Namespace;
         protected override FormattableString BuildDescription() => $"Client options for {_clientProvider.Type:C}.";
 
-        protected override CSharpType[] BuildImplements()
+        protected override CSharpType BuildBaseType()
         {
-            return [ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.ClientPipelineOptionsType];
+            return ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.ClientPipelineOptionsType;
         }
 
         protected override FieldProvider[] BuildFields()
@@ -125,7 +125,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             foreach (var p in _inputClient.Parameters)
             {
-                if (!p.IsEndpoint && !p.IsApiVersion && p.DefaultValue != null)
+                if ((p is not InputEndpointParameter || p is InputEndpointParameter endpointParameter && !endpointParameter.IsEndpoint)
+                    && !p.IsApiVersion && p.DefaultValue != null)
                 {
                     FormattableString? description = null;
                     var parameterDescription = DocHelpers.GetDescription(p.Summary, p.Doc);
