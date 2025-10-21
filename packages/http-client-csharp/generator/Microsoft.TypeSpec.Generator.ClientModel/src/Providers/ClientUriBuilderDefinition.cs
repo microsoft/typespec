@@ -40,7 +40,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private ValueExpression UriBuilderPath => new MemberExpression(UriBuilderProperty, "Path");
         private ValueExpression UriBuilderQuery => new MemberExpression(UriBuilderProperty, "Query");
 
-        private readonly ParameterProvider _formatParameter = new ParameterProvider("format", $"The format.", ScmCodeModelGenerator.Instance.SerializationFormatDefinition.Type);
+        private readonly ParameterProvider _formatParameter = new ParameterProvider(
+            "format",
+            $"The format.",
+            ScmCodeModelGenerator.Instance.SerializationFormatDefinition.Type,
+            new MemberExpression(ScmCodeModelGenerator.Instance.SerializationFormatDefinition.Type, "Default"));
 
         private PropertyProvider? _pathBuilderProperty;
         private PropertyProvider PathBuilderProperty => _pathBuilderProperty ??= new(
@@ -252,9 +256,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var valueParameter = new ParameterProvider("value", $"The value.", valueType);
             var escapeParameter = new ParameterProvider("escape", $"Whether to escape the value.", typeof(bool), Bool(escapeDefaultValue));
             var serializationFormatType = ScmCodeModelGenerator.Instance.SerializationFormatDefinition.Type;
-            var formatParameter = new ParameterProvider("format", $"The serialization format.", serializationFormatType, new MemberExpression(serializationFormatType, "Default"));
             var parameters = hasFormat
-                ? new[] { nameParameter, valueParameter, formatParameter, escapeParameter }
+                ? new[] { nameParameter, valueParameter, _formatParameter, escapeParameter }
                 : new[] { nameParameter, valueParameter, escapeParameter };
 
             var signature = new MethodSignature(
@@ -263,7 +266,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 Parameters: parameters,
                 ReturnType: null,
                 Description: null, ReturnDescription: null);
-            var convertToStringExpression = valueParameter.ConvertToString(hasFormat ? (ValueExpression)formatParameter : null);
+            var convertToStringExpression = valueParameter.ConvertToString(hasFormat ? (ValueExpression)_formatParameter : null);
             var body = new InvokeMethodExpression(null, AppendQueryMethodName, [nameParameter, convertToStringExpression, escapeParameter]);
 
             return new(signature, body, this, XmlDocProvider.Empty);
