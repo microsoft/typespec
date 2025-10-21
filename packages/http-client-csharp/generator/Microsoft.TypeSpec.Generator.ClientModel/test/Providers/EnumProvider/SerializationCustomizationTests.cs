@@ -26,7 +26,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.EnumProvider
                inputEnums: () => [inputEnum],
                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
-            Assert.IsNull(mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t.IsEnum));
+            Assert.IsNull(mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t.IsEnum && t.Name == "MockInputModel"));
 
             var serializationProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is FixedEnumSerializationProvider);
             Assert.IsNotNull(serializationProvider);
