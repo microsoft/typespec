@@ -1,6 +1,7 @@
-import { dereference, load } from "@scalar/openapi-parser";
-import { fetchUrls } from "@scalar/openapi-parser/plugins/fetch-urls";
-import { readFiles } from "@scalar/openapi-parser/plugins/read-files";
+import { bundle } from "@scalar/json-magic/bundle";
+import { fetchUrls, parseJson, parseYaml } from "@scalar/json-magic/bundle/plugins/browser";
+import { readFiles } from "@scalar/json-magic/bundle/plugins/node";
+import { dereference } from "@scalar/openapi-parser";
 import { formatTypeSpec, resolvePath } from "@typespec/compiler";
 import { OpenAPI3Document } from "../../../types.js";
 import { CliHost } from "../../types.js";
@@ -13,11 +14,11 @@ import { createContext } from "./utils/context.js";
 export async function convertAction(host: CliHost, args: ConvertCliArgs) {
   // attempt to read the file
   const fullPath = resolvePath(process.cwd(), args.path);
-  // eslint-disable-next-line @typescript-eslint/no-deprecated
-  const { filesystem } = await load(fullPath, {
-    plugins: [fetchUrls(), readFiles()],
+  const data = await bundle(fullPath, {
+    plugins: [readFiles(), fetchUrls(), parseYaml(), parseJson()],
+    treeShake: false,
   });
-  const { schema } = await dereference(filesystem);
+  const { schema } = await dereference(data);
   if (!schema) {
     throw new Error("Failed to dereference OpenAPI document");
   }
