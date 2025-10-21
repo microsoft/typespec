@@ -46,7 +46,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var nameParameter = new ParameterProvider("name", $"The name.", typeof(string));
             var valueParameter = new ParameterProvider("value", $"The value.", new CSharpType(typeof(IEnumerable<>), _t));
             var delimiterParameter = new ParameterProvider("delimiter", $"The delimiter.", typeof(string));
-            var serializationFormatType = new CSharpType(typeof(SerializationFormatDefinition));
+            var serializationFormatType = ScmCodeModelGenerator.Instance.SerializationFormatDefinition.Type;
             var formatParameter = new ParameterProvider("format", $"The format.", serializationFormatType);
             var modifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Extension;
             var parameters = hasFormat
@@ -63,7 +63,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var value = valueParameter.As(_t);
             var v = new VariableExpression(_t, "v");
-            var convertToStringExpression = TypeFormattersSnippets.ConvertToString(v, hasFormat ? formatParameter : (ValueExpression?)null);
+            var convertToStringExpression = v.ConvertToString(hasFormat ? formatParameter : (ValueExpression?)null);
             var selector = new FuncExpression([v.Declaration], convertToStringExpression).As<string>();
             var body = new[]
             {

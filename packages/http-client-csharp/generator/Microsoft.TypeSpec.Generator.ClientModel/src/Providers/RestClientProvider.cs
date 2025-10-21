@@ -314,10 +314,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
 
                 CSharpType? type;
-                string? format;
-                SerializationFormat serializationFormat;
+                SerializationFormat? serializationFormat;
                 ValueExpression? valueExpression;
-                GetParamInfo(paramMap, operation, inputHeaderParameter, out type, out format, out serializationFormat, out valueExpression);
+                GetParamInfo(paramMap, operation, inputHeaderParameter, out type, out serializationFormat, out valueExpression);
                 if (valueExpression == null)
                 {
                     continue;
@@ -328,12 +327,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     (isAcceptParameter && inputHeaderParameter.Type is InputEnumType { ValueType.Kind: InputPrimitiveTypeKind.String });
                 ValueExpression toStringExpression = isStringType ?
                     valueExpression :
-                    GetParameterValueExpression(valueExpression, type, format, serializationFormat);
+                    GetParameterValueExpression(valueExpression, serializationFormat);
                 MethodBodyStatement statement;
 
                 if (type?.IsCollection == true)
                 {
-                    statement = request.SetHeaderDelimited(inputHeaderParameter.SerializedName, valueExpression, Literal(inputHeaderParameter.ArraySerializationDelimiter), GetSerializationFormatEnumValue(serializationFormat));
+                    statement = request.SetHeaderDelimited(inputHeaderParameter.SerializedName, valueExpression, Literal(inputHeaderParameter.ArraySerializationDelimiter), GetFormatEnumValue(serializationFormat));
                 }
                 else
                 {
@@ -377,13 +376,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             Dictionary<string, ParameterProvider> paramMap,
             InputOperation operation)
         {
-            GetParamInfo(paramMap, operation, inputQueryParameter, out var paramType, out var format, out var serializationFormat, out var valueExpression);
+            GetParamInfo(paramMap, operation, inputQueryParameter, out var paramType, out var serializationFormat, out var valueExpression);
             if (valueExpression == null)
             {
                 return null;
             }
 
-            var statement = BuildAppendQueryStatement(uri, inputQueryParameter, paramType, valueExpression, format, serializationFormat);
+            var statement = BuildAppendQueryStatement(uri, inputQueryParameter, paramType, valueExpression, serializationFormat);
 
             // Apply null check if needed
             if (!inputQueryParameter.IsRequired || paramType?.IsNullable == true ||
@@ -400,15 +399,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             InputQueryParameter inputQueryParameter,
             CSharpType? paramType,
             ValueExpression valueExpression,
-            string? format,
-            SerializationFormat serializationFormat)
+            SerializationFormat? serializationFormat)
         {
             // Handle non-collection parameters
             if (paramType?.IsCollection != true)
             {
                 var toStringExpression = paramType?.Equals(typeof(string)) == true
                     ? valueExpression
-                    : GetParameterValueExpression(valueExpression, paramType, format, serializationFormat);
+                    : GetParameterValueExpression(valueExpression, serializationFormat);
 
                 return uri.AppendQuery(Literal(inputQueryParameter.SerializedName), toStringExpression, true).Terminate();
             }
@@ -438,7 +436,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             list.Add(item.Key),
                             list.Add(item.Value)
                         },
-                        uri.AppendQueryDelimited(Literal(inputQueryParameter.SerializedName), list, GetSerializationFormatEnumValue(serializationFormat), true).Terminate()
+                        uri.AppendQueryDelimited(Literal(inputQueryParameter.SerializedName), list, GetFormatEnumValue(serializationFormat), true).Terminate()
                     };
                 }
             }
@@ -446,7 +444,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Array handling
             if (!inputQueryParameter.Explode)
             {
-                return uri.AppendQueryDelimited(Literal(inputQueryParameter.SerializedName), valueExpression, GetSerializationFormatEnumValue(serializationFormat), true, delimiter: delimiter).Terminate();
+                return uri.AppendQueryDelimited(Literal(inputQueryParameter.SerializedName), valueExpression, GetFormatEnumValue(serializationFormat), true, delimiter: delimiter).Terminate();
             }
             else
             {
@@ -575,26 +573,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                  */
                 var isClientParameter = ClientProvider.ClientParameters.Any(p => p.Name == paramName);
                 CSharpType? type;
-                string? format;
-                SerializationFormat serializationFormat;
+                SerializationFormat? serializationFormat;
                 ValueExpression? valueExpression;
                 InputParameter? inputParam = null;
                 if (isClientParameter)
                 {
-                    GetParamInfo(paramMap[paramName], out type, out format, out serializationFormat, out valueExpression);
+                    GetParamInfo(paramMap[paramName], out type, out serializationFormat, out valueExpression);
                 }
                 else
                 {
                     if (isClientParameter)
                     {
-                        GetParamInfo(paramMap[paramName], out type, out format, out serializationFormat, out valueExpression);
+                        GetParamInfo(paramMap[paramName], out type, out serializationFormat, out valueExpression);
                     }
                     else
                     {
                         inputParam = inputParamMap[paramName];
                         if (inputParam is InputPathParameter || inputParam is InputEndpointParameter)
                         {
-                            GetParamInfo(paramMap, operation, inputParam, out type, out format, out serializationFormat, out valueExpression);
+                            GetParamInfo(paramMap, operation, inputParam, out type, out serializationFormat, out valueExpression);
                             if (valueExpression == null)
                             {
                                 break;
@@ -606,6 +603,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         }
                     }
                 }
+                string? format = serializationFormat?.ToFormatSpecifier();
                 ValueExpression[] toStringParams = format is null ? [] : [Literal(format)];
                 InputPathParameter? inputPathParameter = inputParam as InputPathParameter;
                 bool escape = !inputPathParameter?.SkipUrlEncoding ?? true;
@@ -641,70 +639,77 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
         }
 
-        private static void GetParamInfo(Dictionary<string, ParameterProvider> paramMap, InputOperation operation, InputParameter inputParam, out CSharpType? type, out string? format, out SerializationFormat serializationFormat, out ValueExpression? valueExpression)
+        private static void GetParamInfo(Dictionary<string, ParameterProvider> paramMap, InputOperation operation, InputParameter inputParam, out CSharpType? type, out SerializationFormat? serializationFormat, out ValueExpression? valueExpression)
         {
             type = ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputParam.Type);
+            serializationFormat = null;
             if (inputParam.Scope == InputParameterScope.Constant && !(operation.IsMultipartFormData && inputParam is InputHeaderParameter headerParameter && headerParameter.IsContentType))
             {
                 valueExpression = Literal((inputParam.Type as InputLiteralType)?.Value);
                 serializationFormat = ScmCodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputParam.Type);
-                format = serializationFormat.ToFormatSpecifier();
             }
             else if (TryGetAcceptHeaderWithMultipleContentTypes(inputParam, operation, out var contentTypes))
             {
                 string joinedContentTypes = string.Join(", ", contentTypes);
                 valueExpression = Literal(joinedContentTypes);
                 serializationFormat = ScmCodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputParam.Type);
-                format = serializationFormat.ToFormatSpecifier();
             }
             else if (TryGetSpecialHeaderParam(inputParam, out var parameterProvider))
             {
                 valueExpression = parameterProvider.DefaultValue!;
                 serializationFormat = ScmCodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputParam.Type);
-                format = serializationFormat.ToFormatSpecifier();
             }
             else
             {
                 if (paramMap.TryGetValue(inputParam.Name, out var paramProvider))
                 {
-                    GetParamInfo(paramProvider, out type, out format, out serializationFormat, out valueExpression);
+                    GetParamInfo(paramProvider, out type, out serializationFormat, out valueExpression);
                 }
                 else
                 {
                     type = null;
-                    format = null;
-                    serializationFormat = SerializationFormat.Default;
                     valueExpression = null;
                 }
             }
         }
 
-        private static void GetParamInfo(ParameterProvider paramProvider, out CSharpType? type, out string? format, out SerializationFormat serializationFormat, out ValueExpression valueExpression)
+        private static void GetParamInfo(ParameterProvider paramProvider, out CSharpType? type, out SerializationFormat? serializationFormat, out ValueExpression valueExpression)
         {
             type = paramProvider.Field is null ? paramProvider.Type : paramProvider.Field.Type;
             if (type.IsEnum)
             {
                 valueExpression = type.ToSerial(paramProvider);
-                format = null;
                 serializationFormat = SerializationFormat.Default;
             }
             else
             {
                 valueExpression = paramProvider.Field is null ? paramProvider : paramProvider.Field;
                 serializationFormat = paramProvider.WireInfo.SerializationFormat;
-                format = serializationFormat.ToFormatSpecifier();
             }
         }
 
-        private static ValueExpression GetParameterValueExpression(ValueExpression valueExpression, CSharpType? type, string? format, SerializationFormat serializationFormat)
+        private static ValueExpression GetParameterValueExpression(ValueExpression valueExpression, SerializationFormat? serializationFormat)
         {
-            return TypeFormattersSnippets.ConvertToString(valueExpression, GetSerializationFormatEnumValue(serializationFormat));
+            return valueExpression.ConvertToString(GetFormatEnumValue(serializationFormat));
         }
 
-        private static ValueExpression GetSerializationFormatEnumValue(SerializationFormat serializationFormat)
+        private static ValueExpression? GetFormatEnumValue(SerializationFormat? serializationFormat)
         {
             var serializationFormatType = new CSharpType(typeof(SerializationFormatDefinition));
-            var memberName = serializationFormat.ToString();
+
+            if (!serializationFormat.HasValue)
+            {
+                return null;
+            }
+
+            // For default, just return null to simplify the generated code as the parameter is optional
+            // with a default value of Default
+            if (serializationFormat == SerializationFormat.Default)
+            {
+                return null;
+            }
+
+            var memberName = serializationFormat.Value.ToString();
             return new MemberExpression(serializationFormatType, memberName);
         }
 

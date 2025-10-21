@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Xml;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -309,7 +308,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodProvider BuildToFormatSpecifierMethodProvider()
         {
-            var formatParameter = new ParameterProvider("format", FormattableStringHelpers.Empty, new CSharpType(typeof(SerializationFormatDefinition)));
+            var serializationFormatType = ScmCodeModelGenerator.Instance.SerializationFormatDefinition.Type;
+            var formatParameter = new ParameterProvider("format", FormattableStringHelpers.Empty, serializationFormatType);
             var signature = new MethodSignature(
                 Name: ToFormatSpecifierMethodName,
                 Modifiers: _methodModifiers,
@@ -317,25 +317,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ReturnType: new CSharpType(typeof(string), true),
                 Description: null, ReturnDescription: null);
 
-            var serializationFormatType = new CSharpType(typeof(SerializationFormatDefinition));
             return new MethodProvider(
                 signature,
                 new SwitchExpression(formatParameter,
                 [
-                    new(new MemberExpression(serializationFormatType, "DateTime_RFC1123"), Literal("R")),
-                    new(new MemberExpression(serializationFormatType, "DateTime_RFC3339"), Literal("O")),
-                    new(new MemberExpression(serializationFormatType, "DateTime_RFC7231"), Literal("R")),
-                    new(new MemberExpression(serializationFormatType, "DateTime_ISO8601"), Literal("O")),
-                    new(new MemberExpression(serializationFormatType, "Date_ISO8601"), Literal("D")),
-                    new(new MemberExpression(serializationFormatType, "DateTime_Unix"), Literal("U")),
-                    new(new MemberExpression(serializationFormatType, "Bytes_Base64Url"), Literal("U")),
-                    new(new MemberExpression(serializationFormatType, "Bytes_Base64"), Literal("D")),
-                    new(new MemberExpression(serializationFormatType, "Duration_ISO8601"), Literal("P")),
-                    new(new MemberExpression(serializationFormatType, "Duration_Constant"), Literal("c")),
-                    new(new MemberExpression(serializationFormatType, "Duration_Seconds"), Literal("%s")),
-                    new(new MemberExpression(serializationFormatType, "Duration_Seconds_Float"), Literal("s\\.FFF")),
-                    new(new MemberExpression(serializationFormatType, "Duration_Seconds_Double"), Literal("s\\.FFFFFF")),
-                    new(new MemberExpression(serializationFormatType, "Time_ISO8601"), Literal("T")),
+                    new(new MemberExpression(serializationFormatType, SerializationFormatDefinition.DateTime_RFC1123), Literal("R")),
+                    new(new MemberExpression(serializationFormatType, SerializationFormatDefinition.DateTime_RFC3339), Literal("O")),
+                    new(new MemberExpression(serializationFormatType, SerializationFormatDefinition.DateTime_RFC7231), Literal("R")),
+                    new(new MemberExpression(serializationFormatType, SerializationFormatDefinition.DateTime_ISO8601), Literal("O")),
+                    new(new MemberExpression(serializationFormatType, SerializationFormatDefinition.Date_ISO8601), Literal("D")),
+                    new(new MemberExpression(serializationFormatType, SerializationFormatDefinition.DateTime_Unix), Literal("U")),
+                    new(new MemberExpression(serializationFormatType, SerializationFormatDefinition.Bytes_Base64Url), Literal("U")),
+                    new(new MemberExpression(serializationFormatType, SerializationFormatDefinition.Bytes_Base64), Literal("D")),
+                    new(new MemberExpression(serializationFormatType, SerializationFormatDefinition.Duration_ISO8601), Literal("P")),
+                    new(new MemberExpression(serializationFormatType, SerializationFormatDefinition.Duration_Constant), Literal("c")),
+                    new(new MemberExpression(serializationFormatType, SerializationFormatDefinition.Duration_Seconds), Literal("%s")),
+                    new(new MemberExpression(serializationFormatType, SerializationFormatDefinition.Duration_Seconds_Float), Literal("s\\.FFF")),
+                    new(new MemberExpression(serializationFormatType, SerializationFormatDefinition.Duration_Seconds_Double), Literal("s\\.FFFFFF")),
+                    new(new MemberExpression(serializationFormatType, SerializationFormatDefinition.Time_ISO8601), Literal("T")),
                     SwitchCaseExpression.Default(Null)
                 ]),
                 this,
@@ -345,7 +344,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private MethodProvider BuildConvertToStringMethodProvider()
         {
             var valueParameter = new ParameterProvider("value", FormattableStringHelpers.Empty, typeof(object));
-            var serializationFormatType = new CSharpType(typeof(SerializationFormatDefinition));
+            var serializationFormatType = ScmCodeModelGenerator.Instance.SerializationFormatDefinition.Type;
             var formatParameter = new ParameterProvider("format", FormattableStringHelpers.Empty, serializationFormatType, new MemberExpression(serializationFormatType, "Default"));
             var signature = new MethodSignature(
                 Name: ConvertToStringMethodName,
@@ -355,6 +354,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 Description: null, ReturnDescription: null);
 
             var value = (ValueExpression)valueParameter;
+            var invariantCulture = new MemberExpression(typeof(CultureInfo), nameof(CultureInfo.InvariantCulture));
 
             // Get the format specifier string from SerializationFormat
             var formatSpecifier = Static(typeof(TypeFormattersDefinition)).Invoke(ToFormatSpecifierMethodName, formatParameter);
@@ -371,16 +371,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // Special handling for TimeSpan with duration seconds/milliseconds encoding
                 SwitchCaseExpression.When(new DeclarationExpression(typeof(TimeSpan), "timeSpan", out var timeSpanSeconds),
                     formatParameter.Equal(new MemberExpression(serializationFormatType, "Duration_Seconds")),
-                    ConvertSnippets.InvokeToInt32(timeSpanSeconds.As<TimeSpan>().TotalSeconds()).InvokeToString()),
+                    ConvertSnippets.InvokeToInt32(timeSpanSeconds.As<TimeSpan>().TotalSeconds()).InvokeToString(invariantCulture)),
                 SwitchCaseExpression.When(new DeclarationExpression(typeof(TimeSpan), "timeSpan", out var timeSpanSecondsFloat),
                     formatParameter.Equal(new MemberExpression(serializationFormatType, "Duration_Seconds_Float")).Or(formatParameter.Equal(new MemberExpression(serializationFormatType, "Duration_Seconds_Double"))),
-                    timeSpanSecondsFloat.As<TimeSpan>().TotalSeconds().InvokeToString()),
+                    timeSpanSecondsFloat.As<TimeSpan>().TotalSeconds().InvokeToString(invariantCulture)),
                 SwitchCaseExpression.When(new DeclarationExpression(typeof(TimeSpan), "timeSpan", out var timeSpanMilliseconds),
                     formatParameter.Equal(new MemberExpression(serializationFormatType, "Duration_Milliseconds")),
-                    ConvertSnippets.InvokeToInt32(timeSpanMilliseconds.As<TimeSpan>().TotalMilliseconds()).InvokeToString()),
+                    ConvertSnippets.InvokeToInt32(timeSpanMilliseconds.As<TimeSpan>().TotalMilliseconds()).InvokeToString(invariantCulture)),
                 SwitchCaseExpression.When(new DeclarationExpression(typeof(TimeSpan), "timeSpan", out var timeSpanMillisecondsFloat),
                     formatParameter.Equal(new MemberExpression(serializationFormatType, "Duration_Milliseconds_Float")).Or(formatParameter.Equal(new MemberExpression(serializationFormatType, "Duration_Milliseconds_Double"))),
-                    timeSpanMillisecondsFloat.As<TimeSpan>().TotalMilliseconds().InvokeToString()),
+                    timeSpanMillisecondsFloat.As<TimeSpan>().TotalMilliseconds().InvokeToString(invariantCulture)),
                 SwitchCaseExpression.When(new DeclarationExpression(typeof(TimeSpan), "timeSpan", out var timeSpan), formatSpecifier.NotEqual(Null), TypeFormattersSnippets.ToString(timeSpan, formatSpecifier)),
                 new SwitchCaseExpression(new DeclarationExpression(typeof(TimeSpan), "timeSpan", out var timeSpanNoFormat), Static<XmlConvert>().Invoke(nameof(XmlConvert.ToString), [timeSpanNoFormat])),
                 new SwitchCaseExpression(new DeclarationExpression(typeof(Guid), "guid", out var guid), guid.Invoke("ToString")),

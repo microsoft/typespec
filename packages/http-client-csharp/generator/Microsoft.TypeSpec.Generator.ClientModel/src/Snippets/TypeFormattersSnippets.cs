@@ -40,21 +40,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
 
         public static ScopedApi<string> ConvertToString(this ValueExpression value, ValueExpression? format = null)
         {
-            var serializationFormatType = new CSharpType(typeof(SerializationFormatDefinition));
-            var defaultFormat = new MemberExpression(serializationFormatType, "Default");
             var arguments = format != null
                 ? new[] { value, format }
-                : new[] { value, defaultFormat };
+                : new[] { value };
             return Static<TypeFormattersDefinition>().Invoke(ConvertToStringMethodName, arguments).As<string>();
         }
 
         public static ScopedApi<string> ConvertToString(this ParameterProvider value, ValueExpression? format = null)
         {
-            var serializationFormatType = new CSharpType(typeof(SerializationFormatDefinition));
-            var defaultFormat = new MemberExpression(serializationFormatType, "Default");
             var arguments = format != null
                 ? new ValueExpression[] { value, format }
-                : new ValueExpression[] { value, defaultFormat };
+                : new ValueExpression[] { value };
             return Static<TypeFormattersDefinition>().Invoke(ConvertToStringMethodName, arguments).As<string>();
         }
     }

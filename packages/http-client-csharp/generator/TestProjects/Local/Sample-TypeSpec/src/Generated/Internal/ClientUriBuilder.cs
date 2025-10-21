@@ -57,17 +57,17 @@ namespace SampleTypeSpec
 
         public void AppendPath(int value, bool escape = true) => AppendPath(TypeFormatters.ConvertToString(value), escape);
 
-        public void AppendPath(byte[] value, string format, bool escape = true) => AppendPath(TypeFormatters.ConvertToString(value, format), escape);
+        public void AppendPath(byte[] value, SerializationFormat format, bool escape = true) => AppendPath(TypeFormatters.ConvertToString(value, format), escape);
 
-        public void AppendPath(DateTimeOffset value, string format, bool escape = true) => AppendPath(TypeFormatters.ConvertToString(value, format), escape);
+        public void AppendPath(DateTimeOffset value, SerializationFormat format, bool escape = true) => AppendPath(TypeFormatters.ConvertToString(value, format), escape);
 
-        public void AppendPath(TimeSpan value, string format, bool escape = true) => AppendPath(TypeFormatters.ConvertToString(value, format), escape);
+        public void AppendPath(TimeSpan value, SerializationFormat format, bool escape = true) => AppendPath(TypeFormatters.ConvertToString(value, format), escape);
 
         public void AppendPath(Guid value, bool escape = true) => AppendPath(TypeFormatters.ConvertToString(value), escape);
 
         public void AppendPath(long value, bool escape = true) => AppendPath(TypeFormatters.ConvertToString(value), escape);
 
-        public void AppendPathDelimited<T>(IEnumerable<T> value, string delimiter, string format = null, bool escape = true)
+        public void AppendPathDelimited<T>(IEnumerable<T> value, string delimiter, SerializationFormat format, bool escape = true)
         {
             delimiter ??= ",";
             IEnumerable<string> stringValues = value.Select(v => TypeFormatters.ConvertToString(v, format));
@@ -93,9 +93,9 @@ namespace SampleTypeSpec
 
         public void AppendQuery(string name, float value, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value), escape);
 
-        public void AppendQuery(string name, DateTimeOffset value, string format, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value, format), escape);
+        public void AppendQuery(string name, DateTimeOffset value, SerializationFormat format, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value, format), escape);
 
-        public void AppendQuery(string name, TimeSpan value, string format, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value, format), escape);
+        public void AppendQuery(string name, TimeSpan value, SerializationFormat format, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value, format), escape);
 
         public void AppendQuery(string name, double value, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value), escape);
 
@@ -107,11 +107,11 @@ namespace SampleTypeSpec
 
         public void AppendQuery(string name, TimeSpan value, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value), escape);
 
-        public void AppendQuery(string name, byte[] value, string format, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value, format), escape);
+        public void AppendQuery(string name, byte[] value, SerializationFormat format, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value, format), escape);
 
         public void AppendQuery(string name, Guid value, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value), escape);
 
-        public void AppendQueryDelimited<T>(string name, IEnumerable<T> value, string delimiter, string format = null, bool escape = true)
+        public void AppendQueryDelimited<T>(string name, IEnumerable<T> value, string delimiter, SerializationFormat format, bool escape = true)
         {
             delimiter ??= ",";
             IEnumerable<string> stringValues = value.Select(v => TypeFormatters.ConvertToString(v, format));

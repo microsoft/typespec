@@ -179,7 +179,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var valueParameter = new ParameterProvider("value", $"The value.", valueType);
             var escapeParameter = new ParameterProvider("escape", $"The escape.", typeof(bool), Bool(escapeDefaultValue));
-            var serializationFormatType = new CSharpType(typeof(SerializationFormatDefinition));
+            var serializationFormatType = ScmCodeModelGenerator.Instance.SerializationFormatDefinition.Type;
             var formatParameter = new ParameterProvider("format", $"The format", serializationFormatType);
             var parameters = hasFormat
                 ? new[] { valueParameter, formatParameter, escapeParameter }
@@ -191,7 +191,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 Parameters: parameters,
                 ReturnType: null,
                 Description: null, ReturnDescription: null);
-            var convertToStringExpression = TypeFormattersSnippets.ConvertToString(valueParameter, hasFormat ? (ValueExpression)formatParameter : null);
+            var convertToStringExpression = valueParameter.ConvertToString(hasFormat ? (ValueExpression)formatParameter : null);
             var body = new InvokeMethodExpression(null, AppendPathMethodName, [convertToStringExpression, escapeParameter]);
 
             return new(signature, body, this, XmlDocProvider.Empty);
@@ -250,8 +250,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var nameParameter = new ParameterProvider("name", $"The name.", typeof(string));
             var valueParameter = new ParameterProvider("value", $"The value.", valueType);
-            var escapeParameter = new ParameterProvider("escape", $"The escape.", typeof(bool), Bool(escapeDefaultValue));
-            var serializationFormatType = new CSharpType(typeof(SerializationFormatDefinition));
+            var escapeParameter = new ParameterProvider("escape", $"Whether to escape the value.", typeof(bool), Bool(escapeDefaultValue));
+            var serializationFormatType = ScmCodeModelGenerator.Instance.SerializationFormatDefinition.Type;
             var formatParameter = new ParameterProvider("format", $"The format.", serializationFormatType);
             var parameters = hasFormat
                 ? new[] { nameParameter, valueParameter, formatParameter, escapeParameter }
@@ -263,7 +263,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 Parameters: parameters,
                 ReturnType: null,
                 Description: null, ReturnDescription: null);
-            var convertToStringExpression = TypeFormattersSnippets.ConvertToString(valueParameter, hasFormat ? (ValueExpression)formatParameter : null);
+            var convertToStringExpression = valueParameter.ConvertToString(hasFormat ? (ValueExpression)formatParameter : null);
             var body = new InvokeMethodExpression(null, AppendQueryMethodName, [nameParameter, convertToStringExpression, escapeParameter]);
 
             return new(signature, body, this, XmlDocProvider.Empty);
@@ -293,10 +293,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var valueParameter =
                 new ParameterProvider("value", $"The value.", new CSharpType(typeof(IEnumerable<>), _t));
             var delimiterParameter = new ParameterProvider("delimiter", $"The delimiter.", typeof(string));
-            var serializationFormatType = new CSharpType(typeof(SerializationFormatDefinition));
-            var defaultFormat = new MemberExpression(serializationFormatType, "Default");
-            var formatParameter = new ParameterProvider("format", $"The format.", serializationFormatType, defaultFormat);
-            var escapeParameter = new ParameterProvider("escape", $"The escape.", typeof(bool), Bool(true));
+            var serializationFormatType = ScmCodeModelGenerator.Instance.SerializationFormatDefinition.Type;
+            var formatParameter = new ParameterProvider("format", $"The format.", serializationFormatType);
+            var escapeParameter = new ParameterProvider("escape", $"Whether to escape the value.", typeof(bool), Bool(true));
 
             var parameters = hasName
                 ? new[] { nameParameter, valueParameter, delimiterParameter, formatParameter, escapeParameter }
