@@ -17,13 +17,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             SerializationFormat.Bytes_Base64 => "D",
             SerializationFormat.Duration_ISO8601 => "P",
             SerializationFormat.Duration_Constant => "c",
-            SerializationFormat.Duration_Seconds => "%s",
-            SerializationFormat.Duration_Seconds_Float => "s\\.FFF",
-            SerializationFormat.Duration_Seconds_Double => "s\\.FFFFFF",
-            // TODO - https://github.com/microsoft/typespec/issues/8730
-            SerializationFormat.Duration_Milliseconds => "c",
-            SerializationFormat.Duration_Milliseconds_Float => "c",
-            SerializationFormat.Duration_Milliseconds_Double => "c",
             SerializationFormat.Time_ISO8601 => "T",
             _ => null
         };
