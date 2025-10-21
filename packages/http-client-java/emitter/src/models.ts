@@ -61,12 +61,13 @@ export class ClientContext {
           }
         }
       }
-
-      if (addedVersions.length === 0) {
-        // could not find matching version in client apiVersions
-        return undefined;
-      }
     }
-    return addedVersions;
+
+    if (addedVersions.length === 0) {
+      // could not find matching version in client apiVersions
+      return undefined;
+    } else {
+      return addedVersions;
+    }
   }
 }
