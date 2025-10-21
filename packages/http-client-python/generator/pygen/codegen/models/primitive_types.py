@@ -642,6 +642,11 @@ class ExternalType(PrimitiveType):
     def serialization_type(self, **kwargs: Any) -> str:
         return self.identity
 
+    @property
+    def default_template_representation_declaration(self) -> str:
+        value = f"{self.identity}(...)"
+        return f'"{value}"' if self.code_model.for_test else value
+
 
 class MultiPartFileType(PrimitiveType):
     def __init__(self, yaml_data: dict[str, Any], code_model: "CodeModel") -> None:
