@@ -14,8 +14,9 @@ describe("Python Declaration equivalency to Type Alias", () => {
 
         expect(getOutput(program, [<TypeAliasDeclaration type={MyDate} />])).toRenderTo(`
           from datetime import datetime
+          from typing import TypeAlias
 
-          my_date: datetime`);
+          my_date: TypeAlias = datetime`);
       });
 
       it("creates a type alias declaration with doc", async () => {
@@ -28,9 +29,10 @@ describe("Python Declaration equivalency to Type Alias", () => {
 
         expect(getOutput(program, [<TypeAliasDeclaration type={MyDate} />])).toRenderTo(`
           from datetime import datetime
+          from typing import TypeAlias
 
           # Type to represent a date
-          my_date: datetime`);
+          my_date: TypeAlias = datetime`);
       });
 
       it("can override JSDoc", async () => {
@@ -44,9 +46,10 @@ describe("Python Declaration equivalency to Type Alias", () => {
         expect(getOutput(program, [<TypeAliasDeclaration doc={"Overridden Doc"} type={MyDate} />]))
           .toRenderTo(`
           from datetime import datetime
+          from typing import TypeAlias
 
           # Overridden Doc
-          my_date: datetime`);
+          my_date: TypeAlias = datetime`);
       });
 
       it("creates a type alias declaration for a utcDateTime with unixTimeStamp encoding", async () => {
@@ -57,8 +60,9 @@ describe("Python Declaration equivalency to Type Alias", () => {
 
         expect(getOutput(program, [<TypeAliasDeclaration type={MyDate} />])).toRenderTo(`
           from datetime import datetime
+          from typing import TypeAlias
 
-          my_date: datetime`);
+          my_date: TypeAlias = datetime`);
       });
 
       it("creates a type alias declaration for a utcDateTime with rfc7231 encoding", async () => {
@@ -69,8 +73,9 @@ describe("Python Declaration equivalency to Type Alias", () => {
 
         expect(getOutput(program, [<TypeAliasDeclaration type={MyDate} />])).toRenderTo(`
           from datetime import datetime
+          from typing import TypeAlias
 
-          my_date: datetime`);
+          my_date: TypeAlias = datetime`);
       });
 
       it("creates a type alias declaration for a utcDateTime with rfc3339 encoding", async () => {
@@ -81,8 +86,9 @@ describe("Python Declaration equivalency to Type Alias", () => {
 
         expect(getOutput(program, [<TypeAliasDeclaration type={MyDate} />])).toRenderTo(`
           from datetime import datetime
+          from typing import TypeAlias
 
-          my_date: datetime`);
+          my_date: TypeAlias = datetime`);
       });
     });
   });

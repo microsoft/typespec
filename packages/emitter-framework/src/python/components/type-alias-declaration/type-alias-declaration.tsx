@@ -2,6 +2,7 @@ import { useTsp } from "#core/context/index.js";
 import * as py from "@alloy-js/python";
 import type { Type } from "@typespec/compiler";
 import { reportDiagnostic } from "../../../lib.js";
+import { typingModule } from "../../builtins.js";
 import { declarationRefkeys } from "../../utils/refkey.js";
 import { TypeExpression } from "../type-expression/type-expression.jsx";
 
@@ -47,7 +48,8 @@ export function TypeAliasDeclaration(props: TypedAliasDeclarationProps) {
       name={name}
       refkey={refkeys}
       omitNone={true}
-      type={<TypeExpression type={props.type} noReference />}
+      type={typingModule["."]["TypeAlias"]}
+      initializer={<TypeExpression type={props.type} noReference />}
     >
       {props.children}
     </py.VariableDeclaration>
