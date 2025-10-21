@@ -93,9 +93,9 @@ namespace SampleTypeSpec
 
         public void AppendQuery(string name, float value, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value), escape);
 
-        public void AppendQuery(string name, DateTimeOffset value, SerializationFormat format, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value, format), escape);
+        public void AppendQuery(string name, DateTimeOffset value, SerializationFormat format = SerializationFormat.Default, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value, format), escape);
 
-        public void AppendQuery(string name, TimeSpan value, SerializationFormat format, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value, format), escape);
+        public void AppendQuery(string name, TimeSpan value, SerializationFormat format = SerializationFormat.Default, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value, format), escape);
 
         public void AppendQuery(string name, double value, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value), escape);
 
@@ -107,7 +107,7 @@ namespace SampleTypeSpec
 
         public void AppendQuery(string name, TimeSpan value, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value), escape);
 
-        public void AppendQuery(string name, byte[] value, SerializationFormat format, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value, format), escape);
+        public void AppendQuery(string name, byte[] value, SerializationFormat format = SerializationFormat.Default, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value, format), escape);
 
         public void AppendQuery(string name, Guid value, bool escape = true) => AppendQuery(name, TypeFormatters.ConvertToString(value), escape);
 
