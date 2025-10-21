@@ -34,9 +34,9 @@ export class ClientContext {
     }
   }
 
-  getAddedVersions(versions: Version[]): string[] {
+  getAddedVersions(versions: Version[]): string[] | undefined {
     // currently only allow one added version
-    const addedVersions: string[] = [];
+    let addedVersions: string[] = [];
     const addedVersion = versions.shift()!.value;
     if (this.apiVersions) {
       let includeVersion = false;
@@ -60,6 +60,11 @@ export class ClientContext {
             addedVersions.push(version);
           }
         }
+      }
+
+      if (addedVersions.length === 0) {
+        // could not find matching version in client apiVersions
+        return undefined;
       }
     }
     return addedVersions;
