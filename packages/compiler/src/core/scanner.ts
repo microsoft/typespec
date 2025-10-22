@@ -1359,11 +1359,20 @@ export function createScanner(
   }
 
   function getIdentifierTokenValue(): string {
-    // For mixed member access expressions, the original text is returned directly without backtick processing.
+    // Check if it is a pure backticked identifier (the entire token is surrounded by a single backtick pair)
+    const isPureBackticked =
+      tokenFlags & TokenFlags.Backticked &&
+      !(tokenFlags & TokenFlags.Unterminated) &&
+      input.charCodeAt(tokenPosition) === CharCode.Backtick &&
+      input.charCodeAt(position - 1) === CharCode.Backtick &&
+      // Make sure there are no other backticks in the middle (excluding mixed member access)
+      input.substring(tokenPosition + 1, position - 1).indexOf("`") === -1;
+
+    const start = isPureBackticked ? tokenPosition + 1 : tokenPosition;
+    const end = isPureBackticked ? position - 1 : position;
+
     const text =
-      tokenFlags & TokenFlags.Escaped
-        ? unescapeString(tokenPosition, position)
-        : input.substring(tokenPosition, position);
+      tokenFlags & TokenFlags.Escaped ? unescapeString(start, end) : input.substring(start, end);
 
     if (tokenFlags & TokenFlags.NonAscii) {
       return text.normalize("NFC");
