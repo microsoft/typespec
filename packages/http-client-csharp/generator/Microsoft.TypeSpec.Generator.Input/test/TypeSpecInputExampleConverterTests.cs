@@ -67,7 +67,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
                 var exampleValue3 = example.Parameters[2].ExampleValue as InputExampleRawValue;
                 Assert.IsNotNull(exampleValue3);
                 Assert.IsTrue(exampleValue3!.Type is InputPrimitiveType { Kind: InputPrimitiveTypeKind.String });
-                Assert.AreEqual("mytask1", exampleValue3.RawValue);
+                Assert.AreEqual("myTask1", exampleValue3.RawValue);
                 var exampleValue4 = example.Parameters[3].ExampleValue as InputExampleRawValue;
                 Assert.IsNotNull(exampleValue4);
                 Assert.IsTrue(exampleValue4!.Type is InputPrimitiveType { Kind: InputPrimitiveTypeKind.String });
