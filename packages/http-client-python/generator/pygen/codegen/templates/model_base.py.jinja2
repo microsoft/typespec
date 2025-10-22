@@ -34,6 +34,8 @@ __all__ = ["SdkJSONEncoder", "Model", "rest_field", "rest_discriminator"]
 TZ_UTC = timezone.utc
 _T = typing.TypeVar("_T")
 
+_XML_PARSER = ET.XMLParser(resolve_entities=False)
+
 
 def _timedelta_as_isostr(td: timedelta) -> str:
     """Converts a datetime.timedelta object into an ISO 8601 formatted string, e.g. 'P4DT12H30M05S'
@@ -1208,7 +1210,7 @@ def _deserialize_xml(
     deserializer: typing.Any,
     value: str,
 ) -> typing.Any:
-    element = ET.fromstring(value) # nosec
+    element = ET.fromstring(value, parser=_XML_PARSER)
     return _deserialize(deserializer, element)
 
 
