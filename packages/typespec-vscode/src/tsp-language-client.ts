@@ -8,13 +8,22 @@ import type {
 } from "@typespec/compiler";
 import { InternalCompileResult } from "@typespec/compiler/internals";
 import { inspect } from "util";
-import { ExtensionContext, LogOutputChannel, RelativePattern, workspace } from "vscode";
+import {
+  ExtensionContext,
+  LanguageModelChat,
+  LanguageModelChatMessage,
+  lm,
+  LogOutputChannel,
+  RelativePattern,
+  workspace,
+} from "vscode";
 import {
   Executable,
   LanguageClient,
   LanguageClientOptions,
   TextDocumentIdentifier,
 } from "vscode-languageclient/node.js";
+import { ChatCompleteOptions, ChatMessage } from "../../compiler/dist/src/server/types.js";
 import { TspConfigFileName } from "./const.js";
 import logger from "./log/logger.js";
 import telemetryClient from "./telemetry/telemetry-client.js";
@@ -269,6 +278,84 @@ export class TspLanguageClient {
     const name = "TypeSpec";
     const id = "typespec";
     const lc = new LanguageClient(id, name, { run: exe, debug: exe }, options);
+
+    let aiParallel = 0;
+    const lmModelCache = new Map<string, Thenable<LanguageModelChat[]>>();
+    // pre-warm some well known models
+    // TODO: refine the list
+    const knownFamilies = ["gpt-4o", "o4-mini", "gpt-5-mini", "claude-sonnet-4"];
+    for (const family of knownFamilies) {
+      const m = lm.selectChatModels({ family });
+      lmModelCache.set(family, m);
+    }
+    lc.onRequest(
+      "custom/chatCompletion",
+      async (params: { messages: ChatMessage[]; lmOptions: ChatCompleteOptions; id?: string }) => {
+        const family = params.lmOptions.modelPreferences ?? "gpt-4o";
+        const s = new Date();
+        logger.debug(
+          `[ChatComplete #${params.id ?? "N/A"}][${s.toTimeString()}] start select model for family ${family}`,
+        );
+        let mp = lmModelCache.get(family);
+        if (!mp) {
+          mp = lm.selectChatModels({ family });
+          lmModelCache.set(family, mp);
+        }
+        const models = await mp;
+        const e = new Date();
+        logger.debug(
+          `[ChatComplete #${params.id ?? "N/A"}][${e.toTimeString()}] Model selection for family ${family} took ${e.getTime() - s.getTime()} ms`,
+        );
+        if (!models || models.length === 0) {
+          logger.error(
+            `[ChatComplete #${params.id ?? "N/A"}] No chat models returned. Please check whether language model is available. It may take some time for language models to be ready to use after vscode is started. Language model family used: ${family}.`,
+          );
+          return undefined;
+        }
+        try {
+          aiParallel++;
+          logger.warning(`AI parallelism: ${aiParallel}`);
+          const ss = new Date();
+          logger.debug(
+            `[ChatComplete #${params.id ?? "N/A"}][${ss.toTimeString()}] Sending chat completion request to model ${models[0].name}`,
+          );
+          // we always use the first model for now.
+          const response = await models[0].sendRequest(
+            params.messages.map((m) => {
+              if (m.role === "user") {
+                return LanguageModelChatMessage.User(m.message);
+              } else if (m.role === "assist") {
+                return LanguageModelChatMessage.Assistant(m.message);
+              } else {
+                logger.error(`Unknown chat message role: ${m.role}. Default to use User role.`);
+                return LanguageModelChatMessage.User(m.message);
+              }
+            }),
+          );
+          let fullResponse = "";
+          for await (const chunk of response.text) {
+            fullResponse += chunk;
+          }
+          const es = new Date();
+          logger.debug(
+            `[ChatComplete #${params.id ?? "N/A"}][${es.toTimeString()}] chat complete request took ${es.getTime() - ss.getTime()} ms`,
+          );
+          // TODO: support stream mode? seems not necessary because we need to wait for the full response anyway and no way to
+          // show the progress to end user.
+          return fullResponse;
+        } catch (e) {
+          logger.error(
+            `Error when sending chat completion request to model ${models[0].name}: ${inspect(e)}`,
+            [e],
+          );
+          return undefined;
+        } finally {
+          aiParallel--;
+          logger.warning(`AI parallelism: ${aiParallel}`);
+        }
+      },
+    );
+
     return new TspLanguageClient(lc, exe);
   }
 

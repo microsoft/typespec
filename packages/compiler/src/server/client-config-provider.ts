@@ -23,19 +23,22 @@ export interface ClientConfigProvider {
    */
   initialize(connection: Connection, host: ServerHost): Promise<void>;
 
+  isInitialized: boolean;
+
   config?: Config;
 }
 
 export function createClientConfigProvider(): ClientConfigProvider {
   let config: Config | undefined;
+  let initialized = false;
 
   async function initialize(connection: Connection, host: ServerHost): Promise<void> {
     try {
       const configs = await connection.workspace.getConfiguration("typespec");
-      host.log({ level: "debug", message: "VSCode settings loaded", detail: configs });
-
       // Transform the raw configuration to match our Config interface
       config = deepClone(configs);
+
+      host.log({ level: "debug", message: "vscode settings loaded", detail: config });
 
       connection.onDidChangeConfiguration(async (params) => {
         if (params.settings) {
@@ -45,6 +48,7 @@ export function createClientConfigProvider(): ClientConfigProvider {
 
         host.log({ level: "debug", message: "Configuration changed", detail: params.settings });
       });
+      initialized = true;
     } catch (error) {
       host.log({
         level: "error",
@@ -58,6 +62,9 @@ export function createClientConfigProvider(): ClientConfigProvider {
     initialize,
     get config() {
       return config;
+    },
+    get isInitialized() {
+      return initialized;
     },
   };
 }

@@ -484,3 +484,7 @@ class RekeyableMapImpl<K, V> implements RekeyableMap<K, V> {
     return true;
   }
 }
+
+export function isPromise(value: any): value is Promise<any> {
+  return value && typeof value.then === "function";
+}

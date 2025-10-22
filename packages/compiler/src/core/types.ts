@@ -2129,7 +2129,7 @@ export enum ListenerFlow {
 /**
  * Listener function. Can return false to stop recursion.
  */
-type TypeListener<T> = (context: T) => ListenerFlow | undefined | void;
+type TypeListener<T> = (context: T) => ListenerFlow | undefined | void | Promise<undefined | void>;
 type exitListener<T extends string | number | symbol> = T extends string ? `exit${T}` : T;
 type ListenerForType<T extends Type> = T extends Type
   ? { [k in Uncapitalize<T["kind"]> | exitListener<T["kind"]>]?: TypeListener<T> }
@@ -2138,7 +2138,8 @@ type ListenerForType<T extends Type> = T extends Type
 export type TypeListeners = UnionToIntersection<ListenerForType<Type>>;
 
 export type SemanticNodeListener = {
-  root?: (context: Program) => void | undefined;
+  root?: (context: Program) => void | undefined | Promise<void | undefined>;
+  exitRoot?: (context: Program) => void | undefined | Promise<void | undefined>;
 } & TypeListeners;
 
 export type DiagnosticReportWithoutTarget<
