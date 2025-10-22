@@ -302,7 +302,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var elementType = listProp.Type.ElementType;
             Assert.AreEqual("global::Sample.Models.Foo", elementType.ToString());
             Assert.AreEqual("Sample.Models", elementType.Namespace);
-            Assert.IsFalse(elementType.IsNullable);
+            Assert.IsTrue(elementType.IsNullable);
         }
 
         [Test]
@@ -336,9 +336,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsTrue(listProp.Type.IsList);
 
             var elementType = listProp.Type.ElementType;
-            Assert.AreEqual("global::Sample.Models.Foo", elementType.ToString());
+            Assert.AreEqual("global::Sample.Models.Foo?", elementType.ToString());
             Assert.AreEqual("Sample.Models", elementType.Namespace);
-            Assert.IsFalse(elementType.IsNullable);
+            Assert.IsTrue(elementType.IsNullable);
             Assert.IsFalse(elementType.IsStruct);
             Assert.IsFalse(elementType.IsLiteral);
         }
@@ -414,7 +414,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var elementType = listProp.Type.ElementType;
             Assert.AreEqual("global::Sample.Models.Foo", elementType.ToString());
             Assert.AreEqual("Sample.Models", elementType.Namespace);
-            Assert.IsFalse(elementType.IsNullable);
+            Assert.IsTrue(elementType.IsNullable);
         }
 
         [Test]
@@ -424,7 +424,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             {
                 InputFactory.Property("Prop1", InputFactory.Model(
                     "Foo",
-                    usage: InputModelTypeUsage.Input))
+                    usage: InputModelTypeUsage.Input),
+                    isRequired: true)
             };
 
             var inputModel = InputFactory.Model("mockInputModel", properties: props);
@@ -482,7 +483,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             var modelProp = modelTypeProvider.CanonicalView.Properties[0];
             Assert.AreEqual("Prop1", modelProp.Name);
-            Assert.IsFalse(modelProp.Type.IsNullable);
+            Assert.IsTrue(modelProp.Type.IsNullable);
             Assert.IsFalse(modelProp.Body.HasSetter);
             Assert.AreEqual("global::Updated.Namespace.Models.Foo", modelProp.Type.ToString());
             Assert.AreEqual("Updated.Namespace.Models", modelProp.Type.Namespace);
@@ -1205,7 +1206,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual(0, modelFactoryMethod!.Signature.Parameters.Count);
 
             // default value should be passed in the model factory method body
-            StringAssert.Contains("0,", modelFactoryMethod.BodyStatements!.ToDisplayString());
+            var result = modelFactoryMethod.BodyStatements!.ToDisplayString();
+            StringAssert.Contains("global::Sample.Models.MockInputEnum.Val1", result);
         }
 
         [Test]
@@ -1260,6 +1262,28 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual(typeof(bool), canonicalView.Properties[0].Type.FrameworkType);
             var body = canonicalView.Properties[0].Body as AutoPropertyBody;
             Assert.AreEqual("true", body!.InitializationExpression!.ToDisplayString());
+        }
+
+        [Test]
+        public async Task CanCustomizeNullableStructProperty()
+        {
+            var inputEnum = InputFactory.StringEnum("someStruct", [("Foo", "foo")], isExtensible: true);
+            var inputModel = InputFactory.Model("mockInputModel", properties: [InputFactory.Property("prop1", inputEnum)]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                inputEnumTypes: [inputEnum],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelTypeProvider = new ModelProvider(inputModel);
+
+            var canonicalView = modelTypeProvider.CanonicalView;
+            Assert.IsNotNull(canonicalView);
+            Assert.AreEqual(1, canonicalView.Properties.Count);
+            Assert.AreEqual("Prop1", canonicalView.Properties[0].Name);
+            Assert.IsTrue(canonicalView.Properties[0].Type.IsEnum);
+            Assert.AreEqual("SomeStruct", canonicalView.Properties[0].Type.Name);
+            Assert.AreEqual("Sample.Models", canonicalView.Properties[0].Type.Namespace);
+            Assert.IsTrue(canonicalView.Properties[0].Type.IsNullable);
         }
 
         [Test]
