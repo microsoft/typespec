@@ -358,16 +358,17 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
     private void createOverloadForVersioning(List<ClientMethod> methods, ClientMethod baseMethod,
         JavaVisibility methodWithContextVisibility, MethodPageDetails methodPageDetailsWithContext,
         boolean isProtocolMethod) {
+        final ClientMethodType clientMethodType = baseMethod.getType();
         final List<ClientMethodParameter> parameters = baseMethod.getParameters();
         if (!isProtocolMethod) {
             if (parameters.stream().anyMatch(p -> p.getVersioning() != null && p.getVersioning().getAdded() != null)) {
                 final List<List<ClientMethodParameter>> signatures = findOverloadedSignatures(parameters);
                 for (List<ClientMethodParameter> overloadedParameters : signatures) {
-                    if (JavaSettings.getInstance().isDataPlaneClient()) {
+                    if (JavaSettings.getInstance().isDataPlaneClient() && (clientMethodType != ClientMethodType.SimpleSyncRestResponse && clientMethodType != ClientMethodType.SimpleAsyncRestResponse)) {
                         final ClientMethod overloadedMethod
                             = baseMethod.newBuilder().parameters(overloadedParameters).build();
                         methods.add(overloadedMethod);
-                    } else {
+                    } else if (!JavaSettings.getInstance().isDataPlaneClient() && (clientMethodType != ClientMethodType.SimpleAsync && clientMethodType != ClientMethodType.SimpleSync)) {
                         ClientMethod.Builder overloadedMethodBuilder
                             = baseMethod.newBuilder().parameters(overloadedParameters);
                         if (methodPageDetailsWithContext != null) {
@@ -778,6 +779,10 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             .hasWithContextOverload(hasContextOverload)
             .methodVisibility(methodVisibility)
             .build();
+
+        // overload for versioning
+        createOverloadForVersioning(methods, withResponseMethod, methodWithContextVisibility, null, isProtocolMethod);
+
         // Always generate an overload of WithResponse with non-required parameters without Context. It is only for sync
         // proxy method, and is usually filtered out in methodVisibility function.
         methods.add(withResponseMethod);
