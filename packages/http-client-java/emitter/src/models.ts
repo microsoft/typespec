@@ -66,6 +66,9 @@ export class ClientContext {
     if (addedVersions.length === 0) {
       // could not find matching version in client apiVersions
       return undefined;
+    } else if (addedVersions.length === this.apiVersions?.length) {
+      // it is added in the 1st api-version, this is the default scenario, no need to specify addedVersions
+      return undefined;
     } else {
       return addedVersions;
     }
