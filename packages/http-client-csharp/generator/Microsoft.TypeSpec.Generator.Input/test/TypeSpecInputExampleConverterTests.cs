@@ -125,7 +125,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
                 var putExampleValue4 = putExample.Parameters[3].ExampleValue as InputExampleRawValue;
                 Assert.IsNotNull(putExampleValue4);
                 Assert.IsTrue(putExampleValue4!.Type is InputPrimitiveType { Kind: InputPrimitiveTypeKind.String });
-                Assert.AreEqual("mytask1", putExampleValue4.RawValue);
+                Assert.AreEqual("myTask1", putExampleValue4.RawValue);
 
                 // Check fifth parameter (subscriptionId)
                 var putExampleValue5 = putExample.Parameters[4].ExampleValue as InputExampleRawValue;
