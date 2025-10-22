@@ -418,8 +418,8 @@ importers:
         version: 0.21.0-dev.19
     devDependencies:
       '@alloy-js/cli':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: ^0.21.0
+        version: 0.21.0
       '@alloy-js/core':
         specifier: 0.21.0-dev.8
         version: 0.21.0-dev.8
@@ -427,8 +427,8 @@ importers:
         specifier: ^0.1.0
         version: 0.1.0(@babel/core@7.28.4)(@types/babel__core@7.20.5)(rollup@4.49.0)
       '@alloy-js/typescript':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: ^0.21.0
+        version: 0.21.0
       '@typespec/compiler':
         specifier: workspace:^
         version: link:../compiler
@@ -2673,6 +2673,11 @@ packages:
     engines: {node: '>=18.0.0'}
     hasBin: true
 
+  '@alloy-js/cli@0.21.0':
+    resolution: {integrity: sha512-k1Rf6kbYPdMKYJ1pFmhbk0NpW7p/aL/HbmxpJxmF/tbXAhZmNO62f9JM4qF64jNnq9byq31PMBSOIAIZFLqa1A==}
+    engines: {node: '>=18.0.0'}
+    hasBin: true
+
   '@alloy-js/core@0.21.0-dev.8':
     resolution: {integrity: sha512-CFKy8/sCHTxj/YWG4uJFFRyr68713LOms+gJcQ2NWulqc8JT4bl2XQM8hF/KbkngRY5oKcGsl8VPkn9o7i5hGg==}
 
@@ -2688,6 +2693,9 @@ packages:
 
   '@alloy-js/typescript@0.20.0':
     resolution: {integrity: sha512-F1y5QjneE8GVxIq6oYsebu+Fccrn72qFHelNX5GSLfs4Ps2fxpk2+70rsGznZyHe9LIt70StaAciTjH6cxH4bQ==}
+
+  '@alloy-js/typescript@0.21.0':
+    resolution: {integrity: sha512-SsxdYkXhrP8jjO2gENav9bHPHaonNrreW469RaOot3cRqhsHPA1RmBrzNPJov37YknzTg4Wlk0JsEFT4Qibgfg==}
 
   '@ampproject/remapping@2.3.0':
     resolution: {integrity: sha512-30iZtAPgz+LTIYoeivqYo853f02jBYSd5uGnGpkFV0M3xOt9aN73erkgYAmZU43x4VfqcnLxW9Kpg3R5LC4YYw==}
@@ -13462,6 +13470,16 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@alloy-js/cli@0.21.0':
+    dependencies:
+      '@alloy-js/babel-preset': 0.2.1(@babel/core@7.28.4)
+      '@babel/core': 7.28.4
+      '@babel/preset-typescript': 7.27.1(@babel/core@7.28.4)
+      pathe: 2.0.3
+      picocolors: 1.1.1
+    transitivePeerDependencies:
+      - supports-color
+
   '@alloy-js/core@0.21.0-dev.8':
     dependencies:
       '@vue/reactivity': 3.5.21
@@ -13494,6 +13512,12 @@ snapshots:
       - supports-color
 
   '@alloy-js/typescript@0.20.0':
+    dependencies:
+      '@alloy-js/core': 0.21.0-dev.8
+      change-case: 5.4.4
+      pathe: 2.0.3
+
+  '@alloy-js/typescript@0.21.0':
     dependencies:
       '@alloy-js/core': 0.21.0-dev.8
       change-case: 5.4.4
