@@ -346,6 +346,27 @@ describe("converts top-level schemas", () => {
 
       expect(modalitiesUnionVariants[1].type).toMatchObject({ kind: "Intrinsic", name: "null" });
     });
+
+    it("OpenAPI 3.1 type array with null", async () => {
+      const serviceNamespace = await tspForOpenAPI3({
+        schemas: {
+          NullableInteger: {
+            type: ["integer", "null"] as any,
+            format: "int32",
+          },
+        },
+      });
+
+      expect(serviceNamespace.unions.size).toBe(1);
+
+      /* union NullableInteger { int32, null, } */
+      const nullableInteger = serviceNamespace.unions.get("NullableInteger");
+      expect(nullableInteger?.decorators.length).toBe(0);
+      const nullableIntegerVariants = [...(nullableInteger?.variants.values() ?? [])];
+      expect(nullableIntegerVariants.length).toBe(2);
+      expect(nullableIntegerVariants[0].type).toMatchObject({ kind: "Scalar", name: "int32" });
+      expect(nullableIntegerVariants[1].type).toMatchObject({ kind: "Intrinsic", name: "null" });
+    });
   });
 
   describe("handles models", () => {
@@ -648,6 +669,43 @@ describe("converts top-level schemas", () => {
       expectDecorators(Foo.properties.get("name")!.decorators, [
         { name: "summary", args: ["Name Summary"] },
       ]);
+    });
+
+    it("handles OpenAPI 3.1 type array in model properties", async () => {
+      const serviceNamespace = await tspForOpenAPI3({
+        schemas: {
+          Bar: {
+            type: "object",
+            required: ["foo"],
+            properties: {
+              foo: {
+                type: ["integer", "null"] as any,
+                format: "int32",
+                minimum: 1,
+                maximum: 20,
+              },
+            },
+          },
+        },
+      });
+
+      /* model Bar { @minValue(1) @maxValue(20) foo: int32 | null } */
+      const Bar = serviceNamespace.models.get("Bar");
+      assert(Bar, "Bar model not found");
+      expect(Bar.properties.size).toBe(1);
+      const fooProp = Bar.properties.get("foo");
+      expect(fooProp?.optional).toBe(false);
+      assert(
+        fooProp?.type.kind === "Union",
+        `Expected foo.type.kind to be "Union", got "${fooProp?.type.kind}"`,
+      );
+      const fooVariants = [...(fooProp.type.variants.values() ?? [])];
+      expect(fooVariants.length).toBe(2);
+      expect(fooVariants[0].type).toMatchObject({ kind: "Scalar", name: "int32" });
+      expect(fooVariants[1].type).toMatchObject({ kind: "Intrinsic", name: "null" });
+      // Check that minValue and maxValue decorators are present
+      expect(fooProp.decorators.some((d) => d.definition?.name === "@minValue")).toBe(true);
+      expect(fooProp.decorators.some((d) => d.definition?.name === "@maxValue")).toBe(true);
     });
   });
 });

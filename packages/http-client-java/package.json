@@ -1,6 +1,6 @@
 {
   "name": "@typespec/http-client-java",
-  "version": "0.4.3",
+  "version": "0.5.0",
   "description": "TypeSpec library for emitting Java client from the TypeSpec REST protocol binding",
   "keywords": [
     "TypeSpec"
@@ -65,7 +65,6 @@
   },
   "dependencies": {
     "@autorest/codemodel": "~4.20.1",
-    "@typespec/http-client-java": "file:",
     "js-yaml": "~4.1.0",
     "lodash": "~4.17.21"
   },

@@ -47,7 +47,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 || _namedTypeSymbol.BaseType.SpecialType == SpecialType.System_Object
                 || _namedTypeSymbol.BaseType.SpecialType == SpecialType.System_ValueType
                 || _namedTypeSymbol.BaseType.SpecialType == SpecialType.System_Array
-                || _namedTypeSymbol.BaseType.SpecialType == SpecialType.System_Enum)
+                || _namedTypeSymbol.BaseType.SpecialType == SpecialType.System_Enum
+                || TypeSymbolExtensions.ContainsTypeAsArgument(_namedTypeSymbol.BaseType, _namedTypeSymbol))
             {
                 return null;
             }
@@ -120,7 +121,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         fieldSymbol.Type.GetCSharpType(),
                         fieldSymbol.Name,
                         this,
-                        GetSymbolXmlDoc(fieldSymbol, "summary"))
+                        GetSymbolXmlDoc(fieldSymbol, "summary"),
+                        initializationValue: GetFieldInitializer(fieldSymbol))
                     {
                         OriginalName = GetOriginalName(fieldSymbol)
                     };
@@ -188,6 +190,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // For non-constant expressions, return the expression text
                 return Literal(initializerValue.ToString());
             }
+            return null;
+        }
+
+        private static ValueExpression? GetFieldInitializer(IFieldSymbol fieldSymbol)
+        {
+            if (fieldSymbol.ContainingType?.TypeKind == TypeKind.Enum)
+            {
+                if (fieldSymbol.HasConstantValue && fieldSymbol.ConstantValue != null)
+                {
+                    return Literal(fieldSymbol.ConstantValue);
+                }
+                return null;
+            }
+
             return null;
         }
 

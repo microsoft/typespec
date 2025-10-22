@@ -159,7 +159,13 @@ export function getDecoratorsForSchema(
 
   decorators.push(...getExtensions(schema));
 
-  switch (schema.type) {
+  // Handle OpenAPI 3.1 type arrays like ["integer", "null"]
+  // Extract the non-null type to determine which decorators to apply
+  const effectiveType = Array.isArray(schema.type)
+    ? schema.type.find((t) => t !== "null")
+    : schema.type;
+
+  switch (effectiveType) {
     case "array":
       decorators.push(...getArraySchemaDecorators(schema));
       break;
