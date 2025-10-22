@@ -58,7 +58,6 @@ export async function typeSpecCompile(
   const authDecorator =
     options?.AuthDecorator ?? `@useAuth(ApiKeyAuth<ApiKeyLocation.header, "api-key">)`;
   const versions = `enum Versions {
-    ${needAzureCore ? "@useDependency(Azure.Core.Versions.v1_0_Preview_1)" : ""}
     "2023-01-01-preview"
     }`;
   const namespace = `

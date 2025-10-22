@@ -6,7 +6,7 @@ import {
   removeClientSuffix,
   stringArrayContainsIgnoreCase,
 } from "../src/utils.js";
-import { isStableApiVersion } from "../src/versioning-utils.js";
+import { isStableApiVersionString } from "../src/versioning-utils.js";
 
 describe("utils", () => {
   it("pascalCase", () => {
@@ -39,8 +39,8 @@ describe("utils", () => {
 
 describe("versioning-utils", () => {
   it("isStableApiVersion", () => {
-    expect(isStableApiVersion("2022-09-01")).toBe(true);
-    expect(isStableApiVersion("2023-12-01-preview")).toBe(false);
+    expect(isStableApiVersionString("2022-09-01")).toBe(true);
+    expect(isStableApiVersionString("2023-12-01-preview")).toBe(false);
   });
 });
 

@@ -57,9 +57,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
             Assert.AreEqual(123, model.RequiredLiteralInt);
             Assert.AreEqual(1.23f, model.RequiredLiteralFloat);
             Assert.AreEqual(parsedWireJson.GetProperty("requiredLiteralBool").GetBoolean(), model.RequiredLiteralBool);
-            Assert.AreEqual("hi", model.OptionalLiteralString);
-            Assert.AreEqual(456, model.OptionalLiteralInt);
-            Assert.AreEqual(4.56f, model.OptionalLiteralFloat);
+            Assert.AreEqual((ThingOptionalLiteralString)"hi", model.OptionalLiteralString);
+            Assert.AreEqual((ThingOptionalLiteralInt)456, model.OptionalLiteralInt!.Value);
+            Assert.AreEqual((ThingOptionalLiteralFloat)4.56f, model.OptionalLiteralFloat!.Value);
             Assert.AreEqual(parsedWireJson.GetProperty("optionalLiteralBool").GetBoolean(), model.OptionalLiteralBool);
             Assert.IsFalse(parsedWireJson.TryGetProperty("optionalNullableList", out _));
             Assert.IsEmpty(model.OptionalNullableList);

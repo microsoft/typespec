@@ -37,11 +37,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     if (i == publicDerivedModels.Count - 1)
                     {
-                        derivedClassesDescription += $"{(i > 0 ? "and " : "")}<see cref=\"{publicDerivedModels[i].Name}\"/>.";
+                        derivedClassesDescription += $"{(i > 0 ? "and " : "")}<see cref=\"{publicDerivedModels[i].Type.FullyQualifiedName}\"/>.";
                     }
                     else
                     {
-                        derivedClassesDescription += $"<see cref=\"{publicDerivedModels[i].Name}\"/>{(addComma ? ", " : " ")}";
+                        derivedClassesDescription += $"<see cref=\"{publicDerivedModels[i].Type.FullyQualifiedName}\"/>{(addComma ? ", " : " ")}";
                     }
                 }
 
@@ -67,9 +67,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _inputModel = inputModel;
             _isAbstract = _inputModel.DiscriminatorProperty is not null && _inputModel.DiscriminatorValue is null;
 
-            if (inputModel.BaseModel is not null)
+            if (_inputModel.BaseModel is not null)
             {
                 DiscriminatorValueExpression = EnsureDiscriminatorValueExpression();
+            }
+
+            if (_inputModel.Access == "public")
+            {
+                CodeModelGenerator.Instance.AddTypeToKeep(this);
             }
         }
 

@@ -1,5 +1,6 @@
 vi.resetModules();
 
+import { UsageFlags } from "@azure-tools/typespec-client-generator-core";
 import { TestHost } from "@typespec/compiler/testing";
 import assert, { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it, vi } from "vitest";
@@ -767,5 +768,172 @@ describe("typespec-client-generator-core: general decorators list", () => {
         },
       },
     ]);
+  });
+});
+
+describe("Access decorator on enums", () => {
+  let runner: TestHost;
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
+
+  it("@access decorator should set correct access on enum", async function () {
+    const program = await typeSpecCompile(
+      `
+      @access(Access.internal)
+      enum Color {
+        Red: "red",
+        Blue: "blue", 
+        Green: "green"
+      }
+
+      model TestModel {
+        color: Color;
+      }
+
+      op test(@body input: TestModel): void;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    const enums = root.enums;
+
+    const colorEnum = enums.find((e) => e.name === "Color");
+    ok(colorEnum);
+    strictEqual(colorEnum.access, "internal");
+    strictEqual(colorEnum.usage, UsageFlags.Input | UsageFlags.Json);
+    strictEqual(colorEnum.values.length, 3);
+  });
+
+  it("enum without @access decorator should have undefined access", async function () {
+    const program = await typeSpecCompile(
+      `
+      enum Color {
+        Red: "red",
+        Blue: "blue", 
+        Green: "green"
+      }
+
+      model TestModel {
+        color: Color;
+      }
+
+      op test(@body input: TestModel): void;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    const enums = root.enums;
+
+    const colorEnum = enums.find((e) => e.name === "Color");
+    ok(colorEnum);
+    strictEqual(colorEnum.access, undefined);
+    strictEqual(colorEnum.values.length, 3);
+  });
+
+  it("@access decorator should set correct access on public enum", async function () {
+    const program = await typeSpecCompile(
+      `
+      @access(Access.public)
+      enum Status {
+        Active: "active",
+        Inactive: "inactive"
+      }
+
+      model TestModel {
+        status: Status;
+      }
+
+      op test(@body input: TestModel): void;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    const enums = root.enums;
+
+    const statusEnum = enums.find((e) => e.name === "Status");
+    ok(statusEnum);
+    strictEqual(statusEnum.access, "public");
+    strictEqual(statusEnum.values.length, 2);
+  });
+});
+
+describe("Usage decorator on enums", () => {
+  let runner: TestHost;
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
+
+  it("@usage decorator should set correct usage on enum", async function () {
+    const program = await typeSpecCompile(
+      `
+      @usage(Usage.input | Usage.json)
+      enum Color {
+        Red: "red",
+        Blue: "blue", 
+        Green: "green"
+      }
+
+      model TestModel {
+        color: Color;
+      }
+
+      op test(@body input: TestModel): void;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    const enums = root.enums;
+
+    const colorEnum = enums.find((e) => e.name === "Color");
+    ok(colorEnum);
+    strictEqual(colorEnum.usage, UsageFlags.Input | UsageFlags.Json);
+    strictEqual(colorEnum.values.length, 3);
+  });
+
+  it("enum without @usage decorator should have correct usage", async function () {
+    const program = await typeSpecCompile(
+      `
+      enum Color {
+        Red: "red",
+        Blue: "blue", 
+        Green: "green"
+      }
+
+      model TestModel {
+        color: Color;
+      }
+
+      op test(@body input: TestModel): void;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    const enums = root.enums;
+
+    const colorEnum = enums.find((e) => e.name === "Color");
+    ok(colorEnum);
+    strictEqual(colorEnum.usage, UsageFlags.Input | UsageFlags.Json);
+    strictEqual(colorEnum.values.length, 3);
   });
 });

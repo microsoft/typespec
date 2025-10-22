@@ -97,7 +97,7 @@ import { validateTemplateDefinitions } from "../init/init-template-validate.js";
 import { InitTemplate } from "../init/init-template.js";
 import { scaffoldNewProject } from "../init/scaffold.js";
 import { typespecVersion } from "../manifest.js";
-import { resolveModule, ResolveModuleHost } from "../module-resolver/module-resolver.js";
+import { resolveModule, ResolveModuleHost } from "../module-resolver/index.js";
 import { listAllFilesInDir } from "../utils/fs-utils.js";
 import { getNormalizedRealPath, resolveTspMain } from "../utils/misc.js";
 import { getSemanticTokens } from "./classify.js";
@@ -1098,11 +1098,14 @@ export function createServer(
     };
     const resolved = await resolveModule(host, importPath, {
       baseDir: getDirectoryPath(currentFile.file.path),
+      directoryIndexFiles: ["main.tsp", "index.mjs", "index.js"],
       resolveMain(pkg) {
         // this lets us follow node resolve semantics more-or-less exactly
         // but using tspMain instead of main.
         return resolveTspMain(pkg) ?? pkg.main;
       },
+      conditions: ["typespec"],
+      fallbackOnMissingCondition: true,
     });
     return {
       uri: fileService.getURL(resolved.type === "file" ? resolved.path : resolved.mainFile),

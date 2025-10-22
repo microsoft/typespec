@@ -19,39 +19,41 @@ export interface TypeExpressionProps {
 }
 
 export function TypeExpression(props: TypeExpressionProps): Children {
-  if (props.type.kind === "Union") {
-    const nullabletype = getNullableUnionInnerType(props.type);
-    if (nullabletype) {
-      return code`${(<TypeExpression type={nullabletype} />)}?`;
-    }
-  }
-  const { $ } = useTsp();
-  if (isDeclaration($, props.type)) {
-    return (
-      <Experimental_OverridableComponent reference type={props.type}>
-        <Reference refkey={efRefkey(props.type)} />
-      </Experimental_OverridableComponent>
-    );
-  }
-  if ($.scalar.is(props.type)) {
-    return getScalarIntrinsicExpression($, props.type);
-  } else if ($.array.is(props.type)) {
-    return code`${(<TypeExpression type={props.type.indexer.value} />)}[]`;
-  } else if ($.record.is(props.type)) {
-    return code`IDictionary<string, ${(<TypeExpression type={props.type.indexer.value} />)}>`;
-  } else if ($.literal.isString(props.type)) {
-    // c# doesn't have literal types, so we map them to their corresponding C# types in general
-    return code`string`;
-  } else if ($.literal.isNumeric(props.type)) {
-    return Number.isInteger(props.type.value) ? code`int` : code`double`;
-  } else if ($.literal.isBoolean(props.type)) {
-    return code`bool`;
-  } else if (isVoidType(props.type)) {
-    return code`void`;
-  }
+  return (
+    <Experimental_OverridableComponent reference type={props.type}>
+      {() => {
+        if (props.type.kind === "Union") {
+          const nullabletype = getNullableUnionInnerType(props.type);
+          if (nullabletype) {
+            return code`${(<TypeExpression type={nullabletype} />)}?`;
+          }
+        }
+        const { $ } = useTsp();
+        if (isDeclaration($, props.type)) {
+          return <Reference refkey={efRefkey(props.type)} />;
+        }
+        if ($.scalar.is(props.type)) {
+          return getScalarIntrinsicExpression($, props.type);
+        } else if ($.array.is(props.type)) {
+          return code`${(<TypeExpression type={props.type.indexer.value} />)}[]`;
+        } else if ($.record.is(props.type)) {
+          return code`IDictionary<string, ${(<TypeExpression type={props.type.indexer.value} />)}>`;
+        } else if ($.literal.isString(props.type)) {
+          // c# doesn't have literal types, so we map them to their corresponding C# types in general
+          return code`string`;
+        } else if ($.literal.isNumeric(props.type)) {
+          return Number.isInteger(props.type.value) ? code`int` : code`double`;
+        } else if ($.literal.isBoolean(props.type)) {
+          return code`bool`;
+        } else if (isVoidType(props.type)) {
+          return code`void`;
+        }
 
-  throw new Error(
-    `Unsupported type for TypeExpression: ${props.type.kind} (${getTypeName(props.type)})`,
+        throw new Error(
+          `Unsupported type for TypeExpression: ${props.type.kind} (${getTypeName(props.type)})`,
+        );
+      }}
+    </Experimental_OverridableComponent>
   );
 }
 

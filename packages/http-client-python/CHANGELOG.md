@@ -1,5 +1,31 @@
 # Change Log - @typespec/http-client-python
 
+## 0.19.1
+
+### Bump dependencies
+
+- [#8638](https://github.com/microsoft/typespec/pull/8638) Bump dep of `@azure-tools/typespec-client-generator-core` to hotfix `0.60.3`
+
+### Bug Fixes
+
+- [#8647](https://github.com/microsoft/typespec/pull/8647) Fix outputted bullet-point documentation to pass sphinx
+- [#8680](https://github.com/microsoft/typespec/pull/8680) Fix indentation issue when deserializing internal error model
+- [#8679](https://github.com/microsoft/typespec/pull/8679) Exclude `generated_samples` and `generated_tests` from wheel
+
+
+## 0.19.0
+
+### Features
+
+- [#8558](https://github.com/microsoft/typespec/pull/8558) Support move method level signature to client level
+
+### Bug Fixes
+
+- [#8603](https://github.com/microsoft/typespec/pull/8603) support `@override` completely
+- [#8607](https://github.com/microsoft/typespec/pull/8607) [python] ensure first line in param description wrap around is a space
+- [#8381](https://github.com/microsoft/typespec/pull/8381) Fix bugs related to import and pylint for libraries with only internal models
+
+
 ## 0.18.1
 
 ### Bug Fixes

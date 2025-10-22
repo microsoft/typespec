@@ -94,10 +94,6 @@ namespace SampleTypeSpec
                 Patch.WriteTo(writer, "$.optionalNullableList"u8);
                 writer.WriteEndArray();
             }
-            else
-            {
-                writer.WriteNull("optionalNullableList"u8);
-            }
             if (Patch.Contains("$.requiredNullableList"u8))
             {
                 if (!Patch.IsRemoved("$.requiredNullableList"u8))

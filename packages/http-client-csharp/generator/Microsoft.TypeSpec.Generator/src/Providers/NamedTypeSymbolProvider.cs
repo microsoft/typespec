@@ -21,10 +21,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
     internal sealed class NamedTypeSymbolProvider : TypeProvider
     {
         private INamedTypeSymbol _namedTypeSymbol;
+        private readonly Compilation _compilation;
 
-        public NamedTypeSymbolProvider(INamedTypeSymbol namedTypeSymbol)
+        public NamedTypeSymbolProvider(INamedTypeSymbol namedTypeSymbol, Compilation compilation)
         {
             _namedTypeSymbol = namedTypeSymbol;
+            _compilation = compilation;
         }
 
         private protected sealed override NamedTypeSymbolProvider? BuildCustomCodeView(string? generatedTypeName = default, string? generatedTypeNamespace = default) => null;
@@ -45,7 +47,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 || _namedTypeSymbol.BaseType.SpecialType == SpecialType.System_Object
                 || _namedTypeSymbol.BaseType.SpecialType == SpecialType.System_ValueType
                 || _namedTypeSymbol.BaseType.SpecialType == SpecialType.System_Array
-                || _namedTypeSymbol.BaseType.SpecialType == SpecialType.System_Enum)
+                || _namedTypeSymbol.BaseType.SpecialType == SpecialType.System_Enum
+                || TypeSymbolExtensions.ContainsTypeAsArgument(_namedTypeSymbol.BaseType, _namedTypeSymbol))
             {
                 return null;
             }
@@ -118,7 +121,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         fieldSymbol.Type.GetCSharpType(),
                         fieldSymbol.Name,
                         this,
-                        GetSymbolXmlDoc(fieldSymbol, "summary"))
+                        GetSymbolXmlDoc(fieldSymbol, "summary"),
+                        initializationValue: GetFieldInitializer(fieldSymbol))
                     {
                         OriginalName = GetOriginalName(fieldSymbol)
                     };
@@ -139,17 +143,68 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     GetAccessModifier(propertySymbol.DeclaredAccessibility),
                     propertySymbol.Type.GetCSharpType(),
                     propertySymbol.Name,
-                    new AutoPropertyBody(propertySymbol.SetMethod is not null),
+                    new AutoPropertyBody(
+                        propertySymbol.SetMethod is not null,
+                        InitializationExpression: GetPropertyInitializer(propertySymbol)),
                     this)
                 {
                     OriginalName = GetOriginalName(propertySymbol),
                     CustomProvider = new(() => propertySymbol.Type is INamedTypeSymbol propertyNamedTypeSymbol
-                        ? new NamedTypeSymbolProvider(propertyNamedTypeSymbol)
+                        ? new NamedTypeSymbolProvider(propertyNamedTypeSymbol, _compilation)
                         : null)
                 };
                 properties.Add(propertyProvider);
             }
             return [.. properties];
+        }
+
+        private ValueExpression? GetPropertyInitializer(IPropertySymbol propertySymbol)
+        {
+            var syntaxReference = propertySymbol.DeclaringSyntaxReferences.FirstOrDefault();
+            if (syntaxReference?.GetSyntax() is PropertyDeclarationSyntax propertySyntax)
+            {
+                var initializerValue = propertySyntax.Initializer?.Value;
+                if (initializerValue == null)
+                {
+                    return null;
+                }
+
+                // Get the semantic model to evaluate constant values
+                var semanticModel = _compilation.GetSemanticModel(propertySyntax.SyntaxTree);
+                // Check if this is an enum member access
+                var symbolInfo = semanticModel.GetSymbolInfo(initializerValue);
+                if (symbolInfo.Symbol is IFieldSymbol fieldSymbol
+                    && fieldSymbol.ContainingType?.TypeKind == TypeKind.Enum)
+                {
+                    var enumType = fieldSymbol.ContainingType.GetCSharpType();
+                    return new MemberExpression(TypeReferenceExpression.FromType(enumType), fieldSymbol.Name);
+                }
+
+                var constantValue = semanticModel.GetConstantValue(initializerValue);
+
+                if (constantValue.HasValue)
+                {
+                    return Literal(constantValue.Value);
+                }
+
+                // For non-constant expressions, return the expression text
+                return Literal(initializerValue.ToString());
+            }
+            return null;
+        }
+
+        private static ValueExpression? GetFieldInitializer(IFieldSymbol fieldSymbol)
+        {
+            if (fieldSymbol.ContainingType?.TypeKind == TypeKind.Enum)
+            {
+                if (fieldSymbol.HasConstantValue && fieldSymbol.ConstantValue != null)
+                {
+                    return Literal(fieldSymbol.ConstantValue);
+                }
+                return null;
+            }
+
+            return null;
         }
 
         private static string? GetOriginalName(ISymbol symbol)
@@ -226,13 +281,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override CSharpType BuildEnumUnderlyingType() => GetIsEnum() ? new CSharpType(typeof(int)) : throw new InvalidOperationException("This type is not an enum");
 
-        private ParameterProvider ConvertToParameterProvider(IMethodSymbol methodSymbol, IParameterSymbol parameterSymbol)
+        private static ParameterProvider ConvertToParameterProvider(IMethodSymbol methodSymbol, IParameterSymbol parameterSymbol)
         {
             return new ParameterProvider(
                 parameterSymbol.Name,
                 FormattableStringHelpers.FromString(GetParameterXmlDocumentation(methodSymbol, parameterSymbol)) ?? FormattableStringHelpers.Empty,
                 parameterSymbol.Type.GetCSharpType(),
-                defaultValue: CreateDefaultValue(parameterSymbol));
+                defaultValue: CreateDefaultValue(parameterSymbol),
+                isIn: parameterSymbol.RefKind == RefKind.In,
+                isOut: parameterSymbol.RefKind == RefKind.Out,
+                isRef: parameterSymbol.RefKind == RefKind.Ref);
         }
 
         private void AddAdditionalModifiers(IMethodSymbol methodSymbol, ref MethodSignatureModifiers modifiers)

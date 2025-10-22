@@ -8,6 +8,7 @@
     "tsptest.server.HttpbinClient.status": "TspTest.Server.ServerOp.status",
     "tsptest.server.HttpbinClient.statusWithResponse": "TspTest.Server.ServerOp.status",
     "tsptest.server.HttpbinClientBuilder": "TspTest.Server.ServerOp",
+    "tsptest.server.contoso.models.APIVersions": "TspTest.ContosoServer.APIVersions",
     "tsptest.server.contoso.sub.ContosoAsyncClient": "TspTest.ContosoServer.ServerOp",
     "tsptest.server.contoso.sub.ContosoAsyncClient.get": "TspTest.ContosoServer.ServerOp.get",
     "tsptest.server.contoso.sub.ContosoAsyncClient.getWithResponse": "TspTest.ContosoServer.ServerOp.get",

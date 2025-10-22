@@ -520,22 +520,33 @@ export class CodeModelBuilder {
 
   private deduplicateSchemaName() {
     // deduplicate model name
+
+    // packages to skip
+    const packagesToSkip: string[] = [];
+    if (!this.isBranded() || this.isAzureV2()) {
+      // clientcore
+      packagesToSkip.push("io.clientcore.core.");
+    }
+    if (this.isAzureV2()) {
+      // core v2
+      packagesToSkip.push("com.azure.v2.core.");
+    }
+    if (this.isAzureV1()) {
+      // core
+      packagesToSkip.push("com.azure.core.");
+    }
+
     const nameCount = new Map<string, number>();
     const deduplicateName = (schema: Schema) => {
+      // skip models under "com.azure.core." etc. in java, or "Azure." in typespec, if branded
+      // skip models under "io.clientcore.core." in java, if unbranded
+      const skipDeduplicate =
+        (this.isBranded() && schema.language.default?.namespace?.startsWith("Azure.")) ||
+        (schema.language.java?.namespace &&
+          packagesToSkip.some((it) => schema.language.java?.namespace.startsWith(it)));
+
       const name = schema.language.default.name;
-      if (
-        name &&
-        // skip models under "com.azure.core." in java, or "Azure." in typespec, if branded
-        !(
-          (
-            this.isBranded() &&
-            (schema.language.java?.namespace?.startsWith("com.azure.core.") ||
-              schema.language.default?.namespace?.startsWith("Azure.") ||
-              schema.language.java?.namespace?.startsWith("com.azure.v2.core.") ||
-              schema.language.java?.namespace?.startsWith("io.clientcore.core."))
-          ) // because azure core v2 uses clientcore types
-        )
-      ) {
+      if (name && !skipDeduplicate) {
         if (!nameCount.has(name)) {
           nameCount.set(name, 1);
         } else {
@@ -642,9 +653,9 @@ export class CodeModelBuilder {
     const versions = getServiceApiVersions(this.program, client);
     if (versions && versions.length > 0) {
       if (!this.sdkContext.apiVersion || ["all", "latest"].includes(this.sdkContext.apiVersion)) {
-        this.apiVersion = versions[versions.length - 1];
+        this.apiVersion = versions[versions.length - 1].value;
       } else {
-        this.apiVersion = versions.find((it: string) => it === this.sdkContext.apiVersion);
+        this.apiVersion = versions.find((it) => it.value === this.sdkContext.apiVersion)?.value;
         if (!this.apiVersion) {
           reportDiagnostic(this.program, {
             code: "invalid-api-version",
@@ -656,12 +667,13 @@ export class CodeModelBuilder {
 
       codeModelClient.apiVersions = [];
       for (const version of getFilteredApiVersions(
+        this.program,
         this.apiVersion,
         versions,
         this.options["service-version-exclude-preview"],
       )) {
         const apiVersion = new ApiVersion();
-        apiVersion.version = version;
+        apiVersion.version = version.value;
         codeModelClient.apiVersions.push(apiVersion);
       }
     }
@@ -1072,6 +1084,22 @@ export class CodeModelBuilder {
         ? pageItemsResponseProperty[0].serializedName
         : undefined;
 
+    if (
+      this.isAzureV1() &&
+      (pageItemsResponseProperty === undefined || pageItemsResponseProperty.length > 1)
+    ) {
+      // TCGC should have verified that pageItems exists
+
+      // Azure V1 does not support nested page items
+      reportDiagnostic(this.program, {
+        code: "nested-page-items-not-supported",
+        target:
+          sdkMethod.response.resultSegments?.[sdkMethod.response.resultSegments.length - 1]
+            ?.__raw ?? NoTarget,
+      });
+      return;
+    }
+
     // nextLink
     // TODO: nextLink can also be a response header, similar to "sdkMethod.pagingMetadata.continuationTokenResponseSegments"
     const nextLinkResponseProperty = findResponsePropertySegments(
@@ -1088,7 +1116,7 @@ export class CodeModelBuilder {
     let continuationTokenParameter: Parameter | undefined;
     let continuationTokenResponseProperty: Property[] | undefined;
     let continuationTokenResponseHeader: HttpHeader | undefined;
-    if (!this.isBranded()) {
+    if (!this.isAzureV1()) {
       // parameter would either be query or header parameter, so taking the last segment would be enough
       const continuationTokenParameterSegment =
         sdkMethod.pagingMetadata.continuationTokenParameterSegments?.at(-1);
@@ -1807,7 +1835,10 @@ export class CodeModelBuilder {
           }
         }
 
-        const schemaName = groupToRequestConditions ? "RequestConditions" : "MatchConditions";
+        let schemaName = groupToRequestConditions ? "RequestConditions" : "MatchConditions";
+        if (!this.isAzureV1()) {
+          schemaName = "Http" + schemaName;
+        }
         const schemaDescription = groupToRequestConditions
           ? "Specifies HTTP options for conditional requests based on modification time."
           : "Specifies HTTP options for conditional requests.";
