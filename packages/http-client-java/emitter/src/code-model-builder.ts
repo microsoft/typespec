@@ -197,8 +197,8 @@ export interface EmitterOptionsDev {
   "enable-sync-stack"?: boolean;
   "stream-style-serialization"?: boolean;
   "use-object-for-unknown"?: boolean;
-  "use-float-for-float32"?: boolean;
-  "use-string-for-uuid"?: boolean;
+  "float32-as-double"?: boolean;
+  "uuid-as-string"?: boolean;
   polling?: any;
 
   // versioning
@@ -2383,7 +2383,7 @@ export class CodeModelBuilder {
         case "string":
           if (
             type.crossLanguageDefinitionId === "Azure.Core.uuid" &&
-            optionBoolean(this.options["use-string-for-uuid"]) === false
+            optionBoolean(this.options["uuid-as-string"]) === false
           ) {
             return this.processUuidSchema(type, nameHint);
           }
@@ -2471,7 +2471,7 @@ export class CodeModelBuilder {
 
   private processNumberSchema(type: SdkBuiltInType, name: string): NumberSchema {
     const precision =
-      optionBoolean(this.options["use-float-for-float32"]) === true
+      optionBoolean(this.options["float32-as-double"]) === true
         ? type.kind === "float32"
           ? 32
           : 64

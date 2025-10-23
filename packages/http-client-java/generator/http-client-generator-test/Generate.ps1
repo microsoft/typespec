@@ -79,8 +79,8 @@ $generateScript = {
     $tspOptions += " --option ""@typespec/http-client-java.use-object-for-unknown=true"""
   } elseif ($tspFile -match "tsp[\\/]builtin.tsp") {
     # backward compatible options
-    $tspOptions += " --option ""@typespec/http-client-java.use-float-for-float32=true"""
-    $tspOptions += " --option ""@typespec/http-client-java.use-string-for-uuid=false"""
+    $tspOptions += " --option ""@typespec/http-client-java.float32-as-double=false"""
+    $tspOptions += " --option ""@typespec/http-client-java.uuid-as-string=false"""
   } elseif ($tspFile -match "tsp[\\/]arm.tsp") {
     # for mgmt, do not generate tests due to random mock values
     $tspOptions += " --option ""@typespec/http-client-java.generate-tests=false"""
