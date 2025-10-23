@@ -197,3 +197,15 @@ Scenarios.Type_Scalar_Decimal128Verify_verify = passOnSuccess({
   },
   kind: "MockApiDefinition",
 });
+
+Scenarios.Type_Scalar_ConstantQuery_post = passOnSuccess({
+  uri: "/type/scalar/constant-query",
+  method: `post`,
+  request: {
+    query: { queryParam: "constantValue" },
+  },
+  response: {
+    status: 204,
+  },
+  kind: "MockApiDefinition",
+});

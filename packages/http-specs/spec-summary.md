@@ -7545,6 +7545,12 @@ Expect to handle a boolean value. Mock api will return true
 
 Expect to send a boolean value. Mock api expect to receive 'true'
 
+### Type_Scalar_ConstantQuery_post
+
+- Endpoint: `post /type/scalar/constant-query`
+
+Expect to handle a constant value for query and mock api returns nothing
+
 ### Type_Scalar_Decimal128Type_requestBody
 
 - Endpoint: `put /type/scalar/decimal128/resquest_body`

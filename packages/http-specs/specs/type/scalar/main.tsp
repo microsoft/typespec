@@ -183,3 +183,17 @@ interface DecimalVerify extends NumberTypesVerifyOperations<decimal, "[0.1, 0.1,
 @doc("Decimal128 type verification")
 @route("/decimal128")
 interface Decimal128Verify extends NumberTypesVerifyOperations<decimal, "[0.1, 0.1, 0.1]", "0.3"> {}
+
+@doc("Constant query parameter verification")
+@route("/constant-query")
+interface ConstantQuery {
+  #suppress "@azure-tools/typespec-azure-core/use-standard-operations" "For testing"
+  @scenario
+  @scenarioDoc("Expect to handle a constant value for query and mock api returns nothing")
+  @post
+  @doc("post constant query value")
+  post(
+    @query
+    queryParam: "constantValue",
+  ): void;
+}
