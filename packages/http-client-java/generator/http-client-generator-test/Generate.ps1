@@ -77,10 +77,6 @@ $generateScript = {
     # TODO https://github.com/Azure/autorest.java/issues/2964
     # also serve as a test for "use-object-for-unknown" emitter option
     $tspOptions += " --option ""@typespec/http-client-java.use-object-for-unknown=true"""
-  } elseif ($tspFile -match "tsp[\\/]builtin.tsp") {
-    # backward compatible options
-    $tspOptions += " --option ""@typespec/http-client-java.float32-as-double=false"""
-    $tspOptions += " --option ""@typespec/http-client-java.uuid-as-string=false"""
   } elseif ($tspFile -match "tsp[\\/]arm.tsp") {
     # for mgmt, do not generate tests due to random mock values
     $tspOptions += " --option ""@typespec/http-client-java.generate-tests=false"""
@@ -94,6 +90,9 @@ $generateScript = {
     $tspOptions += " --option ""@typespec/http-client-java.remove-inner=NginxConfigurationResponse"""
     # generate async methods
     $tspOptions += " --option ""@typespec/http-client-java.generate-async-methods=true"""
+    # backward compatible options
+    $tspOptions += " --option ""@typespec/http-client-java.float32-as-double=false"""
+    $tspOptions += " --option ""@typespec/http-client-java.uuid-as-string=false"""
   } elseif ($tspFile -match "tsp[\\/]arm-stream-style-serialization.tsp") {
     # for mgmt, do not generate tests due to random mock values
     $tspOptions += " --option ""@typespec/http-client-java.generate-tests=false"""
