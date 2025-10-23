@@ -3,6 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
+import shutil
 from collections.abc import ItemsView, KeysView, MutableMapping, ValuesView
 import logging
 from pathlib import Path
@@ -248,8 +249,22 @@ class ReaderAndWriter:
         except FileNotFoundError:
             pass
 
+    def remove_folder(self, foldername: Union[str, Path]) -> None:
+        try:
+            folder_path = self.output_folder / Path(foldername)
+            if folder_path.exists() and folder_path.is_dir():
+                shutil.rmtree(folder_path)
+        except FileNotFoundError:
+            pass
+
     def list_file(self) -> list[str]:
         return [str(f.relative_to(self.output_folder)) for f in self.output_folder.glob("**/*") if f.is_file()]
+
+    def list_file_of_folder(self, foldername: Union[str, Path]) -> list[str]:
+        folder_path = self.output_folder / Path(foldername)
+        if folder_path.exists() and folder_path.is_dir():
+            return [str(f.relative_to(self.output_folder)) for f in folder_path.glob("**/*") if f.is_file()]
+        return []
 
 
 class Plugin(ReaderAndWriter, ABC):
