@@ -2471,7 +2471,7 @@ export class CodeModelBuilder {
 
   private processNumberSchema(type: SdkBuiltInType, name: string): NumberSchema {
     const precision =
-      optionBoolean(this.options["float32-as-double"]) === true
+      optionBoolean(this.options["float32-as-double"]) === false
         ? type.kind === "float32"
           ? 32
           : 64
