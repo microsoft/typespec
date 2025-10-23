@@ -296,5 +296,6 @@ The generator includes comprehensive tests for backward compatibility scenarios:
 
 Run these tests to validate backward compatibility behavior:
 ```bash
+# From the generator root directory
 dotnet test --filter "FullyQualifiedName~ModelFactoryProviderTests.BackCompatibility"
 ```
