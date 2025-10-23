@@ -32,10 +32,10 @@ export function createClientConfigProvider(): ClientConfigProvider {
   async function initialize(connection: Connection, host: ServerHost): Promise<void> {
     try {
       const configs = await connection.workspace.getConfiguration("typespec");
-      host.log({ level: "debug", message: "VSCode settings loaded", detail: configs });
-
       // Transform the raw configuration to match our Config interface
       config = deepClone(configs);
+
+      host.log({ level: "debug", message: "vscode settings loaded", detail: config });
 
       connection.onDidChangeConfiguration(async (params) => {
         if (params.settings) {
