@@ -123,6 +123,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 signature,
                 messageStatements,
                 this,
+                ScmMethodProvider.MethodType.CreateRequest,
                 xmlDocProvider: XmlDocProvider.Empty,
                 serviceMethod: serviceMethod);
         }
