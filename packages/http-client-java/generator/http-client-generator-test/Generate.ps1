@@ -77,11 +77,11 @@ $generateScript = {
     # TODO https://github.com/Azure/autorest.java/issues/2964
     # also serve as a test for "use-object-for-unknown" emitter option
     $tspOptions += " --option ""@typespec/http-client-java.use-object-for-unknown=true"""
-  } elseif ($tspFile -match "builtin.tsp") {
+  } elseif ($tspFile -match "tsp[\\/]builtin.tsp") {
     # backward compatible options
     $tspOptions += " --option ""@typespec/http-client-java.use-float-for-float32=true"""
     $tspOptions += " --option ""@typespec/http-client-java.use-string-for-uuid=false"""
-  } elseif ($tspFile -match "arm.tsp") {
+  } elseif ($tspFile -match "tsp[\\/]arm.tsp") {
     # for mgmt, do not generate tests due to random mock values
     $tspOptions += " --option ""@typespec/http-client-java.generate-tests=false"""
     # test service-name
@@ -94,7 +94,7 @@ $generateScript = {
     $tspOptions += " --option ""@typespec/http-client-java.remove-inner=NginxConfigurationResponse"""
     # generate async methods
     $tspOptions += " --option ""@typespec/http-client-java.generate-async-methods=true"""
-  } elseif ($tspFile -match "arm-stream-style-serialization.tsp") {
+  } elseif ($tspFile -match "tsp[\\/]arm-stream-style-serialization.tsp") {
     # for mgmt, do not generate tests due to random mock values
     $tspOptions += " --option ""@typespec/http-client-java.generate-tests=false"""
     # test service-name
@@ -103,12 +103,12 @@ $generateScript = {
     $tspOptions += " --option ""@typespec/http-client-java.property-include-always=FunctionConfiguration.input"""
     # enable client side validations
     $tspOptions += " --option ""@typespec/http-client-java.client-side-validations=true"""
-  } elseif ($tspFile -match "arm-customization.tsp") {
+  } elseif ($tspFile -match "tsp[\\/]arm-customization.tsp") {
     # for mgmt, do not generate tests due to random mock values
     $tspOptions += " --option ""@typespec/http-client-java.generate-tests=false"""
     # add customization code
     $tspOptions += " --option ""@typespec/http-client-java.customization-class=../../customization/src/main/java/KeyVaultCustomization.java"""
-  } elseif ($tspFile -match "subclient.tsp") {
+  } elseif ($tspFile -match "tsp[\\/]subclient.tsp") {
     $tspOptions += " --option ""@typespec/http-client-java.enable-subclient=true"""
     # test for include-api-view-properties
     $tspOptions += " --option ""@typespec/http-client-java.include-api-view-properties=false"""
