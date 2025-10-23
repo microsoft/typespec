@@ -8,8 +8,6 @@
   - [Model Factory Methods](#model-factory-methods)
   - [Model Properties](#model-properties)
   - [API Version Enum](#api-version-enum)
-- [Technical Implementation](#technical-implementation)
-- [Best Practices](#best-practices)
 
 ## Overview
 
@@ -24,13 +22,12 @@ When generating code, the generator can optionally receive a compiled assembly f
 1. Analyzes the current TypeSpec specification and generates types based on the current API
 2. Compares the generated types against the types in the last contract
 3. Automatically generates compatibility methods, properties, or enum members where differences are detected
-4. Marks compatibility members with `[EditorBrowsable(EditorBrowsableState.Never)]` to hide them from IntelliSense while keeping them available for existing code
 
 ## Supported Scenarios
 
 ### Model Factory Methods
 
-Model factory methods are public static methods that enable creating model instances for mocking and testing purposes. The generator maintains backward compatibility for these methods across API changes.
+Model factory methods are public static methods that enable creating model instances for mocking and testing purposes. The generator attempts to maintains backward compatibility for these methods across API changes.
 
 #### Scenario 1: New Model Property Added
 
@@ -99,47 +96,13 @@ public static PublicModel1 PublicModel1(
 
 **Result:** The generator keeps the previous parameter ordering to maintain compatibility.
 
-#### Scenario 3: Model Factory Method Renamed
-
-**Description:** When a model or factory method is renamed, the generator creates a compatibility method with the old name that instantiates the new model type.
-
-**Example:**
-
-Previous version:
-```csharp
-public static PublicModel1 PublicModel1OldName(string stringProp = default)
-```
-
-Current version:
-```csharp
-public static PublicModel1 PublicModel1(
-    string stringProp = default,
-    Thing modelProp = default,
-    IEnumerable<string> listProp = default,
-    IDictionary<string, string> dictProp = default)
-```
-
-**Generated Compatibility Method:**
-```csharp
-[EditorBrowsable(EditorBrowsableState.Never)]
-public static PublicModel1 PublicModel1OldName(string stringProp)
-{
-    return new PublicModel1(stringProp, default, default, default);
-}
-```
-
-**Key Points:**
-- The old method name is preserved
-- The method creates an instance of the new model type
-- Missing parameters are filled with default values
-
 ### Model Properties
 
-The generator maintains backward compatibility for model property types, particularly for collection types.
+The generator attempts to maintain backward compatibility for model property types, particularly for collection types.
 
 #### Scenario: Collection Property Type Changed
 
-**Description:** When a property type changes from a read-only collection to a read-write collection (or vice versa), the generator preserves the previous property type to avoid breaking changes.
+**Description:** When a property type changes from a read-only collection to a read-write collection (or vice versa), the generator attempts to preserve the previous property type to avoid breaking changes.
 
 **Example:**
 
@@ -208,94 +171,3 @@ public enum ServiceVersion
 - Previous enum members are preserved even if removed from TypeSpec
 - Enum values are re-indexed to maintain sequential ordering
 - Version format and separator are detected from current versions and applied to previous versions
-
-## Technical Implementation
-
-### LastContractView Property
-
-The `LastContractView` property is available on `TypeProvider` and provides access to the type definition from the previous contract:
-
-```csharp
-public TypeProvider? LastContractView { get; }
-```
-
-**Key Members Accessed:**
-- `LastContractView.Methods` - Previous method signatures (used in ModelFactoryProvider)
-- `LastContractView.Properties` - Previous property definitions (used in ModelProvider)
-- `LastContractView.Fields` - Previous field definitions (used in ApiVersionEnumProvider)
-
-### Implementation Locations
-
-1. **ModelFactoryProvider.cs**
-   - Method: `BuildMethodsForBackCompatibility()`
-   - Compares current and previous factory method signatures
-   - Generates compatibility methods for missing overloads
-   - Location: `/src/Providers/ModelFactoryProvider.cs` (lines 112-186)
-
-2. **ModelProvider.cs**
-   - Method: `BuildProperties()`
-   - Compares property types using `LastContractPropertiesMap`
-   - Preserves previous collection types when changed
-   - Location: `/src/Providers/ModelProvider.cs` (lines 446-456)
-
-3. **ApiVersionEnumProvider.cs**
-   - Method: `BuildApiVersionEnumValuesForBackwardCompatibility()`
-   - Preserves enum members from previous versions
-   - Re-indexes values to maintain sequential ordering
-   - Location: `/src/Providers/ApiVersionEnumProvider.cs` (lines 98-145)
-
-### SourceInputModel
-
-The `SourceInputModel` class provides the mechanism to query types from the last contract:
-
-```csharp
-public TypeProvider? FindForTypeInLastContract(
-    string ns, 
-    string name, 
-    string? declaringTypeName = null)
-```
-
-This method searches the compiled last contract assembly for type symbols matching the specified namespace and name.
-
-## Best Practices
-
-### When Using Backward Compatibility
-
-1. **Always provide the last contract assembly** when generating code for a new version of your library to ensure backward compatibility is maintained.
-
-2. **Review compatibility methods** generated by the system to ensure they behave as expected. Check the generated code for methods marked with `[EditorBrowsable(EditorBrowsableState.Never)]`.
-
-3. **Test with existing code** that uses previous API versions to validate that compatibility is maintained.
-
-4. **Monitor diagnostics** - The generator logs informational messages when it makes changes for backward compatibility:
-   - `"Changed property {Name}.{PropertyName} type to {Type} to match last contract."`
-   - `"Unable to create a backward compatible model factory method for {MethodName}."`
-
-### Limitations
-
-1. **Structural Changes:** Major structural changes (e.g., changing from class to struct) cannot be automatically handled and may require manual intervention.
-
-2. **Breaking Changes:** Some changes are inherently breaking and cannot be automatically mitigated:
-   - Changing method return types
-   - Removing public types
-   - Changing property types to incompatible types (non-collection changes)
-
-3. **Internal Types:** Backward compatibility only applies to public types and members. Internal types are excluded from compatibility processing.
-
-4. **Custom Code:** If you have customized a type or method, the backward compatibility system may not be able to generate appropriate compatibility shims. Manual adjustments may be needed.
-
-### Testing
-
-The generator includes comprehensive tests for backward compatibility scenarios:
-
-- **Test Location:** `/test/Providers/ModelFactories/ModelFactoryProviderTests.cs`
-- **Test Methods:**
-  - `BackCompatibility_NewModelPropertyAdded` - Tests factory methods when properties are added
-  - `BackCompatibility_OnlyParamOrderingChanged` - Tests parameter ordering preservation
-  - `BackCompatibility_NoCurrentOverloadFound` - Tests renamed method handling
-
-Run these tests to validate backward compatibility behavior:
-```bash
-# From the generator root directory
-dotnet test --filter "FullyQualifiedName~ModelFactoryProviderTests.BackCompatibility"
-```
