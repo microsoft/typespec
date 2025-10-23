@@ -852,6 +852,10 @@ export function createServer(
     if (isTspConfigFile(params.textDocument)) return undefined;
 
     const result = await signatureHelpUpdateManager.scheduleUpdate(params.textDocument, "changed");
+    log({
+      level: "debug",
+      message: `getSignatureHelp got compile result: isUndefined = ${result === undefined}`,
+    });
     if (result === undefined) {
       return undefined;
     }
