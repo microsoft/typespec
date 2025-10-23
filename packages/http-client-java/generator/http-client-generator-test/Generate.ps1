@@ -77,6 +77,10 @@ $generateScript = {
     # TODO https://github.com/Azure/autorest.java/issues/2964
     # also serve as a test for "use-object-for-unknown" emitter option
     $tspOptions += " --option ""@typespec/http-client-java.use-object-for-unknown=true"""
+  } elseif ($tspFile -match "builtin.tsp") {
+    # backward compatible options
+    $tspOptions += " --option ""@typespec/http-client-java.use-float-for-float32=true"""
+    $tspOptions += " --option ""@typespec/http-client-java.use-string-for-uuid=false"""
   } elseif ($tspFile -match "arm.tsp") {
     # for mgmt, do not generate tests due to random mock values
     $tspOptions += " --option ""@typespec/http-client-java.generate-tests=false"""
