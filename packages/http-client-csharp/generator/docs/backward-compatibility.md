@@ -27,7 +27,7 @@ When generating code, the generator can optionally receive a compiled assembly f
 
 ### Model Factory Methods
 
-Model factory methods are public static methods that enable creating model instances for mocking and testing purposes. The generator attempts to maintains backward compatibility for these methods across API changes.
+Model factory methods are public static methods that enable creating model instances for mocking and testing purposes. The generator attempts to maintain backward compatibility for these methods across API changes.
 
 #### Scenario 1: New Model Property Added
 
@@ -95,6 +95,40 @@ public static PublicModel1 PublicModel1(
 ```
 
 **Result:** The generator keeps the previous parameter ordering to maintain compatibility.
+
+#### Scenario 3: Model Factory Method Renamed
+
+**Description:** When a model or factory method is renamed, the generator creates a compatibility method with the old name that instantiates the new model type.
+
+**Example:**
+
+Previous version:
+```csharp
+public static PublicModel1 PublicModel1OldName(string stringProp = default)
+```
+
+Current version:
+```csharp
+public static PublicModel1 PublicModel1(
+    string stringProp = default,
+    Thing modelProp = default,
+    IEnumerable<string> listProp = default,
+    IDictionary<string, string> dictProp = default)
+```
+
+**Generated Compatibility Method:**
+```csharp
+[EditorBrowsable(EditorBrowsableState.Never)]
+public static PublicModel1 PublicModel1OldName(string stringProp)
+{
+    return new PublicModel1(stringProp, default, default, default);
+}
+```
+
+**Key Points:**
+- The old method name is preserved
+- The method creates an instance of the new model type
+- Missing parameters are filled with default values
 
 ### Model Properties
 
