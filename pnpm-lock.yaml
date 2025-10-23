@@ -416,17 +416,17 @@ importers:
         version: 0.20.0
     devDependencies:
       '@alloy-js/cli':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: ^0.21.0
+        version: 0.21.0
       '@alloy-js/core':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: ^0.21.0
+        version: 0.21.0
       '@alloy-js/rollup-plugin':
         specifier: ^0.1.0
         version: 0.1.0(@babel/core@7.28.4)(@types/babel__core@7.20.5)(rollup@4.49.0)
       '@alloy-js/typescript':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: ^0.21.0
+        version: 0.21.0
       '@typespec/compiler':
         specifier: workspace:^
         version: link:../compiler
@@ -462,7 +462,7 @@ importers:
         version: 3.2.4(@types/debug@4.1.12)(@types/node@24.3.1)(@vitest/ui@3.2.4)(happy-dom@18.0.1)(jsdom@25.0.1)(tsx@4.20.5)(yaml@2.8.1)
       web-tree-sitter:
         specifier: ^0.25.4
-        version: 0.25.9(@types/emscripten@1.41.2)
+        version: 0.25.9(@types/emscripten@1.41.4)
 
   packages/eslint-plugin-typespec:
     dependencies:
@@ -658,17 +658,17 @@ importers:
   packages/http-client:
     devDependencies:
       '@alloy-js/cli':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: ^0.21.0
+        version: 0.21.0
       '@alloy-js/core':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: ^0.21.0
+        version: 0.21.0
       '@alloy-js/rollup-plugin':
         specifier: ^0.1.0
         version: 0.1.0(@babel/core@7.28.4)(@types/babel__core@7.20.5)(rollup@4.49.0)
       '@alloy-js/typescript':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: ^0.21.0
+        version: 0.21.0
       '@types/node':
         specifier: ~24.3.0
         version: 24.3.1
@@ -703,11 +703,11 @@ importers:
   packages/http-client-js:
     dependencies:
       '@alloy-js/core':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: ^0.21.0
+        version: 0.21.0
       '@alloy-js/typescript':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: ^0.21.0
+        version: 0.21.0
       '@typespec/compiler':
         specifier: workspace:^
         version: link:../compiler
@@ -725,8 +725,8 @@ importers:
         version: 3.6.2
     devDependencies:
       '@alloy-js/cli':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: ^0.21.0
+        version: 0.21.0
       '@alloy-js/rollup-plugin':
         specifier: ^0.1.0
         version: 0.1.0(@babel/core@7.28.4)(@types/babel__core@7.20.5)(rollup@4.49.0)
@@ -2214,14 +2214,14 @@ importers:
   packages/tspd:
     dependencies:
       '@alloy-js/core':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: ^0.21.0
+        version: 0.21.0
       '@alloy-js/markdown':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: ^0.21.0
+        version: 0.21.0
       '@alloy-js/typescript':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: ^0.21.0
+        version: 0.21.0
       '@microsoft/api-extractor':
         specifier: ^7.52.1
         version: 7.52.12(@types/node@24.3.1)
@@ -2257,8 +2257,8 @@ importers:
         version: 18.0.0
     devDependencies:
       '@alloy-js/cli':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: ^0.21.0
+        version: 0.21.0
       '@alloy-js/rollup-plugin':
         specifier: ^0.1.0
         version: 0.1.0(@babel/core@7.28.4)(@types/babel__core@7.20.5)(rollup@4.49.0)
@@ -2666,26 +2666,29 @@ packages:
   '@alloy-js/babel-preset@0.2.1':
     resolution: {integrity: sha512-vz9kvQwx5qBzHIw4ryqUaQqpgNOMBmkdDcV3e2zZfMq8Pp16ePFtvviHh6RwyLcvXQQClex3ZZy8ON9TifMnxw==}
 
-  '@alloy-js/cli@0.20.0':
-    resolution: {integrity: sha512-iDiJAs2yjP5G8lMmry+4usM33tL9G1u8IKp+beh0jx5RqfLsZsXOu78S4ZIZLqskAMkCLuRJogsh8fPREg2CzQ==}
+  '@alloy-js/cli@0.21.0':
+    resolution: {integrity: sha512-k1Rf6kbYPdMKYJ1pFmhbk0NpW7p/aL/HbmxpJxmF/tbXAhZmNO62f9JM4qF64jNnq9byq31PMBSOIAIZFLqa1A==}
     engines: {node: '>=18.0.0'}
     hasBin: true
 
   '@alloy-js/core@0.20.0':
     resolution: {integrity: sha512-ylPf+ayI9MsqUPrNVzND3Oh9rVrfOOcMkyVwtXXaxaobWPkcRq2I4rX09FkG0i/9DoaLE6ZCvUfdgJsM29MYBA==}
 
+  '@alloy-js/core@0.21.0':
+    resolution: {integrity: sha512-eIBllm+Lgk/AcV6QdipZAVlYPIp6RHmgz046GXBQeXZnTZXmPHURVFI18/FVuaK7K+uUt0eriPXIYXs4/Ja5rQ==}
+
   '@alloy-js/csharp@0.20.0':
     resolution: {integrity: sha512-Yn8oua43tVWYGN9Gt5DDtGUdLIB9io6/nL8dK4qDvL019w9uK7f3wosr+/JtSm14PuToN4jM1s7HNVzqh41KUA==}
 
-  '@alloy-js/markdown@0.20.0':
-    resolution: {integrity: sha512-c1Q4dzUvWC4Bdoi6dRT9yAYVoCiqz3ZMClV8CHzEsgZYjjdS0S2ZWWmgxzS87rSDHSjmQIXJ4BcUZfKyfnMrFA==}
+  '@alloy-js/markdown@0.21.0':
+    resolution: {integrity: sha512-Er2aqWdolajWUrHxeqZoiK/Grdet2zaEr8ZtIbvv/M0sMz975p0ltijZNF3OnMde0wFlk1Jg14hkiitI9wFVgQ==}
 
   '@alloy-js/rollup-plugin@0.1.0':
     resolution: {integrity: sha512-MXR8mBdSh/pxMP8kIXAcMYKsm5yOWZ+igxcaRX1vBXFiHU4eK7gE/5q6Fk8Vdydh+MItWtgekwIhUWvcszdNFQ==}
     engines: {node: '>=18.0.0'}
 
-  '@alloy-js/typescript@0.20.0':
-    resolution: {integrity: sha512-F1y5QjneE8GVxIq6oYsebu+Fccrn72qFHelNX5GSLfs4Ps2fxpk2+70rsGznZyHe9LIt70StaAciTjH6cxH4bQ==}
+  '@alloy-js/typescript@0.21.0':
+    resolution: {integrity: sha512-SsxdYkXhrP8jjO2gENav9bHPHaonNrreW469RaOot3cRqhsHPA1RmBrzNPJov37YknzTg4Wlk0JsEFT4Qibgfg==}
 
   '@ampproject/remapping@2.3.0':
     resolution: {integrity: sha512-30iZtAPgz+LTIYoeivqYo853f02jBYSd5uGnGpkFV0M3xOt9aN73erkgYAmZU43x4VfqcnLxW9Kpg3R5LC4YYw==}
@@ -5937,8 +5940,8 @@ packages:
   '@types/emscripten@1.41.1':
     resolution: {integrity: sha512-vW2aEgBUU1c2CB+qVMislA98amRVPszdALjqNCuUIJaEFZsNaFaM4g5IMXIs+6oHbmmb7q6zeXYubhtObJ9ZLg==}
 
-  '@types/emscripten@1.41.2':
-    resolution: {integrity: sha512-0EVXosRnffZuF+rsMM1ZVbfpwpvL2/hWycYQ/0GaH/VaoSJvcSmMl6fiPel9TZXHL3EhANxzqKOVFC6NFXyn8A==}
+  '@types/emscripten@1.41.4':
+    resolution: {integrity: sha512-ECf0qTibhAi2Z0K6FIY96CvBTVkVIuVunOfbTUgbaAmGmbwsc33dbK9KZPROWsmzHotddy6C5pIqYqOmsBoJEw==}
 
   '@types/estree-jsx@1.0.5':
     resolution: {integrity: sha512-52CcUVNFyfb1A2ALocQw/Dd1BQFNmSdkuC3BkZ6iqhdMfQz7JWOFRuJFloOzjk+6WijU56m9oKXFAXc7o3Towg==}
@@ -6018,8 +6021,8 @@ packages:
   '@types/node@18.19.124':
     resolution: {integrity: sha512-hY4YWZFLs3ku6D2Gqo3RchTd9VRCcrjqp/I0mmohYeUVA5Y8eCXKJEasHxLAJVZRJuQogfd1GiJ9lgogBgKeuQ==}
 
-  '@types/node@18.19.127':
-    resolution: {integrity: sha512-gSjxjrnKXML/yo0BO099uPixMqfpJU0TKYjpfLU7TrtA2WWDki412Np/RSTPRil1saKBhvVVKzVx/p/6p94nVA==}
+  '@types/node@18.19.130':
+    resolution: {integrity: sha512-GRaXQx6jGfL8sKfaIDD6OupbIHBr9jv7Jnaml9tB7l4v068PAOXqfcujMMo5PhbIs6ggR1XODELqahT2R8v0fg==}
 
   '@types/node@20.19.13':
     resolution: {integrity: sha512-yCAeZl7a0DxgNVteXFHt9+uyFbqXGy/ShC4BlcHkoE0AfGXYv/BUiplV72DjMYXHDBXFjhvr6DD1NiRVfB4j8g==}
@@ -6376,11 +6379,14 @@ packages:
       typescript:
         optional: true
 
-  '@vue/reactivity@3.5.21':
-    resolution: {integrity: sha512-3ah7sa+Cwr9iiYEERt9JfZKPw4A2UlbY8RbbnH2mGCE8NwHkhmlZt2VsH0oDA3P08X3jJd29ohBDtX+TbD9AsA==}
+  '@vue/reactivity@3.5.22':
+    resolution: {integrity: sha512-f2Wux4v/Z2pqc9+4SmgZC1p73Z53fyD90NFWXiX9AKVnVBEvLFOWCEgJD3GdGnlxPZt01PSlfmLqbLYzY/Fw4A==}
 
   '@vue/shared@3.5.21':
     resolution: {integrity: sha512-+2k1EQpnYuVuu3N7atWyG3/xoFWIVJZq4Mz8XNOdScFI0etES75fbny/oU4lKWk/577P1zmg0ioYvpGEDZ3DLw==}
+
+  '@vue/shared@3.5.22':
+    resolution: {integrity: sha512-F4yc6palwq3TT0u+FYf0Ns4Tfl9GRFURDN2gWG7L1ecIaS/4fCIuFOjMTnCyjsu/OK6vaDKLCrGAa+KvvH+h4w==}
 
   '@xmldom/xmldom@0.8.11':
     resolution: {integrity: sha512-cQzWCtO6C8TQiYl1ruKNn2U6Ao4o4WBBcbL61yJl84x+j5sOWWFU9X7DpND8XZG3daDppSsigMdfAIl2upQBRw==}
@@ -7044,8 +7050,8 @@ packages:
     resolution: {integrity: sha512-02qvAaxv8tp7fBa/mw1ga98OGm+eCbqzJOKoRt70sLmfEEi+jyBYVTDGfCL/k06/4EMk/z01gCe7HoCH/f2LTg==}
     engines: {node: '>=18'}
 
-  bole@5.0.21:
-    resolution: {integrity: sha512-sWYAQ4j0CuTEqvcSrai6+Helnrkhc9dkUU2WZFlUiDPj7+eLGVN1jODH0a0Xmdohynhvu83URRwWJzPHE0veRw==}
+  bole@5.0.22:
+    resolution: {integrity: sha512-BI0Fjfi38q0bnvG5FjQoLbipfme62eNENiXAWT3QjVvEa9Xdkkg4A0r4mkkOsbq8Hang0rSCbedUhdNA9hTCcg==}
 
   boolbase@1.0.0:
     resolution: {integrity: sha512-JZOSA7Mo9sNGB8+UjSgzdLtokWAky1zbztM3WRLCbZ70/3cTANmQmOdR7y2g+J0e2WXywy1yS468tY+IruqEww==}
@@ -7321,6 +7327,10 @@ packages:
 
   ci-info@4.3.0:
     resolution: {integrity: sha512-l+2bNRMiQgcfILUi33labAZYIWlH1kWDp+ecNo5iisRKrbm0xcRyCww71/YU0Fkw0mAFpz9bJayXPjey6vkmaQ==}
+    engines: {node: '>=8'}
+
+  ci-info@4.3.1:
+    resolution: {integrity: sha512-Wdy2Igu8OcBpI2pZePZ5oWjPC38tmDVx5WKUXKwlLYkA0ozo85sLsLvkBbBn/sZaSCMFOGZJ14fvW9t5/d7kdA==}
     engines: {node: '>=8'}
 
   cipher-base@1.0.6:
@@ -8270,6 +8280,9 @@ packages:
 
   es-toolkit@1.39.10:
     resolution: {integrity: sha512-E0iGnTtbDhkeczB0T+mxmoVlT4YNweEKBLq7oaU4p11mecdsZpNWOglI4895Vh4usbQ+LsJiuLuI2L0Vdmfm2w==}
+
+  es-toolkit@1.40.0:
+    resolution: {integrity: sha512-8o6w0KFmU0CiIl0/Q/BCEOabF2IJaELM1T2PWj6e8KqzHv1gdx+7JtFnDwOx1kJH/isJ5NwlDG1nCr1HrRF94Q==}
 
   esast-util-from-estree@2.0.0:
     resolution: {integrity: sha512-4CyanoAudUSBAn5K13H4JhsMH6L9ZP7XbLVe/dKybkxMO7eDyLsT8UHl9TRNrU2Gr9nz+FovfSIjuXWJ81uVwQ==}
@@ -11106,8 +11119,8 @@ packages:
     resolution: {integrity: sha512-WuyALRjWPDGtt/wzJiadO5AXY+8hZ80hVpe6MyivgraREW751X3SbhRvG3eLKOYN+8VEvqLcf3wdnt44Z4S4SA==}
     engines: {node: '>=10'}
 
-  qunit@2.24.1:
-    resolution: {integrity: sha512-Eu0k/5JDjx0QnqxsE1WavnDNDgL1zgMZKsMw/AoAxnsl9p4RgyLODyo2N7abZY7CEAnvl5YUqFZdkImzbgXzSg==}
+  qunit@2.24.2:
+    resolution: {integrity: sha512-dWlYs+Q9AIDT3eHKgkpEpWrSjHjqTJNCAJr1tUo5bQuDMzlZvaqCz1bNZhqzNu41ibkIQ7b50S9y6IMlrrUfNQ==}
     engines: {node: '>=10'}
     hasBin: true
 
@@ -11599,6 +11612,11 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
+  semver@7.7.3:
+    resolution: {integrity: sha512-SdsKMrI9TdgjdweUSR9MweHA4EJ8YxHn8DFaDisvhVlUOe4BF1tLD7GAj0lIqWVl+dPb/rExr0Btby5loQm20Q==}
+    engines: {node: '>=10'}
+    hasBin: true
+
   send@1.2.0:
     resolution: {integrity: sha512-uaW0WwXKpL9blXE2o0bRhoL2EGXIrZxQ2ZQ4mgcfoBxdFmQold+qWsD2jLrfZ0trjKL6vOw0j//eAwcALFjKSw==}
     engines: {node: '>= 18'}
@@ -11719,6 +11737,7 @@ packages:
   sitemap@8.0.0:
     resolution: {integrity: sha512-+AbdxhM9kJsHtruUF39bwS/B0Fytw6Fr1o4ZAIAEqA6cke2xcoO2GleBw9Zw7nRzILVEgz7zBM5GiTJjie1G9A==}
     engines: {node: '>=14.0.0', npm: '>=6.0.0'}
+    deprecated: 'SECURITY: Multiple vulnerabilities fixed in 8.0.1 (XML injection, path traversal, command injection, protocol injection). Upgrade immediately: npm install sitemap@8.0.1'
     hasBin: true
 
   slash@3.0.0:
@@ -13450,7 +13469,7 @@ snapshots:
       - '@babel/core'
       - supports-color
 
-  '@alloy-js/cli@0.20.0':
+  '@alloy-js/cli@0.21.0':
     dependencies:
       '@alloy-js/babel-preset': 0.2.1(@babel/core@7.28.4)
       '@babel/core': 7.28.4
@@ -13462,7 +13481,15 @@ snapshots:
 
   '@alloy-js/core@0.20.0':
     dependencies:
-      '@vue/reactivity': 3.5.21
+      '@vue/reactivity': 3.5.22
+      cli-table3: 0.6.5
+      pathe: 2.0.3
+      picocolors: 1.1.1
+      prettier: 3.6.2
+
+  '@alloy-js/core@0.21.0':
+    dependencies:
+      '@vue/reactivity': 3.5.22
       cli-table3: 0.6.5
       pathe: 2.0.3
       picocolors: 1.1.1
@@ -13475,9 +13502,9 @@ snapshots:
       marked: 16.2.1
       pathe: 2.0.3
 
-  '@alloy-js/markdown@0.20.0':
+  '@alloy-js/markdown@0.21.0':
     dependencies:
-      '@alloy-js/core': 0.20.0
+      '@alloy-js/core': 0.21.0
       yaml: 2.8.1
 
   '@alloy-js/rollup-plugin@0.1.0(@babel/core@7.28.4)(@types/babel__core@7.20.5)(rollup@4.49.0)':
@@ -13491,9 +13518,9 @@ snapshots:
       - rollup
       - supports-color
 
-  '@alloy-js/typescript@0.20.0':
+  '@alloy-js/typescript@0.21.0':
     dependencies:
-      '@alloy-js/core': 0.20.0
+      '@alloy-js/core': 0.21.0
       change-case: 5.4.4
       pathe: 2.0.3
 
@@ -17052,7 +17079,7 @@ snapshots:
 
   '@pnpm/logger@1001.0.0':
     dependencies:
-      bole: 5.0.21
+      bole: 5.0.22
       ndjson: 2.0.0
 
   '@pnpm/manifest-utils@1001.0.3(@pnpm/logger@1001.0.0)':
@@ -18274,7 +18301,7 @@ snapshots:
 
   '@types/emscripten@1.41.1': {}
 
-  '@types/emscripten@1.41.2': {}
+  '@types/emscripten@1.41.4': {}
 
   '@types/estree-jsx@1.0.5':
     dependencies:
@@ -18357,7 +18384,7 @@ snapshots:
     dependencies:
       undici-types: 5.26.5
 
-  '@types/node@18.19.127':
+  '@types/node@18.19.130':
     dependencies:
       undici-types: 5.26.5
 
@@ -18894,11 +18921,13 @@ snapshots:
     optionalDependencies:
       typescript: 5.9.2
 
-  '@vue/reactivity@3.5.21':
+  '@vue/reactivity@3.5.22':
     dependencies:
-      '@vue/shared': 3.5.21
+      '@vue/shared': 3.5.22
 
   '@vue/shared@3.5.21': {}
+
+  '@vue/shared@3.5.22': {}
 
   '@xmldom/xmldom@0.8.11': {}
 
@@ -18933,9 +18962,9 @@ snapshots:
       '@yarnpkg/plugin-version': 4.2.0(@types/react@18.3.24)(@yarnpkg/cli@4.9.4(@types/react@18.3.24)(@yarnpkg/core@4.4.3(typanion@3.14.0)))(@yarnpkg/core@4.4.3(typanion@3.14.0))(@yarnpkg/plugin-git@3.1.3(@yarnpkg/core@4.4.3(typanion@3.14.0))(typanion@3.14.0))(typanion@3.14.0)
       '@yarnpkg/plugin-workspace-tools': 4.1.6(@yarnpkg/cli@4.9.4(@types/react@18.3.24)(@yarnpkg/core@4.4.3(typanion@3.14.0)))(@yarnpkg/core@4.4.3(typanion@3.14.0))(@yarnpkg/plugin-git@3.1.3(@yarnpkg/core@4.4.3(typanion@3.14.0))(typanion@3.14.0))
       '@yarnpkg/shell': 4.1.3(typanion@3.14.0)
-      ci-info: 4.3.0
+      ci-info: 4.3.1
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
-      semver: 7.7.2
+      semver: 7.7.3
       tslib: 2.8.1
       typanion: 3.14.0
     transitivePeerDependencies:
@@ -19001,7 +19030,7 @@ snapshots:
 
   '@yarnpkg/libzip@3.2.2(@yarnpkg/fslib@3.1.3)':
     dependencies:
-      '@types/emscripten': 1.41.2
+      '@types/emscripten': 1.41.4
       '@yarnpkg/fslib': 3.1.3
       tslib: 2.8.1
 
@@ -19030,7 +19059,7 @@ snapshots:
       '@yarnpkg/core': 4.4.3(typanion@3.14.0)
       '@yarnpkg/fslib': 3.1.3
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
-      es-toolkit: 1.39.10
+      es-toolkit: 1.40.0
       tau-prolog: 0.2.81
       tslib: 2.8.1
     transitivePeerDependencies:
@@ -19053,12 +19082,12 @@ snapshots:
       '@yarnpkg/fslib': 3.1.3
       '@yarnpkg/parsers': 3.0.3
       '@yarnpkg/plugin-git': 3.1.3(@yarnpkg/core@4.4.3(typanion@3.14.0))(typanion@3.14.0)
-      ci-info: 4.3.0
+      ci-info: 4.3.1
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
       enquirer: 2.4.1
-      es-toolkit: 1.39.10
+      es-toolkit: 1.40.0
       micromatch: 4.0.8
-      semver: 7.7.2
+      semver: 7.7.3
       tslib: 2.8.1
       typanion: 3.14.0
 
@@ -19081,9 +19110,9 @@ snapshots:
       '@yarnpkg/core': 4.4.3(typanion@3.14.0)
       '@yarnpkg/fslib': 3.1.3
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
-      es-toolkit: 1.39.10
+      es-toolkit: 1.40.0
       git-url-parse: 13.1.1
-      semver: 7.7.2
+      semver: 7.7.3
       tslib: 2.8.1
     transitivePeerDependencies:
       - typanion
@@ -19122,7 +19151,7 @@ snapshots:
       ink: 3.2.0(@types/react@18.3.24)(react@18.3.1)
       ink-text-input: 4.0.3(ink@3.2.0(@types/react@18.3.24)(react@17.0.2))(react@17.0.2)
       react: 17.0.2
-      semver: 7.7.2
+      semver: 7.7.3
       tslib: 2.8.1
     transitivePeerDependencies:
       - '@types/react'
@@ -19184,7 +19213,7 @@ snapshots:
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
       enquirer: 2.4.1
       micromatch: 4.0.8
-      semver: 7.7.2
+      semver: 7.7.3
       tslib: 2.8.1
       typanion: 3.14.0
 
@@ -19208,9 +19237,9 @@ snapshots:
       '@yarnpkg/fslib': 3.1.3
       '@yarnpkg/plugin-pack': 4.0.2(@yarnpkg/cli@4.9.4(@types/react@18.3.24)(@yarnpkg/core@4.4.3(typanion@3.14.0)))(@yarnpkg/core@4.4.3(typanion@3.14.0))(typanion@3.14.0)
       enquirer: 2.4.1
-      es-toolkit: 1.39.10
+      es-toolkit: 1.40.0
       micromatch: 4.0.8
-      semver: 7.7.2
+      semver: 7.7.3
       sigstore: 3.1.0
       ssri: 12.0.0
       tslib: 2.8.1
@@ -19297,7 +19326,7 @@ snapshots:
       '@yarnpkg/plugin-essentials': 4.4.4(@yarnpkg/cli@4.9.4(@types/react@18.3.24)(@yarnpkg/core@4.4.3(typanion@3.14.0)))(@yarnpkg/core@4.4.3(typanion@3.14.0))(@yarnpkg/plugin-git@3.1.3(@yarnpkg/core@4.4.3(typanion@3.14.0))(typanion@3.14.0))
       '@yarnpkg/plugin-pack': 4.0.2(@yarnpkg/cli@4.9.4(@types/react@18.3.24)(@yarnpkg/core@4.4.3(typanion@3.14.0)))(@yarnpkg/core@4.4.3(typanion@3.14.0))(typanion@3.14.0)
       algoliasearch: 4.25.2
-      semver: 7.7.2
+      semver: 7.7.3
       tslib: 2.8.1
     transitivePeerDependencies:
       - typanion
@@ -19311,10 +19340,10 @@ snapshots:
       '@yarnpkg/parsers': 3.0.3
       '@yarnpkg/plugin-git': 3.1.3(@yarnpkg/core@4.4.3(typanion@3.14.0))(typanion@3.14.0)
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
-      es-toolkit: 1.39.10
+      es-toolkit: 1.40.0
       ink: 3.2.0(@types/react@18.3.24)(react@17.0.2)
       react: 17.0.2
-      semver: 7.7.2
+      semver: 7.7.3
       tslib: 2.8.1
     transitivePeerDependencies:
       - '@types/react'
@@ -19329,7 +19358,7 @@ snapshots:
       '@yarnpkg/fslib': 3.1.3
       '@yarnpkg/plugin-git': 3.1.3(@yarnpkg/core@4.4.3(typanion@3.14.0))(typanion@3.14.0)
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
-      es-toolkit: 1.39.10
+      es-toolkit: 1.40.0
       micromatch: 4.0.8
       p-limit: 2.3.0
       tslib: 2.8.1
@@ -19342,7 +19371,7 @@ snapshots:
 
   '@yarnpkg/pnp@4.1.2':
     dependencies:
-      '@types/node': 18.19.127
+      '@types/node': 18.19.130
       '@yarnpkg/fslib': 3.1.3
 
   '@yarnpkg/shell@4.0.0(typanion@3.14.0)':
@@ -19920,7 +19949,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  bole@5.0.21:
+  bole@5.0.22:
     dependencies:
       fast-safe-stringify: 2.1.1
       individual: 3.0.0
@@ -20260,6 +20289,8 @@ snapshots:
   ci-info@3.9.0: {}
 
   ci-info@4.3.0: {}
+
+  ci-info@4.3.1: {}
 
   cipher-base@1.0.6:
     dependencies:
@@ -21363,6 +21394,8 @@ snapshots:
       is-symbol: 1.1.1
 
   es-toolkit@1.39.10: {}
+
+  es-toolkit@1.40.0: {}
 
   esast-util-from-estree@2.0.0:
     dependencies:
@@ -24955,7 +24988,7 @@ snapshots:
 
   quick-lru@5.1.1: {}
 
-  qunit@2.24.1:
+  qunit@2.24.2:
     dependencies:
       commander: 7.2.0
       node-watch: 0.7.3
@@ -25634,6 +25667,8 @@ snapshots:
 
   semver@7.7.2: {}
 
+  semver@7.7.3: {}
+
   send@1.2.0:
     dependencies:
       debug: 4.4.1(supports-color@8.1.1)
@@ -26257,7 +26292,7 @@ snapshots:
 
   tau-prolog@0.2.81:
     dependencies:
-      qunit: 2.24.1
+      qunit: 2.24.2
       readline-sync: 1.4.9
 
   temp-dir@2.0.0: {}
@@ -27132,9 +27167,9 @@ snapshots:
 
   web-namespaces@2.0.1: {}
 
-  web-tree-sitter@0.25.9(@types/emscripten@1.41.2):
+  web-tree-sitter@0.25.9(@types/emscripten@1.41.4):
     optionalDependencies:
-      '@types/emscripten': 1.41.2
+      '@types/emscripten': 1.41.4
 
   webidl-conversions@3.0.1: {}
 
