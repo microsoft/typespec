@@ -364,11 +364,15 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             if (parameters.stream().anyMatch(p -> p.getVersioning() != null && p.getVersioning().getAdded() != null)) {
                 final List<List<ClientMethodParameter>> signatures = findOverloadedSignatures(parameters);
                 for (List<ClientMethodParameter> overloadedParameters : signatures) {
-                    if (JavaSettings.getInstance().isDataPlaneClient() && (clientMethodType != ClientMethodType.SimpleSyncRestResponse && clientMethodType != ClientMethodType.SimpleAsyncRestResponse)) {
+                    if (JavaSettings.getInstance().isDataPlaneClient()
+                        && (clientMethodType != ClientMethodType.SimpleSyncRestResponse
+                            && clientMethodType != ClientMethodType.SimpleAsyncRestResponse)) {
                         final ClientMethod overloadedMethod
                             = baseMethod.newBuilder().parameters(overloadedParameters).build();
                         methods.add(overloadedMethod);
-                    } else if (!JavaSettings.getInstance().isDataPlaneClient() && (clientMethodType != ClientMethodType.SimpleAsync && clientMethodType != ClientMethodType.SimpleSync)) {
+                    } else if (!JavaSettings.getInstance().isDataPlaneClient()
+                        && (clientMethodType != ClientMethodType.SimpleAsync
+                            && clientMethodType != ClientMethodType.SimpleSync)) {
                         ClientMethod.Builder overloadedMethodBuilder
                             = baseMethod.newBuilder().parameters(overloadedParameters);
                         if (methodPageDetailsWithContext != null) {
