@@ -623,6 +623,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             return new InputServiceMethodResponse(type, resultSegments);
         }
 
+        public static InputExternalType External(string identity, string? package = null, string? minVersion = null)
+        {
+            return new InputExternalType(identity, package, minVersion);
+        }
+
         private static readonly Dictionary<InputClient, IList<InputClient>> _childClientsCache = new();
 
         public static InputClient Client(string name, string clientNamespace = "Sample", string? doc = null, IEnumerable<InputServiceMethod>? methods = null, IEnumerable<InputParameter>? parameters = null, InputClient? parent = null, string? crossLanguageDefinitionId = null, IEnumerable<string>? apiVersions = null)

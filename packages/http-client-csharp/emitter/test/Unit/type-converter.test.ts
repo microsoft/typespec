@@ -87,3 +87,94 @@ describe("Enum value references", () => {
     }
   });
 });
+
+describe("External types", () => {
+  let runner: TestHost;
+
+  beforeEach(async () => {
+    runner = await createEmitterTestHost();
+  });
+
+  it("should convert external type from @alternateType decorator", async () => {
+    const program = await typeSpecCompile(
+      `
+      import "@azure-tools/typespec-client-generator-core";
+      
+      using Azure.ClientGenerator.Core;
+      
+      @alternateType({
+        identity: "Azure.Core.Expressions.DataFactoryExpression",
+        package: "Azure.Core.Expressions",
+        minVersion: "1.0.0",
+      }, "csharp")
+      union Dfe<T> {
+        T,
+        DfeExpression: string
+      }
+      
+      model TestModel {
+        prop: Dfe<string>;
+      }
+      
+      op test(@body input: TestModel): void;
+    `,
+      runner,
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    
+    const testModel = root.models.find((m) => m.name === "TestModel");
+    ok(testModel, "TestModel should exist");
+    
+    const prop = testModel.properties.find((p) => p.name === "prop");
+    ok(prop, "prop should exist");
+    
+    // The type should be an external type
+    strictEqual(prop.type.kind, "external");
+    strictEqual((prop.type as any).identity, "Azure.Core.Expressions.DataFactoryExpression");
+    strictEqual((prop.type as any).package, "Azure.Core.Expressions");
+    strictEqual((prop.type as any).minVersion, "1.0.0");
+  });
+
+  it("should convert external type on model", async () => {
+    const program = await typeSpecCompile(
+      `
+      import "@azure-tools/typespec-client-generator-core";
+      
+      using Azure.ClientGenerator.Core;
+      
+      @alternateType({
+        identity: "pystac.Collection",
+        package: "pystac",
+        minVersion: "1.13.0",
+      }, "csharp")
+      model ItemCollection {
+        items: string[];
+      }
+      
+      model TestModel {
+        collection: ItemCollection;
+      }
+      
+      op test(@body input: TestModel): void;
+    `,
+      runner,
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+    
+    const testModel = root.models.find((m) => m.name === "TestModel");
+    ok(testModel, "TestModel should exist");
+    
+    const collectionProp = testModel.properties.find((p) => p.name === "collection");
+    ok(collectionProp, "collection property should exist");
+    
+    // The type should be an external type
+    strictEqual(collectionProp.type.kind, "external");
+    strictEqual((collectionProp.type as any).identity, "pystac.Collection");
+    strictEqual((collectionProp.type as any).package, "pystac");
+    strictEqual((collectionProp.type as any).minVersion, "1.13.0");
+  });
+});

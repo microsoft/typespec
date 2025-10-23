@@ -65,7 +65,8 @@ export type InputType =
   | InputEnumValueType
   | InputArrayType
   | InputDictionaryType
-  | InputNullableType;
+  | InputNullableType
+  | InputExternalType;
 
 export interface InputPrimitiveType extends InputTypeBase {
   kind: SdkBuiltInKinds;
@@ -270,4 +271,11 @@ export interface InputDictionaryType extends InputTypeBase {
   kind: "dict";
   keyType: InputType;
   valueType: InputType;
+}
+
+export interface InputExternalType extends InputTypeBase {
+  kind: "external";
+  identity: string;
+  package?: string;
+  minVersion?: string;
 }

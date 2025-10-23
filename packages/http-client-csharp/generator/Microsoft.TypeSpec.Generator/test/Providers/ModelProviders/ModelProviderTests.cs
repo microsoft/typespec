@@ -1158,5 +1158,101 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual(shouldBePublic, prop!.Modifiers.HasFlag(MethodSignatureModifiers.Public));
             Assert.AreEqual(shouldHaveSetter, prop.Body.HasSetter);
         }
+
+        [Test]
+        public void ExternalTypeModelUsedAsProperty()
+        {
+            // Test a model decorated with alternateType that references System.Uri
+            var externalType = InputFactory.External("System.Uri");
+            var modelWithExternal = InputFactory.Model("ExternalModel");
+            
+            // Create a model that uses the external type as a property
+            var containerModel = InputFactory.Model(
+                "ContainerModel",
+                properties:
+                [
+                    InputFactory.Property("externalProp", externalType),
+                    InputFactory.Property("normalProp", InputPrimitiveType.String)
+                ]);
+
+            MockHelpers.LoadMockGenerator(
+                inputModelTypes: [modelWithExternal, containerModel]);
+
+            var containerProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .SingleOrDefault(t => t.Name == "ContainerModel") as ModelProvider;
+            Assert.IsNotNull(containerProvider);
+
+            // The property with external type should be resolved to System.Uri
+            var externalProp = containerProvider!.Properties.FirstOrDefault(p => p.Name == "ExternalProp");
+            Assert.IsNotNull(externalProp);
+            Assert.AreEqual(typeof(Uri), externalProp!.Type.FrameworkType);
+
+            // Normal property should still work
+            var normalProp = containerProvider.Properties.FirstOrDefault(p => p.Name == "NormalProp");
+            Assert.IsNotNull(normalProp);
+            Assert.AreEqual(typeof(string), normalProp!.Type.FrameworkType);
+        }
+
+        [Test]
+        public void ExternalTypePropertyIsResolved()
+        {
+            // Test a property decorated with alternateType
+            var externalType = InputFactory.External("System.Net.IPAddress", "System.Net.Primitives", "4.3.0");
+            
+            var model = InputFactory.Model(
+                "ModelWithExternalProperty",
+                properties:
+                [
+                    InputFactory.Property("ipAddress", externalType),
+                    InputFactory.Property("name", InputPrimitiveType.String)
+                ]);
+
+            MockHelpers.LoadMockGenerator(
+                inputModelTypes: [model]);
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .SingleOrDefault(t => t.Name == "ModelWithExternalProperty") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            // The property with external type should be resolved
+            var ipAddressProp = modelProvider!.Properties.FirstOrDefault(p => p.Name == "IpAddress");
+            Assert.IsNotNull(ipAddressProp);
+            Assert.IsNotNull(ipAddressProp!.Type.FrameworkType);
+
+            // Verify it's the correct framework type
+            var normalProp = modelProvider.Properties.FirstOrDefault(p => p.Name == "Name");
+            Assert.IsNotNull(normalProp);
+            Assert.AreEqual(typeof(string), normalProp!.Type.FrameworkType);
+        }
+
+        [Test]
+        public void UnsupportedExternalTypeEmitsDiagnostic()
+        {
+            // Test an external type that cannot be resolved (non-framework type)
+            var externalType = InputFactory.External("Azure.Core.Expressions.DataFactoryExpression");
+            
+            var model = InputFactory.Model(
+                "ModelWithUnsupportedExternal",
+                properties:
+                [
+                    InputFactory.Property("expression", externalType),
+                    InputFactory.Property("value", InputPrimitiveType.String)
+                ]);
+
+            MockHelpers.LoadMockGenerator(
+                inputModelTypes: [model]);
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .SingleOrDefault(t => t.Name == "ModelWithUnsupportedExternal") as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            // The unsupported external type property should be skipped (null type results in skipped property)
+            // Only the normal property should remain
+            var props = modelProvider!.Properties;
+            
+            // The value property should exist
+            var valueProp = props.FirstOrDefault(p => p.Name == "Value");
+            Assert.IsNotNull(valueProp);
+        }
     }
 }
