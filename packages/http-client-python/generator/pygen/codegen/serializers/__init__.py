@@ -139,13 +139,14 @@ class JinjaSerializer(ReaderAndWriter):
                 if self.code_model.options["basic-setup-py"]:
                     # Write the setup file
                     self.write_file(generation_path / Path("setup.py"), general_serializer.serialize_setup_file())
-                elif not self.code_model.options["keep-setup-py"]:
-                    # remove setup.py file
-                    self.remove_file(generation_path / Path("setup.py"))
 
                 # add packaging files in root namespace (e.g. setup.py, README.md, etc.)
                 if self.code_model.options.get("package-mode"):
                     self._serialize_and_write_package_files()
+
+                if not self.code_model.options["basic-setup-py"] and not self.code_model.options["keep-setup-py"]:
+                    # remove setup.py file after reading it for migration purposes
+                    self.remove_file(generation_path / Path("setup.py"))
 
                 # write apiview-properties.json
                 if self.code_model.options.get("emit-cross-language-definition-file"):
@@ -255,10 +256,16 @@ class JinjaSerializer(ReaderAndWriter):
                 if self.keep_version_file and file == "setup.py" and not self.code_model.options["azure-arm"]:
                     # don't regenerate setup.py file if the version file is more up to date for data-plane
                     continue
-                file_content = self.read_file(output_file) if file == "pyproject.toml" else ""
+                # For pyproject.toml, read both existing pyproject.toml and setup.py for migration
+                if file == "pyproject.toml":
+                    file_content = self.read_file(output_file)
+                    setuppy_file_content = self.read_file(root_of_sdk / "setup.py")
+                else:
+                    file_content = ""
+                    setuppy_file_content = ""
                 self.write_file(
                     output_file,
-                    serializer.serialize_package_file(template_name, file_content, **params),
+                    serializer.serialize_package_file(template_name, file_content, setuppy_file_content, **params),
                 )
 
     def _keep_patch_file(self, path_file: Path, env: Environment):
