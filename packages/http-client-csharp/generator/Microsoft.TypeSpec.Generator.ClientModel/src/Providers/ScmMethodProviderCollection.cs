@@ -159,7 +159,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ];
             }
 
-            var convenienceMethod = new ScmMethodProvider(methodSignature, methodBody, EnclosingType, collectionDefinition: collection, serviceMethod: ServiceMethod);
+            var convenienceMethod = new ScmMethodProvider(methodSignature, methodBody, EnclosingType, ScmMethodProvider.MethodType.Convenience, collectionDefinition: collection, serviceMethod: ServiceMethod);
 
             if (convenienceMethod.XmlDocs != null)
             {
@@ -649,7 +649,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var protocolMethod =
-                new ScmMethodProvider(methodSignature, methodBody, EnclosingType, collectionDefinition: collection, serviceMethod: ServiceMethod, isProtocolMethod: true);
+                new ScmMethodProvider(methodSignature, methodBody, EnclosingType, ScmMethodProvider.MethodType.Protocol, collectionDefinition: collection, serviceMethod: ServiceMethod);
 
             if (protocolMethod.XmlDocs != null)
             {
