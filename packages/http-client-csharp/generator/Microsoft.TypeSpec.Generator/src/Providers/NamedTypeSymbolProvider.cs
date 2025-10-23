@@ -47,7 +47,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 || _namedTypeSymbol.BaseType.SpecialType == SpecialType.System_Object
                 || _namedTypeSymbol.BaseType.SpecialType == SpecialType.System_ValueType
                 || _namedTypeSymbol.BaseType.SpecialType == SpecialType.System_Array
-                || _namedTypeSymbol.BaseType.SpecialType == SpecialType.System_Enum)
+                || _namedTypeSymbol.BaseType.SpecialType == SpecialType.System_Enum
+                || TypeSymbolExtensions.ContainsTypeAsArgument(_namedTypeSymbol.BaseType, _namedTypeSymbol))
             {
                 return null;
             }

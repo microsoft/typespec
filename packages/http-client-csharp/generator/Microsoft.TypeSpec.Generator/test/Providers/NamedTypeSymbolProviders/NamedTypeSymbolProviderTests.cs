@@ -4,10 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
@@ -70,6 +72,25 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
 
             var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol, compilation);
             Assert.IsNull(namedTypeSymbolProvider.Type.BaseType!);
+        }
+
+        [Test]
+        public async Task ValidateSelfReferentialGenericBaseType()
+        {
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+               compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var compilation = mockGenerator.Object.SourceInputModel.Customization;
+            Assert.IsNotNull(compilation);
+
+            var iNamedSymbol = CompilationHelper.GetSymbol(mockGenerator.Object.SourceInputModel.Customization!.Assembly.Modules.First().GlobalNamespace, "SelfReferentialType")!;
+            Assert.IsNotNull(iNamedSymbol);
+
+            var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol, mockGenerator.Object.SourceInputModel.Customization!);
+            Assert.IsNotNull(namedTypeSymbolProvider);
+
+            // The base type should be null to prevent stack overflow when the base type contains
+            // the derived type as a generic type argument
+            Assert.IsNull(namedTypeSymbolProvider.Type.BaseType);
         }
 
         [Test]
