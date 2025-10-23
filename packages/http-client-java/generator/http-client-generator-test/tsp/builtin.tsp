@@ -1,4 +1,5 @@
 import "@typespec/rest";
+import "@azure-tools/typespec-azure-core"
 import "@azure-tools/typespec-client-generator-core";
 
 using TypeSpec.Http;
@@ -25,6 +26,7 @@ model Builtin {
   url: url;
   nullableFloatDict: Record<float64 | null>;
   encoded: Encoded;
+  uuid: Azure.Core.uuid;
 }
 
 @encode(DurationKnownEncoding.seconds, float32)
