@@ -2980,11 +2980,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
       if (key.startsWith("@")) {
         key = key.slice(1);
-        if (key === "indexer" || key === "docFromComment") {
-          // they are internal decorators that are used by the compiler to map doc comments to documentation on types
-          // we could probably special case that for now as we don't have a way to mark it
-          return;
-        }
       }
       if (!completions.has(key)) {
         completions.set(key, { ...options, sym });

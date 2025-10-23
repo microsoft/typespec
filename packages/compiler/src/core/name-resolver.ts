@@ -1091,7 +1091,15 @@ export function createResolver(program: Program): NameResolver {
           mergedSymbols.set(sourceBinding, targetBinding);
           mutate(targetBinding.declarations).push(...sourceBinding.declarations);
 
-          mergeSymbolTable(sourceBinding.exports!, mutate(targetBinding.exports!));
+          // Create filtered exports table excluding internal decorators
+          const filteredExports = createSymbolTable();
+          for (const [exportKey, exportSymbol] of sourceBinding.exports!) {
+            // Skip internal decorators that should not be exposed
+            if (exportKey !== "@indexer" && exportKey !== "@docFromComment") {
+              mutate(filteredExports).set(exportKey, exportSymbol);
+            }
+          }
+          mergeSymbolTable(filteredExports, mutate(targetBinding.exports!));
         } else {
           // this will set a duplicate error
           target.set(key, sourceBinding);
