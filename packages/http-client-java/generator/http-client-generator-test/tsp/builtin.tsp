@@ -1,5 +1,5 @@
 import "@typespec/rest";
-import "@azure-tools/typespec-azure-core"
+import "@azure-tools/typespec-azure-core";
 import "@azure-tools/typespec-client-generator-core";
 
 using TypeSpec.Http;
