@@ -105,7 +105,7 @@ export function createCompileService({
   }
 
   function notifyChange(document: TextDocument | TextDocumentIdentifier, updateType: UpdateType) {
-    updateManager.scheduleUpdate(document, updateType);
+    void updateManager.scheduleUpdate(document, updateType);
   }
 
   /**
