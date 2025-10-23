@@ -3,6 +3,7 @@ import type {
   Range,
   Diagnostic as VSDiagnostic,
 } from "vscode-languageserver";
+import { Range as VSRange } from "vscode-languageserver";
 import type { TextDocument } from "vscode-languageserver-textdocument";
 import { DiagnosticSeverity } from "vscode-languageserver/node.js";
 import {
@@ -10,34 +11,58 @@ import {
   getSourceLocation,
 } from "../core/diagnostics.js";
 import { getTypeName } from "../core/helpers/type-name-utils.js";
+import { NodeSystemHost } from "../core/node-system-host.js";
 import type { Program } from "../core/program.js";
 import type { Node, SourceLocation } from "../core/types.js";
-import { Diagnostic } from "../core/types.js";
+import { Diagnostic, NoTarget } from "../core/types.js";
 import { isDefined } from "../utils/misc.js";
+import { getLocationInYamlScript } from "../yaml/diagnostics.js";
+import { parseYaml } from "../yaml/parser.js";
 import type { FileService } from "./file-service.js";
 import type { ServerSourceFile } from "./types.js";
 
 /** Convert TypeSpec Diagnostic to Lsp diagnostic. Each TypeSpec diagnostic could produce multiple lsp ones when it involve multiple locations. */
-export function convertDiagnosticToLsp(
+export async function convertDiagnosticToLsp(
   fileService: FileService,
   program: Program,
   document: TextDocument,
   diagnostic: Diagnostic,
-): [VSDiagnostic, TextDocument][] {
-  const root = getVSLocation(
+): Promise<[VSDiagnostic, TextDocument][]> {
+  const root = await getVSLocation(
     fileService,
     getSourceLocation(diagnostic.target, { locateId: true }),
     document,
+    program.compilerOptions.config,
+    program.compilerOptions.emit?.find((emitName) => diagnostic.message.includes(emitName)),
   );
+  const relatedInformation: DiagnosticRelatedInformation[] = [];
+  if (root === NoTarget) {
+    return [
+      [
+        createLspDiagnostic({
+          range: VSRange.create(0, 0, 0, 0),
+          message: diagnostic.message + ", no target source associated",
+          severity: convertSeverity(diagnostic.severity),
+          code: diagnostic.code,
+          relatedInformation,
+        }),
+        document,
+      ],
+    ];
+  }
   if (root === undefined || !fileService.upToDate(root.document)) return [];
 
   const instantiationNodes = getDiagnosticTemplateInstantitationTrace(diagnostic.target);
-  const relatedInformation: DiagnosticRelatedInformation[] = [];
+
   const relatedDiagnostics: [VSDiagnostic, TextDocument][] = [];
   if (instantiationNodes.length > 0) {
-    const items = instantiationNodes
-      .map((node) => getVSLocationWithTypeInfo(program, fileService, node, document))
-      .filter(isDefined);
+    const items = (
+      await Promise.all(
+        instantiationNodes.map((node) =>
+          getVSLocationWithTypeInfo(program, fileService, node, document),
+        ),
+      )
+    ).filter(isDefined);
 
     for (const location of items) {
       relatedInformation.push({
@@ -127,11 +152,39 @@ interface VSLocation {
   readonly range: Range;
 }
 
-function getVSLocation(
+async function getVSLocation(
   fileService: FileService,
   location: SourceLocation | undefined,
   currentDocument: TextDocument,
-): VSLocation | undefined {
+  configFilePath: string | undefined = undefined,
+  emitterName: string | undefined = undefined,
+): Promise<VSLocation | typeof NoTarget | undefined> {
+  if (configFilePath && emitterName && emitterName.length > 0 && location === undefined) {
+    const [yamlScript] = parseYaml(await NodeSystemHost.readFile(configFilePath));
+    const target = getLocationInYamlScript(yamlScript, ["emit", emitterName], "key");
+    if (target.pos === 0) {
+      return NoTarget;
+    }
+
+    const docTspConfig = fileService.getOpenDocument(configFilePath);
+    if (!docTspConfig) {
+      return NoTarget;
+    }
+
+    const lineAndChar = target.file.getLineAndCharacterOfPosition(target.pos);
+    const range = VSRange.create(
+      lineAndChar.line,
+      lineAndChar.character,
+      lineAndChar.line,
+      lineAndChar.character + emitterName.length,
+    );
+
+    return {
+      range,
+      document: docTspConfig,
+    };
+  }
+
   if (location === undefined) return undefined;
   const document = getDocumentForLocation(fileService, location, currentDocument);
   if (!document) {
@@ -148,18 +201,18 @@ interface VSLocationWithTypeInfo extends VSLocation {
   readonly typeName: string;
   readonly node: Node;
 }
-function getVSLocationWithTypeInfo(
+async function getVSLocationWithTypeInfo(
   program: Program,
   fileService: FileService,
   node: Node,
   document: TextDocument,
-): VSLocationWithTypeInfo | undefined {
-  const location = getVSLocation(
+): Promise<VSLocationWithTypeInfo | undefined> {
+  const location = await getVSLocation(
     fileService,
     getSourceLocation(node, { locateId: true }),
     document,
   );
-  if (location === undefined) return undefined;
+  if (location === undefined || location === NoTarget) return undefined;
   return {
     ...location,
     node,
