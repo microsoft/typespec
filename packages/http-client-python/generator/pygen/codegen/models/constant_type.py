@@ -119,3 +119,7 @@ class ConstantType(BaseType):
     @property
     def instance_check_template(self) -> str:
         return self.value_type.instance_check_template
+
+    @property
+    def client_default_value(self) -> Any:
+        return self.value
