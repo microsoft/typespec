@@ -146,7 +146,6 @@
 
         "TYPESPEC_SERVER_NODE_OPTIONS": "--nolazy --inspect-brk=4242",
         "TYPESPEC_DEVELOPMENT_MODE": "true"
-
       },
       "presentation": {
         "hidden": true

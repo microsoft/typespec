@@ -162,7 +162,10 @@ export function createServer(
   );
 
   const updateManager = new UpdateManager("doc-update", log);
-  const signatureHelpUpdateManager = new UpdateManager<CompileResult | undefined>("signature-help", log);
+  const signatureHelpUpdateManager = new UpdateManager<CompileResult | undefined>(
+    "signature-help",
+    log,
+  );
 
   const compileService = createCompileService({
     fileService,
