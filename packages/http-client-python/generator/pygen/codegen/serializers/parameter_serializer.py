@@ -202,8 +202,10 @@ class ParameterSerializer:
                 if is_content_type_optional and not type_annotation.startswith("Optional[")
                 else type_annotation
             )
-            if kwarg.client_default_value is not None or kwarg.optional:
-                if check_client_input and kwarg.check_client_input:
+            if kwarg.client_default_value is not None or kwarg.optional or kwarg.constant:
+                if kwarg.constant:
+                    default_value = kwarg.type.get_declaration(None)
+                elif check_client_input and kwarg.check_client_input:
                     default_value = f"self._config.{kwarg.client_name}"
                 else:
                     default_value = kwarg.client_default_value_declaration
