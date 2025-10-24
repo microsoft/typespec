@@ -36,6 +36,7 @@ Model factory methods are public static methods that enable creating model insta
 **Example:**
 
 Previous version had a model with three properties:
+
 ```csharp
 public static PublicModel1 PublicModel1(
     string stringProp = default,
@@ -44,6 +45,7 @@ public static PublicModel1 PublicModel1(
 ```
 
 Current version adds a new property (`dictProp`):
+
 ```csharp
 public static PublicModel1 PublicModel1(
     string stringProp = default,
@@ -53,6 +55,7 @@ public static PublicModel1 PublicModel1(
 ```
 
 **Generated Compatibility Method:**
+
 ```csharp
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static PublicModel1 PublicModel1(
@@ -65,6 +68,7 @@ public static PublicModel1 PublicModel1(
 ```
 
 **Key Points:**
+
 - The old method signature is preserved
 - It delegates to the new method with default value for the new parameter
 - Parameters in the compatibility method have no default values to avoid ambiguous call sites
@@ -77,6 +81,7 @@ public static PublicModel1 PublicModel1(
 **Example:**
 
 Previous version:
+
 ```csharp
 public static PublicModel1 PublicModel1(
     Thing modelProp = default,
@@ -86,6 +91,7 @@ public static PublicModel1 PublicModel1(
 ```
 
 Current version would generate different ordering:
+
 ```csharp
 public static PublicModel1 PublicModel1(
     string stringProp = default,
@@ -103,11 +109,13 @@ public static PublicModel1 PublicModel1(
 **Example:**
 
 Previous version:
+
 ```csharp
 public static PublicModel1 PublicModel1OldName(string stringProp = default)
 ```
 
 Current version:
+
 ```csharp
 public static PublicModel1 PublicModel1(
     string stringProp = default,
@@ -117,6 +125,7 @@ public static PublicModel1 PublicModel1(
 ```
 
 **Generated Compatibility Method:**
+
 ```csharp
 [EditorBrowsable(EditorBrowsableState.Never)]
 public static PublicModel1 PublicModel1OldName(string stringProp)
@@ -126,6 +135,7 @@ public static PublicModel1 PublicModel1OldName(string stringProp)
 ```
 
 **Key Points:**
+
 - The old method name is preserved
 - The method creates an instance of the new model type
 - Missing parameters are filled with default values
@@ -141,21 +151,25 @@ The generator attempts to maintain backward compatibility for model property typ
 **Example:**
 
 Previous version:
+
 ```csharp
 public IReadOnlyList<string> Items { get; }
 ```
 
 Current TypeSpec would generate:
+
 ```csharp
 public IList<string> Items { get; set; }
 ```
 
 **Result:** The generator detects the type mismatch and preserves the previous type:
+
 ```csharp
 public IReadOnlyList<string> Items { get; }
 ```
 
 **Implementation Details:**
+
 - The generator compares property types against the `LastContractView`
 - For read-write lists and dictionaries, if the previous type was different, the previous type is retained
 - A diagnostic message is logged: `"Changed property {ModelName}.{PropertyName} type to {LastContractType} to match last contract."`
@@ -171,6 +185,7 @@ Service version enums maintain backward compatibility by preserving version valu
 **Example:**
 
 Previous version had enum members:
+
 ```csharp
 public enum ServiceVersion
 {
@@ -181,6 +196,7 @@ public enum ServiceVersion
 ```
 
 Current TypeSpec removes `V2021_10_01` and adds `V2023_01_01`:
+
 ```csharp
 public enum ServiceVersion
 {
@@ -191,6 +207,7 @@ public enum ServiceVersion
 ```
 
 **Generated Result:**
+
 ```csharp
 public enum ServiceVersion
 {
@@ -202,6 +219,7 @@ public enum ServiceVersion
 ```
 
 **Key Points:**
+
 - Previous enum members are preserved even if removed from TypeSpec
 - Enum values are re-indexed to maintain sequential ordering
 - Version format and separator are detected from current versions and applied to previous versions
