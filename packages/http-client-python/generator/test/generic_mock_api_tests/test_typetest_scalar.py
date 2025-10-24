@@ -51,3 +51,7 @@ def test_decimal128_verify(client: ScalarClient):
 def test_decimal_verify(client: ScalarClient):
     prepare = client.decimal_verify.prepare_verify()
     client.decimal_verify.verify(reduce(lambda x, y: x + y, prepare))
+
+
+def test_constant_query(client: ScalarClient):
+    client.constant_query.post()

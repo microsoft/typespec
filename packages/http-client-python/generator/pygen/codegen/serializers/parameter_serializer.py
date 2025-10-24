@@ -203,10 +203,10 @@ class ParameterSerializer:
                 else type_annotation
             )
             if kwarg.client_default_value is not None or kwarg.optional or kwarg.constant:
-                if kwarg.constant:
-                    default_value = kwarg.type.get_declaration(None)
-                elif check_client_input and kwarg.check_client_input:
+                if check_client_input and kwarg.check_client_input:
                     default_value = f"self._config.{kwarg.client_name}"
+                elif kwarg.constant:
+                    default_value = kwarg.type.get_declaration(None)
                 else:
                     default_value = kwarg.client_default_value_declaration
                 if check_kwarg_dict and (kwarg.location in [ParameterLocation.HEADER, ParameterLocation.QUERY]):
