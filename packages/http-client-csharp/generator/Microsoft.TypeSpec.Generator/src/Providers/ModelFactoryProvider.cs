@@ -90,15 +90,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     $"A new {modelProvider.Type:C} instance for mocking.",
                     GetParameters(modelProvider, fullConstructor));
 
-                var parameters = new List<XmlDocParamStatement>(signature.Parameters.Count);
-                foreach (var param in signature.Parameters)
-                {
-                    parameters.Add(new XmlDocParamStatement(param));
-                }
-
                 var docs = new XmlDocProvider(
                     modelProvider.XmlDocs.Summary,
-                    parameters,
+                    signature.Parameters,
                     returns: new XmlDocReturnsStatement($"A new {modelProvider.Type:C} instance for mocking."));
 
                 MethodBodyStatement statements = ConstructMethodBody(signature, typeToInstantiate);
@@ -296,7 +290,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return false;
             }
 
-            var currentParameters = currentMethod.Parameters.ToHashSet();
+            var currentParameters = currentMethod.Parameters.ToHashSet(ParameterProvider.EqualityByNameAndType);
             foreach (var parameter in previousMethod.Parameters)
             {
                 if (!currentParameters.Contains(parameter))
@@ -306,7 +300,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             // Build the arguments for the overload
-            var previousParameters = previousMethod.Parameters.ToHashSet();
+            var previousParameters = previousMethod.Parameters.ToHashSet(ParameterProvider.EqualityByNameAndType);
             List<ValueExpression> arguments = new(currentMethodParameterCount);
 
             foreach (var parameter in currentMethod.Parameters)
@@ -525,7 +519,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return false;
             }
 
-            HashSet<ParameterProvider> method1Parameters = [.. method1.Parameters];
+            HashSet<ParameterProvider> method1Parameters = method1.Parameters.ToHashSet(ParameterProvider.EqualityByNameAndType);
             foreach (var method2Param in method2.Parameters)
             {
                 if (!method1Parameters.Contains(method2Param))
