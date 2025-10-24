@@ -53,5 +53,6 @@ def test_decimal_verify(client: ScalarClient):
     client.decimal_verify.verify(reduce(lambda x, y: x + y, prepare))
 
 
-def test_constant_query(client: ScalarClient):
-    client.constant_query.post()
+# open this test case after adopt new version of http-specs for https://github.com/microsoft/typespec/pull/8807
+# def test_constant_query(client: ScalarClient):
+#     client.constant_query.post()
