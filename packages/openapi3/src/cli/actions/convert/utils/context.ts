@@ -1,5 +1,10 @@
-import type OpenAPIParser from "@apidevtools/swagger-parser";
-import { OpenAPI3Document, OpenAPI3Encoding, OpenAPI3Schema, Refable } from "../../../../types.js";
+import {
+  OpenAPI3Document,
+  OpenAPI3Encoding,
+  OpenAPI3Schema,
+  OpenAPIDocument3_1,
+  Refable,
+} from "../../../../types.js";
 import { Logger } from "../../../types.js";
 import { SchemaToExpressionGenerator } from "../generators/generate-types.js";
 import { generateNamespaceName } from "./generate-namespace-name.js";
@@ -47,12 +52,7 @@ export interface Context {
   ): string;
 }
 
-export type Parser = {
-  $refs: OpenAPIParser["$refs"];
-};
-
 export function createContext(
-  parser: Parser,
   openApi3Doc: OpenAPI3Document,
   logger?: Logger,
   namespace?: string,
@@ -96,8 +96,35 @@ export function createContext(
     getSchemaByRef(ref) {
       return this.getByRef(ref);
     },
-    getByRef(ref) {
-      return parser.$refs.get(ref) as any;
+    getByRef<T>(ref: string): T | undefined {
+      const splitRef = ref.split("/");
+      const componentKind = splitRef[2]; // #/components/schemas/Pet -> components
+      const componentName = splitRef[3]; // #/components/schemas/Pet -> Pet
+      switch (componentKind) {
+        case "schemas":
+          return openApi3Doc.components?.schemas?.[componentName] as T;
+        case "responses":
+          return openApi3Doc.components?.responses?.[componentName] as T;
+        case "parameters":
+          return openApi3Doc.components?.parameters?.[componentName] as T;
+        case "examples":
+          return openApi3Doc.components?.examples?.[componentName] as T;
+        case "requestBodies":
+          return openApi3Doc.components?.requestBodies?.[componentName] as T;
+        case "headers":
+          return openApi3Doc.components?.headers?.[componentName] as T;
+        case "securitySchemes":
+          return openApi3Doc.components?.securitySchemes?.[componentName] as T;
+        case "links":
+          return openApi3Doc.components?.links?.[componentName] as T;
+        case "callbacks":
+          return (openApi3Doc as unknown as OpenAPIDocument3_1).components?.callbacks?.[
+            componentName
+          ] as T;
+        default:
+          this.logger.warn(`Unsupported component kind in $ref: ${ref}`);
+          return undefined;
+      }
     },
     registerMultipartSchema(ref: string, encoding?: Record<string, OpenAPI3Encoding>) {
       multipartSchemas.set(ref, encoding ?? null);
