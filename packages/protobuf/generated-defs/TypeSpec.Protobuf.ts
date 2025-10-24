@@ -28,7 +28,7 @@ export type MessageDecorator = (context: DecoratorContext, target: Type) => void
  * - not fall within the implementation reserved range of 19000 to 19999, inclusive.
  * - not fall within any range that was [marked reserved](#
  *
- * @TypeSpec .Protobuf.reserve).
+ * @TypeSpec.Protobuf.reserve ).
  *
  * #### API Compatibility Note
  *
