@@ -117,6 +117,7 @@ words:
   - jdwp
   - jobject
   - Johan
+  - jquery
   - jsyaml
   - keyer
   - killpg
@@ -196,6 +197,7 @@ words:
   - pycache
   - pyexpat
   - pygen
+  - pygments
   - pyimport
   - pylint
   - pylintrc
@@ -261,6 +263,7 @@ words:
   - Uncapitalize
   - uncollapsed
   - undifferentiable
+  - undoc
   - Ungroup
   - uninstantiated
   - unioned
