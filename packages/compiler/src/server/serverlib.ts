@@ -1129,7 +1129,7 @@ export function createServer(
       return CompletionList.create([]);
     }
 
-    const completions: CompletionList = {
+    let completions: CompletionList = {
       isIncomplete: false,
       items: [],
     };
@@ -1141,7 +1141,7 @@ export function createServer(
       }
       const posDetail = getCompletionNodeAtPosition(script, document.offsetAt(params.position));
 
-      return await resolveCompletion(
+      completions = await resolveCompletion(
         {
           program,
           file: script,
@@ -1150,6 +1150,13 @@ export function createServer(
         },
         posDetail,
       );
+
+      // Filter out internal decorators that should not be exposed in autocomplete
+      completions.items = completions.items.filter((item) => {
+        return item.label !== "indexer" && item.label !== "docFromComment";
+      });
+
+      return completions;
     }
 
     return completions;
