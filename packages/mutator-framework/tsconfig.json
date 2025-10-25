@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "lib": ["es2023", "DOM"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "es2022",
+    "strict": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "declaration": true,
+    "sourceMap": true,
+    "declarationMap": true,
+    "outDir": "dist",
+    "rootDir": "./",
+    "verbatimModuleSyntax": true,
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "test/**/*.ts", "test/**/*.tsx"],
+  "exclude": ["node_modules", "dist"]
+}

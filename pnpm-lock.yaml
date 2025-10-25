@@ -655,6 +655,28 @@ importers:
         specifier: ^3.1.2
         version: 3.2.4(@types/debug@4.1.12)(@types/node@24.3.1)(@vitest/ui@3.2.4)(happy-dom@18.0.1)(jsdom@25.0.1)(tsx@4.20.5)(yaml@2.8.1)
 
+  packages/http-canonicalization:
+    dependencies:
+      '@typespec/http':
+        specifier: workspace:^
+        version: link:../http
+      '@typespec/mutator-framework':
+        specifier: workspace:^
+        version: link:../mutator-framework
+    devDependencies:
+      '@types/node':
+        specifier: ~24.3.0
+        version: 24.3.1
+      '@typespec/compiler':
+        specifier: workspace:^
+        version: link:../compiler
+      concurrently:
+        specifier: ^9.1.2
+        version: 9.2.1
+      prettier:
+        specifier: ~3.6.2
+        version: 3.6.2
+
   packages/http-client:
     devDependencies:
       '@alloy-js/cli':
@@ -1204,6 +1226,25 @@ importers:
       vitest:
         specifier: ^3.1.2
         version: 3.2.4(@types/debug@4.1.12)(@types/node@24.3.1)(@vitest/ui@3.2.4)(happy-dom@18.0.1)(jsdom@25.0.1)(tsx@4.20.5)(yaml@2.8.1)
+
+  packages/mutator-framework:
+    dependencies:
+      '@typespec/http':
+        specifier: workspace:^
+        version: link:../http
+    devDependencies:
+      '@types/node':
+        specifier: ~24.3.0
+        version: 24.3.1
+      '@typespec/compiler':
+        specifier: workspace:^
+        version: link:../compiler
+      concurrently:
+        specifier: ^9.1.2
+        version: 9.2.1
+      prettier:
+        specifier: ~3.6.2
+        version: 3.6.2
 
   packages/openapi:
     devDependencies:
@@ -6014,9 +6055,6 @@ packages:
 
   '@types/node@17.0.45':
     resolution: {integrity: sha512-w+tIMs3rq2afQdsPJlODhoUEKzFP1ayaoyl1CcnwtIlsVe7K7bA1NGm4s3PraqTLlXnbIN84zuBlxBWo1u9BLw==}
-
-  '@types/node@18.19.124':
-    resolution: {integrity: sha512-hY4YWZFLs3ku6D2Gqo3RchTd9VRCcrjqp/I0mmohYeUVA5Y8eCXKJEasHxLAJVZRJuQogfd1GiJ9lgogBgKeuQ==}
 
   '@types/node@18.19.127':
     resolution: {integrity: sha512-gSjxjrnKXML/yo0BO099uPixMqfpJU0TKYjpfLU7TrtA2WWDki412Np/RSTPRil1saKBhvVVKzVx/p/6p94nVA==}
@@ -18353,10 +18391,6 @@ snapshots:
 
   '@types/node@17.0.45': {}
 
-  '@types/node@18.19.124':
-    dependencies:
-      undici-types: 5.26.5
-
   '@types/node@18.19.127':
     dependencies:
       undici-types: 5.26.5
@@ -19337,7 +19371,7 @@ snapshots:
 
   '@yarnpkg/pnp@4.1.1':
     dependencies:
-      '@types/node': 18.19.124
+      '@types/node': 18.19.127
       '@yarnpkg/fslib': 3.1.2
 
   '@yarnpkg/pnp@4.1.2':
