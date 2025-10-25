@@ -53,7 +53,7 @@ it("handles mutating a reference", async () => {
   expect(fooNode.mutatedType.properties.get("prop")!.type === barPrime.mutatedType).toBeTruthy();
 });
 
-it.only("handles replacing the model reference", async () => {
+it("handles replacing the model reference", async () => {
   const { Foo, Bar, prop, program } = await runner.compile(t.code`
       model ${t.model("Foo")} {
         ${t.modelProperty("prop")}: Bar;

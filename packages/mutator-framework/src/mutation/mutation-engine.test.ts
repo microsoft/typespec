@@ -172,7 +172,7 @@ class UnionifyProperty extends ModelPropertyMutation<
   }
 }
 
-it.only("mutates model properties into unions", async () => {
+it("mutates model properties into unions", async () => {
   const runner = await Tester.createInstance();
   const { Foo, program } = await runner.compile(t.code`
     model ${t.model("Foo")} {

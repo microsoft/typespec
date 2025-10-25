@@ -12,7 +12,7 @@
     "declarationMap": true,
     "outDir": "dist",
     "rootDir": "./",
-    "verbatimModuleSyntax": true,
+    "verbatimModuleSyntax": true
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "test/**/*.ts", "test/**/*.tsx"],
   "exclude": ["node_modules", "dist"]
