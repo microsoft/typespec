@@ -425,18 +425,7 @@ namespace Microsoft.TypeSpec.Generator
             return false;
         }
 
-        private bool IsSpecialSegment(string segment)
-        {
-            var badNamespaceSegments = CodeModelGenerator.Instance.InputLibrary.InputNamespace.InvalidNamespaceSegments;
-            for (int i = 0; i < badNamespaceSegments.Count; i++)
-            {
-                if (segment.Equals(badNamespaceSegments[i], StringComparison.Ordinal))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
+        private bool IsSpecialSegment(string segment) => IsSpecialSegment(segment.AsSpan());
 
         private static int GetSegmentCount(string clientNamespace)
         {
