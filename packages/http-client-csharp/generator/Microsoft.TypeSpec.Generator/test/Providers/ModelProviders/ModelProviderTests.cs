@@ -1158,5 +1158,40 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual(shouldBePublic, prop!.Modifiers.HasFlag(MethodSignatureModifiers.Public));
             Assert.AreEqual(shouldHaveSetter, prop.Body.HasSetter);
         }
+
+        [Test]
+        public void ModelWithOptionalDiscriminatorProperty()
+        {
+            var discriminatorEnum = InputFactory.StringEnum("kindEnum", [("One", "one"), ("Two", "two")]);
+            var derivedInputModel = InputFactory.Model(
+                "DerivedModel",
+                discriminatedKind: "one",
+                properties:
+                [
+                    InputFactory.Property("kind", InputFactory.EnumMember.String("One", "one", discriminatorEnum), isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("derivedProp", InputPrimitiveType.Int32, isRequired: true)
+                ]);
+            var inputModel = InputFactory.Model(
+                "BaseModel",
+                properties:
+                [
+                    InputFactory.Property("kind", discriminatorEnum, isRequired: false, isDiscriminator: true),
+                    InputFactory.Property("baseProp", InputPrimitiveType.String, isRequired: true)
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "one", derivedInputModel }});
+
+            MockHelpers.LoadMockGenerator(
+                inputModelTypes: [inputModel, derivedInputModel],
+                inputEnumTypes: [discriminatorEnum]);
+
+            var modelProvider =
+                CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "DerivedModel")
+                    as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            var writer = new TypeProviderWriter(modelProvider!);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
     }
 }
