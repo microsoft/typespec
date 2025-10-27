@@ -13,7 +13,7 @@ TODO checklist for @baywet:
 - [ ] examples data and serialized value https://github.com/BinkyLabs/OpenAPI.net/issues/12
 - [ ] xml fields https://github.com/BinkyLabs/OpenAPI.net/issues/11
 - [ ] media type item and prefix encoding https://github.com/BinkyLabs/OpenAPI.net/issues/10
-- [ ] document $self https://github.com/BinkyLabs/OpenAPI.net/issues/8
+- [x] document $self https://github.com/BinkyLabs/OpenAPI.net/issues/8
 - [ ] querystring parameter location https://github.com/BinkyLabs/OpenAPI.net/issues/7
 - [ ] cookie parameter style https://github.com/BinkyLabs/OpenAPI.net/issues/6
 - [ ] path item query and additional operations https://github.com/BinkyLabs/OpenAPI.net/issues/5
@@ -22,7 +22,7 @@ TODO checklist for @baywet:
 
 export type CommonOpenAPI3Schema = OpenAPI3Schema & OpenAPISchema3_1;
 
-export type SupportedOpenAPIDocuments = OpenAPI3Document | OpenAPIDocument3_1;
+export type SupportedOpenAPIDocuments = OpenAPI3Document | OpenAPIDocument3_1 | OpenAPIDocument3_2;
 
 export type Extensions = {
   [key in ExtensionKey]?: any;
@@ -1162,4 +1162,14 @@ export interface OpenAPIComponents3_1 extends Extensions {
   links?: Record<string, Refable<OpenAPI3Link>>;
   callbacks?: Record<string, Record<string, OpenAPI3PathItem>>;
   pathItems?: Record<string, OpenAPI3PathItem>;
+}
+
+export interface OpenAPIDocument3_2 extends Omit<OpenAPIDocument3_1, "openapi"> {
+  openapi: "3.2.0";
+  /**
+   * This string MUST be in the form of a URI reference as defined.
+   * The $self field provides the self-assigned URI of this document, which also serves as its base URI.
+   * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields
+   */
+  $self?: string;
 }
