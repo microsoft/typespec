@@ -6,8 +6,10 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
@@ -2397,6 +2399,261 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 Assert.IsTrue(fieldDict.TryGetValue(expected.Name, out var actual), $"Field {expected.Name} not present");
                 AssertFieldAreEqual(expected, actual!);
             }
+        }
+
+        [Test]
+        public async Task BackCompatibility_ProtocolMethodParamOrderChanged()
+        {
+            var param1 = InputFactory.BodyParameter("param1", InputPrimitiveType.String, isRequired: true);
+            var param2 = InputFactory.QueryParameter("param2", InputPrimitiveType.Int32, isRequired: true);
+            var param3 = InputFactory.HeaderParameter("param3", InputPrimitiveType.Boolean, isRequired: true);
+
+            var operation = InputFactory.Operation(
+                "TestMethod",
+                parameters: [param1, param3, param2]);
+
+            List<InputMethodParameter> methodParameters =
+            [
+                InputFactory.MethodParameter("param1", InputPrimitiveType.String, location: InputRequestLocation.Body, isRequired: true),
+                InputFactory.MethodParameter("param3", InputPrimitiveType.Boolean, location: InputRequestLocation.Header, isRequired: true),
+                InputFactory.MethodParameter("param2", InputPrimitiveType.Int32, location: InputRequestLocation.Query, isRequired: true),
+            ];
+
+            var method = InputFactory.BasicServiceMethod("TestMethod", operation, parameters: methodParameters);
+            var client = InputFactory.Client(TestClientName, methods: [method]);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().FirstOrDefault();
+            Assert.IsNotNull(clientProvider);
+            Assert.IsNotNull(clientProvider!.LastContractView);
+
+            var methods = clientProvider!.Methods;
+            var protocolMethods = methods
+                .Where(m => m.Signature.Name.StartsWith("TestMethod") && m is ScmMethodProvider { Kind: ScmMethodKind.Protocol })
+                .ToList();
+            Assert.AreEqual(2, protocolMethods.Count);
+
+            // Validate both sync and async methods have the reordered parameters matching the previous contract
+            foreach (var testMethod in protocolMethods)
+            {
+                var parameters = testMethod.Signature.Parameters;
+                // Should have 4 parameters: param1, param2, param3, options
+                Assert.AreEqual(4, parameters.Count);
+                Assert.AreEqual("content", parameters[0].Name);
+                Assert.AreEqual("param2", parameters[1].Name);
+                Assert.AreEqual("param3", parameters[2].Name);
+                Assert.AreEqual("options", parameters[3].Name);
+            }
+
+            // validate the convenience method bodies are updated
+            var convenienceMethods = methods
+                .Where(m => m.Signature.Name.StartsWith("TestMethod") && m is ScmMethodProvider { Kind: ScmMethodKind.Convenience })
+                .ToList();
+            Assert.AreEqual(2, convenienceMethods.Count);
+
+            var syncConvenienceMethod = convenienceMethods
+                .FirstOrDefault(m => !m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Async));
+            Assert.IsNotNull(syncConvenienceMethod);
+
+            var body = syncConvenienceMethod!.BodyStatements;
+            Assert.IsNotNull(body);
+
+            var result = body!.ToDisplayString();
+            Assert.AreEqual(
+                "global::Sample.Argument.AssertNotNullOrEmpty(param1, nameof(param1));\n\n" +
+                "using global::System.ClientModel.BinaryContent content = global::System.ClientModel.BinaryContent.Create(global::System.BinaryData.FromString(param1));\n" +
+                "return this.TestMethod(content, param2, param3, cancellationToken.ToRequestOptions());\n",
+                result);
+
+            var asyncConvenienceMethod = convenienceMethods
+                .FirstOrDefault(m => m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Async));
+            Assert.IsNotNull(asyncConvenienceMethod);
+
+            body = asyncConvenienceMethod!.BodyStatements;
+            Assert.IsNotNull(body);
+
+            result = body!.ToDisplayString();
+            Assert.AreEqual(
+               "global::Sample.Argument.AssertNotNullOrEmpty(param1, nameof(param1));\n\n" +
+               "using global::System.ClientModel.BinaryContent content = global::System.ClientModel.BinaryContent.Create(global::System.BinaryData.FromString(param1));\n" +
+               "return await this.TestMethodAsync(content, param2, param3, cancellationToken.ToRequestOptions()).ConfigureAwait(false);\n",
+               result);
+        }
+
+        [Test]
+        public async Task BackCompatibility_ConvenienceMethodParamOrderChanged()
+        {
+            var param1 = InputFactory.BodyParameter("param1", InputPrimitiveType.String, isRequired: true);
+            var param2 = InputFactory.QueryParameter("param2", InputPrimitiveType.Int32, isRequired: true);
+            var param3 = InputFactory.HeaderParameter("param3", InputPrimitiveType.Boolean, isRequired: true);
+
+            var operation = InputFactory.Operation(
+                "GetData",
+                parameters: [param1, param3, param2],
+                responses: [InputFactory.OperationResponse([200], bodytype: InputPrimitiveType.String)]);
+
+            List<InputMethodParameter> methodParameters =
+            [
+                InputFactory.MethodParameter("param1", InputPrimitiveType.String, location: InputRequestLocation.Body, isRequired: true),
+                InputFactory.MethodParameter("param3", InputPrimitiveType.Boolean, location: InputRequestLocation.Header, isRequired: true),
+                InputFactory.MethodParameter("param2", InputPrimitiveType.Int32, location: InputRequestLocation.Query, isRequired: true),
+            ];
+
+            var method = InputFactory.BasicServiceMethod("GetData", operation, parameters: [.. methodParameters]);
+            var client = InputFactory.Client(TestClientName, methods: [method]);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().FirstOrDefault();
+            Assert.IsNotNull(clientProvider);
+            Assert.IsNotNull(clientProvider!.LastContractView);
+
+            var methods = clientProvider!.Methods;
+            var convenienceMethods = methods
+                .Where(m => m.Signature.Name.StartsWith("GetData") && m is ScmMethodProvider { Kind: ScmMethodKind.Convenience })
+                .ToList();
+            Assert.AreEqual(2, convenienceMethods.Count);
+
+            // Validate both sync and async methods have the reordered parameters matching the previous contract
+            foreach (var testMethod in convenienceMethods)
+            {
+                var parameters = testMethod.Signature.Parameters;
+                Assert.AreEqual(4, parameters.Count);
+                Assert.AreEqual("param1", parameters[0].Name);
+                Assert.AreEqual("param2", parameters[1].Name);
+                Assert.AreEqual("param3", parameters[2].Name);
+                Assert.AreEqual("cancellationToken", parameters[3].Name);
+            }
+
+            var syncConvenienceMethod = convenienceMethods
+                .FirstOrDefault(m => !m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Async));
+            Assert.IsNotNull(syncConvenienceMethod);
+
+            var body = syncConvenienceMethod!.BodyStatements;
+            Assert.IsNotNull(body);
+
+            var result = body!.ToDisplayString();
+            Assert.AreEqual(
+                "global::Sample.Argument.AssertNotNullOrEmpty(param1, nameof(param1));\n\n" +
+                "using global::System.ClientModel.BinaryContent content = global::System.ClientModel.BinaryContent.Create(global::System.BinaryData.FromString(param1));\n" +
+                "global::System.ClientModel.ClientResult result = this.GetData(param3, param2, content, cancellationToken.ToRequestOptions());\n" +
+                "return global::System.ClientModel.ClientResult.FromValue(result.GetRawResponse().Content.ToObjectFromJson<string>(), result.GetRawResponse());\n",
+                result);
+
+            var asyncConvenienceMethod = convenienceMethods
+                .FirstOrDefault(m => m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Async));
+            Assert.IsNotNull(asyncConvenienceMethod);
+
+            body = asyncConvenienceMethod!.BodyStatements;
+            Assert.IsNotNull(body);
+
+            result = body!.ToDisplayString();
+            Assert.AreEqual(
+                "global::Sample.Argument.AssertNotNullOrEmpty(param1, nameof(param1));\n\n" +
+                "using global::System.ClientModel.BinaryContent content = global::System.ClientModel.BinaryContent.Create(global::System.BinaryData.FromString(param1));\n" +
+                "global::System.ClientModel.ClientResult result = await this.GetDataAsync(param3, param2, content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);\n" +
+                "return global::System.ClientModel.ClientResult.FromValue(result.GetRawResponse().Content.ToObjectFromJson<string>(), result.GetRawResponse());\n",
+               result);
+        }
+
+        [Test]
+        public async Task BackCompatibility_BothMethodsParamOrderChanged()
+        {
+            var param1 = InputFactory.BodyParameter("param1", InputPrimitiveType.String, isRequired: true);
+            var param2 = InputFactory.QueryParameter("param2", InputPrimitiveType.Int32, isRequired: true);
+            var param3 = InputFactory.HeaderParameter("param3", InputPrimitiveType.Boolean, isRequired: true);
+
+            var operation = InputFactory.Operation(
+                "UpdateResource",
+                parameters: [param1, param3, param2],
+                responses: [InputFactory.OperationResponse([200], bodytype: InputPrimitiveType.String)]);
+
+            List<InputMethodParameter> methodParameters =
+            [
+                InputFactory.MethodParameter("param1", InputPrimitiveType.String, location: InputRequestLocation.Body, isRequired: true),
+                InputFactory.MethodParameter("param3", InputPrimitiveType.Boolean, location: InputRequestLocation.Header, isRequired: true),
+                InputFactory.MethodParameter("param2", InputPrimitiveType.Int32, location: InputRequestLocation.Query, isRequired: true),
+            ];
+
+            var method = InputFactory.BasicServiceMethod("UpdateResource", operation, parameters: [.. methodParameters]);
+            var client = InputFactory.Client(TestClientName, methods: [method]);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().FirstOrDefault();
+            Assert.IsNotNull(clientProvider);
+            Assert.IsNotNull(clientProvider!.LastContractView);
+
+            var methods = clientProvider!.Methods;
+            var protocolMethods = methods
+                .Where(m => m.Signature.Name.StartsWith("UpdateResource") && m is ScmMethodProvider { Kind: ScmMethodKind.Protocol })
+                .ToList();
+            Assert.AreEqual(2, protocolMethods.Count);
+
+            // Validate both sync and async methods have the reordered parameters matching the previous contract
+            foreach (var testMethod in protocolMethods)
+            {
+                var parameters = testMethod.Signature.Parameters;
+                Assert.AreEqual(4, parameters.Count);
+                Assert.AreEqual("content", parameters[0].Name);
+                Assert.AreEqual("param2", parameters[1].Name);
+                Assert.AreEqual("param3", parameters[2].Name);
+                Assert.AreEqual("options", parameters[3].Name);
+            }
+
+            // validate the convenience method bodies are updated
+            var convenienceMethods = methods
+                .Where(m => m.Signature.Name.StartsWith("UpdateResource") && m is ScmMethodProvider { Kind: ScmMethodKind.Convenience })
+                .ToList();
+            Assert.AreEqual(2, convenienceMethods.Count);
+
+            // Validate both sync and async methods have the reordered parameters matching the previous contract
+            foreach (var testMethod in convenienceMethods)
+            {
+                var parameters = testMethod.Signature.Parameters;
+                Assert.AreEqual(4, parameters.Count);
+                Assert.AreEqual("param1", parameters[0].Name);
+                Assert.AreEqual("param2", parameters[1].Name);
+                Assert.AreEqual("param3", parameters[2].Name);
+                Assert.AreEqual("cancellationToken", parameters[3].Name);
+            }
+
+            var syncConvenienceMethod = convenienceMethods
+                .FirstOrDefault(m => !m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Async));
+            Assert.IsNotNull(syncConvenienceMethod);
+
+            var body = syncConvenienceMethod!.BodyStatements;
+            Assert.IsNotNull(body);
+
+            var result = body!.ToDisplayString();
+            Assert.AreEqual(
+                "global::Sample.Argument.AssertNotNullOrEmpty(param1, nameof(param1));\n\n" +
+                "using global::System.ClientModel.BinaryContent content = global::System.ClientModel.BinaryContent.Create(global::System.BinaryData.FromString(param1));\n" +
+                "global::System.ClientModel.ClientResult result = this.UpdateResource(content, param2, param3, cancellationToken.ToRequestOptions());\n" +
+                "return global::System.ClientModel.ClientResult.FromValue(result.GetRawResponse().Content.ToObjectFromJson<string>(), result.GetRawResponse());\n",
+                result);
+
+            var asyncConvenienceMethod = convenienceMethods
+                .FirstOrDefault(m => m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Async));
+            Assert.IsNotNull(asyncConvenienceMethod);
+
+            body = asyncConvenienceMethod!.BodyStatements;
+            Assert.IsNotNull(body);
+
+            result = body!.ToDisplayString();
+            Assert.AreEqual(
+               "global::Sample.Argument.AssertNotNullOrEmpty(param1, nameof(param1));\n\n" +
+               "using global::System.ClientModel.BinaryContent content = global::System.ClientModel.BinaryContent.Create(global::System.BinaryData.FromString(param1));\n" +
+               "global::System.ClientModel.ClientResult result = await this.UpdateResourceAsync(content, param2, param3, cancellationToken.ToRequestOptions()).ConfigureAwait(false);\n" +
+               "return global::System.ClientModel.ClientResult.FromValue(result.GetRawResponse().Content.ToObjectFromJson<string>(), result.GetRawResponse());\n",
+               result);
         }
     }
 }
