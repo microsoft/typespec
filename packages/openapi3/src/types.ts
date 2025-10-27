@@ -1,6 +1,25 @@
 import { Diagnostic, Service } from "@typespec/compiler";
 import { Contact, ExtensionKey, License } from "@typespec/openapi";
 
+/**
+TODO checklist for @baywet:
+- [ ] encoding https://github.com/BinkyLabs/OpenAPI.net/issues/51
+- [ ] media type components https://github.com/BinkyLabs/OpenAPI.net/issues/18
+- [x] discriminator defaultMapping https://github.com/BinkyLabs/OpenAPI.net/issues/3
+- [ ] response summary https://github.com/BinkyLabs/OpenAPI.net/issues/17
+- [ ] server name https://github.com/BinkyLabs/OpenAPI.net/issues/16
+- [ ] security scheme deprecated https://github.com/BinkyLabs/OpenAPI.net/issues/15
+- [ ] oauth flows https://github.com/BinkyLabs/OpenAPI.net/issues/14
+- [ ] examples data and serialized value https://github.com/BinkyLabs/OpenAPI.net/issues/12
+- [ ] xml fields https://github.com/BinkyLabs/OpenAPI.net/issues/11
+- [ ] media type item and prefix encoding https://github.com/BinkyLabs/OpenAPI.net/issues/10
+- [ ] document $self https://github.com/BinkyLabs/OpenAPI.net/issues/8
+- [ ] querystring parameter location https://github.com/BinkyLabs/OpenAPI.net/issues/7
+- [ ] cookie parameter style https://github.com/BinkyLabs/OpenAPI.net/issues/6
+- [ ] path item query and additional operations https://github.com/BinkyLabs/OpenAPI.net/issues/5
+- [ ] tag new fields https://github.com/BinkyLabs/OpenAPI.net/issues/4
+*/
+
 export type CommonOpenAPI3Schema = OpenAPI3Schema & OpenAPISchema3_1;
 
 export type SupportedOpenAPIDocuments = OpenAPI3Document | OpenAPIDocument3_1;
@@ -371,6 +390,14 @@ export interface OpenAPI3Example {
 export interface OpenAPI3Discriminator extends Extensions {
   propertyName: string;
   mapping?: Record<string, string>;
+}
+
+export interface OpenAPIDiscriminator3_1 extends OpenAPI3Discriminator {
+  /**
+   * The default mapping value to be used when no other mapping matches.
+   * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-21
+   */
+  defaultMapping?: string;
 }
 
 export type JsonType = "array" | "boolean" | "integer" | "number" | "object" | "string";
