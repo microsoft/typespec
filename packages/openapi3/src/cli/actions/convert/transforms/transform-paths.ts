@@ -64,17 +64,22 @@ export function transformPaths(
         usedOperationIds.add(operationId);
       }
 
-      operations.push({
-        ...getScopeAndName(operationId),
+      const requestBodies = transformRequestBodies(operation.requestBody, context);
+      
+      // Check if we need to split the operation due to incompatible content types
+      const splitOperations = splitOperationByContentType(
+        operationId,
         decorators,
-        parameters: dedupeParameters([...routeParameters, ...parameters]),
-        doc: operation.description,
-        operationId: operationId,
-        requestBodies: transformRequestBodies(operation.requestBody, context),
-        responses: operationResponses,
-        tags: tags,
+        dedupeParameters([...routeParameters, ...parameters]),
+        operation.description,
+        requestBodies,
+        operationResponses,
+        tags,
         fixmes,
-      });
+        usedOperationIds
+      );
+      
+      operations.push(...splitOperations);
     }
   }
 
@@ -120,6 +125,118 @@ function transformOperationParameter(
     isOptional: !parameter.required,
     schema: parameter.schema,
   };
+}
+
+/**
+ * Splits an operation into multiple operations if it has incompatible content types
+ * (e.g., multipart/form-data and application/json)
+ */
+function splitOperationByContentType(
+  operationId: string,
+  decorators: any[],
+  parameters: Refable<TypeSpecOperationParameter>[],
+  doc: string | undefined,
+  requestBodies: TypeSpecRequestBody[],
+  responses: any,
+  tags: string[],
+  fixmes: string[],
+  usedOperationIds: Set<string>
+): TypeSpecOperation[] {
+  // If no request bodies or only one content type, no splitting needed
+  if (requestBodies.length <= 1) {
+    return [{
+      ...getScopeAndName(operationId),
+      decorators,
+      parameters,
+      doc,
+      operationId,
+      requestBodies,
+      responses,
+      tags,
+      fixmes,
+    }];
+  }
+
+  // Group request bodies by compatibility
+  const multipartBodies = requestBodies.filter((r) => r.contentType.startsWith("multipart/"));
+  const nonMultipartBodies = requestBodies.filter((r) => !r.contentType.startsWith("multipart/"));
+  
+  // If all are the same type (all multipart or all non-multipart), no splitting needed
+  if (multipartBodies.length === 0 || nonMultipartBodies.length === 0) {
+    return [{
+      ...getScopeAndName(operationId),
+      decorators,
+      parameters,
+      doc,
+      operationId,
+      requestBodies,
+      responses,
+      tags,
+      fixmes,
+    }];
+  }
+
+  // Need to split into separate operations
+  const operations: TypeSpecOperation[] = [];
+  
+  // Helper to create a suffix from content type
+  const getContentTypeSuffix = (contentType: string): string => {
+    if (contentType.startsWith("multipart/")) {
+      return "Multipart";
+    } else if (contentType === "application/json") {
+      return "Json";
+    } else if (contentType.startsWith("application/")) {
+      // Remove 'application/' and capitalize first letter
+      const type = contentType.replace("application/", "");
+      return type.charAt(0).toUpperCase() + type.slice(1).replace(/[^a-zA-Z0-9]/g, "");
+    } else if (contentType.startsWith("text/")) {
+      const type = contentType.replace("text/", "");
+      return type.charAt(0).toUpperCase() + type.slice(1).replace(/[^a-zA-Z0-9]/g, "");
+    }
+    // Default: sanitize content type
+    return contentType.replace(/[^a-zA-Z0-9]/g, "");
+  };
+
+  // Group bodies that can share an operation (same category)
+  const bodyGroups: TypeSpecRequestBody[][] = [];
+  
+  if (multipartBodies.length > 0) {
+    bodyGroups.push(multipartBodies);
+  }
+  
+  // For non-multipart, group by exact content type
+  for (const body of nonMultipartBodies) {
+    bodyGroups.push([body]);
+  }
+  
+  // Create an operation for each group
+  for (const bodyGroup of bodyGroups) {
+    const suffix = getContentTypeSuffix(bodyGroup[0].contentType);
+    const newOperationId = `${operationId}${suffix}`;
+    
+    // Track the new operation ID to avoid conflicts
+    usedOperationIds.add(newOperationId);
+    
+    // Add @sharedRoute decorator
+    const newDecorators = [
+      { name: "sharedRoute", args: [] },
+      ...decorators,
+    ];
+    
+    operations.push({
+      ...getScopeAndName(newOperationId),
+      decorators: newDecorators,
+      parameters,
+      doc,
+      operationId: newOperationId,
+      requestBodies: bodyGroup,
+      responses,
+      tags,
+      fixmes,
+    });
+  }
+  
+  return operations;
 }
 
 function transformRequestBodies(
