@@ -1,7 +1,7 @@
 import { createTypeSpecLibrary, JSONSchemaType, paramMessage } from "@typespec/compiler";
 
 export type FileType = "yaml" | "json";
-export type OpenAPIVersion = "3.0.0" | "3.1.0";
+export type OpenAPIVersion = "3.0.0" | "3.1.0" | "3.2.0";
 export type ExperimentalParameterExamplesStrategy = "data" | "serialized";
 export interface OpenAPI3EmitterOptions {
   /**
@@ -44,7 +44,7 @@ export interface OpenAPI3EmitterOptions {
    * If more than one version is specified, then the output file
    * will be created inside a directory matching each specification version.
    *
-   * @default ["v3.0"]
+   * @default ["3.0.0"]
    * @internal
    */
   "openapi-versions"?: OpenAPIVersion[];
