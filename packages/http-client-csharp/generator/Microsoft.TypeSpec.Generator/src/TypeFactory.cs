@@ -388,12 +388,13 @@ namespace Microsoft.TypeSpec.Generator
             var nextDot = source.IndexOf('.');
             while (nextDot != -1)
             {
-                var segment = source.Slice(0, nextDot).ToString();
+                var segment = source.Slice(0, nextDot);
+                var segmentStr = segment.ToString();
                 if (IsSpecialSegment(segment))
                 {
-                    segment = "_" + segment;
+                    segmentStr = "_" + segmentStr;
                 }
-                var cleanedSegment = segment.ToIdentifierName();
+                var cleanedSegment = segmentStr.ToIdentifierName();
                 cleanedSegment.AsSpan().CopyTo(dest.Slice(destIndex));
                 destIndex += cleanedSegment.Length;
                 dest[destIndex] = '.';
@@ -401,12 +402,12 @@ namespace Microsoft.TypeSpec.Generator
                 source = source.Slice(nextDot + 1);
                 nextDot = source.IndexOf('.');
             }
-            var lastSegment = source.ToString();
-            if (IsSpecialSegment(lastSegment))
+            var lastSegmentStr = source.ToString();
+            if (IsSpecialSegment(source))
             {
-                lastSegment = "_" + lastSegment;
+                lastSegmentStr = "_" + lastSegmentStr;
             }
-            var cleanedLastSegment = lastSegment.ToIdentifierName();
+            var cleanedLastSegment = lastSegmentStr.ToIdentifierName();
             cleanedLastSegment.AsSpan().CopyTo(dest.Slice(destIndex));
             destIndex += cleanedLastSegment.Length;
             return dest.Slice(0, destIndex).ToString();
