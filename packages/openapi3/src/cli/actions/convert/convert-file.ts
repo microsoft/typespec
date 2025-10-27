@@ -19,7 +19,7 @@ export async function convertAction(host: CliHost, args: ConvertCliArgs) {
     treeShake: false,
   })) as OpenAPI.Document;
   if (!data) {
-    throw new Error("Failed to dereference OpenAPI document");
+    throw new Error("Failed to load OpenAPI document");
   }
   const context = createContext(data as OpenAPI3Document, console, args.namespace);
   const program = transform(context);
