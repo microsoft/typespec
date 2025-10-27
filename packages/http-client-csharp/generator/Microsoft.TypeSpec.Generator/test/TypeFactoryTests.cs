@@ -162,5 +162,23 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var actual = factory.InvokeCreateFrameworkType(expectedType.FullName!);
             Assert.AreEqual(expectedType, actual);
         }
+
+        [TestCase("lowercase", "Lowercase")]
+        [TestCase("lowercase.namespace", "Lowercase.Namespace")]
+        [TestCase("lowercase.namespace.client", "Lowercase.Namespace.Client")]
+        [TestCase("PascalCase", "PascalCase")]
+        [TestCase("PascalCase.Namespace", "PascalCase.Namespace")]
+        [TestCase("camelCase", "CamelCase")]
+        [TestCase("camelCase.namespace", "CamelCase.Namespace")]
+        [TestCase("kebab-case", "KebabCase")]
+        [TestCase("kebab-case.namespace", "KebabCase.Namespace")]
+        [TestCase("snake_case", "SnakeCase")]
+        [TestCase("snake_case.namespace", "SnakeCase.Namespace")]
+        [TestCase("mixed_case-namespace.example", "MixedCaseNamespace.Example")]
+        public void GetCleanNameSpace_ConvertsToPascalCase(string input, string expected)
+        {
+            var actual = CodeModelGenerator.Instance.TypeFactory.GetCleanNameSpace(input);
+            Assert.AreEqual(expected, actual);
+        }
     }
 }

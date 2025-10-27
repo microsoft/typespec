@@ -382,33 +382,22 @@ namespace Microsoft.TypeSpec.Generator
 
         public string GetCleanNameSpace(string clientNamespace)
         {
-            Span<char> dest = stackalloc char[clientNamespace.Length + GetSegmentCount(clientNamespace)];
-            var source = clientNamespace.AsSpan();
-            var destIndex = 0;
-            var nextDot = source.IndexOf('.');
-            while (nextDot != -1)
+            var segments = clientNamespace.Split('.');
+            var cleanedSegments = new string[segments.Length];
+
+            for (int i = 0; i < segments.Length; i++)
             {
-                var segment = source.Slice(0, nextDot);
+                var segment = segments[i];
+                // Check if this is a special segment that needs a leading underscore
                 if (IsSpecialSegment(segment))
                 {
-                    dest[destIndex] = '_';
-                    destIndex++;
+                    segment = "_" + segment;
                 }
-                segment.CopyTo(dest.Slice(destIndex));
-                destIndex += segment.Length;
-                dest[destIndex] = '.';
-                destIndex++;
-                source = source.Slice(nextDot + 1);
-                nextDot = source.IndexOf('.');
+                // Convert the segment to PascalCase using ToIdentifierName
+                cleanedSegments[i] = segment.ToIdentifierName();
             }
-            if (IsSpecialSegment(source))
-            {
-                dest[destIndex] = '_';
-                destIndex++;
-            }
-            source.CopyTo(dest.Slice(destIndex));
-            destIndex += source.Length;
-            return dest.Slice(0, destIndex).ToString();
+
+            return string.Join(".", cleanedSegments);
         }
 
         private bool IsSpecialSegment(ReadOnlySpan<char> readOnlySpan)
@@ -424,17 +413,17 @@ namespace Microsoft.TypeSpec.Generator
             return false;
         }
 
-        private static int GetSegmentCount(string clientNamespace)
+        private bool IsSpecialSegment(string segment)
         {
-            int count = 0;
-            for (int i = 0; i < clientNamespace.Length; i++)
+            var badNamespaceSegments = CodeModelGenerator.Instance.InputLibrary.InputNamespace.InvalidNamespaceSegments;
+            for (int i = 0; i < badNamespaceSegments.Count; i++)
             {
-                if (clientNamespace[i] == '.')
+                if (segment.Equals(badNamespaceSegments[i], StringComparison.Ordinal))
                 {
-                    count++;
+                    return true;
                 }
             }
-            return ++count;
+            return false;
         }
     }
 }
