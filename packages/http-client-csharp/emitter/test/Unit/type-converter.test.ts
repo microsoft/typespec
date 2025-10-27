@@ -120,13 +120,13 @@ describe("External types", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    
+
     const testModel = root.models.find((m) => m.name === "TestModel");
     ok(testModel, "TestModel should exist");
-    
+
     const prop = testModel.properties.find((p) => p.name === "prop");
     ok(prop, "prop should exist");
-    
+
     // The type should be an external type
     strictEqual(prop.type.kind, "external");
     strictEqual((prop.type as any).identity, "Azure.Core.Expressions.DataFactoryExpression");
@@ -158,13 +158,13 @@ describe("External types", () => {
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
-    
+
     const testModel = root.models.find((m) => m.name === "TestModel");
     ok(testModel, "TestModel should exist");
-    
+
     const collectionProp = testModel.properties.find((p) => p.name === "collection");
     ok(collectionProp, "collection property should exist");
-    
+
     // The type should be an external type
     strictEqual(collectionProp.type.kind, "external");
     strictEqual((collectionProp.type as any).identity, "pystac.Collection");
