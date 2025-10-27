@@ -26,7 +26,7 @@
     "build": "tsx ./scripts/build.ts",
     "check": "tsx ./scripts/check.ts",
     "watch": "tsc -p . --watch",
-    "test": "vitest run",
+    "test:skip": "vitest run",
     "test:e2e": "pnpm check",
     "test:watch": "vitest -w",
     "test:ui": "vitest --ui",

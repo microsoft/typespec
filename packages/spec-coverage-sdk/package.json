@@ -7,8 +7,7 @@
   "scripts": {
     "watch": "tsc -p ./tsconfig.build.json --watch",
     "build": "tsc -p ./tsconfig.build.json",
-    "clean": "rimraf dist/ temp/",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "clean": "rimraf dist/ temp/"
   },
   "engines": {
     "node": ">=16.0.0"

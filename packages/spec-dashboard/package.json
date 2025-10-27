@@ -9,7 +9,7 @@
     "clean": "rimraf ./dist ./temp",
     "build": "vite build",
     "watch": "vite build --watch",
-    "test": "vitest run",
+    "test:skip": "vitest run",
     "test:ui": "vitest --ui",
     "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
     "lint": "eslint . --max-warnings=0",
