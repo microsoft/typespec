@@ -138,16 +138,16 @@ describe("External types", () => {
     const program = await typeSpecCompile(
       `
       @alternateType({
-        identity: "pystac.Collection",
-        package: "pystac",
-        minVersion: "1.13.0",
+        identity: "System.Text.Json.JsonElement",
+        package: "System.Text.Json",
+        minVersion: "8.0.0",
       }, "csharp")
-      model ItemCollection {
-        items: string[];
+      model JsonData {
+        data: string;
       }
       
       model TestModel {
-        collection: ItemCollection;
+        jsonElement: JsonData;
       }
       
       op test(@body input: TestModel): void;
@@ -162,13 +162,13 @@ describe("External types", () => {
     const testModel = root.models.find((m) => m.name === "TestModel");
     ok(testModel, "TestModel should exist");
 
-    const collectionProp = testModel.properties.find((p) => p.name === "collection");
-    ok(collectionProp, "collection property should exist");
+    const jsonElementProp = testModel.properties.find((p) => p.name === "jsonElement");
+    ok(jsonElementProp, "jsonElement property should exist");
 
     // The type should be an external type
-    strictEqual(collectionProp.type.kind, "external");
-    strictEqual((collectionProp.type as any).identity, "pystac.Collection");
-    strictEqual((collectionProp.type as any).package, "pystac");
-    strictEqual((collectionProp.type as any).minVersion, "1.13.0");
+    strictEqual(jsonElementProp.type.kind, "external");
+    strictEqual((jsonElementProp.type as any).identity, "System.Text.Json.JsonElement");
+    strictEqual((jsonElementProp.type as any).package, "System.Text.Json");
+    strictEqual((jsonElementProp.type as any).minVersion, "8.0.0");
   });
 });
