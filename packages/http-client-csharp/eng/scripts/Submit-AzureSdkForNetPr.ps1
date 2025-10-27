@@ -190,17 +190,18 @@ try {
             # Run Generate.ps1 from the package root
             if ($shouldRunGenerate -eq $true)
             {
+                Write-Host "Running eng/packages/http-client-csharp/eng/scripts/Generate.ps1..."
                 $previousErrorAction = $ErrorActionPreference
                 $ErrorActionPreference = "Continue"
                 try {
                     $generationScriptPath = Join-Path $tempDir "eng/packages/http-client-csharp/eng/scripts/Generate.ps1"
                     Invoke "pwsh $generationScriptPath"
                     if ($LASTEXITCODE -ne 0) {
-                        Write-Warning "Generate.ps1 failed with exit code $LASTEXITCODE. Continuing without emitter-package.json updates."
+                        Write-Warning "Generate.ps1 failed with exit code $LASTEXITCODE. Continuing with emitter artifact updates."
                         Write-Host "##vso[task.complete result=SucceededWithIssues;]"
                     }
                 } catch {
-                    Write-Warning "Generate.ps1 failed: $($_.Exception.Message). Continuing without emitter-package.json updates."
+                    Write-Warning "Generate.ps1 failed: $($_.Exception.Message). Continuing with emitter artifact updates."
                     Write-Host "##vso[task.complete result=SucceededWithIssues;]"
                 } finally {
                     $ErrorActionPreference = $previousErrorAction
