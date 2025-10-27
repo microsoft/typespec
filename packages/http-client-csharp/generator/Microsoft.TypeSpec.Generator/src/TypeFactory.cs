@@ -382,22 +382,31 @@ namespace Microsoft.TypeSpec.Generator
 
         public string GetCleanNameSpace(string clientNamespace)
         {
-            var segments = clientNamespace.Split('.');
-            var cleanedSegments = new string[segments.Length];
+            var segments = new List<string>();
+            var startIndex = 0;
+            var dotIndex = clientNamespace.IndexOf('.');
 
-            for (int i = 0; i < segments.Length; i++)
+            while (dotIndex != -1)
             {
-                var segment = segments[i];
-                // Check if this is a special segment that needs a leading underscore
+                var segment = clientNamespace.Substring(startIndex, dotIndex - startIndex);
                 if (IsSpecialSegment(segment))
                 {
                     segment = "_" + segment;
                 }
-                // Convert the segment to PascalCase using ToIdentifierName
-                cleanedSegments[i] = segment.ToIdentifierName();
+                segments.Add(segment.ToIdentifierName());
+                startIndex = dotIndex + 1;
+                dotIndex = clientNamespace.IndexOf('.', startIndex);
             }
 
-            return string.Join(".", cleanedSegments);
+            // Handle the last segment
+            var lastSegment = clientNamespace.Substring(startIndex);
+            if (IsSpecialSegment(lastSegment))
+            {
+                lastSegment = "_" + lastSegment;
+            }
+            segments.Add(lastSegment.ToIdentifierName());
+
+            return string.Join(".", segments);
         }
 
         private bool IsSpecialSegment(ReadOnlySpan<char> readOnlySpan)
@@ -424,6 +433,19 @@ namespace Microsoft.TypeSpec.Generator
                 }
             }
             return false;
+        }
+
+        private static int GetSegmentCount(string clientNamespace)
+        {
+            int count = 0;
+            for (int i = 0; i < clientNamespace.Length; i++)
+            {
+                if (clientNamespace[i] == '.')
+                {
+                    count++;
+                }
+            }
+            return ++count;
         }
     }
 }
