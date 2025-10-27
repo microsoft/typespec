@@ -1,8 +1,8 @@
-# RegenPreview-Local.ps1
+# RegenPreview.ps1
 
 ## Overview
 
-`RegenPreview-Local.ps1` is a PowerShell script that automates the process of building local generator packages and regenerating Azure SDK for .NET libraries for validation purposes. This script is designed to streamline the workflow for testing changes to the TypeSpec HTTP Client C# generator before submitting a pull request.
+`RegenPreview.ps1` is a PowerShell script that automates the process of building local generator packages and regenerating Azure SDK for .NET libraries for validation purposes. This script is designed to streamline the workflow for testing changes to the TypeSpec HTTP Client C# generator before submitting a pull request.
 
 ## Purpose
 
@@ -10,7 +10,7 @@ When making changes to the TypeSpec HTTP Client C# generator (either the unbrand
 
 1. Building local versions of the generator packages
 2. Updating the Azure SDK for .NET repository to use these local packages
-3. Regenerating selected libraries to verify the changes
+3. Regenerating all libraries (or selected libraries if `-Select` is specified)
 4. Cleaning up all modifications after validation
 
 ## Prerequisites
@@ -23,26 +23,25 @@ When making changes to the TypeSpec HTTP Client C# generator (either the unbrand
 
 ## Usage
 
-### Basic Usage
+### Basic Usage (Regenerate All)
 
 **Windows:**
 
 ```powershell
-.\RegenPreview-Local.ps1 -AzureSdkForNetRepoPath "C:\path\to\azure-sdk-for-net"
+.\RegenPreview.ps1 -AzureSdkForNetRepoPath "C:\path\to\azure-sdk-for-net"
 ```
 
 **Linux/macOS:**
 
 ```powershell
-./RegenPreview-Local.ps1 -AzureSdkForNetRepoPath "/home/user/repos/azure-sdk-for-net"
+./RegenPreview.ps1 -AzureSdkForNetRepoPath "/home/user/repos/azure-sdk-for-net"
 ```
 
 This will:
 
 - Clean and build the unbranded and Azure generators with local changes
-- Display an interactive menu to select which libraries to regenerate
-- Regenerate only the selected libraries
-- Restore all modified files on success
+- Regenerate **all** libraries automatically
+- Restore all modified metadata files on success (ie. package.json, package-lock.json)
 
 ### Parameters
 
@@ -62,32 +61,69 @@ The local file system path to your `azure-sdk-for-net` repository clone.
 -AzureSdkForNetRepoPath "/home/user/repos/azure-sdk-for-net"
 ```
 
-#### `-All` (Optional)
+#### `-Select` (Optional)
 
-When specified, regenerates all libraries without prompting for selection. Use this when you want to validate changes across all libraries.
+When specified, displays an interactive menu to select specific libraries to regenerate. If omitted, all libraries are regenerated automatically.
+
+Can be combined with generator filter parameters (`-Azure`, `-Unbranded`, `-Mgmt`) to interactively select from a filtered subset.
 
 **Example:**
 
 ```powershell
-.\RegenPreview-Local.ps1 -AzureSdkForNetRepoPath "C:\repos\azure-sdk-for-net" -All
+.\RegenPreview.ps1 -AzureSdkForNetRepoPath "C:\repos\azure-sdk-for-net" -Select
+```
+
+#### `-Azure` (Optional)
+
+When specified, only regenerates libraries using the Azure-branded generator (`@azure-typespec/http-client-csharp`).
+
+**Example:**
+
+```powershell
+.\RegenPreview.ps1 -AzureSdkForNetRepoPath "C:\repos\azure-sdk-for-net" -Azure
+```
+
+#### `-Unbranded` (Optional)
+
+When specified, only regenerates libraries using the unbranded generator (`@typespec/http-client-csharp`).
+
+**Example:**
+
+```powershell
+.\RegenPreview.ps1 -AzureSdkForNetRepoPath "C:\repos\azure-sdk-for-net" -Unbranded
+```
+
+#### `-Mgmt` (Optional)
+
+When specified, only regenerates libraries using the management plane generator (`@azure-typespec/http-client-csharp-mgmt`).
+
+**Example:**
+
+```powershell
+.\RegenPreview.ps1 -AzureSdkForNetRepoPath "C:\repos\azure-sdk-for-net" -Mgmt
 ```
 
 ### Interactive Selection
 
-When running without the `-All` flag, the script presents an interactive menu listing all available libraries:
+When running with the `-Select` flag, the script presents an interactive menu listing all available libraries:
 
 ```
 ==================== LIBRARY SELECTION ====================
-Found 13 libraries available for regeneration
+Found 28 libraries available for regeneration
 
 Azure-branded libraries (@azure-typespec/http-client-csharp):
   [ 1] Azure.AI.VoiceLive                                  (ai)
-  [ 2] Azure.AI.Projects                                   (cognitiveservices)
+  [ 2] Azure.Data.AppConfiguration                         (appconfiguration)
   ...
 
 Unbranded libraries (@typespec/http-client-csharp):
-  [12] Azure.Messaging.EventGrid.Namespaces                (eventgrid)
-  [13] Azure.Security.KeyVault.Administration              (keyvault)
+  [12] Azure.AI.Projects                                   (ai)
+  [13] Azure.AI.OpenAI                                     (openai)
+
+Management plane libraries (@azure-typespec/http-client-csharp-mgmt):
+  [14] Azure.ResourceManager.AgriculturePlatform           (agricultureplatform)
+  [15] Azure.ResourceManager.ArizeAIObservabilityEval      (arizeaiobservabilityeval)
+  ...
 
 Enter library numbers to regenerate (comma-separated), 'all' for all libraries, or 'q' to quit:
 Example: 1,3,5  or  1-4,7  or  all
@@ -109,9 +145,10 @@ The script performs the following steps in sequence:
 ### Step 0: Library Selection (Interactive Mode Only)
 
 - Parses `Library_Inventory.md` in the azure-sdk-for-net repository
+- Applies any generator filters if specified (`-Azure`, `-Unbranded`, `-Mgmt`)
 - Displays available libraries grouped by generator type
 - Prompts user to select which libraries to regenerate
-- Skipped when using the `-All` flag
+- Skipped when `-Select` is not specified (non-interactive mode)
 
 ### Step 1: Build Unbranded Generator
 
@@ -163,13 +200,33 @@ The script performs the following steps in sequence:
 - Uses a temporary directory to safely update the lock files
 - These files control which generator versions are used during library regeneration
 
-### Step 6: Prepare Library List
+### Step 6: Update and Build Management Plane Generator
+
+- Updates the management plane generator (`@azure-typespec/http-client-csharp-mgmt`) located in `azure-sdk-for-net/eng/packages/http-client-csharp-mgmt`
+- Updates `package.json` to reference both:
+  - Local Azure generator (`@azure-typespec/http-client-csharp`) using `file:` protocol
+  - Local unbranded generator (`@typespec/http-client-csharp`) using `file:` protocol
+- Runs `npm install` to install dependencies
+- Runs `npm run clean` to ensure a clean build
+- Runs `npm run build` to build the management plane generator
+- Creates a local package with `npm pack`
+- Updates eng folder emitter package artifacts:
+  - `azure-typespec-http-client-csharp-mgmt-emitter-package.json`
+  - `azure-typespec-http-client-csharp-mgmt-emitter-package-lock.json`
+- Updates `Packages.Data.props` in azure-sdk-for-net with `AzureGeneratorVersion` property
+  - This version is used by management plane libraries that reference the `Azure.Generator` NuGet package
+- This step is skipped if the management plane generator directory doesn't exist
+
+### Step 7: Prepare Library List
 
 - Confirms the list of libraries to regenerate
-- In `-All` mode, loads all libraries from `Library_Inventory.md`
-- In interactive mode, uses the previously selected libraries
+- When no `-Select` flag, loads all libraries from `Library_Inventory.md` including:
+  - Data plane libraries using `@azure-typespec/http-client-csharp`
+  - Data plane libraries using `@typespec/http-client-csharp`
+  - Management plane libraries using `@azure-typespec/http-client-csharp-mgmt`
+- In interactive mode (`-Select`), uses the previously selected libraries
 
-### Step 7: Regenerate Libraries
+### Step 8: Regenerate Libraries
 
 - **Pre-Install tsp-client**: Runs `npm ci --prefix eng\common\tsp-client` once before parallel execution
   - Installs shared TypeSpec compiler tooling used by all libraries
@@ -179,7 +236,7 @@ The script performs the following steps in sequence:
   - Windows: Uses `Get-CimInstance` with `Win32_Processor`
   - Linux: Uses `nproc` command
   - macOS: Uses `sysctl -n hw.ncpu` command
-- **Throttle Limit**: Automatically calculated as `(CPU cores - 2)` with a minimum of 1 and maximum of 6
+- **Throttle Limit**: Automatically calculated as `(CPU cores - 2)` with a minimum of 1 and maximum of 8
 - **Skip Redundant Installs**: Each parallel job uses `/p:SkipTspClientInstall=true` to skip re-installing tsp-client
 - **Thread-Safe Progress**: Real-time updates showing `[completed/total] ✓/✗ LibraryName`
   - Success: Green with ✓
@@ -189,7 +246,7 @@ The script performs the following steps in sequence:
 - Automatically detects if the `.csproj` is in a `src` subdirectory
 - Tracks success/failure for each library with colored output
 
-### Step 8: Restore Artifacts (On Success Only)
+### Step 9: Restore Artifacts (On Success Only)
 
 If all libraries regenerate successfully, the script restores modified files:
 
@@ -197,7 +254,11 @@ If all libraries regenerate successfully, the script restores modified files:
 - `eng/azure-typespec-http-client-csharp-emitter-package-lock.json`
 - `eng/http-client-csharp-emitter-package.json`
 - `eng/http-client-csharp-emitter-package-lock.json`
+- `eng/azure-typespec-http-client-csharp-mgmt-emitter-package.json`
+- `eng/azure-typespec-http-client-csharp-mgmt-emitter-package-lock.json`
 - `eng/packages/http-client-csharp/package-lock.json`
+- `eng/packages/http-client-csharp-mgmt/package.json`
+- `eng/packages/http-client-csharp-mgmt/package-lock.json`
 - `eng/Packages.Data.props`
 - `NuGet.Config`
 
@@ -276,35 +337,76 @@ Where:
 
 This ensures consistency across all packaged artifacts and makes it easy to identify which commit the packages were built from.
 
+## Architecture
+
+### Module Structure
+
+The script uses a modular architecture with PowerShell modules for reusability:
+
+#### `RegenPreview.psm1`
+
+Contains helper functions specific to the RegenPreview workflow:
+
+- **`Update-GeneratorPackage`**: Shared helper function for generator setup
+  - Updates `package.json` with specified dependencies
+  - Runs `npm install` and `npm run build`
+  - Packages the generator with `npm pack`
+  - Updates `Packages.Data.props` with version properties
+  - Used by both Azure and management plane generator update functions
+
+- **`Update-AzureGenerator`**: Handles the Azure-branded data plane generator setup
+  - Calls `Update-GeneratorPackage` with Azure-specific configuration
+  - Updates `UnbrandedGeneratorVersion` in `Packages.Data.props`
+
+- **`Update-MgmtGenerator`**: Handles the management plane generator setup
+  - Calls `Update-GeneratorPackage` with management plane configuration
+  - Updates `AzureGeneratorVersion` in `Packages.Data.props`
+
+- **`Filter-LibrariesByGenerator`**: Filters library list by generator type
+  - Accepts `-Azure`, `-Unbranded`, or `-Mgmt` parameters
+  - If no filter is specified, returns all libraries (default behavior)
+  - Returns libraries matching the specified generator
+  - Always returns proper array type to avoid null reference errors
+
+This modular approach keeps the main script focused on orchestration while encapsulating complex operations in reusable functions. The shared `Update-GeneratorPackage` helper eliminates code duplication between generator update functions.
+
+### Library Discovery
+
+Libraries are discovered by parsing `Library_Inventory.md` in the azure-sdk-for-net repository. The script looks for three sections:
+
+1. **Data Plane Libraries using TypeSpec (@azure-typespec/http-client-csharp)**
+2. **Data Plane Libraries using TypeSpec (@typespec/http-client-csharp)**
+3. **Management Plane Libraries using TypeSpec (@azure-typespec/http-client-csharp-mgmt)**
+
+Each section provides library names, service directories, and paths needed for regeneration.
+
+### Library Filtering
+
+The script includes a `Filter-LibrariesByGenerator` function in `RegenPreview.psm1` that filters the library list based on the generator type specified via command-line parameters.
+
+**How it works:**
+
+1. Libraries are loaded from `Library_Inventory.md` with their `Generator` property
+2. The filter function checks if `-Azure`, `-Unbranded`, or `-Mgmt` parameter is specified
+3. If no filter parameter is provided, all libraries are returned (default behavior)
+4. If a filter is specified, returns only libraries matching that generator type
+
+
 ## Common Scenarios
 
-### Scenario 1: Test a Small Change Quickly
+### Scenario: Test a Small Change Quickly
 
 ```powershell
-# Build and test specific libraries
-.\RegenPreview-Local.ps1 -AzureSdkForNetRepoPath "C:\repos\azure-sdk-for-net"
+# You want to test Azure generator changes on specific libraries only
+.\RegenPreview.ps1 -AzureSdkForNetRepoPath "C:\repos\azure-sdk-for-net" -Select
 
 # Select just one or two libraries when prompted
 # Selection: 1,5
 ```
 
-### Scenario 2: Full Validation Before PR
+### Scenario: Full Validation Before PR
 
 ```powershell
-# Validate with all libraries
-.\RegenPreview-Local.ps1 -AzureSdkForNetRepoPath "C:\repos\azure-sdk-for-net" -All
+.\RegenPreview.ps1 -AzureSdkForNetRepoPath "C:\repos\azure-sdk-for-net"
 ```
 
-### Scenario 3: Iterative Debugging
-
-```powershell
-# First run: identify failing libraries
-.\RegenPreview-Local.ps1 -AzureSdkForNetRepoPath "C:\repos\azure-sdk-for-net"
-# Selection: all
-
-# Make fixes to your generator code
-
-# Subsequent runs: test only the previously failing libraries
-.\RegenPreview-Local.ps1 -AzureSdkForNetRepoPath "C:\repos\azure-sdk-for-net"
-# Selection: 3,7  (the libraries that failed)
-```

@@ -11,29 +11,64 @@
     3. Updates Packages.Data.props in azure-sdk-for-net with the local NuGet version
     4. Updates the Azure generator (@azure-typespec/http-client-csharp) to use the local unbranded generator
     5. Builds and packages the Azure generator locally
-    6. Updates the eng folder package.json artifacts in azure-sdk-for-net
-    7. Regenerates selected or all libraries using @azure-typespec/http-client-csharp and @typespec/http-client-csharp
-    8. Restores all modified artifacts to original state on success
+    6. Updates the management plane generator (@azure-typespec/http-client-csharp-mgmt) to use local generators
+    7. Updates the eng folder package.json artifacts in azure-sdk-for-net
+    8. Regenerates libraries based on specified filters (all, by generator type, or interactively selected)
+    9. Restores all modified artifacts to original state on success
+    
+    Generator Filtering:
+    - Use -Azure to regenerate only Azure-branded libraries (@azure-typespec/http-client-csharp)
+    - Use -Unbranded to regenerate only unbranded libraries (@typespec/http-client-csharp)
+    - Use -Mgmt to regenerate only management plane libraries (@azure-typespec/http-client-csharp-mgmt)
+    - Omit all filter parameters to regenerate all libraries (default)
+    - Use -Select for interactive selection (can be combined with generator filters)
 
 .PARAMETER AzureSdkForNetRepoPath
     Required. The local file system path to the azure-sdk-for-net repository.
 
-.PARAMETER All
-    Optional. When specified, regenerates all libraries without prompting for selection.
-    If omitted, displays an interactive menu to select specific libraries to regenerate.
+.PARAMETER Select
+    Optional. When specified, displays an interactive menu to select specific libraries to regenerate.
+    If omitted, regenerates all libraries without prompting.
+
+.PARAMETER Azure
+    Optional. When specified, only regenerates libraries using the Azure generator (@azure-typespec/http-client-csharp).
+    Mutually exclusive with Unbranded and Mgmt parameters.
+
+.PARAMETER Unbranded
+    Optional. When specified, only regenerates libraries using the unbranded generator (@typespec/http-client-csharp).
+    Mutually exclusive with All, Azure, and Mgmt parameters.
+
+.PARAMETER Mgmt
+    Optional. When specified, only regenerates libraries using the management plane generator (@azure-typespec/http-client-csharp-mgmt).
+    Mutually exclusive with Azure and Unbranded parameters.
+    If no generator filter is specified, all libraries are regenerated.
 
 .EXAMPLE
-    # Windows
-    .\RegenPreview-Local.ps1 -AzureSdkForNetRepoPath "C:\repos\azure-sdk-for-net"
+    # Windows - Regenerate all libraries
+    .\RegenPreview.ps1 -AzureSdkForNetRepoPath "C:\repos\azure-sdk-for-net"
     
-    # Linux/macOS
-    ./RegenPreview-Local.ps1 -AzureSdkForNetRepoPath "/home/user/repos/azure-sdk-for-net"
-    
-    Prompts for library selection before regenerating.
+    # Linux/macOS - Regenerate all libraries
+    ./RegenPreview.ps1 -AzureSdkForNetRepoPath "/home/user/repos/azure-sdk-for-net"
 
 .EXAMPLE
-    .\RegenPreview-Local.ps1 -AzureSdkForNetRepoPath "C:\repos\azure-sdk-for-net" -All
-    Regenerates all libraries without prompting.
+    # Interactively select libraries to regenerate (from all available)
+    .\RegenPreview.ps1 -AzureSdkForNetRepoPath "C:\repos\azure-sdk-for-net" -Select
+
+.EXAMPLE
+    # Regenerate only Azure-branded libraries (non-interactive)
+    .\RegenPreview.ps1 -AzureSdkForNetRepoPath "C:\repos\azure-sdk-for-net" -Azure
+
+.EXAMPLE
+    # Interactively select from Azure-branded libraries only
+    .\RegenPreview.ps1 -AzureSdkForNetRepoPath "C:\repos\azure-sdk-for-net" -Azure -Select
+
+.EXAMPLE
+    # Regenerate only unbranded libraries
+    .\RegenPreview.ps1 -AzureSdkForNetRepoPath "C:\repos\azure-sdk-for-net" -Unbranded
+
+.EXAMPLE
+    # Regenerate only management plane libraries
+    .\RegenPreview.ps1 -AzureSdkForNetRepoPath "C:\repos\azure-sdk-for-net" -Mgmt
 #>
 
 param(
@@ -41,14 +76,33 @@ param(
     [string]$AzureSdkForNetRepoPath,
     
     [Parameter(Mandatory=$false)]
-    [switch]$All
+    [switch]$Select,
+    
+    [Parameter(Mandatory=$false)]
+    [switch]$Azure,
+    
+    [Parameter(Mandatory=$false)]
+    [switch]$Unbranded,
+    
+    [Parameter(Mandatory=$false)]
+    [switch]$Mgmt
 )
 
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version 3.0
 
+# Validate mutually exclusive parameters
+$generatorFilters = @($Azure, $Unbranded, $Mgmt)
+$activeFilters = @($generatorFilters | Where-Object { $_ }).Count
+
+if ($activeFilters -gt 1) {
+    Write-Error "Parameters -Azure, -Unbranded, and -Mgmt are mutually exclusive. Please specify only one."
+    exit 1
+}
+
 # Import utility functions
 Import-Module "$PSScriptRoot\Generation.psm1" -DisableNameChecking -Force
+Import-Module "$PSScriptRoot\RegenPreview.psm1" -DisableNameChecking -Force
 
 # Resolve paths
 $packageRoot = Resolve-Path (Join-Path $PSScriptRoot '..' '..')
@@ -57,11 +111,20 @@ $azureSdkRepoPath = Resolve-Path $AzureSdkForNetRepoPath -ErrorAction Stop
 Write-Host "==================== LOCAL VALIDATION SCRIPT ====================" -ForegroundColor Cyan
 Write-Host "Unbranded Generator Path: $packageRoot" -ForegroundColor Gray
 Write-Host "Azure SDK Repo Path: $azureSdkRepoPath" -ForegroundColor Gray
-if ($All) {
-    Write-Host "Mode: Regenerate ALL libraries" -ForegroundColor Yellow
+
+# Display active mode
+$modeText = if ($Select) {
+    "Interactive library selection"
+} elseif ($Azure) {
+    "Regenerate Azure generator libraries only"
+} elseif ($Unbranded) {
+    "Regenerate Unbranded generator libraries only"
+} elseif ($Mgmt) {
+    "Regenerate Management plane generator libraries only"
 } else {
-    Write-Host "Mode: Interactive library selection" -ForegroundColor Yellow
+    "Regenerate ALL libraries"
 }
+Write-Host "Mode: $modeText" -ForegroundColor Yellow
 Write-Host ""
 
 # Generate version string with timestamp and hash
@@ -212,12 +275,24 @@ function Get-LibrariesToRegenerate {
         $libraries += & $parseSection $Matches[2] "@typespec/http-client-csharp"
     }
     
-    return $libraries
+    # Parse @azure-typespec/http-client-csharp-mgmt libraries (management plane)
+    if ($content -match '## Management Plane Libraries using TypeSpec \(@azure-typespec/http-client-csharp-mgmt\)[\s\S]*?Total: (\d+)([\s\S]*?)(?=##|\z)') {
+        $libraries += & $parseSection $Matches[2] "@azure-typespec/http-client-csharp-mgmt"
+    }
+    
+    return @($libraries)
 }
 
 # Interactive library selection
 function Select-LibrariesToRegenerate {
     param([array]$Libraries)
+    
+    # Ensure we have an array
+    if (-not $Libraries) {
+        return @()
+    }
+    
+    $Libraries = @($Libraries)
     
     Write-Host "`n==================== LIBRARY SELECTION ====================" -ForegroundColor Cyan
     Write-Host "Found $($Libraries.Count) libraries available for regeneration" -ForegroundColor White
@@ -226,22 +301,36 @@ function Select-LibrariesToRegenerate {
     # Display libraries grouped by generator
     $azureLibs = @($Libraries | Where-Object { $_.Generator -eq "@azure-typespec/http-client-csharp" })
     $unbrandedLibs = @($Libraries | Where-Object { $_.Generator -eq "@typespec/http-client-csharp" })
+    $mgmtLibs = @($Libraries | Where-Object { $_.Generator -eq "@azure-typespec/http-client-csharp-mgmt" })
+    
+    $currentIndex = 1
     
     if ($azureLibs.Count -gt 0) {
         Write-Host "Azure-branded libraries (@azure-typespec/http-client-csharp):" -ForegroundColor Yellow
         for ($i = 0; $i -lt $azureLibs.Count; $i++) {
             $lib = $azureLibs[$i]
-            Write-Host ("  [{0,2}] {1,-50} ({2})" -f ($i + 1), $lib.Library, $lib.Service) -ForegroundColor Gray
+            Write-Host ("  [{0,2}] {1,-50} ({2})" -f $currentIndex, $lib.Library, $lib.Service) -ForegroundColor Gray
+            $currentIndex++
         }
         Write-Host ""
     }
     
     if ($unbrandedLibs.Count -gt 0) {
-        $offset = $azureLibs.Count
         Write-Host "Unbranded libraries (@typespec/http-client-csharp):" -ForegroundColor Yellow
         for ($i = 0; $i -lt $unbrandedLibs.Count; $i++) {
             $lib = $unbrandedLibs[$i]
-            Write-Host ("  [{0,2}] {1,-50} ({2})" -f ($i + $offset + 1), $lib.Library, $lib.Service) -ForegroundColor Gray
+            Write-Host ("  [{0,2}] {1,-50} ({2})" -f $currentIndex, $lib.Library, $lib.Service) -ForegroundColor Gray
+            $currentIndex++
+        }
+        Write-Host ""
+    }
+    
+    if ($mgmtLibs.Count -gt 0) {
+        Write-Host "Management plane libraries (@azure-typespec/http-client-csharp-mgmt):" -ForegroundColor Yellow
+        for ($i = 0; $i -lt $mgmtLibs.Count; $i++) {
+            $lib = $mgmtLibs[$i]
+            Write-Host ("  [{0,2}] {1,-50} ({2})" -f $currentIndex, $lib.Library, $lib.Service) -ForegroundColor Gray
+            $currentIndex++
         }
         Write-Host ""
     }
@@ -432,9 +521,9 @@ function Write-RegenerationReport {
 $scriptStartTime = Get-Date
 
 try {
-    # Step 0: Load and select libraries to regenerate (if not using -All flag)
-    if (-not $All) {
-        Write-Host "`n[0/7] Loading libraries from Library_Inventory.md..." -ForegroundColor Cyan
+    # Step 0: Load and select libraries to regenerate (if using -Select flag)
+    if ($Select) {
+        Write-Host "`n[0/8] Loading libraries from Library_Inventory.md..." -ForegroundColor Cyan
         
         $inventoryPath = Join-Path $azureSdkRepoPath "doc" "GeneratorMigration" "Library_Inventory.md"
         if (-not (Test-Path $inventoryPath)) {
@@ -442,17 +531,40 @@ try {
         }
         
         $allLibraries = Get-LibrariesToRegenerate -InventoryPath $inventoryPath
-        $libraries = @(Select-LibrariesToRegenerate -Libraries $allLibraries)
+        
+        # Apply generator filter before interactive selection
+        $filteredLibraries = @(Filter-LibrariesByGenerator `
+            -Libraries $allLibraries `
+            -Azure:$Azure `
+            -Unbranded:$Unbranded `
+            -Mgmt:$Mgmt)
+        
+        if (-not $filteredLibraries -or $filteredLibraries.Count -eq 0) {
+            Write-Host "No libraries found matching the specified generator filter" -ForegroundColor Yellow
+            exit 0
+        }
+        
+        $libraries = @(Select-LibrariesToRegenerate -Libraries $filteredLibraries)
+        
+        # Check if user cancelled selection
+        if (-not $libraries -or $libraries.Count -eq 0) {
+            Write-Host "No libraries selected. Exiting..." -ForegroundColor Yellow
+            exit 0
+        }
     }
     
-    # Create debug folder for packaged artifacts
-    $debugFolder = Join-Path $packageRoot "debug"
+    # Create debug folder for packaged artifacts with timestamped subfolder
+    $timestamp = Get-Date -Format "yyyyMMdd"
+    $debugFolder = Join-Path $packageRoot "debug" $timestamp
     if (-not (Test-Path $debugFolder)) {
         New-Item -ItemType Directory -Path $debugFolder -Force | Out-Null
     }
     
+    Write-Host "Debug folder: $debugFolder" -ForegroundColor Gray
+    Write-Host ""
+    
     # Step 1: Build the unbranded generator
-    Write-Host "`n[1/7] Building unbranded generator (@typespec/http-client-csharp)..." -ForegroundColor Cyan
+    Write-Host "`n[1/8] Building unbranded generator (@typespec/http-client-csharp)..." -ForegroundColor Cyan
     
     Push-Location $packageRoot
     try {
@@ -482,7 +594,7 @@ try {
     }
     
     # Step 2: Package the unbranded generator with local version
-    Write-Host "`n[2/7] Packaging unbranded generator..." -ForegroundColor Cyan
+    Write-Host "`n[2/8] Packaging unbranded generator..." -ForegroundColor Cyan
     
     $localVersion = Get-LocalPackageVersion
     Write-Host "Package version: $localVersion (used for all npm and NuGet packages)" -ForegroundColor Yellow
@@ -575,62 +687,23 @@ try {
     $nugetConfig.Save($nugetConfigPath)
     Write-Host "  Added local NuGet source" -ForegroundColor Green
     
-    # Step 3: Update and build Azure generator
-    Write-Host "`n[3/8] Updating Azure generator (@azure-typespec/http-client-csharp)..." -ForegroundColor Cyan
+    # Step 3: Update and package Azure generator
+    Write-Host "`n[3/8] Updating and packaging Azure generator..." -ForegroundColor Cyan
     
     $azureGeneratorPath = Join-Path $azureSdkRepoPath "eng" "packages" "http-client-csharp"
-    Write-Host "Azure generator path: $azureGeneratorPath" -ForegroundColor Gray
+    $packagesDataPropsPath = Join-Path $azureSdkRepoPath "eng" "Packages.Data.props"
     
-    if (-not (Test-Path $azureGeneratorPath)) {
-        throw "Azure generator not found at: $azureGeneratorPath"
-    }
+    $azurePackagePath = Update-AzureGenerator `
+        -AzureGeneratorPath $azureGeneratorPath `
+        -UnbrandedPackagePath $unbrandedPackagePath `
+        -DebugFolder $debugFolder `
+        -PackagesDataPropsPath $packagesDataPropsPath `
+        -LocalVersion $localVersion
     
-    $azurePackageJson = Join-Path $azureGeneratorPath "package.json"
-    $originalAzurePackageJson = Get-Content $azurePackageJson -Raw
+    Write-Host "Created Azure package: $azurePackagePath" -ForegroundColor Green
     
-    try {
-        # Update dependency to use local package
-        Update-PackageDependency -PackageJsonPath $azurePackageJson `
-            -DependencyName "@typespec/http-client-csharp" `
-            -NewVersion "file:$unbrandedPackagePath" `
-            -DependencyType "dependencies"
-        
-        # Clean and install
-        Push-Location $azureGeneratorPath
-        try {
-            Write-Host "Running: npm run clean" -ForegroundColor Gray
-            Invoke "npm run clean" $azureGeneratorPath
-
-            Write-Host "Running: npm install --package-lock-only && npm ci" -ForegroundColor Gray
-            Invoke "npm install --package-lock-only && npm ci" $azureGeneratorPath
-            
-            Write-Host "Running: npm run build" -ForegroundColor Gray
-            Invoke "npm run build" $azureGeneratorPath
-            
-            if ($LASTEXITCODE -ne 0) {
-                throw "Failed to build Azure generator"
-            }
-        }
-        finally {
-            Pop-Location
-        }
-    
-        # Step 4: Package the Azure generator
-        Write-Host "`n[4/8] Packaging Azure generator..." -ForegroundColor Cyan
-        
-        # Update version in package.json (dependency is already updated from Step 3)
-        Update-PackageJsonVersion -PackageJsonPath $azurePackageJson -NewVersion $localVersion
-        
-        $azurePackagePath = Invoke-NpmPack -WorkingDirectory $azureGeneratorPath -DebugFolder $debugFolder
-        Write-Host "Created Azure package: $azurePackagePath" -ForegroundColor Green
-    }
-    finally {
-        # Restore original package.json after both build and package steps
-        Set-Content $azurePackageJson $originalAzurePackageJson -Encoding utf8 -NoNewline
-    }
-    
-    # Step 5: Update eng folder artifacts in azure-sdk-for-net
-    Write-Host "`n[5/8] Updating eng folder artifacts..." -ForegroundColor Cyan
+    # Step 4: Update eng folder artifacts in azure-sdk-for-net
+    Write-Host "`n[4/8] Updating eng folder artifacts..." -ForegroundColor Cyan
     
     $engFolder = Join-Path $azureSdkRepoPath "eng"
     $tempDir = Join-Path $engFolder "temp-package-update"
@@ -676,41 +749,87 @@ try {
         Remove-Item $tempDir -Recurse -Force -ErrorAction SilentlyContinue
     }
     
+    # Step 5: Update and build management plane generator
+    Write-Host "`n[5/8] Updating management plane generator (@azure-typespec/http-client-csharp-mgmt)..." -ForegroundColor Cyan
+    
+    $mgmtGeneratorPath = Join-Path $engFolder "packages" "http-client-csharp-mgmt"
+    
+    if (Test-Path $mgmtGeneratorPath) {
+        Update-MgmtGenerator `
+            -EngFolder $engFolder `
+            -DebugFolder $debugFolder `
+            -LocalVersion $localVersion
+        
+        Write-Host "Management plane generator updated successfully" -ForegroundColor Green
+    } else {
+        Write-Host "Management plane generator not found, skipping..." -ForegroundColor Yellow
+    }
+    
     # Step 6: Get or confirm libraries to regenerate
     Write-Host "`n[6/8] Preparing library list for regeneration..." -ForegroundColor Cyan
     
-    if ($All) {
-        # Load all libraries if using -All flag
+    if (-not $Select) {
+        # Load all libraries if not using -Select flag
         $inventoryPath = Join-Path $azureSdkRepoPath "doc" "GeneratorMigration" "Library_Inventory.md"
         if (-not (Test-Path $inventoryPath)) {
             throw "Library_Inventory.md not found at: $inventoryPath"
         }
         
-        $libraries = Get-LibrariesToRegenerate -InventoryPath $inventoryPath
-        Write-Host "Regenerating all $($libraries.Count) libraries" -ForegroundColor Yellow
+        $allLibraries = Get-LibrariesToRegenerate -InventoryPath $inventoryPath
+        
+        # Apply generator filter
+        $libraries = Filter-LibrariesByGenerator `
+            -Libraries $allLibraries `
+            -Azure:$Azure `
+            -Unbranded:$Unbranded `
+            -Mgmt:$Mgmt
+        
+        if ($libraries.Count -eq 0) {
+            Write-Host "No libraries found matching the specified generator filter" -ForegroundColor Yellow
+            Write-Host "Skipping regeneration step..." -ForegroundColor Gray
+        } else {
+            $filterText = if ($Azure) {
+                " (Azure generator only)"
+            } elseif ($Unbranded) {
+                " (Unbranded generator only)"
+            } elseif ($Mgmt) {
+                " (Management plane generator only)"
+            } else {
+                ""
+            }
+            Write-Host "Regenerating $($libraries.Count) libraries$filterText" -ForegroundColor Yellow
+        }
     } else {
         # Libraries were already selected at the beginning
-        Write-Host "Using $($libraries.Count) previously selected libraries" -ForegroundColor Yellow
+        if ($libraries -and $libraries.Count -gt 0) {
+            Write-Host "Using $($libraries.Count) previously selected libraries" -ForegroundColor Yellow
+        } else {
+            Write-Host "No libraries were selected" -ForegroundColor Yellow
+        }
     }
     
     # Step 7: Regenerate libraries (in parallel)
-    Write-Host "`n[7/8] Regenerating libraries..." -ForegroundColor Cyan
-    
-    # Determine parallel execution throttle limit: (CPU cores - 2), min 1, max 6
-    $cpuCores = if ($IsWindows -or $PSVersionTable.PSVersion.Major -lt 6) {
-        (Get-CimInstance -ClassName Win32_Processor | Measure-Object -Property NumberOfLogicalProcessors -Sum).Sum
-    } elseif ($IsMacOS) {
-        [int](sysctl -n hw.ncpu)
+    if (-not $libraries -or $libraries.Count -eq 0) {
+        Write-Host "`n[7/8] Skipping regeneration (no libraries selected)..." -ForegroundColor Yellow
+        $failedCount = 0
     } else {
-        [int](nproc)
-    }
-    
-    $throttleLimit = [Math]::Max(1, [Math]::Min(6, $cpuCores - 2))
-    
-    Write-Host "Using $throttleLimit concurrent jobs (detected $cpuCores logical processors)" -ForegroundColor Gray
-    Write-Host ""
-    
-    # Pre-install tsp-client to avoid concurrent npm operations
+        Write-Host "`n[7/8] Regenerating libraries..." -ForegroundColor Cyan
+        
+        # Determine parallel execution throttle limit: (CPU cores - 2), min 1, max 8
+        $cpuCores = if ($IsWindows -or $PSVersionTable.PSVersion.Major -lt 6) {
+            (Get-CimInstance -ClassName Win32_Processor | Measure-Object -Property NumberOfLogicalProcessors -Sum).Sum
+        } elseif ($IsMacOS) {
+            [int](sysctl -n hw.ncpu)
+        } else {
+            [int](nproc)
+        }
+        
+        $throttleLimit = [Math]::Max(1, [Math]::Min(8, $cpuCores - 2))
+        
+        Write-Host "Using $throttleLimit concurrent jobs (detected $cpuCores logical processors)" -ForegroundColor Gray
+        Write-Host ""
+        
+        # Pre-install tsp-client to avoid concurrent npm operations
     Write-Host "Pre-installing tsp-client..." -ForegroundColor Gray
     $tspClientDir = Join-Path $azureSdkRepoPath "eng" "common" "tsp-client"
     & npm ci --prefix $tspClientDir 2>&1 | Out-Null
@@ -797,6 +916,8 @@ try {
     # Check if any libraries failed
     $failedLibraries = @($results | Where-Object { -not $_.Success })
     $failedCount = $failedLibraries.Count
+    }
+    
     if ($failedCount -gt 0) {
         Write-Host "`nWARNING: $failedCount libraries failed to regenerate" -ForegroundColor Yellow
         Write-Host "Review the report above for details" -ForegroundColor Yellow
@@ -814,7 +935,11 @@ try {
                 eng/azure-typespec-http-client-csharp-emitter-package-lock.json `
                 eng/http-client-csharp-emitter-package.json `
                 eng/http-client-csharp-emitter-package-lock.json `
+                eng/azure-typespec-http-client-csharp-mgmt-emitter-package.json `
+                eng/azure-typespec-http-client-csharp-mgmt-emitter-package-lock.json `
                 eng/packages/http-client-csharp/package-lock.json `
+                eng/packages/http-client-csharp-mgmt/package.json `
+                eng/packages/http-client-csharp-mgmt/package-lock.json `
                 eng/Packages.Data.props `
                 NuGet.Config 2>&1 | Out-Null
             Write-Host "  All artifacts restored" -ForegroundColor Green
