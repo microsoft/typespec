@@ -175,6 +175,10 @@ namespace Microsoft.TypeSpec.Generator.Tests
         [TestCase("snake_case", "SnakeCase")]
         [TestCase("snake_case.namespace", "SnakeCase.Namespace")]
         [TestCase("mixed_case-namespace.example", "MixedCaseNamespace.Example")]
+        [TestCase("number123", "Number123")]
+        [TestCase("number123.namespace", "Number123.Namespace")]
+        [TestCase("UPPERCASE", "UPPERCASE")]
+        [TestCase("UPPERCASE.NAMESPACE", "UPPERCASE.NAMESPACE")]
         public void GetCleanNameSpace_ConvertsToPascalCase(string input, string expected)
         {
             var actual = CodeModelGenerator.Instance.TypeFactory.GetCleanNameSpace(input);
