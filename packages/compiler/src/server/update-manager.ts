@@ -14,7 +14,7 @@ type UpdateCallback = (updates: PendingUpdate[]) => Promise<void>;
 /**
  * Track file updates and recompile the affected files after some debounce time.
  */
-export class UpdateManger {
+export class UpdateManager {
   #pendingUpdates = new Map<string, PendingUpdate>();
   #updateCb?: UpdateCallback;
   // overall version which should be bumped for any actual doc change

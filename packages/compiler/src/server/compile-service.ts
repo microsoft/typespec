@@ -29,7 +29,7 @@ import {
   ServerCompileOptions,
 } from "./server-compile-manager.js";
 import { CompileResult, ServerHost, ServerLog } from "./types.js";
-import { UpdateManger, UpdateType } from "./update-manager.js";
+import { UpdateManager, UpdateType } from "./update-manager.js";
 
 /**
  * Service managing compilation/caching of different TypeSpec projects
@@ -73,7 +73,7 @@ export interface CompileServiceOptions {
   readonly fileService: FileService;
   readonly serverHost: ServerHost;
   readonly compilerHost: CompilerHost;
-  readonly updateManager: UpdateManger;
+  readonly updateManager: UpdateManager;
   readonly log: (log: ServerLog) => void;
   readonly clientConfigsProvider?: ClientConfigProvider;
 }

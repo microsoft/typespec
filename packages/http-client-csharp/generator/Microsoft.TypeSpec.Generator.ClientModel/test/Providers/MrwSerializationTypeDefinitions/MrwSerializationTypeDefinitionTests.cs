@@ -835,6 +835,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         [TestCase(SerializationFormat.Duration_Seconds, ExpectedResult = "global::System.TimeSpan.FromSeconds(foo.GetInt32())")]
         [TestCase(SerializationFormat.Duration_Seconds_Float, ExpectedResult = "global::System.TimeSpan.FromSeconds(foo.GetDouble())")]
         [TestCase(SerializationFormat.Duration_Seconds_Double, ExpectedResult = "global::System.TimeSpan.FromSeconds(foo.GetDouble())")]
+        [TestCase(SerializationFormat.Duration_Milliseconds, ExpectedResult = "global::System.TimeSpan.FromMilliseconds(foo.GetInt32())")]
+        [TestCase(SerializationFormat.Duration_Milliseconds_Float, ExpectedResult = "global::System.TimeSpan.FromMilliseconds(foo.GetDouble())")]
+        [TestCase(SerializationFormat.Duration_Milliseconds_Double, ExpectedResult = "global::System.TimeSpan.FromMilliseconds(foo.GetDouble())")]
         [TestCase(SerializationFormat.Duration_ISO8601, ExpectedResult = "foo.GetTimeSpan(\"P\")")]
         [TestCase(SerializationFormat.Duration_Constant, ExpectedResult = "foo.GetTimeSpan(\"c\")")]
         public string TestTimeSpanDeserializeExpression(SerializationFormat format)
@@ -851,6 +854,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         [TestCase(SerializationFormat.Duration_Seconds, ExpectedResult = "writer.WriteNumberValue(global::System.Convert.ToInt32(value.TotalSeconds));\n")]
         [TestCase(SerializationFormat.Duration_Seconds_Float, ExpectedResult = "writer.WriteNumberValue(value.TotalSeconds);\n")]
         [TestCase(SerializationFormat.Duration_Seconds_Double, ExpectedResult = "writer.WriteNumberValue(value.TotalSeconds);\n")]
+        [TestCase(SerializationFormat.Duration_Milliseconds, ExpectedResult = "writer.WriteNumberValue(global::System.Convert.ToInt32(value.TotalMilliseconds));\n")]
+        [TestCase(SerializationFormat.Duration_Milliseconds_Float, ExpectedResult = "writer.WriteNumberValue(value.TotalMilliseconds);\n")]
+        [TestCase(SerializationFormat.Duration_Milliseconds_Double, ExpectedResult = "writer.WriteNumberValue(value.TotalMilliseconds);\n")]
         [TestCase(SerializationFormat.Duration_ISO8601, ExpectedResult = "writer.WriteStringValue(value, \"P\");\n")]
         [TestCase(SerializationFormat.Duration_Constant, ExpectedResult = "writer.WriteStringValue(value, \"c\");\n")]
         public string TestTimeSpanSerializeStatement(SerializationFormat format)

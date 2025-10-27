@@ -17,7 +17,7 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.Providers
 {
-    internal sealed class ExtensibleEnumProvider : EnumProvider
+    public class ExtensibleEnumProvider : EnumProvider
     {
         private readonly IReadOnlyList<InputEnumTypeValue> _allowedValues;
         private readonly TypeSignatureModifiers _modifiers;
