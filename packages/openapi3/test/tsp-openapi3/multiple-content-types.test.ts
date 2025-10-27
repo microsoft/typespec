@@ -34,6 +34,7 @@ describe("Multiple content types", () => {
         "/my-operation": {
           post: {
             operationId: "myOperation",
+            parameters: [],
             requestBody: {
               content: {
                 "multipart/form-data": {
@@ -124,6 +125,7 @@ describe("Multiple content types", () => {
         "/my-operation": {
           post: {
             operationId: "myOperation",
+            parameters: [],
             requestBody: {
               content: {
                 "application/json": {
@@ -167,6 +169,7 @@ describe("Multiple content types", () => {
         "/my-operation": {
           post: {
             operationId: "myOperation",
+            parameters: [],
             requestBody: {
               content: {
                 "application/json": {
@@ -207,6 +210,7 @@ describe("Multiple content types", () => {
         "/my-operation": {
           post: {
             operationId: "myOperation",
+            parameters: [],
             requestBody: {
               content: {
                 "multipart/form-data": {
