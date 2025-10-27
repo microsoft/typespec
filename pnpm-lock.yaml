@@ -655,6 +655,28 @@ importers:
         specifier: ^4.0.4
         version: 4.0.4(@types/debug@4.1.12)(@types/node@24.9.1)(@vitest/ui@4.0.4)(happy-dom@20.0.8)(jsdom@25.0.1)(tsx@4.20.6)(yaml@2.8.1)
 
+  packages/http-canonicalization:
+    dependencies:
+      '@typespec/compiler':
+        specifier: workspace:^
+        version: link:../compiler
+      '@typespec/http':
+        specifier: workspace:^
+        version: link:../http
+      '@typespec/mutator-framework':
+        specifier: workspace:^
+        version: link:../mutator-framework
+    devDependencies:
+      '@types/node':
+        specifier: ~24.9.1
+        version: 24.9.1
+      concurrently:
+        specifier: ^9.1.2
+        version: 9.2.1
+      prettier:
+        specifier: ~3.6.2
+        version: 3.6.2
+
   packages/http-client:
     devDependencies:
       '@alloy-js/cli':
@@ -1204,6 +1226,21 @@ importers:
       vitest:
         specifier: ^4.0.4
         version: 4.0.4(@types/debug@4.1.12)(@types/node@24.9.1)(@vitest/ui@4.0.4)(happy-dom@20.0.8)(jsdom@25.0.1)(tsx@4.20.6)(yaml@2.8.1)
+
+  packages/mutator-framework:
+    devDependencies:
+      '@types/node':
+        specifier: ~24.9.1
+        version: 24.9.1
+      '@typespec/compiler':
+        specifier: workspace:^
+        version: link:../compiler
+      concurrently:
+        specifier: ^9.1.2
+        version: 9.2.1
+      prettier:
+        specifier: ~3.6.2
+        version: 3.6.2
 
   packages/openapi:
     devDependencies:
@@ -18408,7 +18445,7 @@ snapshots:
 
   '@types/sax@1.2.7':
     dependencies:
-      '@types/node': 17.0.45
+      '@types/node': 24.9.1
 
   '@types/semver@7.7.1': {}
 
