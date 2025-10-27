@@ -7,7 +7,7 @@ TODO checklist for @baywet:
 - [ ] media type components https://github.com/BinkyLabs/OpenAPI.net/issues/18
 - [x] discriminator defaultMapping https://github.com/BinkyLabs/OpenAPI.net/issues/3
 - [ ] response summary https://github.com/BinkyLabs/OpenAPI.net/issues/17
-- [ ] server name https://github.com/BinkyLabs/OpenAPI.net/issues/16
+- [x] server name https://github.com/BinkyLabs/OpenAPI.net/issues/16
 - [ ] security scheme deprecated https://github.com/BinkyLabs/OpenAPI.net/issues/15
 - [ ] oauth flows https://github.com/BinkyLabs/OpenAPI.net/issues/14
 - [ ] examples data and serialized value https://github.com/BinkyLabs/OpenAPI.net/issues/12
@@ -1164,7 +1164,7 @@ export interface OpenAPIComponents3_1 extends Extensions {
   pathItems?: Record<string, OpenAPI3PathItem>;
 }
 
-export interface OpenAPIDocument3_2 extends Omit<OpenAPIDocument3_1, "openapi"> {
+export interface OpenAPIDocument3_2 extends Omit<OpenAPIDocument3_1, "openapi" | "servers"> {
   openapi: "3.2.0";
   /**
    * This string MUST be in the form of a URI reference as defined.
@@ -1172,4 +1172,17 @@ export interface OpenAPIDocument3_2 extends Omit<OpenAPIDocument3_1, "openapi"> 
    * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields
    */
   $self?: string;
+  /**
+   * An array of Server Objects, which provide connectivity information to a target server.
+   * If the servers property is not provided, or is an empty array, the default value would be a Server Object with a url value of /.
+   */
+  servers?: OpenAPIServer3_2[];
+}
+
+export interface OpenAPIServer3_2 extends OpenAPI3Server {
+  /**
+   * An optional unique string to refer to the host designated by the URL.
+   * @see https://spec.openapis.org/oas/latest#fixed-fields-3
+   */
+  name?: string;
 }
