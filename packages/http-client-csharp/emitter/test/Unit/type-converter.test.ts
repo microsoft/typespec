@@ -98,10 +98,6 @@ describe("External types", () => {
   it("should convert external type from @alternateType decorator", async () => {
     const program = await typeSpecCompile(
       `
-      import "@azure-tools/typespec-client-generator-core";
-      
-      using Azure.ClientGenerator.Core;
-      
       @alternateType({
         identity: "Azure.Core.Expressions.DataFactoryExpression",
         package: "Azure.Core.Expressions",
@@ -119,6 +115,7 @@ describe("External types", () => {
       op test(@body input: TestModel): void;
     `,
       runner,
+      { IsTCGCNeeded: true },
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
@@ -140,10 +137,6 @@ describe("External types", () => {
   it("should convert external type on model", async () => {
     const program = await typeSpecCompile(
       `
-      import "@azure-tools/typespec-client-generator-core";
-      
-      using Azure.ClientGenerator.Core;
-      
       @alternateType({
         identity: "pystac.Collection",
         package: "pystac",
@@ -160,6 +153,7 @@ describe("External types", () => {
       op test(@body input: TestModel): void;
     `,
       runner,
+      { IsTCGCNeeded: true },
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
