@@ -237,7 +237,7 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         /// <param name="externalType">The <see cref="InputExternalType"/> to convert.</param>
         /// <returns>A <see cref="CSharpType"/> representing the external type, or null if the type cannot be resolved.</returns>
-        protected virtual CSharpType? CreateExternalType(InputExternalType externalType)
+        private CSharpType? CreateExternalType(InputExternalType externalType)
         {
             // Try to create a framework type from the fully qualified name
             var frameworkType = CreateFrameworkType(externalType.Identity);
@@ -250,7 +250,7 @@ namespace Microsoft.TypeSpec.Generator
             // Report a diagnostic to inform the user
             CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
                 "unsupported-external-type",
-                $"External type '{externalType.Identity}' is not currently supported.");
+                $"External type '{externalType.Identity}' is not currently supported because it is not a framework type.");
 
             return null;
         }
