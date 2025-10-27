@@ -29,7 +29,7 @@ When generating code, the generator can optionally receive a compiled assembly f
 
 Model factory methods are public static methods that enable creating model instances for mocking and testing purposes. The generator attempts to maintain backward compatibility for these methods across API changes.
 
-#### Scenario 1: New Model Property Added
+#### New Model Property Added
 
 **Description:** When a new property is added to a model, the generator creates a backward-compatible factory method overload that excludes the new parameter.
 
@@ -74,7 +74,7 @@ public static PublicModel1 PublicModel1(
 - Parameters in the compatibility method have no default values to avoid ambiguous call sites
 - The method is marked with `[EditorBrowsable(EditorBrowsableState.Never)]` to hide it from IntelliSense
 
-#### Scenario 2: Parameter Ordering Changed
+#### Parameter Ordering Changed
 
 **Description:** When only the parameter ordering changes in a factory method (same parameters, different order), the generator replaces the current method with the previous method signature.
 
@@ -106,7 +106,7 @@ public static PublicModel1 PublicModel1(
 
 The generator attempts to maintain backward compatibility for model property types, particularly for collection types.
 
-#### Scenario: Collection Property Type Changed
+#### Collection Property Type Changed
 
 **Description:** When a property type changes from a read-only collection to a read-write collection (or vice versa), the generator attempts to preserve the previous property type to avoid breaking changes.
 
@@ -140,7 +140,7 @@ public IReadOnlyList<string> Items { get; }
 
 Service version enums maintain backward compatibility by preserving version values from previous releases.
 
-#### Scenario: API Version Removed or Changed
+#### API Version Removed or Changed
 
 **Description:** When API versions are removed or changed in the TypeSpec, the generator preserves previous version enum members to prevent breaking existing code that references them.
 
