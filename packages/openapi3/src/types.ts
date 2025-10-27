@@ -6,7 +6,7 @@ TODO checklist for @baywet:
 - [x] encoding https://github.com/BinkyLabs/OpenAPI.net/issues/51
 - [x] media type components https://github.com/BinkyLabs/OpenAPI.net/issues/18
 - [x] discriminator defaultMapping https://github.com/BinkyLabs/OpenAPI.net/issues/3
-- [ ] response summary https://github.com/BinkyLabs/OpenAPI.net/issues/17
+- [x] response summary https://github.com/BinkyLabs/OpenAPI.net/issues/17
 - [x] server name https://github.com/BinkyLabs/OpenAPI.net/issues/16
 - [ ] security scheme deprecated https://github.com/BinkyLabs/OpenAPI.net/issues/15
 - [ ] oauth flows https://github.com/BinkyLabs/OpenAPI.net/issues/14
@@ -19,6 +19,7 @@ TODO checklist for @baywet:
 - [ ] path item query and additional operations https://github.com/BinkyLabs/OpenAPI.net/issues/5
 - [ ] tag new fields https://github.com/BinkyLabs/OpenAPI.net/issues/4
 - [ ] all references to media type and encoding need to be recursively updated in the 3.2 structure
+- [ ] all references to response need to be recursively updated in the 3.2 structure
 */
 
 export type CommonOpenAPI3Schema = OpenAPI3Schema & OpenAPISchema3_1;
@@ -1227,10 +1228,21 @@ export interface OpenAPIMediaType3_2 extends OpenAPI3MediaType {
   itemEncoding?: OpenAPIEncoding3_2;
 }
 
-export interface OpenAPIComponents3_2 extends OpenAPIComponents3_1 {
+export interface OpenAPIComponents3_2 extends Omit<OpenAPIComponents3_1, "responses"> {
   /**
    * An object to hold reusable {@link OpenAPIMediaType3_2} objects
    * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-5
    */
   mediaTypes?: Record<string, OpenAPIMediaType3_2>;
+  responses?: Record<string, Refable<OpenAPIResponse3_2>>;
+}
+
+export interface OpenAPIResponse3_2 extends Omit<OpenAPI3Response, "content"> {
+  /** A map containing descriptions of potential response payloads. The key is a media type or media type range and the value describes it. For responses that match multiple keys, only the most specific key is applicable. e.g. text/plain overrides text/* */
+  content?: Record<string, OpenAPIMediaType3_2>;
+  /**
+   * A short summary of the meaning of the response.
+   * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-14
+   */
+  summary?: string;
 }
