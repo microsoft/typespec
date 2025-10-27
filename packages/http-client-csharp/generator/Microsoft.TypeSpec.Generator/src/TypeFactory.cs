@@ -250,7 +250,7 @@ namespace Microsoft.TypeSpec.Generator
             // Report a diagnostic to inform the user
             CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
                 "unsupported-external-type",
-                $"External type '{externalType.Identity}' is not currently supported because it is not a framework type.");
+                $"External type '{externalType.Identity}' is not currently supported.");
 
             return null;
         }
