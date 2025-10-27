@@ -3,8 +3,8 @@ import { Contact, ExtensionKey, License } from "@typespec/openapi";
 
 /**
 TODO checklist for @baywet:
-- [ ] encoding https://github.com/BinkyLabs/OpenAPI.net/issues/51
-- [ ] media type components https://github.com/BinkyLabs/OpenAPI.net/issues/18
+- [x] encoding https://github.com/BinkyLabs/OpenAPI.net/issues/51
+- [x] media type components https://github.com/BinkyLabs/OpenAPI.net/issues/18
 - [x] discriminator defaultMapping https://github.com/BinkyLabs/OpenAPI.net/issues/3
 - [ ] response summary https://github.com/BinkyLabs/OpenAPI.net/issues/17
 - [x] server name https://github.com/BinkyLabs/OpenAPI.net/issues/16
@@ -12,12 +12,13 @@ TODO checklist for @baywet:
 - [ ] oauth flows https://github.com/BinkyLabs/OpenAPI.net/issues/14
 - [ ] examples data and serialized value https://github.com/BinkyLabs/OpenAPI.net/issues/12
 - [ ] xml fields https://github.com/BinkyLabs/OpenAPI.net/issues/11
-- [ ] media type item and prefix encoding https://github.com/BinkyLabs/OpenAPI.net/issues/10
+- [x] media type item and prefix encoding https://github.com/BinkyLabs/OpenAPI.net/issues/10
 - [x] document $self https://github.com/BinkyLabs/OpenAPI.net/issues/8
 - [ ] querystring parameter location https://github.com/BinkyLabs/OpenAPI.net/issues/7
 - [ ] cookie parameter style https://github.com/BinkyLabs/OpenAPI.net/issues/6
 - [ ] path item query and additional operations https://github.com/BinkyLabs/OpenAPI.net/issues/5
 - [ ] tag new fields https://github.com/BinkyLabs/OpenAPI.net/issues/4
+- [ ] all references to media type and encoding need to be recursively updated in the 3.2 structure
 */
 
 export type CommonOpenAPI3Schema = OpenAPI3Schema & OpenAPISchema3_1;
@@ -1164,7 +1165,8 @@ export interface OpenAPIComponents3_1 extends Extensions {
   pathItems?: Record<string, OpenAPI3PathItem>;
 }
 
-export interface OpenAPIDocument3_2 extends Omit<OpenAPIDocument3_1, "openapi" | "servers"> {
+export interface OpenAPIDocument3_2
+  extends Omit<OpenAPIDocument3_1, "openapi" | "servers" | "components"> {
   openapi: "3.2.0";
   /**
    * This string MUST be in the form of a URI reference as defined.
@@ -1177,12 +1179,58 @@ export interface OpenAPIDocument3_2 extends Omit<OpenAPIDocument3_1, "openapi" |
    * If the servers property is not provided, or is an empty array, the default value would be a Server Object with a url value of /.
    */
   servers?: OpenAPIServer3_2[];
+  /** An element to hold various schemas for the specification. */
+  components?: OpenAPIComponents3_2;
 }
 
 export interface OpenAPIServer3_2 extends OpenAPI3Server {
   /**
    * An optional unique string to refer to the host designated by the URL.
-   * @see https://spec.openapis.org/oas/latest#fixed-fields-3
+   * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-3
    */
   name?: string;
+}
+
+export interface OpenAPIEncoding3_2 extends OpenAPI3Encoding {
+  /**
+   * Applies nested Encoding Objects in the same manner as the {@link OpenAPIMediaType3_2.encoding} field
+   * @see https://spec.openapis.org/oas/v3.2.0#common-fixed-fields-0
+   */
+  encoding?: Record<string, OpenAPIEncoding3_2>;
+  /**
+   * Applies nested Encoding Objects in the same manner as the {@link OpenAPIMediaType3_2.prefixEncoding} field
+   * @see https://spec.openapis.org/oas/v3.2.0#common-fixed-fields-0
+   */
+  prefixEncoding?: OpenAPIEncoding3_2[];
+  /**
+   * Applies nested Encoding Objects in the same manner as the {@link OpenAPIMediaType3_2.itemEncoding} field
+   * @see https://spec.openapis.org/oas/v3.2.0#common-fixed-fields-0
+   */
+  itemEncoding?: OpenAPIEncoding3_2;
+}
+
+export interface OpenAPIMediaType3_2 extends OpenAPI3MediaType {
+  /**
+   * A map between a property name and its encoding information
+   * @see https://spec.openapis.org/oas/v3.2.0#fixed-fields-11
+   */
+  encoding?: Record<string, OpenAPIEncoding3_2>;
+  /**
+   * An array of positional encoding information
+   * @see https://spec.openapis.org/oas/v3.2.0#fixed-fields-11
+   */
+  prefixEncoding?: OpenAPIEncoding3_2[];
+  /**
+   * A single Encoding Object that provides encoding information for multiple array items
+   * @see https://spec.openapis.org/oas/v3.2.0#fixed-fields-11
+   */
+  itemEncoding?: OpenAPIEncoding3_2;
+}
+
+export interface OpenAPIComponents3_2 extends OpenAPIComponents3_1 {
+  /**
+   * An object to hold reusable {@link OpenAPIMediaType3_2} objects
+   * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-5
+   */
+  mediaTypes?: Record<string, OpenAPIMediaType3_2>;
 }
