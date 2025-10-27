@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Text.Json;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
@@ -382,31 +383,28 @@ namespace Microsoft.TypeSpec.Generator
 
         public string GetCleanNameSpace(string clientNamespace)
         {
-            var segments = new List<string>();
-            var startIndex = 0;
-            var dotIndex = clientNamespace.IndexOf('.');
-
-            while (dotIndex != -1)
+            var result = new StringBuilder();
+            var source = clientNamespace.AsSpan();
+            var nextDot = source.IndexOf('.');
+            while (nextDot != -1)
             {
-                var segment = clientNamespace.Substring(startIndex, dotIndex - startIndex);
+                var segment = source.Slice(0, nextDot).ToString();
                 if (IsSpecialSegment(segment))
                 {
                     segment = "_" + segment;
                 }
-                segments.Add(segment.ToIdentifierName());
-                startIndex = dotIndex + 1;
-                dotIndex = clientNamespace.IndexOf('.', startIndex);
+                result.Append(segment.ToIdentifierName());
+                result.Append('.');
+                source = source.Slice(nextDot + 1);
+                nextDot = source.IndexOf('.');
             }
-
-            // Handle the last segment
-            var lastSegment = clientNamespace.Substring(startIndex);
+            var lastSegment = source.ToString();
             if (IsSpecialSegment(lastSegment))
             {
                 lastSegment = "_" + lastSegment;
             }
-            segments.Add(lastSegment.ToIdentifierName());
-
-            return string.Join(".", segments);
+            result.Append(lastSegment.ToIdentifierName());
+            return result.ToString();
         }
 
         private bool IsSpecialSegment(ReadOnlySpan<char> readOnlySpan)
