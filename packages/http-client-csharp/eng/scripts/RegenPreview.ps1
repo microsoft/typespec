@@ -2,10 +2,12 @@
 
 <#
 .SYNOPSIS
-    Builds local generator packages and regenerates Azure SDK for .NET libraries for validation.
+    Builds local generator packages and regenerates Azure SDK for .NET or OpenAI .NET libraries for validation.
 
 .DESCRIPTION
-    This script:
+    This script supports two modes:
+    
+    Azure SDK Mode (default):
     1. Builds a local npm package of @typespec/http-client-csharp with a versioned name (1.0.0-alpha.YYYYMMDD.hash)
     2. Builds and packages the three NuGet generator framework packages with the same versioning
     3. Updates Packages.Data.props in azure-sdk-for-net with the local NuGet version
@@ -16,47 +18,61 @@
     8. Regenerates libraries based on specified filters (all, by generator type, or interactively selected)
     9. Restores all modified artifacts to original state on success
     
-    Generator Filtering:
+    OpenAI Mode (when repository path contains "openai-dotnet"):
+    1. Builds a local npm package of @typespec/http-client-csharp with a versioned name
+    2. Builds and packages the NuGet generator framework packages
+    3. Updates codegen/package.json with local unbranded generator
+    4. Updates OpenAI.Library.Plugin.csproj with local NuGet package version
+    5. Invokes Invoke-CodeGen.ps1 to regenerate the OpenAI library
+    6. Restores all modified artifacts to original state on success
+    
+    Generator Filtering (Azure SDK Mode only):
     - Use -Azure to regenerate only Azure-branded libraries (@azure-typespec/http-client-csharp)
     - Use -Unbranded to regenerate only unbranded libraries (@typespec/http-client-csharp)
     - Use -Mgmt to regenerate only management plane libraries (@azure-typespec/http-client-csharp-mgmt)
     - Omit all filter parameters to regenerate all libraries (default)
-    - Use -Select for interactive selection (can be combined with generator filters)
+        - Use -Select for interactive selection (can be combined with generator filters)
 
-.PARAMETER AzureSdkForNetRepoPath
-    Required. The local file system path to the azure-sdk-for-net repository.
+.PARAMETER SdkLibraryRepoPath
+    Required. The local file system path to the SDK repository (azure-sdk-for-net or openai-dotnet).
+    When the path contains "openai-dotnet", the script automatically operates in OpenAI mode.
 
 .PARAMETER Select
-    Optional. When specified, displays an interactive menu to select specific libraries to regenerate.
+    Optional. Azure SDK Mode only. When specified, displays an interactive menu to select specific libraries to regenerate.
     If omitted, regenerates all libraries without prompting.
+    Not applicable in OpenAI mode.
 
 .PARAMETER Azure
-    Optional. When specified, only regenerates libraries using the Azure generator (@azure-typespec/http-client-csharp).
+    Optional. Azure SDK Mode only. When specified, only regenerates libraries using the Azure generator (@azure-typespec/http-client-csharp).
     Mutually exclusive with Unbranded and Mgmt parameters.
+    Not applicable in OpenAI mode.
 
 .PARAMETER Unbranded
-    Optional. When specified, only regenerates libraries using the unbranded generator (@typespec/http-client-csharp).
-    Mutually exclusive with All, Azure, and Mgmt parameters.
+    Optional. Azure SDK Mode only. When specified, only regenerates libraries using the unbranded generator (@typespec/http-client-csharp).
+    Mutually exclusive with Azure and Mgmt parameters.
+    Not applicable in OpenAI mode.
 
 .PARAMETER Mgmt
-    Optional. When specified, only regenerates libraries using the management plane generator (@azure-typespec/http-client-csharp-mgmt).
+    Optional. Azure SDK Mode only. When specified, only regenerates libraries using the management plane generator (@azure-typespec/http-client-csharp-mgmt).
     Mutually exclusive with Azure and Unbranded parameters.
     If no generator filter is specified, all libraries are regenerated.
+    Not applicable in OpenAI mode.
 
 .EXAMPLE
-    # Windows - Regenerate all libraries
+    # Azure SDK Mode - Regenerate all libraries
     .\RegenPreview.ps1 -AzureSdkForNetRepoPath "C:\repos\azure-sdk-for-net"
     
-    # Linux/macOS - Regenerate all libraries
-    ./RegenPreview.ps1 -AzureSdkForNetRepoPath "/home/user/repos/azure-sdk-for-net"
+.EXAMPLE
+    # OpenAI Mode - Regenerate OpenAI library
+    .\RegenPreview.ps1 -AzureSdkForNetRepoPath "C:\repos\openai-dotnet"
 
 .EXAMPLE
-    # Interactively select libraries to regenerate (from all available)
+    # Azure SDK Mode - Interactively select libraries to regenerate (from all available)
     .\RegenPreview.ps1 -AzureSdkForNetRepoPath "C:\repos\azure-sdk-for-net" -Select
 
 .EXAMPLE
     # Regenerate only Azure-branded libraries (non-interactive)
-    .\RegenPreview.ps1 -AzureSdkForNetRepoPath "C:\repos\azure-sdk-for-net" -Azure
+    .\RegenPreview.ps1 -SdkLibraryRepoPath "C:\repos\azure-sdk-for-net" -Azure
 
 .EXAMPLE
     # Interactively select from Azure-branded libraries only
@@ -73,7 +89,7 @@
 
 param(
     [Parameter(Mandatory=$true)]
-    [string]$AzureSdkForNetRepoPath,
+    [string]$SdkLibraryRepoPath,
     
     [Parameter(Mandatory=$false)]
     [switch]$Select,
@@ -91,13 +107,25 @@ param(
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version 3.0
 
-# Validate mutually exclusive parameters
-$generatorFilters = @($Azure, $Unbranded, $Mgmt)
-$activeFilters = @($generatorFilters | Where-Object { $_ }).Count
+# Detect OpenAI mode
+$isOpenAIMode = $SdkLibraryRepoPath -like "*openai-dotnet*"
 
-if ($activeFilters -gt 1) {
-    Write-Error "Parameters -Azure, -Unbranded, and -Mgmt are mutually exclusive. Please specify only one."
-    exit 1
+# Validate mutually exclusive parameters
+if ($isOpenAIMode) {
+    # In OpenAI mode, no filter parameters are allowed
+    if ($Select -or $Azure -or $Unbranded -or $Mgmt) {
+        Write-Error "OpenAI mode detected. The -Select, -Azure, -Unbranded, and -Mgmt parameters are not applicable when regenerating OpenAI libraries."
+        exit 1
+    }
+} else {
+    # In Azure SDK mode, validate filter parameters
+    $generatorFilters = @($Azure, $Unbranded, $Mgmt)
+    $activeFilters = @($generatorFilters | Where-Object { $_ }).Count
+
+    if ($activeFilters -gt 1) {
+        Write-Error "Parameters -Azure, -Unbranded, and -Mgmt are mutually exclusive. Please specify only one."
+        exit 1
+    }
 }
 
 # Import utility functions
@@ -106,25 +134,31 @@ Import-Module "$PSScriptRoot\RegenPreview.psm1" -DisableNameChecking -Force
 
 # Resolve paths
 $packageRoot = Resolve-Path (Join-Path $PSScriptRoot '..' '..')
-$azureSdkRepoPath = Resolve-Path $AzureSdkForNetRepoPath -ErrorAction Stop
+$sdkRepoPath = Resolve-Path $SdkLibraryRepoPath -ErrorAction Stop
 
 Write-Host "==================== LOCAL VALIDATION SCRIPT ====================" -ForegroundColor Cyan
 Write-Host "Unbranded Generator Path: $packageRoot" -ForegroundColor Gray
-Write-Host "Azure SDK Repo Path: $azureSdkRepoPath" -ForegroundColor Gray
 
-# Display active mode
-$modeText = if ($Select) {
-    "Interactive library selection"
-} elseif ($Azure) {
-    "Regenerate Azure generator libraries only"
-} elseif ($Unbranded) {
-    "Regenerate Unbranded generator libraries only"
-} elseif ($Mgmt) {
-    "Regenerate Management plane generator libraries only"
+if ($isOpenAIMode) {
+    Write-Host "OpenAI Repo Path: $sdkRepoPath" -ForegroundColor Gray
+    Write-Host "Mode: OpenAI library regeneration" -ForegroundColor Yellow
 } else {
-    "Regenerate ALL libraries"
+    Write-Host "Azure SDK Repo Path: $sdkRepoPath" -ForegroundColor Gray
+    
+    # Display active mode
+    $modeText = if ($Select) {
+        "Interactive library selection"
+    } elseif ($Azure) {
+        "Regenerate Azure generator libraries only"
+    } elseif ($Unbranded) {
+        "Regenerate Unbranded generator libraries only"
+    } elseif ($Mgmt) {
+        "Regenerate Management plane generator libraries only"
+    } else {
+        "Regenerate ALL libraries"
+    }
+    Write-Host "Mode: $modeText" -ForegroundColor Yellow
 }
-Write-Host "Mode: $modeText" -ForegroundColor Yellow
 Write-Host ""
 
 # Generate version string with timestamp and hash
@@ -521,11 +555,11 @@ function Write-RegenerationReport {
 $scriptStartTime = Get-Date
 
 try {
-    # Step 0: Load and select libraries to regenerate (if using -Select flag)
-    if ($Select) {
+    # Step 0: Load and select libraries to regenerate (Azure SDK Mode only, if using -Select flag)
+    if ($Select -and -not $isOpenAIMode) {
         Write-Host "`n[0/8] Loading libraries from Library_Inventory.md..." -ForegroundColor Cyan
         
-        $inventoryPath = Join-Path $azureSdkRepoPath "doc" "GeneratorMigration" "Library_Inventory.md"
+        $inventoryPath = Join-Path $sdkRepoPath "doc" "GeneratorMigration" "Library_Inventory.md"
         if (-not (Test-Path $inventoryPath)) {
             throw "Library_Inventory.md not found at: $inventoryPath"
         }
@@ -564,7 +598,11 @@ try {
     Write-Host ""
     
     # Step 1: Build the unbranded generator
-    Write-Host "`n[1/8] Building unbranded generator (@typespec/http-client-csharp)..." -ForegroundColor Cyan
+    if ($isOpenAIMode) {
+        Write-Host "`n[1/3] Building unbranded generator (@typespec/http-client-csharp)..." -ForegroundColor Cyan
+    } else {
+        Write-Host "`n[1/8] Building unbranded generator (@typespec/http-client-csharp)..." -ForegroundColor Cyan
+    }
     
     Push-Location $packageRoot
     try {
@@ -594,7 +632,11 @@ try {
     }
     
     # Step 2: Package the unbranded generator with local version
-    Write-Host "`n[2/8] Packaging unbranded generator..." -ForegroundColor Cyan
+    if ($isOpenAIMode) {
+        Write-Host "`n[2/3] Packaging unbranded generator..." -ForegroundColor Cyan
+    } else {
+        Write-Host "`n[2/8] Packaging unbranded generator..." -ForegroundColor Cyan
+    }
     
     $localVersion = Get-LocalPackageVersion
     Write-Host "Package version: $localVersion (used for all npm and NuGet packages)" -ForegroundColor Yellow
@@ -613,7 +655,11 @@ try {
     }
     
     # Step 2.5: Build and package NuGet packages for generator framework
-    Write-Host "`n[2.5/7] Building and packaging NuGet generator packages..." -ForegroundColor Cyan
+    if ($isOpenAIMode) {
+        Write-Host "`n[2.5/3] Building and packaging NuGet generator packages..." -ForegroundColor Cyan
+    } else {
+        Write-Host "`n[2.5/8] Building and packaging NuGet generator packages..." -ForegroundColor Cyan
+    }
     
     $generatorRoot = Join-Path $packageRoot "generator"
     $nugetProjects = @(
@@ -645,8 +691,24 @@ try {
     
     Write-Host "NuGet packages created" -ForegroundColor Green
     
+    # OpenAI Mode: Update and regenerate OpenAI library
+    if ($isOpenAIMode) {
+        Write-Host "`n[3/3] Updating and regenerating OpenAI library..." -ForegroundColor Cyan
+        
+        Update-OpenAIGenerator `
+            -OpenAIRepoPath $sdkRepoPath `
+            -UnbrandedPackagePath $unbrandedPackagePath `
+            -LocalVersion $localVersion `
+            -DebugFolder $debugFolder
+        
+        Write-Host "`nOpenAI library regenerated successfully!" -ForegroundColor Green
+        Write-Host "Script completed." -ForegroundColor Cyan
+        exit 0
+    }
+    
+    # Azure SDK Mode: Continue with Azure SDK-specific steps
     # Update Packages.Data.props with local NuGet version
-    $packagesDataPropsPath = Join-Path $azureSdkRepoPath "eng" "Packages.Data.props"
+    $packagesDataPropsPath = Join-Path $sdkRepoPath "eng" "Packages.Data.props"
     if (-not (Test-Path $packagesDataPropsPath)) {
         throw "Packages.Data.props not found at: $packagesDataPropsPath"
     }
@@ -654,44 +716,14 @@ try {
     Update-UnbrandedGeneratorVersion -PackagesDataPropsPath $packagesDataPropsPath -NewVersion $localVersion
     
     # Add debug folder as a NuGet package source
-    $nugetConfigPath = Join-Path $azureSdkRepoPath "NuGet.Config"
-    if (-not (Test-Path $nugetConfigPath)) {
-        throw "NuGet.Config not found at: $nugetConfigPath"
-    }
-    
-    Write-Host "Adding debug folder as local NuGet package source..." -ForegroundColor Gray
-    [xml]$nugetConfig = Get-Content $nugetConfigPath
-    $packageSources = $nugetConfig.configuration.packageSources
-    
-    # Create local source element
-    $localSource = $nugetConfig.CreateElement("add")
-    $localSource.SetAttribute("key", "local-codegen-debug-packages")
-    $localSource.SetAttribute("value", $debugFolder)
-    
-    # Find the <clear /> element and insert after it
-    $clearElement = $packageSources.ChildNodes | Where-Object { $_.Name -eq "clear" } | Select-Object -First 1
-    
-    if ($clearElement -and $clearElement.NextSibling) {
-        $packageSources.InsertBefore($localSource, $clearElement.NextSibling) | Out-Null
-    } elseif ($clearElement) {
-        $packageSources.AppendChild($localSource) | Out-Null
-    } else {
-        # No clear element, insert at the beginning
-        if ($packageSources.FirstChild) {
-            $packageSources.InsertBefore($localSource, $packageSources.FirstChild) | Out-Null
-        } else {
-            $packageSources.AppendChild($localSource) | Out-Null
-        }
-    }
-    
-    $nugetConfig.Save($nugetConfigPath)
-    Write-Host "  Added local NuGet source" -ForegroundColor Green
+    $nugetConfigPath = Join-Path $sdkRepoPath "NuGet.Config"
+    Add-LocalNuGetSource -NuGetConfigPath $nugetConfigPath -SourcePath $debugFolder
     
     # Step 3: Update and package Azure generator
     Write-Host "`n[3/8] Updating and packaging Azure generator..." -ForegroundColor Cyan
     
-    $azureGeneratorPath = Join-Path $azureSdkRepoPath "eng" "packages" "http-client-csharp"
-    $packagesDataPropsPath = Join-Path $azureSdkRepoPath "eng" "Packages.Data.props"
+    $azureGeneratorPath = Join-Path $sdkRepoPath "eng" "packages" "http-client-csharp"
+    $packagesDataPropsPath = Join-Path $sdkRepoPath "eng" "Packages.Data.props"
     
     $azurePackagePath = Update-AzureGenerator `
         -AzureGeneratorPath $azureGeneratorPath `
@@ -705,7 +737,7 @@ try {
     # Step 4: Update eng folder artifacts in azure-sdk-for-net
     Write-Host "`n[4/8] Updating eng folder artifacts..." -ForegroundColor Cyan
     
-    $engFolder = Join-Path $azureSdkRepoPath "eng"
+    $engFolder = Join-Path $sdkRepoPath "eng"
     $tempDir = Join-Path $engFolder "temp-package-update"
     New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
     
@@ -770,7 +802,7 @@ try {
     
     if (-not $Select) {
         # Load all libraries if not using -Select flag
-        $inventoryPath = Join-Path $azureSdkRepoPath "doc" "GeneratorMigration" "Library_Inventory.md"
+        $inventoryPath = Join-Path $sdkRepoPath "doc" "GeneratorMigration" "Library_Inventory.md"
         if (-not (Test-Path $inventoryPath)) {
             throw "Library_Inventory.md not found at: $inventoryPath"
         }
@@ -831,7 +863,7 @@ try {
         
         # Pre-install tsp-client to avoid concurrent npm operations
     Write-Host "Pre-installing tsp-client..." -ForegroundColor Gray
-    $tspClientDir = Join-Path $azureSdkRepoPath "eng" "common" "tsp-client"
+    $tspClientDir = Join-Path $sdkRepoPath "eng" "common" "tsp-client"
     & npm ci --prefix $tspClientDir 2>&1 | Out-Null
     if ($LASTEXITCODE -ne 0) {
         throw "Failed to install tsp-client"
@@ -846,7 +878,7 @@ try {
     # Run regeneration in parallel
     $results = $libraries | ForEach-Object -ThrottleLimit $throttleLimit -Parallel {
         $library = $_
-        $azureSdkPath = $using:azureSdkRepoPath
+        $azureSdkPath = $using:sdkRepoPath
         $completedBag = $using:completed
         $total = $using:totalCount
         
@@ -927,7 +959,7 @@ try {
         # Step 8: Restore artifacts to original state
         Write-Host "`n[8/8] Restoring artifacts to original state..." -ForegroundColor Cyan
         
-        Push-Location $azureSdkRepoPath
+        Push-Location $sdkRepoPath
         try {
             Write-Host "Restoring modified files..." -ForegroundColor Gray
             & git restore `
@@ -956,7 +988,7 @@ catch {
     
     # Attempt to restore NuGet.Config even on failure
     Write-Host "`nAttempting to restore NuGet.Config..." -ForegroundColor Yellow
-    Push-Location $azureSdkRepoPath -ErrorAction SilentlyContinue
+    Push-Location $sdkRepoPath -ErrorAction SilentlyContinue
     try {
         & git restore NuGet.Config 2>&1 | Out-Null
         Write-Host "  NuGet.Config restored" -ForegroundColor Green

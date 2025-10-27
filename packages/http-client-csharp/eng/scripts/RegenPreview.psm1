@@ -470,4 +470,313 @@ function Filter-LibrariesByGenerator {
     return @($filtered.ToArray())
 }
 
-Export-ModuleMember -Function "Update-MgmtGenerator", "Update-AzureGenerator", "Filter-LibrariesByGenerator"
+function Update-OpenAIGenerator {
+    <#
+    .SYNOPSIS
+        Updates and regenerates the OpenAI .NET library using local generators.
+
+    .DESCRIPTION
+        This function handles the OpenAI generator workflow:
+        1. Updates codegen/nuget.config with local NuGet package source
+        2. Updates codegen/package.json with local unbranded generator dependency
+        3. Updates OpenAI.Library.Plugin.csproj with local NuGet package version
+        4. Invokes Invoke-CodeGen.ps1 with Clean option to regenerate the library
+        
+        This function is designed to be called from RegenPreview.ps1 for OpenAI repositories.
+
+    .PARAMETER OpenAIRepoPath
+        Path to the openai-dotnet repository root.
+
+    .PARAMETER UnbrandedPackagePath
+        Path to the local unbranded TypeSpec emitter package (.tgz).
+
+    .PARAMETER LocalVersion
+        The version string to use for the local package (e.g., "1.0.0-alpha.20250127.abc123").
+
+    .PARAMETER DebugFolder
+        The debug folder path where NuGet packages are located.
+    #>
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$OpenAIRepoPath,
+        
+        [Parameter(Mandatory=$true)]
+        [string]$UnbrandedPackagePath,
+        
+        [Parameter(Mandatory=$true)]
+        [string]$LocalVersion,
+        
+        [Parameter(Mandatory=$true)]
+        [string]$DebugFolder
+    )
+
+    $ErrorActionPreference = 'Stop'
+
+    Write-Host "OpenAI repository path: $OpenAIRepoPath" -ForegroundColor Gray
+    Write-Host "Unbranded package: $UnbrandedPackagePath" -ForegroundColor Gray
+    Write-Host "Local version: $LocalVersion" -ForegroundColor Gray
+    Write-Host ""
+
+    # Update root nuget.config (not codegen/nuget.config)
+    # OpenAI uses packageSourceMapping, so we need to add patterns for the generator packages
+    $nugetConfigPath = Join-Path $OpenAIRepoPath "nuget.config"
+    Add-LocalNuGetSource `
+        -NuGetConfigPath $nugetConfigPath `
+        -SourcePath $DebugFolder `
+        -PackagePatterns @(
+            "Microsoft.TypeSpec.Generator",
+            "Microsoft.TypeSpec.Generator.Input",
+            "Microsoft.TypeSpec.Generator.ClientModel"
+        )
+
+    # Update codegen/package.json
+    $codegenPackageJsonPath = Join-Path $OpenAIRepoPath "codegen" "package.json"
+    if (-not (Test-Path $codegenPackageJsonPath)) {
+        throw "OpenAI codegen package.json not found: $codegenPackageJsonPath"
+    }
+
+    Write-Host "Updating OpenAI codegen package.json..." -ForegroundColor Gray
+    $originalPackageJson = Get-Content $codegenPackageJsonPath -Raw
+    
+    try {
+        $packageJson = $originalPackageJson | ConvertFrom-Json
+        
+        # Update dependencies or devDependencies with local unbranded generator
+        $updated = $false
+        
+        if ($packageJson.dependencies -and $packageJson.dependencies.PSObject.Properties['@typespec/http-client-csharp']) {
+            $packageJson.dependencies.'@typespec/http-client-csharp' = "file:$UnbrandedPackagePath"
+            $updated = $true
+            Write-Host "  Updated @typespec/http-client-csharp in dependencies to local package" -ForegroundColor Green
+        }
+        
+        if ($packageJson.devDependencies -and $packageJson.devDependencies.PSObject.Properties['@typespec/http-client-csharp']) {
+            $packageJson.devDependencies.'@typespec/http-client-csharp' = "file:$UnbrandedPackagePath"
+            $updated = $true
+            Write-Host "  Updated @typespec/http-client-csharp in devDependencies to local package" -ForegroundColor Green
+        }
+        
+        if (-not $updated) {
+            throw "@typespec/http-client-csharp not found in dependencies or devDependencies"
+        }
+        
+        $packageJson | ConvertTo-Json -Depth 100 | Set-Content $codegenPackageJsonPath -Encoding UTF8
+
+        # Delete package-lock.json to force regeneration with new dependencies
+        $packageLockPath = Join-Path $OpenAIRepoPath "codegen" "package-lock.json"
+        if (Test-Path $packageLockPath) {
+            Write-Host "Deleting codegen/package-lock.json..." -ForegroundColor Gray
+            Remove-Item $packageLockPath -Force
+        }
+
+        # Run npm install to regenerate package-lock.json with local dependencies
+        Write-Host "Running npm install in codegen directory..." -ForegroundColor Gray
+        Push-Location (Join-Path $OpenAIRepoPath "codegen")
+        try {
+            $npmOutput = & npm install 2>&1
+            if ($LASTEXITCODE -ne 0) {
+                Write-Host $npmOutput -ForegroundColor Red
+                throw "npm install failed in codegen directory"
+            }
+            Write-Host "  npm install completed" -ForegroundColor Green
+        }
+        finally {
+            Pop-Location
+        }
+
+        # Update OpenAI.Library.Plugin.csproj
+        $pluginCsprojPath = Join-Path $OpenAIRepoPath "codegen" "generator" "src" "OpenAI.Library.Plugin.csproj"
+        if (-not (Test-Path $pluginCsprojPath)) {
+            throw "OpenAI.Library.Plugin.csproj not found: $pluginCsprojPath"
+        }
+
+        Write-Host "Updating OpenAI.Library.Plugin.csproj..." -ForegroundColor Gray
+        [xml]$csproj = Get-Content $pluginCsprojPath
+        
+        $packageReference = $csproj.Project.ItemGroup.PackageReference | 
+            Where-Object { $_.Include -eq "Microsoft.TypeSpec.Generator.ClientModel" } | 
+            Select-Object -First 1
+        
+        if ($packageReference) {
+            $packageReference.Version = $LocalVersion
+            $csproj.Save($pluginCsprojPath)
+            Write-Host "  Updated Microsoft.TypeSpec.Generator.ClientModel to $LocalVersion" -ForegroundColor Green
+        } else {
+            throw "Microsoft.TypeSpec.Generator.ClientModel package reference not found in csproj"
+        }
+
+        # Invoke Invoke-CodeGen.ps1 with Clean option
+        $codeGenScript = Join-Path $OpenAIRepoPath "scripts" "Invoke-CodeGen.ps1"
+        if (-not (Test-Path $codeGenScript)) {
+            throw "Invoke-CodeGen.ps1 not found: $codeGenScript"
+        }
+
+        Write-Host "Running OpenAI code generation..." -ForegroundColor Gray
+        Push-Location $OpenAIRepoPath
+        try {
+            $output = & $codeGenScript -Clean 2>&1
+            if ($LASTEXITCODE -ne 0) {
+                Write-Host $output -ForegroundColor Red
+                throw "OpenAI code generation failed"
+            }
+            Write-Host "  OpenAI library regenerated successfully" -ForegroundColor Green
+        }
+        finally {
+            Pop-Location
+        }
+
+        # On successful regeneration, restore all modified artifacts
+        Write-Host "Restoring modified artifacts..." -ForegroundColor Gray
+        Push-Location $OpenAIRepoPath
+        try {
+            # Restore package.json
+            & git restore "codegen/package.json" 2>&1 | Out-Null
+            
+            # Restore package-lock.json
+            & git restore "codegen/package-lock.json" 2>&1 | Out-Null
+            
+            # Restore nuget.config
+            & git restore "nuget.config" 2>&1 | Out-Null
+            
+            # Restore .csproj file
+            & git restore "codegen/generator/src/OpenAI.Library.Plugin.csproj" 2>&1 | Out-Null
+            
+            Write-Host "  All artifacts restored" -ForegroundColor Green
+        }
+        catch {
+            Write-Warning "Failed to restore some artifacts: $_"
+        }
+        finally {
+            Pop-Location
+        }
+    }
+    finally {
+        Pop-Location
+    }
+
+    Write-Host ""
+}
+
+function Add-LocalNuGetSource {
+    <#
+    .SYNOPSIS
+        Adds a local NuGet package source to NuGet.Config.
+
+    .DESCRIPTION
+        This function adds or updates a local NuGet package source in the repository's NuGet.Config file.
+        The source is inserted after the <clear /> element if present, or appended otherwise.
+        
+        If PackagePatterns is provided, it also updates packageSourceMapping to allow the specified
+        packages to be loaded from the local source. This is required for repos that use package source mapping.
+        
+        This is a shared helper used by both Azure SDK and OpenAI workflows.
+
+    .PARAMETER NuGetConfigPath
+        Path to the NuGet.Config file.
+
+    .PARAMETER SourcePath
+        Path to the local NuGet package source directory.
+
+    .PARAMETER SourceKey
+        The key/name for the NuGet source (default: "local-codegen-debug-packages").
+
+    .PARAMETER PackagePatterns
+        Optional array of package patterns to add to packageSourceMapping for this source.
+        Example: @("Microsoft.TypeSpec.Generator*", "Azure.Generator")
+    #>
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$NuGetConfigPath,
+        
+        [Parameter(Mandatory=$true)]
+        [string]$SourcePath,
+        
+        [Parameter(Mandatory=$false)]
+        [string]$SourceKey = "local-codegen-debug-packages",
+        
+        [Parameter(Mandatory=$false)]
+        [string[]]$PackagePatterns = @()
+    )
+
+    $ErrorActionPreference = 'Stop'
+
+    if (-not (Test-Path $NuGetConfigPath)) {
+        throw "NuGet.Config not found at: $NuGetConfigPath"
+    }
+
+    Write-Host "Adding local NuGet package source to NuGet.Config..." -ForegroundColor Gray
+    [xml]$nugetConfig = Get-Content $NuGetConfigPath
+    
+    # Ensure configuration element exists
+    if (-not $nugetConfig.configuration) {
+        throw "Invalid NuGet.Config: missing <configuration> element"
+    }
+    
+    # Ensure packageSources element exists, create if needed
+    $packageSources = $nugetConfig.configuration.packageSources
+    if (-not $packageSources) {
+        $packageSources = $nugetConfig.CreateElement("packageSources")
+        $nugetConfig.configuration.AppendChild($packageSources) | Out-Null
+    }
+    
+    # Create local source element
+    $localSource = $nugetConfig.CreateElement("add")
+    $localSource.SetAttribute("key", $SourceKey)
+    $localSource.SetAttribute("value", $SourcePath)
+    
+    # Find the <clear /> element and insert after it
+    $clearElement = $packageSources.ChildNodes | Where-Object { $_.Name -eq "clear" } | Select-Object -First 1
+    
+    if ($clearElement -and $clearElement.NextSibling) {
+        $packageSources.InsertBefore($localSource, $clearElement.NextSibling) | Out-Null
+    } elseif ($clearElement) {
+        $packageSources.AppendChild($localSource) | Out-Null
+    } else {
+        # No clear element, just prepend to be first
+        if ($packageSources.FirstChild) {
+            $packageSources.InsertBefore($localSource, $packageSources.FirstChild) | Out-Null
+        } else {
+            $packageSources.AppendChild($localSource) | Out-Null
+        }
+    }
+    
+    Write-Host "  Added local NuGet source: $SourceKey" -ForegroundColor Green
+    
+    # Handle packageSourceMapping if PackagePatterns are provided
+    if ($PackagePatterns.Count -gt 0) {
+        Write-Host "  Updating packageSourceMapping..." -ForegroundColor Gray
+        
+        $packageSourceMapping = $nugetConfig.configuration.packageSourceMapping
+        if (-not $packageSourceMapping) {
+            $packageSourceMapping = $nugetConfig.CreateElement("packageSourceMapping")
+            $nugetConfig.configuration.AppendChild($packageSourceMapping) | Out-Null
+        }
+        
+        # Find or create packageSource element for our local source
+        $localPackageSource = $packageSourceMapping.packageSource | Where-Object { $_.key -eq $SourceKey } | Select-Object -First 1
+        
+        if (-not $localPackageSource) {
+            $localPackageSource = $nugetConfig.CreateElement("packageSource")
+            $localPackageSource.SetAttribute("key", $SourceKey)
+            
+            # Insert at the beginning of packageSourceMapping (highest priority)
+            if ($packageSourceMapping.FirstChild) {
+                $packageSourceMapping.InsertBefore($localPackageSource, $packageSourceMapping.FirstChild) | Out-Null
+            } else {
+                $packageSourceMapping.AppendChild($localPackageSource) | Out-Null
+            }
+        }
+        
+        # Add package patterns
+        foreach ($pattern in $PackagePatterns) {
+            $packageElement = $nugetConfig.CreateElement("package")
+            $packageElement.SetAttribute("pattern", $pattern)
+            $localPackageSource.AppendChild($packageElement) | Out-Null
+            Write-Host "    Added pattern: $pattern" -ForegroundColor Green
+        }
+    }
+    
+    $nugetConfig.Save($NuGetConfigPath)
+}
+
+Export-ModuleMember -Function "Update-MgmtGenerator", "Update-AzureGenerator", "Filter-LibrariesByGenerator", "Update-OpenAIGenerator", "Add-LocalNuGetSource"

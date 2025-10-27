@@ -2,16 +2,31 @@
 
 ## Overview
 
-`RegenPreview.ps1` is a PowerShell script that automates the process of building local generator packages and regenerating Azure SDK for .NET libraries for validation purposes. This script is designed to streamline the workflow for testing changes to the TypeSpec HTTP Client C# generator before submitting a pull request.
+`RegenPreview.ps1` is a PowerShell script that automates the process of building local generator packages and regenerating libraries for validation purposes. This script supports two modes:
+
+- **Azure SDK Mode**: Regenerate Azure SDK for .NET libraries
+- **OpenAI Mode**: Regenerate the OpenAI .NET library
+
+This script is designed to streamline the workflow for testing changes to the TypeSpec HTTP Client C# generator before submitting a pull request.
 
 ## Purpose
 
-When making changes to the TypeSpec HTTP Client C# generator (either the unbranded `@typespec/http-client-csharp` or the Azure-branded `@azure-typespec/http-client-csharp`), you need to validate that these changes work correctly with the Azure SDK for .NET libraries. This script automates the entire validation workflow by:
+When making changes to the TypeSpec HTTP Client C# generator (either the unbranded `@typespec/http-client-csharp` or the Azure-branded `@azure-typespec/http-client-csharp`), you need to validate that these changes work correctly with libraries. This script automates the entire validation workflow by:
+
+### Azure SDK Mode
 
 1. Building local versions of the generator packages
 2. Updating the Azure SDK for .NET repository to use these local packages
 3. Regenerating all libraries (or selected libraries if `-Select` is specified)
 4. Cleaning up all modifications after validation
+
+### OpenAI Mode
+
+1. Building local version of the unbranded generator package
+2. Building local NuGet framework packages
+3. Updating the OpenAI .NET repository's codegen configuration
+4. Regenerating the OpenAI library using Invoke-CodeGen.ps1
+5. Cleaning up all modifications after validation
 
 ## Prerequisites
 
@@ -19,22 +34,23 @@ When making changes to the TypeSpec HTTP Client C# generator (either the unbrand
 - Node.js and npm installed
 - .NET SDK installed
 - Local clone of the `typespec` repository (unbranded generator)
-- Local clone of the `azure-sdk-for-net` repository
+- Local clone of the `azure-sdk-for-net` repository (for Azure SDK mode)
+- Local clone of the `openai-dotnet` repository (for OpenAI mode)
 
 ## Usage
 
-### Basic Usage (Regenerate All)
+### Azure SDK Mode - Basic Usage (Regenerate All)
 
 **Windows:**
 
 ```powershell
-.\RegenPreview.ps1 -AzureSdkForNetRepoPath "C:\path\to\azure-sdk-for-net"
+.\RegenPreview.ps1 -SdkLibraryRepoPath "C:\path\to\azure-sdk-for-net"
 ```
 
 **Linux/macOS:**
 
 ```powershell
-./RegenPreview.ps1 -AzureSdkForNetRepoPath "/home/user/repos/azure-sdk-for-net"
+./RegenPreview.ps1 -SdkLibraryRepoPath "/home/user/repos/azure-sdk-for-net"
 ```
 
 This will:
@@ -43,64 +59,101 @@ This will:
 - Regenerate **all** libraries automatically
 - Restore all modified metadata files on success (ie. package.json, package-lock.json)
 
+### OpenAI Mode - Basic Usage
+
+**Windows:**
+
+```powershell
+.\RegenPreview.ps1 -SdkLibraryRepoPath "C:\path\to\openai-dotnet"
+```
+
+**Linux/macOS:**
+
+```powershell
+./RegenPreview.ps1 -SdkLibraryRepoPath "/home/user/repos/openai-dotnet"
+```
+
+This will:
+
+- Clean and build the unbranded generator with local changes
+- Build and package NuGet framework packages
+- Update root nuget.config with local NuGet source and packageSourceMapping
+- Update codegen/package.json with local generator
+- Regenerate codegen/package-lock.json with npm install
+- Update OpenAI.Library.Plugin.csproj with local NuGet packages
+- Regenerate the OpenAI library
+- Restore all modified generator metadata files on success
+
+**Note**: OpenAI mode is automatically detected when the repository path contains "openai-dotnet". The `-Select`, `-Azure`, `-Unbranded`, and `-Mgmt` parameters are not applicable in OpenAI mode.
+
 ### Parameters
 
-#### `-AzureSdkForNetRepoPath` (Required)
+#### `-SdkLibraryRepoPath` (Required)
 
-The local file system path to your `azure-sdk-for-net` repository clone.
+The local file system path to your SDK repository (`azure-sdk-for-net` or `openai-dotnet`). When the path contains "openai-dotnet", the script automatically operates in OpenAI mode.
 
 **Windows Example:**
 
 ```powershell
--AzureSdkForNetRepoPath "C:\repos\azure-sdk-for-net"
+-SdkLibraryRepoPath "C:\repos\azure-sdk-for-net"
 ```
 
 **Linux/macOS Example:**
 
 ```powershell
--AzureSdkForNetRepoPath "/home/user/repos/azure-sdk-for-net"
+-SdkLibraryRepoPath "/home/user/repos/azure-sdk-for-net"
 ```
 
 #### `-Select` (Optional)
 
-When specified, displays an interactive menu to select specific libraries to regenerate. If omitted, all libraries are regenerated automatically.
+**Azure SDK Mode only.** When specified, displays an interactive menu to select specific libraries to regenerate. If omitted, all libraries are regenerated automatically.
 
 Can be combined with generator filter parameters (`-Azure`, `-Unbranded`, `-Mgmt`) to interactively select from a filtered subset.
+
+Not applicable in OpenAI mode.
 
 **Example:**
 
 ```powershell
-.\RegenPreview.ps1 -AzureSdkForNetRepoPath "C:\repos\azure-sdk-for-net" -Select
+.\RegenPreview.ps1 -SdkLibraryRepoPath "C:\repos\azure-sdk-for-net" -Select
 ```
 
 #### `-Azure` (Optional)
 
-When specified, only regenerates libraries using the Azure-branded generator (`@azure-typespec/http-client-csharp`).
+**Azure SDK Mode only.** When specified, only regenerates libraries using the Azure-branded generator (`@azure-typespec/http-client-csharp`). Mutually exclusive with `-Unbranded` and `-Mgmt`.
+
+Not applicable in OpenAI mode.
 
 **Example:**
 
 ```powershell
-.\RegenPreview.ps1 -AzureSdkForNetRepoPath "C:\repos\azure-sdk-for-net" -Azure
+.\RegenPreview.ps1 -SdkLibraryRepoPath "C:\repos\azure-sdk-for-net" -Azure
 ```
 
 #### `-Unbranded` (Optional)
 
-When specified, only regenerates libraries using the unbranded generator (`@typespec/http-client-csharp`).
+**Azure SDK Mode only.** When specified, only regenerates libraries using the unbranded generator (`@typespec/http-client-csharp`). Mutually exclusive with `-Azure` and `-Mgmt`.
+
+Not applicable in OpenAI mode.
 
 **Example:**
 
 ```powershell
-.\RegenPreview.ps1 -AzureSdkForNetRepoPath "C:\repos\azure-sdk-for-net" -Unbranded
+.\RegenPreview.ps1 -SdkLibraryRepoPath "C:\repos\azure-sdk-for-net" -Unbranded
 ```
 
 #### `-Mgmt` (Optional)
 
-When specified, only regenerates libraries using the management plane generator (`@azure-typespec/http-client-csharp-mgmt`).
+**Azure SDK Mode only.** When specified, only regenerates libraries using the management plane generator (`@azure-typespec/http-client-csharp-mgmt`). Mutually exclusive with `-Azure` and `-Unbranded`.
+
+If no generator filter parameter is specified, all libraries are regenerated by default.
+
+Not applicable in OpenAI mode.
 
 **Example:**
 
 ```powershell
-.\RegenPreview.ps1 -AzureSdkForNetRepoPath "C:\repos\azure-sdk-for-net" -Mgmt
+.\RegenPreview.ps1 -SdkLibraryRepoPath "C:\repos\azure-sdk-for-net" -Mgmt
 ```
 
 ### Interactive Selection
@@ -140,7 +193,11 @@ Example: 1,3,5  or  1-4,7  or  all
 
 ## How It Works
 
-The script performs the following steps in sequence:
+The script operates in two distinct modes based on the repository path provided.
+
+### Azure SDK Mode
+
+The script performs the following steps in sequence when the repository path points to `azure-sdk-for-net`:
 
 ### Step 0: Library Selection (Interactive Mode Only)
 
@@ -172,8 +229,43 @@ The script performs the following steps in sequence:
   - `Microsoft.TypeSpec.Generator.ClientModel`
 - Uses Debug configuration with `--no-build` (reuses binaries from Step 1)
 - Outputs `.nupkg` files to the `debug` folder
-- Updates `Packages.Data.props` in azure-sdk-for-net with the local version
-- Adds the `debug` folder as a local NuGet package source in `NuGet.Config`
+- In Azure SDK mode: Updates `Packages.Data.props` and `NuGet.Config`
+- In OpenAI mode: Proceeds to Step 3 (OpenAI regeneration)
+
+---
+
+### OpenAI Mode
+
+When the repository path contains "openai-dotnet", the script switches to OpenAI mode and performs the following steps after Step 2.5:
+
+#### Step 3: Update OpenAI Generator and Regenerate
+
+**What the script does:**
+- Updates `nuget.config` (at the root of the repo) with local NuGet package source
+  - Adds the local debug folder as a package source
+  - Updates `packageSourceMapping` to allow Generator packages from the local source (required for OpenAI's package source mapping configuration)
+- Updates `codegen/package.json` with local unbranded generator dependency (`@typespec/http-client-csharp`)
+  - Checks both `dependencies` and `devDependencies` sections for the package
+  - Updates whichever section(s) contain the package to use `file:` protocol pointing to local `.tgz`
+- Deletes `codegen/package-lock.json` to force regeneration with new dependencies
+- Runs `npm install` in the codegen directory to regenerate the lock file with local dependencies
+- Updates `codegen/generator/src/OpenAI.Library.Plugin.csproj` with local NuGet package version for `Microsoft.TypeSpec.Generator.ClientModel`
+- Invokes `scripts/Invoke-CodeGen.ps1 -Clean` to regenerate the OpenAI library
+- **On successful regeneration**, restores all modified artifacts:
+  - `codegen/package.json`
+  - `codegen/package-lock.json`
+  - `nuget.config`
+  - `codegen/generator/src/OpenAI.Library.Plugin.csproj`
+- **On failure**, leaves all modified artifacts in place for debugging
+- Displays success message and exits
+
+**Note:** Filter parameters (`-Azure`, `-Unbranded`, `-Mgmt`, `-Select`) are not applicable in OpenAI mode and will cause an error if specified.
+
+---
+
+### Azure SDK Mode (continued)
+
+In Azure SDK mode, the script continues with additional steps after Step 2.5:
 
 ### Step 3: Update and Build Azure Generator
 
@@ -368,9 +460,26 @@ Contains helper functions specific to the RegenPreview workflow:
   - Returns libraries matching the specified generator
   - Always returns proper array type to avoid null reference errors
 
+- **`Update-OpenAIGenerator`**: Updates and regenerates the OpenAI .NET library
+  - Updates root `nuget.config` with local NuGet package source and packageSourceMapping
+  - Updates `codegen/package.json` with local unbranded generator dependency (checks both dependencies and devDependencies)
+  - Deletes and regenerates `codegen/package-lock.json` using npm install
+  - Updates `OpenAI.Library.Plugin.csproj` with local NuGet package version
+  - Invokes `Invoke-CodeGen.ps1` with Clean option
+  - On success: Restores all modified artifacts (package.json, package-lock.json, nuget.config, .csproj)
+  - On failure: Leaves artifacts in place for debugging and provides clear feedback
+
+- **`Add-LocalNuGetSource`**: Shared helper to add local NuGet package source
+  - Updates NuGet.Config to add debug folder as local package source
+  - Optionally updates packageSourceMapping for repos that use package source mapping (e.g., OpenAI)
+  - Handles XML manipulation safely
+  - Used by both Azure SDK and OpenAI workflows
+
 This modular approach keeps the main script focused on orchestration while encapsulating complex operations in reusable functions. The shared `Update-GeneratorPackage` helper eliminates code duplication between generator update functions.
 
 ### Library Discovery
+
+**Azure SDK Mode:**
 
 Libraries are discovered by parsing `Library_Inventory.md` in the azure-sdk-for-net repository. The script looks for three sections:
 
@@ -380,9 +489,13 @@ Libraries are discovered by parsing `Library_Inventory.md` in the azure-sdk-for-
 
 Each section provides library names, service directories, and paths needed for regeneration.
 
+**OpenAI Mode:**
+
+No library inventory is used. The script directly regenerates the OpenAI library using the `Invoke-CodeGen.ps1` script in the openai-dotnet repository.
+
 ### Library Filtering
 
-The script includes a `Filter-LibrariesByGenerator` function in `RegenPreview.psm1` that filters the library list based on the generator type specified via command-line parameters.
+**Azure SDK Mode only.** The script includes a `Filter-LibrariesByGenerator` function in `RegenPreview.psm1` that filters the library list based on the generator type specified via command-line parameters.
 
 **How it works:**
 
@@ -394,11 +507,19 @@ The script includes a `Filter-LibrariesByGenerator` function in `RegenPreview.ps
 
 ## Common Scenarios
 
-### Scenario: Test a Small Change Quickly
+### Scenario 1: Test OpenAI Library Changes
+
+```powershell
+# You made changes to the unbranded generator that affect OpenAI
+# Regenerate the OpenAI library to validate your changes
+.\RegenPreview.ps1 -SdkLibraryRepoPath "C:\repos\openai-dotnet"
+```
+
+### Scenario 2: Test a Small Change Quickly (Azure SDK)
 
 ```powershell
 # You want to test Azure generator changes on specific libraries only
-.\RegenPreview.ps1 -AzureSdkForNetRepoPath "C:\repos\azure-sdk-for-net" -Select
+.\RegenPreview.ps1 -SdkLibraryRepoPath "C:\repos\azure-sdk-for-net" -Select
 
 # Select just one or two libraries when prompted
 # Selection: 1,5
@@ -407,6 +528,6 @@ The script includes a `Filter-LibrariesByGenerator` function in `RegenPreview.ps
 ### Scenario: Full Validation Before PR
 
 ```powershell
-.\RegenPreview.ps1 -AzureSdkForNetRepoPath "C:\repos\azure-sdk-for-net"
+.\RegenPreview.ps1 -SdkLibraryRepoPath "C:\repos\azure-sdk-for-net"
 ```
 
