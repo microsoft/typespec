@@ -3,10 +3,13 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Tests.Common;
+using Microsoft.TypeSpec.Generator.Tests.Writers;
 using Moq;
 using Moq.Protected;
 using NUnit.Framework;
@@ -200,6 +203,65 @@ namespace Microsoft.TypeSpec.Generator.Tests
 
             Assert.AreEqual("newName", testMethod.Signature.Parameters.First().Name);
             Assert.AreEqual("return newName;\n", testMethod?.BodyStatements!.ToDisplayString());
+        }
+
+        [Test]
+        public async Task MatchingMethodSignatureIsFilteredAfterVisitorMutation()
+        {
+            var typeProvider = new TestTypeProvider();
+            var methodProvider = new MethodProvider(
+                new MethodSignature("TestMethod", $"", MethodSignatureModifiers.Public, null, $"", [new ParameterProvider("param1", $"", typeof(float))]),
+                Snippet.Throw(Snippet.Null), typeProvider);
+            typeProvider.Update(methods: [methodProvider], reset: true);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                createOutputLibrary: () => new TestOutputLibrary(typeProvider),
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var visitor = new TestMethodVisitor();
+            visitor.VisitLibrary(generator.Object.OutputLibrary);
+
+            Assert.AreEqual(0, typeProvider.Methods.Count);
+        }
+
+        [Test]
+        public async Task MatchingConstructorSignatureIsFilteredAfterVisitorMutation()
+        {
+            var typeProvider = new TestTypeProvider();
+            var constructor = new ConstructorProvider(
+                new ConstructorSignature(typeProvider.Type, $"", MethodSignatureModifiers.Public, [new ParameterProvider("param1", $"", typeof(float))]),
+                Snippet.Throw(Snippet.Null), typeProvider);
+            typeProvider.Update(constructors: [constructor], reset: true);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                createOutputLibrary: () => new TestOutputLibrary(typeProvider),
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var visitor = new TestMethodVisitor();
+            visitor.VisitLibrary(generator.Object.OutputLibrary);
+
+            Assert.AreEqual(0, typeProvider.Constructors.Count);
+        }
+
+        private class TestMethodVisitor : LibraryVisitor
+        {
+            protected internal override MethodProvider? VisitMethod(MethodProvider method)
+            {
+                if (method.Signature.Name == "TestMethod")
+                {
+                    method.Signature.Parameters[0].Update(type: typeof(int));
+                }
+                return method;
+            }
+
+            protected internal override ConstructorProvider? VisitConstructor(ConstructorProvider constructor)
+            {
+                if (constructor.Signature.Parameters.Count > 0)
+                {
+                    constructor.Signature.Parameters[0].Update(type: typeof(int));
+                }
+                return constructor;
+            }
         }
 
         private class MethodVisitor : LibraryVisitor

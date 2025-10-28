@@ -543,7 +543,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private IReadOnlyList<EnumTypeMember>? _enumValues;
 
-        private bool ShouldGenerate(ConstructorProvider constructor)
+        internal bool ShouldGenerate(ConstructorProvider constructor)
         {
             foreach (var attribute in GetMemberSuppressionAttributes())
             {
@@ -575,7 +575,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return true;
         }
 
-        private bool ShouldGenerate(MethodProvider method)
+        internal bool ShouldGenerate(MethodProvider method)
         {
             foreach (var attribute in GetMemberSuppressionAttributes())
             {

@@ -48,7 +48,8 @@ namespace Microsoft.TypeSpec.Generator
                 foreach (var constructorProvider in typeProvider.Constructors)
                 {
                     var constructor = VisitConstructor(constructorProvider);
-                    if (constructor != null)
+                    // TODO - the ShouldGenerate can move into the Accept implementation in ConstructorProvider once added. https://github.com/microsoft/typespec/issues/8834
+                    if (constructor != null && typeProvider.ShouldGenerate(constructor))
                     {
                         constructors.Add(constructor);
                     }
@@ -162,7 +163,7 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         /// <param name="constructor">The original <see cref="ConstructorProvider"/>.</param>
         /// <returns>Null if it should be removed otherwise the modified version of the <see cref="ConstructorProvider"/>.</returns>
-        protected virtual ConstructorProvider? VisitConstructor(ConstructorProvider constructor)
+        protected internal virtual ConstructorProvider? VisitConstructor(ConstructorProvider constructor)
         {
             return constructor;
         }
