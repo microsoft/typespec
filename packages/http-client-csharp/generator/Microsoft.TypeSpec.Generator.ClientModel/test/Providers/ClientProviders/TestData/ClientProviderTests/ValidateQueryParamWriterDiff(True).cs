@@ -3,7 +3,6 @@
 #nullable disable
 
 using System.ClientModel;
-using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
 using Sample.Models;
@@ -14,7 +13,7 @@ namespace Sample
     {
         public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> OperationAsync(global::Sample.Models.InputEnum queryParam, global::System.Threading.CancellationToken cancellationToken = default)
         {
-            return await this.OperationAsync(queryParam.ToString(), cancellationToken.CanBeCanceled ? new global::System.ClientModel.Primitives.RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+            return await this.OperationAsync(queryParam.ToString(), cancellationToken.ToOptions()).ConfigureAwait(false);
         }
     }
 }
