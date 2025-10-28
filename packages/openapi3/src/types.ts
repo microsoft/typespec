@@ -17,7 +17,7 @@ TODO checklist for @baywet:
 - [x] querystring parameter location https://github.com/BinkyLabs/OpenAPI.net/issues/7
 - [ ] cookie parameter style https://github.com/BinkyLabs/OpenAPI.net/issues/6
 - [x] path item query and additional operations https://github.com/BinkyLabs/OpenAPI.net/issues/5
-- [ ] tag new fields https://github.com/BinkyLabs/OpenAPI.net/issues/4
+- [x] tag new fields https://github.com/BinkyLabs/OpenAPI.net/issues/4
 - [ ] all references to media type and encoding need to be recursively updated in the 3.2 structure
 - [ ] all references to response need to be recursively updated in the 3.2 structure
 - [ ] all references to example need to be recursively updated in the 3.2 structure (only parameter left)
@@ -1172,7 +1172,10 @@ export interface OpenAPIComponents3_1 extends Extensions {
 }
 
 export interface OpenAPIDocument3_2
-  extends Omit<OpenAPIDocument3_1, "openapi" | "servers" | "components" | "webhooks" | "paths"> {
+  extends Omit<
+    OpenAPIDocument3_1,
+    "openapi" | "servers" | "components" | "webhooks" | "paths" | "tags"
+  > {
   openapi: "3.2.0";
   /**
    * This string MUST be in the form of a URI reference as defined.
@@ -1193,6 +1196,13 @@ export interface OpenAPIDocument3_2
    * If the servers property is not provided, or is an empty array, the default value would be a Server Object with a url value of /.
    */
   servers?: OpenAPIServer3_2[];
+  /**
+   * A list of tags used by the specification with additional metadata.
+   * The order of the tags can be used to reflect on their order by the parsing tools.
+   * Not all tags that are used by the Operation Object must be declared.
+   * The tags that are not declared MAY be organized randomly or based on the tools' logic. Each tag name in the list MUST be unique.
+   */
+  tags?: OpenAPITag3_2[];
   /** An element to hold various schemas for the specification. */
   components?: OpenAPIComponents3_2;
 }
@@ -1459,3 +1469,21 @@ export type OpenAPIParameter3_2 =
   | OpenAPIQueryStringParameter3_2
   | OpenAPIPathParameter3_2;
 export type OpenAPIParameterType3_2 = OpenAPIParameter3_2["in"];
+
+export interface OpenAPITag3_2 extends OpenAPI3Tag {
+  /**
+   * A short summary of the tag, used for display purposes.
+   * @see https://spec.openapis.org/oas/latest#fixed-fields-18
+   */
+  summary?: string;
+  /**
+   * The name of a tag that this tag is nested under. The named tag MUST exist in the API description, and circular references between parent and child tags MUST NOT be used.
+   * @see https://spec.openapis.org/oas/latest#fixed-fields-18
+   */
+  parent?: string;
+  /**
+   * A machine-readable string to categorize what sort of tag it is
+   * @see https://spec.openapis.org/oas/latest#fixed-fields-18
+   */
+  kind?: string;
+}
