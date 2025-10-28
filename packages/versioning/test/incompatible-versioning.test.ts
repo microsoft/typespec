@@ -829,6 +829,21 @@ describe("versioning: validate incompatible references", () => {
       `);
       expectDiagnosticEmpty(diagnostics);
     });
+
+    it("should not emit diagnostic for templated model with versioned property and type added in same version", async () => {
+      const diagnostics = await runner.diagnose(`
+        @added(Versions.v2)
+        model UsageDetails {
+          data: string;
+        }
+
+        model Widget<T> {
+          @added(Versions.v2)
+          usage: UsageDetails;
+        }
+      `);
+      expectDiagnosticEmpty(diagnostics);
+    });
   });
 
   describe("interface templates", () => {

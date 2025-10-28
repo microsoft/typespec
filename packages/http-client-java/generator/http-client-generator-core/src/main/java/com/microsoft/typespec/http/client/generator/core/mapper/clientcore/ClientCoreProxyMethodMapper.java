@@ -368,7 +368,8 @@ public class ClientCoreProxyMethodMapper extends ProxyMethodMapper {
                     responseBodyType = GenericType.FLUX_BYTE_BUFFER;
                 }
                 IType genericResponseType = GenericType.RestResponse(
-                    Mappers.getSchemaMapper().map(ClientMapper.parseHeader(operation, settings)), responseBodyType);
+                    Mappers.getSchemaMapper().map(Mappers.getClientMapper().parseHeader(operation, settings)),
+                    responseBodyType);
 
                 if (ignoreTypedHeaders || settings.isDisableTypedHeadersMethods()) {
                     if (responseBodyType == GenericType.FLUX_BYTE_BUFFER) {

@@ -71,6 +71,55 @@ emit:
   - emitter1
 ```
 
+#### What gets extended
+
+The extending logic follows these rules:
+
+- **Root-level properties**: Shallow merge for all properties except `options`
+- **Options property**: Deep merge at one level (per emitter)
+- **Override behavior**: Properties specified in the extending file will completely override those from the extended file
+
+**Root-level merge behavior:**
+When extending a configuration, most properties (like `emit`, `imports`, `trace`, etc.) are merged at the root level. If the same property exists in both files, the extending file's value completely replaces the extended file's value.
+
+**Options merge behavior:**
+The `options` property receives special treatment with a one-level deep merge:
+
+- Different emitters from both files are combined
+- If the same emitter is configured in both files, the extending file's emitter configuration completely overrides the extended file's configuration for that emitter
+- Individual emitter options are not merged - it's all or nothing per emitter
+
+**Example:**
+
+```yaml
+# Base config (parent/tspconfig.yaml)
+emit:
+  - emitter1
+options:
+  emitter1:
+    option-a: value-a
+    option-b: value-b
+  emitter2:
+    option-x: value-x
+
+# Extending config (child/tspconfig.yaml)
+extends: ../tspconfig.yaml
+emit:
+  - emitter3  # Completely replaces the emit array
+options:
+  emitter1:   # Completely replaces emitter1 options
+    option-c: value-c
+  emitter3:   # Added alongside emitter2 from parent
+    option-y: value-y
+
+# Resulting merged config:
+# emit: [emitter3]  # Only emitter3, emitter1 is gone
+# options:
+#   emitter1: { option-c: value-c }  # Only option-c, option-a and option-b are gone
+#   emitter2: { option-x: value-x }  # Inherited from parent
+#   emitter3: { option-y: value-y }  # From extending config
+```
+
 ### Variable interpolation
 
 The TypeSpec project file provides variable interpolation using:

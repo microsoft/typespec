@@ -25,43 +25,77 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override IReadOnlyList<EnumTypeMember> BuildEnumValues()
         {
-            var customMembers = new HashSet<FieldProvider>(CustomCodeView?.Fields ?? []);
+            IReadOnlyList<FieldProvider> customFields = CustomCodeView?.Fields ?? [];
             List<EnumTypeMember> values = new(AllowedValues.Count);
+            bool shouldUseCustomMembers = customFields.Count > 0
+                && customFields.All(cm => cm.InitializationValue != null);
 
-            for (int i = 0; i < AllowedValues.Count; i++)
+            if (shouldUseCustomMembers)
             {
-                var inputValue = AllowedValues[i];
-                var modifiers = FieldModifiers.Public | FieldModifiers.Static;
-                var name = inputValue.Name.ToApiVersionMemberName();
-
-                // check if the enum member was renamed in custom code
-                string? customMemberName = null;
-                foreach (var customMember in customMembers)
+                values = BuildCustomEnumMembers(customFields);
+            }
+            else
+            {
+                var customMembers = new HashSet<FieldProvider>(customFields);
+                for (int i = 0; i < AllowedValues.Count; i++)
                 {
-                    if (customMember.OriginalName == name)
+                    var inputValue = AllowedValues[i];
+                    var modifiers = FieldModifiers.Public | FieldModifiers.Static;
+                    var name = inputValue.Name.ToApiVersionMemberName();
+
+                    // check if the enum member was renamed in custom code
+                    string? customMemberName = null;
+                    foreach (var customMember in customMembers)
                     {
-                        customMemberName = customMember.Name;
+                        if (customMember.OriginalName == name)
+                        {
+                            customMemberName = customMember.Name;
+                        }
                     }
+
+                    if (customMemberName != null)
+                    {
+                        name = customMemberName;
+                    }
+
+                    ValueExpression? initializationValue = Literal(i + 1);
+                    var field = new FieldProvider(
+                        modifiers,
+                        EnumUnderlyingType,
+                        name,
+                        this,
+                        DocHelpers.GetFormattableDescription(inputValue.Summary, inputValue.Doc) ?? $"{name}",
+                        initializationValue);
+
+                    values.Add(new EnumTypeMember(name, field, inputValue.Value));
                 }
-
-                if (customMemberName != null)
-                {
-                    name = customMemberName;
-                }
-
-                ValueExpression? initializationValue = Literal(i + 1);
-                var field = new FieldProvider(
-                    modifiers,
-                    EnumUnderlyingType,
-                    name,
-                    this,
-                    DocHelpers.GetFormattableDescription(inputValue.Summary, inputValue.Doc) ?? $"{name}",
-                    initializationValue);
-
-                values.Add(new EnumTypeMember(name, field, inputValue.Value));
             }
 
             return BuildApiVersionEnumValuesForBackwardCompatibility(values);
+        }
+
+        private List<EnumTypeMember> BuildCustomEnumMembers(IReadOnlyList<FieldProvider> customMembers)
+        {
+            List<EnumTypeMember> values = new(customMembers.Count);
+            Dictionary<string, InputEnumTypeValue> allowedValues = AllowedValues.ToDictionary(av => av.Name.ToApiVersionMemberName());
+            for (int i = 0; i < customMembers.Count; i++)
+            {
+                var member = customMembers[i];
+                var modifiers = FieldModifiers.Public | FieldModifiers.Static;
+                var field = new FieldProvider(
+                    modifiers,
+                    EnumUnderlyingType,
+                    member.Name,
+                    this,
+                    $"",
+                    member.InitializationValue);
+                object? inputValue = allowedValues.TryGetValue(member.OriginalName ?? member.Name, out var enumValue)
+                    ? enumValue.Value
+                    : member.Name;
+                values.Add(new EnumTypeMember(member.Name, field, inputValue));
+            }
+
+            return values;
         }
 
         private List<EnumTypeMember> BuildApiVersionEnumValuesForBackwardCompatibility(List<EnumTypeMember> currentApiVersions)

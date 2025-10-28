@@ -1,6 +1,12 @@
 import { printIdentifier } from "@typespec/compiler";
 import { ExtensionKey } from "@typespec/openapi";
-import { Extensions, OpenAPI3Parameter, OpenAPI3Schema, Refable } from "../../../../types.js";
+import {
+  Extensions,
+  OpenAPI3Parameter,
+  OpenAPI3Schema,
+  OpenAPISchema3_1,
+  Refable,
+} from "../../../../types.js";
 import { TSValue, TypeSpecDecorator } from "../interfaces.js";
 
 const validLocations = ["header", "query", "path"];
@@ -142,7 +148,9 @@ function getHeaderArgs({ explode }: OpenAPI3Parameter): TSValue | undefined {
   return undefined;
 }
 
-export function getDecoratorsForSchema(schema: Refable<OpenAPI3Schema>): TypeSpecDecorator[] {
+export function getDecoratorsForSchema(
+  schema: Refable<OpenAPI3Schema | OpenAPISchema3_1>,
+): TypeSpecDecorator[] {
   const decorators: TypeSpecDecorator[] = [];
 
   if ("$ref" in schema) {
@@ -151,7 +159,13 @@ export function getDecoratorsForSchema(schema: Refable<OpenAPI3Schema>): TypeSpe
 
   decorators.push(...getExtensions(schema));
 
-  switch (schema.type) {
+  // Handle OpenAPI 3.1 type arrays like ["integer", "null"]
+  // Extract the non-null type to determine which decorators to apply
+  const effectiveType = Array.isArray(schema.type)
+    ? schema.type.find((t) => t !== "null")
+    : schema.type;
+
+  switch (effectiveType) {
     case "array":
       decorators.push(...getArraySchemaDecorators(schema));
       break;
@@ -196,11 +210,11 @@ function createTSValue(value: string): TSValue {
   return { __kind: "value", value };
 }
 
-function getOneOfSchemaDecorators(schema: OpenAPI3Schema): TypeSpecDecorator[] {
+function getOneOfSchemaDecorators(schema: OpenAPI3Schema | OpenAPISchema3_1): TypeSpecDecorator[] {
   return [{ name: "oneOf", args: [] }];
 }
 
-function getArraySchemaDecorators(schema: OpenAPI3Schema) {
+function getArraySchemaDecorators(schema: OpenAPI3Schema | OpenAPISchema3_1) {
   const decorators: TypeSpecDecorator[] = [];
 
   if (typeof schema.minItems === "number") {
@@ -214,7 +228,7 @@ function getArraySchemaDecorators(schema: OpenAPI3Schema) {
   return decorators;
 }
 
-function getNumberSchemaDecorators(schema: OpenAPI3Schema) {
+function getNumberSchemaDecorators(schema: OpenAPI3Schema | OpenAPISchema3_1) {
   const decorators: TypeSpecDecorator[] = [];
 
   if (typeof schema.minimum === "number") {
@@ -246,7 +260,7 @@ const knownStringFormats = new Set([
   "uri",
 ]);
 
-function getStringSchemaDecorators(schema: OpenAPI3Schema) {
+function getStringSchemaDecorators(schema: OpenAPI3Schema | OpenAPISchema3_1) {
   const decorators: TypeSpecDecorator[] = [];
 
   if (typeof schema.minLength === "number") {

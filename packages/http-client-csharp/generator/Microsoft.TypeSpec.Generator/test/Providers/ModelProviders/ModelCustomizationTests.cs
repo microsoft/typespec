@@ -302,7 +302,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var elementType = listProp.Type.ElementType;
             Assert.AreEqual("global::Sample.Models.Foo", elementType.ToString());
             Assert.AreEqual("Sample.Models", elementType.Namespace);
-            Assert.IsFalse(elementType.IsNullable);
+            Assert.IsTrue(elementType.IsNullable);
         }
 
         [Test]
@@ -311,8 +311,47 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var props = new[]
             {
                 InputFactory.Property("Prop1", InputFactory.Array(InputFactory.StringEnum(
+                    "Foo",
+                    [("foo", "bar")],
+                    usage: InputModelTypeUsage.Input)))
+            };
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: props);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelTypeProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+            AssertCommon(modelTypeProvider, "Sample.Models", "MockInputModel");
+
+            // the property should be added to the custom code view
+            Assert.AreEqual(1, modelTypeProvider.CustomCodeView!.Properties.Count);
+            // the canonical type should be changed
+            Assert.AreEqual(1, modelTypeProvider.CanonicalView!.Properties.Count);
+
+            var listProp = modelTypeProvider.CanonicalView.Properties[0];
+            Assert.AreEqual("Prop1", listProp.Name);
+            Assert.IsFalse(listProp.Type.IsNullable);
+            Assert.IsTrue(listProp.Type.IsList);
+
+            var elementType = listProp.Type.ElementType;
+            Assert.AreEqual("global::Sample.Models.Foo?", elementType.ToString());
+            Assert.AreEqual("Sample.Models", elementType.Namespace);
+            Assert.IsTrue(elementType.IsNullable);
+            Assert.IsFalse(elementType.IsStruct);
+            Assert.IsFalse(elementType.IsLiteral);
+        }
+
+        [Test]
+        public async Task CanChangeListOfExtensibleEnumToReadOnlyListOfExtensibleEnum()
+        {
+            var props = new[]
+            {
+                InputFactory.Property("Prop1", InputFactory.Array(InputFactory.StringEnum(
                     "MyEnum",
                     [("foo", "bar")],
+                    isExtensible: true,
                     usage: InputModelTypeUsage.Input)))
             };
 
@@ -339,6 +378,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual("global::Sample.Models.Foo", elementType.ToString());
             Assert.AreEqual("Sample.Models", elementType.Namespace);
             Assert.IsFalse(elementType.IsNullable);
+            Assert.IsTrue(elementType.IsStruct);
+            Assert.IsFalse(elementType.IsLiteral);
         }
 
         [Test]
@@ -373,7 +414,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var elementType = listProp.Type.ElementType;
             Assert.AreEqual("global::Sample.Models.Foo", elementType.ToString());
             Assert.AreEqual("Sample.Models", elementType.Namespace);
-            Assert.IsFalse(elementType.IsNullable);
+            Assert.IsTrue(elementType.IsNullable);
         }
 
         [Test]
@@ -383,7 +424,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             {
                 InputFactory.Property("Prop1", InputFactory.Model(
                     "Foo",
-                    usage: InputModelTypeUsage.Input))
+                    usage: InputModelTypeUsage.Input),
+                    isRequired: true)
             };
 
             var inputModel = InputFactory.Model("mockInputModel", properties: props);
@@ -406,6 +448,45 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsFalse(modelProp.Body.HasSetter);
             Assert.AreEqual("global::Sample.Models.Foo", modelProp.Type.ToString());
             Assert.AreEqual("Sample.Models", modelProp.Type.Namespace);
+        }
+
+        [Test]
+        public async Task CanChangeModelPropertyWithChangedNamespace()
+        {
+            var propertyModel = InputFactory.Model(
+                "Foo",
+                usage: InputModelTypeUsage.Input);
+            var props = new[]
+            {
+                InputFactory.Property("Prop1", propertyModel)
+            };
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: props);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [propertyModel, inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelTypeProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+
+            var propertyModelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "Foo");
+            // simulate a visitor that changes the model's namespace
+            propertyModelProvider.Update(@namespace: "Updated.Namespace.Models");
+            modelTypeProvider.Reset();
+
+            AssertCommon(modelTypeProvider, "Sample.Models", "MockInputModel");
+
+            // the property should be added to the custom code view
+            Assert.AreEqual(1, modelTypeProvider.CustomCodeView!.Properties.Count);
+            // the canonical type should be changed
+            Assert.AreEqual(1, modelTypeProvider.CanonicalView.Properties.Count);
+
+            var modelProp = modelTypeProvider.CanonicalView.Properties[0];
+            Assert.AreEqual("Prop1", modelProp.Name);
+            Assert.IsTrue(modelProp.Type.IsNullable);
+            Assert.IsFalse(modelProp.Body.HasSetter);
+            Assert.AreEqual("global::Updated.Namespace.Models.Foo", modelProp.Type.ToString());
+            Assert.AreEqual("Updated.Namespace.Models", modelProp.Type.Namespace);
         }
 
         [Test]
@@ -981,6 +1062,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual(1, modelProvider.CustomCodeView!.Properties.Count);
             Assert.AreEqual("Prop1", modelProvider.CustomCodeView.Properties[0].Name);
             Assert.AreEqual("CustomEnum", modelProvider.CustomCodeView.Properties[0].Type.Name);
+            Assert.IsTrue(modelProvider.CustomCodeView.Properties[0].Type.IsLiteral);
 
             Assert.AreEqual(1, modelProvider.CanonicalView!.Properties.Count);
         }
@@ -1088,6 +1170,123 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task CanCustomizeLiteralEnumProperty()
+        {
+            var inputModel = InputFactory.Model(
+                "mockInputModel",
+                properties:
+                [
+                    InputFactory.Property(
+                        "prop1",
+                        InputFactory.EnumMember.String("mockInputEnum", "val1", InputFactory.StringEnum("foo", [])), isRequired: true)
+                ]);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelTypeProvider = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ModelProvider);
+            Assert.IsNotNull(modelTypeProvider);
+
+            var canonicalView = modelTypeProvider!.CanonicalView;
+            Assert.IsNotNull(canonicalView);
+            Assert.AreEqual(1, canonicalView.Properties.Count);
+            Assert.AreEqual("Prop1", canonicalView.Properties[0].Name);
+            Assert.IsTrue(canonicalView.Properties[0].Type.IsLiteral);
+            Assert.IsTrue(canonicalView.Properties[0].Type.IsEnum);
+            Assert.IsTrue(canonicalView.Properties[0].Type.IsPublic);
+            Assert.AreEqual("MockInputEnum", canonicalView.Properties[0].Type.Name);
+            Assert.AreEqual("Sample.Models", canonicalView.Properties[0].Type.Namespace);
+
+            // required property should be filtered from model factory method parameter
+            var modelFactoryProvider = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ModelFactoryProvider);
+            Assert.IsNotNull(modelFactoryProvider);
+            var modelFactoryMethod = modelFactoryProvider!.Methods.SingleOrDefault(m => m.Signature.Name == "MockInputModel");
+            Assert.IsNotNull(modelFactoryMethod);
+            Assert.AreEqual(0, modelFactoryMethod!.Signature.Parameters.Count);
+
+            // default value should be passed in the model factory method body
+            var result = modelFactoryMethod.BodyStatements!.ToDisplayString();
+            StringAssert.Contains("global::Sample.Models.MockInputEnum.Val1", result);
+        }
+
+        [Test]
+        public async Task CanCustomizeLiteralStringProperty()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var stringLiteral = InputFactory.Literal.String("literalValue");
+            var inputModel = InputFactory.Model("mockInputModel", properties: [InputFactory.Property("prop1", stringLiteral)]);
+            var modelTypeProvider = new ModelProvider(inputModel);
+
+            var canonicalView = modelTypeProvider.CanonicalView;
+            Assert.IsNotNull(canonicalView);
+            Assert.AreEqual(1, canonicalView.Properties.Count);
+            Assert.AreEqual("Prop1", canonicalView.Properties[0].Name);
+            Assert.IsTrue(canonicalView.Properties[0].Type.IsLiteral);
+            Assert.AreEqual(typeof(string), canonicalView.Properties[0].Type.FrameworkType);
+            var body = canonicalView.Properties[0].Body as AutoPropertyBody;
+            Assert.AreEqual("\"val1\"", body!.InitializationExpression!.ToDisplayString());
+        }
+
+        [Test]
+        public async Task CanCustomizeLiteralIntProperty()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var intLiteral = InputFactory.Literal.Int32(42);
+            var inputModel = InputFactory.Model("mockInputModel", properties: [InputFactory.Property("prop1", intLiteral)]);
+            var modelTypeProvider = new ModelProvider(inputModel);
+
+            var canonicalView = modelTypeProvider.CanonicalView;
+            Assert.IsNotNull(canonicalView);
+            Assert.AreEqual(1, canonicalView.Properties.Count);
+            Assert.AreEqual("Prop1", canonicalView.Properties[0].Name);
+            Assert.IsTrue(canonicalView.Properties[0].Type.IsLiteral);
+            Assert.AreEqual(typeof(int), canonicalView.Properties[0].Type.FrameworkType);
+            var body = canonicalView.Properties[0].Body as AutoPropertyBody;
+            Assert.AreEqual("42", body!.InitializationExpression!.ToDisplayString());
+        }
+
+        [Test]
+        public async Task CanCustomizeLiteralBoolProperty()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var boolLiteral = InputFactory.Literal.Bool(true);
+            var inputModel = InputFactory.Model("mockInputModel", properties: [InputFactory.Property("prop1", boolLiteral)]);
+            var modelTypeProvider = new ModelProvider(inputModel);
+
+            var canonicalView = modelTypeProvider.CanonicalView;
+            Assert.IsNotNull(canonicalView);
+            Assert.AreEqual(1, canonicalView.Properties.Count);
+            Assert.AreEqual("Prop1", canonicalView.Properties[0].Name);
+            Assert.IsTrue(canonicalView.Properties[0].Type.IsLiteral);
+            Assert.AreEqual(typeof(bool), canonicalView.Properties[0].Type.FrameworkType);
+            var body = canonicalView.Properties[0].Body as AutoPropertyBody;
+            Assert.AreEqual("true", body!.InitializationExpression!.ToDisplayString());
+        }
+
+        [Test]
+        public async Task CanCustomizeNullableStructProperty()
+        {
+            var inputEnum = InputFactory.StringEnum("someStruct", [("Foo", "foo")], isExtensible: true);
+            var inputModel = InputFactory.Model("mockInputModel", properties: [InputFactory.Property("prop1", inputEnum)]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                inputEnumTypes: [inputEnum],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelTypeProvider = new ModelProvider(inputModel);
+
+            var canonicalView = modelTypeProvider.CanonicalView;
+            Assert.IsNotNull(canonicalView);
+            Assert.AreEqual(1, canonicalView.Properties.Count);
+            Assert.AreEqual("Prop1", canonicalView.Properties[0].Name);
+            Assert.IsTrue(canonicalView.Properties[0].Type.IsEnum);
+            Assert.AreEqual("SomeStruct", canonicalView.Properties[0].Type.Name);
+            Assert.AreEqual("Sample.Models", canonicalView.Properties[0].Type.Namespace);
+            Assert.IsTrue(canonicalView.Properties[0].Type.IsNullable);
+        }
+
+        [Test]
         public void CanCustomizeRelativeFilePath()
         {
             MockHelpers.LoadMockGenerator();
@@ -1099,6 +1298,95 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             modelTypeProvider.Update(relativeFilePath: updatedRelativeFilePath);
 
             Assert.AreEqual(updatedRelativeFilePath, modelTypeProvider.RelativeFilePath);
+        }
+
+        [Test]
+        public async Task CanCustomizeModelNameWithCustomizedNamespace()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var props = new[]
+            {
+                InputFactory.Property("prop1", InputFactory.Array(InputPrimitiveType.String))
+            };
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: props);
+            var modelTypeProvider = new ModelProvider(inputModel);
+
+            var namespaceVisitor = new TestNamespaceVisitor();
+            var nameVisitor = new TestNameVisitor();
+            var updatedModel = nameVisitor.InvokeVisit(namespaceVisitor.InvokeVisit(modelTypeProvider)!);
+            Assert.IsNotNull(updatedModel);
+            Assert.AreEqual("CustomizedModel", updatedModel!.Name);
+            Assert.AreEqual("NewNamespace", updatedModel.Type.Namespace);
+        }
+
+        [Test]
+        public async Task DiscriminatorPropertyNotGeneratedIfOnCustomizedBase()
+        {
+            var childModel = InputFactory.Model("mockInputModel", properties: [InputFactory.Property("prop1", InputPrimitiveType.String, isDiscriminator: true)], usage: InputModelTypeUsage.Json);
+            var baseModel = InputFactory.Model(
+                "mockInputModelBase",
+                properties: [InputFactory.Property("prop1", InputPrimitiveType.String)],
+                usage: InputModelTypeUsage.Json);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [childModel, baseModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+
+            // should not have the additionalProperties dictionary
+            Assert.AreEqual(0, modelProvider.Fields.Count);
+            Assert.IsNotNull(modelProvider.BaseType);
+            Assert.AreEqual(0, modelProvider.Properties.Count);
+
+            Assert.IsNotNull(modelProvider.BaseTypeProvider);
+            Assert.AreEqual(1, modelProvider.BaseTypeProvider!.Properties.Count);
+            Assert.AreEqual("Prop1", modelProvider.BaseTypeProvider.Properties[0].Name);
+
+            Assert.AreEqual("MockInputModelBase", modelProvider.BaseType!.Name);
+            Assert.AreEqual("Sample.Models", modelProvider.BaseType!.Namespace);
+        }
+
+        private class NameSpaceVisitor : LibraryVisitor
+        {
+            protected override TypeProvider? VisitType(TypeProvider type)
+            {
+                if (type is ModelProvider model)
+                {
+                    model.Update(@namespace: "NewNamespace");
+                }
+                return base.VisitType(type);
+            }
+        }
+
+        private class NameVisitor : LibraryVisitor
+        {
+            protected override TypeProvider? VisitType(TypeProvider type)
+            {
+                if (type is ModelProvider model)
+                {
+                    model.Update(name: "CustomizedModel");
+                }
+                return base.VisitType(type);
+            }
+        }
+
+        private class TestNamespaceVisitor : NameSpaceVisitor
+        {
+            public TypeProvider? InvokeVisit(TypeProvider type)
+            {
+                return base.VisitType(type);
+            }
+        }
+
+        private class TestNameVisitor : NameVisitor
+        {
+            public TypeProvider? InvokeVisit(TypeProvider type)
+            {
+                return base.VisitType(type);
+            }
         }
     }
 }

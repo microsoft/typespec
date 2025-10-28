@@ -9,7 +9,7 @@ using System.Text.Json;
 
 namespace _Type.Property.AdditionalProperties
 {
-    public partial class DifferentSpreadStringDerived : IJsonModel<DifferentSpreadStringDerived>
+    public partial class DifferentSpreadStringDerived : DifferentSpreadStringRecord, IJsonModel<DifferentSpreadStringDerived>
     {
         internal DifferentSpreadStringDerived() => throw null;
 

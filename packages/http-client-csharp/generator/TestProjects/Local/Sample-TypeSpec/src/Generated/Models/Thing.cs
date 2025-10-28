@@ -19,13 +19,14 @@ namespace SampleTypeSpec
         private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
 
         /// <summary> Initializes a new instance of <see cref="Thing"/>. </summary>
-        /// <param name="rename"></param>
+        /// <param name="rename"> name of the Thing. </param>
         /// <param name="requiredUnion"> required Union. </param>
         /// <param name="requiredNullableString"> required nullable string. </param>
+        /// <param name="requiredNullableLiteralString"> required nullable literal string. </param>
         /// <param name="requiredBadDescription"> description with xml &lt;|endoftext|&gt;. </param>
         /// <param name="requiredNullableList"> required nullable collection. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="rename"/>, <paramref name="requiredUnion"/> or <paramref name="requiredBadDescription"/> is null. </exception>
-        public Thing(string rename, BinaryData requiredUnion, string requiredNullableString, string requiredBadDescription, IEnumerable<int> requiredNullableList)
+        public Thing(string rename, BinaryData requiredUnion, string requiredNullableString, ThingRequiredNullableLiteralString1? requiredNullableLiteralString, string requiredBadDescription, IEnumerable<int> requiredNullableList)
         {
             Argument.AssertNotNull(rename, nameof(rename));
             Argument.AssertNotNull(requiredUnion, nameof(requiredUnion));
@@ -34,13 +35,14 @@ namespace SampleTypeSpec
             Rename = rename;
             RequiredUnion = requiredUnion;
             RequiredNullableString = requiredNullableString;
+            RequiredNullableLiteralString = requiredNullableLiteralString;
             RequiredBadDescription = requiredBadDescription;
             OptionalNullableList = new ChangeTrackingList<int>();
             RequiredNullableList = requiredNullableList?.ToList();
         }
 
         /// <summary> Initializes a new instance of <see cref="Thing"/>. </summary>
-        /// <param name="rename"></param>
+        /// <param name="rename"> name of the Thing. </param>
         /// <param name="requiredUnion"> required Union. </param>
         /// <param name="requiredLiteralString"> required literal string. </param>
         /// <param name="requiredNullableString"> required nullable string. </param>
@@ -49,6 +51,7 @@ namespace SampleTypeSpec
         /// <param name="requiredLiteralFloat"> required literal float. </param>
         /// <param name="requiredLiteralBool"> required literal bool. </param>
         /// <param name="optionalLiteralString"> optional literal string. </param>
+        /// <param name="requiredNullableLiteralString"> required nullable literal string. </param>
         /// <param name="optionalLiteralInt"> optional literal int. </param>
         /// <param name="optionalLiteralFloat"> optional literal float. </param>
         /// <param name="optionalLiteralBool"> optional literal bool. </param>
@@ -56,7 +59,7 @@ namespace SampleTypeSpec
         /// <param name="optionalNullableList"> optional nullable collection. </param>
         /// <param name="requiredNullableList"> required nullable collection. </param>
         /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
-        internal Thing(string rename, BinaryData requiredUnion, string requiredLiteralString, string requiredNullableString, string optionalNullableString, int requiredLiteralInt, float requiredLiteralFloat, bool requiredLiteralBool, string optionalLiteralString, int? optionalLiteralInt, float? optionalLiteralFloat, bool? optionalLiteralBool, string requiredBadDescription, IList<int> optionalNullableList, IList<int> requiredNullableList, IDictionary<string, BinaryData> additionalBinaryDataProperties)
+        internal Thing(string rename, BinaryData requiredUnion, string requiredLiteralString, string requiredNullableString, string optionalNullableString, int requiredLiteralInt, float requiredLiteralFloat, bool requiredLiteralBool, ThingOptionalLiteralString? optionalLiteralString, ThingRequiredNullableLiteralString1? requiredNullableLiteralString, ThingOptionalLiteralInt? optionalLiteralInt, ThingOptionalLiteralFloat? optionalLiteralFloat, bool? optionalLiteralBool, string requiredBadDescription, IList<int> optionalNullableList, IList<int> requiredNullableList, IDictionary<string, BinaryData> additionalBinaryDataProperties)
         {
             Rename = rename;
             RequiredUnion = requiredUnion;
@@ -67,6 +70,7 @@ namespace SampleTypeSpec
             RequiredLiteralFloat = requiredLiteralFloat;
             RequiredLiteralBool = requiredLiteralBool;
             OptionalLiteralString = optionalLiteralString;
+            RequiredNullableLiteralString = requiredNullableLiteralString;
             OptionalLiteralInt = optionalLiteralInt;
             OptionalLiteralFloat = optionalLiteralFloat;
             OptionalLiteralBool = optionalLiteralBool;
@@ -139,13 +143,16 @@ namespace SampleTypeSpec
         public bool RequiredLiteralBool { get; } = false;
 
         /// <summary> optional literal string. </summary>
-        public string OptionalLiteralString { get; set; }
+        public ThingOptionalLiteralString? OptionalLiteralString { get; set; }
+
+        /// <summary> required nullable literal string. </summary>
+        public ThingRequiredNullableLiteralString1? RequiredNullableLiteralString { get; set; }
 
         /// <summary> optional literal int. </summary>
-        public int? OptionalLiteralInt { get; set; }
+        public ThingOptionalLiteralInt? OptionalLiteralInt { get; set; }
 
         /// <summary> optional literal float. </summary>
-        public float? OptionalLiteralFloat { get; set; }
+        public ThingOptionalLiteralFloat? OptionalLiteralFloat { get; set; }
 
         /// <summary> optional literal bool. </summary>
         public bool? OptionalLiteralBool { get; set; }

@@ -1,5 +1,21 @@
 # Change Log - @typespec/http
 
+## 1.5.0
+
+No changes, version bump only.
+
+## 1.4.0
+
+### Bump dependencies
+
+- [#8317](https://github.com/microsoft/typespec/pull/8317) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8276](https://github.com/microsoft/typespec/pull/8276) fix: circular import causing tsp compile --watch breakage
+- [#7771](https://github.com/microsoft/typespec/pull/7771) Fix OAuth2 scope deduplication in OpenAPI spec generation. OAuth2 authentication schemes with multiple flows sharing the same scopes no longer generate duplicate scope entries in the security section.
+
+
 ## 1.3.0
 
 ### Bump dependencies

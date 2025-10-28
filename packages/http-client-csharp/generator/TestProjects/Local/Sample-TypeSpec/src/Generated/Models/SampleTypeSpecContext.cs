@@ -14,18 +14,20 @@ namespace SampleTypeSpec
     /// Context class which will be filled in by the System.ClientModel.SourceGeneration.
     /// For more information <see href='https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/core/System.ClientModel/src/docs/ModelReaderWriterContext.md' />
     /// </summary>
-    [ModelReaderWriterBuildable(typeof(Thing))]
-    [ModelReaderWriterBuildable(typeof(RoundTripModel))]
-    [ModelReaderWriterBuildable(typeof(ModelWithRequiredNullableProperties))]
+    [ModelReaderWriterBuildable(typeof(AnotherDynamicModel))]
+    [ModelReaderWriterBuildable(typeof(DynamicModel))]
     [ModelReaderWriterBuildable(typeof(Friend))]
-    [ModelReaderWriterBuildable(typeof(RenamedModelCustom))]
-    [ModelReaderWriterBuildable(typeof(ReturnsAnonymousModelResponse))]
+    [ModelReaderWriterBuildable(typeof(ListWithContinuationTokenHeaderResponseResponse))]
+    [ModelReaderWriterBuildable(typeof(ListWithContinuationTokenResponse))]
     [ModelReaderWriterBuildable(typeof(ListWithNextLinkResponse))]
     [ModelReaderWriterBuildable(typeof(ListWithStringNextLinkResponse))]
-    [ModelReaderWriterBuildable(typeof(ListWithContinuationTokenResponse))]
-    [ModelReaderWriterBuildable(typeof(ListWithContinuationTokenHeaderResponseResponse))]
-    [ModelReaderWriterBuildable(typeof(PageThing))]
     [ModelReaderWriterBuildable(typeof(ModelWithEmbeddedNonBodyParameters))]
+    [ModelReaderWriterBuildable(typeof(ModelWithRequiredNullableProperties))]
+    [ModelReaderWriterBuildable(typeof(PageThing))]
+    [ModelReaderWriterBuildable(typeof(RenamedModelCustom))]
+    [ModelReaderWriterBuildable(typeof(ReturnsAnonymousModelResponse))]
+    [ModelReaderWriterBuildable(typeof(RoundTripModel))]
+    [ModelReaderWriterBuildable(typeof(Thing))]
     public partial class SampleTypeSpecContext : ModelReaderWriterContext
     {
     }

@@ -161,7 +161,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             foreach (var method in convenienceMethods)
             {
                 StringAssert.Contains(
-                    "global::Sample.Models.SpreadModel spreadModel = new global::Sample.Models.SpreadModel(p2, null);",
+                    "global::Sample.Models.SpreadModel spreadModel = new global::Sample.Models.SpreadModel(p2, default);",
                     method.BodyStatements!.ToDisplayString());
             }
 
@@ -840,6 +840,184 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                     Assert.AreEqual("GetCats", method.Signature.Name);
                 }
             }
+        }
+
+        [TestCase(typeof(int))]
+        [TestCase(typeof(long))]
+        [TestCase(typeof(float))]
+        [TestCase(typeof(double))]
+        [TestCase(typeof(bool))]
+        [TestCase(typeof(string))]
+        [TestCase(typeof(Uri))]
+        [TestCase(typeof(BinaryData))]
+        [TestCase(typeof(DateTimeOffset))]
+        [TestCase(typeof(TimeSpan))]
+        public void ScalarReturnTypeMethods(Type type)
+        {
+            InputType? inputType = type switch
+            {
+                { } t when t == typeof(float) => InputPrimitiveType.Float32,
+                { } t when t == typeof(double) => InputPrimitiveType.Float64,
+                { } t when t == typeof(bool) => InputPrimitiveType.Boolean,
+                { } t when t == typeof(string) => InputPrimitiveType.String,
+                { } t when t == typeof(DateTimeOffset) => InputPrimitiveType.PlainDate,
+                { } t when t == typeof(TimeSpan) => InputPrimitiveType.PlainTime,
+                { } t when t == typeof(int) => InputPrimitiveType.Int32,
+                { } t when t == typeof(long) => InputPrimitiveType.Int64,
+                { } t when t == typeof(Uri) => InputPrimitiveType.Url,
+                { } t when t == typeof(BinaryData) => InputPrimitiveType.Base64,
+                _ => null
+            };
+
+            var inputOperation = InputFactory.Operation(
+                "GetScalar",
+                responses: [InputFactory.OperationResponse([200], inputType!)]);
+
+            var inputServiceMethod = InputFactory.BasicServiceMethod("GetScalar", inputOperation);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator();
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+            Assert.IsNotNull(methodCollection);
+            var convenienceMethod = methodCollection.FirstOrDefault(m
+                => m.Signature.Parameters.All(p => p.Name != "options")
+                   && m.Signature.Name == $"{inputOperation.Name.ToIdentifierName()}");
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(type.Name), convenienceMethod!.BodyStatements!.ToDisplayString());
+        }
+
+        [Test]
+        public void TestUnionResponseType()
+        {
+            var inputUnionFooType = InputFactory.Union([InputFactory.Model("Foo", properties:
+            [
+                InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+            ])], "foo");
+            var inputType = InputFactory.Union([inputUnionFooType], "bar");
+            var inputOperation = InputFactory.Operation(
+                "GetUnion",
+                responses: [InputFactory.OperationResponse([200], inputType!)]);
+
+            var inputServiceMethod = InputFactory.BasicServiceMethod("GetScalar", inputOperation);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator();
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+            Assert.IsNotNull(methodCollection);
+            var convenienceMethod = methodCollection.FirstOrDefault(m
+                => m.Signature.Parameters.All(p => p.Name != "options")
+                   && m.Signature.Name == $"{inputOperation.Name.ToIdentifierName()}");
+
+            var responseType = convenienceMethod!.Signature.ReturnType;
+            Assert.IsNotNull(responseType);
+            Assert.AreEqual(new CSharpType(typeof(ClientResult<BinaryData>)), responseType);
+        }
+
+        [Test]
+        public void RequiredLiteralParametersAreFilteredFromParameters()
+        {
+            var inputUnionFooType = InputFactory.Union([InputFactory.Model("Foo", properties:
+            [
+                InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+            ])], "foo");
+            var inputType = InputFactory.Union([inputUnionFooType], "bar");
+            var inputOperation = InputFactory.Operation(
+                "GetOperation",
+                parameters:
+                [
+                    InputFactory.QueryParameter("queryParam", InputFactory.Literal.String("value"), isRequired: true),
+                    InputFactory.HeaderParameter("headerParam", InputFactory.Literal.String("value"), isRequired: true),
+                    InputFactory.BodyParameter("bodyParam", InputFactory.Literal.String("value"), isRequired: true)
+                ],
+                responses: [InputFactory.OperationResponse([200], inputType!)]);
+
+            var inputServiceMethod = InputFactory.BasicServiceMethod(
+                "GetOperation",
+                inputOperation,
+                parameters:
+                [
+                    InputFactory.MethodParameter("queryParam", InputFactory.Literal.String("value"), isRequired: true, location: InputRequestLocation.Query),
+                    InputFactory.MethodParameter("headerParam", InputFactory.Literal.String("value"), isRequired: true, location: InputRequestLocation.Header),
+                    InputFactory.MethodParameter("bodyParam", InputFactory.Literal.String("value"), isRequired: true, location: InputRequestLocation.Body)
+                ]);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator();
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+            Assert.IsNotNull(methodCollection);
+
+            var convenienceMethod = methodCollection.FirstOrDefault(m
+                => m.Signature.Parameters.All(p => p.Name != "options")
+                   && m.Signature.Name == $"{inputOperation.Name.ToIdentifierName()}");
+
+            Assert.IsNotNull(convenienceMethod);
+            Assert.AreEqual(1, convenienceMethod!.Signature.Parameters.Count);
+
+            var protocolMethod = methodCollection.FirstOrDefault(m
+                => m.Signature.Parameters.Any(p => p.Name == "options")
+                   && m.Signature.Name == $"{inputOperation.Name.ToIdentifierName()}");
+            Assert.IsNotNull(protocolMethod);
+            Assert.AreEqual(1, protocolMethod!.Signature.Parameters.Count);
+        }
+
+        [TestCase(typeof(int))]
+        [TestCase(typeof(long))]
+        [TestCase(typeof(float))]
+        [TestCase(typeof(double))]
+        [TestCase(typeof(bool))]
+        [TestCase(typeof(string))]
+        [TestCase(typeof(Uri))]
+        [TestCase(typeof(BinaryData))]
+        [TestCase(typeof(DateTimeOffset))]
+        [TestCase(typeof(TimeSpan))]
+        public void ScalarInputTypeMethods(Type type)
+        {
+            InputType? inputType = type switch
+            {
+                { } t when t == typeof(float) => InputPrimitiveType.Float32,
+                { } t when t == typeof(double) => InputPrimitiveType.Float64,
+                { } t when t == typeof(bool) => InputPrimitiveType.Boolean,
+                { } t when t == typeof(string) => InputPrimitiveType.String,
+                { } t when t == typeof(DateTimeOffset) => InputPrimitiveType.PlainDate,
+                { } t when t == typeof(TimeSpan) => InputPrimitiveType.PlainTime,
+                { } t when t == typeof(int) => InputPrimitiveType.Int32,
+                { } t when t == typeof(long) => InputPrimitiveType.Int64,
+                { } t when t == typeof(Uri) => InputPrimitiveType.Url,
+                { } t when t == typeof(BinaryData) => InputPrimitiveType.Base64,
+                _ => null
+            };
+
+            var inputOperation = InputFactory.Operation(
+                "PutScalar",
+                parameters: [InputFactory.BodyParameter("value", inputType!, isRequired: true)],
+                responses: [InputFactory.OperationResponse([200])]);
+
+            var inputServiceMethod = InputFactory.BasicServiceMethod(
+                "PutScalar",
+                inputOperation,
+                parameters: [InputFactory.MethodParameter("value", inputType!, isRequired: true)]);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator();
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+            Assert.IsNotNull(methodCollection);
+            var convenienceMethod = methodCollection.FirstOrDefault(m
+                => m.Signature.Parameters.All(p => p.Name != "options")
+                   && m.Signature.Name == $"{inputOperation.Name.ToIdentifierName()}");
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(type.Name), convenienceMethod!.BodyStatements!.ToDisplayString());
         }
 
         public static IEnumerable<TestCaseData> DefaultCSharpMethodCollectionTestCases

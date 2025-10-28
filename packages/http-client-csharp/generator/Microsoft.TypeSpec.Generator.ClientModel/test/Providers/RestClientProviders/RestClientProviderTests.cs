@@ -471,6 +471,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         [Test]
         public void TestBuildCreateRequestMethodWithQueryParameters()
         {
+            List<string> stringEnum = ["bar"];
+            List<int> intEnum = [1, 2, 3];
+            List<float> floatEnum = [1.1f, 2.2f, 3.3f];
+            List<double> doubleEnum = [1.1, 2.2, 3.3];
+            var stringEnumValues = stringEnum.Select(a => (a, a));
+            var intEnumValues = intEnum.Select(a => (a.ToString(), a));
+            var floatEnumValues = floatEnum.Select(a => (a.ToString(), a));
+            var doubleEnumValues = doubleEnum.Select(a => (a.ToString(), a));
+            var inputStringEnum = InputFactory.StringEnum(
+                "foo",
+                stringEnumValues);
+            var inputIntEnum = InputFactory.Int32Enum(
+                "intFoo",
+                intEnumValues);
+            var inputFloatEnum = InputFactory.Float32Enum(
+                "floatFoo",
+                floatEnumValues);
+            var inputDoubleEnum = InputFactory.Float64Enum(
+                "doubleFoo",
+                doubleEnumValues);
             List<InputParameter> parameters =
             [
                 InputFactory.QueryParameter("p1Explode", InputFactory.Array(InputPrimitiveType.String), isRequired: true, explode: true),
@@ -480,6 +500,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 InputFactory.QueryParameter("optionalParam", new InputNullableType(InputPrimitiveType.String), isRequired: false, explode: false),
                 InputFactory.QueryParameter("p3Explode", InputFactory.Dictionary(InputPrimitiveType.Int32), isRequired: true, explode: true),
                 InputFactory.QueryParameter("p3", InputFactory.Dictionary(InputPrimitiveType.Int32), isRequired: true),
+                InputFactory.QueryParameter("p4Explode", InputFactory.Array(inputStringEnum), isRequired: true, explode: true),
+                InputFactory.QueryParameter("p5Explode", InputFactory.Array(inputIntEnum), isRequired: true, explode: true),
+                InputFactory.QueryParameter("p6Explode", InputFactory.Dictionary(inputStringEnum), isRequired: true, explode: true),
+                InputFactory.QueryParameter("p7Explode", InputFactory.Dictionary(inputIntEnum), isRequired: true, explode: true),
+                InputFactory.QueryParameter("p8Explode", InputFactory.Array(inputFloatEnum), isRequired: true, explode: true),
+                InputFactory.QueryParameter("p9Explode", InputFactory.Array(inputDoubleEnum), isRequired: true, explode: true),
             ];
             var operation = InputFactory.Operation(
                 "sampleOp",
@@ -621,12 +647,149 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
+        [Test]
+        public void TestReadOnlyParameters_FilteredFromCreateRequest()
+        {
+            var inputServiceMethod = InputFactory.BasicServiceMethod(
+                "TestServiceMethod",
+                InputFactory.Operation(
+                    "TestOperation",
+                    parameters:
+                    [
+                        // Read-only parameters are already filtered out from operation parameters
+                        InputFactory.QueryParameter("normalParam", InputPrimitiveType.String, isRequired: true),
+                        InputFactory.HeaderParameter("normalHeader", InputPrimitiveType.Int32, isRequired: true)
+                    ]),
+                parameters:
+                [
+                    InputFactory.MethodParameter("readOnlyParam", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Query, isReadOnly: true),
+                    InputFactory.MethodParameter("normalParam", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Query),
+                    InputFactory.MethodParameter("readOnlyHeader", InputPrimitiveType.Boolean, isRequired: false, location: InputRequestLocation.Header, isReadOnly: true),
+                    InputFactory.MethodParameter("normalHeader", InputPrimitiveType.Boolean, isRequired: false, location: InputRequestLocation.Header)
+                ]);
+
+            var client = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var restClientProvider = new ClientProvider(client).RestClient;
+            var method = restClientProvider.Methods.FirstOrDefault(m => m.Signature.Name.Contains("CreateTestOperationRequest"));
+
+            Assert.IsNotNull(method);
+            var parameters = method!.Signature.Parameters;
+
+            // Verify read-only parameters are filtered out
+            Assert.IsFalse(parameters.Any(p => p.Name == "readOnlyParam"));
+            Assert.IsFalse(parameters.Any(p => p.Name == "readOnlyHeader"));
+
+            // Verify normal parameters are included
+            Assert.IsTrue(parameters.Any(p => p.Name == "normalParam"));
+            Assert.IsTrue(parameters.Any(p => p.Name == "normalHeader"));
+        }
+
+        [Test]
+        public void TestReadOnlyParameters_FilteredFromProtocolMethod()
+        {
+            var inputServiceMethod = InputFactory.BasicServiceMethod(
+                "TestServiceMethod",
+                InputFactory.Operation(
+                    "TestOperation",
+                    parameters:
+                    [
+                        // Read-only parameters are already filtered out from operation parameters
+                        InputFactory.PathParameter("normalPath", InputPrimitiveType.String, isRequired: true),
+                        InputFactory.BodyParameter("normalBody", InputPrimitiveType.String, isRequired: true)
+                    ]),
+                parameters:
+                [
+                    InputFactory.MethodParameter("readOnlyPath", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Path, isReadOnly: true),
+                    InputFactory.MethodParameter("normalPath", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Path),
+                    InputFactory.MethodParameter("readOnlyBody", InputPrimitiveType.Boolean, isRequired: false, location: InputRequestLocation.Body, isReadOnly: true),
+                    InputFactory.MethodParameter("normalBody", InputPrimitiveType.Boolean, isRequired: false, location: InputRequestLocation.Body)
+                ]);
+
+            var methodParameters = RestClientProvider.GetMethodParameters(inputServiceMethod, RestClientProvider.MethodType.Protocol);
+
+            // Verify read-only parameters are filtered out
+            Assert.IsFalse(methodParameters.Any(p => p.Name == "readOnlyPath"));
+            Assert.IsFalse(methodParameters.Any(p => p.Name == "readOnlyBody"));
+
+            // Verify normal parameters are included
+            Assert.IsTrue(methodParameters.Any(p => p.Name == "normalPath"));
+            Assert.IsTrue(methodParameters.Any(p => p.Name == "content"));
+        }
+
+        [Test]
+        public void TestReadOnlyParameters_FilteredFromConvenienceMethod()
+        {
+            var inputServiceMethod = InputFactory.BasicServiceMethod(
+                "TestServiceMethod",
+                InputFactory.Operation(
+                    "TestOperation",
+                    parameters:
+                    [
+                        // Read-only parameters are already filtered out from operation parameters
+                        InputFactory.QueryParameter("normalQuery", InputPrimitiveType.String, isRequired: true),
+                        InputFactory.HeaderParameter("normalHeader", InputPrimitiveType.Boolean, isRequired: false)
+                    ]),
+                parameters:
+                [
+                    InputFactory.MethodParameter("readOnlyQuery", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Query, isReadOnly: true),
+                    InputFactory.MethodParameter("normalQuery", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Query),
+                    InputFactory.MethodParameter("readOnlyHeader", InputPrimitiveType.Boolean, isRequired: false, location: InputRequestLocation.Header, isReadOnly: true),
+                    InputFactory.MethodParameter("normalHeader", InputPrimitiveType.Boolean, isRequired: false, location: InputRequestLocation.Header)
+                ]);
+
+            var methodParameters = RestClientProvider.GetMethodParameters(inputServiceMethod, RestClientProvider.MethodType.Convenience);
+
+            // Verify read-only parameters are filtered out
+            Assert.IsFalse(methodParameters.Any(p => p.Name == "readOnlyQuery"));
+            Assert.IsFalse(methodParameters.Any(p => p.Name == "readOnlyHeader"));
+
+            // Verify normal parameters are included
+            Assert.IsTrue(methodParameters.Any(p => p.Name == "normalQuery"));
+            Assert.IsTrue(methodParameters.Any(p => p.Name == "normalHeader"));
+        }
+
+        [Test]
+        public void TestReadOnlyParameters_WithMixedParameterTypes()
+        {
+            var inputServiceMethod = InputFactory.BasicServiceMethod(
+                "TestServiceMethod",
+
+                InputFactory.Operation(
+                    "TestOperation",
+                    parameters:
+                    [
+                        InputFactory.PathParameter("normalPath", InputPrimitiveType.String, isRequired: true),
+                        InputFactory.QueryParameter("normalQuery", InputPrimitiveType.String, isRequired: true),
+                        InputFactory.HeaderParameter("normalHeader", InputPrimitiveType.String, isRequired: false),
+                        InputFactory.BodyParameter("normalBody", InputPrimitiveType.String, isRequired: true)
+                    ]),
+                parameters:
+                [
+                    InputFactory.MethodParameter("normalPath", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Path),
+                    InputFactory.MethodParameter("readOnlyQuery", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Query, isReadOnly: true),
+                    InputFactory.MethodParameter("normalQuery", InputPrimitiveType.Boolean, isRequired: false, location: InputRequestLocation.Query),
+                    InputFactory.MethodParameter("readOnlyHeader", InputPrimitiveType.Boolean, isRequired: false, location: InputRequestLocation.Header, isReadOnly: true),
+                    InputFactory.MethodParameter("normalHeader", InputPrimitiveType.Boolean, isRequired: false, location: InputRequestLocation.Header),
+                    InputFactory.MethodParameter("normalBody", InputPrimitiveType.Boolean, isRequired: false, location: InputRequestLocation.Body)
+                ]);
+
+            var methodParameters = RestClientProvider.GetMethodParameters(inputServiceMethod, RestClientProvider.MethodType.Convenience);
+
+            Assert.AreEqual(4, methodParameters.Count); // Only non-readonly parameters
+            Assert.IsTrue(methodParameters.Any(p => p.Name == "normalPath"));
+            Assert.IsTrue(methodParameters.Any(p => p.Name == "normalQuery"));
+            Assert.IsTrue(methodParameters.Any(p => p.Name == "normalHeader"));
+            Assert.IsTrue(methodParameters.Any(p => p.Name == "normalBody"));
+            Assert.IsFalse(methodParameters.Any(p => p.Name == "readOnlyQuery"));
+            Assert.IsFalse(methodParameters.Any(p => p.Name == "readOnlyHeader"));
+        }
+
+
         private static void ValidateResponseClassifier(MethodBodyStatements bodyStatements, string parsedStatusCodes)
         {
             var classifier = $"PipelineMessageClassifier{parsedStatusCodes}";
-            var classifierStatement = $"message.ResponseClassifier = {classifier};\n";
 
-            Assert.IsTrue(bodyStatements.Statements.Any(s => s.ToDisplayString() == classifierStatement));
+            Assert.IsTrue(bodyStatements.Statements.Any(s => s.ToDisplayString().Contains(classifier)));
         }
 
         private readonly static InputServiceMethod BasicServiceMethod = InputFactory.BasicServiceMethod(

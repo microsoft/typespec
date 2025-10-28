@@ -39,6 +39,7 @@ import {
   TimeSchema,
   UnixTimeSchema,
   UriSchema,
+  UuidSchema,
   VirtualParameter,
 } from "@autorest/codemodel";
 import { KnownMediaType } from "@azure-tools/codegen";
@@ -196,6 +197,8 @@ export interface EmitterOptionsDev {
   "enable-sync-stack"?: boolean;
   "stream-style-serialization"?: boolean;
   "use-object-for-unknown"?: boolean;
+  "float32-as-double"?: boolean;
+  "uuid-as-string"?: boolean;
   polling?: any;
 
   // versioning
@@ -520,22 +523,33 @@ export class CodeModelBuilder {
 
   private deduplicateSchemaName() {
     // deduplicate model name
+
+    // packages to skip
+    const packagesToSkip: string[] = [];
+    if (!this.isBranded() || this.isAzureV2()) {
+      // clientcore
+      packagesToSkip.push("io.clientcore.core.");
+    }
+    if (this.isAzureV2()) {
+      // core v2
+      packagesToSkip.push("com.azure.v2.core.");
+    }
+    if (this.isAzureV1()) {
+      // core
+      packagesToSkip.push("com.azure.core.");
+    }
+
     const nameCount = new Map<string, number>();
     const deduplicateName = (schema: Schema) => {
+      // skip models under "com.azure.core." etc. in java, or "Azure." in typespec, if branded
+      // skip models under "io.clientcore.core." in java, if unbranded
+      const skipDeduplicate =
+        (this.isBranded() && schema.language.default?.namespace?.startsWith("Azure.")) ||
+        (schema.language.java?.namespace &&
+          packagesToSkip.some((it) => schema.language.java?.namespace.startsWith(it)));
+
       const name = schema.language.default.name;
-      if (
-        name &&
-        // skip models under "com.azure.core." in java, or "Azure." in typespec, if branded
-        !(
-          (
-            this.isBranded() &&
-            (schema.language.java?.namespace?.startsWith("com.azure.core.") ||
-              schema.language.default?.namespace?.startsWith("Azure.") ||
-              schema.language.java?.namespace?.startsWith("com.azure.v2.core.") ||
-              schema.language.java?.namespace?.startsWith("io.clientcore.core."))
-          ) // because azure core v2 uses clientcore types
-        )
-      ) {
+      if (name && !skipDeduplicate) {
         if (!nameCount.has(name)) {
           nameCount.set(name, 1);
         } else {
@@ -642,9 +656,9 @@ export class CodeModelBuilder {
     const versions = getServiceApiVersions(this.program, client);
     if (versions && versions.length > 0) {
       if (!this.sdkContext.apiVersion || ["all", "latest"].includes(this.sdkContext.apiVersion)) {
-        this.apiVersion = versions[versions.length - 1];
+        this.apiVersion = versions[versions.length - 1].value;
       } else {
-        this.apiVersion = versions.find((it: string) => it === this.sdkContext.apiVersion);
+        this.apiVersion = versions.find((it) => it.value === this.sdkContext.apiVersion)?.value;
         if (!this.apiVersion) {
           reportDiagnostic(this.program, {
             code: "invalid-api-version",
@@ -656,12 +670,13 @@ export class CodeModelBuilder {
 
       codeModelClient.apiVersions = [];
       for (const version of getFilteredApiVersions(
+        this.program,
         this.apiVersion,
         versions,
         this.options["service-version-exclude-preview"],
       )) {
         const apiVersion = new ApiVersion();
-        apiVersion.version = version;
+        apiVersion.version = version.value;
         codeModelClient.apiVersions.push(apiVersion);
       }
     }
@@ -1072,6 +1087,22 @@ export class CodeModelBuilder {
         ? pageItemsResponseProperty[0].serializedName
         : undefined;
 
+    if (
+      this.isAzureV1() &&
+      (pageItemsResponseProperty === undefined || pageItemsResponseProperty.length > 1)
+    ) {
+      // TCGC should have verified that pageItems exists
+
+      // Azure V1 does not support nested page items
+      reportDiagnostic(this.program, {
+        code: "nested-page-items-not-supported",
+        target:
+          sdkMethod.response.resultSegments?.[sdkMethod.response.resultSegments.length - 1]
+            ?.__raw ?? NoTarget,
+      });
+      return;
+    }
+
     // nextLink
     // TODO: nextLink can also be a response header, similar to "sdkMethod.pagingMetadata.continuationTokenResponseSegments"
     const nextLinkResponseProperty = findResponsePropertySegments(
@@ -1088,7 +1119,7 @@ export class CodeModelBuilder {
     let continuationTokenParameter: Parameter | undefined;
     let continuationTokenResponseProperty: Property[] | undefined;
     let continuationTokenResponseHeader: HttpHeader | undefined;
-    if (!this.isBranded()) {
+    if (!this.isAzureV1()) {
       // parameter would either be query or header parameter, so taking the last segment would be enough
       const continuationTokenParameterSegment =
         sdkMethod.pagingMetadata.continuationTokenParameterSegments?.at(-1);
@@ -1565,8 +1596,22 @@ export class CodeModelBuilder {
     for (const sdkMethodParameter of sdkMethod.parameters) {
       let httpOperationParameter = getHttpOperationParameter(sdkMethod, sdkMethodParameter);
       if (httpOperationParameter) {
-        const opParameter = findOperationParameter(httpOperationParameter);
+        let opParameter = findOperationParameter(httpOperationParameter);
         if (opParameter) {
+          // handle difference of parameter, between REST and SDK
+          if (opParameter.required !== !sdkMethodParameter.optional) {
+            const clonedOpParameter = cloneOperationParameter(opParameter);
+            clonedOpParameter.required = !sdkMethodParameter.optional;
+
+            if (opParameter.protocol.http?.in === "path" && !sdkMethodParameter.optional) {
+              // TODO: remove this after we supported optional path parameter
+              // set path parameter as required
+              opParameter.required = !sdkMethodParameter.optional;
+            }
+
+            opParameter = clonedOpParameter;
+          }
+
           request.signatureParameters.push(opParameter);
           request.parameters.push(opParameter);
         }
@@ -1574,16 +1619,14 @@ export class CodeModelBuilder {
         // sdkMethodParameter is a grouping parameter
         if (sdkMethodParameter.type.kind === "model") {
           const opParameters = [];
+          const groupProperties = [];
           for (const property of sdkMethodParameter.type.properties) {
             httpOperationParameter = getHttpOperationParameter(sdkMethod, property);
             if (httpOperationParameter) {
               const opParameter = findOperationParameter(httpOperationParameter);
               if (opParameter) {
-                if (opParameter instanceof VirtualParameter) {
-                  opParameters.push(opParameter);
-                } else {
-                  opParameters.push(opParameter);
-                }
+                opParameters.push(opParameter);
+                groupProperties.push(property);
               }
             }
           }
@@ -1591,6 +1634,7 @@ export class CodeModelBuilder {
           const groupSchema = this.processGroupSchema(
             sdkMethodParameter.type,
             opParameters,
+            groupProperties,
             sdkMethodParameter.type.name,
           );
           this.trackSchemaUsage(groupSchema, { usage: [SchemaContext.Input] });
@@ -1627,6 +1671,7 @@ export class CodeModelBuilder {
   private processGroupSchema(
     type: SdkModelType | undefined,
     parameters: Parameter[],
+    groupProperties: SdkModelPropertyType[] | undefined,
     name: string,
     description: string | undefined = undefined,
   ): GroupSchema {
@@ -1650,12 +1695,14 @@ export class CodeModelBuilder {
         },
       }),
     );
-    parameters.forEach((it) => {
+    parameters.forEach((it, index) => {
+      // use required/optional from the group property, if available
+      const optional = groupProperties?.at(index)?.optional ?? !it.required;
       optionBagSchema.add(
         new GroupProperty(it.language.default.name, it.language.default.description, it.schema, {
           originalParameter: [it],
           summary: it.summary,
-          required: it.required,
+          required: !optional,
           nullable: it.nullable,
           readOnly: false,
           serializedName: it.language.default.serializedName,
@@ -1686,6 +1733,7 @@ export class CodeModelBuilder {
       const optionBagSchema = this.processGroupSchema(
         undefined,
         request.parameters,
+        undefined,
         name,
         `Options for ${op.language.default.name} API`,
       );
@@ -1790,7 +1838,10 @@ export class CodeModelBuilder {
           }
         }
 
-        const schemaName = groupToRequestConditions ? "RequestConditions" : "MatchConditions";
+        let schemaName = groupToRequestConditions ? "RequestConditions" : "MatchConditions";
+        if (!this.isAzureV1()) {
+          schemaName = "Http" + schemaName;
+        }
         const schemaDescription = groupToRequestConditions
           ? "Specifies HTTP options for conditional requests based on modification time."
           : "Specifies HTTP options for conditional requests.";
@@ -2107,12 +2158,12 @@ export class CodeModelBuilder {
     headers = [];
     if (sdkResponse.headers) {
       for (const header of sdkResponse.headers) {
-        const schema = this.processSchema(header.type, header.serializedName);
+        const schema = this.processSchema(header.type, header.name);
         headers.push(
           new HttpHeader(header.serializedName, schema, {
             language: {
               default: {
-                name: header.serializedName,
+                name: header.name,
                 description: header.summary ?? header.doc,
               },
             },
@@ -2330,6 +2381,12 @@ export class CodeModelBuilder {
           return this.processAnySchema();
 
         case "string":
+          if (
+            type.crossLanguageDefinitionId === "Azure.Core.uuid" &&
+            optionBoolean(this.options["uuid-as-string"]) === false
+          ) {
+            return this.processUuidSchema(type, nameHint);
+          }
           return this.processStringSchema(type, nameHint);
 
         case "float":
@@ -2380,6 +2437,14 @@ export class CodeModelBuilder {
     );
   }
 
+  private processUuidSchema(type: SdkBuiltInType, name: string): UuidSchema {
+    return this.codeModel.schemas.add(
+      new UuidSchema(name, type.doc ?? "", {
+        summary: type.summary,
+      }),
+    );
+  }
+
   private processByteArraySchema(type: SdkBuiltInType, name: string): ByteArraySchema {
     const base64Encoded: boolean = type.encode === "base64url";
     return this.codeModel.schemas.add(
@@ -2405,8 +2470,14 @@ export class CodeModelBuilder {
   }
 
   private processNumberSchema(type: SdkBuiltInType, name: string): NumberSchema {
+    const precision =
+      optionBoolean(this.options["float32-as-double"]) === false
+        ? type.kind === "float32"
+          ? 32
+          : 64
+        : 64;
     return this.codeModel.schemas.add(
-      new NumberSchema(name, type.doc ?? "", SchemaType.Number, 64, {
+      new NumberSchema(name, type.doc ?? "", SchemaType.Number, precision, {
         summary: type.summary,
       }),
     );

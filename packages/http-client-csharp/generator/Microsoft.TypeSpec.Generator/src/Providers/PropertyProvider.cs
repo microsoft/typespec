@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection.Metadata;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
@@ -20,7 +21,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
     {
         private VariableExpression? _variable;
         private Lazy<ParameterProvider> _parameter;
-        internal InputProperty? InputProperty { get; }
+        internal InputProperty? InputProperty { get; set; }
 
         private readonly SerializationFormat _serializationFormat;
         private FormattableString? _customDescription;
@@ -37,6 +38,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public bool IsAdditionalProperties { get; init; }
         public FieldProvider? BackingField { get; set; }
         public PropertyProvider? BaseProperty { get; set; }
+        public bool IsRef { get; private set; }
 
         /// <summary>
         /// Converts this property to a parameter.
@@ -50,6 +52,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public string? OriginalName { get; internal init; }
 
         internal Lazy<NamedTypeSymbolProvider?>? CustomProvider { get; init; }
+
+        private readonly bool _isRequiredNonNullableConstant;
 
         // for mocking
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -88,12 +92,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             EnclosingType = enclosingType;
             _serializationFormat = CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputProperty.Type);
+            _isRequiredNonNullableConstant = inputProperty.IsRequired && propertyType is { IsLiteral: true, IsNullable: false };
             var propHasSetter = PropertyHasSetter(propertyType, inputProperty);
             MethodSignatureModifiers setterModifier = propHasSetter ? MethodSignatureModifiers.Public : MethodSignatureModifiers.None;
 
             Type = inputProperty.IsReadOnly ? propertyType.OutputType : propertyType;
             IsDiscriminator = IsDiscriminatorProperty(inputProperty);
-            Modifiers = IsDiscriminator ? MethodSignatureModifiers.Internal : MethodSignatureModifiers.Public;
+            var hasOutputUsage = inputProperty.EnclosingType?.Usage.HasFlag(InputModelTypeUsage.Output) ?? false;
+            Modifiers = IsDiscriminator || (!hasOutputUsage && _isRequiredNonNullableConstant) ? MethodSignatureModifiers.Internal : MethodSignatureModifiers.Public;
             Name = inputProperty.Name == enclosingType.Name
                 ? $"{inputProperty.Name.ToIdentifierName()}Property"
                 : inputProperty.Name.ToIdentifierName();
@@ -115,6 +121,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             TypeProvider enclosingType,
             CSharpType? explicitInterface = null,
             PropertyWireInformation? wireInfo = null,
+            bool isRef = false,
             IEnumerable<AttributeStatement>? attributes = null)
         {
             Modifiers = modifiers;
@@ -122,6 +129,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             Name = name;
             Body = body;
             ExplicitInterface = explicitInterface;
+            IsRef = isRef;
 
             WireInfo = wireInfo;
             EnclosingType = enclosingType;
@@ -192,7 +200,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return false;
             }
 
-            if (type.IsLiteral && inputProperty.IsRequired)
+            if (_isRequiredNonNullableConstant)
             {
                 return false;
             }
@@ -264,12 +272,21 @@ namespace Microsoft.TypeSpec.Generator.Providers
             TypeProvider? enclosingType = null,
             CSharpType? explicitInterface = null,
             PropertyWireInformation? wireInfo = null,
+            bool? isRef = null,
             XmlDocProvider? xmlDocs = null,
             IEnumerable<AttributeStatement>? attributes = null)
         {
             if (description != null)
             {
                 _customDescription = description;
+                if (_parameter.IsValueCreated)
+                {
+                    AsParameter.Update(description: description);
+                }
+                else
+                {
+                    InitializeParameter(description);
+                }
             }
             if (modifiers != null)
             {
@@ -302,6 +319,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (attributes != null)
             {
                 Attributes = (attributes as IReadOnlyList<AttributeStatement>) ?? [];
+            }
+            if (isRef is not null)
+            {
+                IsRef = isRef.Value;
             }
             if (xmlDocs != null)
             {

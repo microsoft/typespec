@@ -1,5 +1,91 @@
 # Change Log - @typespec/http-client-python
 
+## 0.19.1
+
+### Bump dependencies
+
+- [#8638](https://github.com/microsoft/typespec/pull/8638) Bump dep of `@azure-tools/typespec-client-generator-core` to hotfix `0.60.3`
+
+### Bug Fixes
+
+- [#8647](https://github.com/microsoft/typespec/pull/8647) Fix outputted bullet-point documentation to pass sphinx
+- [#8680](https://github.com/microsoft/typespec/pull/8680) Fix indentation issue when deserializing internal error model
+- [#8679](https://github.com/microsoft/typespec/pull/8679) Exclude `generated_samples` and `generated_tests` from wheel
+
+
+## 0.19.0
+
+### Features
+
+- [#8558](https://github.com/microsoft/typespec/pull/8558) Support move method level signature to client level
+
+### Bug Fixes
+
+- [#8603](https://github.com/microsoft/typespec/pull/8603) support `@override` completely
+- [#8607](https://github.com/microsoft/typespec/pull/8607) [python] ensure first line in param description wrap around is a space
+- [#8381](https://github.com/microsoft/typespec/pull/8381) Fix bugs related to import and pylint for libraries with only internal models
+
+
+## 0.18.1
+
+### Bug Fixes
+
+- [#8531](https://github.com/microsoft/typespec/pull/8531) [python] fix peer reps
+
+
+## 0.18.0
+
+### Features
+
+- [#8454](https://github.com/microsoft/typespec/pull/8454) Support nested nextLink for paging operation
+
+### Bug Fixes
+
+- [#8516](https://github.com/microsoft/typespec/pull/8516) Add overload for operation when body type is array of model
+
+
+## 0.17.0
+
+### Features
+
+- [#8130](https://github.com/microsoft/typespec/pull/8130) DPG model supports multi-layer discriminator.
+
+### Bump dependencies
+
+- [#8407](https://github.com/microsoft/typespec/pull/8407) bump tsp
+
+### Bug Fixes
+
+- [#8339](https://github.com/microsoft/typespec/pull/8339) fail installation when fail to create virtual environment
+- [#8376](https://github.com/microsoft/typespec/pull/8376) fix black for windows os
+- [#8395](https://github.com/microsoft/typespec/pull/8395) Fix line break across OS
+- [#8359](https://github.com/microsoft/typespec/pull/8359) Fix import of typing `List` for ARM SDK
+- [#8349](https://github.com/microsoft/typespec/pull/8349) Fix dependencies of pyproject.toml for ARM SDK
+- [#8319](https://github.com/microsoft/typespec/pull/8319) Add imports for readonly and constant props for msrest model generation
+
+
+## 0.16.0
+
+### Deprecations
+
+- [#8311](https://github.com/microsoft/typespec/pull/8311) Deprecate multiapi
+
+### Features
+
+- [#8209](https://github.com/microsoft/typespec/pull/8209) Add keyword only signature `cloud_setting` into ARM client
+- [#7824](https://github.com/microsoft/typespec/pull/7824) Upgrade typing for dict, list, set, and tuple to be from stdlib
+
+### Bump dependencies
+
+- [#8233](https://github.com/microsoft/typespec/pull/8233) Upgrade azure-http-specs version.
+
+### Bug Fixes
+
+- [#8189](https://github.com/microsoft/typespec/pull/8189) fix to keep some existing parts of pyproject.toml
+- [#8248](https://github.com/microsoft/typespec/pull/8248) Generated model which is not only used in paging response
+- [#8250](https://github.com/microsoft/typespec/pull/8250) don't send content-type when no request body
+
+
 ## 0.15.2
 
 ### Bug Fixes

@@ -4,9 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text.Json;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 
@@ -31,6 +33,20 @@ namespace Microsoft.TypeSpec.Generator
         private Dictionary<InputType, IReadOnlyList<TypeProvider>> SerializationsCache { get; } = [];
 
         internal HashSet<string> UnionVariantTypesToKeep { get; } = [];
+
+        internal IDictionary<string, InputModelType> InputModelTypeNameMap
+        {
+            get
+            {
+                if (_inputModelTypeNameMap == null)
+                {
+                    _inputModelTypeNameMap = CodeModelGenerator.Instance.InputLibrary.InputNamespace.Models.ToDictionary(m => m.Name.ToIdentifierName(), m => m);
+                }
+
+                return _inputModelTypeNameMap;
+            }
+        }
+        private IDictionary<string, InputModelType>? _inputModelTypeNameMap;
 
         protected internal TypeFactory()
         {
@@ -108,6 +124,9 @@ namespace Microsoft.TypeSpec.Generator
                     break;
                 case InputNullableType nullableType:
                     type = CreateCSharpType(nullableType.Type)?.WithNullable(true);
+                    break;
+                case InputExternalType externalType:
+                    type = CreateExternalType(externalType);
                     break;
                 default:
                     type = CreatePrimitiveCSharpTypeCore(inputType);
@@ -214,6 +233,29 @@ namespace Microsoft.TypeSpec.Generator
             => EnumProvider.Create(enumType, declaringType);
 
         /// <summary>
+        /// Factory method for creating a <see cref="CSharpType"/> based on an external type reference <paramref name="externalType"/>.
+        /// </summary>
+        /// <param name="externalType">The <see cref="InputExternalType"/> to convert.</param>
+        /// <returns>A <see cref="CSharpType"/> representing the external type, or null if the type cannot be resolved.</returns>
+        private CSharpType? CreateExternalType(InputExternalType externalType)
+        {
+            // Try to create a framework type from the fully qualified name
+            var frameworkType = CreateFrameworkType(externalType.Identity);
+            if (frameworkType != null)
+            {
+                return new CSharpType(frameworkType);
+            }
+
+            // External types that cannot be resolved as framework types are not supported
+            // Report a diagnostic to inform the user
+            CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                "unsupported-external-type",
+                $"External type '{externalType.Identity}' is not currently supported.");
+
+            return null;
+        }
+
+        /// <summary>
         /// Factory method for creating a <see cref="ParameterProvider"/> based on an input parameter <paramref name="parameter"/>.
         /// </summary>
         /// <param name="parameter">The <see cref="InputParameter"/> to convert.</param>
@@ -286,6 +328,12 @@ namespace Microsoft.TypeSpec.Generator
                     InputPrimitiveTypeKind.Int32 => SerializationFormat.Duration_Seconds,
                     InputPrimitiveTypeKind.Float or InputPrimitiveTypeKind.Float32 => SerializationFormat.Duration_Seconds_Float,
                     _ => SerializationFormat.Duration_Seconds_Double
+                },
+                DurationKnownEncoding.Milliseconds => durationType.WireType.Kind switch
+                {
+                    InputPrimitiveTypeKind.Int32 => SerializationFormat.Duration_Milliseconds,
+                    InputPrimitiveTypeKind.Float or InputPrimitiveTypeKind.Float32 => SerializationFormat.Duration_Milliseconds_Float,
+                    _ => SerializationFormat.Duration_Milliseconds_Double
                 },
                 DurationKnownEncoding.Constant => SerializationFormat.Duration_Constant,
                 _ => throw new IndexOutOfRangeException($"unknown encode {durationType.Encode}")

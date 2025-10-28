@@ -70,6 +70,7 @@ export function fromSdkServiceMethod(
   sdkMethod: SdkServiceMethod<SdkHttpOperation>,
   uri: string,
   rootApiVersions: string[],
+  namespace: string,
 ): InputServiceMethod | undefined {
   let method = sdkContext.__typeCache.methods.get(sdkMethod);
   if (method) {
@@ -84,6 +85,7 @@ export function fromSdkServiceMethod(
         sdkMethod,
         uri,
         rootApiVersions,
+        namespace,
       );
       break;
     case "paging":
@@ -92,12 +94,14 @@ export function fromSdkServiceMethod(
         sdkMethod,
         uri,
         rootApiVersions,
+        namespace,
       );
       pagingServiceMethod.pagingMetadata = loadPagingServiceMetadata(
         sdkContext,
         sdkMethod,
         rootApiVersions,
         uri,
+        namespace,
       );
       method = pagingServiceMethod;
       break;
@@ -107,6 +111,7 @@ export function fromSdkServiceMethod(
         sdkMethod,
         uri,
         rootApiVersions,
+        namespace,
       );
       lroServiceMethod.lroMetadata = loadLongRunningMetadata(sdkContext, sdkMethod);
       method = lroServiceMethod;
@@ -117,6 +122,7 @@ export function fromSdkServiceMethod(
         sdkMethod,
         uri,
         rootApiVersions,
+        namespace,
       );
       lroPagingMethod.lroMetadata = loadLongRunningMetadata(sdkContext, sdkMethod);
       lroPagingMethod.pagingMetadata = loadPagingServiceMetadata(
@@ -124,6 +130,7 @@ export function fromSdkServiceMethod(
         sdkMethod,
         rootApiVersions,
         uri,
+        namespace,
       );
       method = lroPagingMethod;
       break;
@@ -228,6 +235,7 @@ function createServiceMethod<T extends InputServiceMethod>(
   method: SdkServiceMethod<SdkHttpOperation>,
   uri: string,
   rootApiVersions: string[],
+  namespace: string,
 ): T {
   return {
     kind: method.kind,
@@ -237,7 +245,7 @@ function createServiceMethod<T extends InputServiceMethod>(
     doc: method.doc,
     summary: method.summary,
     operation: fromSdkServiceMethodOperation(sdkContext, method, uri, rootApiVersions),
-    parameters: fromSdkServiceMethodParameters(sdkContext, method, rootApiVersions),
+    parameters: fromSdkServiceMethodParameters(sdkContext, method, rootApiVersions, namespace),
     response: fromSdkServiceMethodResponse(sdkContext, method.response),
     exception: method.exception
       ? fromSdkServiceMethodResponse(sdkContext, method.exception)
@@ -273,11 +281,12 @@ function fromSdkServiceMethodParameters(
   sdkContext: CSharpEmitterContext,
   method: SdkServiceMethod<SdkHttpOperation>,
   rootApiVersions: string[],
+  namespace: string,
 ): InputMethodParameter[] {
   const parameters: InputMethodParameter[] = [];
 
   for (const p of method.parameters) {
-    const methodInputParameter = fromMethodParameter(sdkContext, p);
+    const methodInputParameter = fromMethodParameter(sdkContext, p, namespace);
     const operationHttpParameter = getHttpOperationParameter(method, p);
 
     if (!operationHttpParameter) {
@@ -324,7 +333,7 @@ function fromSdkServiceMethodResponse(
   methodResponse: SdkMethodResponse,
 ): InputServiceMethodResponse {
   return {
-    type: methodResponse.type ? fromSdkType(sdkContext, methodResponse.type) : undefined,
+    type: getResponseType(sdkContext, methodResponse.type),
     resultSegments: methodResponse.resultSegments?.map((segment) =>
       getResponseSegmentName(segment),
     ),
@@ -522,13 +531,14 @@ function fromBodyParameter(
 export function fromMethodParameter(
   sdkContext: CSharpEmitterContext,
   p: SdkMethodParameter,
+  namespace: string,
 ): InputMethodParameter {
   let retVar = sdkContext.__typeCache.methodParmeters.get(p);
   if (retVar) {
     return retVar as InputMethodParameter;
   }
 
-  const parameterType = fromSdkType(sdkContext, p.type);
+  const parameterType = fromSdkType(sdkContext, p.type, p, namespace);
 
   retVar = {
     kind: "method",
@@ -594,7 +604,7 @@ export function fromSdkHttpOperationResponse(
   const range = sdkResponse.statusCodes;
   retVar = {
     statusCodes: toStatusCodesArray(range),
-    bodyType: sdkResponse.type ? fromSdkType(sdkContext, sdkResponse.type) : undefined,
+    bodyType: getResponseType(sdkContext, sdkResponse.type),
     headers: fromSdkServiceResponseHeaders(sdkContext, sdkResponse.headers),
     isErrorResponse:
       sdkResponse.type !== undefined && isErrorModel(sdkContext.program, sdkResponse.type.__raw!),
@@ -669,6 +679,7 @@ function loadPagingServiceMetadata(
   method: SdkPagingServiceMethod<SdkHttpOperation> | SdkLroPagingServiceMethod<SdkHttpOperation>,
   rootApiVersions: string[],
   uri: string,
+  namespace: string,
 ): InputPagingServiceMetadata {
   let nextLink: InputNextLink | undefined;
   if (method.pagingMetadata.nextLinkSegments) {
@@ -689,6 +700,7 @@ function loadPagingServiceMetadata(
         method.pagingMetadata.nextLinkOperation,
         uri,
         rootApiVersions,
+        namespace,
       );
     }
 
@@ -891,4 +903,20 @@ function getArraySerializationDelimiter(
 ): string | undefined {
   const format = getCollectionFormat(p);
   return format ? collectionFormatToDelimMap[format] : undefined;
+}
+
+function getResponseType(
+  sdkContext: CSharpEmitterContext,
+  type: SdkType | undefined,
+): InputType | undefined {
+  if (!type) {
+    return undefined;
+  }
+
+  // handle anonymous union enum response types by defaulting to the enum value type in the case of
+  if (type.kind === "enum" && type.isUnionAsEnum && type.isGeneratedName) {
+    return fromSdkType(sdkContext, type.valueType);
+  }
+
+  return fromSdkType(sdkContext, type);
 }

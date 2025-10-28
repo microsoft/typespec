@@ -21,24 +21,22 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
-    internal class MultiPartFormDataBinaryContentDefinition : TypeProvider
+    public class MultiPartFormDataBinaryContentDefinition : TypeProvider
     {
-        private class FormDataItemTemplate<T> { }
         private readonly ScopedApi<MultipartFormDataContent> _multipartContentExpression;
         private readonly FieldProvider _multipartContentField;
         private readonly FieldProvider _randomField;
         private readonly FieldProvider _boundaryValuesFields;
 
         private readonly PropertyProvider _contentTypeProperty;
-        private const string _contentTypePropertyName = "ContentType";
         private readonly PropertyProvider _httpContentProperty;
-        private const string _httpContentPropertyName = "HttpContent";
-        private const string _createBoundaryMethodName = "CreateBoundary";
-        private const string _addMethodName = "Add";
-        private const string _addFilenameHeaderMethodName = "AddFilenameHeader";
-        private const string _addContentTypeHeaderMethodName = "AddContentTypeHeader";
-        private const string _writeToMethodName = "WriteTo";
-        private const string _writeToAsyncMethodName = "WriteToAsync";
+
+        private const string ContentTypePropertyName = "ContentType";
+        private const string HttpContentPropertyName = "HttpContent";
+        private const string CreateBoundaryMethodName = "CreateBoundary";
+        private const string AddMethodName = "Add";
+        private const string AddFilenameHeaderMethodName = "AddFilenameHeader";
+        private const string AddContentTypeHeaderMethodName = "AddContentTypeHeader";
 
         public MultiPartFormDataBinaryContentDefinition()
         {
@@ -64,14 +62,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 description: null,
                 modifiers: MethodSignatureModifiers.Public,
                 type: typeof(string),
-                name: _contentTypePropertyName,
+                name: ContentTypePropertyName,
                 body: new MethodPropertyBody(Return(_multipartContentExpression.Headers().ContentType().InvokeToString())),
                 enclosingType: this);
             _httpContentProperty = new PropertyProvider(
                 description: null,
                 modifiers: MethodSignatureModifiers.Internal,
                 type: typeof(HttpContent),
-                name: _httpContentPropertyName,
+                name: HttpContentPropertyName,
                 body: new ExpressionPropertyBody(_multipartContentField),
                 enclosingType: this);
         }
@@ -80,7 +78,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers() => TypeSignatureModifiers.Class | TypeSignatureModifiers.Internal;
 
-        protected override CSharpType? BuildBaseType() => typeof(BinaryContent);
+        protected override CSharpType BuildBaseType() => ScmCodeModelGenerator.Instance.TypeFactory.RequestContentApi.RequestContentType;
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");
 
@@ -129,7 +127,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private MethodProvider BuildCreateBoundaryMethod()
         {
             var signature = new MethodSignature(
-                Name: _createBoundaryMethodName,
+                Name: CreateBoundaryMethodName,
                 Description: null,
                 Modifiers: MethodSignatureModifiers.Private | MethodSignatureModifiers.Static,
                 ReturnType: typeof(string),
@@ -179,7 +177,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var filenameParam = new ParameterProvider("filename", FormattableStringHelpers.Empty, new CSharpType(typeof(string), true), Default);
             var contentTypeParam = new ParameterProvider("contentType", FormattableStringHelpers.Empty, new CSharpType(typeof(string), true), Default);
             var signature = new MethodSignature(
-                Name: _addMethodName,
+                Name: AddMethodName,
                 Description: null,
                 Modifiers: MethodSignatureModifiers.Public,
                 ReturnType: null,
@@ -236,7 +234,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 addContentStatements.Add(valueDelareStatement);
             }
-            addContentStatements.Add(This.Invoke(_addMethodName, [contentExpression, nameParam, filenameParam, contentTypeParam]).Terminate());
+            addContentStatements.Add(This.Invoke(AddMethodName, [contentExpression, nameParam, filenameParam, contentTypeParam]).Terminate());
             var body = new MethodBodyStatement[]
             {
                 ArgumentSnippets.AssertNotNull(contentParam),
@@ -292,7 +290,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var contentParam = new ParameterProvider("content", FormattableStringHelpers.Empty, typeof(HttpContent));
             var contentTypeParam = new ParameterProvider("contentType", FormattableStringHelpers.Empty, typeof(string));
             var signature = new MethodSignature(
-                Name: _addContentTypeHeaderMethodName,
+                Name: AddContentTypeHeaderMethodName,
                 Description: null,
                 Modifiers: MethodSignatureModifiers.Public | MethodSignatureModifiers.Static,
                 ReturnType: null,
@@ -344,7 +342,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var streamParam = new ParameterProvider("stream", FormattableStringHelpers.Empty, typeof(Stream));
             var streamExpression = (ValueExpression)streamParam;
             var cancellationTokenParam = KnownParameters.CancellationTokenParameter;
-            var cancellatinTokenExpression = (ValueExpression)cancellationTokenParam;
+            var cancellationTokenExpression = (ValueExpression)cancellationTokenParam;
             var signature = new MethodSignature(
                 Name: "WriteTo",
                 Description: null,
@@ -365,7 +363,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 new IfElsePreprocessorStatement(
                     "NET6_0_OR_GREATER",
                     /*_multipartContent.CopyTo(stream, cancellationToken);*/
-                    _multipartContentExpression.CopyTo(streamExpression, cancellatinTokenExpression).Terminate(),
+                    _multipartContentExpression.CopyTo(streamExpression, cancellationTokenExpression).Terminate(),
                     taskWaitCompletedStatementsList.ToArray()),
             };
             return new MethodProvider(signature, body, this);
@@ -376,7 +374,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var streamParam = new ParameterProvider("stream", FormattableStringHelpers.Empty, typeof(Stream));
             var streamExpression = (ValueExpression)streamParam;
             var cancellationTokenParam = KnownParameters.CancellationTokenParameter;
-            var cancellatinTokenExpression = (ValueExpression)cancellationTokenParam;
+            var cancellationTokenExpression = (ValueExpression)cancellationTokenParam;
 
             var signature = new MethodSignature(
                 Name: "WriteToAsync",
@@ -394,7 +392,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 new IfElsePreprocessorStatement(
                     "NET6_0_OR_GREATER",
                     /*await _multipartContent.CopyToAsync(stream, cancellationToken).ConfigureAwait(false);,*/
-                    _multipartContentExpression.CopyToAsync(streamExpression, cancellatinTokenExpression).Terminate(),
+                    _multipartContentExpression.CopyToAsync(streamExpression, cancellationTokenExpression).Terminate(),
                     /*await _multipartContent.CopyToAsync(stream).ConfigureAwait(false);*/
                     _multipartContentExpression.CopyToAsync(streamExpression).Terminate()),
             };
@@ -418,12 +416,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         public ValueExpression CreateBoundary()
-            => Static(Type).Invoke(_createBoundaryMethodName, []);
+            => Static(Type).Invoke(CreateBoundaryMethodName, []);
 
         public MethodBodyStatement AddFilenameHeader(ValueExpression httpContent, ValueExpression name, ValueExpression filename)
-            => This.Invoke(_addFilenameHeaderMethodName, [httpContent, name, filename]).Terminate();
+            => This.Invoke(AddFilenameHeaderMethodName, [httpContent, name, filename]).Terminate();
 
         public MethodBodyStatement AddContentTypeHeader(ValueExpression httpContent, ValueExpression contentType)
-            => Static(Type).Invoke(_addContentTypeHeaderMethodName, [httpContent, contentType]).Terminate();
+            => Static(Type).Invoke(AddContentTypeHeaderMethodName, [httpContent, contentType]).Terminate();
     }
 }

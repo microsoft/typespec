@@ -108,6 +108,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 Description = description;
                 XmlDocs = new XmlDocProvider(new XmlDocSummaryStatement([description]));
+
+                if (_parameter.IsValueCreated)
+                {
+                    AsParameter.Update(description: description);
+                }
+                else
+                {
+                    InitializeParameter();
+                }
             }
 
             if (initializationValue != null)

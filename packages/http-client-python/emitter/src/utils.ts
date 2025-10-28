@@ -323,6 +323,10 @@ function parseToken(token: Token): string {
       if (codeBlockStyle === undefined) {
         codeBlockStyle = token.raw.split("\n")[0].replace("```", "").trim();
       }
+      // Convert invalid Pygments lexer names to valid ones
+      if (codeBlockStyle === "txt") {
+        codeBlockStyle = "text";
+      }
       parsed += `\n\n.. code-block:: ${codeBlockStyle ?? ""}\n\n   ${token.text.split("\n").join("\n   ")}`;
       break;
     case "link":

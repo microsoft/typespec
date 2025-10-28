@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.SourceInput;
+using Microsoft.TypeSpec.Generator.Utilities;
 
 namespace Microsoft.TypeSpec.Generator
 {
@@ -23,11 +24,14 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         public async Task ExecuteAsync()
         {
+            CodeModelGenerator.Instance.Emitter.Info("Starting code generation");
+            CodeModelGenerator.Instance.Stopwatch.Start();
+
             GeneratedCodeWorkspace.Initialize();
             var outputPath = CodeModelGenerator.Instance.Configuration.OutputDirectory;
             var generatedSourceOutputPath = CodeModelGenerator.Instance.Configuration.ProjectGeneratedDirectory;
 
-            GeneratedCodeWorkspace customCodeWorkspace = await GeneratedCodeWorkspace.Create();
+            GeneratedCodeWorkspace customCodeWorkspace = await GeneratedCodeWorkspace.Create(isCustomCodeProject: true);
             // The generated attributes need to be added into the workspace before loading the custom code. Otherwise,
             // Roslyn doesn't load the attributes completely and we are unable to get the attribute arguments.
 
@@ -43,17 +47,27 @@ namespace Microsoft.TypeSpec.Generator
                 await customCodeWorkspace.GetCompilationAsync(),
                 await GeneratedCodeWorkspace.LoadBaselineContract());
 
-            GeneratedCodeWorkspace generatedCodeWorkspace = await GeneratedCodeWorkspace.Create();
+            GeneratedCodeWorkspace generatedCodeWorkspace = await GeneratedCodeWorkspace.Create(isCustomCodeProject: false);
 
             var output = CodeModelGenerator.Instance.OutputLibrary;
             Directory.CreateDirectory(Path.Combine(generatedSourceOutputPath, "Models"));
             List<Task> generateFilesTasks = new();
+
+            // Build all TypeProviders
+            foreach (var type in output.TypeProviders)
+            {
+                type.EnsureBuilt();
+            }
+
+            LoggingHelpers.LogElapsedTime("All generated type providers built");
 
             // visit the entire library before generating files
             foreach (var visitor in CodeModelGenerator.Instance.Visitors)
             {
                 visitor.VisitLibrary(output);
             }
+
+            LoggingHelpers.LogElapsedTime("All visitors have been applied");
 
             foreach (var outputType in output.TypeProviders)
             {
@@ -70,8 +84,12 @@ namespace Microsoft.TypeSpec.Generator
             // Add all the generated files to the workspace
             await Task.WhenAll(generateFilesTasks);
 
+            LoggingHelpers.LogElapsedTime("All generated types have been written into memory");
+
             // Delete any old generated files
             DeleteDirectory(generatedSourceOutputPath, _filesToKeep);
+
+            LoggingHelpers.LogElapsedTime("All old generated files have been deleted");
 
             await generatedCodeWorkspace.PostProcessAsync();
 
@@ -93,6 +111,8 @@ namespace Microsoft.TypeSpec.Generator
             {
                 await CodeModelGenerator.Instance.TypeFactory.CreateNewProjectScaffolding().Execute();
             }
+
+            LoggingHelpers.LogElapsedTime("All files have been written to disk");
         }
 
         /// <summary>

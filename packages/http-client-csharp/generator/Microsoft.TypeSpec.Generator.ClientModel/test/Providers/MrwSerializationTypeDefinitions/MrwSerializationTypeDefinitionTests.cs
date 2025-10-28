@@ -7,7 +7,6 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
-using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
@@ -17,7 +16,6 @@ using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
-using Moq;
 using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializationTypeDefinitions
@@ -26,6 +24,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
     {
         internal static (ModelProvider Model, MrwSerializationTypeDefinition Serialization) CreateModelAndSerialization(InputModelType inputModel, bool isRootInput = true, bool isRootOutput = true)
         {
+            MockHelpers.LoadMockGenerator();
             var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
             var generator = MockHelpers.LoadMockGenerator(
                 inputModels: () => [inputModel],
@@ -805,7 +804,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 new InputModelProperty("requiredInt", "", "", new InputPrimitiveType(kind, name, $"TypeSpec.{name}", encode), true, false, null, false, "requiredInt", false, false, null, new(json: new("requiredInt"))),
              };
 
-            var inputModel = new InputModelType("TestModel", "TestNamespace", "TestModel", "public", null, "", "Test model.", InputModelTypeUsage.Input, properties, null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false, new());
+            var inputModel = new InputModelType("TestModel", "TestNamespace", "TestModel", "public", null, "", "Test model.", InputModelTypeUsage.Input, properties, null, Array.Empty<InputModelType>(), null, null, new Dictionary<string, InputModelType>(), null, false, new(), false);
 
             var (_, serialization) = CreateModelAndSerialization(inputModel);
 
@@ -824,8 +823,51 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         [TestCase(typeof(sbyte), SerializationFormat.Default, ExpectedResult = "foo.GetSByte()")]
         public string TestIntDeserializeExpression(Type type, SerializationFormat format)
         {
-            var expr = MrwSerializationTypeDefinition.DeserializeJsonValueCore(type, new ScopedApi<JsonElement>(new VariableExpression(typeof(JsonElement), "foo")), format);
+            var expr = MrwSerializationTypeDefinition.DeserializeJsonValueCore(
+                type,
+                new ScopedApi<JsonElement>(new VariableExpression(typeof(JsonElement), "foo")),
+                new ScopedApi<BinaryData>(new VariableExpression(typeof(BinaryData), "data")),
+                new ScopedApi<ModelReaderWriterOptions>(new VariableExpression(typeof(ModelReaderWriterOptions), "options")),
+                format);
             return expr.ToDisplayString();
+        }
+
+        [TestCase(SerializationFormat.Duration_Seconds, ExpectedResult = "global::System.TimeSpan.FromSeconds(foo.GetInt32())")]
+        [TestCase(SerializationFormat.Duration_Seconds_Float, ExpectedResult = "global::System.TimeSpan.FromSeconds(foo.GetDouble())")]
+        [TestCase(SerializationFormat.Duration_Seconds_Double, ExpectedResult = "global::System.TimeSpan.FromSeconds(foo.GetDouble())")]
+        [TestCase(SerializationFormat.Duration_Milliseconds, ExpectedResult = "global::System.TimeSpan.FromMilliseconds(foo.GetInt32())")]
+        [TestCase(SerializationFormat.Duration_Milliseconds_Float, ExpectedResult = "global::System.TimeSpan.FromMilliseconds(foo.GetDouble())")]
+        [TestCase(SerializationFormat.Duration_Milliseconds_Double, ExpectedResult = "global::System.TimeSpan.FromMilliseconds(foo.GetDouble())")]
+        [TestCase(SerializationFormat.Duration_ISO8601, ExpectedResult = "foo.GetTimeSpan(\"P\")")]
+        [TestCase(SerializationFormat.Duration_Constant, ExpectedResult = "foo.GetTimeSpan(\"c\")")]
+        public string TestTimeSpanDeserializeExpression(SerializationFormat format)
+        {
+            var expr = MrwSerializationTypeDefinition.DeserializeJsonValueCore(
+                typeof(TimeSpan),
+                new ScopedApi<JsonElement>(new VariableExpression(typeof(JsonElement), "foo")),
+                new ScopedApi<BinaryData>(new VariableExpression(typeof(BinaryData), "data")),
+                new ScopedApi<ModelReaderWriterOptions>(new VariableExpression(typeof(ModelReaderWriterOptions), "options")),
+                format);
+            return expr.ToDisplayString();
+        }
+
+        [TestCase(SerializationFormat.Duration_Seconds, ExpectedResult = "writer.WriteNumberValue(global::System.Convert.ToInt32(value.TotalSeconds));\n")]
+        [TestCase(SerializationFormat.Duration_Seconds_Float, ExpectedResult = "writer.WriteNumberValue(value.TotalSeconds);\n")]
+        [TestCase(SerializationFormat.Duration_Seconds_Double, ExpectedResult = "writer.WriteNumberValue(value.TotalSeconds);\n")]
+        [TestCase(SerializationFormat.Duration_Milliseconds, ExpectedResult = "writer.WriteNumberValue(global::System.Convert.ToInt32(value.TotalMilliseconds));\n")]
+        [TestCase(SerializationFormat.Duration_Milliseconds_Float, ExpectedResult = "writer.WriteNumberValue(value.TotalMilliseconds);\n")]
+        [TestCase(SerializationFormat.Duration_Milliseconds_Double, ExpectedResult = "writer.WriteNumberValue(value.TotalMilliseconds);\n")]
+        [TestCase(SerializationFormat.Duration_ISO8601, ExpectedResult = "writer.WriteStringValue(value, \"P\");\n")]
+        [TestCase(SerializationFormat.Duration_Constant, ExpectedResult = "writer.WriteStringValue(value, \"c\");\n")]
+        public string TestTimeSpanSerializeStatement(SerializationFormat format)
+        {
+            var statement = MrwSerializationTypeDefinition.SerializeJsonValueCore(
+                typeof(TimeSpan),
+                new VariableExpression(typeof(TimeSpan), "value"),
+                new ScopedApi<Utf8JsonWriter>(new VariableExpression(typeof(Utf8JsonWriter), "writer")),
+                new ScopedApi<ModelReaderWriterOptions>(new VariableExpression(typeof(ModelReaderWriterOptions), "options")),
+                format);
+            return statement.ToDisplayString();
         }
 
         [Test]

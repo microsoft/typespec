@@ -4,6 +4,48 @@ import { expectDecorators } from "./utils/expect.js";
 import { tspForOpenAPI3 } from "./utils/tsp-for-openapi3.js";
 
 describe("converts top-level schemas", () => {
+  it("prioritizes discriminator information over enum convention", async () => {
+    const serviceNamespace = await tspForOpenAPI3({
+      schemas: {
+        Cat: {
+          type: "object",
+          properties: {
+            age: { type: "integer", format: "int32" },
+          },
+        },
+        Dog: {
+          type: "object",
+          properties: {
+            age: { type: "integer", format: "int32" },
+          },
+        },
+        Pet: {
+          type: "object",
+          properties: {
+            type: { type: "string", enum: ["cat", "dog", "BigCat", "BigDog"] },
+          },
+          oneOf: [{ $ref: "#/components/schemas/Cat" }, { $ref: "#/components/schemas/Dog" }],
+          discriminator: {
+            propertyName: "type",
+            mapping: {
+              cat: "#/components/schemas/Cat",
+              dog: "#/components/schemas/Dog",
+            },
+          },
+        },
+      },
+    });
+
+    const unions = serviceNamespace.unions;
+    const perUnion = unions.get("Pet");
+    expect(perUnion).toBeDefined();
+    expect(perUnion?.variants.size).toBe(2);
+    expect(perUnion?.variants.get("dog")).toBeDefined();
+    expect(perUnion?.variants.get("cat")).toBeDefined();
+    expect(perUnion?.variants.get("BigCat")).toBeUndefined();
+    expect(perUnion?.variants.get("BigDog")).toBeUndefined();
+  });
+
   it("handles scalars", async () => {
     const serviceNamespace = await tspForOpenAPI3({
       schemas: {
@@ -274,6 +316,56 @@ describe("converts top-level schemas", () => {
       expect(nullableUnionVariants.length).toBe(2);
       expect(nullableUnionVariants[0].type).toMatchObject({ kind: "Scalar", name: "string" });
       expect(nullableUnionVariants[1].type).toMatchObject({ kind: "Intrinsic", name: "null" });
+    });
+
+    it("nullable array with enum items", async () => {
+      const serviceNamespace = await tspForOpenAPI3({
+        schemas: {
+          ChatCompletionModalities: {
+            type: "array",
+            nullable: true,
+            items: {
+              type: "string",
+              enum: ["text", "audio"],
+            },
+          },
+        },
+      });
+
+      expect(serviceNamespace.unions.size).toBe(1);
+
+      /* union ChatCompletionModalities { ("text" | "audio")[], null, } */
+      const modalitiesUnion = serviceNamespace.unions.get("ChatCompletionModalities");
+      expect(modalitiesUnion?.decorators.length).toBe(0);
+      const modalitiesUnionVariants = [...(modalitiesUnion?.variants.values() ?? [])];
+      expect(modalitiesUnionVariants.length).toBe(2);
+
+      expect(modalitiesUnionVariants[0].type).toMatchObject({ kind: "Model" });
+      const arrayModel = modalitiesUnionVariants[0].type as Model;
+      expect(arrayModel.name).toBe("Array");
+
+      expect(modalitiesUnionVariants[1].type).toMatchObject({ kind: "Intrinsic", name: "null" });
+    });
+
+    it("OpenAPI 3.1 type array with null", async () => {
+      const serviceNamespace = await tspForOpenAPI3({
+        schemas: {
+          NullableInteger: {
+            type: ["integer", "null"] as any,
+            format: "int32",
+          },
+        },
+      });
+
+      expect(serviceNamespace.unions.size).toBe(1);
+
+      /* union NullableInteger { int32, null, } */
+      const nullableInteger = serviceNamespace.unions.get("NullableInteger");
+      expect(nullableInteger?.decorators.length).toBe(0);
+      const nullableIntegerVariants = [...(nullableInteger?.variants.values() ?? [])];
+      expect(nullableIntegerVariants.length).toBe(2);
+      expect(nullableIntegerVariants[0].type).toMatchObject({ kind: "Scalar", name: "int32" });
+      expect(nullableIntegerVariants[1].type).toMatchObject({ kind: "Intrinsic", name: "null" });
     });
   });
 
@@ -577,6 +669,43 @@ describe("converts top-level schemas", () => {
       expectDecorators(Foo.properties.get("name")!.decorators, [
         { name: "summary", args: ["Name Summary"] },
       ]);
+    });
+
+    it("handles OpenAPI 3.1 type array in model properties", async () => {
+      const serviceNamespace = await tspForOpenAPI3({
+        schemas: {
+          Bar: {
+            type: "object",
+            required: ["foo"],
+            properties: {
+              foo: {
+                type: ["integer", "null"] as any,
+                format: "int32",
+                minimum: 1,
+                maximum: 20,
+              },
+            },
+          },
+        },
+      });
+
+      /* model Bar { @minValue(1) @maxValue(20) foo: int32 | null } */
+      const Bar = serviceNamespace.models.get("Bar");
+      assert(Bar, "Bar model not found");
+      expect(Bar.properties.size).toBe(1);
+      const fooProp = Bar.properties.get("foo");
+      expect(fooProp?.optional).toBe(false);
+      assert(
+        fooProp?.type.kind === "Union",
+        `Expected foo.type.kind to be "Union", got "${fooProp?.type.kind}"`,
+      );
+      const fooVariants = [...(fooProp.type.variants.values() ?? [])];
+      expect(fooVariants.length).toBe(2);
+      expect(fooVariants[0].type).toMatchObject({ kind: "Scalar", name: "int32" });
+      expect(fooVariants[1].type).toMatchObject({ kind: "Intrinsic", name: "null" });
+      // Check that minValue and maxValue decorators are present
+      expect(fooProp.decorators.some((d) => d.definition?.name === "@minValue")).toBe(true);
+      expect(fooProp.decorators.some((d) => d.definition?.name === "@maxValue")).toBe(true);
     });
   });
 });

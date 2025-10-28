@@ -169,7 +169,7 @@ export async function generateExternDecorators(
   for (const [ns, nsEntities] of entities.entries()) {
     const output = generateSignatures(program, nsEntities, packageName, ns);
     const rawFiles: OutputFile[] = [];
-    traverseOutput(output, {
+    await traverseOutput(output, {
       visitDirectory: () => {},
       visitFile: (file) => rawFiles.push(file),
     });

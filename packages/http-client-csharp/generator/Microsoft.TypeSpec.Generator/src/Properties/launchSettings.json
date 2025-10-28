@@ -265,6 +265,11 @@
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
     },
+    "http-type-union": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/type/union -g StubLibraryGenerator",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
+    },
     "http-type-union-discriminated": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/type/union/discriminated -g StubLibraryGenerator",
       "commandName": "Executable",

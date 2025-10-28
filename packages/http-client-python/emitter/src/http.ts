@@ -35,6 +35,12 @@ import {
   isContinuationToken,
 } from "./utils.js";
 
+export enum ReferredByOperationTypes {
+  Default = 0,
+  PagingOnly = 1,
+  NonPagingOnly = 2,
+}
+
 function isContentTypeParameter(parameter: SdkHeaderParameter) {
   return parameter.serializedName.toLowerCase() === "content-type";
 }
@@ -192,7 +198,11 @@ function addPagingInformation(
 ) {
   for (const response of method.operation.responses) {
     if (response.type) {
-      getType(context, response.type)["usage"] = UsageFlags.None;
+      const type = getType(context, response.type);
+      if (type["referredByOperationType"] === undefined) {
+        type["referredByOperationType"] = ReferredByOperationTypes.Default;
+      }
+      type["referredByOperationType"] |= ReferredByOperationTypes.PagingOnly;
     }
   }
   const itemType = getType(context, method.response.type!);
@@ -231,6 +241,8 @@ function addPagingInformation(
     exposeStreamKeyword: false,
     itemName,
     nextLinkName,
+    nextLinkIsNested:
+      method.pagingMetadata.nextLinkSegments && method.pagingMetadata.nextLinkSegments.length > 1,
     nextLinkReInjectedParameters,
     itemType,
     description: method.doc ?? "",
@@ -429,18 +441,32 @@ function emitHttpParameters(
 ): Record<string, any>[] {
   const parameters: Record<string, any>[] = [...context.__endpointPathParameters];
 
-  // handle @override for parameters reorder
+  // handle @override
   const httpParameters = method.isOverride
     ? (() => {
-        const parametersFromMethod = method.parameters
-          .map((param) => getHttpOperationParameter(method, param))
-          .filter((result) => result !== undefined);
+        const parametersFromMethod = [];
+        for (const param of method.parameters) {
+          const httpParam = getHttpOperationParameter(method, param);
+          if (httpParam) {
+            // override properties of the http parameter
+            httpParam.optional = param.optional;
+            parametersFromMethod.push(httpParam);
+          }
+        }
 
-        const parametersFromOperation = operation.parameters.filter(
-          (param) => !parametersFromMethod.includes(param),
-        );
+        if (parametersFromMethod.length > 0) {
+          // TCGC doesn't set apiVersion in method parameters since TCGC already set it as client level parameter.
+          // But Python emitter still need it as kwargs signature of operation so we need special logic to add it if needed.
+          for (const param of operation.parameters) {
+            if (param.kind === "query" && param.isApiVersionParam) {
+              parametersFromMethod.push(param);
+              break;
+            }
+          }
+          return parametersFromMethod;
+        }
 
-        return [...parametersFromMethod, ...parametersFromOperation];
+        return operation.parameters;
       })()
     : operation.parameters;
 
@@ -498,6 +524,18 @@ function emitHttpResponse(
   } else if (response.type) {
     type = getType(context, response.type);
   }
+
+  if (method && type) {
+    const referredBy =
+      method.kind === "paging"
+        ? ReferredByOperationTypes.PagingOnly
+        : ReferredByOperationTypes.NonPagingOnly;
+    if (type["referredByOperationType"] === undefined) {
+      type["referredByOperationType"] = ReferredByOperationTypes.Default;
+    }
+    type["referredByOperationType"] |= referredBy;
+  }
+
   return {
     headers: response.headers.map((x) => emitHttpResponseHeader(context, x)),
     statusCodes:

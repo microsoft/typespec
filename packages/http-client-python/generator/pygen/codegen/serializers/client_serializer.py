@@ -3,7 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from typing import List, cast
+from typing import cast
 
 from . import utils
 from ..models import Client, ParameterMethodLocation, Parameter, ParameterLocation
@@ -38,7 +38,7 @@ class ClientSerializer:
             response_type_annotation="None",
         )
 
-    def pop_kwargs_from_signature(self) -> List[str]:
+    def pop_kwargs_from_signature(self) -> list[str]:
         return self.parameter_serializer.pop_kwargs_from_signature(
             self.client.parameters.kwargs_to_pop,
             check_kwarg_dict=False,
@@ -50,15 +50,15 @@ class ClientSerializer:
         class_name = self.client.name
         base_class = ""
         if self.client.has_mixin:
-            prefix = "" if self.client.code_model.options["multiapi"] else "_"
+            prefix = "_"
             base_class = f"{prefix}{class_name}OperationsMixin"
         pylint_disable = self.client.pylint_disable()
         if base_class:
             return f"class {class_name}({base_class}):{pylint_disable}"
         return f"class {class_name}:{pylint_disable}"
 
-    def property_descriptions(self, async_mode: bool) -> List[str]:
-        retval: List[str] = []
+    def property_descriptions(self, async_mode: bool) -> list[str]:
+        retval: list[str] = []
         operations_folder = ".aio.operations." if async_mode else ".operations."
         for og in [og for og in self.client.operation_groups if not og.is_mixin]:
             retval.append(f":ivar {og.property_name}: {og.class_name} operations")
@@ -78,7 +78,7 @@ class ClientSerializer:
         retval.append('"""')
         return retval
 
-    def initialize_config(self) -> List[str]:
+    def initialize_config(self) -> list[str]:
         retval = []
         additional_signatures = []
         if self.client.need_cloud_setting:
@@ -124,7 +124,7 @@ class ClientSerializer:
     def should_init_super(self) -> bool:
         return any(og for og in self.client.operation_groups if og.is_mixin and og.has_abstract_operations)
 
-    def initialize_pipeline_client(self, async_mode: bool) -> List[str]:
+    def initialize_pipeline_client(self, async_mode: bool) -> list[str]:
         result = []
         pipeline_client_name = self.client.pipeline_class(async_mode)
         endpoint_name = "base_url" if self.client.code_model.is_azure_flavor else "endpoint"
@@ -154,7 +154,7 @@ class ClientSerializer:
         )
         return result
 
-    def serializers_and_operation_groups_properties(self) -> List[str]:
+    def serializers_and_operation_groups_properties(self) -> list[str]:
         retval = []
 
         def _get_client_models_value(models_dict_name: str) -> str:
@@ -169,12 +169,12 @@ class ClientSerializer:
             )
             model_dict_name = f"_models.{self.client.code_model.models_filename}" if add_private_models else "_models"
             retval.append(
-                f"client_models{': Dict[str, Any]' if not self.client.code_model.model_types else ''}"
+                f"client_models{': dict[str, Any]' if not self.client.code_model.model_types else ''}"
                 f" = {_get_client_models_value(model_dict_name)}"
             )
             if add_private_models and self.client.code_model.model_types:
                 update_dict = "{k: v for k, v in _models.__dict__.items() if isinstance(v, type)}"
-                retval.append(f"client_models.update({update_dict})")
+                retval.append(f"client_models |= {update_dict}")
         client_models_str = "client_models" if is_msrest_model else ""
         retval.append(f"self._serialize = Serializer({client_models_str})")
         retval.append(f"self._deserialize = Deserializer({client_models_str})")
@@ -182,10 +182,7 @@ class ClientSerializer:
             retval.append("self._serialize.client_side_validation = False")
         operation_groups = [og for og in self.client.operation_groups if not og.is_mixin]
         for og in operation_groups:
-            if og.code_model.options["multiapi"]:
-                api_version = f", '{og.api_versions[0]}'" if og.api_versions else ", None"
-            else:
-                api_version = ""
+            api_version = ""
             retval.extend(
                 [
                     f"self.{og.property_name} = {og.class_name}(",
@@ -213,13 +210,13 @@ class ClientSerializer:
             response_type_annotation=("Awaitable[AsyncHttpResponse]" if async_mode else "HttpResponse"),
         )
 
-    def _example_make_call(self, async_mode: bool) -> List[str]:
+    def _example_make_call(self, async_mode: bool) -> list[str]:
         http_response = "AsyncHttpResponse" if async_mode else "HttpResponse"
         retval = [f">>> response = {'await ' if async_mode else ''}client.{self.client.send_request_name}(request)"]
         retval.append(f"<{http_response}: 200 OK>")
         return retval
 
-    def _request_builder_example(self, async_mode: bool) -> List[str]:
+    def _request_builder_example(self, async_mode: bool) -> list[str]:
         retval = [
             "We have helper methods to create requests specific to this service in "
             + f"`{self.client.code_model.namespace}.{self.client.code_model.rest_layer_name}`."
@@ -242,14 +239,14 @@ class ClientSerializer:
         retval.extend(self._example_make_call(async_mode))
         return retval
 
-    def _rest_request_example(self, async_mode: bool) -> List[str]:
+    def _rest_request_example(self, async_mode: bool) -> list[str]:
         retval = [f">>> from {self.client.code_model.core_library}.rest import HttpRequest"]
         retval.append('>>> request = HttpRequest("GET", "https://www.example.org/")')
         retval.append("<HttpRequest [GET], url: 'https://www.example.org/'>")
         retval.extend(self._example_make_call(async_mode))
         return retval
 
-    def send_request_description(self, async_mode: bool) -> List[str]:
+    def send_request_description(self, async_mode: bool) -> list[str]:
         rest_library = f"{self.client.code_model.core_library}.rest"
         retval = ['"""Runs the network request through the client\'s chained policies.']
         retval.append("")
@@ -269,7 +266,7 @@ class ClientSerializer:
         retval.append('"""')
         return retval
 
-    def serialize_path(self) -> List[str]:
+    def serialize_path(self) -> list[str]:
         return self.parameter_serializer.serialize_path(self.client.parameters.path, "self._serialize")
 
 
@@ -294,7 +291,7 @@ class ConfigSerializer:
             response_type_annotation="None",
         )
 
-    def pop_kwargs_from_signature(self) -> List[str]:
+    def pop_kwargs_from_signature(self) -> list[str]:
         return self.parameter_serializer.pop_kwargs_from_signature(
             self.client.config.parameters.kwargs_to_pop,
             check_kwarg_dict=False,
@@ -302,22 +299,22 @@ class ConfigSerializer:
             pop_params_kwarg=PopKwargType.NO,
         )
 
-    def set_constants(self) -> List[str]:
+    def set_constants(self) -> list[str]:
         return [
             f"self.{p.client_name} = {p.client_default_value_declaration}"
             for p in self.client.config.parameters.constant
             if p not in self.client.config.parameters.method
         ]
 
-    def check_required_parameters(self) -> List[str]:
+    def check_required_parameters(self) -> list[str]:
         return [
             f"if {p.client_name} is None:\n" f"    raise ValueError(\"Parameter '{p.client_name}' must not be None.\")"
             for p in self.client.config.parameters.method
             if not (p.optional or p.constant)
         ]
 
-    def property_descriptions(self, async_mode: bool) -> List[str]:
-        retval: List[str] = []
+    def property_descriptions(self, async_mode: bool) -> list[str]:
+        retval: list[str] = []
         for p in self.client.config.parameters.method:
             retval.append(f":{p.description_keyword} {p.client_name}: {p.description}")
             retval.append(f":{p.docstring_type_keyword} {p.client_name}: {p.docstring_type(async_mode=async_mode)}")

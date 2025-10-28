@@ -33,6 +33,16 @@ export interface InputClient extends DecoratedType {
   children?: InputClient[];
 }
 
+/**
+ * The input namespace type for the CSharp emitter.
+ * @beta
+ */
+export interface InputNamespace extends DecoratedType {
+  name: string;
+  fullName: string;
+  namespaces: InputNamespace[];
+}
+
 interface DecoratedType {
   decorators?: DecoratorInfo[];
 }
@@ -55,7 +65,8 @@ export type InputType =
   | InputEnumValueType
   | InputArrayType
   | InputDictionaryType
-  | InputNullableType;
+  | InputNullableType
+  | InputExternalType;
 
 export interface InputPrimitiveType extends InputTypeBase {
   kind: SdkBuiltInKinds;
@@ -260,4 +271,11 @@ export interface InputDictionaryType extends InputTypeBase {
   kind: "dict";
   keyType: InputType;
   valueType: InputType;
+}
+
+export interface InputExternalType extends InputTypeBase {
+  kind: "external";
+  identity: string;
+  package?: string;
+  minVersion?: string;
 }

@@ -1,5 +1,6 @@
 ---
 title: "Built-in Decorators"
+description: "Decorators exported by TypeSpec"
 toc_min_heading_level: 2
 toc_max_heading_level: 3
 ---
@@ -1135,14 +1136,14 @@ It is invalid to call this decorator with no visibility modifiers.
 
 ### `@secret` {#@secret}
 
-Mark this string as a secret value that should be treated carefully to avoid exposure
+Mark this value as a secret value that should be treated carefully to avoid exposure
 ```typespec
 @secret
 ```
 
 #### Target
 
-`string | ModelProperty`
+`Scalar | ModelProperty | Model | Union | Enum`
 
 #### Parameters
 None

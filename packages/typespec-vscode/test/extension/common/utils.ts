@@ -6,6 +6,7 @@ import { test as baseTest, inject } from "vitest";
 const __dirname = import.meta.dirname;
 export const projectRoot = path.resolve(__dirname, "../../../");
 export const tempDir = path.resolve(projectRoot, "./temp");
+export const testfilesDir = path.resolve(projectRoot, "./test/scenarios");
 export const imagesPath = path.resolve(tempDir, "./images-linux");
 
 interface Context {
@@ -70,7 +71,6 @@ export const test = baseTest.extend<{
       });
       return { page, app };
     });
-
     for (const teardown of teardowns) await teardown();
   },
 });
@@ -92,6 +92,7 @@ export async function retry(
   fn: () => Promise<boolean>,
   errMessage: string,
   gap: number = 2,
+  cs: CaseScreenshot,
 ) {
   while (count > 0) {
     await sleep(gap);
@@ -100,7 +101,7 @@ export async function retry(
     }
     count--;
   }
-  await screenshot(page, "linux", "error");
+  await cs.screenshot(page, "error");
   throw new Error(errMessage);
 }
 
@@ -110,7 +111,32 @@ export async function retry(
  * @param os operating system, e.g. "linux"
  * @param name screenshot name, without extension
  */
-export async function screenshot(page: Page, os: "linux", name: string) {
-  const filePath = path.join(imagesPath, `${name}.png`);
-  await page.screenshot({ path: filePath });
+
+export class CaseScreenshot {
+  private caseName: string;
+  private baseDir: string;
+  public caseDir: string;
+  private screenshotCount: number = 1;
+
+  /**
+   * @param caseName
+   * @param baseDir screenshot root directory, default images-linux
+   */
+  constructor(caseName: string, baseDir?: string) {
+    this.caseName = caseName.replace(/[\\/:*?"<>|]/g, "_");
+    this.baseDir = baseDir ?? imagesPath;
+    this.caseDir = path.join(this.baseDir, this.caseName);
+  }
+
+  /**
+   * Take a screenshot and save it in a folder named after the case.
+   * @param page playwright page
+   * @param name Screenshot name (without extension)
+   */
+  async screenshot(page: Page, name: string) {
+    await fs.promises.mkdir(this.caseDir, { recursive: true });
+    const filePath = path.join(this.caseDir, `${this.screenshotCount}_${name}.png`);
+    await page.screenshot({ path: filePath });
+    this.screenshotCount++;
+  }
 }

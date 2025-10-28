@@ -1,5 +1,16 @@
 # Change Log - @typespec/http-server-csharp
 
+## 0.58.0-alpha.21
+
+No changes, version bump only.
+
+## 0.58.0-alpha.20
+
+### Bump dependencies
+
+- [#8317](https://github.com/microsoft/typespec/pull/8317) Upgrade dependencies
+
+
 ## 0.58.0-alpha.19
 
 ### Bump dependencies

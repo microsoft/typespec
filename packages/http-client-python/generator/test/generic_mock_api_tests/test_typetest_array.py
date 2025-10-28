@@ -50,10 +50,18 @@ def test_model_value(client: ArrayClient):
         models.InnerModel(property="hello"),
         models.InnerModel(property="world"),
     ]
+    # test list[model]
     client.model_value.put(
         [
             models.InnerModel(property="hello"),
             models.InnerModel(property="world"),
+        ]
+    )
+    # test list[JSON]
+    client.model_value.put(
+        [
+            {"property": "hello"},
+            {"property": "world"},
         ]
     )
 

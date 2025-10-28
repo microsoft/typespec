@@ -23,6 +23,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 return new InputEnumTypeValue(name, value, InputPrimitiveType.Float32, "", $"{name} description", enumType);
             }
 
+            public static InputEnumTypeValue Float64(string name, double value, InputEnumType enumType)
+            {
+                return new InputEnumTypeValue(name, value, InputPrimitiveType.Float64, "", $"{name} description", enumType);
+            }
+
             public static InputEnumTypeValue String(string name, string value, InputEnumType enumType)
             {
                 return new InputEnumTypeValue(name, value, InputPrimitiveType.String, "", $"{name} description", enumType);
@@ -39,6 +44,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             public static InputLiteralType Int32(int value, string? name = null, string? @namespace = null)
             {
                 return new InputLiteralType(name ?? string.Empty, @namespace ?? string.Empty, InputPrimitiveType.Int32, value);
+            }
+
+            public static InputLiteralType Bool(bool value, string? name = null, string? @namespace = null)
+            {
+                return new InputLiteralType(name ?? string.Empty, @namespace ?? string.Empty, InputPrimitiveType.Boolean, value);
             }
         }
 
@@ -155,6 +165,32 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             foreach (var (valueName, value) in values)
             {
                 enumValues.Add(EnumMember.Float32(valueName, value, enumType));
+            }
+
+            return enumType;
+        }
+
+        public static InputEnumType Float64Enum(
+            string name,
+            IEnumerable<(string Name, double Value)> values,
+            string access = "public",
+            InputModelTypeUsage usage = InputModelTypeUsage.Input | InputModelTypeUsage.Output,
+            bool isExtensible = false,
+            string clientNamespace = "Sample.Models")
+        {
+            var enumValues = new List<InputEnumTypeValue>();
+            var enumType = Enum(
+                name,
+                InputPrimitiveType.Float64,
+                enumValues,
+                access: access,
+                usage: usage,
+                isExtensible: isExtensible,
+                clientNamespace: clientNamespace);
+
+            foreach (var (valueName, value) in values)
+            {
+                enumValues.Add(EnumMember.Float64(valueName, value, enumType));
             }
 
             return enumType;
@@ -412,7 +448,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             InputType? additionalProperties = null,
             IDictionary<string, InputModelType>? discriminatedModels = null,
             IEnumerable<InputModelType>? derivedModels = null,
-            InputModelProperty? discriminatorProperty = null)
+            InputModelProperty? discriminatorProperty = null,
+            bool isDynamicModel = false)
         {
             IEnumerable<InputModelProperty> propertiesList = properties ?? [Property("StringProperty", InputPrimitiveType.String)];
 
@@ -429,15 +466,20 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 baseModel,
                 derivedModels is null ? [] : [.. derivedModels],
                 discriminatedKind,
-                discriminatorProperty ?? propertiesList.FirstOrDefault(p => p is InputModelProperty modelProperty && modelProperty.IsDiscriminator),
-                discriminatedModels is null ? new Dictionary<string, InputModelType>() : discriminatedModels.AsReadOnly(),
+                discriminatorProperty ?? propertiesList.FirstOrDefault(p =>
+                    p is InputModelProperty modelProperty && modelProperty.IsDiscriminator),
+                discriminatedModels is null
+                    ? new Dictionary<string, InputModelType>()
+                    : discriminatedModels.AsReadOnly(),
                 additionalProperties,
                 modelAsStruct,
-                new());
+                new(),
+                isDynamicModel);
             if (baseModel is not null)
             {
                 _addDerivedModelMethod.Invoke(baseModel, new object[] { model });
             }
+
             return model;
         }
 
@@ -451,9 +493,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             return new InputDictionaryType("dictionary", keyType ?? InputPrimitiveType.String, valueType);
         }
 
-        public static InputType Union(IList<InputType> types)
+        public static InputType Union(IList<InputType> types, string name = "union")
         {
-            return new InputUnionType("union", [.. types]);
+            return new InputUnionType(name, [.. types]);
         }
 
         public static InputBasicServiceMethod BasicServiceMethod(
@@ -579,6 +621,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
         public static InputServiceMethodResponse ServiceMethodResponse(InputType? type, IReadOnlyList<string>? resultSegments)
         {
             return new InputServiceMethodResponse(type, resultSegments);
+        }
+
+        public static InputExternalType External(string identity, string? package = null, string? minVersion = null)
+        {
+            return new InputExternalType(identity, package, minVersion);
         }
 
         private static readonly Dictionary<InputClient, IList<InputClient>> _childClientsCache = new();

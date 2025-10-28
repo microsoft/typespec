@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ClientModel.Primitives;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -138,7 +139,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     .. GetStackVariablesForProtocolParamConversion(ConvenienceMethodParameters, out var paramDeclarations),
                     Declare("result", This.Invoke(protocolMethod.Signature, [.. GetProtocolMethodArguments(paramDeclarations)], isAsync).ToApi<ClientResponseApi>(), out ClientResponseApi result),
                     .. GetStackVariablesForReturnValueConversion(result, responseBodyType, isAsync, out var resultDeclarations),
-                    Return(result.FromValue(GetResultConversion(result, result.GetRawResponse(), responseBodyType, resultDeclarations), result.GetRawResponse())),
+                    IsConvertibleFromBinaryData(responseBodyType)
+                        ? Return(result.FromValue(GetResultConversion(result, result.GetRawResponse(), responseBodyType, resultDeclarations), result.GetRawResponse()))
+                        :
+                        new[]
+                        {
+                            Declare("data", result.GetRawResponse().Content(), out var data),
+                            UsingDeclare("document", data.Parse(), out var jsonDocument),
+                            Declare("element", jsonDocument.RootElement(), out var jsonElement),
+                            Return(result.FromValue(
+                                ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(
+                                responseBodyType.FrameworkType,
+                                jsonElement,
+                                data,
+                                ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition.WireOptionsField.As<ModelReaderWriterOptions>(),
+                                SerializationFormat.Default),
+                                result.GetRawResponse()))
+                        },
                 ];
             }
 
@@ -190,12 +207,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         statements.Add(UsingDeclare("content", RequestContentApiSnippets.Create(bdExpression), out var content));
                         declarations["content"] = content;
                     }
-                    else if (parameter.Type.IsFrameworkType && !parameter.Type.Equals(typeof(BinaryData)))
+                    else if (parameter.Type.IsFrameworkType && !parameter.Type.Equals(typeof(BinaryData)) && IsConvertibleFromBinaryData(parameter.Type))
                     {
                         statements.Add(UsingDeclare("content", requestContentType, BinaryContentHelperSnippets.FromObject(parameter), out var content));
                         declarations["content"] = content;
                     }
+                    else if (parameter.Type.IsFrameworkType && !parameter.Type.Equals(typeof(BinaryData)))
+                    {
+                        statements.Add(Declare("content", New.Instance<Utf8JsonBinaryContentDefinition>(), out var content));
+                        statements.Add(ScmCodeModelGenerator.Instance.TypeFactory.SerializeJsonValue(
+                            parameter.Type.FrameworkType,
+                            parameter,
+                            content.JsonWriter(),
+                            ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition.WireOptionsField.As<ModelReaderWriterOptions>(),
+                            SerializationFormat.Default));
+                        declarations["content"] = content;
+                    }
                     // else rely on implicit operator to convert to BinaryContent
+                    // For BinaryData we have special handling as well
                 }
             }
 
@@ -215,8 +244,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var convenienceMethodParams = ConvenienceMethodParameters.ToDictionary(p => p.Name);
             List<ValueExpression> expressions = new(spreadSource.Properties.Count);
             // we should make this find more deterministic
-            var ctor = spreadSource.CanonicalView.Constructors.First(c => c.Signature.Parameters.Count == spreadSource.CanonicalView.Properties.Count + 1 &&
-                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
+            var ctor = spreadSource.CanonicalView.Constructors.First(c =>
+                c.Signature.Parameters.Count == spreadSource.CanonicalView.Properties.Count + 1 ||
+                    (c.EnclosingType is ScmModelProvider { IsDynamicModel: true } && c.Signature.Parameters.Count == spreadSource.CanonicalView.Properties.Count));
 
             foreach (var param in ctor.Signature.Parameters)
             {
@@ -235,9 +265,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         expressions.Add(convenienceParam);
                     }
                 }
+                else if (param.Property is { Body: AutoPropertyBody { InitializationExpression: not null } body })
+                {
+                    expressions.Add(body.InitializationExpression);
+                }
                 else
                 {
-                    expressions.Add(Null);
+                    expressions.Add(Default);
                 }
             }
 
@@ -252,12 +286,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (!elementType.IsFrameworkType || elementType.Equals(typeof(TimeSpan)) || elementType.Equals(typeof(BinaryData)))
                 {
                     var valueDeclaration = Declare("value", New.Instance(new CSharpType(typeof(List<>), elementType)).As(responseBodyType), out var value);
+                    var dataDeclaration = Declare("data", result.GetRawResponse().Content(), out var data);
+
                     MethodBodyStatement[] statements =
                     [
                         valueDeclaration,
-                        UsingDeclare("document", JsonDocumentSnippets.Parse(result.GetRawResponse().ContentStream(), isAsync), out var document),
+                        dataDeclaration,
+                        UsingDeclare("document", data.Parse(), out var document),
                         ForEachStatement.Create("item", document.RootElement().EnumerateArray(), out ScopedApi<JsonElement> item)
-                            .Add(GetElementConversion(elementType, item, value))
+                            .Add(GetElementConversion(elementType, data, item, value))
                     ];
                     declarations = new Dictionary<string, ValueExpression>
                     {
@@ -273,12 +310,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (!valueType.IsFrameworkType || valueType.Equals(typeof(TimeSpan)) || valueType.Equals(typeof(BinaryData)))
                 {
                     var valueDeclaration = Declare("value", New.Instance(new CSharpType(typeof(Dictionary<,>), keyType, valueType)).As(responseBodyType), out var value);
+                    var dataDeclaration = Declare("data", result.GetRawResponse().Content(), out var data);
+
                     MethodBodyStatement[] statements =
                     [
                         valueDeclaration,
-                        UsingDeclare("document", JsonDocumentSnippets.Parse(result.GetRawResponse().ContentStream(), isAsync), out var document),
+                        dataDeclaration,
+                        UsingDeclare("document", data.Parse(), out var document),
                         ForEachStatement.Create("item", document.RootElement().EnumerateObject(), out ScopedApi<JsonProperty> item)
-                            .Add(GetElementConversion(valueType, item.Value(), value, item.Name()))
+                            .Add(GetElementConversion(valueType, data, item.Value(), value, item.Name()))
                     ];
                     declarations = new Dictionary<string, ValueExpression>
                     {
@@ -292,7 +332,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return [];
         }
 
-        private MethodBodyStatement GetElementConversion(CSharpType elementType, ScopedApi<JsonElement> item, ScopedApi value, ValueExpression? dictKey = null)
+        private MethodBodyStatement GetElementConversion(CSharpType elementType, ScopedApi<BinaryData> data, ScopedApi<JsonElement> item, ScopedApi value, ValueExpression? dictKey = null)
         {
             if (elementType.Equals(typeof(TimeSpan)))
             {
@@ -307,7 +347,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             else
             {
-                return AddElement(dictKey, Static(elementType).Invoke($"Deserialize{elementType.Name}", item, ModelSerializationExtensionsSnippets.Wire), value);
+                return AddElement(
+                    dictKey,
+                    MrwSerializationTypeDefinition.GetDeserializationMethodInvocationForType(elementType, item, data, ModelSerializationExtensionsSnippets.Wire),
+                    value);
             }
         }
 
@@ -363,6 +406,48 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return responseBodyType.ToEnum(response.Content().ToObjectFromJson(responseBodyType.UnderlyingEnumType));
             }
             return result.CastTo(responseBodyType);
+        }
+
+        private static bool IsConvertibleFromBinaryData(CSharpType type)
+        {
+            if (type.Equals(typeof(BinaryData)))
+            {
+                return true;
+            }
+
+            if (!type.IsFrameworkType)
+            {
+                // generated types will have the explicit operator from ClientResult defined
+                return true;
+            }
+
+            if (type.IsList)
+            {
+                return IsConvertibleFromBinaryData(type.Arguments[0]);
+            }
+
+            if (type.IsDictionary)
+            {
+                return IsConvertibleFromBinaryData(type.Arguments[1]);
+            }
+
+            return type.Equals(typeof(string)) ||
+                   type.Equals(typeof(int)) ||
+                   type.Equals(typeof(int?)) ||
+                   type.Equals(typeof(long)) ||
+                   type.Equals(typeof(long?)) ||
+                   type.Equals(typeof(double)) ||
+                   type.Equals(typeof(double?)) ||
+                   type.Equals(typeof(float)) ||
+                   type.Equals(typeof(float?)) ||
+                   type.Equals(typeof(decimal)) ||
+                   type.Equals(typeof(decimal?)) ||
+                   type.Equals(typeof(bool)) ||
+                   type.Equals(typeof(bool?)) ||
+                   type.Equals(typeof(DateTimeOffset)) ||
+                   type.Equals(typeof(DateTimeOffset?)) ||
+                   type.Equals(typeof(TimeSpan)) ||
+                   type.Equals(typeof(TimeSpan?));
         }
 
         private IReadOnlyList<ValueExpression> GetProtocolMethodArguments(Dictionary<string, ValueExpression> declarations)

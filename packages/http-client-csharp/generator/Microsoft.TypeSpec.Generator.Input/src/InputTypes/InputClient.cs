@@ -9,7 +9,6 @@ namespace Microsoft.TypeSpec.Generator.Input
     public class InputClient
     {
         private readonly string? _key;
-        private IReadOnlyDictionary<string, InputClientExample>? _examples;
 
         public InputClient(
             string name,
@@ -53,17 +52,6 @@ namespace Microsoft.TypeSpec.Generator.Input
         {
             get => _key ?? Name;
             init => _key = value;
-        }
-
-        public IReadOnlyDictionary<string, InputClientExample> Examples => _examples ??= EnsureExamples();
-
-        private IReadOnlyDictionary<string, InputClientExample> EnsureExamples()
-        {
-            return new Dictionary<string, InputClientExample>()
-            {
-                [ExampleMockValueBuilder.ShortVersionMockExampleKey] = ExampleMockValueBuilder.BuildClientExample(this, false),
-                [ExampleMockValueBuilder.MockExampleAllParameterKey] = ExampleMockValueBuilder.BuildClientExample(this, true)
-            };
         }
     }
 }

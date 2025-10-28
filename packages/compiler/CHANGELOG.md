@@ -1,5 +1,49 @@
 # Change Log - @typespec/compiler
 
+## 1.5.0
+
+### Features
+
+- [#8549](https://github.com/microsoft/typespec/pull/8549) [Testing API] Expose marker position in Tester
+- [#8491](https://github.com/microsoft/typespec/pull/8491) Add milliseconds to DurationKnownEncoding
+- [#7929](https://github.com/microsoft/typespec/pull/7929) [LSP] Allow configuring which file names to use as entrypoints
+- [#8525](https://github.com/microsoft/typespec/pull/8525) [API] Expose `applyCodeFix` and `createSuppressCodeFix`
+- [#8652](https://github.com/microsoft/typespec/pull/8652) [API] Export `getNodeForTarget` in `@typespec/compiler/ast` exports
+- [#8542](https://github.com/microsoft/typespec/pull/8542) [API] Expose `applyCodeFixEdits`, `resolveCodeFix`
+- [#8544](https://github.com/microsoft/typespec/pull/8544) [api] adds the ability to pass the suppression message
+- [#8632](https://github.com/microsoft/typespec/pull/8632) [API] Allow using union in emitter schemas
+- [#8586](https://github.com/microsoft/typespec/pull/8586) Widen target types for the `@secret` decorator to include Model, Union, and Enum types, in addition to existing Scalar and ModelProperty targets. This allows marking any data type as secret for comprehensive data sensitivity handling.
+- [#8055](https://github.com/microsoft/typespec/pull/8055) Show template parameters default in hover signature
+- [#8234](https://github.com/microsoft/typespec/pull/8234) Support codefix on different file and creating file when needed
+- [#8670](https://github.com/microsoft/typespec/pull/8670) [Tester] Support sub exports without having them being defined as separate libraries
+
+### Bug Fixes
+
+- [#8506](https://github.com/microsoft/typespec/pull/8506) Fix issue when the 'entrypoint' setting is default to null
+- [#8462](https://github.com/microsoft/typespec/pull/8462) Fix grammar error in TypeSpec unused-using warning message by removing incorrect word "be" from "never be used"
+- [#8548](https://github.com/microsoft/typespec/pull/8548) Linter rule tester not passing parseDocs option to new tester instance
+- [#8578](https://github.com/microsoft/typespec/pull/8578) Add suppression codefix looks up for the first valid parent
+- [#8452](https://github.com/microsoft/typespec/pull/8452) [Tester] Fix issue that could cause some timeout
+- [#8573](https://github.com/microsoft/typespec/pull/8573) LSP connection failure after dynamically loading a certain library in the package
+- [#8670](https://github.com/microsoft/typespec/pull/8670) Allow importing of self (e.g. `@typespec/openapi/some/path` when in `@typespec/openapi`) respecting ESM spec.
+
+
+## 1.4.0
+
+### Features
+
+- [#4383](https://github.com/microsoft/typespec/pull/4383) Expose `createSourceLoader` via `@typespec/compiler/ast`
+
+### Bump dependencies
+
+- [#8317](https://github.com/microsoft/typespec/pull/8317) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8386](https://github.com/microsoft/typespec/pull/8386) fixed a bug where max/min Items could not be used in combination with a nullable type
+- [#8152](https://github.com/microsoft/typespec/pull/8152) Remove incorrect example of service option model from documents
+
+
 ## 1.3.0
 
 ### Features

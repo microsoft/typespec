@@ -12,6 +12,7 @@ using Azure.Core;
 using Azure.ResourceManager;
 using TypeSpec.OpenAPI;
 using Azure.ClientGenerator.Core;
+using Azure.ClientGenerator.Core.Legacy;
 
 @armProviderNamespace
 @service(#{ title: "ArmResource" })
@@ -21,23 +22,15 @@ namespace TspTest.ArmResourceProvider;
 
 @doc("Azure API versions.")
 enum Versions {
-  @useDependency(Azure.Core.Versions.v1_0_Preview_2)
-  @useDependency(Azure.ResourceManager.Versions.v1_0_Preview_1)
   @doc("Preview API version 2022-06-01-preview.")
   v2022_06_01_preview: "2022-06-01-preview",
 
-  @useDependency(Azure.Core.Versions.v1_0_Preview_2)
-  @useDependency(Azure.ResourceManager.Versions.v1_0_Preview_1)
   @doc("Preview API version 2022-09-01-preview.")
   v2022_09_01_preview: "2022-09-01-preview",
 
-  @useDependency(Azure.Core.Versions.v1_0_Preview_2)
-  @useDependency(Azure.ResourceManager.Versions.v1_0_Preview_1)
   @doc("Public API version.")
   v2023_11_01: "2023-11-01",
 
-  @useDependency(Azure.Core.Versions.v1_0_Preview_2)
-  @useDependency(Azure.ResourceManager.Versions.v1_0_Preview_1)
   @doc("Preview API version 2023-12-01-preview.")
   v2023_12_01_preview: "2023-12-01-preview",
 }
@@ -85,6 +78,9 @@ model TopLevelArmResourceProperties {
 
   @visibility(Lifecycle.Create, Lifecycle.Read)
   startTimeStamp: utcDateTime; // this should be renamed to startTimestamp
+
+  @visibility(Lifecycle.Read)
+  size?: float32;
 
   @visibility(Lifecycle.Read)
   @doc("The status of the last operation.")

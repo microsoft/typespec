@@ -24,7 +24,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             ]);
             var iNamedSymbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, "Model");
 
-            var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!);
+            var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!, compilation);
             var methods = namedTypeSymbolProvider.Methods;
 
             Assert.AreEqual(1, methods.Count);
@@ -43,7 +43,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             var compilation = CompilationHelper.LoadCompilation([model], [typeof(BinaryData)]);
             var iNamedSymbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, "Model");
 
-            var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!);
+            var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!, compilation);
             Assert.AreEqual(2, namedTypeSymbolProvider.Properties.Count);
             Assert.AreEqual("X", namedTypeSymbolProvider.Properties[0].Name);
             Assert.IsTrue(namedTypeSymbolProvider.Properties[0].Type.Equals(typeof(int)));
@@ -55,10 +55,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
         public void VerifyBaseTypeIsNull()
         {
             var model = new Model();
-            var compilation = CompilationHelper.LoadCompilation([model]);
+            var compilation = CompilationHelper.LoadCompilation([model], [typeof(IJsonModel<>)]);
             var iNamedSymbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, "Model");
 
-            var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!);
+            var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!, compilation);
             Assert.IsNull(namedTypeSymbolProvider.Type.BaseType);
         }
 

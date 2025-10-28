@@ -1269,9 +1269,7 @@ model Foo {
       }
 
       @route("/") @get op getFoo(): {
-        /**
-         * my test header
-         */
+        /** my test header */
         @header("x-test") xTest?: string;
 
         @header("x-test2") xTest2?: string;
@@ -1338,9 +1336,7 @@ describe("requestBody", () => {
       }
 
       @route("/") @post op postFoo(
-        /**
-         * This is a test
-         */
+        /** This is a test */
         @body body: Foo,
       ): OkResponse;
       "
@@ -1407,9 +1403,7 @@ describe("requestBody", () => {
       }
 
       @route("/") @post op postFoo(
-        /**
-         * This is a test
-         */
+        /** This is a test */
         @body body: Foo,
       ): OkResponse;
       "
@@ -1477,13 +1471,85 @@ describe("requestBody", () => {
       }
 
       @route("/") @post op postFoo(
-        /**
-         * Overwritten description
-         */
+        /** Overwritten description */
         @body body: Foo,
       ): OkResponse;
       "
     `);
+
+    await validateTsp(tsp);
+  });
+
+  it("generates separate operations for multipart and non-multipart content types", async () => {
+    const tsp = await renderTypeSpecForOpenAPI3({
+      schemas: {
+        RealtimeCallCreateRequest: {
+          type: "object",
+          required: ["sdp", "session"],
+          properties: {
+            sdp: {
+              type: "string",
+              description: "sdp",
+            },
+            session: {
+              type: "object",
+              properties: {
+                user_id: {
+                  type: "string",
+                  description: "User ID",
+                },
+              },
+            },
+          },
+        },
+      },
+      paths: {
+        "/realtime/calls": {
+          post: {
+            operationId: "create-realtime-call",
+            summary: "Create call",
+            parameters: [],
+            requestBody: {
+              required: true,
+              content: {
+                "multipart/form-data": {
+                  schema: {
+                    $ref: "#/components/schemas/RealtimeCallCreateRequest",
+                  },
+                  encoding: {
+                    sdp: {
+                      contentType: "application/sdp",
+                    },
+                    session: {
+                      contentType: "application/json",
+                    },
+                  },
+                },
+                "application/sdp": {
+                  schema: {
+                    type: "string",
+                    description: "SDP",
+                  },
+                },
+              },
+            },
+            responses: {
+              "204": {
+                description: "No Content",
+              },
+            },
+          },
+        },
+      },
+    });
+
+    // Should generate separate operations for multipart and non-multipart
+    expect(tsp).toContain("@sharedRoute");
+    expect(tsp).toContain("@multipartBody");
+    expect(tsp).toContain('contentType: "multipart/form-data"');
+    expect(tsp).toContain('"application/sdp"');
+    expect(tsp).toContain("create-realtime-callMultipart");
+    expect(tsp).toContain("create-realtime-callSdp");
 
     await validateTsp(tsp);
   });

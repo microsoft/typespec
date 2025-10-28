@@ -65,6 +65,63 @@ Scenarios.Encode_Duration_Property_floatSecondsArray = createBodyServerTests(
   [35.625, 46.75],
 );
 
+Scenarios.Encode_Duration_Property_int32Milliseconds = createBodyServerTests(
+  "/encode/duration/property/int32-milliseconds",
+  {
+    value: 36000,
+  },
+  36000,
+);
+Scenarios.Encode_Duration_Property_floatMilliseconds = createBodyServerTests(
+  "/encode/duration/property/float-milliseconds",
+  {
+    value: 35625,
+  },
+  35625,
+);
+Scenarios.Encode_Duration_Property_float64Milliseconds = createBodyServerTests(
+  "/encode/duration/property/float64-milliseconds",
+  {
+    value: 35625,
+  },
+  35625,
+);
+Scenarios.Encode_Duration_Property_floatMillisecondsArray = createBodyServerTests(
+  "/encode/duration/property/float-milliseconds-array",
+  {
+    value: [35625, 46750],
+  },
+  [35625, 46750],
+);
+Scenarios.Encode_Duration_Property_int32SecondsLargerUnit = createBodyServerTests(
+  "/encode/duration/property/int32-seconds-larger-unit",
+  {
+    value: 120,
+  },
+  120,
+);
+Scenarios.Encode_Duration_Property_floatSecondsLargerUnit = createBodyServerTests(
+  "/encode/duration/property/float-seconds-larger-unit",
+  {
+    value: 150.0,
+  },
+  150.0,
+);
+Scenarios.Encode_Duration_Property_int32MillisecondsLargerUnit = createBodyServerTests(
+  "/encode/duration/property/int32-milliseconds-larger-unit",
+  {
+    value: 180000,
+  },
+  180000,
+);
+Scenarios.Encode_Duration_Property_floatMillisecondsLargerUnit = createBodyServerTests(
+  "/encode/duration/property/float-milliseconds-larger-unit",
+  {
+    value: 210000.0,
+  },
+  210000.0,
+);
+
 function createQueryServerTests(
   uri: string,
   paramData: any,
@@ -133,6 +190,64 @@ Scenarios.Encode_Duration_Query_float64Seconds = createQueryServerTests(
   "35.625",
 );
 
+Scenarios.Encode_Duration_Query_int32Milliseconds = createQueryServerTests(
+  "/encode/duration/query/int32-milliseconds",
+  {
+    input: 36000,
+  },
+  "36000",
+);
+Scenarios.Encode_Duration_Query_floatMilliseconds = createQueryServerTests(
+  "/encode/duration/query/float-milliseconds",
+  {
+    input: 35625,
+  },
+  "35625",
+);
+Scenarios.Encode_Duration_Query_float64Milliseconds = createQueryServerTests(
+  "/encode/duration/query/float64-milliseconds",
+  {
+    input: 35625,
+  },
+  "35625",
+);
+Scenarios.Encode_Duration_Query_int32MillisecondsArray = createQueryServerTests(
+  "/encode/duration/query/int32-milliseconds-array",
+  {
+    input: [36000, 47000].join(","),
+  },
+  ["36000", "47000"],
+  "csv",
+);
+Scenarios.Encode_Duration_Query_int32SecondsLargerUnit = createQueryServerTests(
+  "/encode/duration/query/int32-seconds-larger-unit",
+  {
+    input: 120,
+  },
+  "120",
+);
+Scenarios.Encode_Duration_Query_floatSecondsLargerUnit = createQueryServerTests(
+  "/encode/duration/query/float-seconds-larger-unit",
+  {
+    input: 150.0,
+  },
+  "150.0",
+);
+Scenarios.Encode_Duration_Query_int32MillisecondsLargerUnit = createQueryServerTests(
+  "/encode/duration/query/int32-milliseconds-larger-unit",
+  {
+    input: 180000,
+  },
+  "180000",
+);
+Scenarios.Encode_Duration_Query_floatMillisecondsLargerUnit = createQueryServerTests(
+  "/encode/duration/query/float-milliseconds-larger-unit",
+  {
+    input: 210000.0,
+  },
+  "210000.0",
+);
+
 function createHeaderServerTests(uri: string, headersData: any, value: any) {
   return passOnSuccess({
     uri,
@@ -188,4 +303,61 @@ Scenarios.Encode_Duration_Header_iso8601Array = createHeaderServerTests(
     duration: ["P40D", "P50D"].join(","),
   },
   "P40D,P50D",
+);
+
+Scenarios.Encode_Duration_Header_int32Milliseconds = createHeaderServerTests(
+  "/encode/duration/header/int32-milliseconds",
+  {
+    duration: "36000",
+  },
+  "36000",
+);
+Scenarios.Encode_Duration_Header_floatMilliseconds = createHeaderServerTests(
+  "/encode/duration/header/float-milliseconds",
+  {
+    duration: "35625",
+  },
+  "35625",
+);
+Scenarios.Encode_Duration_Header_float64Milliseconds = createHeaderServerTests(
+  "/encode/duration/header/float64-milliseconds",
+  {
+    duration: "35625",
+  },
+  "35625",
+);
+Scenarios.Encode_Duration_Header_int32MillisecondsArray = createHeaderServerTests(
+  "/encode/duration/header/int32-milliseconds-array",
+  {
+    duration: ["36000", "47000"].join(","),
+  },
+  "36000,47000",
+);
+Scenarios.Encode_Duration_Header_int32SecondsLargerUnit = createHeaderServerTests(
+  "/encode/duration/header/int32-seconds-larger-unit",
+  {
+    duration: "120",
+  },
+  "120",
+);
+Scenarios.Encode_Duration_Header_floatSecondsLargerUnit = createHeaderServerTests(
+  "/encode/duration/header/float-seconds-larger-unit",
+  {
+    duration: "150.0",
+  },
+  "150.0",
+);
+Scenarios.Encode_Duration_Header_int32MillisecondsLargerUnit = createHeaderServerTests(
+  "/encode/duration/header/int32-milliseconds-larger-unit",
+  {
+    duration: "180000",
+  },
+  "180000",
+);
+Scenarios.Encode_Duration_Header_floatMillisecondsLargerUnit = createHeaderServerTests(
+  "/encode/duration/header/float-milliseconds-larger-unit",
+  {
+    duration: "210000.0",
+  },
+  "210000.0",
 );

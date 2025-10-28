@@ -67,7 +67,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             return [
                 ..baseTypes,
                 ..BuildClientTypes(),
-                new ModelSerializationExtensionsDefinition(),
+                ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition,
+                ScmCodeModelGenerator.Instance.SerializationFormatDefinition,
                 new TypeFormattersDefinition(),
                 new ClientPipelineExtensionsDefinition(),
                 new ErrorResultDefinition(),

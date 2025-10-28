@@ -1,8 +1,6 @@
 using System;
-using System.ClientModel.Primitives;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
 using System.Xml;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -20,7 +18,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             var compilation = CompilationHelper.LoadCompilation(new[] { model });
             var iNamedSymbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, nameof(InvalidPropertyDocsModel));
 
-            var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!);
+            var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!, compilation);
             var ex = Assert.Throws<InvalidOperationException>(() => _ = namedTypeSymbolProvider.Properties);
             Assert.IsInstanceOf<XmlException>(ex!.InnerException);
             StringAssert.Contains(
@@ -35,12 +33,97 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             var compilation = CompilationHelper.LoadCompilation(new[] { model });
             var iNamedSymbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, nameof(ValidDocsModel));
 
-            var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!);
+            var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!, compilation);
             Assert.AreEqual(2, namedTypeSymbolProvider.Properties.Count);
             Assert.AreEqual("X", namedTypeSymbolProvider.Properties[0].Name);
             Assert.IsTrue(namedTypeSymbolProvider.Properties[0].Type.Equals(typeof(int)));
             Assert.AreEqual("Y", namedTypeSymbolProvider.Properties[1].Name);
             Assert.IsTrue(namedTypeSymbolProvider.Properties[1].Type.Equals(typeof(string)));
+        }
+
+        [Test]
+        public void SeeTagWithTypePrefixProcessedCorrectly()
+        {
+            var model = new SeeTagWithTypePrefixModel();
+            var compilation = CompilationHelper.LoadCompilation(new[] { model });
+            var iNamedSymbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, nameof(SeeTagWithTypePrefixModel));
+
+            var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!, compilation);
+            Assert.AreEqual(1, namedTypeSymbolProvider.Properties.Count);
+
+            var property = namedTypeSymbolProvider.Properties[0];
+            Assert.AreEqual("TestProperty", property.Name);
+
+            var description = property.Description?.ToString() ?? string.Empty;
+            Assert.That(description, Contains.Substring("Initializes a new instance of <see cref=\"System.String\"/>."));
+        }
+
+        [Test]
+        public void SeeTagWithoutTypePrefixProcessedCorrectly()
+        {
+            var model = new SeeTagWithoutTypePrefixModel();
+            var compilation = CompilationHelper.LoadCompilation(new[] { model });
+            var iNamedSymbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, nameof(SeeTagWithoutTypePrefixModel));
+
+            var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!, compilation);
+            Assert.AreEqual(1, namedTypeSymbolProvider.Properties.Count);
+
+            var property = namedTypeSymbolProvider.Properties[0];
+            Assert.AreEqual("TestProperty", property.Name);
+
+            var description = property.Description?.ToString() ?? string.Empty;
+            Assert.That(description, Contains.Substring("Initializes a new instance of <see cref=\"System.String\"/>."));
+        }
+
+        [Test]
+        public void MultipleSeeTagsProcessedCorrectly()
+        {
+            var model = new MultipleSeeTagsModel();
+            var compilation = CompilationHelper.LoadCompilation(new[] { model });
+            var iNamedSymbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, nameof(MultipleSeeTagsModel));
+
+            var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!, compilation);
+            Assert.AreEqual(1, namedTypeSymbolProvider.Properties.Count);
+
+            var property = namedTypeSymbolProvider.Properties[0];
+            var description = property.Description?.ToString() ?? string.Empty;
+
+            // Verify both see tags are processed correctly
+            Assert.That(description, Contains.Substring("Works with <see cref=\"System.String\"/> and <see cref=\"System.Int32\"/> types."));
+        }
+
+        [Test]
+        public void SeeTagWithoutCrefAttributePreserved()
+        {
+            var model = new SeeTagWithoutCrefModel();
+            var compilation = CompilationHelper.LoadCompilation(new[] { model });
+            var iNamedSymbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, nameof(SeeTagWithoutCrefModel));
+
+            var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!, compilation);
+            Assert.AreEqual(1, namedTypeSymbolProvider.Properties.Count);
+
+            var property = namedTypeSymbolProvider.Properties[0];
+            var description = property.Description?.ToString() ?? string.Empty;
+
+            // Verify that see tag without cref is preserved as-is
+            Assert.That(description, Contains.Substring("See documentation for <see langword=\"null\" /> keyword."));
+        }
+
+        [Test]
+        public void MixedContentWithSeeTagsProcessedCorrectly()
+        {
+            var model = new MixedContentModel();
+            var compilation = CompilationHelper.LoadCompilation(new[] { model });
+            var iNamedSymbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, nameof(MixedContentModel));
+
+            var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!, compilation);
+            Assert.AreEqual(1, namedTypeSymbolProvider.Properties.Count);
+
+            var property = namedTypeSymbolProvider.Properties[0];
+            var description = property.Description?.ToString() ?? string.Empty;
+
+            // Verify that regular text is preserved and see tags are processed
+            Assert.That(description, Contains.Substring("This property represents <see cref=\"System.String\"/> and returns a value."));
         }
 
         [Test]
@@ -50,7 +133,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             var compilation = CompilationHelper.LoadCompilation(new[] { model });
             var iNamedSymbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, nameof(InvalidParameterDocsModel));
 
-            var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!);
+            var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!, compilation);
             var ex = Assert.Throws<InvalidOperationException>(() => _ = namedTypeSymbolProvider.Methods);
             Assert.IsInstanceOf<XmlException>(ex!.InnerException);
             StringAssert.Contains(
@@ -102,6 +185,86 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
                     new PropertyProvider($"This is a valid description <see cref=\"Y\"/>", MethodSignatureModifiers.Public, new CSharpType(typeof(int)), "X",
                         new AutoPropertyBody(true), this),
                     new PropertyProvider($"", MethodSignatureModifiers.Public, new CSharpType(typeof(string)), "Y",
+                        new AutoPropertyBody(true), this),
+                ];
+            }
+        }
+
+        private class SeeTagWithTypePrefixModel : TypeProvider
+        {
+            protected override string BuildRelativeFilePath() => ".";
+
+            protected override string BuildName() => nameof(SeeTagWithTypePrefixModel);
+
+            protected override PropertyProvider[] BuildProperties()
+            {
+                return
+                [
+                    new PropertyProvider($"Initializes a new instance of <see cref=\"T:System.String\"/>.", MethodSignatureModifiers.Public, new CSharpType(typeof(string)), "TestProperty",
+                        new AutoPropertyBody(true), this),
+                ];
+            }
+        }
+
+        private class SeeTagWithoutTypePrefixModel : TypeProvider
+        {
+            protected override string BuildRelativeFilePath() => ".";
+
+            protected override string BuildName() => nameof(SeeTagWithoutTypePrefixModel);
+
+            protected override PropertyProvider[] BuildProperties()
+            {
+                return
+                [
+                    new PropertyProvider($"Initializes a new instance of <see cref=\"System.String\"/>.", MethodSignatureModifiers.Public, new CSharpType(typeof(string)), "TestProperty",
+                        new AutoPropertyBody(true), this),
+                ];
+            }
+        }
+
+        private class MultipleSeeTagsModel : TypeProvider
+        {
+            protected override string BuildRelativeFilePath() => ".";
+
+            protected override string BuildName() => nameof(MultipleSeeTagsModel);
+
+            protected override PropertyProvider[] BuildProperties()
+            {
+                return
+                [
+                    new PropertyProvider($"Works with <see cref=\"T:System.String\"/> and <see cref=\"T:System.Int32\"/> types.", MethodSignatureModifiers.Public, new CSharpType(typeof(object)), "TestProperty",
+                        new AutoPropertyBody(true), this),
+                ];
+            }
+        }
+
+        private class SeeTagWithoutCrefModel : TypeProvider
+        {
+            protected override string BuildRelativeFilePath() => ".";
+
+            protected override string BuildName() => nameof(SeeTagWithoutCrefModel);
+
+            protected override PropertyProvider[] BuildProperties()
+            {
+                return
+                [
+                    new PropertyProvider($"See documentation for <see langword=\"null\"/> keyword.", MethodSignatureModifiers.Public, new CSharpType(typeof(string)), "TestProperty",
+                        new AutoPropertyBody(true), this),
+                ];
+            }
+        }
+
+        private class MixedContentModel : TypeProvider
+        {
+            protected override string BuildRelativeFilePath() => ".";
+
+            protected override string BuildName() => nameof(MixedContentModel);
+
+            protected override PropertyProvider[] BuildProperties()
+            {
+                return
+                [
+                    new PropertyProvider($"This property represents <see cref=\"T:System.String\"/> and returns a value.", MethodSignatureModifiers.Public, new CSharpType(typeof(string)), "TestProperty",
                         new AutoPropertyBody(true), this),
                 ];
             }

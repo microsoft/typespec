@@ -1,5 +1,27 @@
 # Changelog - @typespec/http-client-js
 
+## 0.10.0
+
+### Bug Fixes
+
+- [#8613](https://github.com/microsoft/typespec/pull/8613) Remove warning when no explicit content type is provided to a multipart part
+
+
+## 0.9.0
+
+### Features
+
+- [#8145](https://github.com/microsoft/typespec/pull/8145) Enable component overrides for extensibility
+
+### Bump dependencies
+
+- [#8317](https://github.com/microsoft/typespec/pull/8317) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8362](https://github.com/microsoft/typespec/pull/8362) Upgrade alloy to 0.20
+
+
 ## 0.8.0
 
 ### Bump dependencies

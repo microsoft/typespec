@@ -1,4 +1,4 @@
-import OpenAPIParser from "@apidevtools/swagger-parser";
+import { dereference } from "@scalar/openapi-parser";
 import { formatTypeSpec } from "@typespec/compiler";
 import { strictEqual } from "node:assert";
 import { beforeAll, describe, it } from "vitest";
@@ -17,6 +17,7 @@ function generateScenarioName(scenario: TestScenario): string {
 const testScenarios: TestScenario[] = [
   // boolean
   { schema: { type: "boolean" }, expected: "boolean" },
+  { schema: { type: "boolean", default: false }, expected: "boolean" },
   { schema: { type: "boolean", nullable: true }, expected: "boolean | null" },
   // integers
   { schema: { type: "integer" }, expected: "integer" },
@@ -40,6 +41,7 @@ const testScenarios: TestScenario[] = [
   },
   // numerics
   { schema: { type: "number" }, expected: "numeric" },
+  { schema: { type: "number", default: 0 }, expected: "numeric" },
   { schema: { type: "number", default: 123 }, expected: "numeric = 123" },
   { schema: { type: "number", default: 123, nullable: true }, expected: "numeric | null = 123" },
   { schema: { type: "number", format: "decimal" }, expected: "decimal" },
@@ -49,6 +51,15 @@ const testScenarios: TestScenario[] = [
   { schema: { type: "number", enum: [3.14, 6.28, 42] }, expected: "3.14 | 6.28 | 42" },
   // strings
   { schema: { type: "string" }, expected: "string" },
+  {
+    schema: { type: "string", default: "foo" },
+    expected: 'string = "foo"',
+  },
+  { schema: { type: "string", default: "" }, expected: "string" },
+  {
+    schema: { type: "string", default: null as unknown as string, nullable: true },
+    expected: "string | null",
+  },
   { schema: { type: "string", format: "binary" }, expected: "bytes" },
   { schema: { type: "string", format: "byte" }, expected: "bytes" },
   { schema: { type: "string", format: "date" }, expected: "plainDate" },
@@ -60,6 +71,16 @@ const testScenarios: TestScenario[] = [
   {
     schema: { type: "string", default: "foo", enum: ["foo", "bar"] },
     expected: `"foo" | "bar" = "foo"`,
+  },
+  // const schemas
+  { schema: { const: "output_audio_buffer.started" }, expected: `"output_audio_buffer.started"` },
+  { schema: { const: 42 }, expected: `42` },
+  { schema: { const: true }, expected: `true` },
+  { schema: { const: false }, expected: `false` },
+  { schema: { const: null }, expected: `null` },
+  {
+    schema: { const: "output_audio_buffer.started", nullable: true },
+    expected: `"output_audio_buffer.started" | null`,
   },
   // refs
   { schema: { $ref: "#/Path/To/Some/Model" }, expected: "Model" },
@@ -103,6 +124,25 @@ const testScenarios: TestScenario[] = [
       properties: { bar: { type: "boolean" } },
     },
     expected: "{bar?: boolean; ...Record<string>}",
+  },
+  // Test for additionalProperties: true (should be Record<unknown>)
+  {
+    schema: { type: "object", additionalProperties: true },
+    expected: "Record<unknown>",
+  },
+  // Test for additionalProperties: {} (should be Record<unknown>, same as above)
+  {
+    schema: { type: "object", additionalProperties: {} },
+    expected: "Record<unknown>",
+  },
+  // Test for additionalProperties: true with properties
+  {
+    schema: {
+      type: "object",
+      additionalProperties: true,
+      properties: { bar: { type: "boolean" } },
+    },
+    expected: "{bar?: boolean; ...Record<unknown>}",
   },
   {
     schema: {
@@ -234,18 +274,43 @@ const testScenarios: TestScenario[] = [
     },
     expected: "{missingTypeProp: { foo?: string}}",
   },
+  // OpenAPI 3.1 type arrays
+  { schema: { type: ["integer", "null"] as any, format: "int32" }, expected: "int32 | null" },
+  { schema: { type: ["string", "null"] as any }, expected: "string | null" },
+  { schema: { type: ["boolean", "null"] as any }, expected: "boolean | null" },
+  { schema: { type: ["number", "null"] as any, format: "float" }, expected: "float32 | null" },
+  {
+    schema: { type: ["integer", "null"] as any, format: "int32", minimum: 1, maximum: 20 },
+    expected: "int32 | null",
+  },
+  {
+    schema: { type: ["string", "null"] as any, format: "date-time" },
+    expected: "utcDateTime | null",
+  },
+  // Multiple non-null types in array (edge case - not supported, falls back to unknown)
+  {
+    schema: { type: ["string", "integer"] as any },
+    expected: "unknown",
+  },
+  // Type array with three types including null (edge case - not supported, falls back to unknown)
+  {
+    schema: { type: ["string", "integer", "null"] as any },
+    expected: "unknown",
+  },
 ];
 
 describe("tsp-openapi: generate-type", () => {
   let context: Context;
   beforeAll(async () => {
-    const parser = new OpenAPIParser();
-    const doc = await parser.bundle({
+    const { specification } = await dereference({
       openapi: "3.0.0",
       info: { title: "Test", version: "1.0.0" },
       paths: {},
     });
-    context = createContext(parser, doc as OpenAPI3Document);
+    if (!specification) {
+      throw new Error("Failed to dereference OpenAPI document");
+    }
+    context = createContext(specification as OpenAPI3Document);
   });
   testScenarios.forEach((t) =>
     it(`${generateScenarioName(t)}`, async () => {

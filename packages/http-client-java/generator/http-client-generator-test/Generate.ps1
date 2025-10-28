@@ -70,8 +70,6 @@ $generateScript = {
   } elseif ($tspFile -match "tsp[\\/]versioning.tsp") {
     # test generating from specific api-version
     $tspOptions += " --option ""@typespec/http-client-java.api-version=2022-09-01"""
-    # exclude preview from service versions
-    $tspOptions += " --option ""@typespec/http-client-java.service-version-exclude-preview=true"""
   } elseif ($tspFile -match "tsp[\\/]error.tsp") {
     # test for default-http-exception-type
     $tspOptions += " --option ""@typespec/http-client-java.use-default-http-status-code-to-exception-type-mapping=false"""
@@ -79,29 +77,37 @@ $generateScript = {
     # TODO https://github.com/Azure/autorest.java/issues/2964
     # also serve as a test for "use-object-for-unknown" emitter option
     $tspOptions += " --option ""@typespec/http-client-java.use-object-for-unknown=true"""
-  } elseif ($tspFile -match "arm.tsp") {
+  } elseif ($tspFile -match "tsp[\\/]arm.tsp") {
     # for mgmt, do not generate tests due to random mock values
     $tspOptions += " --option ""@typespec/http-client-java.generate-tests=false"""
     # test service-name
     $tspOptions += " --option ""@typespec/http-client-java.service-name=Arm Resource Provider"""
     # also test generating from specific api-version
     $tspOptions += " --option ""@typespec/http-client-java.api-version=2023-11-01"""
-    # exclude preview from service versions
-    $tspOptions += " --option ""@typespec/http-client-java.service-version-exclude-preview=true"""
     # rename model
     $tspOptions += " --option ""@typespec/http-client-java.rename-model=TopLevelArmResourceListResult:ResourceListResult,CustomTemplateResourcePropertiesAnonymousEmptyModel:AnonymousEmptyModel"""
     # remove inner
     $tspOptions += " --option ""@typespec/http-client-java.remove-inner=NginxConfigurationResponse"""
     # generate async methods
     $tspOptions += " --option ""@typespec/http-client-java.generate-async-methods=true"""
-  } elseif ($tspFile -match "arm-stream-style-serialization.tsp") {
+    # backward compatible options
+    $tspOptions += " --option ""@typespec/http-client-java.float32-as-double=false"""
+    $tspOptions += " --option ""@typespec/http-client-java.uuid-as-string=false"""
+  } elseif ($tspFile -match "tsp[\\/]arm-stream-style-serialization.tsp") {
     # for mgmt, do not generate tests due to random mock values
     $tspOptions += " --option ""@typespec/http-client-java.generate-tests=false"""
     # test service-name
     $tspOptions += " --option ""@typespec/http-client-java.service-name=Arm Resource Provider"""
     # test property-include-always
     $tspOptions += " --option ""@typespec/http-client-java.property-include-always=FunctionConfiguration.input"""
-  } elseif ($tspFile -match "subclient.tsp") {
+    # enable client side validations
+    $tspOptions += " --option ""@typespec/http-client-java.client-side-validations=true"""
+  } elseif ($tspFile -match "tsp[\\/]arm-customization.tsp") {
+    # for mgmt, do not generate tests due to random mock values
+    $tspOptions += " --option ""@typespec/http-client-java.generate-tests=false"""
+    # add customization code
+    $tspOptions += " --option ""@typespec/http-client-java.customization-class=../../customization/src/main/java/KeyVaultCustomization.java"""
+  } elseif ($tspFile -match "tsp[\\/]subclient.tsp") {
     $tspOptions += " --option ""@typespec/http-client-java.enable-subclient=true"""
     # test for include-api-view-properties
     $tspOptions += " --option ""@typespec/http-client-java.include-api-view-properties=false"""
@@ -122,7 +128,7 @@ $generateScript = {
   }
 
   $tspTrace = "--trace import-resolution --trace projection --trace http-client-java"
-  $tspCommand = "npx --no-install tsp compile $tspFile $tspOptions $tspTrace"
+  $tspCommand = "npx --no tsp compile $tspFile $tspOptions $tspTrace"
 
   # output of "tsp compile" seems trigger powershell error or exit, hence the "2>&1"
   $timer = [Diagnostics.Stopwatch]::StartNew()
@@ -183,7 +189,7 @@ try {
   $job | Receive-Job
 
   # partial update test
-  npx --no-install tsp compile ./tsp/partialupdate.tsp --option="@typespec/http-client-java.emitter-output-dir={project-root}/existingcode"
+  npx --no tsp compile ./tsp/partialupdate.tsp --option="@typespec/http-client-java.emitter-output-dir={project-root}/existingcode"
   Copy-Item -Path ./existingcode/src/main/java/tsptest/partialupdate -Destination ./src/main/java/tsptest/partialupdate -Recurse -Force
   Remove-Item ./existingcode -Recurse -Force
 

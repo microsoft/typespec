@@ -13,7 +13,6 @@ using TypeSpec.Versioning;
 @versioned(Versions)
 namespace TspTest.MethodOverride {
   enum Versions {
-    @useDependency(global.Azure.Core.Versions.v1_0_Preview_2)
     v2022_12_01_preview: "2022-12-01-preview",
   }
 

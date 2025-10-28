@@ -56,8 +56,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
             var implements = clientOptionsProvider.Implements;
             Assert.IsNotNull(implements);
-            Assert.AreEqual(1, implements.Count);
-            Assert.AreEqual(new CSharpType(typeof(ClientPipelineOptions)), implements[0]);
+            Assert.AreEqual(0, implements.Count);
+        }
+
+        [Test]
+        public void TestBaseType()
+        {
+            var client = InputFactory.Client("TestClient");
+            var clientProvider = new ClientProvider(client);
+            var clientOptionsProvider = new ClientOptionsProvider(client, clientProvider);
+
+            Assert.IsNotNull(clientOptionsProvider);
+
+            var baseType = clientOptionsProvider.BaseType;
+            Assert.IsNotNull(baseType);
+            Assert.AreEqual(new CSharpType(typeof(ClientPipelineOptions)), baseType);
+
         }
 
         [TestCase(true, Category = ApiVersionsCategory)]
@@ -278,6 +292,48 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.IsNotNull(serviceVersionType);
             Assert.AreEqual("ServiceVersion", serviceVersionType.Name);
             Assert.AreEqual("SomeOtherNamespace", serviceVersionType.Type.Namespace);
+        }
+
+        [Test]
+        public async Task CustomEnumMembersGenerateSwitchCorrectly()
+        {
+            string[] apiVersions = ["2023-10-01-preview-1", "2023-11-01", "2024-01-01"];
+            var enumValues = apiVersions.Select((a, index) => (a, a));
+            var inputEnum = InputFactory.StringEnum(
+                "ServiceVersion",
+                enumValues,
+                usage: InputModelTypeUsage.ApiVersionEnum,
+                clientNamespace: "SampleNamespace");
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                apiVersions: () => apiVersions,
+                inputEnums: () => [inputEnum],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var inputClient = InputFactory.Client("TestClient", clientNamespace: "SampleNamespace");
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(clientProvider);
+            var clientOptionsProvider = clientProvider!.ClientOptions;
+            Assert.IsNotNull(clientOptionsProvider);
+
+            // validate the latest version field uses the last custom enum member
+            var latestVersionField = clientOptionsProvider!.Fields.FirstOrDefault(f => f.Name == "LatestVersion");
+            Assert.IsNotNull(latestVersionField);
+            Assert.AreEqual(
+                "global::SampleNamespace.TestClientOptions.ServiceVersion.V2024_01_01",
+                latestVersionField?.InitializationValue?.ToDisplayString());
+
+            // validate the constructor has the switch statement with custom enum members
+            var constructor = clientOptionsProvider.Constructors.FirstOrDefault();
+            Assert.IsNotNull(constructor);
+
+            var body = constructor?.BodyStatements?.ToDisplayString();
+            Assert.IsNotNull(body);
+            
+            // Verify the switch statement contains custom enum members with their correct string values
+            Assert.IsTrue(body?.Contains("ServiceVersion.V2023_10_01_Preview_1 => \"2023-10-01-preview-1\""));
+            Assert.IsTrue(body?.Contains("ServiceVersion.V2023_11_01 => \"2023-11-01\""));
+            Assert.IsTrue(body?.Contains("ServiceVersion.V2024_01_01 => \"2024-01-01\""));
         }
     }
 }

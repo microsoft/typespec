@@ -51,6 +51,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             }
         }
 
+        internal bool HasDynamicModels
+            => _hasDynamicModels ??= ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Models.Any(m => m.IsDynamicModel);
+        private bool? _hasDynamicModels;
+
         private HashSet<InputModelType>? _rootInputModels;
 
         internal HashSet<InputModelType> RootOutputModels
@@ -83,10 +87,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                     {
                         _rootOutputModels.Add(inputModelType);
                     }
-                    if (method.Response.Type is InputModelType outputModelType)
-                    {
-                        _rootOutputModels.Add(outputModelType);
-                    }
+
+                    PopulateRootOutputModelsFromTypeRecursive(method.Response.Type, _rootOutputModels, []);
 
                     if (operation.GenerateConvenienceMethod)
                     {
@@ -100,6 +102,35 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                         }
                     }
                 }
+            }
+        }
+
+        private static void PopulateRootOutputModelsFromTypeRecursive(InputType? type, HashSet<InputModelType> targetSet, HashSet<InputType> visited)
+        {
+            if (type == null)
+            {
+                return;
+            }
+
+            if (!visited.Add(type))
+            {
+                return;
+            }
+
+            switch (type)
+            {
+                case InputModelType modelType:
+                    targetSet.Add(modelType);
+                    break;
+                case InputNullableType nullableType:
+                    PopulateRootOutputModelsFromTypeRecursive(nullableType.Type, targetSet, visited);
+                    break;
+                case InputUnionType unionType:
+                    foreach (var variantType in unionType.VariantTypes)
+                    {
+                        PopulateRootOutputModelsFromTypeRecursive(variantType, targetSet, visited);
+                    }
+                    break;
             }
         }
 
@@ -198,8 +229,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             return methods;
         }
 
-        public virtual ValueExpression DeserializeJsonValue(Type valueType, ScopedApi<JsonElement> element, SerializationFormat format)
-            => MrwSerializationTypeDefinition.DeserializeJsonValueCore(valueType, element, format);
+        public virtual ValueExpression DeserializeJsonValue(
+            Type valueType,
+            ScopedApi<JsonElement> element,
+            ScopedApi<BinaryData> data,
+            ScopedApi<ModelReaderWriterOptions> mrwOptionsParameter,
+            SerializationFormat format)
+            => MrwSerializationTypeDefinition.DeserializeJsonValueCore(valueType, element, data, mrwOptionsParameter, format);
 
         public virtual MethodBodyStatement SerializeJsonValue(
             Type valueType,
@@ -208,5 +244,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             ScopedApi<ModelReaderWriterOptions> mrwOptionsParameter,
             SerializationFormat serializationFormat)
             => MrwSerializationTypeDefinition.SerializeJsonValueCore(valueType, value, utf8JsonWriter, mrwOptionsParameter, serializationFormat);
+
+        protected override ModelProvider? CreateModelCore(InputModelType model) => new ScmModelProvider(model);
     }
 }
