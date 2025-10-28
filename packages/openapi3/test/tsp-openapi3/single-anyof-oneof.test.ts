@@ -1,5 +1,5 @@
-import OpenAPIParser from "@apidevtools/swagger-parser";
-import { OpenAPI } from "openapi-types";
+import { dereference } from "@scalar/openapi-parser";
+import { OpenAPI } from "@scalar/openapi-types";
 import { beforeAll, describe, expect, it } from "vitest";
 import { generateDataType } from "../../src/cli/actions/convert/generators/generate-model.js";
 import { TypeSpecDataTypes, TypeSpecModel } from "../../src/cli/actions/convert/interfaces.js";
@@ -8,12 +8,10 @@ import { createContext } from "../../src/cli/actions/convert/utils/context.js";
 import { OpenAPI3Document } from "../../src/types.js";
 
 describe("tsp-openapi: single anyOf/oneOf inline schema should produce model", () => {
-  let parser: OpenAPIParser;
   let doc: OpenAPI.Document<{}>;
 
   beforeAll(async () => {
-    parser = new OpenAPIParser();
-    doc = await parser.bundle({
+    const { specification } = await dereference({
       openapi: "3.1.0",
       info: { title: "repro API", version: "1.0.0", description: "API for repro" },
       servers: [{ url: "http://localhost:3000" }],
@@ -87,10 +85,14 @@ describe("tsp-openapi: single anyOf/oneOf inline schema should produce model", (
         },
       },
     });
+    if (!specification) {
+      throw new Error("Failed to dereference OpenAPI document");
+    }
+    doc = specification;
   });
 
   it("should generate a model for anyOf with single inline schema", () => {
-    const context = createContext(parser, doc as OpenAPI3Document);
+    const context = createContext(doc as OpenAPI3Document);
     const types: TypeSpecDataTypes[] = [];
     transformComponentSchemas(context, types);
 
@@ -115,7 +117,7 @@ describe("tsp-openapi: single anyOf/oneOf inline schema should produce model", (
   });
 
   it("should generate a model for oneOf with single inline schema", () => {
-    const context = createContext(parser, doc as OpenAPI3Document);
+    const context = createContext(doc as OpenAPI3Document);
     const types: TypeSpecDataTypes[] = [];
     transformComponentSchemas(context, types);
 
@@ -132,7 +134,7 @@ describe("tsp-openapi: single anyOf/oneOf inline schema should produce model", (
   });
 
   it("should generate a model for anyOf with single inline schema + null", () => {
-    const context = createContext(parser, doc as OpenAPI3Document);
+    const context = createContext(doc as OpenAPI3Document);
     const types: TypeSpecDataTypes[] = [];
     transformComponentSchemas(context, types);
 
@@ -152,7 +154,7 @@ describe("tsp-openapi: single anyOf/oneOf inline schema should produce model", (
   });
 
   it("should generate a model for oneOf with single inline schema + null", () => {
-    const context = createContext(parser, doc as OpenAPI3Document);
+    const context = createContext(doc as OpenAPI3Document);
     const types: TypeSpecDataTypes[] = [];
     transformComponentSchemas(context, types);
 
