@@ -842,6 +842,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 CreatePropertyAssignmentStatement(isPrimaryConstructor, methodBodyStatements, parameterMap, field: field);
             }
 
+            // If discriminator is defined as optional in the base model, but we have an expression for it, assign it in the
+            // primary constructor body.
+            if (isPrimaryConstructor && DiscriminatorValueExpression != null)
+            {
+                var baseDiscriminatorProperty = BaseModelProvider?.DiscriminatorProperty;
+                if (baseDiscriminatorProperty is { WireInfo.IsRequired: false })
+                {
+                    methodBodyStatements.Add(baseDiscriminatorProperty.Assign(DiscriminatorValueExpression).Terminate());
+                }
+            }
+
             // handle additional properties
             foreach (var property in AdditionalPropertyProperties)
             {
