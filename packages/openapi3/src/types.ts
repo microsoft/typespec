@@ -14,7 +14,7 @@ TODO checklist for @baywet:
 - [x] xml fields https://github.com/BinkyLabs/OpenAPI.net/issues/11
 - [x] media type item and prefix encoding https://github.com/BinkyLabs/OpenAPI.net/issues/10
 - [x] document $self https://github.com/BinkyLabs/OpenAPI.net/issues/8
-- [ ] querystring parameter location https://github.com/BinkyLabs/OpenAPI.net/issues/7
+- [x] querystring parameter location https://github.com/BinkyLabs/OpenAPI.net/issues/7
 - [ ] cookie parameter style https://github.com/BinkyLabs/OpenAPI.net/issues/6
 - [x] path item query and additional operations https://github.com/BinkyLabs/OpenAPI.net/issues/5
 - [ ] tag new fields https://github.com/BinkyLabs/OpenAPI.net/issues/4
@@ -663,6 +663,8 @@ export type OpenAPI3ParameterBase = Extensions & {
   example?: any;
 
   examples?: Record<string, Refable<OpenAPI3Example>>;
+  /** A map containing the representations for the parameter. The key is the media type and the value describes it. The map MUST only contain one entry. */
+  content?: Record<string, OpenAPI3MediaType>;
 };
 
 export type OpenAPI3QueryParameter = OpenAPI3ParameterBase & {
@@ -1247,7 +1249,13 @@ export interface OpenAPIMediaType3_2 extends Omit<OpenAPI3MediaType, "examples" 
 export interface OpenAPIComponents3_2
   extends Omit<
     OpenAPIComponents3_1,
-    "responses" | "securitySchemes" | "examples" | "schemas" | "callbacks" | "pathItems"
+    | "responses"
+    | "securitySchemes"
+    | "examples"
+    | "schemas"
+    | "callbacks"
+    | "pathItems"
+    | "parameters"
   > {
   /**
    * An object to hold reusable {@link OpenAPIMediaType3_2} objects
@@ -1284,6 +1292,11 @@ export interface OpenAPIComponents3_2
    * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-5
    */
   pathItems?: Record<string, Refable<OpenAPIPathItem3_2>>;
+  /**
+   * An object to hold reusable {@link OpenAPIParameter3_2} objects
+   * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-5
+   */
+  parameters?: Record<string, Refable<OpenAPIParameter3_2>>;
 }
 
 export type OpenAPIResponses3_2 = {
@@ -1405,8 +1418,9 @@ export interface OpenAPIXmlSchema3_2 extends Omit<OpenAPI3XmlSchema, "attribute"
   nodeType?: "element" | "attribute" | "text" | "cdata" | "comment" | "none";
 }
 
-export type OpenAPIOperation3_2 = Omit<OpenAPI3Operation, "responses"> & {
+export type OpenAPIOperation3_2 = Omit<OpenAPI3Operation, "responses" | "parameters"> & {
   responses?: Refable<OpenAPIResponses3_2>;
+  parameters?: Refable<OpenAPIParameter3_2>[];
 };
 
 /**
@@ -1414,8 +1428,34 @@ export type OpenAPIOperation3_2 = Omit<OpenAPI3Operation, "responses"> & {
  *
  * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-6
  */
-export type OpenAPIPathItem3_2 = Omit<OpenAPI3PathItem, OpenAPI3HttpMethod> & {
+export type OpenAPIPathItem3_2 = Omit<OpenAPI3PathItem, OpenAPI3HttpMethod | "parameters"> & {
   [method in OpenAPIHttpMethod3_2]?: OpenAPIOperation3_2;
 } & {
   additionalOperations?: Record<string, OpenAPIOperation3_2>;
+  parameters?: Refable<OpenAPIParameter3_2>[];
 };
+export type OpenAPIParameterBase3_2 = Omit<OpenAPI3ParameterBase, "content" | "examples"> & {
+  /** A map containing the representations for the parameter. The key is the media type and the value describes it. The map MUST only contain one entry. */
+  content?: Record<string, Refable<OpenAPIMediaType3_2>>;
+  examples?: Record<string, Refable<OpenAPIExample3_2>>;
+};
+export type OpenAPIQueryStringParameter3_2 = Omit<
+  OpenAPIParameterBase3_2,
+  "style" | "explode" | "allowReserved" | "schema"
+> & {
+  /** Name of the parameter. */
+  name: string;
+  in: "querystring";
+};
+export type OpenAPIHeaderParameter3_2 = Omit<OpenAPI3HeaderParameter, "content" | "examples"> &
+  OpenAPIParameterBase3_2;
+export type OpenAPIPathParameter3_2 = Omit<OpenAPI3PathParameter, "content" | "examples"> &
+  OpenAPIParameterBase3_2;
+export type OpenAPIQueryParameter3_2 = Omit<OpenAPI3QueryParameter, "content" | "examples"> &
+  OpenAPIParameterBase3_2;
+export type OpenAPIParameter3_2 =
+  | OpenAPIHeaderParameter3_2
+  | OpenAPIQueryParameter3_2
+  | OpenAPIQueryStringParameter3_2
+  | OpenAPIPathParameter3_2;
+export type OpenAPIParameterType3_2 = OpenAPIParameter3_2["in"];
