@@ -14,9 +14,6 @@ Scenarios.Payload_File_Upload_basic = passOnSuccess({
       rawContent: BASIC_FILE_CONTENT,
       contentType: "application/octet-stream",
     },
-    headers: {
-      "Content-Type": "application/octet-stream",
-    },
   },
   response: {
     status: 200,
@@ -101,11 +98,7 @@ Scenarios.Payload_File_Download_png = passOnSuccess({
 Scenarios.Payload_File_Download_custom = passOnSuccess({
   uri: "/payload/file/download/custom",
   method: "get",
-  request: {
-    headers: {
-      accept: "application/octet-stream",
-    },
-  },
+  request: {},
   response: {
     status: 200,
     body: {

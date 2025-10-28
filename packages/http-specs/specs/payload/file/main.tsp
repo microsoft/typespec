@@ -26,7 +26,7 @@ namespace Upload {
   @scenario
   @scenarioDoc("""
     Test uploading a file using Http.File as request body.
-    Expected request body is a file with content type "application/octet-stream".
+    Expected request body is a file with content "Test file content".
     """)
   @post
   @route("/basic")
@@ -56,7 +56,7 @@ namespace Download {
   @scenario
   @scenarioDoc("""
     Test downloading a file using Http.File as response body.
-    Expected response body is a file with content type "application/octet-stream".
+    Expected response body is a file with content "Test file content".
     """)
   @get
   @route("/basic")
