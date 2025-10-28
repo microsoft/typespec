@@ -71,16 +71,14 @@ function generateRequestBodyParameters(
 
   const definitions: string[] = [];
 
-  // Check if any content type is multipart
-  const hasMultipart = requestBodies.some((r) => r.contentType.startsWith("multipart/"));
-
   // Generate the content-type header if defined content-types is not just 'application/json'
   const contentTypes = requestBodies.map((r) => r.contentType);
   if (!supportsOnlyJson(contentTypes)) {
     definitions.push(`@header contentType: ${contentTypes.map((c) => `"${c}"`).join(" | ")}`);
   }
 
-  const isMultipart = hasMultipart;
+  // Check if any content type is multipart
+  const isMultipart = requestBodies.some((r) => r.contentType.startsWith("multipart/"));
   // Get the set of referenced types
   const body = Array.from(
     new Set(
