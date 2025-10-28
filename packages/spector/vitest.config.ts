@@ -5,8 +5,7 @@ export default mergeConfig(
   defaultTypeSpecVitestConfig,
   defineConfig({
     test: {
-      setupFiles: ["./test/global-setup.ts"],
-      testTimeout: 10_000,
+      testTimeout: 10000,
     },
   }),
 );
