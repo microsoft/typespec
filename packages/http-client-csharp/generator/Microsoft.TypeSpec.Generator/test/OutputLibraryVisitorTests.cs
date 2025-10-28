@@ -117,6 +117,8 @@ namespace Microsoft.TypeSpec.Generator.Tests
 
         mockSerializationProvider.Protected().Setup<MethodProvider[]>("BuildMethods")
                 .Returns([mockMethodProvider.Object]);
+        mockSerializationProvider.Protected().Setup<MethodProvider[]>("FilterCustomizedMethods", ItExpr.IsAny<MethodProvider[]>())
+            .Returns<MethodProvider[]>(methods => methods);
 
             _mockVisitor.Object.VisitLibrary(_mockGenerator.Object.OutputLibrary);
 
@@ -218,7 +220,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 createOutputLibrary: () => new TestOutputLibrary(typeProvider),
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
-            var visitor = new TestMethodVisitor();
+            var visitor = new TestFilterVisitor();
             visitor.VisitLibrary(generator.Object.OutputLibrary);
 
             Assert.AreEqual(0, typeProvider.Methods.Count);
@@ -237,13 +239,49 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 createOutputLibrary: () => new TestOutputLibrary(typeProvider),
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
-            var visitor = new TestMethodVisitor();
+            var visitor = new TestFilterVisitor();
             visitor.VisitLibrary(generator.Object.OutputLibrary);
 
             Assert.AreEqual(0, typeProvider.Constructors.Count);
         }
 
-        private class TestMethodVisitor : LibraryVisitor
+        [Test]
+        public async Task MatchingPropertyIsFilteredAfterVisitorMutation()
+        {
+            var typeProvider = new TestTypeProvider();
+            var property = new PropertyProvider($"", MethodSignatureModifiers.Public, typeof(string),
+                "TestProperty", new AutoPropertyBody(true), typeProvider);
+            typeProvider.Update(properties: [property], reset: true);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                createOutputLibrary: () => new TestOutputLibrary(typeProvider),
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var visitor = new TestFilterVisitor();
+            visitor.VisitLibrary(generator.Object.OutputLibrary);
+
+            Assert.AreEqual(0, typeProvider.Properties.Count);
+        }
+
+        [Test]
+        public async Task MatchingFieldIsFilteredAfterVisitorMutation()
+        {
+            var typeProvider = new TestTypeProvider();
+            var field = new FieldProvider(FieldModifiers.Public, typeof(string), "TestField", typeProvider);
+            typeProvider.Update(fields: [field], reset: true);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                createOutputLibrary: () => new TestOutputLibrary(typeProvider),
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var visitor = new TestFilterVisitor();
+            visitor.VisitLibrary(generator.Object.OutputLibrary);
+
+            Assert.AreEqual(0, typeProvider.Fields.Count);
+        }
+
+
+        private class TestFilterVisitor : LibraryVisitor
         {
             protected internal override MethodProvider? VisitMethod(MethodProvider method)
             {
@@ -261,6 +299,24 @@ namespace Microsoft.TypeSpec.Generator.Tests
                     constructor.Signature.Parameters[0].Update(type: typeof(int));
                 }
                 return constructor;
+            }
+
+            protected override PropertyProvider? VisitProperty(PropertyProvider property)
+            {
+                if (property.Name == "TestProperty")
+                {
+                    property.Update(name: "UpdatedProperty");
+                }
+                return property;
+            }
+
+            protected override FieldProvider? VisitField(FieldProvider field)
+            {
+                if (field.Name == "TestField")
+                {
+                    field.Update(name: "UpdatedField");
+                }
+                return field;
             }
         }
 

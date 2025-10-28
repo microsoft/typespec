@@ -48,8 +48,7 @@ namespace Microsoft.TypeSpec.Generator
                 foreach (var constructorProvider in typeProvider.Constructors)
                 {
                     var constructor = VisitConstructor(constructorProvider);
-                    // TODO - the ShouldGenerate can move into the Accept implementation in ConstructorProvider once added. https://github.com/microsoft/typespec/issues/8834
-                    if (constructor != null && typeProvider.ShouldGenerate(constructor))
+                    if (constructor != null )
                     {
                         constructors.Add(constructor);
                     }
@@ -95,7 +94,15 @@ namespace Microsoft.TypeSpec.Generator
                     }
                 }
 
-                type.Update(methods, constructors, properties, fields, serializations, nestedTypes);
+                // Update the type with the potentially modified members, filtering out customized members
+                // after the visitors have been applied so that the filtering is done against the final version.
+                type.Update(
+                    type.FilterCustomizedMethods(methods),
+                    type.FilterCustomizedConstructors(constructors),
+                    type.FilterCustomizedProperties(properties),
+                    type.FilterCustomizedFields(fields),
+                    serializations,
+                    nestedTypes);
                 type = PostVisitType(type);
             }
             return type;

@@ -218,11 +218,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public IReadOnlyList<PropertyProvider> Properties => _properties ??= FilterCustomizedProperties(BuildProperties());
 
         private IReadOnlyList<MethodProvider>? _methods;
-        public IReadOnlyList<MethodProvider> Methods => _methods ??= BuildMethodsInternal();
+        public IReadOnlyList<MethodProvider> Methods => _methods ??= FilterCustomizedMethods(BuildMethods());
 
         private IReadOnlyList<ConstructorProvider>? _constructors;
 
-        public IReadOnlyList<ConstructorProvider> Constructors => _constructors ??= BuildConstructorsInternal();
+        public IReadOnlyList<ConstructorProvider> Constructors => _constructors ??= FilterCustomizedConstructors(BuildConstructors());
 
         private IReadOnlyList<FieldProvider>? _fields;
         public IReadOnlyList<FieldProvider> Fields => _fields ??= FilterCustomizedFields(BuildFields());
@@ -257,7 +257,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected virtual CSharpType[] GetTypeArguments() => [];
 
-        private protected virtual PropertyProvider[] FilterCustomizedProperties(PropertyProvider[] specProperties)
+        internal virtual PropertyProvider[] FilterCustomizedProperties(IEnumerable<PropertyProvider> specProperties)
         {
             var properties = new List<PropertyProvider>();
             var customProperties = new HashSet<string>();
@@ -291,7 +291,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return [..properties];
         }
 
-        private protected virtual FieldProvider[] FilterCustomizedFields(FieldProvider[] specFields)
+        internal virtual FieldProvider[] FilterCustomizedFields(IEnumerable<FieldProvider> specFields)
         {
             var fields = new List<FieldProvider>();
             var customFields = new HashSet<string>();
@@ -316,10 +316,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return [.. fields];
         }
 
-        private MethodProvider[] BuildMethodsInternal()
+        internal virtual MethodProvider[] FilterCustomizedMethods(IEnumerable<MethodProvider> specMethods)
         {
             var methods = new List<MethodProvider>();
-            foreach (var method in BuildMethods())
+            foreach (var method in specMethods)
             {
                 if (ShouldGenerate(method))
                 {
@@ -330,10 +330,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return [..methods];
         }
 
-        private ConstructorProvider[] BuildConstructorsInternal()
+        internal virtual ConstructorProvider[] FilterCustomizedConstructors(IEnumerable<ConstructorProvider> specConstructors)
         {
             var constructors = new List<ConstructorProvider>();
-            foreach (var constructor in BuildConstructors())
+            foreach (var constructor in specConstructors)
             {
                 if (ShouldGenerate(constructor))
                 {
@@ -341,7 +341,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
             }
 
-            return constructors.ToArray();
+            return [..constructors];
         }
 
         private TypeProvider[] BuildNestedTypesInternal()
@@ -543,7 +543,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private IReadOnlyList<EnumTypeMember>? _enumValues;
 
-        internal bool ShouldGenerate(ConstructorProvider constructor)
+        private bool ShouldGenerate(ConstructorProvider constructor)
         {
             foreach (var attribute in GetMemberSuppressionAttributes())
             {
@@ -575,7 +575,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return true;
         }
 
-        internal bool ShouldGenerate(MethodProvider method)
+        private bool ShouldGenerate(MethodProvider method)
         {
             foreach (var attribute in GetMemberSuppressionAttributes())
             {

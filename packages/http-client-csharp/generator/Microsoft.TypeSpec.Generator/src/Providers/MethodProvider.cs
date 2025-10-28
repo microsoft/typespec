@@ -114,11 +114,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return null;
             }
 
-            if (!EnclosingType.ShouldGenerate(this))
-            {
-                return null;
-            }
-
             if (!ReferenceEquals(updated, this))
             {
                 return updated.Accept(visitor);
