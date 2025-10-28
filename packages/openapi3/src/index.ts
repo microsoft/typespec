@@ -49,7 +49,6 @@ export type {
   OpenAPI3Response,
   OpenAPI3Responses,
   OpenAPI3Schema,
-  OpenAPI3SchemaProperty,
   OpenAPI3SecurityScheme,
   OpenAPI3SecuritySchemeBase,
   OpenAPI3Server,

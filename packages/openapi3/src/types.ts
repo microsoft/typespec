@@ -11,7 +11,7 @@ TODO checklist for @baywet:
 - [x] security scheme deprecated https://github.com/BinkyLabs/OpenAPI.net/issues/15
 - [x] oauth flows https://github.com/BinkyLabs/OpenAPI.net/issues/14
 - [x] examples data and serialized value https://github.com/BinkyLabs/OpenAPI.net/issues/12
-- [ ] xml fields https://github.com/BinkyLabs/OpenAPI.net/issues/11
+- [x] xml fields https://github.com/BinkyLabs/OpenAPI.net/issues/11
 - [x] media type item and prefix encoding https://github.com/BinkyLabs/OpenAPI.net/issues/10
 - [x] document $self https://github.com/BinkyLabs/OpenAPI.net/issues/8
 - [ ] querystring parameter location https://github.com/BinkyLabs/OpenAPI.net/issues/7
@@ -21,9 +21,10 @@ TODO checklist for @baywet:
 - [ ] all references to media type and encoding need to be recursively updated in the 3.2 structure
 - [ ] all references to response need to be recursively updated in the 3.2 structure
 - [ ] all references to example need to be recursively updated in the 3.2 structure (only parameter left)
+- [ ] all references to schema need to be recursively updated in the 3.2 structure (all/any/one/additionalProperties...)
 */
 
-export type CommonOpenAPI3Schema = OpenAPI3Schema & OpenAPISchema3_1;
+export type CommonOpenAPI3Schema = OpenAPI3Schema & OpenAPISchema3_1 & OpenAPISchema3_2;
 
 export type SupportedOpenAPIDocuments = OpenAPI3Document | OpenAPIDocument3_1 | OpenAPIDocument3_2;
 
@@ -395,7 +396,7 @@ export interface OpenAPI3Discriminator extends Extensions {
   mapping?: Record<string, string>;
 }
 
-export interface OpenAPIDiscriminator3_1 extends OpenAPI3Discriminator {
+export interface OpenAPIDiscriminator3_2 extends OpenAPI3Discriminator {
   /**
    * The default mapping value to be used when no other mapping matches.
    * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-21
@@ -404,11 +405,6 @@ export interface OpenAPIDiscriminator3_1 extends OpenAPI3Discriminator {
 }
 
 export type JsonType = "array" | "boolean" | "integer" | "number" | "object" | "string";
-
-/**
- * Autorest allows a few properties to be next to $ref of a property.
- */
-export type OpenAPI3SchemaProperty = Ref<OpenAPI3Schema> | OpenAPI3Schema;
 
 export type OpenAPI3XmlSchema = Extensions & {
   name?: string;
@@ -605,7 +601,7 @@ export type OpenAPI3Schema = Extensions & {
    * order of the instance properties MAY be in any order.
    *
    */
-  properties?: Record<string, OpenAPI3SchemaProperty>;
+  properties?: Record<string, Refable<OpenAPI3Schema>>;
 
   /** indicates that additional unlisted properties can exist in this schema */
   additionalProperties?: boolean | Refable<OpenAPI3Schema>;
@@ -1211,7 +1207,9 @@ export interface OpenAPIEncoding3_2 extends OpenAPI3Encoding {
   itemEncoding?: OpenAPIEncoding3_2;
 }
 
-export interface OpenAPIMediaType3_2 extends Omit<OpenAPI3MediaType, "examples"> {
+export interface OpenAPIMediaType3_2 extends Omit<OpenAPI3MediaType, "examples" | "schema"> {
+  /** The schema defining the content of the request, response, or parameter. */
+  schema?: Refable<OpenAPISchema3_2>;
   /**
    * A map between a property name and its encoding information
    * @see https://spec.openapis.org/oas/v3.2.0#fixed-fields-11
@@ -1233,7 +1231,7 @@ export interface OpenAPIMediaType3_2 extends Omit<OpenAPI3MediaType, "examples">
 }
 
 export interface OpenAPIComponents3_2
-  extends Omit<OpenAPIComponents3_1, "responses" | "securitySchemes" | "examples"> {
+  extends Omit<OpenAPIComponents3_1, "responses" | "securitySchemes" | "examples" | "schemas"> {
   /**
    * An object to hold reusable {@link OpenAPIMediaType3_2} objects
    * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-5
@@ -1254,6 +1252,11 @@ export interface OpenAPIComponents3_2
    * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-5
    */
   examples?: Record<string, Refable<OpenAPIExample3_2>>;
+  /**
+   * An object to hold reusable {@link OpenAPISchema3_2} objects
+   * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-5
+   */
+  schemas?: Record<string, Refable<OpenAPISchema3_2>>;
 }
 
 export interface OpenAPIResponse3_2 extends Omit<OpenAPI3Response, "content"> {
@@ -1339,4 +1342,34 @@ export interface OpenAPIExample3_2 extends OpenAPI3Example {
    * @see https://spec.openapis.org/oas/v3.2.0.html#example-object
    */
   serializedValue?: string;
+}
+
+export interface OpenAPISchema3_2 extends Omit<OpenAPISchema3_1, "xml" | "discriminator"> {
+  /**
+   * Adds additional metadata to describe the XML representation of this property.
+   * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-20
+   */
+  xml?: OpenAPIXmlSchema3_2;
+  /**
+   *
+   * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-20
+   */
+  discriminator?: OpenAPIDiscriminator3_2;
+}
+
+export interface OpenAPIXmlSchema3_2 extends Omit<OpenAPI3XmlSchema, "attribute" | "wrapped"> {
+  /**
+   * @deprecated This property is deprecated and SHOULD be replaced by the {@link nodeType} property.
+   */
+  attribute?: boolean;
+  /**
+   * @deprecated This property is deprecated and SHOULD be replaced by the {@link nodeType} property.
+   */
+  wrapped?: boolean;
+  /**
+   * The type of the XML DOM node.
+   * @see https://spec.openapis.org/oas/v3.2.0.html#xml-node-types
+   * @default "none"
+   */
+  nodeType?: "element" | "attribute" | "text" | "cdata" | "comment" | "none";
 }

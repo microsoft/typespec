@@ -1,10 +1,5 @@
 import { printIdentifier } from "@typespec/compiler";
-import {
-  OpenAPI3Encoding,
-  OpenAPI3Schema,
-  OpenAPI3SchemaProperty,
-  Refable,
-} from "../../../../types.js";
+import { OpenAPI3Encoding, OpenAPI3Schema, Refable } from "../../../../types.js";
 import { Context } from "../utils/context.js";
 import {
   getDecoratorsForSchema,
@@ -466,7 +461,7 @@ export class SchemaToExpressionGenerator {
 }
 
 export function isReferencedEnumType(
-  propSchema: OpenAPI3SchemaProperty,
+  propSchema: Refable<OpenAPI3Schema>,
   context: Context,
 ): boolean {
   let isEnumType = false;
@@ -486,7 +481,7 @@ export function isReferencedEnumType(
 }
 
 export function isReferencedUnionType(
-  propSchema: OpenAPI3SchemaProperty,
+  propSchema: Refable<OpenAPI3Schema>,
   context: Context,
 ): boolean {
   let isUnionType = false;
