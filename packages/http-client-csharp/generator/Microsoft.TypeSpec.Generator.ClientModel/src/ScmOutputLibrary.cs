@@ -71,6 +71,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                 ScmCodeModelGenerator.Instance.SerializationFormatDefinition,
                 new TypeFormattersDefinition(),
                 new ClientPipelineExtensionsDefinition(),
+                new CancellationTokenExtensionsDefinition(),
                 new ErrorResultDefinition(),
                 new ClientUriBuilderDefinition(),
                 new Utf8JsonBinaryContentDefinition(),
