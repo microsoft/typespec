@@ -204,7 +204,7 @@ describe("compiler: visibility core", () => {
       removeVisibilityModifiers(runner.program, x, [Create]);
       clearVisibilityModifiersForClass(runner.program, x, Lifecycle);
 
-      ok(runner.program.diagnostics.length === 3);
+      strictEqual(runner.program.diagnostics.length, 3);
 
       expectDiagnostics(runner.program.diagnostics, [
         {
@@ -890,7 +890,7 @@ describe("compiler: visibility core", () => {
 
       const A = ref.type;
 
-      ok(A.kind === "Model");
+      strictEqual(A.kind, "Model");
 
       const a = A.properties.get("a");
       const b = A.properties.get("b");
@@ -1013,14 +1013,14 @@ describe("compiler: visibility core", () => {
     const dataA = DataA.properties.get("data_a")!;
     const dataB = DataB.properties.get("data_b")!;
 
-    ok(dataA.type.kind === "Model");
-    ok(dataB.type.kind === "Model");
+    strictEqual(dataA.type.kind, "Model");
+    strictEqual(dataB.type.kind, "Model");
 
     const FooA = dataA.type as Model;
     const FooB = dataB.type as Model;
 
-    ok(FooA.name === "FooA");
-    ok(FooB.name === "FooB");
+    strictEqual(FooA.name, "FooA");
+    strictEqual(FooB.name, "FooB");
 
     ok(FooA.properties.has("foo_a"));
     ok(!FooA.properties.has("foo_b"));
@@ -1072,8 +1072,8 @@ describe("compiler: visibility core", () => {
     ok(a);
     ok(b);
 
-    ok(a.type.kind === "Model");
-    ok(b.type.kind === "Model");
+    strictEqual(a.type.kind, "Model");
+    strictEqual(b.type.kind, "Model");
 
     const A = a.type as Model;
     const B = b.type as Model;
@@ -1093,20 +1093,20 @@ describe("compiler: visibility core", () => {
     ok(aC);
     ok(bC);
 
-    ok(aC.type === bC.type);
+    strictEqual(aC.type, bC.type);
 
     let C = aC.type as Model;
 
-    ok(C.kind === "Model");
-    ok(C.name === "ReadC");
+    strictEqual(C.kind, "Model");
+    strictEqual(C.name, "ReadC");
 
     ok(!C.properties.has("invisible"));
     ok(C.properties.has("c"));
 
     C = bC.type as Model;
 
-    ok(C.kind === "Model");
-    ok(C.name === "ReadC");
+    strictEqual(C.kind, "Model");
+    strictEqual(C.name, "ReadC");
 
     ok(!C.properties.has("invisible"));
     ok(C.properties.has("c"));
@@ -1137,7 +1137,7 @@ describe("compiler: visibility core", () => {
 
     strictEqual(aB.kind, "Model");
 
-    ok(aB === B);
+    strictEqual(aB, B);
   });
 
   it("correctly transforms arrays and records", async () => {
@@ -1168,8 +1168,8 @@ describe("compiler: visibility core", () => {
     const arrayType = array.type;
     const recordType = record.type;
 
-    ok(arrayType.kind === "Model");
-    ok(recordType.kind === "Model");
+    strictEqual(arrayType.kind, "Model");
+    strictEqual(recordType.kind, "Model");
 
     ok($(runner.program).array.is(arrayType));
     ok($(runner.program).record.is(recordType));
@@ -1177,13 +1177,13 @@ describe("compiler: visibility core", () => {
     const arrayA = (arrayType as Model).indexer!.value as Model;
     const recordA = (recordType as Model).indexer!.value as Model;
 
-    ok(arrayA.kind === "Model");
-    ok(recordA.kind === "Model");
+    strictEqual(arrayA.kind, "Model");
+    strictEqual(recordA.kind, "Model");
 
-    ok(arrayA.name === "ATransform");
-    ok(recordA.name === "ATransform");
+    strictEqual(arrayA.name, "ATransform");
+    strictEqual(recordA.name, "ATransform");
 
-    ok(arrayA === recordA);
+    strictEqual(arrayA, recordA);
 
     ok(arrayA.properties.has("a"));
     ok(!arrayA.properties.has("invisible"));
@@ -1221,8 +1221,8 @@ describe("compiler: visibility core", () => {
     const arrType = arr.type;
     const recType = rec.type;
 
-    ok(arrType.kind === "Model");
-    ok(recType.kind === "Model");
+    strictEqual(arrType.kind, "Model");
+    strictEqual(recType.kind, "Model");
 
     ok($(runner.program).array.is(arrType));
     ok($(runner.program).record.is(recType));
@@ -1281,8 +1281,8 @@ function validateCreateOrUpdateTransform(
   const nested = Result.properties.get("nested");
 
   ok(nested);
-  ok(nested.type.kind === "Model");
-  ok(nested.type.name === "CreateOrUpdateNested");
+  strictEqual(nested.type.kind, "Model");
+  strictEqual(nested.type.name, "CreateOrUpdateNested");
 
   const nestedProps = getProperties(nested.type);
 
@@ -1335,8 +1335,8 @@ function validateUpdateTransform(
   const nested = Result.properties.get("nested");
 
   ok(nested);
-  ok(nested.type.kind === "Model");
-  ok(nested.type.name === "UpdateNested");
+  strictEqual(nested.type.kind, "Model");
+  strictEqual(nested.type.name, "UpdateNested");
 
   // Nested properties work differently in Lifecycle Update transforms, requiring nested create-only properties to
   // additionally be visible
@@ -1391,8 +1391,8 @@ function validateCreateTransform(
   const nested = Result.properties.get("nested");
 
   ok(nested);
-  ok(nested.type.kind === "Model");
-  ok(nested.type.name === "CreateNested");
+  strictEqual(nested.type.kind, "Model");
+  strictEqual(nested.type.name, "CreateNested");
 
   const nestedProps = getProperties(nested.type);
 
@@ -1446,8 +1446,8 @@ function validateReadTransform(
   const nested = Result.properties.get("nested");
 
   ok(nested);
-  ok(nested.type.kind === "Model");
-  ok(nested.type.name === "ReadNested");
+  strictEqual(nested.type.kind, "Model");
+  strictEqual(nested.type.name, "ReadNested");
 
   const nestedProps = getProperties(nested.type);
 
