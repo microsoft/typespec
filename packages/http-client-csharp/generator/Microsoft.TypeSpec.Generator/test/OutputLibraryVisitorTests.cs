@@ -292,7 +292,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 return method;
             }
 
-            protected internal override ConstructorProvider? VisitConstructor(ConstructorProvider constructor)
+            protected override ConstructorProvider? VisitConstructor(ConstructorProvider constructor)
             {
                 if (constructor.Signature.Parameters.Count > 0)
                 {

@@ -48,7 +48,7 @@ namespace Microsoft.TypeSpec.Generator
                 foreach (var constructorProvider in typeProvider.Constructors)
                 {
                     var constructor = VisitConstructor(constructorProvider);
-                    if (constructor != null )
+                    if (constructor != null)
                     {
                         constructors.Add(constructor);
                     }
@@ -170,7 +170,7 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         /// <param name="constructor">The original <see cref="ConstructorProvider"/>.</param>
         /// <returns>Null if it should be removed otherwise the modified version of the <see cref="ConstructorProvider"/>.</returns>
-        protected internal virtual ConstructorProvider? VisitConstructor(ConstructorProvider constructor)
+        protected virtual ConstructorProvider? VisitConstructor(ConstructorProvider constructor)
         {
             return constructor;
         }
