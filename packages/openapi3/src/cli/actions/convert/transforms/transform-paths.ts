@@ -65,7 +65,7 @@ export function transformPaths(
       }
 
       const requestBodies = transformRequestBodies(operation.requestBody, context);
-      
+
       // Check if we need to split the operation due to incompatible content types
       const splitOperations = splitOperationByContentType(
         operationId,
@@ -76,9 +76,9 @@ export function transformPaths(
         operationResponses,
         tags,
         fixmes,
-        usedOperationIds
+        usedOperationIds,
       );
-      
+
       operations.push(...splitOperations);
     }
   }
@@ -140,45 +140,49 @@ function splitOperationByContentType(
   responses: any,
   tags: string[],
   fixmes: string[],
-  usedOperationIds: Set<string>
+  usedOperationIds: Set<string>,
 ): TypeSpecOperation[] {
   // If no request bodies or only one content type, no splitting needed
   if (requestBodies.length <= 1) {
-    return [{
-      ...getScopeAndName(operationId),
-      decorators,
-      parameters,
-      doc,
-      operationId,
-      requestBodies,
-      responses,
-      tags,
-      fixmes,
-    }];
+    return [
+      {
+        ...getScopeAndName(operationId),
+        decorators,
+        parameters,
+        doc,
+        operationId,
+        requestBodies,
+        responses,
+        tags,
+        fixmes,
+      },
+    ];
   }
 
   // Group request bodies by compatibility
   const multipartBodies = requestBodies.filter((r) => r.contentType.startsWith("multipart/"));
   const nonMultipartBodies = requestBodies.filter((r) => !r.contentType.startsWith("multipart/"));
-  
+
   // If all are the same type (all multipart or all non-multipart), no splitting needed
   if (multipartBodies.length === 0 || nonMultipartBodies.length === 0) {
-    return [{
-      ...getScopeAndName(operationId),
-      decorators,
-      parameters,
-      doc,
-      operationId,
-      requestBodies,
-      responses,
-      tags,
-      fixmes,
-    }];
+    return [
+      {
+        ...getScopeAndName(operationId),
+        decorators,
+        parameters,
+        doc,
+        operationId,
+        requestBodies,
+        responses,
+        tags,
+        fixmes,
+      },
+    ];
   }
 
   // Need to split into separate operations
   const operations: TypeSpecOperation[] = [];
-  
+
   // Helper to create a suffix from content type
   const getContentTypeSuffix = (contentType: string): string => {
     if (contentType.startsWith("multipart/")) {
@@ -199,30 +203,27 @@ function splitOperationByContentType(
 
   // Group bodies that can share an operation (same category)
   const bodyGroups: TypeSpecRequestBody[][] = [];
-  
+
   if (multipartBodies.length > 0) {
     bodyGroups.push(multipartBodies);
   }
-  
+
   // For non-multipart, group by exact content type
   for (const body of nonMultipartBodies) {
     bodyGroups.push([body]);
   }
-  
+
   // Create an operation for each group
   for (const bodyGroup of bodyGroups) {
     const suffix = getContentTypeSuffix(bodyGroup[0].contentType);
     const newOperationId = `${operationId}${suffix}`;
-    
+
     // Track the new operation ID to avoid conflicts
     usedOperationIds.add(newOperationId);
-    
+
     // Add @sharedRoute decorator
-    const newDecorators = [
-      { name: "sharedRoute", args: [] },
-      ...decorators,
-    ];
-    
+    const newDecorators = [{ name: "sharedRoute", args: [] }, ...decorators];
+
     operations.push({
       ...getScopeAndName(newOperationId),
       decorators: newDecorators,
@@ -235,7 +236,7 @@ function splitOperationByContentType(
       fixmes,
     });
   }
-  
+
   return operations;
 }
 
