@@ -15,7 +15,7 @@ namespace Sample
         {
             global::Sample.Argument.AssertNotNull(body, nameof(body));
 
-            return await this.TestOperationAsync(body.Foo, body, cancellationToken.ToOptions()).ConfigureAwait(false);
+            return await this.TestOperationAsync(body.Foo, body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
     }
 }

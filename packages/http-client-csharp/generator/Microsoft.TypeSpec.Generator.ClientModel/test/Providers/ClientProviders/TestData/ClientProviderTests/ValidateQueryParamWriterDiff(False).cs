@@ -12,7 +12,7 @@ namespace Sample
     {
         public virtual global::System.ClientModel.ClientResult Operation(global::Sample.Models.InputEnum queryParam, global::System.Threading.CancellationToken cancellationToken = default)
         {
-            return this.Operation(queryParam.ToString(), cancellationToken.ToOptions());
+            return this.Operation(queryParam.ToString(), cancellationToken.ToRequestOptions());
         }
     }
 }
