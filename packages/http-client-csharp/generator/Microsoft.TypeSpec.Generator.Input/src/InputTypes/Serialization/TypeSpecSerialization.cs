@@ -69,6 +69,9 @@ namespace Microsoft.TypeSpec.Generator.Input
                     new InputQueryParameterConverter(referenceHandler),
                     new InputPathParameterConverter(referenceHandler),
                     new InputBodyParameterConverter(referenceHandler),
+                    new TypeSpecInputExampleValueConverter(),
+                    new TypeSpecInputParameterExampleConverter(),
+                    new TypeSpecInputOperationExampleConverter(),
                 }
             };
 

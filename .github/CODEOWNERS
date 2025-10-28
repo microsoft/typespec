@@ -28,8 +28,8 @@ cspell.yaml
 ######################
 # Python
 ######################
-/packages/http-client-python/                                                     @iscai-msft @tadelesh @msyyc @timotheeguerin @lmazuel @kristapratico @swathipil @catalinaperalta @mccoyp
-/website/src/content/docs/docs/emitters/clients/http-client-python/               @iscai-msft @tadelesh @msyyc @timotheeguerin @lmazuel @kristapratico @swathipil @catalinaperalta @mccoyp  
+/packages/http-client-python/                                                     @iscai-msft @tadelesh @msyyc @timotheeguerin @lmazuel @swathipil @catalinaperalta @mccoyp
+/website/src/content/docs/docs/emitters/clients/http-client-python/               @iscai-msft @tadelesh @msyyc @timotheeguerin @lmazuel @swathipil @catalinaperalta @mccoyp  
 
 ######################
 # JavaScript

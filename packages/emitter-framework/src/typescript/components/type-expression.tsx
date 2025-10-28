@@ -24,62 +24,68 @@ export interface TypeExpressionProps {
 }
 
 export function TypeExpression(props: TypeExpressionProps) {
-  const { $ } = useTsp();
   const type = props.type;
-  if (!props.noReference && isDeclaration($, type)) {
-    // todo: probably need abstraction around deciding what's a declaration in the output
-    // (it may not correspond to things which are declarations in TypeSpec?)
-    return (
-      <Experimental_OverridableComponent reference type={type}>
-        <Reference refkey={efRefkey(type)} />
-      </Experimental_OverridableComponent>
-    );
-    //throw new Error("Reference not implemented");
-  }
+  const { $ } = useTsp();
 
-  // TODO: Make sure this is an exhaustive switch, including EnumMember and such
-  switch (type.kind) {
-    case "Scalar":
-    case "Intrinsic":
-      return <>{getScalarIntrinsicExpression($, type)}</>;
-    case "Boolean":
-    case "Number":
-    case "String":
-      return <ValueExpression jsValue={type.value} />;
-    case "Union":
-      return <UnionExpression type={type} />;
-    case "UnionVariant":
-      return <TypeExpression type={type.type} />;
-    case "Tuple":
-      return (
-        <>
-          [
-          <For each={type.values} comma line>
-            {(element) => <TypeExpression type={element} />}
-          </For>
-          ]
-        </>
-      );
-    case "ModelProperty":
-      return <TypeExpression type={type.type} />;
-    case "Model":
-      if ($.array.is(type)) {
-        const elementType = type.indexer!.value;
-        return <ArrayExpression elementType={elementType} />;
-      }
+  return (
+    <Experimental_OverridableComponent reference type={type}>
+      {() => {
+        if (!props.noReference && isDeclaration($, type)) {
+          // todo: probably need abstraction around deciding what's a declaration in the output
+          // (it may not correspond to things which are declarations in TypeSpec?)
+          return <Reference refkey={efRefkey(type)} />;
+          //throw new Error("Reference not implemented");
+        }
 
-      if ($.record.is(type)) {
-        const elementType = (type as Model).indexer!.value;
-        return <RecordExpression elementType={elementType} />;
-      }
+        // TODO: Make sure this is an exhaustive switch, including EnumMember and such
+        switch (type.kind) {
+          case "Scalar":
+          case "Intrinsic":
+            return <>{getScalarIntrinsicExpression($, type)}</>;
+          case "Boolean":
+          case "Number":
+          case "String":
+            return <ValueExpression jsValue={type.value} />;
+          case "Union":
+            return <UnionExpression type={type} />;
+          case "UnionVariant":
+            return <TypeExpression type={type.type} />;
+          case "Tuple":
+            return (
+              <>
+                [
+                <For each={type.values} comma line>
+                  {(element) => <TypeExpression type={element} />}
+                </For>
+                ]
+              </>
+            );
+          case "ModelProperty":
+            return <TypeExpression type={type.type} />;
+          case "Model":
+            if ($.array.is(type)) {
+              const elementType = type.indexer!.value;
+              return <ArrayExpression elementType={elementType} />;
+            }
 
-      return <InterfaceExpression type={type} />;
-    case "Operation":
-      return <FunctionType type={type} />;
-    default:
-      reportTypescriptDiagnostic($.program, { code: "typescript-unsupported-type", target: type });
-      return "any";
-  }
+            if ($.record.is(type)) {
+              const elementType = (type as Model).indexer!.value;
+              return <RecordExpression elementType={elementType} />;
+            }
+
+            return <InterfaceExpression type={type} />;
+          case "Operation":
+            return <FunctionType type={type} />;
+          default:
+            reportTypescriptDiagnostic($.program, {
+              code: "typescript-unsupported-type",
+              target: type,
+            });
+            return "any";
+        }
+      }}
+    </Experimental_OverridableComponent>
+  );
 }
 
 const intrinsicNameToTSType = new Map<string, string | null>([

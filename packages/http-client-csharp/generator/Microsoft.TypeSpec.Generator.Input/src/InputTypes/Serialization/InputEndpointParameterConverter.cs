@@ -103,18 +103,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             parameter.IsApiVersion = isApiVersion;
             parameter.DefaultValue = defaultValue;
             parameter.IsEndpoint = isEndpoint;
-
-            if (scope == null)
-            {
-                throw new JsonException("Parameter must have a scope");
-            }
-            Enum.TryParse<InputParameterScope>(scope, ignoreCase: true, out var parsedScope);
-
-            if (parsedScope == InputParameterScope.Constant && type is not InputLiteralType)
-            {
-                throw new JsonException($"Parameter '{name}' is constant, but its type is '{type.Name}'.");
-            }
-            parameter.Scope = parsedScope;
+            parameter.Scope = InputParameter.ParseScope(type, name, scope);;
             parameter.SkipUrlEncoding = skipUrlEncoding;
 
             return parameter;

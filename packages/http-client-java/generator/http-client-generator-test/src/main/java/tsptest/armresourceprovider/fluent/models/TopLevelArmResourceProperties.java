@@ -47,6 +47,11 @@ public final class TopLevelArmResourceProperties implements JsonSerializable<Top
     private OffsetDateTime startTimeStamp;
 
     /*
+     * The size property.
+     */
+    private Float size;
+
+    /*
      * The status of the last operation.
      */
     private ProvisioningState provisioningState;
@@ -147,6 +152,15 @@ public final class TopLevelArmResourceProperties implements JsonSerializable<Top
     }
 
     /**
+     * Get the size property: The size property.
+     * 
+     * @return the size value.
+     */
+    public Float size() {
+        return this.size;
+    }
+
+    /**
      * Get the provisioningState property: The status of the last operation.
      * 
      * @return the provisioningState value.
@@ -198,6 +212,8 @@ public final class TopLevelArmResourceProperties implements JsonSerializable<Top
                 } else if ("configurationEndpoints".equals(fieldName)) {
                     List<String> configurationEndpoints = reader.readArray(reader1 -> reader1.getString());
                     deserializedTopLevelArmResourceProperties.configurationEndpoints = configurationEndpoints;
+                } else if ("size".equals(fieldName)) {
+                    deserializedTopLevelArmResourceProperties.size = reader.getNullable(JsonReader::getFloat);
                 } else if ("provisioningState".equals(fieldName)) {
                     deserializedTopLevelArmResourceProperties.provisioningState
                         = ProvisioningState.fromString(reader.getString());

@@ -220,6 +220,15 @@ public final class TopLevelArmResourceInner extends Resource {
     }
 
     /**
+     * Get the size property: The size property.
+     * 
+     * @return the size value.
+     */
+    public Float size() {
+        return this.innerProperties() == null ? null : this.innerProperties().size();
+    }
+
+    /**
      * Get the provisioningState property: The status of the last operation.
      * 
      * @return the provisioningState value.

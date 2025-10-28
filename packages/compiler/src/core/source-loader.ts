@@ -4,7 +4,7 @@ import {
   resolveModule,
   ResolveModuleError,
   ResolveModuleHost,
-} from "../module-resolver/module-resolver.js";
+} from "../module-resolver/index.js";
 import { PackageJson } from "../types/package-json.js";
 import { doIO } from "../utils/io.js";
 import { deepEquals, resolveTspMain } from "../utils/misc.js";
@@ -411,7 +411,11 @@ export function moduleResolutionErrorToDiagnostic(
   sourceTarget: DiagnosticTarget | typeof NoTarget,
 ): Diagnostic {
   const target: DiagnosticTarget | typeof NoTarget = e.pkgJson
-    ? { file: createSourceFile(e.pkgJson.file.text, e.pkgJson.file.path), pos: 0, end: 0 }
+    ? {
+        file: createSourceFile(e.pkgJson.file.text, e.pkgJson.file.path),
+        pos: 0,
+        end: 0,
+      }
     : sourceTarget;
   switch (e.code) {
     case "MODULE_NOT_FOUND":

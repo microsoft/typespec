@@ -40,6 +40,7 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
     private Boolean useRestProxy;
     private Boolean useDefaultHttpStatusCodeToExceptionTypeMapping = true;
     private Boolean clientSideValidations = false;
+    private Boolean uuidAsString = true;
     private DevOptions devOptions;
 
     // mgmt
@@ -51,6 +52,7 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
     private Boolean generateAsyncMethods;
     private String propertyIncludeAlways;
     private List<ResourceCollectionAssociation> resourceCollectionAssociations = new ArrayList<>();
+    private String metadataSuffix;
 
     // internal
     private String outputDir;
@@ -101,6 +103,10 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
 
     public Boolean getUseObjectForUnknown() {
         return useObjectForUnknown;
+    }
+
+    public Boolean getUuidAsString() {
+        return uuidAsString;
     }
 
     public List<String> getServiceVersions() {
@@ -199,6 +205,10 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
         return resourceCollectionAssociations;
     }
 
+    public String getMetadataSuffix() {
+        return metadataSuffix;
+    }
+
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         // it does not need to be written to JSON
@@ -273,6 +283,10 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
                 options.premium = reader.getNullable(EmitterOptions::getBoolean);
             } else if ("client-side-validations".equals(fieldName)) {
                 options.clientSideValidations = reader.getNullable(EmitterOptions::getBoolean);
+            } else if ("uuid-as-string".equals(fieldName)) {
+                options.uuidAsString = reader.getNullable(EmitterOptions::getBoolean);
+            } else if ("metadata-suffix".equals(fieldName)) {
+                options.metadataSuffix = emptyToNull(reader.getString());
             } else {
                 reader.skipChildren();
             }

@@ -18,7 +18,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             var compilation = CompilationHelper.LoadCompilation(new[] { model });
             var iNamedSymbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, nameof(InvalidPropertyDocsModel));
 
-            var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!);
+            var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!, compilation);
             var ex = Assert.Throws<InvalidOperationException>(() => _ = namedTypeSymbolProvider.Properties);
             Assert.IsInstanceOf<XmlException>(ex!.InnerException);
             StringAssert.Contains(
@@ -33,7 +33,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             var compilation = CompilationHelper.LoadCompilation(new[] { model });
             var iNamedSymbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, nameof(ValidDocsModel));
 
-            var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!);
+            var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!, compilation);
             Assert.AreEqual(2, namedTypeSymbolProvider.Properties.Count);
             Assert.AreEqual("X", namedTypeSymbolProvider.Properties[0].Name);
             Assert.IsTrue(namedTypeSymbolProvider.Properties[0].Type.Equals(typeof(int)));
@@ -48,12 +48,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             var compilation = CompilationHelper.LoadCompilation(new[] { model });
             var iNamedSymbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, nameof(SeeTagWithTypePrefixModel));
 
-            var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!);
+            var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!, compilation);
             Assert.AreEqual(1, namedTypeSymbolProvider.Properties.Count);
-            
+
             var property = namedTypeSymbolProvider.Properties[0];
             Assert.AreEqual("TestProperty", property.Name);
-            
+
             var description = property.Description?.ToString() ?? string.Empty;
             Assert.That(description, Contains.Substring("Initializes a new instance of <see cref=\"System.String\"/>."));
         }
@@ -65,9 +65,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             var compilation = CompilationHelper.LoadCompilation(new[] { model });
             var iNamedSymbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, nameof(SeeTagWithoutTypePrefixModel));
 
-            var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!);
+            var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!, compilation);
             Assert.AreEqual(1, namedTypeSymbolProvider.Properties.Count);
-            
+
             var property = namedTypeSymbolProvider.Properties[0];
             Assert.AreEqual("TestProperty", property.Name);
 
@@ -82,12 +82,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             var compilation = CompilationHelper.LoadCompilation(new[] { model });
             var iNamedSymbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, nameof(MultipleSeeTagsModel));
 
-            var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!);
+            var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!, compilation);
             Assert.AreEqual(1, namedTypeSymbolProvider.Properties.Count);
-            
+
             var property = namedTypeSymbolProvider.Properties[0];
             var description = property.Description?.ToString() ?? string.Empty;
-            
+
             // Verify both see tags are processed correctly
             Assert.That(description, Contains.Substring("Works with <see cref=\"System.String\"/> and <see cref=\"System.Int32\"/> types."));
         }
@@ -99,12 +99,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             var compilation = CompilationHelper.LoadCompilation(new[] { model });
             var iNamedSymbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, nameof(SeeTagWithoutCrefModel));
 
-            var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!);
+            var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!, compilation);
             Assert.AreEqual(1, namedTypeSymbolProvider.Properties.Count);
-            
+
             var property = namedTypeSymbolProvider.Properties[0];
             var description = property.Description?.ToString() ?? string.Empty;
-            
+
             // Verify that see tag without cref is preserved as-is
             Assert.That(description, Contains.Substring("See documentation for <see langword=\"null\" /> keyword."));
         }
@@ -116,12 +116,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             var compilation = CompilationHelper.LoadCompilation(new[] { model });
             var iNamedSymbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, nameof(MixedContentModel));
 
-            var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!);
+            var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!, compilation);
             Assert.AreEqual(1, namedTypeSymbolProvider.Properties.Count);
-            
+
             var property = namedTypeSymbolProvider.Properties[0];
             var description = property.Description?.ToString() ?? string.Empty;
-            
+
             // Verify that regular text is preserved and see tags are processed
             Assert.That(description, Contains.Substring("This property represents <see cref=\"System.String\"/> and returns a value."));
         }
@@ -133,7 +133,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             var compilation = CompilationHelper.LoadCompilation(new[] { model });
             var iNamedSymbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, nameof(InvalidParameterDocsModel));
 
-            var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!);
+            var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol!, compilation);
             var ex = Assert.Throws<InvalidOperationException>(() => _ = namedTypeSymbolProvider.Methods);
             Assert.IsInstanceOf<XmlException>(ex!.InnerException);
             StringAssert.Contains(
