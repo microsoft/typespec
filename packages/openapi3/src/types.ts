@@ -9,7 +9,7 @@ TODO checklist for @baywet:
 - [x] response summary https://github.com/BinkyLabs/OpenAPI.net/issues/17
 - [x] server name https://github.com/BinkyLabs/OpenAPI.net/issues/16
 - [x] security scheme deprecated https://github.com/BinkyLabs/OpenAPI.net/issues/15
-- [ ] oauth flows https://github.com/BinkyLabs/OpenAPI.net/issues/14
+- [x] oauth flows https://github.com/BinkyLabs/OpenAPI.net/issues/14
 - [ ] examples data and serialized value https://github.com/BinkyLabs/OpenAPI.net/issues/12
 - [ ] xml fields https://github.com/BinkyLabs/OpenAPI.net/issues/11
 - [x] media type item and prefix encoding https://github.com/BinkyLabs/OpenAPI.net/issues/10
@@ -1268,7 +1268,10 @@ export interface OpenAPIApiKeySecurityScheme3_2
 
 export interface OpenAPIOAuth2SecurityScheme3_2
   extends OpenAPISecuritySchemeBase3_2,
-    OpenAPI3OAuth2SecurityScheme {}
+    Omit<OpenAPI3OAuth2SecurityScheme, "flows"> {
+  /** An object containing configuration information for the flow types supported. */
+  flows: OpenAPIOAuthFlows3_2;
+}
 
 export interface OpenAPIOpenIdConnectSecurityScheme3_2
   extends OpenAPISecuritySchemeBase3_2,
@@ -1283,3 +1286,26 @@ export type OpenAPISecurityScheme3_2 =
   | OpenAPIOAuth2SecurityScheme3_2
   | OpenAPIOpenIdConnectSecurityScheme3_2
   | OpenAPIHttpSecurityScheme3_2;
+
+/** Configuration for the OAuth Client Credentials flow. Previously called application in OpenAPI 2.0. */
+export interface OpenAPIDeviceAuthorizationFlow3_2 extends OpenAPI3OAuth2Flow {
+  /** The token URL to be used for this flow. This MUST be in the form of a URL. */
+  tokenUrl: string;
+  /**
+   * The device authorization URL to be used for this flow. This MUST be in the form of a URL.
+   * @see https://spec.openapis.org/oas/v3.2.0.html#oauth-flow-object
+   */
+  deviceAuthorizationUrl: string;
+}
+/**
+ * Allows configuration of the supported OAuth Flows.
+ *
+ * @see https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.2.0.md#oauthFlowsObject
+ */
+export interface OpenAPIOAuthFlows3_2 extends OpenAPI3OAuthFlows {
+  /**
+   * Configuration for the OAuth 2.0 Device Authorization Grant flow.
+   * @see https://spec.openapis.org/oas/v3.2.0.html#oauth-flows-object
+   */
+  deviceAuthorization?: OpenAPIDeviceAuthorizationFlow3_2;
+}
