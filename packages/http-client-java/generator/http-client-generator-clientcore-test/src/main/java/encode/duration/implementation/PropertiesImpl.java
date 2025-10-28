@@ -1,10 +1,14 @@
 package encode.duration.implementation;
 
 import encode.duration.property.DefaultDurationProperty;
+import encode.duration.property.Float64MillisecondsDurationProperty;
 import encode.duration.property.Float64SecondsDurationProperty;
+import encode.duration.property.FloatMillisecondsDurationArrayProperty;
+import encode.duration.property.FloatMillisecondsDurationProperty;
 import encode.duration.property.FloatSecondsDurationArrayProperty;
 import encode.duration.property.FloatSecondsDurationProperty;
 import encode.duration.property.ISO8601DurationProperty;
+import encode.duration.property.Int32MillisecondsDurationProperty;
 import encode.duration.property.Int32SecondsDurationProperty;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceInterface;
@@ -116,12 +120,48 @@ public final class PropertiesImpl {
 
         @HttpRequestInformation(
             method = HttpMethod.POST,
+            path = "/encode/duration/property/int32-milliseconds",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<Int32MillisecondsDurationProperty> int32Milliseconds(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
+            @BodyParam("application/json") Int32MillisecondsDurationProperty body, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.POST,
+            path = "/encode/duration/property/float-milliseconds",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<FloatMillisecondsDurationProperty> floatMilliseconds(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
+            @BodyParam("application/json") FloatMillisecondsDurationProperty body, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.POST,
+            path = "/encode/duration/property/float64-milliseconds",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<Float64MillisecondsDurationProperty> float64Milliseconds(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
+            @BodyParam("application/json") Float64MillisecondsDurationProperty body, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.POST,
             path = "/encode/duration/property/float-seconds-array",
             expectedStatusCodes = { 200 })
         @UnexpectedResponseExceptionDetail
         Response<FloatSecondsDurationArrayProperty> floatSecondsArray(@HostParam("endpoint") String endpoint,
             @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
             @BodyParam("application/json") FloatSecondsDurationArrayProperty body, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.POST,
+            path = "/encode/duration/property/float-milliseconds-array",
+            expectedStatusCodes = { 200 })
+        @UnexpectedResponseExceptionDetail
+        Response<FloatMillisecondsDurationArrayProperty> floatMillisecondsArray(@HostParam("endpoint") String endpoint,
+            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
+            @BodyParam("application/json") FloatMillisecondsDurationArrayProperty body, RequestContext requestContext);
     }
 
     /**
@@ -230,6 +270,70 @@ public final class PropertiesImpl {
     }
 
     /**
+     * The int32Milliseconds operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Int32MillisecondsDurationProperty>
+        int32MillisecondsWithResponse(Int32MillisecondsDurationProperty body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Property.int32Milliseconds", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                final String accept = "application/json";
+                return service.int32Milliseconds(this.client.getEndpoint(), contentType, accept, body, updatedContext);
+            });
+    }
+
+    /**
+     * The floatMilliseconds operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<FloatMillisecondsDurationProperty>
+        floatMillisecondsWithResponse(FloatMillisecondsDurationProperty body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Property.floatMilliseconds", requestContext,
+            updatedContext -> {
+                final String contentType = "application/json";
+                final String accept = "application/json";
+                return service.floatMilliseconds(this.client.getEndpoint(), contentType, accept, body, updatedContext);
+            });
+    }
+
+    /**
+     * The float64Milliseconds operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Float64MillisecondsDurationProperty>
+        float64MillisecondsWithResponse(Float64MillisecondsDurationProperty body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Property.float64Milliseconds",
+            requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                final String accept = "application/json";
+                return service.float64Milliseconds(this.client.getEndpoint(), contentType, accept, body,
+                    updatedContext);
+            });
+    }
+
+    /**
      * The floatSecondsArray operation.
      * 
      * @param body The body parameter.
@@ -247,6 +351,28 @@ public final class PropertiesImpl {
                 final String contentType = "application/json";
                 final String accept = "application/json";
                 return service.floatSecondsArray(this.client.getEndpoint(), contentType, accept, body, updatedContext);
+            });
+    }
+
+    /**
+     * The floatMillisecondsArray operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<FloatMillisecondsDurationArrayProperty>
+        floatMillisecondsArrayWithResponse(FloatMillisecondsDurationArrayProperty body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Property.floatMillisecondsArray",
+            requestContext, updatedContext -> {
+                final String contentType = "application/json";
+                final String accept = "application/json";
+                return service.floatMillisecondsArray(this.client.getEndpoint(), contentType, accept, body,
+                    updatedContext);
             });
     }
 }

@@ -80,6 +80,9 @@ model TopLevelArmResourceProperties {
   startTimeStamp: utcDateTime; // this should be renamed to startTimestamp
 
   @visibility(Lifecycle.Read)
+  size?: float32;
+
+  @visibility(Lifecycle.Read)
   @doc("The status of the last operation.")
   provisioningState?: ProvisioningState;
 }

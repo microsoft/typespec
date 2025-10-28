@@ -43,6 +43,9 @@ const AZURE_EMITTER_OPTIONS: Record<string, Record<string, string> | Record<stri
   "azure/client-generator-core/access": {
     namespace: "specs.azure.clientgenerator.core.access",
   },
+  "azure/client-generator-core/alternate-type": {
+    namespace: "specs.azure.clientgenerator.core.alternatetype",
+  },
   "azure/client-generator-core/api-version": {
     namespace: "specs.azure.clientgenerator.core.apiversion",
   },

@@ -16,7 +16,7 @@ namespace SampleTypeSpec
     public static partial class SampleTypeSpecModelFactory
     {
         /// <summary> A model with a few properties of literal types. </summary>
-        /// <param name="rename"></param>
+        /// <param name="rename"> name of the Thing. </param>
         /// <param name="requiredUnion"> required Union. </param>
         /// <param name="requiredNullableString"> required nullable string. </param>
         /// <param name="optionalNullableString"> required optional string. </param>

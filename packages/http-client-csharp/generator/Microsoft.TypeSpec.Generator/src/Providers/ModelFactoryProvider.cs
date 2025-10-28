@@ -143,7 +143,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     // If the parameter ordering is the only difference, just use the previous method
                     if (ContainsSameParameters(previousMethod.Signature, currentOverload)
-                        && TryBuildCompatibleMethodForPreviousContract(previousMethod, currentOverload, out MethodProvider? replacedMethod))
+                        && TryBuildCompatibleMethodForPreviousContract(previousMethod, currentOverload, false, out MethodProvider? replacedMethod))
                     {
                         factoryMethods.Add(replacedMethod);
 
@@ -158,7 +158,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         break;
                     }
 
-                    if (TryBuildCompatibleMethodForPreviousContract(previousMethod, currentOverload, out replacedMethod))
+                    if (TryBuildCompatibleMethodForPreviousContract(previousMethod, currentOverload, true, out replacedMethod))
                     {
                         factoryMethods.Add(replacedMethod);
                         foundCompatibleOverload = true;
@@ -172,7 +172,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
 
                 // If no compatible overload found, try to add the previous method by instantiating the model directly.
-                if (TryBuildCompatibleMethodForPreviousContract(previousMethod, null, out var builtMethod))
+                if (TryBuildCompatibleMethodForPreviousContract(previousMethod, null, true, out var builtMethod))
                 {
                     factoryMethods.Add(builtMethod);
                 }
@@ -188,6 +188,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private bool TryBuildCompatibleMethodForPreviousContract(
             MethodProvider previousMethod,
             MethodSignature? currentMethodSignature,
+            bool hideMethod,
             [NotNullWhen(true)] out MethodProvider? builtMethod)
         {
             builtMethod = null;
@@ -221,46 +222,49 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             if (currentMethodSignature != null && TryBuildMethodArgumentsForOverload(previousMethod.Signature, currentMethodSignature, out var arguments))
             {
-                // make all parameter required to avoid ambiguous call sites if necessary
-                foreach (var param in previousMethod.Signature.Parameters)
-                {
-                    param.DefaultValue = null;
-                }
-
-                var signature = new MethodSignature(
-                    previousMethod.Signature.Name,
-                    previousMethod.Signature.Description,
-                    previousMethod.Signature.Modifiers,
-                    previousMethod.Signature.ReturnType,
-                    previousMethod.Signature.ReturnDescription,
-                    previousMethod.Signature.Parameters,
-                    Attributes: [.. previousMethod.Signature.Attributes, new AttributeStatement(typeof(EditorBrowsableAttribute), FrameworkEnumValue(EditorBrowsableState.Never))]);
-
                 var callToOverload = Return(new InvokeMethodExpression(null, currentMethodSignature, arguments));
                 builtMethod = new MethodProvider(
-                    signature,
+                    BuildBackCompatMethodSignature(previousMethod.Signature),
                     callToOverload,
                     this,
                     previousMethod.XmlDocs);
+
                 return true;
             }
 
             MethodBodyStatements body = ConstructMethodBody(previousMethod.Signature, modelToInstantiate);
 
             builtMethod = new MethodProvider(
-                new MethodSignature(
-                    previousMethod.Signature.Name,
-                    previousMethod.Signature.Description,
-                    previousMethod.Signature.Modifiers,
-                    previousMethod.Signature.ReturnType,
-                    previousMethod.Signature.ReturnDescription,
-                    previousMethod.Signature.Parameters,
-                    Attributes: previousMethod.Signature.Attributes),
+                BuildBackCompatMethodSignature(previousMethod.Signature),
                 body,
                 this,
                 previousMethod.XmlDocs);
 
             return true;
+
+            MethodSignature BuildBackCompatMethodSignature(MethodSignature previousMethodSignature)
+            {
+                if (hideMethod)
+                {
+                    // make all parameter required to avoid ambiguous call sites if necessary
+                    foreach (var param in previousMethodSignature.Parameters)
+                    {
+                        param.DefaultValue = null;
+                    }
+                }
+
+                var attributes = hideMethod
+                    ? [.. previousMethodSignature.Attributes, new AttributeStatement(typeof(EditorBrowsableAttribute), FrameworkEnumValue(EditorBrowsableState.Never))]
+                    : previousMethodSignature.Attributes;
+                return new MethodSignature(
+                    previousMethodSignature.Name,
+                    previousMethodSignature.Description,
+                    previousMethodSignature.Modifiers,
+                    previousMethodSignature.ReturnType,
+                    previousMethodSignature.ReturnDescription,
+                    previousMethodSignature.Parameters,
+                    Attributes: attributes);
+            }
         }
 
         private MethodBodyStatements ConstructMethodBody(MethodSignature signature, ModelProvider modelToInstantiate)
@@ -481,7 +485,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                if (param.Property?.IsRequiredNonNullableConstant == true)
+                // Skip required literal and enum parameters as they will have default values assigned in the model constructors
+                if (param.Property?.InputProperty is { IsRequired: true, Type: InputLiteralType or InputEnumTypeValue })
                 {
                     continue;
                 }

@@ -22,6 +22,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
         private readonly bool _parameterIsIn;
         private readonly bool _parameterIsOut;
         private readonly bool _parameterIsRef;
+        private readonly bool _initializeEnumProperty;
         protected override string BuildRelativeFilePath() => ".";
 
         protected override string BuildName() => _typeName;
@@ -37,7 +38,8 @@ namespace Microsoft.TypeSpec.Generator.Tests
             bool isStruct = false,
             bool parameterIsIn = false,
             bool parameterIsOut = false,
-            bool parameterIsRef = false)
+            bool parameterIsRef = false,
+            bool initializeEnumProperty = false)
         {
             _propertyType = propertyType;
             _parameterType = parameterType;
@@ -48,6 +50,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             _parameterIsIn = parameterIsIn;
             _parameterIsOut = parameterIsOut;
             _parameterIsRef = parameterIsRef;
+            _initializeEnumProperty = initializeEnumProperty;
         }
 
         protected override FieldProvider[] BuildFields()
@@ -84,10 +87,41 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 ];
             }
 
+            ValueExpression? initializer = null;
+            CSharpType propertyType = new CSharpType(_propertyType);
+            
+            // If initializeEnumProperty is true and the property type is an enum, create an enum member initializer
+            if (_initializeEnumProperty && _propertyType.IsEnum)
+            {
+                // Get the first enum value to use as the initializer
+                var enumValues = Enum.GetValues(_propertyType);
+                if (enumValues.Length > 0)
+                {
+                    var firstValue = enumValues.GetValue(0);
+                    var firstValueName = Enum.GetName(_propertyType, firstValue!);
+
+                    // Create a CSharpType for the generated enum
+                    var enumType = new CSharpType(
+                        name: _propertyType.Name,
+                        ns: _typeNamespace,
+                        isValueType: true,
+                        isNullable: false,
+                        declaringType: null,
+                        args: [],
+                        isPublic: true,
+                        isStruct: false,
+                        baseType: null,
+                        underlyingEnumType: typeof(int));
+
+                    propertyType = enumType;
+                    initializer = new MemberExpression(TypeReferenceExpression.FromType(enumType), firstValueName!);
+                }
+            }
+
             return
             [
-                new PropertyProvider($"p1", MethodSignatureModifiers.Public, _propertyType, "P1",
-                    new AutoPropertyBody(true), this)
+                new PropertyProvider($"p1", MethodSignatureModifiers.Public, propertyType, "P1",
+                    new AutoPropertyBody(true, InitializationExpression: initializer), this)
             ];
         }
 

@@ -1,5 +1,13 @@
 # @typespec/http-specs
 
+## 0.1.0-alpha.27
+
+### Features
+
+- [#8307](https://github.com/microsoft/typespec/pull/8307) Add `@pageSize` parameter tests for pageable payload specs
+- [#8498](https://github.com/microsoft/typespec/pull/8498) Add specs for DurationKnownEncoding.milliseconds
+
+
 ## 0.1.0-alpha.26
 
 ### Features

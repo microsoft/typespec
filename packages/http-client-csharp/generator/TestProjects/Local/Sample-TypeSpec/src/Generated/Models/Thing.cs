@@ -19,7 +19,7 @@ namespace SampleTypeSpec
         private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
 
         /// <summary> Initializes a new instance of <see cref="Thing"/>. </summary>
-        /// <param name="rename"></param>
+        /// <param name="rename"> name of the Thing. </param>
         /// <param name="requiredUnion"> required Union. </param>
         /// <param name="requiredNullableString"> required nullable string. </param>
         /// <param name="requiredNullableLiteralString"> required nullable literal string. </param>
@@ -42,7 +42,7 @@ namespace SampleTypeSpec
         }
 
         /// <summary> Initializes a new instance of <see cref="Thing"/>. </summary>
-        /// <param name="rename"></param>
+        /// <param name="rename"> name of the Thing. </param>
         /// <param name="requiredUnion"> required Union. </param>
         /// <param name="requiredLiteralString"> required literal string. </param>
         /// <param name="requiredNullableString"> required nullable string. </param>

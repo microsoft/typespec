@@ -77,7 +77,7 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
                 type = null;
             }
 
-            return type != null ? new NamedTypeSymbolProvider(type) : null;
+            return type != null ? new NamedTypeSymbolProvider(type, compilation) : null;
         }
 
         private static INamedTypeSymbol? FindNamedTypeSymbol(Compilation compilation, bool includeReferencedAssemblies, string fullyQualifiedMetadataName)
@@ -110,7 +110,7 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
                 type = FindNamedTypeSymbol(compilation, includeReferencedAssemblies, fullyQualifiedMetadataName);
             }
 
-            return type != null ? new NamedTypeSymbolProvider(type) : null;
+            return type != null ? new NamedTypeSymbolProvider(type, compilation) : null;
         }
 
         private bool TryGetName(ISymbol symbol, [NotNullWhen(true)] out string? name)

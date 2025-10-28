@@ -73,6 +73,7 @@ it("renders a class declaration with properties using component override", async
       Prop1: string;
       Prop2: int32;
       Prop3?: Foo;
+      Prop4?: "foo" | "bar";
     }
   `);
 
@@ -102,20 +103,36 @@ it("renders a class declaration with properties using component override", async
         public required int Prop2 { get; set; }
     
         public Bar? Prop3 { get; set; }
+
+        public string? Prop4 { get; set; }
     }
   `);
 });
 
 function TestClientOverrides(props: { children?: Children }) {
-  const overrides = Experimental_ComponentOverridesConfig().forTypeKind("Model", {
-    reference: (props) => {
-      if (props.type.name === "Foo") {
-        return "Bar";
-      } else {
-        return props.default;
-      }
-    },
-  });
+  const overrides = Experimental_ComponentOverridesConfig()
+    .forTypeKind("Model", {
+      reference: (props) => {
+        if (props.type.name === "Foo") {
+          return "Bar";
+        } else {
+          return props.default;
+        }
+      },
+    })
+    .forTypeKind("Union", {
+      reference: (props) => {
+        for (const variant of props.type.variants.values()) {
+          if (
+            variant.type.kind !== "String" ||
+            (variant.type.kind === "String" && !variant.type.value)
+          ) {
+            return props.default;
+          }
+        }
+        return "string";
+      },
+    });
   return (
     <Experimental_ComponentOverrides overrides={overrides}>
       {props.children}

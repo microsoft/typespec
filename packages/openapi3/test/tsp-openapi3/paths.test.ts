@@ -1269,9 +1269,7 @@ model Foo {
       }
 
       @route("/") @get op getFoo(): {
-        /**
-         * my test header
-         */
+        /** my test header */
         @header("x-test") xTest?: string;
 
         @header("x-test2") xTest2?: string;
@@ -1338,9 +1336,7 @@ describe("requestBody", () => {
       }
 
       @route("/") @post op postFoo(
-        /**
-         * This is a test
-         */
+        /** This is a test */
         @body body: Foo,
       ): OkResponse;
       "
@@ -1407,9 +1403,7 @@ describe("requestBody", () => {
       }
 
       @route("/") @post op postFoo(
-        /**
-         * This is a test
-         */
+        /** This is a test */
         @body body: Foo,
       ): OkResponse;
       "
@@ -1477,9 +1471,7 @@ describe("requestBody", () => {
       }
 
       @route("/") @post op postFoo(
-        /**
-         * Overwritten description
-         */
+        /** Overwritten description */
         @body body: Foo,
       ): OkResponse;
       "
@@ -1488,7 +1480,7 @@ describe("requestBody", () => {
     await validateTsp(tsp);
   });
 
-  it("filters non-multipart content types when multipart/form-data is present", async () => {
+  it("generates separate operations for multipart and non-multipart content types", async () => {
     const tsp = await renderTypeSpecForOpenAPI3({
       schemas: {
         RealtimeCallCreateRequest: {
@@ -1551,10 +1543,13 @@ describe("requestBody", () => {
       },
     });
 
+    // Should generate separate operations for multipart and non-multipart
+    expect(tsp).toContain("@sharedRoute");
     expect(tsp).toContain("@multipartBody");
     expect(tsp).toContain('contentType: "multipart/form-data"');
-    expect(tsp).not.toContain('"application/sdp"');
-    expect(tsp).not.toContain("string |");
+    expect(tsp).toContain('"application/sdp"');
+    expect(tsp).toContain("create-realtime-callMultipart");
+    expect(tsp).toContain("create-realtime-callSdp");
 
     await validateTsp(tsp);
   });

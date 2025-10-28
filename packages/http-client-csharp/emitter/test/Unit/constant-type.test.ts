@@ -118,7 +118,7 @@ describe("Constant enum conversion", () => {
     strictEqual(enumType.values[0].value, "someValue");
     strictEqual(enumType.namespace, testModel.namespace);
     strictEqual(enumType.access, undefined);
-    strictEqual(enumType.usage, undefined);
+    strictEqual(enumType.usage, UsageFlags.None);
   });
 
   it("optional constants should be converted to enums", async () => {
@@ -147,6 +147,6 @@ describe("Constant enum conversion", () => {
     strictEqual(enumType.values[0].value, "someValue");
     strictEqual(enumType.namespace, testModel.namespace);
     strictEqual(enumType.access, undefined);
-    strictEqual(enumType.usage, undefined);
+    strictEqual(enumType.usage, UsageFlags.Input | UsageFlags.Json);
   });
 });

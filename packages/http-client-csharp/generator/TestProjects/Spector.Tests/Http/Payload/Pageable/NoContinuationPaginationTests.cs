@@ -13,7 +13,7 @@ namespace TestProjects.Spector.Tests.Http.Payload.Pageable
         [SpectorTest]
         public Task ConvenienceMethod() => Test(async (host) =>
         {
-            var client = new PageableClient(host, null);
+            var client = new PageableClient(host, null).GetPageSizeClient();
             var result = client.GetWithoutContinuationAsync();
             int count = 0;
             var expectedPets = new Dictionary<string, string>()
