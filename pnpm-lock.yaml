@@ -7,6 +7,9 @@ settings:
 overrides:
   cross-spawn@>=7.0.0 <7.0.5: ^7.0.5
   rollup: 4.49.0
+  '@alloy-js/python': 0.2.0
+  '@alloy-js/core': 0.22.0
+  '@alloy-js/babel-plugin': 0.2.1
 
 importers:
 
@@ -419,10 +422,10 @@ importers:
         specifier: ^0.22.0
         version: 0.22.0
       '@alloy-js/core':
-        specifier: ^0.22.0
+        specifier: 0.22.0
         version: 0.22.0
       '@alloy-js/python':
-        specifier: ^0.2.0
+        specifier: 0.2.0
         version: 0.2.0
       '@alloy-js/rollup-plugin':
         specifier: ^0.1.0
@@ -689,7 +692,7 @@ importers:
         specifier: ^0.22.0
         version: 0.22.0
       '@alloy-js/core':
-        specifier: ^0.22.0
+        specifier: 0.22.0
         version: 0.22.0
       '@alloy-js/rollup-plugin':
         specifier: ^0.1.0
@@ -731,7 +734,7 @@ importers:
   packages/http-client-js:
     dependencies:
       '@alloy-js/core':
-        specifier: ^0.22.0
+        specifier: 0.22.0
         version: 0.22.0
       '@alloy-js/typescript':
         specifier: ^0.22.0
@@ -2266,7 +2269,7 @@ importers:
   packages/tspd:
     dependencies:
       '@alloy-js/core':
-        specifier: ^0.22.0
+        specifier: 0.22.0
         version: 0.22.0
       '@alloy-js/markdown':
         specifier: ^0.22.0
@@ -2722,9 +2725,6 @@ packages:
     resolution: {integrity: sha512-M9XeHxdSRIZnwCZrYkOIuLrQQfxyTuc7tJrMjJdOFgvShBjwZJG21iFhvvYp5Reeq+GFEbuGlviho3GSxd7szA==}
     engines: {node: '>=18.0.0'}
     hasBin: true
-
-  '@alloy-js/core@0.21.0':
-    resolution: {integrity: sha512-eIBllm+Lgk/AcV6QdipZAVlYPIp6RHmgz046GXBQeXZnTZXmPHURVFI18/FVuaK7K+uUt0eriPXIYXs4/Ja5rQ==}
 
   '@alloy-js/core@0.22.0':
     resolution: {integrity: sha512-cqa6CL2m3zfPXF64Zr7WIqOpSWyqFi7ojQJVzpMjOsb1zJhoQzKt28/FCI6++Na4QDeSynOmWGEvHZ7CDYXn4w==}
@@ -14043,14 +14043,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@alloy-js/core@0.21.0':
-    dependencies:
-      '@vue/reactivity': 3.5.21
-      cli-table3: 0.6.5
-      pathe: 2.0.3
-      picocolors: 1.1.1
-      prettier: 3.7.4
-
   '@alloy-js/core@0.22.0':
     dependencies:
       '@vue/reactivity': 3.5.21
@@ -14081,7 +14073,7 @@ snapshots:
 
   '@alloy-js/python@0.2.0':
     dependencies:
-      '@alloy-js/core': 0.21.0
+      '@alloy-js/core': 0.22.0
       change-case: 5.4.4
       pathe: 2.0.3
 
@@ -24651,7 +24643,7 @@ snapshots:
       '@types/mdast': 4.0.4
       escape-string-regexp: 5.0.0
       unist-util-is: 6.0.0
-      unist-util-visit-parents: 6.0.1
+      unist-util-visit-parents: 6.0.2
 
   mdast-util-from-markdown@2.0.2:
     dependencies:

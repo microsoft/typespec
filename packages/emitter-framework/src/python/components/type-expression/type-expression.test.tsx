@@ -12,7 +12,7 @@ describe("map Typespec types to Python built-in types", () => {
     ["boolean", "bool"],
     ["null", "None"],
     ["void", "None"],
-    ["never", "NoReturn", "from typing import NoReturn"],
+    ["never", "Never", "from typing import Never"],
     ["bytes", "bytes"],
     ["numeric", "number"],
     ["integer", "int"],
@@ -70,6 +70,32 @@ describe("map tuple to Python types", () => {
       from typing import Tuple
 
       Tuple[int, int]
+    `);
+  });
+});
+
+describe("map operation (function type) to typing.Callable", () => {
+  it("op f(a: int32, b: string): void => Callable[[int, str], None]", async () => {
+    const { program, f } = await Tester.compile(t.code`
+      op ${t.op("f")}(a: int32, b: string): void;
+    `);
+
+    expect(getOutput(program, [<TypeExpression type={f} />])).toRenderTo(d`
+      from typing import Callable
+
+      Callable[[int, str], None]
+    `);
+  });
+
+  it("op g(): int32 => Callable[[], int]", async () => {
+    const { program, g } = await Tester.compile(t.code`
+      op ${t.op("g")}(): int32;
+    `);
+
+    expect(getOutput(program, [<TypeExpression type={g} />])).toRenderTo(d`
+      from typing import Callable
+
+      Callable[[], int]
     `);
   });
 });

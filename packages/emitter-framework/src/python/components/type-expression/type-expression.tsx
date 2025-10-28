@@ -1,7 +1,7 @@
 import { Experimental_OverridableComponent } from "#core/components/index.js";
 import { useTsp } from "#core/context/index.js";
 import { reportPythonDiagnostic } from "#python/lib.js";
-import { For } from "@alloy-js/core";
+import { For, mapJoin } from "@alloy-js/core";
 import * as py from "@alloy-js/python";
 import type { IntrinsicType, Model, Scalar, Type } from "@typespec/compiler";
 import type { Typekit } from "@typespec/compiler/typekit";
@@ -51,6 +51,14 @@ export function TypeExpression(props: TypeExpressionProps) {
           ]
         </>
       );
+    case "Union": {
+      const variants = Array.from((type as any).variants?.values?.() ?? []);
+      return mapJoin(
+        () => variants,
+        (v: any) => <TypeExpression type={v.type} />,
+        { joiner: " | " },
+      );
+    }
     case "ModelProperty":
       return <TypeExpression type={type.type} />;
     case "Model":
@@ -69,9 +77,45 @@ export function TypeExpression(props: TypeExpressionProps) {
 
     // TODO: Models will be implemented separately
     // return <InterfaceExpression type={type} />;
-    // TODO: Functions will be implemented separately
-    // case "Operation":
-    //   return <FunctionType type={type} />;
+    case "Operation": {
+      // Render function types as typing.Callable[[ArgTypes...], ReturnType]
+      // If parameters cannot be enumerated, fall back to Callable[..., ReturnType]
+      let paramTypes: Type[] | null = null;
+      const op: any = type as any;
+      if (op.parameters) {
+        try {
+          const { $ } = useTsp();
+          const modelProps = $.model.getProperties(op.parameters);
+          paramTypes = Array.from(modelProps.values()).map((p: any) => p.type);
+        } catch {
+          // Unknown/unsupported params shape
+          paramTypes = null;
+        }
+      } else {
+        paramTypes = [];
+      }
+
+      return (
+        <>
+          {typingModule["."]["Callable"]}[
+          {paramTypes === null ? (
+            <>...</>
+          ) : paramTypes.length > 0 ? (
+            <>
+              [
+              <For each={paramTypes} comma space>
+                {(t) => <TypeExpression type={t} />}
+              </For>
+              ]
+            </>
+          ) : (
+            <>[]</>
+          )}
+          {", "}
+          <TypeExpression type={(type as any).returnType} />]
+        </>
+      );
+    }
     default:
       reportPythonDiagnostic($.program, { code: "python-unsupported-type", target: type });
       return "any";
@@ -85,7 +129,7 @@ const intrinsicNameToPythonType = new Map<string, string | null>([
   ["boolean", "bool"], // Matches Python's `bool`
   ["null", "None"], // Matches Python's `None`
   ["void", "None"], // Matches Python's `None`
-  ["never", "NoReturn"], // Matches Python's `NoReturn`
+  ["never", "Never"], // Matches Python's `Never`
   ["bytes", "bytes"], // Matches Python's `bytes`
 
   // Numeric types
@@ -119,7 +163,7 @@ const intrinsicNameToPythonType = new Map<string, string | null>([
 
 const pythonTypeToImport = new Map<string, any>([
   ["Any", typingModule["."]["Any"]],
-  ["NoReturn", typingModule["."]["NoReturn"]],
+  ["Never", typingModule["."]["Never"]],
   ["Tuple", typingModule["."]["Tuple"]],
   ["datetime", datetimeModule["."]["datetime"]],
   ["Decimal", decimalModule["."]["Decimal"]],
@@ -164,7 +208,6 @@ function isDeclaration($: Typekit, type: Type): boolean {
     case "Enum":
     case "Operation":
     case "EnumMember":
-      return true;
     case "UnionVariant":
       return false;
 
