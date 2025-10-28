@@ -10,7 +10,6 @@ using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using Microsoft.TypeSpec.Generator.Tests.TestHelpers;
-using Microsoft.TypeSpec.Generator.Tests.Writers;
 using Moq;
 using Moq.Protected;
 using NUnit.Framework;
