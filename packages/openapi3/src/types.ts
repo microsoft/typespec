@@ -16,7 +16,7 @@ TODO checklist for @baywet:
 - [x] document $self https://github.com/BinkyLabs/OpenAPI.net/issues/8
 - [ ] querystring parameter location https://github.com/BinkyLabs/OpenAPI.net/issues/7
 - [ ] cookie parameter style https://github.com/BinkyLabs/OpenAPI.net/issues/6
-- [ ] path item query and additional operations https://github.com/BinkyLabs/OpenAPI.net/issues/5
+- [x] path item query and additional operations https://github.com/BinkyLabs/OpenAPI.net/issues/5
 - [ ] tag new fields https://github.com/BinkyLabs/OpenAPI.net/issues/4
 - [ ] all references to media type and encoding need to be recursively updated in the 3.2 structure
 - [ ] all references to response need to be recursively updated in the 3.2 structure
@@ -151,15 +151,21 @@ export interface OpenAPI3Tag extends Extensions {
   externalDocs?: OpenAPI3ExternalDocs;
 }
 
-export type HttpMethod = "get" | "put" | "post" | "delete" | "options" | "head" | "patch" | "trace";
+export type OpenAPI2HttpMethod = "get" | "put" | "post" | "delete" | "options" | "head" | "patch";
+
+export type OpenAPI3HttpMethod = OpenAPI2HttpMethod | "trace";
+
+export type OpenAPIHttpMethod3_2 = OpenAPI3HttpMethod | "query";
+
+export type HttpMethod = OpenAPI2HttpMethod | OpenAPI3HttpMethod | OpenAPIHttpMethod3_2;
 
 /**
  * Describes the operations available on a single path. A Path Item may be empty, due to ACL constraints. The path itself is still exposed to the documentation viewer but they will not know which operations and parameters are available.
  *
- * @see https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#pathItemObject
+ * @see https://spec.openapis.org/oas/v3.0.4.html#fixed-fields-6
  */
 export type OpenAPI3PathItem = {
-  [method in HttpMethod]?: OpenAPI3Operation;
+  [method in OpenAPI3HttpMethod]?: OpenAPI3Operation;
 } & { parameters?: OpenAPI3Parameter[] } & Extensions;
 
 export interface OpenAPI3Components extends Extensions {
@@ -721,7 +727,7 @@ export type OpenAPI3Header = OpenAPI3ParameterBase & {
 export type OpenAPI3Operation = Extensions & {
   description?: string;
   summary?: string;
-  responses?: any;
+  responses?: Refable<OpenAPI3Responses>;
   tags?: string[];
   operationId?: string;
   requestBody?: Refable<OpenAPI3RequestBody>;
@@ -1164,7 +1170,7 @@ export interface OpenAPIComponents3_1 extends Extensions {
 }
 
 export interface OpenAPIDocument3_2
-  extends Omit<OpenAPIDocument3_1, "openapi" | "servers" | "components"> {
+  extends Omit<OpenAPIDocument3_1, "openapi" | "servers" | "components" | "webhooks" | "paths"> {
   openapi: "3.2.0";
   /**
    * This string MUST be in the form of a URI reference as defined.
@@ -1172,6 +1178,14 @@ export interface OpenAPIDocument3_2
    * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields
    */
   $self?: string;
+  /** The available paths and operations for the API */
+  paths: Record<string, OpenAPIPathItem3_2>;
+
+  /**
+   * The incoming webhooks that may be received as part of this API.
+   * The key name is a unique string to refer to each webhook.
+   */
+  webhooks?: Record<string, OpenAPIPathItem3_2>;
   /**
    * An array of Server Objects, which provide connectivity information to a target server.
    * If the servers property is not provided, or is an empty array, the default value would be a Server Object with a url value of /.
@@ -1231,7 +1245,10 @@ export interface OpenAPIMediaType3_2 extends Omit<OpenAPI3MediaType, "examples" 
 }
 
 export interface OpenAPIComponents3_2
-  extends Omit<OpenAPIComponents3_1, "responses" | "securitySchemes" | "examples" | "schemas"> {
+  extends Omit<
+    OpenAPIComponents3_1,
+    "responses" | "securitySchemes" | "examples" | "schemas" | "callbacks" | "pathItems"
+  > {
   /**
    * An object to hold reusable {@link OpenAPIMediaType3_2} objects
    * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-5
@@ -1257,7 +1274,21 @@ export interface OpenAPIComponents3_2
    * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-5
    */
   schemas?: Record<string, Refable<OpenAPISchema3_2>>;
+  /**
+   * An object to hold reusable {@link OpenAPIPathItem3_2} objects
+   * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-5
+   */
+  callbacks?: Record<string, Record<string, Refable<OpenAPIPathItem3_2>>>;
+  /**
+   * An object to hold reusable {@link OpenAPIPathItem3_2} objects
+   * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-5
+   */
+  pathItems?: Record<string, Refable<OpenAPIPathItem3_2>>;
 }
+
+export type OpenAPIResponses3_2 = {
+  [status: OpenAPI3StatusCode]: Refable<OpenAPIResponse3_2>;
+} & Extensions;
 
 export interface OpenAPIResponse3_2 extends Omit<OpenAPI3Response, "content"> {
   /** A map containing descriptions of potential response payloads. The key is a media type or media type range and the value describes it. For responses that match multiple keys, only the most specific key is applicable. e.g. text/plain overrides text/* */
@@ -1373,3 +1404,18 @@ export interface OpenAPIXmlSchema3_2 extends Omit<OpenAPI3XmlSchema, "attribute"
    */
   nodeType?: "element" | "attribute" | "text" | "cdata" | "comment" | "none";
 }
+
+export type OpenAPIOperation3_2 = Omit<OpenAPI3Operation, "responses"> & {
+  responses?: Refable<OpenAPIResponses3_2>;
+};
+
+/**
+ * Describes the operations available on a single path. A Path Item may be empty, due to ACL constraints. The path itself is still exposed to the documentation viewer but they will not know which operations and parameters are available.
+ *
+ * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-6
+ */
+export type OpenAPIPathItem3_2 = Omit<OpenAPI3PathItem, OpenAPI3HttpMethod> & {
+  [method in OpenAPIHttpMethod3_2]?: OpenAPIOperation3_2;
+} & {
+  additionalOperations?: Record<string, OpenAPIOperation3_2>;
+};
