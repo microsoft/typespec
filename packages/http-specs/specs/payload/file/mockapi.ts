@@ -42,6 +42,25 @@ Scenarios.Payload_File_Upload_png = passOnSuccess({
   kind: "MockApiDefinition",
 });
 
+Scenarios.Payload_File_Upload_custom = passOnSuccess({
+  uri: "/payload/file/upload/custom",
+  method: "post",
+  request: {
+    body: {
+      rawContent: BASIC_FILE_CONTENT,
+      contentType: "application/octet-stream",
+    },
+    headers: {
+      "Content-Type": "application/octet-stream",
+      "x-file-name": "custom-file.txt",
+    },
+  },
+  response: {
+    status: 200,
+  },
+  kind: "MockApiDefinition",
+});
+
 // Download scenarios
 Scenarios.Payload_File_Download_basic = passOnSuccess({
   uri: "/payload/file/download/basic",
@@ -74,6 +93,27 @@ Scenarios.Payload_File_Download_png = passOnSuccess({
     body: {
       rawContent: pngFile,
       contentType: "image/png",
+    },
+  },
+  kind: "MockApiDefinition",
+});
+
+Scenarios.Payload_File_Download_custom = passOnSuccess({
+  uri: "/payload/file/download/custom",
+  method: "get",
+  request: {
+    headers: {
+      accept: "application/octet-stream",
+    },
+  },
+  response: {
+    status: 200,
+    body: {
+      rawContent: BASIC_FILE_CONTENT,
+      contentType: "application/octet-stream",
+    },
+    headers: {
+      "x-file-name": "custom-file.txt",
     },
   },
   kind: "MockApiDefinition",

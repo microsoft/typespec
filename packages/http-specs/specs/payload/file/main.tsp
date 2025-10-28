@@ -10,50 +10,73 @@ using Spector;
 @scenarioService("/payload/file")
 namespace Payload.File;
 
+/**
+ * A custom file type that extends the base File type.
+ */
+model CustomFile extends Http.File {
+  /**
+   * Custom filename header.
+   */
+  @header("x-file-name")
+  filename: string;
+}
+
 @route("/upload")
 namespace Upload {
   @scenario
   @scenarioDoc("""
-    Test uploading a file as request body.
+    Test uploading a file using Http.File as request body.
     Expected request body is a file with content type "application/octet-stream".
     """)
   @post
   @route("/basic")
-  op basic(@header contentType: "application/octet-stream", @body file: bytes): OkResponse;
+  op basic(@body file: Http.File): OkResponse;
 
   @scenario
   @scenarioDoc("""
-    Test uploading a file with a specific content type.
+    Test uploading a file with a specific content type using Http.File.
     Expected request body is a file with content type "image/png".
     """)
   @post
   @route("/png")
-  op png(@header contentType: "image/png", @body file: bytes): OkResponse;
+  op png(@body file: Http.File<"image/png">): OkResponse;
+
+  @scenario
+  @scenarioDoc("""
+    Test uploading a custom file type that extends Http.File.
+    Expected request body includes custom filename header.
+    """)
+  @post
+  @route("/custom")
+  op custom(@bodyRoot file: CustomFile): OkResponse;
 }
 
 @route("/download")
 namespace Download {
   @scenario
   @scenarioDoc("""
-    Test downloading a file as response body.
+    Test downloading a file using Http.File as response body.
     Expected response body is a file with content type "application/octet-stream".
     """)
   @get
   @route("/basic")
-  op basic(): {
-    @header contentType: "application/octet-stream";
-    @body file: bytes;
-  };
+  op basic(): Http.File;
 
   @scenario
   @scenarioDoc("""
-    Test downloading a file with a specific content type.
+    Test downloading a file with a specific content type using Http.File.
     Expected response body is a file with content type "image/png".
     """)
   @get
   @route("/png")
-  op png(): {
-    @header contentType: "image/png";
-    @body file: bytes;
-  };
+  op png(): Http.File<"image/png">;
+
+  @scenario
+  @scenarioDoc("""
+    Test downloading a custom file type that extends Http.File.
+    Expected response body includes custom filename header.
+    """)
+  @get
+  @route("/custom")
+  op custom(): CustomFile;
 }
