@@ -704,10 +704,9 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
       }
     }
 
-    return [
-      errors.length === 0 ? Related.true : Related.false,
-      wrapUnassignableErrors(source, target, errors),
-    ];
+    return errors.length === 0
+      ? [Related.true, []]
+      : [Related.false, wrapUnassignableErrors(source, target, errors)];
   }
 
   /** If we should check for excess properties on the given model. */

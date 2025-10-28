@@ -76,7 +76,7 @@ function numericValueToJs(type: NumericValue, valueConstraint: Type | undefined)
     const asNumber = type.value.asNumber();
     compilerAssert(
       asNumber !== null,
-      `Numeric value '${type.value.toString()}' is not a able to convert to a number without loosing precision.`,
+      `Numeric value '${type.value.toString()}' is not a able to convert to a number without losing precision.`,
     );
     return asNumber;
   }
