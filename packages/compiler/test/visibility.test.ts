@@ -1239,6 +1239,20 @@ describe("compiler: visibility core", () => {
     ok(arrA.properties.has("a"));
     ok(!arrA.properties.has("invisible"));
   });
+
+  it("does not duplicate encodedName metadata", async () => {
+    const diagnostics = await runner.diagnose(`
+      model SomeModel {
+        @visibility(Lifecycle.Read)
+        @encodedName("application/json", "some_other_name")
+        someOtherName: string;
+      }
+
+      alias ReadModel = Read<SomeModel>;
+    `);
+
+    expectDiagnosticEmpty(diagnostics);
+  });
 });
 
 function validateCreateOrUpdateTransform(
