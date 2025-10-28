@@ -15,7 +15,7 @@ TODO checklist for @baywet:
 - [x] media type item and prefix encoding https://github.com/BinkyLabs/OpenAPI.net/issues/10
 - [x] document $self https://github.com/BinkyLabs/OpenAPI.net/issues/8
 - [x] querystring parameter location https://github.com/BinkyLabs/OpenAPI.net/issues/7
-- [ ] cookie parameter style https://github.com/BinkyLabs/OpenAPI.net/issues/6
+- [x] cookie parameter style https://github.com/BinkyLabs/OpenAPI.net/issues/6
 - [x] path item query and additional operations https://github.com/BinkyLabs/OpenAPI.net/issues/5
 - [x] tag new fields https://github.com/BinkyLabs/OpenAPI.net/issues/4
 - [ ] all references to media type and encoding need to be recursively updated in the 3.2 structure
@@ -703,10 +703,23 @@ export type OpenAPI3HeaderParameter = OpenAPI3ParameterBase & {
    */
   style?: "simple";
 };
+export type OpenAPI3CookieParameter = OpenAPI3ParameterBase & {
+  /** Name of the parameter. */
+  name: string;
+  in: "cookie";
+  /**
+   * Describes how the parameter value will be serialized depending on the type of the parameter value.
+   *
+   * Default value for header parameters is simple.
+   * @see https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.2.md#style-values
+   */
+  style?: "form";
+};
 export type OpenAPI3Parameter =
   | OpenAPI3HeaderParameter
   | OpenAPI3QueryParameter
-  | OpenAPI3PathParameter;
+  | OpenAPI3PathParameter
+  | OpenAPI3CookieParameter;
 export type OpenAPI3ParameterType = OpenAPI3Parameter["in"];
 
 /**
@@ -1457,6 +1470,19 @@ export type OpenAPIQueryStringParameter3_2 = Omit<
   name: string;
   in: "querystring";
 };
+export type OpenAPICookieParameter3_2 = Omit<
+  OpenAPI3CookieParameter,
+  "content" | "examples" | "style"
+> &
+  OpenAPIParameterBase3_2 & {
+    /**
+     * Describes how the parameter value will be serialized depending on the type of the parameter value.
+     *
+     * Default value for header parameters is simple.
+     * @see https://spec.openapis.org/oas/latest#fixed-fields-9
+     */
+    style?: "form" | "cookie";
+  };
 export type OpenAPIHeaderParameter3_2 = Omit<OpenAPI3HeaderParameter, "content" | "examples"> &
   OpenAPIParameterBase3_2;
 export type OpenAPIPathParameter3_2 = Omit<OpenAPI3PathParameter, "content" | "examples"> &
@@ -1467,7 +1493,8 @@ export type OpenAPIParameter3_2 =
   | OpenAPIHeaderParameter3_2
   | OpenAPIQueryParameter3_2
   | OpenAPIQueryStringParameter3_2
-  | OpenAPIPathParameter3_2;
+  | OpenAPIPathParameter3_2
+  | OpenAPICookieParameter3_2;
 export type OpenAPIParameterType3_2 = OpenAPIParameter3_2["in"];
 
 export interface OpenAPITag3_2 extends OpenAPI3Tag {
