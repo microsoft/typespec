@@ -10,7 +10,7 @@ TODO checklist for @baywet:
 - [x] server name https://github.com/BinkyLabs/OpenAPI.net/issues/16
 - [x] security scheme deprecated https://github.com/BinkyLabs/OpenAPI.net/issues/15
 - [x] oauth flows https://github.com/BinkyLabs/OpenAPI.net/issues/14
-- [ ] examples data and serialized value https://github.com/BinkyLabs/OpenAPI.net/issues/12
+- [x] examples data and serialized value https://github.com/BinkyLabs/OpenAPI.net/issues/12
 - [ ] xml fields https://github.com/BinkyLabs/OpenAPI.net/issues/11
 - [x] media type item and prefix encoding https://github.com/BinkyLabs/OpenAPI.net/issues/10
 - [x] document $self https://github.com/BinkyLabs/OpenAPI.net/issues/8
@@ -20,6 +20,7 @@ TODO checklist for @baywet:
 - [ ] tag new fields https://github.com/BinkyLabs/OpenAPI.net/issues/4
 - [ ] all references to media type and encoding need to be recursively updated in the 3.2 structure
 - [ ] all references to response need to be recursively updated in the 3.2 structure
+- [ ] all references to example need to be recursively updated in the 3.2 structure (only parameter left)
 */
 
 export type CommonOpenAPI3Schema = OpenAPI3Schema & OpenAPISchema3_1;
@@ -1210,7 +1211,7 @@ export interface OpenAPIEncoding3_2 extends OpenAPI3Encoding {
   itemEncoding?: OpenAPIEncoding3_2;
 }
 
-export interface OpenAPIMediaType3_2 extends OpenAPI3MediaType {
+export interface OpenAPIMediaType3_2 extends Omit<OpenAPI3MediaType, "examples"> {
   /**
    * A map between a property name and its encoding information
    * @see https://spec.openapis.org/oas/v3.2.0#fixed-fields-11
@@ -1226,21 +1227,33 @@ export interface OpenAPIMediaType3_2 extends OpenAPI3MediaType {
    * @see https://spec.openapis.org/oas/v3.2.0#fixed-fields-11
    */
   itemEncoding?: OpenAPIEncoding3_2;
+
+  /** Examples with title  */
+  examples?: Record<string, Refable<OpenAPIExample3_2>>;
 }
 
 export interface OpenAPIComponents3_2
-  extends Omit<OpenAPIComponents3_1, "responses" | "securitySchemes"> {
+  extends Omit<OpenAPIComponents3_1, "responses" | "securitySchemes" | "examples"> {
   /**
    * An object to hold reusable {@link OpenAPIMediaType3_2} objects
    * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-5
    */
-  mediaTypes?: Record<string, OpenAPIMediaType3_2>;
+  mediaTypes?: Record<string, Refable<OpenAPIMediaType3_2>>;
+  /**
+   * An object to hold reusable {@link OpenAPIResponse3_2} objects
+   * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-5
+   */
   responses?: Record<string, Refable<OpenAPIResponse3_2>>;
   /**
    * An object to hold reusable {@link OpenAPISecurityScheme3_2} objects
    * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-5
    */
   securitySchemes?: Record<string, Refable<OpenAPISecurityScheme3_2>>;
+  /**
+   * An object to hold reusable {@link OpenAPIExample3_2} objects
+   * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-5
+   */
+  examples?: Record<string, Refable<OpenAPIExample3_2>>;
 }
 
 export interface OpenAPIResponse3_2 extends Omit<OpenAPI3Response, "content"> {
@@ -1300,7 +1313,7 @@ export interface OpenAPIDeviceAuthorizationFlow3_2 extends OpenAPI3OAuth2Flow {
 /**
  * Allows configuration of the supported OAuth Flows.
  *
- * @see https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.2.0.md#oauthFlowsObject
+ * @see https://spec.openapis.org/oas/v3.2.0.html#oauthFlowsObject
  */
 export interface OpenAPIOAuthFlows3_2 extends OpenAPI3OAuthFlows {
   /**
@@ -1308,4 +1321,22 @@ export interface OpenAPIOAuthFlows3_2 extends OpenAPI3OAuthFlows {
    * @see https://spec.openapis.org/oas/v3.2.0.html#oauth-flows-object
    */
   deviceAuthorization?: OpenAPIDeviceAuthorizationFlow3_2;
+}
+
+/**
+ *  Allows sharing examples for operation responses.
+ *
+ * @see https://spec.openapis.org/oas/v3.2.0.html#example-object
+ */
+export interface OpenAPIExample3_2 extends OpenAPI3Example {
+  /**
+   * An example of the data structure that MUST be valid according to the relevant schema.
+   * @see https://spec.openapis.org/oas/v3.2.0.html#example-object
+   */
+  dataValue?: unknown;
+  /**
+   * An example of the serialized form of the value, including encoding and escaping
+   * @see https://spec.openapis.org/oas/v3.2.0.html#example-object
+   */
+  serializedValue?: string;
 }
