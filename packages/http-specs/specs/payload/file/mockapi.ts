@@ -1,12 +1,9 @@
 import { passOnSuccess, ScenarioMockApi } from "@typespec/spec-api";
+import { pngFile } from "../../helper.js";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
 const BASIC_FILE_CONTENT = Buffer.from("Test file content");
-const PNG_FILE_CONTENT = Buffer.from(
-  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
-  "base64",
-);
 
 // Upload scenarios
 Scenarios.Payload_File_Upload_basic = passOnSuccess({
@@ -32,7 +29,7 @@ Scenarios.Payload_File_Upload_png = passOnSuccess({
   method: "post",
   request: {
     body: {
-      rawContent: PNG_FILE_CONTENT,
+      rawContent: pngFile,
       contentType: "image/png",
     },
     headers: {
@@ -49,7 +46,11 @@ Scenarios.Payload_File_Upload_png = passOnSuccess({
 Scenarios.Payload_File_Download_basic = passOnSuccess({
   uri: "/payload/file/download/basic",
   method: "get",
-  request: {},
+  request: {
+    headers: {
+      accept: "application/octet-stream",
+    },
+  },
   response: {
     status: 200,
     body: {
@@ -63,11 +64,15 @@ Scenarios.Payload_File_Download_basic = passOnSuccess({
 Scenarios.Payload_File_Download_png = passOnSuccess({
   uri: "/payload/file/download/png",
   method: "get",
-  request: {},
+  request: {
+    headers: {
+      accept: "image/png",
+    },
+  },
   response: {
     status: 200,
     body: {
-      rawContent: PNG_FILE_CONTENT,
+      rawContent: pngFile,
       contentType: "image/png",
     },
   },
