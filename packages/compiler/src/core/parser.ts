@@ -2,6 +2,7 @@ import { isArray, mutate } from "../utils/misc.js";
 import { codePointBefore, isIdentifierContinue, trim } from "./charcode.js";
 import { compilerAssert } from "./diagnostics.js";
 import { CompilerDiagnostics, createDiagnostic } from "./messages.js";
+import { modifiersToFlags } from "./modifiers.js";
 import {
   createScanner,
   isComment,
@@ -2185,21 +2186,6 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
       rest,
       ...finishNode(pos),
     };
-  }
-
-  function modifiersToFlags(modifiers: Modifier[]): ModifierFlags {
-    let flags = ModifierFlags.None;
-    for (const modifier of modifiers) {
-      switch (modifier.kind) {
-        case SyntaxKind.ExternKeyword:
-          flags |= ModifierFlags.Extern;
-          break;
-        case SyntaxKind.InternalKeyword:
-          flags |= ModifierFlags.Internal;
-          break;
-      }
-    }
-    return flags;
   }
 
   function parseRange<T>(mode: ParseMode, range: TextRange, callback: () => T): T {

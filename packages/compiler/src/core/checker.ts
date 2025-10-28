@@ -18,6 +18,7 @@ import { typeReferenceToString } from "./helpers/syntax-utils.js";
 import { getEntityName, getTypeName } from "./helpers/type-name-utils.js";
 import { marshallTypeForJS } from "./js-marshaller.js";
 import { createDiagnostic } from "./messages.js";
+import { checkModifiers } from "./modifiers.js";
 import { NameResolver } from "./name-resolver.js";
 import { Numeric } from "./numeric.js";
 import {
@@ -1867,6 +1868,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     node: DecoratorDeclarationStatementNode,
     mapper: TypeMapper | undefined,
   ): Decorator {
+    checkModifiers(program, node);
     const symbol = getMergedSymbol(node.symbol);
     const links = getSymbolLinks(symbol);
     if (links.declaredType && mapper === undefined) {
@@ -1910,6 +1912,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     node: FunctionDeclarationStatementNode,
     mapper: TypeMapper | undefined,
   ) {
+    checkModifiers(program, node);
     reportCheckerDiagnostic(createDiagnostic({ code: "function-unsupported", target: node }));
     return errorType;
   }
@@ -2123,6 +2126,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     if (node.kind === SyntaxKind.NamespaceStatement) {
+      checkModifiers(program, node);
       if (isArray(node.statements)) {
         node.statements.forEach((x) => checkNode(x));
       } else if (node.statements) {
@@ -2260,6 +2264,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     mapper: TypeMapper | undefined,
     parentInterface?: Interface,
   ): Operation {
+    checkModifiers(program, node);
     const inInterface = node.parent?.kind === SyntaxKind.InterfaceStatement;
     const symbol = inInterface ? getSymbolForMember(node) : node.symbol;
     const links = symbol && getSymbolLinks(symbol);
@@ -3594,6 +3599,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function checkModelStatement(node: ModelStatementNode, mapper: TypeMapper | undefined): Model {
+    checkModifiers(program, node);
     const links = getSymbolLinks(node.symbol);
 
     if (links.declaredType && mapper === undefined) {
@@ -5279,6 +5285,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function checkScalar(node: ScalarStatementNode, mapper: TypeMapper | undefined): Scalar {
+    checkModifiers(program, node);
     const links = getSymbolLinks(node.symbol);
 
     if (links.declaredType && mapper === undefined) {
@@ -5426,6 +5433,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     node: AliasStatementNode,
     mapper: TypeMapper | undefined,
   ): Type | IndeterminateEntity {
+    checkModifiers(program, node);
+
     const links = getSymbolLinks(node.symbol);
 
     if (links.declaredType && mapper === undefined) {
@@ -5466,6 +5475,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function checkConst(node: ConstStatementNode): Value | null {
+    checkModifiers(program, node);
+
     const links = getSymbolLinks(node.symbol);
     if (links.value !== undefined) {
       return links.value;
@@ -5515,6 +5526,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function checkEnum(node: EnumStatementNode, mapper: TypeMapper | undefined): Type {
+    checkModifiers(program, node);
+
     const links = getSymbolLinks(node.symbol);
     if (!links.type) {
       const enumType: Enum = (links.type = createType({
@@ -5569,6 +5582,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function checkInterface(node: InterfaceStatementNode, mapper: TypeMapper | undefined): Interface {
+    checkModifiers(program, node);
     const links = getSymbolLinks(node.symbol);
 
     if (links.declaredType && mapper === undefined) {
@@ -5671,6 +5685,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function checkUnion(node: UnionStatementNode, mapper: TypeMapper | undefined) {
+    checkModifiers(program, node);
     const links = getSymbolLinks(node.symbol);
 
     if (links.declaredType && mapper === undefined) {

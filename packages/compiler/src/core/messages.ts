@@ -540,6 +540,14 @@ const diagnostics = {
       default: "A function declaration must be prefixed with the 'extern' modifier.",
     },
   },
+  "invalid-modifier": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Modifier '${"modifier"}' is invalid.`,
+      "missing-required": paramMessage`Declaration of type '${"nodeKind"}' is missing required modifier '${"modifier"}'.`,
+      "not-allowed": paramMessage`Modifier '${"modifier"}' cannot be used on declarations of type '${"nodeKind"}'.`,
+    },
+  },
   "function-unsupported": {
     severity: "error",
     messages: {
