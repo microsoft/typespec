@@ -11,13 +11,13 @@ using Spector;
 namespace Payload.File;
 
 /**
- * A custom file type that extends the base File type.
+ * A text file type that extends the base File type.
  */
-model CustomFile extends Http.File {
+model TextFile extends Http.File<"text/plain", string> {
   /**
    * Custom filename header.
    */
-  @header("x-file-name")
+  @header("x-filename")
   filename: string;
 }
 
@@ -43,12 +43,16 @@ namespace Upload {
 
   @scenario
   @scenarioDoc("""
-    Test uploading a custom file type that extends Http.File.
-    Expected request body includes custom filename header.
+    Test uploading a text file type that extends Http.File.
+
+    Expected request body includes:
+    header x-filename: "file.txt".
+    header Content-Type: "text/plain".
+    body content: "Text file value".
     """)
   @post
-  @route("/custom")
-  op custom(@bodyRoot file: CustomFile): OkResponse;
+  @route("/text")
+  op text(@bodyRoot file: TextFile): OkResponse;
 }
 
 @route("/download")
@@ -73,10 +77,13 @@ namespace Download {
 
   @scenario
   @scenarioDoc("""
-    Test downloading a custom file type that extends Http.File.
-    Expected response body includes custom filename header.
+    Test downloading a text file type that extends Http.File.
+    Expected response body includes:
+    header x-file-name: "file.txt".
+    header Content-Type: "text/plain".
+    body content: "Text file value".
     """)
   @get
-  @route("/custom")
-  op custom(): CustomFile;
+  @route("/text")
+  op text(): TextFile;
 }

@@ -39,17 +39,17 @@ Scenarios.Payload_File_Upload_png = passOnSuccess({
   kind: "MockApiDefinition",
 });
 
-Scenarios.Payload_File_Upload_custom = passOnSuccess({
-  uri: "/payload/file/upload/custom",
+Scenarios.Payload_File_Upload_text = passOnSuccess({
+  uri: "/payload/file/upload/text",
   method: "post",
   request: {
     body: {
-      rawContent: BASIC_FILE_CONTENT,
-      contentType: "application/octet-stream",
+      rawContent: "Text file value",
+      contentType: "text/plain",
     },
     headers: {
-      "Content-Type": "application/octet-stream",
-      "x-file-name": "custom-file.txt",
+      "Content-Type": "text/plain",
+      "x-filename": "file.txt",
     },
   },
   response: {
@@ -95,8 +95,8 @@ Scenarios.Payload_File_Download_png = passOnSuccess({
   kind: "MockApiDefinition",
 });
 
-Scenarios.Payload_File_Download_custom = passOnSuccess({
-  uri: "/payload/file/download/custom",
+Scenarios.Payload_File_Download_text = passOnSuccess({
+  uri: "/payload/file/download/text",
   method: "get",
   request: {},
   response: {
@@ -106,7 +106,7 @@ Scenarios.Payload_File_Download_custom = passOnSuccess({
       contentType: "application/octet-stream",
     },
     headers: {
-      "x-file-name": "custom-file.txt",
+      "x-file-name": "file.txt",
     },
   },
   kind: "MockApiDefinition",

@@ -1472,6 +1472,55 @@ Scenario that returns a different file encoding depending on the accept header.
 - image/png return a png image
 - image/jpeg return a jpeg image
 
+### Payload_File_Download_basic
+
+- Endpoint: `get /payload/file/download/basic`
+
+Test downloading a file using Http.File as response body.
+Expected response body is a file with content "Test file content".
+
+### Payload_File_Download_png
+
+- Endpoint: `get /payload/file/download/png`
+
+Test downloading a file with a specific content type using Http.File.
+Expected response body is a file with content type "image/png".
+
+### Payload_File_Download_text
+
+- Endpoint: `get /payload/file/download/text`
+
+Test downloading a text file type that extends Http.File.
+Expected response body includes:
+header x-file-name: "file.txt".
+header Content-Type: "text/plain".
+body content: "Text file value".
+
+### Payload_File_Upload_basic
+
+- Endpoint: `post /payload/file/upload/basic`
+
+Test uploading a file using Http.File as request body.
+Expected request body is a file with content "Test file content".
+
+### Payload_File_Upload_png
+
+- Endpoint: `post /payload/file/upload/png`
+
+Test uploading a file with a specific content type using Http.File.
+Expected request body is a file with content type "image/png".
+
+### Payload_File_Upload_text
+
+- Endpoint: `post /payload/file/upload/text`
+
+Test uploading a text file type that extends Http.File.
+
+Expected request body includes:
+header x-filename: "file.txt".
+header Content-Type: "text/plain".
+body content: "Text file value".
+
 ### Payload_JsonMergePatch_createResource
 
 - Endpoint: `put /json-merge-patch/create/resource`
