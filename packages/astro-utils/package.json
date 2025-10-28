@@ -10,7 +10,9 @@
     "./components/*": "./src/components/*",
     "./utils/*": "./src/utils/*.ts",
     "./css/*": "./src/css/*",
-    "./expressive-code/*": "./dist/expressive-code/*.js"
+    "./expressive-code/*": "./dist/expressive-code/*.js",
+    "./llmstxt": "./src/llmstxt/index.ts",
+    "./llmstxt/schema": "./src/llmstxt/schema.ts"
   },
   "files": [
     "src",
@@ -35,6 +37,6 @@
     "astro-expressive-code": "^0.41.2",
     "pathe": "^2.0.3",
     "react": "~18.3.1",
-    "typescript": "~5.8.2"
+    "typescript": "~5.9.2"
   }
 }

@@ -4,17 +4,14 @@
 
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using Sample.Models;
 
 namespace Sample
 {
     public partial class TestClient
     {
-        internal global::System.ClientModel.Primitives.PipelineMessage CreateSampleOpRequest(global::System.Collections.Generic.IEnumerable<string> p1Explode, global::System.Collections.Generic.IEnumerable<string> p1, global::System.Collections.Generic.IEnumerable<int> p2Explode, global::System.Collections.Generic.IEnumerable<int> p2, global::System.Collections.Generic.IDictionary<string, int> p3Explode, global::System.Collections.Generic.IDictionary<string, int> p3, string optionalParam, global::System.ClientModel.Primitives.RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateSampleOpRequest(global::System.Collections.Generic.IEnumerable<string> p1Explode, global::System.Collections.Generic.IEnumerable<string> p1, global::System.Collections.Generic.IEnumerable<int> p2Explode, global::System.Collections.Generic.IEnumerable<int> p2, global::System.Collections.Generic.IDictionary<string, int> p3Explode, global::System.Collections.Generic.IDictionary<string, int> p3, global::System.Collections.Generic.IEnumerable<global::Sample.Models.Foo> p4Explode, global::System.Collections.Generic.IEnumerable<global::Sample.Models.IntFoo> p5Explode, global::System.Collections.Generic.IDictionary<string, global::Sample.Models.Foo> p6Explode, global::System.Collections.Generic.IDictionary<string, global::Sample.Models.IntFoo> p7Explode, global::System.Collections.Generic.IEnumerable<global::Sample.Models.FloatFoo> p8Explode, global::System.Collections.Generic.IEnumerable<global::Sample.Models.DoubleFoo> p9Explode, string optionalParam, global::System.ClientModel.Primitives.RequestOptions options)
         {
-            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage();
-            message.ResponseClassifier = PipelineMessageClassifier200;
-            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
-            request.Method = "GET";
             global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
             uri.Reset(_endpoint);
             if (((p1Explode != null) && !((p1Explode is global::Sample.ChangeTrackingList<string> changeTrackingList) && changeTrackingList.IsUndefined)))
@@ -60,7 +57,50 @@ namespace Sample
                 }
                 uri.AppendQueryDelimited("p3", list, ",", null, true);
             }
-            request.Uri = uri.ToUri();
+            if (((p4Explode != null) && !((p4Explode is global::Sample.ChangeTrackingList<global::Sample.Models.Foo> changeTrackingList3) && changeTrackingList3.IsUndefined)))
+            {
+                foreach (var @param in p4Explode)
+                {
+                    uri.AppendQuery("p4Explode", @param.ToSerialString(), true);
+                }
+            }
+            if (((p5Explode != null) && !((p5Explode is global::Sample.ChangeTrackingList<global::Sample.Models.IntFoo> changeTrackingList4) && changeTrackingList4.IsUndefined)))
+            {
+                foreach (var @param in p5Explode)
+                {
+                    uri.AppendQuery("p5Explode", ((int)@param), true);
+                }
+            }
+            if (((p6Explode != null) && !((p6Explode is global::Sample.ChangeTrackingDictionary<string, global::Sample.Models.Foo> changeTrackingDictionary1) && changeTrackingDictionary1.IsUndefined)))
+            {
+                foreach (var @param in p6Explode)
+                {
+                    uri.AppendQuery(@param.Key, @param.ToSerialString(), true);
+                }
+            }
+            if (((p7Explode != null) && !((p7Explode is global::Sample.ChangeTrackingDictionary<string, global::Sample.Models.IntFoo> changeTrackingDictionary2) && changeTrackingDictionary2.IsUndefined)))
+            {
+                foreach (var @param in p7Explode)
+                {
+                    uri.AppendQuery(@param.Key, ((int)@param), true);
+                }
+            }
+            if (((p8Explode != null) && !((p8Explode is global::Sample.ChangeTrackingList<global::Sample.Models.FloatFoo> changeTrackingList5) && changeTrackingList5.IsUndefined)))
+            {
+                foreach (var @param in p8Explode)
+                {
+                    uri.AppendQuery("p8Explode", ((float)@param), true);
+                }
+            }
+            if (((p9Explode != null) && !((p9Explode is global::Sample.ChangeTrackingList<global::Sample.Models.DoubleFoo> changeTrackingList6) && changeTrackingList6.IsUndefined)))
+            {
+                foreach (var @param in p9Explode)
+                {
+                    uri.AppendQuery("p9Explode", ((double)@param), true);
+                }
+            }
+            global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
+            global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
             message.Apply(options);
             return message;
         }

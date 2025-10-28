@@ -7,9 +7,7 @@ from abc import abstractmethod
 from typing import (
     Optional,
     Any,
-    Dict,
     TYPE_CHECKING,
-    List,
     Generic,
     TypeVar,
     Union,
@@ -29,7 +27,7 @@ class _CredentialPolicyBaseType:
     Inherited by our BearerTokenCredentialPolicy and KeyCredentialPolicy types.
     """
 
-    def __init__(self, yaml_data: Dict[str, Any], code_model: "CodeModel") -> None:
+    def __init__(self, yaml_data: dict[str, Any], code_model: "CodeModel") -> None:
         self.yaml_data = yaml_data
         self.code_model = code_model
 
@@ -45,10 +43,10 @@ class BearerTokenCredentialPolicyType(_CredentialPolicyBaseType):
 
     def __init__(
         self,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         code_model: "CodeModel",
-        credential_scopes: List[str],
-        flows: Optional[Dict[str, Any]] = None,
+        credential_scopes: list[str],
+        flows: Optional[dict[str, Any]] = None,
     ) -> None:
         super().__init__(yaml_data, code_model)
         self.credential_scopes = credential_scopes
@@ -60,7 +58,7 @@ class BearerTokenCredentialPolicyType(_CredentialPolicyBaseType):
         return f"policies.{policy_name}(self.credential, *self.credential_scopes, {auth_flows}**kwargs)"
 
     @classmethod
-    def from_yaml(cls, yaml_data: Dict[str, Any], code_model: "CodeModel") -> "BearerTokenCredentialPolicyType":
+    def from_yaml(cls, yaml_data: dict[str, Any], code_model: "CodeModel") -> "BearerTokenCredentialPolicyType":
         return cls(yaml_data, code_model, yaml_data["credentialScopes"], yaml_data.get("flows"))
 
 
@@ -75,7 +73,7 @@ class ARMChallengeAuthenticationPolicyType(BearerTokenCredentialPolicyType):
 class KeyCredentialPolicyType(_CredentialPolicyBaseType):
     def __init__(
         self,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         code_model: "CodeModel",
         key: str,
         scheme: Optional[str] = None,
@@ -95,7 +93,7 @@ class KeyCredentialPolicyType(_CredentialPolicyBaseType):
         return f"policies.{self.credential_name}Policy(self.credential, {params}**kwargs)"
 
     @classmethod
-    def from_yaml(cls, yaml_data: Dict[str, Any], code_model: "CodeModel") -> "KeyCredentialPolicyType":
+    def from_yaml(cls, yaml_data: dict[str, Any], code_model: "CodeModel") -> "KeyCredentialPolicyType":
         return cls(yaml_data, code_model, yaml_data["key"], yaml_data.get("scheme", None))
 
 
@@ -114,7 +112,7 @@ class CredentialType(Generic[CredentialPolicyType], BaseType):
 
     def __init__(
         self,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         code_model: "CodeModel",
         policy: CredentialPolicyType,
     ) -> None:
@@ -138,7 +136,7 @@ class CredentialType(Generic[CredentialPolicyType], BaseType):
         return self.docstring_type()
 
     @classmethod
-    def from_yaml(cls, yaml_data: Dict[str, Any], code_model: "CodeModel") -> "CredentialType":
+    def from_yaml(cls, yaml_data: dict[str, Any], code_model: "CodeModel") -> "CredentialType":
         from . import build_type
 
         return cls(

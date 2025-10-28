@@ -14,6 +14,12 @@
     "azure.clientgenerator.core.clientlocation.ClientLocationClient.getHealthStatus": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveToRootClient.ResourceOperations.getHealthStatus",
     "azure.clientgenerator.core.clientlocation.ClientLocationClient.getHealthStatusWithResponse": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveToRootClient.ResourceOperations.getHealthStatus",
     "azure.clientgenerator.core.clientlocation.ClientLocationClientBuilder": "_Specs_.Azure.ClientGenerator.Core.ClientLocation",
+    "azure.clientgenerator.core.clientlocation.MoveMethodParameterToBlobOperationsAsyncClient": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveMethodParameterToClient.BlobOperations",
+    "azure.clientgenerator.core.clientlocation.MoveMethodParameterToBlobOperationsAsyncClient.getBlob": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveMethodParameterToClient.BlobOperations.getBlob",
+    "azure.clientgenerator.core.clientlocation.MoveMethodParameterToBlobOperationsAsyncClient.getBlobWithResponse": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveMethodParameterToClient.BlobOperations.getBlob",
+    "azure.clientgenerator.core.clientlocation.MoveMethodParameterToBlobOperationsClient": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveMethodParameterToClient.BlobOperations",
+    "azure.clientgenerator.core.clientlocation.MoveMethodParameterToBlobOperationsClient.getBlob": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveMethodParameterToClient.BlobOperations.getBlob",
+    "azure.clientgenerator.core.clientlocation.MoveMethodParameterToBlobOperationsClient.getBlobWithResponse": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveMethodParameterToClient.BlobOperations.getBlob",
     "azure.clientgenerator.core.clientlocation.MoveToExistingSubAdminOperationsAsyncClient": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveToExistingSubClient.AdminOperations",
     "azure.clientgenerator.core.clientlocation.MoveToExistingSubAdminOperationsAsyncClient.deleteUser": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveToExistingSubClient.UserOperations.deleteUser",
     "azure.clientgenerator.core.clientlocation.MoveToExistingSubAdminOperationsAsyncClient.deleteUserWithResponse": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveToExistingSubClient.UserOperations.deleteUser",
@@ -41,6 +47,7 @@
     "azure.clientgenerator.core.clientlocation.MoveToRootResourceOperationsAsyncClient.getResourceWithResponse": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveToRootClient.ResourceOperations.getResource",
     "azure.clientgenerator.core.clientlocation.MoveToRootResourceOperationsClient": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveToRootClient.ResourceOperations",
     "azure.clientgenerator.core.clientlocation.MoveToRootResourceOperationsClient.getResource": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveToRootClient.ResourceOperations.getResource",
-    "azure.clientgenerator.core.clientlocation.MoveToRootResourceOperationsClient.getResourceWithResponse": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveToRootClient.ResourceOperations.getResource"
+    "azure.clientgenerator.core.clientlocation.MoveToRootResourceOperationsClient.getResourceWithResponse": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveToRootClient.ResourceOperations.getResource",
+    "azure.clientgenerator.core.clientlocation.movemethodparametertoclient.models.Blob": "_Specs_.Azure.ClientGenerator.Core.ClientLocation.MoveMethodParameterToClient.Blob"
   }
 }

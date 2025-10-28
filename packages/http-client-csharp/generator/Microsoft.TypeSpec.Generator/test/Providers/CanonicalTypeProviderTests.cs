@@ -75,30 +75,100 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             // - public string SpecProperty { get; } (from generated code)
             // - public string NullWireInfoProperty { get; set; } (from customization code)
             Dictionary<string, PropertyProvider> properties = _typeProvider.CanonicalView.Properties.ToDictionary(p => p.Name);
-            Assert.AreEqual(7, properties.Count);
-            Assert.AreEqual(2, _typeProvider.Properties.Count);
+            Assert.AreEqual(6, properties.Count);
+            // 1 non-customized property
+            Assert.AreEqual(1, _typeProvider.Properties.Count);
             Assert.AreEqual(5, _typeProvider.CustomCodeView!.Properties.Count);
-            foreach (var expected in _namedSymbol.Properties)
+
+            // Validate the exact order
+            // IntProperty
+            // StringProperty
+            // InternalStringProperty
+            // PropertyTypeProperty
+            // NullWireInfoProperty
+
+            var propertiesList = properties.Values.ToList();
+            Assert.AreEqual(6, propertiesList.Count);
+            // Property 0: IntProperty
             {
-                var actual = properties[expected.Name];
-
-                Assert.IsTrue(properties.ContainsKey(expected.Name));
-                Assert.AreEqual(expected.Name, actual.Name);
-                Assert.IsNotNull(actual.Description);
-                Assert.AreEqual($"{expected.Description}.", actual.Description!.ToString()); // the writer adds a period
-                Assert.AreEqual(expected.Modifiers, actual.Modifiers);
-                Assert.AreEqual(expected.Type, actual.Type);
-                Assert.AreEqual(expected.Body.GetType(), actual.Body.GetType());
-                Assert.AreEqual(expected.Body.HasSetter, actual.Body.HasSetter);
+                var actual = propertiesList[0];
+                Assert.AreEqual("IntProperty", actual.Name);
+                var expected = _namedSymbol.Properties.First(p => p.Name == "IntProperty");
+                ValidatePropertyAttributes(expected, actual);
+                Assert.IsNotNull(actual.WireInfo);
+                Assert.AreEqual("intProperty", actual.WireInfo!.SerializedName);
             }
-            // int, spec, nullWireInfo are all spec properties and they should have serialized name
-            Assert.AreEqual("intProperty", properties["IntProperty"].WireInfo!.SerializedName);
-            Assert.AreEqual("stringProperty", properties["StringProperty"].WireInfo!.SerializedName);
-            Assert.AreEqual("NullWireInfoProperty", properties["NullWireInfoProperty"].WireInfo!.SerializedName);
 
-            // pure customization code properties should not have serialized name
-            Assert.IsNull(properties["InternalStringProperty"].WireInfo);
-            Assert.IsNull(properties["PropertyTypeProperty"].WireInfo);
+            // Property 1: StringProperty
+            {
+                var actual = propertiesList[1];
+                Assert.AreEqual("StringProperty", actual.Name);
+                var expected = _namedSymbol.Properties.First(p => p.Name == "StringProperty");
+                ValidatePropertyAttributes(expected, actual);
+                Assert.IsNotNull(actual.WireInfo);
+                Assert.AreEqual("stringProperty", actual.WireInfo!.SerializedName);
+            }
+
+            // Property 2: NullWireInfoProperty
+            {
+                var actual = propertiesList[2];
+                Assert.AreEqual("NullWireInfoProperty", actual.Name);
+                var expected = _namedSymbol.Properties.First(p => p.Name == "NullWireInfoProperty");
+                ValidatePropertyAttributes(expected, actual);
+                Assert.IsNotNull(actual.WireInfo);
+                Assert.AreEqual("NullWireInfoProperty", actual.WireInfo!.SerializedName);
+            }
+
+            // Property 3: SpecProperty
+            {
+                var actual = propertiesList[3];
+                Assert.AreEqual("SpecProperty", actual.Name);
+                Assert.IsFalse(_namedSymbol.Properties.Any(p => p.Name == "SpecProperty"));
+                Assert.IsNotNull(actual.WireInfo);
+                Assert.AreEqual("specProperty", actual.WireInfo!.SerializedName);
+            }
+
+            // Property 4: InternalStringProperty
+            {
+                var actual = propertiesList[4];
+                Assert.AreEqual("InternalStringProperty", actual.Name);
+                var expected = _namedSymbol.Properties.First(p => p.Name == "InternalStringProperty");
+                ValidatePropertyAttributes(expected, actual);
+                Assert.IsNull(actual.WireInfo);
+            }
+
+            // Property 5: PropertyTypeProperty
+            {
+                var actual = propertiesList[5];
+                Assert.AreEqual("PropertyTypeProperty", actual.Name);
+                var expected = _namedSymbol.Properties.First(p => p.Name == "PropertyTypeProperty");
+                ValidatePropertyAttributes(expected, actual);
+                Assert.IsNull(actual.WireInfo);
+            }
+        }
+
+        private void ValidatePropertyAttributes(PropertyProvider expected, PropertyProvider actual)
+        {
+            Assert.AreEqual(expected.Name, actual.Name,
+                $"Name mismatch for property {expected.Name}");
+
+            Assert.IsNotNull(actual.Description,
+                $"Description is null for property {expected.Name}");
+
+            Assert.AreEqual($"{expected.Description}.", actual.Description!.ToString(),
+                $"Description mismatch for property {expected.Name}");
+
+            Assert.AreEqual(expected.Modifiers, actual.Modifiers,
+                $"Modifiers mismatch for property {expected.Name}");
+
+            Assert.AreEqual(expected.Type, actual.Type,
+                $"Type mismatch for property {expected.Name}");
+
+            Assert.AreEqual(expected.Body.GetType(), actual.Body.GetType(),
+                $"Body type mismatch for property {expected.Name}");
+
+            Assert.AreEqual(expected.Body.HasSetter, actual.Body.HasSetter,
+                $"HasSetter mismatch for property {expected.Name}");
         }
 
         [Test]
@@ -174,7 +244,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 [
                     InputFactory.Property("IntProperty", InputPrimitiveType.Int32, wireName: "intProperty"),
                     InputFactory.Property("StringProperty", InputPrimitiveType.String, wireName: "stringProperty"),
-                    new InputModelProperty("NullWireInfoProperty", null, null, InputPrimitiveType.String, false, false, null, false, "NullWireInfoProperty", new InputSerializationOptions())
+                    new InputModelProperty("NullWireInfoProperty", null, null, InputPrimitiveType.String, false, false, null, false, "NullWireInfoProperty", false, false, null, new InputSerializationOptions())
                 ];
                 return InputFactory.Model("TestName", "Sample.Models", properties: properties);
             }
@@ -190,11 +260,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 return
                 [
                     // customized by the NamedSymbol
-                    new PropertyProvider($"Int property", MethodSignatureModifiers.Public, typeof(int), "IntProperty", new AutoPropertyBody(true), this, wireInfo: new PropertyWireInformation(SerializationFormat.Default, true, true, true, false, "intProperty")),
+                    new PropertyProvider($"Int property", MethodSignatureModifiers.Public, typeof(int), "IntProperty", new AutoPropertyBody(true), this, wireInfo: new PropertyWireInformation(SerializationFormat.Default, true, true, true, false, "intProperty", false)),
                     // not customized by the NamedSymbol
-                    new PropertyProvider($"Spec property", MethodSignatureModifiers.Public, typeof(string), "SpecProperty", new AutoPropertyBody(false), this, wireInfo: new PropertyWireInformation(SerializationFormat.Default, true, true, true, false, "stringProperty")),
+                    new PropertyProvider($"Spec property", MethodSignatureModifiers.Public, typeof(string), "SpecProperty", new AutoPropertyBody(false), this, wireInfo: new PropertyWireInformation(SerializationFormat.Default, true, true, true, false, "specProperty", false)),
                     // customized by the NamedSymbol with null wire info
-                    new PropertyProvider($"Null Wire Info property", MethodSignatureModifiers.Public, typeof(string), "NullWireInfo", new AutoPropertyBody(false), this, wireInfo: new PropertyWireInformation(nullInputWireInfo))
+                    new PropertyProvider($"Null Wire Info property", MethodSignatureModifiers.Public, typeof(string), "NullWireInfoProperty", new AutoPropertyBody(false), this, wireInfo: new PropertyWireInformation(nullInputWireInfo))
                 ];
             }
 

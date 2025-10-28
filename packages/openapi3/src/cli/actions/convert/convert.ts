@@ -10,11 +10,15 @@ export interface ConvertOpenAPI3DocumentOptions {
    * Whether external $ref pointers will be resolved and included in the output.
    */
   disableExternalRefs?: boolean;
+  /**
+   * The namespace name to use instead of generating from the OpenAPI title.
+   */
+  namespace?: string;
 }
 
 export async function convertOpenAPI3Document(
   document: OpenAPI3Document,
-  { disableExternalRefs }: ConvertOpenAPI3DocumentOptions = {},
+  { disableExternalRefs, namespace }: ConvertOpenAPI3DocumentOptions = {},
 ) {
   const parser = new OpenAPIParser();
   const bundleOptions = disableExternalRefs
@@ -23,7 +27,7 @@ export async function convertOpenAPI3Document(
       }
     : {};
   await parser.bundle(document as any, bundleOptions);
-  const context = createContext(parser, document);
+  const context = createContext(parser, document, console, namespace);
   const program = transform(context);
   const content = generateMain(program, context);
   try {

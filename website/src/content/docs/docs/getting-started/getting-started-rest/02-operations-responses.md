@@ -1,6 +1,8 @@
 ---
 id: 02-operations-responses
 title: Operations and Responses
+description: Getting started with REST - 02 defining CRUD operations
+llmstxt: true
 ---
 
 ## Introduction

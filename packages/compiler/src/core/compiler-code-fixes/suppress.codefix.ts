@@ -1,8 +1,12 @@
 import { isWhiteSpace } from "../charcode.js";
 import { defineCodeFix, getSourceLocation } from "../diagnostics.js";
-import type { DiagnosticTarget, SourceLocation } from "../types.js";
+import type { CodeFix, DiagnosticTarget, SourceLocation } from "../types.js";
 
-export function createSuppressCodeFix(diagnosticTarget: DiagnosticTarget, warningCode: string) {
+export function createSuppressCodeFix(
+  diagnosticTarget: DiagnosticTarget,
+  warningCode: string,
+  suppressionMessage: string = "",
+): CodeFix {
   return defineCodeFix({
     id: "suppress",
     label: `Suppress warning: "${warningCode}"`,
@@ -10,7 +14,10 @@ export function createSuppressCodeFix(diagnosticTarget: DiagnosticTarget, warnin
       const location = getSourceLocation(diagnosticTarget);
       const { lineStart, indent } = findLineStartAndIndent(location);
       const updatedLocation = { ...location, pos: lineStart };
-      return context.prependText(updatedLocation, `${indent}#suppress "${warningCode}" ""\n`);
+      return context.prependText(
+        updatedLocation,
+        `${indent}#suppress "${warningCode}" "${suppressionMessage}"\n`,
+      );
     },
   });
 }

@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
 using Microsoft.TypeSpec.Generator.Tests.Common;
@@ -12,7 +12,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
         public void RootInputModelsIncludesOperationParameters()
         {
             var inputModel = InputFactory.Model("foo");
-            var parameter = InputFactory.Parameter("Id", inputModel, "Id");
+            var parameter = InputFactory.BodyParameter("Id", inputModel, serializedName: "Id");
             var operation = InputFactory.Operation("TestOperation", "Samples", [parameter], []);
             var serviceMethod = InputFactory.BasicServiceMethod("TestMethod", operation);
             var client = InputFactory.Client("TestClient", "Samples", "", [serviceMethod]);

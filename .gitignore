@@ -217,6 +217,10 @@ packages/*/etc/
 # csharp emitter
 !packages/http-client-csharp/package-lock.json
 packages/http-client-csharp/generator/artifacts/
+packages/http-client-csharp/generated-defs/**/*.js
+packages/http-client-csharp/generated-defs/**/*.js.map
+packages/http-client-csharp/generated-defs/**/*.d.ts
+packages/http-client-csharp/generated-defs/**/*.d.ts.map
 BenchmarkDotnet.Artifacts/
 
 # java emitter

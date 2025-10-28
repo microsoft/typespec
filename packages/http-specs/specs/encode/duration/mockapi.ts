@@ -65,6 +65,35 @@ Scenarios.Encode_Duration_Property_floatSecondsArray = createBodyServerTests(
   [35.625, 46.75],
 );
 
+Scenarios.Encode_Duration_Property_int32Milliseconds = createBodyServerTests(
+  "/encode/duration/property/int32-milliseconds",
+  {
+    value: 36000,
+  },
+  36000,
+);
+Scenarios.Encode_Duration_Property_floatMilliseconds = createBodyServerTests(
+  "/encode/duration/property/float-milliseconds",
+  {
+    value: 35625,
+  },
+  35625,
+);
+Scenarios.Encode_Duration_Property_float64Milliseconds = createBodyServerTests(
+  "/encode/duration/property/float64-milliseconds",
+  {
+    value: 35625,
+  },
+  35625,
+);
+Scenarios.Encode_Duration_Property_floatMillisecondsArray = createBodyServerTests(
+  "/encode/duration/property/float-milliseconds-array",
+  {
+    value: [35625, 46750],
+  },
+  [35625, 46750],
+);
+
 function createQueryServerTests(
   uri: string,
   paramData: any,
@@ -133,6 +162,36 @@ Scenarios.Encode_Duration_Query_float64Seconds = createQueryServerTests(
   "35.625",
 );
 
+Scenarios.Encode_Duration_Query_int32Milliseconds = createQueryServerTests(
+  "/encode/duration/query/int32-milliseconds",
+  {
+    input: 36000,
+  },
+  "36000",
+);
+Scenarios.Encode_Duration_Query_floatMilliseconds = createQueryServerTests(
+  "/encode/duration/query/float-milliseconds",
+  {
+    input: 35625,
+  },
+  "35625",
+);
+Scenarios.Encode_Duration_Query_float64Milliseconds = createQueryServerTests(
+  "/encode/duration/query/float64-milliseconds",
+  {
+    input: 35625,
+  },
+  "35625",
+);
+Scenarios.Encode_Duration_Query_int32MillisecondsArray = createQueryServerTests(
+  "/encode/duration/query/int32-milliseconds-array",
+  {
+    input: [36000, 47000].join(","),
+  },
+  ["36000", "47000"],
+  "csv",
+);
+
 function createHeaderServerTests(uri: string, headersData: any, value: any) {
   return passOnSuccess({
     uri,
@@ -188,4 +247,33 @@ Scenarios.Encode_Duration_Header_iso8601Array = createHeaderServerTests(
     duration: ["P40D", "P50D"].join(","),
   },
   "P40D,P50D",
+);
+
+Scenarios.Encode_Duration_Header_int32Milliseconds = createHeaderServerTests(
+  "/encode/duration/header/int32-milliseconds",
+  {
+    duration: "36000",
+  },
+  "36000",
+);
+Scenarios.Encode_Duration_Header_floatMilliseconds = createHeaderServerTests(
+  "/encode/duration/header/float-milliseconds",
+  {
+    duration: "35625",
+  },
+  "35625",
+);
+Scenarios.Encode_Duration_Header_float64Milliseconds = createHeaderServerTests(
+  "/encode/duration/header/float64-milliseconds",
+  {
+    duration: "35625",
+  },
+  "35625",
+);
+Scenarios.Encode_Duration_Header_int32MillisecondsArray = createHeaderServerTests(
+  "/encode/duration/header/int32-milliseconds-array",
+  {
+    duration: ["36000", "47000"].join(","),
+  },
+  "36000,47000",
 );

@@ -510,6 +510,14 @@ export type OpenAPI3Schema = Extensions & {
    */
   enum?: (string | number | boolean)[];
 
+  /**
+   * Functionally equivalent to "enum" with a single value.
+   * An instance validates successfully if its value is equal to the value of this keyword.
+   *
+   * @see https://json-schema.org/draft/2020-12/json-schema-validation#name-const
+   */
+  const?: unknown;
+
   /** the JSON type for the schema */
   type?: JsonType;
 

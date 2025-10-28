@@ -38,7 +38,7 @@ export function JsonModelPropertyTransform(props: JsonModelPropertyTransformProp
 
   if (props.target === "transport") {
     return (
-      <NamePolicyContext.Provider value={{ getName: (n) => n }}>
+      <NamePolicyContext.Provider value={{ getName: (n) => n, for: () => (n) => n }}>
         <ts.ObjectProperty name={targetName} value={propertyValue} />
       </NamePolicyContext.Provider>
     );

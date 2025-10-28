@@ -281,5 +281,63 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
+
+        [TestCase(false, false)]
+        [TestCase(false, true)]
+        [TestCase(true, false)]
+        [TestCase(true, true)]
+        public async Task CanCustomizeBaseType(bool declareBaseTypeInCustomCode, bool camelCaseModelName)
+        {
+            var modelProp = InputFactory.Property("prop1", InputPrimitiveType.String);
+            var inputModel = InputFactory.Model("mockInputModel", properties: [], usage: InputModelTypeUsage.Json);
+            var baseModel = InputFactory.Model(
+                camelCaseModelName ? "mockInputModelBase" : "MockInputModelBase",
+                properties: [modelProp],
+                usage: InputModelTypeUsage.Json);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [inputModel, baseModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(declareBaseTypeInCustomCode.ToString()));
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+
+            // should not have the additionalProperties dictionary
+            Assert.AreEqual(0, modelProvider.Fields.Count);
+            Assert.IsNotNull(modelProvider.BaseType);
+            Assert.AreEqual("MockInputModelBase", modelProvider.BaseType!.Name);
+            Assert.AreEqual("Sample.Models", modelProvider.BaseType!.Namespace);
+
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            Assert.IsNotNull(serializationProvider);
+
+            var writer = new TypeProviderWriter(serializationProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        public async Task DoesNotOverrideMethodsIfBaseTypeIsNotModel()
+        {
+            var modelProp = InputFactory.Property("prop1", InputPrimitiveType.String);
+            var inputModel = InputFactory.Model("mockInputModel", properties: [modelProp], usage: InputModelTypeUsage.Json);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+
+            // should still have the additionalProperties dictionary
+            Assert.AreEqual(1, modelProvider.Fields.Count);
+            Assert.IsNotNull(modelProvider.BaseType);
+            Assert.AreEqual("MockClientType", modelProvider.BaseType!.Name);
+            Assert.AreEqual("Sample.Models", modelProvider.BaseType!.Namespace);
+
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            Assert.IsNotNull(serializationProvider);
+
+            var writer = new TypeProviderWriter(serializationProvider);
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
     }
 }

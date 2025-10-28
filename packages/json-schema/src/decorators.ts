@@ -1,6 +1,7 @@
 import {
   type DecoratorContext,
   type Enum,
+  isTemplateDeclaration,
   isType,
   type Model,
   type Namespace,
@@ -124,7 +125,7 @@ export function getJsonSchemaTypes(program: Program): (Namespace | Model)[] {
   }
 
   function visitModel(model: Model) {
-    if (isJsonSchemaDeclaration(program, model)) {
+    if (!isTemplateDeclaration(model) && isJsonSchemaDeclaration(program, model)) {
       types.push(model);
     }
   }

@@ -22,6 +22,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
 
         public override ScmTypeFactory TypeFactory { get; }
 
+        internal ModelSerializationExtensionsDefinition ModelSerializationExtensionsDefinition { get; } =
+            new ModelSerializationExtensionsDefinition();
+
         [ImportingConstructor]
         public ScmCodeModelGenerator(GeneratorContext context)
             : base(context)

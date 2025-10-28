@@ -12,7 +12,7 @@ export function createUnusedUsingLinterRule(nameResolver: NameResolver) {
     severity: "warning",
     description: "Linter rules for unused using statement.",
     messages: {
-      default: paramMessage`'using ${"code"}' is declared but never be used.`,
+      default: paramMessage`'using ${"code"}' is declared but never used.`,
     },
     create(context) {
       return {

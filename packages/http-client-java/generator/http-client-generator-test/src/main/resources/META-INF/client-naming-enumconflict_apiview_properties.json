@@ -1,0 +1,22 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "client.naming.enumconflict.EnumConflictClientBuilder": "Client.Naming.EnumConflict",
+    "client.naming.enumconflict.FirstOperationsAsyncClient": "Client.Naming.EnumConflict.FirstOperations",
+    "client.naming.enumconflict.FirstOperationsAsyncClient.first": "Client.Naming.EnumConflict.FirstOperations.first",
+    "client.naming.enumconflict.FirstOperationsAsyncClient.firstWithResponse": "Client.Naming.EnumConflict.FirstOperations.first",
+    "client.naming.enumconflict.FirstOperationsClient": "Client.Naming.EnumConflict.FirstOperations",
+    "client.naming.enumconflict.FirstOperationsClient.first": "Client.Naming.EnumConflict.FirstOperations.first",
+    "client.naming.enumconflict.FirstOperationsClient.firstWithResponse": "Client.Naming.EnumConflict.FirstOperations.first",
+    "client.naming.enumconflict.SecondOperationsAsyncClient": "Client.Naming.EnumConflict.SecondOperations",
+    "client.naming.enumconflict.SecondOperationsAsyncClient.second": "Client.Naming.EnumConflict.SecondOperations.second",
+    "client.naming.enumconflict.SecondOperationsAsyncClient.secondWithResponse": "Client.Naming.EnumConflict.SecondOperations.second",
+    "client.naming.enumconflict.SecondOperationsClient": "Client.Naming.EnumConflict.SecondOperations",
+    "client.naming.enumconflict.SecondOperationsClient.second": "Client.Naming.EnumConflict.SecondOperations.second",
+    "client.naming.enumconflict.SecondOperationsClient.secondWithResponse": "Client.Naming.EnumConflict.SecondOperations.second",
+    "client.naming.enumconflict.firstnamespace.models.FirstModel": "Client.Naming.EnumConflict.FirstNamespace.FirstModel",
+    "client.naming.enumconflict.firstnamespace.models.Status": "Client.Naming.EnumConflict.FirstNamespace.Status",
+    "client.naming.enumconflict.secondnamespace.models.SecondModel": "Client.Naming.EnumConflict.SecondNamespace.SecondModel",
+    "client.naming.enumconflict.secondnamespace.models.SecondStatus": "Client.Naming.EnumConflict.SecondNamespace.Status"
+  }
+}

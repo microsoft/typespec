@@ -143,6 +143,7 @@ public class Postprocessor {
 
     public static Class<? extends Customization> loadCustomizationClassFromJavaCode(String filePath,
         String baseDirectory, Logger logger) {
+        final Path originCustomizationFile = Paths.get(filePath);
         Path customizationFile = Paths.get(filePath);
         if (!customizationFile.isAbsolute()) {
             if (baseDirectory != null) {
@@ -155,7 +156,7 @@ public class Postprocessor {
             return loadCustomizationClass(customizationFile.getFileName().toString().replace(".java", ""), code);
         } catch (IOException e) {
             logger.error("Cannot read customization from base directory {} and file {}", baseDirectory,
-                customizationFile);
+                originCustomizationFile);
             return null;
         }
     }
