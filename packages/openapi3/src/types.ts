@@ -8,7 +8,7 @@ TODO checklist for @baywet:
 - [x] discriminator defaultMapping https://github.com/BinkyLabs/OpenAPI.net/issues/3
 - [x] response summary https://github.com/BinkyLabs/OpenAPI.net/issues/17
 - [x] server name https://github.com/BinkyLabs/OpenAPI.net/issues/16
-- [ ] security scheme deprecated https://github.com/BinkyLabs/OpenAPI.net/issues/15
+- [x] security scheme deprecated https://github.com/BinkyLabs/OpenAPI.net/issues/15
 - [ ] oauth flows https://github.com/BinkyLabs/OpenAPI.net/issues/14
 - [ ] examples data and serialized value https://github.com/BinkyLabs/OpenAPI.net/issues/12
 - [ ] xml fields https://github.com/BinkyLabs/OpenAPI.net/issues/11
@@ -1228,13 +1228,19 @@ export interface OpenAPIMediaType3_2 extends OpenAPI3MediaType {
   itemEncoding?: OpenAPIEncoding3_2;
 }
 
-export interface OpenAPIComponents3_2 extends Omit<OpenAPIComponents3_1, "responses"> {
+export interface OpenAPIComponents3_2
+  extends Omit<OpenAPIComponents3_1, "responses" | "securitySchemes"> {
   /**
    * An object to hold reusable {@link OpenAPIMediaType3_2} objects
    * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-5
    */
   mediaTypes?: Record<string, OpenAPIMediaType3_2>;
   responses?: Record<string, Refable<OpenAPIResponse3_2>>;
+  /**
+   * An object to hold reusable {@link OpenAPISecurityScheme3_2} objects
+   * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-5
+   */
+  securitySchemes?: Record<string, Refable<OpenAPISecurityScheme3_2>>;
 }
 
 export interface OpenAPIResponse3_2 extends Omit<OpenAPI3Response, "content"> {
@@ -1246,3 +1252,34 @@ export interface OpenAPIResponse3_2 extends Omit<OpenAPI3Response, "content"> {
    */
   summary?: string;
 }
+
+export interface OpenAPISecuritySchemeBase3_2 extends OpenAPI3SecuritySchemeBase {
+  /**
+   * Specifies that a security scheme is deprecated and SHOULD be transitioned out of usage.
+   *
+   * @see https://spec.openapis.org/oas/v3.2.0.html#security-scheme-object
+   */
+  deprecated?: boolean;
+}
+
+export interface OpenAPIApiKeySecurityScheme3_2
+  extends OpenAPISecuritySchemeBase3_2,
+    OpenAPI3ApiKeySecurityScheme {}
+
+export interface OpenAPIOAuth2SecurityScheme3_2
+  extends OpenAPISecuritySchemeBase3_2,
+    OpenAPI3OAuth2SecurityScheme {}
+
+export interface OpenAPIOpenIdConnectSecurityScheme3_2
+  extends OpenAPISecuritySchemeBase3_2,
+    OpenAPI3OpenIdConnectSecurityScheme {}
+
+export interface OpenAPIHttpSecurityScheme3_2
+  extends OpenAPISecuritySchemeBase3_2,
+    OpenAPI3HttpSecurityScheme {}
+
+export type OpenAPISecurityScheme3_2 =
+  | OpenAPIApiKeySecurityScheme3_2
+  | OpenAPIOAuth2SecurityScheme3_2
+  | OpenAPIOpenIdConnectSecurityScheme3_2
+  | OpenAPIHttpSecurityScheme3_2;
