@@ -1315,7 +1315,7 @@ export type OpenAPIResponses3_2 = {
 
 export interface OpenAPIResponse3_2 extends Omit<OpenAPI3Response, "content"> {
   /** A map containing descriptions of potential response payloads. The key is a media type or media type range and the value describes it. For responses that match multiple keys, only the most specific key is applicable. e.g. text/plain overrides text/* */
-  content?: Record<string, OpenAPIMediaType3_2>;
+  content?: Record<string, Refable<OpenAPIMediaType3_2>>;
   /**
    * A short summary of the meaning of the response.
    * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-14

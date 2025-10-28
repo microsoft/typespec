@@ -3,6 +3,8 @@ import {
   OpenAPI3Parameter,
   OpenAPI3PathItem,
   OpenAPI3RequestBody,
+  OpenAPIParameter3_2,
+  OpenAPIPathItem3_2,
   Refable,
 } from "../../../../types.js";
 import {
@@ -23,7 +25,7 @@ import { supportedHttpMethods } from "../utils/supported-http-methods.js";
  * @returns
  */
 export function transformPaths(
-  paths: Record<string, OpenAPI3PathItem>,
+  paths: Record<string, OpenAPI3PathItem> | Record<string, OpenAPIPathItem3_2>,
   context: Context,
 ): TypeSpecOperation[] {
   const operations: TypeSpecOperation[] = [];
@@ -111,7 +113,7 @@ function dedupeParameters(
 }
 
 function transformOperationParameter(
-  parameter: Refable<OpenAPI3Parameter>,
+  parameter: Refable<OpenAPI3Parameter> | Refable<OpenAPIParameter3_2>,
 ): Refable<TypeSpecOperationParameter> {
   if ("$ref" in parameter) {
     return { $ref: parameter.$ref };
