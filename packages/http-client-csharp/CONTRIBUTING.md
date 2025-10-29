@@ -243,18 +243,12 @@ npm ci && npm run clean && npm run build
 
 Now you can validate your changes by:
 
-- **Identifying Breaking Changes**: Document any compilation errors, API changes, or behavioral differences that occur when building with your changes
-- **Testing Compatibility**: Execute the test suite to identify any regressions or failures caused by your changes
-- **Regenerating Test Libraries**: Use the generator to regenerate existing test libraries and compare the output to identify differences
-- **Testing New Features**: If you added new functionality, verify it works correctly with relevant TypeSpec definitions
-- **Documenting Required Updates**: Create a list of changes that the Azure Generator will need to make to accommodate your breaking changes
+- **Running tests**: Execute the test suite to ensure no regressions
+- **Regenerating test libraries**: Use the generator to regenerate existing test libraries and verify the output
+- **Testing new features**: If you added new functionality, test it with relevant TypeSpec definitions
+- **Checking integration**: Ensure the integration between your changes and the Azure generator works as expected
 
-This validation process helps ensure that:
-- You fully understand the breaking changes you're introducing
-- The Azure Generator team has the information needed to update their code
-- The transition to the new generator version will be as smooth as possible
-
-**Note**: If your changes introduce breaking changes, consider coordinating with the Azure Generator team early in the development process to discuss the impact and timeline for updates.
+This validation process helps ensure that your changes to the TypeSpec HTTP Client C# package are compatible with the downstream Azure generator. If breaking changes are expected, you can prepare the required changes to the Azure Generator ahead of time to reduce the time it will take to fix and upgrade the Azure Generator once your changes merge and are consumed by the Azure Generator.
 
 ## Creating Pull Requests
 
