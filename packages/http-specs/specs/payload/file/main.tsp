@@ -44,7 +44,7 @@ namespace Upload {
   @scenario
   @scenarioDoc("""
     Test uploading a text file type that extends Http.File.
-
+    
     Expected request body includes:
     header x-filename: "file.txt".
     header Content-Type: "text/plain".
