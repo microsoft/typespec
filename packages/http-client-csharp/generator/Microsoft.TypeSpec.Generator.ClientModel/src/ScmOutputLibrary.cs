@@ -14,19 +14,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
         {
             var inputClients = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.RootClients;
             var clients = new List<TypeProvider>();
+            var clientOptionsSet = new HashSet<ClientOptionsProvider>();
+            
             foreach (var inputClient in inputClients)
             {
-                BuildClient(inputClient, clients);
+                BuildClient(inputClient, clients, clientOptionsSet);
             }
+
+            // Add unique client options to the clients list
+            clients.AddRange(clientOptionsSet);
 
             return [.. clients];
         }
 
-        private static void BuildClient(InputClient inputClient, IList<TypeProvider> clients)
+        private static void BuildClient(InputClient inputClient, IList<TypeProvider> clients, HashSet<ClientOptionsProvider> clientOptionsSet)
         {
             foreach (var child in inputClient.Children)
             {
-                BuildClient(child, clients);
+                BuildClient(child, clients, clientOptionsSet);
             }
 
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
@@ -39,7 +44,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             var clientOptions = client.ClientOptions;
             if (clientOptions != null)
             {
-                clients.Add(clientOptions);
+                clientOptionsSet.Add(clientOptions);
             }
 
             foreach (var method in client.Methods)
