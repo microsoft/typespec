@@ -181,7 +181,7 @@ export type OpenAPI3Response = Extensions & {
 /**
  * Each Media Type Object provides schema and examples for the media type identified by its key.
  *
- * @see https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#mediaTypeObject
+ * @see https://spec.openapis.org/oas/v3.0.4.html#media-type-object
  */
 export type OpenAPI3MediaType = Extensions & {
   /** The schema defining the content of the request, response, or parameter. */
@@ -200,7 +200,7 @@ export type OpenAPI3MediaType = Extensions & {
 /**
  * A single encoding definition applied to a single schema property.
  *
- * see https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#encodingObject
+ * @see https://spec.openapis.org/oas/v3.0.4.html#encoding-object
  */
 export type OpenAPI3Encoding = Extensions & {
   /** the Content-Type for encoding a specific property. Default value depends on the property type: for string with format being binary – application/octet-stream; for other primitive types – text/plain; for object - application/json; for array – the default is defined based on the inner type. The value can be a specific media type (e.g. application/json), a wildcard media type (e.g. image/*), or a comma-separated list of the two types. */
@@ -222,7 +222,7 @@ export type OpenAPI3Encoding = Extensions & {
 /**
  * Describes a single request body.
  *
- * @see https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#request-body-object
+ * @see https://spec.openapis.org/oas/v3.0.4.html#request-body-object
  */
 export type OpenAPI3RequestBody = Extensions & {
   /** A brief description of the request body. This could contain examples of use. CommonMark syntax MAY be used for rich text representation. */
@@ -244,7 +244,7 @@ export type OpenAPI3SecurityScheme =
 /**
  * defines a security scheme that can be used by the operations. Supported schemes are HTTP authentication, an API key (either as a header, a cookie parameter or as a query parameter), OAuth2's common flows (implicit, password, application and access code) as defined in RFC6749, and OpenID Connect Discovery.
  *
- * @see https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#security-scheme-object
+ * @see https://spec.openapis.org/oas/v3.0.4.html#security-scheme-object
  */
 export interface OpenAPI3SecuritySchemeBase extends Extensions {
   /** A short description for security scheme. CommonMark syntax MAY be used for rich text representation. */
@@ -293,7 +293,7 @@ export interface OpenAPI3OAuth2SecurityScheme extends OpenAPI3SecuritySchemeBase
 /**
  * Allows configuration of the supported OAuth Flows.
  *
- * @see https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#oauthFlowsObject
+ * @see https://spec.openapis.org/oas/v3.0.4.html#oauth-flows-object
  */
 export interface OpenAPI3OAuthFlows extends Extensions {
   /** Configuration for the OAuth Implicit flow */
@@ -708,7 +708,7 @@ export type OpenAPI3ParameterType = OpenAPI3Parameter["in"];
  * in MUST NOT be specified, it is implicitly in header.
  * All traits that are affected by the location MUST be applicable to a location of header (for example, style).
  *
- * @see https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#header-object
+ * @see https://spec.openapis.org/oas/v3.0.4.html#header-object
  */
 export type OpenAPI3Header = OpenAPI3ParameterBase & {
   /** Describes how the parameter value will be serialized depending on the type of the parameter value
