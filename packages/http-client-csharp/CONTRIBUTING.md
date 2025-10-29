@@ -185,7 +185,14 @@ To regenerate test projects after making changes:
 
 ## Validating Changes Against the Azure Generator
 
-When making changes to the TypeSpec HTTP Client C# package that contain API breaking changes, it's important to validate the changes against the Azure generator that depends on this package, as the Azure Generator will need to be updated to consume them. Follow these steps to test your changes:
+When making changes to the TypeSpec HTTP Client C# package that contain API breaking changes, it's critical to validate these changes against the Azure generator that depends on this package. This validation serves two important purposes:
+
+1. **Breaking Change Awareness**: Understand the full impact of your changes on downstream consumers
+2. **Preparation for Azure Generator Updates**: Identify and prepare the necessary changes that the Azure Generator will need to accommodate your breaking changes
+
+**Important**: Once breaking changes are merged and a new official generator version is published, the Azure generator will be blocked from releasing until it has been updated to absorb these breaking changes. By validating your changes early, you can help minimize disruption to the Azure SDK release cycle.
+
+Follow these steps to test your changes:
 
 ### 1. Create a Fork of azure-sdk-for-net
 
@@ -236,12 +243,18 @@ npm ci && npm run clean && npm run build
 
 Now you can validate your changes by:
 
-- **Running tests**: Execute the test suite to ensure no regressions
-- **Regenerating test libraries**: Use the generator to regenerate existing test libraries and verify the output
-- **Testing new features**: If you added new functionality, test it with relevant TypeSpec definitions
-- **Checking integration**: Ensure the integration between your changes and the Azure generator works as expected
+- **Identifying Breaking Changes**: Document any compilation errors, API changes, or behavioral differences that occur when building with your changes
+- **Testing Compatibility**: Execute the test suite to identify any regressions or failures caused by your changes
+- **Regenerating Test Libraries**: Use the generator to regenerate existing test libraries and compare the output to identify differences
+- **Testing New Features**: If you added new functionality, verify it works correctly with relevant TypeSpec definitions
+- **Documenting Required Updates**: Create a list of changes that the Azure Generator will need to make to accommodate your breaking changes
 
-This validation process helps ensure that your changes to the TypeSpec HTTP Client C# package are compatible with the downstream Azure generator. If breaking changes are expected, you can prepare the required changes to the Azure Generator ahead of time to reduce the time it will take to fix and upgrade the Azure Generator once your changes merge and are consumed by the Azure Generator.
+This validation process helps ensure that:
+- You fully understand the breaking changes you're introducing
+- The Azure Generator team has the information needed to update their code
+- The transition to the new generator version will be as smooth as possible
+
+**Note**: If your changes introduce breaking changes, consider coordinating with the Azure Generator team early in the development process to discuss the impact and timeline for updates.
 
 ## Creating Pull Requests
 
