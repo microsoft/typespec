@@ -21,7 +21,12 @@ describe("ClientInitialization", () => {
   it("should include parameters in InputClient", async () => {
     const program = await typeSpecCompile(
       `
+        @service({
+          title: "Test Service",
+        })
         @server("https://example.com", "Test endpoint")
+        namespace TestService;
+        
         op test(): void;
       `,
       runner,
@@ -42,6 +47,9 @@ describe("ClientInitialization", () => {
   it("should include initializedBy flag in InputClient", async () => {
     const program = await typeSpecCompile(
       `
+        @service({
+          title: "Test Service",
+        })
         @server("https://example.com", "Test endpoint")
         @route("/api")
         namespace MyService {
@@ -65,9 +73,14 @@ describe("ClientInitialization", () => {
   it("should include endpoint parameter in parameters", async () => {
     const program = await typeSpecCompile(
       `
+        @service({
+          title: "Test Service",
+        })
         @server("https://{endpoint}/api", "Test endpoint", {
           endpoint: string
         })
+        namespace TestService;
+        
         op test(): void;
       `,
       runner,
@@ -86,6 +99,9 @@ describe("ClientInitialization", () => {
   it("should propagate initializedBy to child clients", async () => {
     const program = await typeSpecCompile(
       `
+        @service({
+          title: "Test Service",
+        })
         @server("https://example.com", "Test endpoint")
         @route("/api")
         namespace MyService {
