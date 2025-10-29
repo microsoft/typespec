@@ -3,15 +3,26 @@
 
 import {
   SdkClientType as SdkClientTypeOfT,
+  SdkCredentialParameter,
   SdkEndpointParameter,
   SdkEndpointType,
   SdkHttpOperation,
+  SdkMethodParameter,
 } from "@azure-tools/typespec-client-generator-core";
 import { NoTarget } from "@typespec/compiler";
 import { CSharpEmitterContext } from "../sdk-context.js";
 import { InputParameterScope } from "../type/input-parameter-scope.js";
-import { InputClient, InputEndpointParameter, InputType } from "../type/input-type.js";
-import { fromSdkServiceMethod, getParameterDefaultValue } from "./operation-converter.js";
+import {
+  InputClient,
+  InputEndpointParameter,
+  InputParameter,
+  InputType,
+} from "../type/input-type.js";
+import {
+  fromMethodParameter,
+  fromSdkServiceMethod,
+  getParameterDefaultValue,
+} from "./operation-converter.js";
 import { fromSdkType } from "./type-converter.js";
 import { isReadOnly } from "./utils.js";
 
@@ -44,7 +55,13 @@ function fromSdkClient(
     (p) => p.kind === "endpoint",
   ) as SdkEndpointParameter;
   const uri = getMethodUri(endpointParameter);
-  const clientParameters = fromSdkEndpointParameter(endpointParameter);
+
+  // Convert all clientInitialization parameters
+  const clientParameters = fromSdkClientParameters(
+    sdkContext,
+    client.clientInitialization.parameters,
+    client.namespace,
+  );
 
   inputClient = {
     kind: "client",
@@ -82,6 +99,30 @@ function fromSdkClient(
   }
 
   return inputClient;
+
+  function fromSdkClientParameters(
+    sdkContext: CSharpEmitterContext,
+    parameters: (SdkEndpointParameter | SdkCredentialParameter | SdkMethodParameter)[],
+    namespace: string,
+  ): InputParameter[] {
+    const inputParameters: InputParameter[] = [];
+
+    for (const param of parameters) {
+      if (param.kind === "endpoint") {
+        // Convert endpoint parameters
+        const endpointParams = fromSdkEndpointParameter(param);
+        inputParameters.push(...endpointParams);
+      } else if (param.kind === "method") {
+        // Convert method parameters (like api-version)
+        const methodParam = fromMethodParameter(sdkContext, param, namespace);
+        inputParameters.push(methodParam);
+      }
+      // Note: credential parameters are handled separately in service-authentication.ts
+      // and are not included in the client parameters list
+    }
+
+    return inputParameters;
+  }
 
   function fromSdkEndpointParameter(p: SdkEndpointParameter): InputEndpointParameter[] {
     if (p.type.kind === "union") {
