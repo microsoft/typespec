@@ -131,7 +131,7 @@ class JinjaSerializer(ReaderAndWriter):
             self.remove_folder(self._generated_tests_samples_folder("generated_tests"))
 
             # remove generated sdk files
-            generation_path = self.code_model.get_generation_dir("")
+            generation_path = self.code_model.get_generation_dir(self.code_model.namespace)
             for file in self.list_file_of_folder(generation_path):
                 if file.endswith(".py") and "_patch.py" not in file:
                     self.remove_file(file)
