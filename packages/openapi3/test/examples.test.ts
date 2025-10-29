@@ -2,7 +2,7 @@ import { ok } from "assert/strict";
 import { describe, expect, it } from "vitest";
 import { OpenAPI3Document, OpenAPI3Parameter, OpenAPI3RequestBody } from "../src/types.js";
 import { openApiFor } from "./test-host.js";
-import { worksFor } from "./works-for.js";
+import { supportedVersions, worksFor } from "./works-for.js";
 
 describe("schema examples", () => {
   it("apply example on model", async () => {
@@ -54,7 +54,7 @@ describe("schema examples", () => {
   });
 });
 
-worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
+worksFor(supportedVersions, ({ openApiFor }) => {
   it("set example on the request body", async () => {
     const res: OpenAPI3Document = await openApiFor(
       `

@@ -55,3 +55,5 @@ export function worksFor(versions: OpenAPIVersion[], cb: WorksForCb) {
     cb(specHelpers);
   });
 }
+
+export const supportedVersions = Object.keys(OpenAPISpecHelpers) as OpenAPIVersion[];
