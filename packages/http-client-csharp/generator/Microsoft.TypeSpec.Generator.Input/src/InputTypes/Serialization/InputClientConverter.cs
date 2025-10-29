@@ -76,7 +76,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             client.Doc = doc;
             client.Methods = methods ?? [];
             client.Parameters = parameters ?? [];
-            client.InitializedBy = hasInitializedBy ? initializedByValue : null;
+            client.InitializedBy = hasInitializedBy ? (InputClientInitializedByFlags)initializedByValue : null;
             client.Decorators = decorators ?? [];
             client.Parent = parent;
             client.Children = children ?? [];
