@@ -104,7 +104,7 @@ async def test_query_async(client: DurationClient):
     await client.query.int32_milliseconds(input=datetime.timedelta(milliseconds=36000))
     await client.query.float_milliseconds(input=datetime.timedelta(milliseconds=35625))
     await client.query.float64_milliseconds(input=datetime.timedelta(milliseconds=35625))
-    await client.query.int32_seconds_array(input=[36, 120])
+    await client.query.int32_seconds_array(input=[36, 47])
     await client.query.int32_milliseconds_array(
         input=[
             datetime.timedelta(milliseconds=36000),
