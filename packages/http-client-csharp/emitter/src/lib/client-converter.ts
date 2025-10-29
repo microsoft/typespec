@@ -73,11 +73,7 @@ function fromSdkClient(
       .map((m) => fromSdkServiceMethod(sdkContext, m, uri, rootApiVersions, client.namespace))
       .filter((m) => m !== undefined),
     parameters: clientParameters,
-    clientInitialization: {
-      parameters: clientParameters,
-      initializedBy: client.clientInitialization.initializedBy,
-      access: client.clientInitialization.access,
-    },
+    initializedBy: client.clientInitialization.initializedBy,
     decorators: client.decorators,
     crossLanguageDefinitionId: client.crossLanguageDefinitionId,
     apiVersions: client.apiVersions,

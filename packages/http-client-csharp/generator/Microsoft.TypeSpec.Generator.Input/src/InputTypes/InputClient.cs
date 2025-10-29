@@ -43,7 +43,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         public string? Doc { get; internal set; }
         public IReadOnlyList<InputServiceMethod> Methods { get; internal set; }
         public IReadOnlyList<InputParameter> Parameters { get; internal set; }
-        public InputClientInitialization? ClientInitialization { get; internal set; }
+        public int? InitializedBy { get; internal set; }
         public InputClient? Parent { get; internal set; }
         public IReadOnlyList<InputClient> Children { get; internal set; }
         public IReadOnlyList<InputDecoratorInfo> Decorators { get; internal set; } = new List<InputDecoratorInfo>();

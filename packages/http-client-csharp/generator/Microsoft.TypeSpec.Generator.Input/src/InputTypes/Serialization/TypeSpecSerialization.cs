@@ -36,7 +36,6 @@ namespace Microsoft.TypeSpec.Generator.Input
                     new InputLiteralTypeConverter(referenceHandler),
                     new InputUnionTypeConverter(referenceHandler),
                     new InputClientConverter(referenceHandler),
-                    new InputClientInitializationConverter(referenceHandler),
                     new InputOperationConverter(referenceHandler),
                     new InputNextLinkConverter(),
                     new InputContinuationTokenConverter(),

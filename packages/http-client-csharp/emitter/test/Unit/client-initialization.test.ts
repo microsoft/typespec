@@ -18,7 +18,7 @@ describe("ClientInitialization", () => {
     runner = await createEmitterTestHost();
   });
 
-  it("should include clientInitialization in InputClient", async () => {
+  it("should include parameters in InputClient", async () => {
     const program = await typeSpecCompile(
       `
         @server("https://example.com", "Test endpoint")
@@ -32,23 +32,14 @@ describe("ClientInitialization", () => {
 
     const client = root.clients[0];
     ok(client, "Client should exist");
-    ok(client.clientInitialization, "Client should have clientInitialization");
-    ok(client.clientInitialization.parameters, "clientInitialization should have parameters");
+    ok(client.parameters, "Client should have parameters");
     ok(
-      client.clientInitialization.parameters.length > 0,
-      "clientInitialization should have at least one parameter",
-    );
-
-    // Verify backward compatibility - parameters field should still exist
-    ok(client.parameters, "Client should still have parameters field for backward compatibility");
-    strictEqual(
-      client.parameters.length,
-      client.clientInitialization.parameters.length,
-      "parameters and clientInitialization.parameters should have same length",
+      client.parameters.length > 0,
+      "Client should have at least one parameter",
     );
   });
 
-  it("should include initializedBy flag in clientInitialization", async () => {
+  it("should include initializedBy flag in InputClient", async () => {
     const program = await typeSpecCompile(
       `
         @server("https://example.com", "Test endpoint")
@@ -64,15 +55,14 @@ describe("ClientInitialization", () => {
     const root = createModel(sdkContext);
 
     const client = root.clients[0];
-    ok(client.clientInitialization, "Client should have clientInitialization");
-    // initializedBy field should exist in the clientInitialization object (may be undefined or have a value)
+    // initializedBy field should exist on the client (may be undefined or have a value)
     ok(
-      "initializedBy" in client.clientInitialization,
-      "clientInitialization should have initializedBy field",
+      "initializedBy" in client,
+      "Client should have initializedBy field",
     );
   });
 
-  it("should include endpoint parameter in clientInitialization", async () => {
+  it("should include endpoint parameter in parameters", async () => {
     const program = await typeSpecCompile(
       `
         @server("https://{endpoint}/api", "Test endpoint", {
@@ -87,13 +77,13 @@ describe("ClientInitialization", () => {
     const root = createModel(sdkContext);
 
     const client = root.clients[0];
-    ok(client.clientInitialization, "Client should have clientInitialization");
-    const endpointParam = client.clientInitialization.parameters.find((p) => p.kind === "endpoint");
-    ok(endpointParam, "clientInitialization should have endpoint parameter");
+    ok(client.parameters, "Client should have parameters");
+    const endpointParam = client.parameters.find((p) => p.kind === "endpoint");
+    ok(endpointParam, "Parameters should have endpoint parameter");
     strictEqual(endpointParam.name, "endpoint", "Endpoint parameter should be named 'endpoint'");
   });
 
-  it("should propagate clientInitialization to child clients", async () => {
+  it("should propagate initializedBy to child clients", async () => {
     const program = await typeSpecCompile(
       `
         @server("https://example.com", "Test endpoint")
@@ -112,11 +102,11 @@ describe("ClientInitialization", () => {
     const root = createModel(sdkContext);
 
     const client = root.clients[0];
-    ok(client.clientInitialization, "Parent client should have clientInitialization");
+    ok("initializedBy" in client, "Parent client should have initializedBy field");
 
     if (client.children && client.children.length > 0) {
       const childClient = client.children[0];
-      ok(childClient.clientInitialization, "Child client should have clientInitialization");
+      ok("initializedBy" in childClient, "Child client should have initializedBy field");
     }
   });
 });
