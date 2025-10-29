@@ -3,6 +3,8 @@ import { Contact, ExtensionKey, License } from "@typespec/openapi";
 
 export type CommonOpenAPI3Schema = OpenAPI3Schema & OpenAPISchema3_1 & OpenAPISchema3_2;
 
+export type SupportedOpenAPISchema = OpenAPI3Schema | OpenAPISchema3_1 | OpenAPISchema3_2;
+
 export type SupportedOpenAPIDocuments = OpenAPI3Document | OpenAPIDocument3_1 | OpenAPIDocument3_2;
 
 export type Extensions = {
@@ -1516,5 +1518,5 @@ export interface OpenAPITag3_2 extends OpenAPI3Tag {
 
 export interface OpenAPIRequestBody3_2 extends Omit<OpenAPI3RequestBody, "content"> {
   /** A map containing descriptions of potential request payloads. The key is a media type or media type range and the value describes it. For requests that match multiple keys, only the most specific key is applicable. e.g. text/plain overrides text/* */
-  content?: Record<string, Refable<OpenAPIMediaType3_2>>;
+  content: Record<string, Refable<OpenAPIMediaType3_2>>;
 }

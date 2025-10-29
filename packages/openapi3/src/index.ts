@@ -97,6 +97,7 @@ export type {
   Ref,
   Refable,
   SupportedOpenAPIDocuments,
+  SupportedOpenAPISchema,
 } from "./types.js";
 
 /** @internal */

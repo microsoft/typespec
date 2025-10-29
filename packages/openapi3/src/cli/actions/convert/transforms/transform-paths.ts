@@ -5,6 +5,7 @@ import {
   OpenAPI3RequestBody,
   OpenAPIParameter3_2,
   OpenAPIPathItem3_2,
+  OpenAPIRequestBody3_2,
   Refable,
 } from "../../../../types.js";
 import {
@@ -125,7 +126,7 @@ function transformOperationParameter(
     doc: parameter.description,
     decorators: getParameterDecorators(parameter),
     isOptional: !parameter.required,
-    schema: "schema" in parameter ? parameter.schema : {},
+    schema: "schema" in parameter ? (parameter.schema ?? {}) : {},
   };
 }
 
@@ -243,7 +244,7 @@ function splitOperationByContentType(
 }
 
 function transformRequestBodies(
-  requestBodies: Refable<OpenAPI3RequestBody> | undefined,
+  requestBodies: Refable<OpenAPI3RequestBody> | Refable<OpenAPIRequestBody3_2> | undefined,
   context: Context,
 ): TypeSpecRequestBody[] {
   if (!requestBodies) {
@@ -267,8 +268,8 @@ function transformRequestBodies(
       contentType,
       isOptional: !requestBodies.required,
       doc: description ?? requestBodies.description,
-      encoding: contentBody.encoding,
-      schema: contentBody.schema,
+      encoding: "encoding" in contentBody ? contentBody.encoding : undefined,
+      schema: "schema" in contentBody ? contentBody.schema : {},
     });
   }
 

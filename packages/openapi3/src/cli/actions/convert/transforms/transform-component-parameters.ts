@@ -48,8 +48,8 @@ function getModelPropertyFromParameter(parameter: OpenAPI3Parameter): TypeSpecMo
   return {
     name: printIdentifier(parameter.name),
     isOptional: !parameter.required,
-    doc: parameter.description ?? parameter.schema.description,
+    doc: parameter.description ?? parameter.schema?.description,
     decorators: getParameterDecorators(parameter),
-    schema: parameter.schema,
+    schema: parameter.schema ?? {},
   };
 }
