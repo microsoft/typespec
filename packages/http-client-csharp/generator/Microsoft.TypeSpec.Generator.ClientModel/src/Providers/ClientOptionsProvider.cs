@@ -135,11 +135,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override string BuildName()
         {
-            var rootClients = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.RootClients;
-            var hasMultipleRootClients = rootClients.Count > 1;
-            var hasOnlyStandardParameters = HasOnlyStandardParameters(_inputClient);
-
-            if (hasMultipleRootClients && hasOnlyStandardParameters)
+            if (this == _singletonInstance)
             {
                 // Use namespace-based naming for singleton
                 var primaryNamespace = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Name;
@@ -155,11 +151,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override FormattableString BuildDescription()
         {
-            var rootClients = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.RootClients;
-            var hasMultipleRootClients = rootClients.Count > 1;
-            var hasOnlyStandardParameters = HasOnlyStandardParameters(_inputClient);
-
-            if (hasMultipleRootClients && hasOnlyStandardParameters)
+            if (this == _singletonInstance)
             {
                 return $"Client options for clients in this library.";
             }
