@@ -49,6 +49,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         /// <summary>
+        /// Internal method to reset the singleton instance. Used for testing purposes.
+        /// </summary>
+        internal static void ResetSingleton()
+        {
+            _singletonInstance = null;
+        }
+
+        /// <summary>
         /// Factory method to create a ClientOptionsProvider instance.
         /// Returns a singleton instance when there are multiple root clients and the client has no custom parameters.
         /// Otherwise, creates a new instance specific to the client.
@@ -124,7 +132,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
-        
+
         protected override string BuildName()
         {
             var rootClients = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.RootClients;
@@ -144,7 +152,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         protected override string BuildNamespace() => _clientProvider.Type.Namespace;
-        
+
         protected override FormattableString BuildDescription()
         {
             var rootClients = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.RootClients;

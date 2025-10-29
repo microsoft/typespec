@@ -15,7 +15,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             var inputClients = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.RootClients;
             var clients = new List<TypeProvider>();
             var clientOptionsSet = new HashSet<ClientOptionsProvider>();
-            
+
             foreach (var inputClient in inputClients)
             {
                 BuildClient(inputClient, clients, clientOptionsSet);
