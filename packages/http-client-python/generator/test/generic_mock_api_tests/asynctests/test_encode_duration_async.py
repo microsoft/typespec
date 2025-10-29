@@ -29,23 +29,14 @@ async def client():
 @pytest.mark.asyncio
 async def test_header_async(client: DurationClient):
     await client.header.default(duration=datetime.timedelta(days=40))
-
     await client.header.iso8601(duration=datetime.timedelta(days=40))
-
     await client.header.iso8601_array(duration=[datetime.timedelta(days=40), datetime.timedelta(days=50)])
-
     await client.header.int32_seconds(duration=36)
-
     await client.header.float_seconds(duration=35.625)
-
     await client.header.float64_seconds(duration=35.625)
-
     await client.header.int32_milliseconds(duration=datetime.timedelta(milliseconds=36000))
-
     await client.header.float_milliseconds(duration=datetime.timedelta(milliseconds=35625))
-
     await client.header.float64_milliseconds(duration=datetime.timedelta(milliseconds=35625))
-
     await client.header.int32_milliseconds_array(
         duration=[
             datetime.timedelta(milliseconds=36000),
@@ -106,23 +97,14 @@ async def test_property_async(client: DurationClient):
 @pytest.mark.asyncio
 async def test_query_async(client: DurationClient):
     await client.query.default(input=datetime.timedelta(days=40))
-
     await client.query.iso8601(input=datetime.timedelta(days=40))
-
     await client.query.int32_seconds(input=36)
-
     await client.query.float_seconds(input=35.625)
-
     await client.query.float64_seconds(input=35.625)
-
     await client.query.int32_milliseconds(input=datetime.timedelta(milliseconds=36000))
-
     await client.query.float_milliseconds(input=datetime.timedelta(milliseconds=35625))
-
     await client.query.float64_milliseconds(input=datetime.timedelta(milliseconds=35625))
-
     await client.query.int32_seconds_array(input=[36, 120])
-
     await client.query.int32_milliseconds_array(
         input=[
             datetime.timedelta(milliseconds=36000),

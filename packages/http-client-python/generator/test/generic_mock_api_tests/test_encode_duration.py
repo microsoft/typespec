@@ -63,37 +63,67 @@ def test_header(client: DurationClient):
 
 
 def test_property(client: DurationClient):
-    result = client.property.default(DefaultDurationProperty(value=datetime.timedelta(days=40)))
+    result = client.property.default(
+        DefaultDurationProperty(
+            value=datetime.timedelta(days=40),
+        )
+    )
     assert result.value == datetime.timedelta(days=40)
 
-    result = client.property.iso8601(ISO8601DurationProperty(value=datetime.timedelta(days=40)))
+    result = client.property.iso8601(
+        ISO8601DurationProperty(
+            value=datetime.timedelta(days=40),
+        )
+    )
     assert result.value == datetime.timedelta(days=40)
 
-    result = client.property.int32_seconds(Int32SecondsDurationProperty(value=36))
+    result = client.property.int32_seconds(
+        Int32SecondsDurationProperty(
+            value=36,
+        )
+    )
     assert result.value == 36
 
-    result = client.property.float_seconds(FloatSecondsDurationProperty(value=35.625))
+    result = client.property.float_seconds(
+        FloatSecondsDurationProperty(
+            value=35.625,
+        )
+    )
     assert result.value == 35.625
 
-    result = client.property.float64_seconds(Float64SecondsDurationProperty(value=35.625))
+    result = client.property.float64_seconds(
+        Float64SecondsDurationProperty(
+            value=35.625,
+        )
+    )
     assert result.value == 35.625
 
     result = client.property.int32_milliseconds(
-        Int32MillisecondsDurationProperty(value=datetime.timedelta(milliseconds=36000))
+        Int32MillisecondsDurationProperty(
+            value=datetime.timedelta(milliseconds=36000),
+        )
     )
     assert result.value == datetime.timedelta(milliseconds=36000)
 
     result = client.property.float_milliseconds(
-        FloatMillisecondsDurationProperty(value=datetime.timedelta(milliseconds=35625))
+        FloatMillisecondsDurationProperty(
+            value=datetime.timedelta(milliseconds=35625),
+        )
     )
     assert result.value == datetime.timedelta(milliseconds=35625)
 
     result = client.property.float64_milliseconds(
-        Float64MillisecondsDurationProperty(value=datetime.timedelta(milliseconds=35625))
+        Float64MillisecondsDurationProperty(
+            value=datetime.timedelta(milliseconds=35625),
+        )
     )
     assert result.value == datetime.timedelta(milliseconds=35625)
 
-    result = client.property.float_seconds_array(FloatSecondsDurationArrayProperty(value=[35.625, 46.75]))
+    result = client.property.float_seconds_array(
+        FloatSecondsDurationArrayProperty(
+            value=[35.625, 46.75],
+        )
+    )
     assert result.value == [35.625, 46.75]
 
     result = client.property.float_milliseconds_array(
@@ -111,18 +141,36 @@ def test_property(client: DurationClient):
 
 
 def test_query(client: DurationClient):
-    client.query.default(input=datetime.timedelta(days=40))
-    client.query.iso8601(input=datetime.timedelta(days=40))
-    client.query.int32_seconds(input=36)
-    client.query.float_seconds(input=35.625)
-    client.query.float64_seconds(input=35.625)
-    client.query.int32_milliseconds(input=datetime.timedelta(milliseconds=36000))
-    client.query.float_milliseconds(input=datetime.timedelta(milliseconds=35625))
-    client.query.float64_milliseconds(input=datetime.timedelta(milliseconds=35625))
-    client.query.int32_seconds_array(input=[36, 120])
+    client.query.default(
+        input=datetime.timedelta(days=40),
+    )
+    client.query.iso8601(
+        input=datetime.timedelta(days=40),
+    )
+    client.query.int32_seconds(
+        input=36,
+    )
+    client.query.float_seconds(
+        input=35.625,
+    )
+    client.query.float64_seconds(
+        input=35.625,
+    )
+    client.query.int32_milliseconds(
+        input=datetime.timedelta(milliseconds=36000),
+    )
+    client.query.float_milliseconds(
+        input=datetime.timedelta(milliseconds=35625),
+    )
+    client.query.float64_milliseconds(
+        input=datetime.timedelta(milliseconds=35625),
+    )
+    client.query.int32_seconds_array(
+        input=[36, 120],
+    )
     client.query.int32_milliseconds_array(
         input=[
             datetime.timedelta(milliseconds=36000),
             datetime.timedelta(milliseconds=47000),
-        ]
+        ],
     )
