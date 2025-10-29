@@ -18,7 +18,7 @@ TODO checklist for @baywet:
 - [x] cookie parameter style https://github.com/BinkyLabs/OpenAPI.net/issues/6
 - [x] path item query and additional operations https://github.com/BinkyLabs/OpenAPI.net/issues/5
 - [x] tag new fields https://github.com/BinkyLabs/OpenAPI.net/issues/4
-- [ ] all references to media type and encoding need to be recursively updated in the 3.2 structure
+- [x] all references to media type and encoding need to be recursively updated in the 3.2 structure
 - [ ] all references to response need to be recursively updated in the 3.2 structure
 - [ ] all references to example need to be recursively updated in the 3.2 structure (only parameter left)
 - [ ] all references to schema need to be recursively updated in the 3.2 structure (all/any/one/additionalProperties...)
@@ -1279,6 +1279,7 @@ export interface OpenAPIComponents3_2
     | "callbacks"
     | "pathItems"
     | "parameters"
+    | "requestBodies"
   > {
   /**
    * An object to hold reusable {@link OpenAPIMediaType3_2} objects
@@ -1295,6 +1296,11 @@ export interface OpenAPIComponents3_2
    * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-5
    */
   securitySchemes?: Record<string, Refable<OpenAPISecurityScheme3_2>>;
+  /**
+   * An object to hold reusable {@link OpenAPIRequestBody3_2} objects
+   * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-5
+   */
+  requestBodies?: Record<string, Refable<OpenAPIRequestBody3_2>>;
   /**
    * An object to hold reusable {@link OpenAPIExample3_2} objects
    * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-5
@@ -1441,9 +1447,13 @@ export interface OpenAPIXmlSchema3_2 extends Omit<OpenAPI3XmlSchema, "attribute"
   nodeType?: "element" | "attribute" | "text" | "cdata" | "comment" | "none";
 }
 
-export type OpenAPIOperation3_2 = Omit<OpenAPI3Operation, "responses" | "parameters"> & {
+export type OpenAPIOperation3_2 = Omit<
+  OpenAPI3Operation,
+  "responses" | "parameters" | "requestBody"
+> & {
   responses?: Refable<OpenAPIResponses3_2>;
   parameters?: Refable<OpenAPIParameter3_2>[];
+  requestBody?: Refable<OpenAPIRequestBody3_2>;
 };
 
 /**
@@ -1513,4 +1523,9 @@ export interface OpenAPITag3_2 extends OpenAPI3Tag {
    * @see https://spec.openapis.org/oas/latest#fixed-fields-18
    */
   kind?: string;
+}
+
+export interface OpenAPIRequestBody3_2 extends Omit<OpenAPI3RequestBody, "content"> {
+  /** A map containing descriptions of potential request payloads. The key is a media type or media type range and the value describes it. For requests that match multiple keys, only the most specific key is applicable. e.g. text/plain overrides text/* */
+  content?: Record<string, Refable<OpenAPIMediaType3_2>>;
 }
