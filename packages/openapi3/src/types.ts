@@ -367,7 +367,7 @@ export type OpenAPI3Link =
 /**
  *  Allows sharing examples for operation responses.
  *
- * @see https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#exampleObject
+ * @see https://spec.openapis.org/oas/v2.0.html#example-object
  */
 export interface OpenAPI3Example {
   summary?: string;
@@ -654,7 +654,7 @@ export type OpenAPI3QueryParameter = OpenAPI3ParameterBase & {
    * Describes how the parameter value will be serialized depending on the type of the parameter value.
    *
    * Default value for query parameters is form.
-   * @see https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.2.md#style-values
+   * @see https://spec.openapis.org/oas/v3.0.4.html#style-values
    */
   style?: "form" | "spaceDelimited" | "pipeDelimited" | "deepObject";
 };
@@ -666,7 +666,7 @@ export type OpenAPI3PathParameter = OpenAPI3ParameterBase & {
    * Describes how the parameter value will be serialized depending on the type of the parameter value.
    *
    * Default value for path parameters is simple.
-   * @see https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.2.md#style-values
+   * @see https://spec.openapis.org/oas/v3.0.4.html#style-values
    */
   style?: "simple" | "label" | "matrix";
 };
@@ -678,7 +678,7 @@ export type OpenAPI3HeaderParameter = OpenAPI3ParameterBase & {
    * Describes how the parameter value will be serialized depending on the type of the parameter value.
    *
    * Default value for header parameters is simple.
-   * @see https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.2.md#style-values
+   * @see https://spec.openapis.org/oas/v3.0.4.html#style-values
    */
   style?: "simple";
 };
@@ -690,7 +690,7 @@ export type OpenAPI3CookieParameter = OpenAPI3ParameterBase & {
    * Describes how the parameter value will be serialized depending on the type of the parameter value.
    *
    * Default value for header parameters is simple.
-   * @see https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.2.md#style-values
+   * @see https://spec.openapis.org/oas/v3.0.4.html#style-values
    */
   style?: "form";
 };
