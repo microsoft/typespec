@@ -216,10 +216,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodProvider BuildExplicitFromClientResult()
         {
-            var result = new ParameterProvider("result", $"The {ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseType:C} to deserialize the {Type:C} from.", ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseType);
-            var modifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Explicit | MethodSignatureModifiers.Operator;
+            var result = new ParameterProvider(
+                ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ResponseParameterName,
+                $"The {ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseType:C} to deserialize the {Type:C} from.",
+                ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseType);
+            var modifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static |
+                            MethodSignatureModifiers.Explicit | MethodSignatureModifiers.Operator;
             // using PipelineResponse response = result.GetRawResponse();
-            var responseDeclaration = UsingDeclare("response", ScmCodeModelGenerator.Instance.TypeFactory.HttpResponseApi.HttpResponseType, result.ToApi<ClientResponseApi>().GetRawResponse(), out var response);
+            var response = result.ToApi<ClientResponseApi>();
+            MethodBodyStatement responseDeclaration;
+
+            // if the GetRawResponse is a no-op we don't need to declare a new variable
+            if (response.Original == response.GetRawResponse().Original)
+            {
+                responseDeclaration = MethodBodyStatement.Empty;
+            }
+            else
+            {
+                responseDeclaration = UsingDeclare("response", ScmCodeModelGenerator.Instance.TypeFactory.HttpResponseApi.HttpResponseType, result.ToApi<ClientResponseApi>().GetRawResponse(), out var responseVar);
+                response = responseVar.ToApi<ClientResponseApi>();
+            }
+
             MethodBodyStatement[] methodBody;
 
             if (_model is ScmModelProvider { HasDynamicModelSupport: true })

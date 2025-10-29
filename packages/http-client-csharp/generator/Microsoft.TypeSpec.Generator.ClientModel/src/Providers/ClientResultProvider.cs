@@ -28,6 +28,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         public override CSharpType ClientCollectionAsyncResponseType => typeof(AsyncCollectionResult);
         public override CSharpType ClientCollectionResponseOfTType => typeof(CollectionResult<>);
         public override CSharpType ClientCollectionAsyncResponseOfTType => typeof(AsyncCollectionResult<>);
+        public override string ResponseParameterName => "result";
 
         public override TypeProvider CreateClientCollectionResultDefinition(
             ClientProvider client,
