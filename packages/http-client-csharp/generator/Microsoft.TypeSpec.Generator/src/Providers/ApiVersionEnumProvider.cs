@@ -77,6 +77,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private List<EnumTypeMember> BuildCustomEnumMembers(IReadOnlyList<FieldProvider> customMembers)
         {
             List<EnumTypeMember> values = new(customMembers.Count);
+            Dictionary<string, InputEnumTypeValue> allowedValues = AllowedValues.ToDictionary(av => av.Name.ToApiVersionMemberName());
             for (int i = 0; i < customMembers.Count; i++)
             {
                 var member = customMembers[i];
@@ -88,8 +89,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     this,
                     $"",
                     member.InitializationValue);
-
-                values.Add(new EnumTypeMember(member.Name, field, member.InitializationValue!));
+                object? inputValue = allowedValues.TryGetValue(member.OriginalName ?? member.Name, out var enumValue)
+                    ? enumValue.Value
+                    : member.Name;
+                values.Add(new EnumTypeMember(member.Name, field, inputValue));
             }
 
             return values;
