@@ -1,29 +1,6 @@
 import { Diagnostic, Service } from "@typespec/compiler";
 import { Contact, ExtensionKey, License } from "@typespec/openapi";
 
-/**
-TODO checklist for @baywet:
-- [x] encoding https://github.com/BinkyLabs/OpenAPI.net/issues/51
-- [x] media type components https://github.com/BinkyLabs/OpenAPI.net/issues/18
-- [x] discriminator defaultMapping https://github.com/BinkyLabs/OpenAPI.net/issues/3
-- [x] response summary https://github.com/BinkyLabs/OpenAPI.net/issues/17
-- [x] server name https://github.com/BinkyLabs/OpenAPI.net/issues/16
-- [x] security scheme deprecated https://github.com/BinkyLabs/OpenAPI.net/issues/15
-- [x] oauth flows https://github.com/BinkyLabs/OpenAPI.net/issues/14
-- [x] examples data and serialized value https://github.com/BinkyLabs/OpenAPI.net/issues/12
-- [x] xml fields https://github.com/BinkyLabs/OpenAPI.net/issues/11
-- [x] media type item and prefix encoding https://github.com/BinkyLabs/OpenAPI.net/issues/10
-- [x] document $self https://github.com/BinkyLabs/OpenAPI.net/issues/8
-- [x] querystring parameter location https://github.com/BinkyLabs/OpenAPI.net/issues/7
-- [x] cookie parameter style https://github.com/BinkyLabs/OpenAPI.net/issues/6
-- [x] path item query and additional operations https://github.com/BinkyLabs/OpenAPI.net/issues/5
-- [x] tag new fields https://github.com/BinkyLabs/OpenAPI.net/issues/4
-- [x] all references to media type and encoding need to be recursively updated in the 3.2 structure
-- [x] all references to response need to be recursively updated in the 3.2 structure
-- [x] all references to example need to be recursively updated in the 3.2 structure (only parameter left)
-- [ ] all references to schema need to be recursively updated in the 3.2 structure (all/any/one/additionalProperties...)
-*/
-
 export type CommonOpenAPI3Schema = OpenAPI3Schema & OpenAPISchema3_1 & OpenAPISchema3_2;
 
 export type SupportedOpenAPIDocuments = OpenAPI3Document | OpenAPIDocument3_1 | OpenAPIDocument3_2;
@@ -657,7 +634,7 @@ export type OpenAPI3ParameterBase = Extensions & {
   /** When this is true, parameter values of type array or object generate separate parameters for each value of the array or key-value pair of the map. For other types of parameters this property has no effect. When style is form, the default value is true. For all other styles, the default value is false.  */
   explode?: boolean;
 
-  schema: OpenAPI3Schema;
+  schema?: Refable<OpenAPI3Schema>;
 
   /** A free-form property to include an example of an instance for this schema. To represent examples that cannot be naturally represented in JSON or YAML, a string value can be used to contain the example with escaping where necessary. */
   example?: any;
@@ -1417,18 +1394,26 @@ export interface OpenAPIExample3_2 extends OpenAPI3Example {
   serializedValue?: string;
 }
 
-export interface OpenAPISchema3_2 extends Omit<OpenAPISchema3_1, "xml" | "discriminator"> {
-  /**
-   * Adds additional metadata to describe the XML representation of this property.
-   * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-20
-   */
-  xml?: OpenAPIXmlSchema3_2;
-  /**
-   *
-   * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-20
-   */
-  discriminator?: OpenAPIDiscriminator3_2;
-}
+export type OpenAPISchema3_2 = JsonSchema<
+  {
+    /**
+     * Adds additional metadata to describe the XML representation of this property.
+     * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-20
+     */
+    xml?: OpenAPIXmlSchema3_2;
+    /**
+     *
+     * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-20
+     */
+    discriminator?: OpenAPIDiscriminator3_2;
+    /**
+     * Additional external documentation for this schema.
+     *
+     * @see https://spec.openapis.org/oas/v3.1.1.html#external-documentation-object
+     */
+    externalDocs?: OpenAPI3ExternalDocs;
+  } & Extensions
+>;
 
 export interface OpenAPIXmlSchema3_2 extends Omit<OpenAPI3XmlSchema, "attribute" | "wrapped"> {
   /**
@@ -1467,10 +1452,14 @@ export type OpenAPIPathItem3_2 = Omit<OpenAPI3PathItem, OpenAPI3HttpMethod | "pa
   additionalOperations?: Record<string, OpenAPIOperation3_2>;
   parameters?: Refable<OpenAPIParameter3_2>[];
 };
-export type OpenAPIParameterBase3_2 = Omit<OpenAPI3ParameterBase, "content" | "examples"> & {
+export type OpenAPIParameterBase3_2 = Omit<
+  OpenAPI3ParameterBase,
+  "content" | "examples" | "schema"
+> & {
   /** A map containing the representations for the parameter. The key is the media type and the value describes it. The map MUST only contain one entry. */
   content?: Record<string, Refable<OpenAPIMediaType3_2>>;
   examples?: Record<string, Refable<OpenAPIExample3_2>>;
+  schema?: Refable<OpenAPISchema3_2>;
 };
 export type OpenAPIQueryStringParameter3_2 = Omit<
   OpenAPIParameterBase3_2,
