@@ -16,7 +16,7 @@ namespace Sample
             uri.Reset(_endpoint);
             global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
             global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
-            request.Headers.Set("repeatability-first-sent", global::Sample.TypeFormatters.ConvertToString(global::System.DateTimeOffset.Now, "R"));
+            request.Headers.Set("repeatability-first-sent", global::Sample.TypeFormatters.ConvertToString(global::System.DateTimeOffset.Now, global::Sample.SerializationFormat.DateTime_RFC7231));
             request.Headers.Set("repeatability-request-ID", global::System.Guid.NewGuid().ToString());
             request.Content = content;
             message.Apply(options);

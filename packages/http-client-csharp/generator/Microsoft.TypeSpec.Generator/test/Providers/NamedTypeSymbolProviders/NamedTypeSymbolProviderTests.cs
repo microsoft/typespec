@@ -3,12 +3,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
@@ -71,6 +72,25 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
 
             var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol, compilation);
             Assert.IsNull(namedTypeSymbolProvider.Type.BaseType!);
+        }
+
+        [Test]
+        public async Task ValidateSelfReferentialGenericBaseType()
+        {
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+               compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var compilation = mockGenerator.Object.SourceInputModel.Customization;
+            Assert.IsNotNull(compilation);
+
+            var iNamedSymbol = CompilationHelper.GetSymbol(mockGenerator.Object.SourceInputModel.Customization!.Assembly.Modules.First().GlobalNamespace, "SelfReferentialType")!;
+            Assert.IsNotNull(iNamedSymbol);
+
+            var namedTypeSymbolProvider = new NamedTypeSymbolProvider(iNamedSymbol, mockGenerator.Object.SourceInputModel.Customization!);
+            Assert.IsNotNull(namedTypeSymbolProvider);
+
+            // The base type should be null to prevent stack overflow when the base type contains
+            // the derived type as a generic type argument
+            Assert.IsNull(namedTypeSymbolProvider.Type.BaseType);
         }
 
         [Test]
@@ -413,6 +433,44 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             Assert.AreEqual("Foo", memberExpression!.MemberName);
         }
 
+        [Test]
+        public void ValidateEnumFieldsWithExplicitValues()
+        {
+            var enumProvider = new TestEnumWithValuesProvider();
+            var compilation = CompilationHelper.LoadCompilation([enumProvider]);
+            var iNamedSymbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, "ServiceVersion");
+
+            var provider = new NamedTypeSymbolProvider(iNamedSymbol!, compilation);
+
+            // Validate that the enum has the expected fields
+            var fields = provider.Fields.ToDictionary(f => f.Name);
+            Assert.AreEqual(3, fields.Count);
+
+            // Validate V7_2 = 1
+            Assert.IsTrue(fields.ContainsKey("V7_2"));
+            var v72Field = fields["V7_2"];
+            Assert.IsNotNull(v72Field.InitializationValue);
+            Assert.IsInstanceOf<LiteralExpression>(v72Field.InitializationValue);
+            var v72Literal = v72Field.InitializationValue as LiteralExpression;
+            Assert.AreEqual(1, v72Literal!.Literal);
+
+            // Validate V7_3 = 2
+            Assert.IsTrue(fields.ContainsKey("V7_3"));
+            var v73Field = fields["V7_3"];
+            Assert.IsNotNull(v73Field.InitializationValue);
+            Assert.IsInstanceOf<LiteralExpression>(v73Field.InitializationValue);
+            var v73Literal = v73Field.InitializationValue as LiteralExpression;
+            Assert.AreEqual(2, v73Literal!.Literal);
+
+            // Validate V7_4 = 3
+            Assert.IsTrue(fields.ContainsKey("V7_4"));
+            var v74Field = fields["V7_4"];
+            Assert.IsNotNull(v74Field.InitializationValue);
+            Assert.IsInstanceOf<LiteralExpression>(v74Field.InitializationValue);
+            var v74Literal = v74Field.InitializationValue as LiteralExpression;
+            Assert.AreEqual(3, v74Literal!.Literal);
+        }
+
         public enum SomeEnum
         {
             Foo,
@@ -430,6 +488,24 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
                 return
                 [
                     new FieldProvider(FieldModifiers.Public | FieldModifiers.Static, typeof(int), "Foo", this, $"Foo"),
+                ];
+            }
+        }
+
+        private class TestEnumWithValuesProvider : TypeProvider
+        {
+            protected override string BuildRelativeFilePath() => ".";
+            protected override string BuildName() => "ServiceVersion";
+            protected override string BuildNamespace() => "Sample.Models";
+            protected override TypeSignatureModifiers BuildDeclarationModifiers() => TypeSignatureModifiers.Public | TypeSignatureModifiers.Enum;
+
+            protected override FieldProvider[] BuildFields()
+            {
+                return
+                [
+                    new FieldProvider(FieldModifiers.Public | FieldModifiers.Static, typeof(int), "V7_2", this, $"The Key Vault API version 7.2", initializationValue: Literal(1)),
+                    new FieldProvider(FieldModifiers.Public | FieldModifiers.Static, typeof(int), "V7_3", this, $"The Key Vault API version 7.3", initializationValue: Literal(2)),
+                    new FieldProvider(FieldModifiers.Public | FieldModifiers.Static, typeof(int), "V7_4", this, $"The Key Vault API version 7.4", initializationValue: Literal(3)),
                 ];
             }
         }
