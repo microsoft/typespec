@@ -1230,6 +1230,12 @@ Second request path:
 /optional/foo
 ```
 
+### Parameters_Query_Constant_post
+
+- Endpoint: `post /parameters/query/constant`
+
+Expect to handle a constant value for query and mock api returns nothing
+
 ### Parameters_Spread_Alias_spreadAsRequestBody
 
 - Endpoint: `put /parameters/spread/alias/request-body`
