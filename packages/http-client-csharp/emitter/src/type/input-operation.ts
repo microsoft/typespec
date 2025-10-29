@@ -9,7 +9,6 @@ import { RequestMethod } from "./request-method.js";
 
 export interface InputOperation {
   name: string;
-  resourceName?: string;
   summary?: string;
   deprecated?: string;
   doc?: string;

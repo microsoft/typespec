@@ -566,7 +566,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
         {
             return new InputOperation(
                 name,
-                null,
                 "",
                 $"{name} description",
                 null,

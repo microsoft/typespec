@@ -37,7 +37,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             resolver.AddReference(id, operation);
 
             string? name = null;
-            string? resourceName = null;
             string? summary = null;
             string? doc = null;
             string? deprecated = null;
@@ -59,7 +58,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadString("name", ref name)
-                    || reader.TryReadString("resourceName", ref resourceName)
                     || reader.TryReadString("summary", ref summary)
                     || reader.TryReadString("doc", ref doc)
                     || reader.TryReadString("deprecated", ref deprecated)
@@ -85,7 +83,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             }
 
             operation.Name = name ?? throw new JsonException("InputOperation must have name");
-            operation.ResourceName = resourceName;
             operation.Summary = summary;
             operation.Doc = doc;
             operation.Deprecated = deprecated;
