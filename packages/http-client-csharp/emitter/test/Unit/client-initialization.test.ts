@@ -33,10 +33,7 @@ describe("ClientInitialization", () => {
     const client = root.clients[0];
     ok(client, "Client should exist");
     ok(client.clientInitialization, "Client should have clientInitialization");
-    ok(
-      client.clientInitialization.parameters,
-      "clientInitialization should have parameters",
-    );
+    ok(client.clientInitialization.parameters, "clientInitialization should have parameters");
     ok(
       client.clientInitialization.parameters.length > 0,
       "clientInitialization should have at least one parameter",
@@ -68,10 +65,9 @@ describe("ClientInitialization", () => {
 
     const client = root.clients[0];
     ok(client.clientInitialization, "Client should have clientInitialization");
-    // initializedBy may be undefined or a number
+    // initializedBy field should exist in the clientInitialization object (may be undefined or have a value)
     ok(
-      client.clientInitialization.initializedBy !== undefined ||
-        client.clientInitialization.initializedBy === undefined,
+      "initializedBy" in client.clientInitialization,
       "clientInitialization should have initializedBy field",
     );
   });
@@ -92,9 +88,7 @@ describe("ClientInitialization", () => {
 
     const client = root.clients[0];
     ok(client.clientInitialization, "Client should have clientInitialization");
-    const endpointParam = client.clientInitialization.parameters.find(
-      (p) => p.kind === "endpoint",
-    );
+    const endpointParam = client.clientInitialization.parameters.find((p) => p.kind === "endpoint");
     ok(endpointParam, "clientInitialization should have endpoint parameter");
     strictEqual(endpointParam.name, "endpoint", "Endpoint parameter should be named 'endpoint'");
   });
