@@ -70,11 +70,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                 ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition,
                 ScmCodeModelGenerator.Instance.SerializationFormatDefinition,
                 new TypeFormattersDefinition(),
-                new ClientPipelineExtensionsDefinition(),
                 new ErrorResultDefinition(),
                 new ClientUriBuilderDefinition(),
                 new Utf8JsonBinaryContentDefinition(),
                 new BinaryContentHelperDefinition(),
+                new ClientPipelineExtensionsDefinition(),
+                new CancellationTokenExtensionsDefinition(),
                 new PipelineRequestHeadersExtensionsDefinition(),
                 .. GetMultipartFormDataBinaryContentDefinition(),
                 new ModelReaderWriterContextDefinition()
