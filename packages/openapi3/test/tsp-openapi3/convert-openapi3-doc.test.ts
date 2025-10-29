@@ -147,6 +147,81 @@ describe("Union types with multiple defaults", () => {
   });
 });
 
+describe("String escaping", () => {
+  it("should escape ${...} in string literals to prevent interpolation", async () => {
+    const tsp = await convertOpenAPI3Document({
+      openapi: "3.0.0",
+      info: {
+        title: "(title)",
+        version: "0.0.0",
+      },
+      tags: [],
+      paths: {},
+      components: {
+        schemas: {
+          Foo: {
+            type: "object",
+            required: ["foo"],
+            properties: {
+              foo: {
+                type: "string",
+                title: "${asdf}",
+              },
+            },
+          },
+        },
+      },
+    });
+
+    // Should escape ${...} in strings to prevent interpolation
+    strictEqual(
+      tsp.includes('@summary("\\${asdf}")'),
+      true,
+      "Expected '\\${asdf}' to be escaped but got: " + tsp,
+    );
+
+    // Should NOT contain unescaped ${...}
+    strictEqual(
+      tsp.includes('@summary("${asdf}")'),
+      false,
+      "Should not contain unescaped ${asdf}. Got: " + tsp,
+    );
+  });
+
+  it("should escape multiple ${...} occurrences in string literals", async () => {
+    const tsp = await convertOpenAPI3Document({
+      openapi: "3.0.0",
+      info: {
+        title: "(title)",
+        version: "0.0.0",
+      },
+      tags: [],
+      paths: {},
+      components: {
+        schemas: {
+          Foo: {
+            type: "object",
+            required: ["bar"],
+            properties: {
+              bar: {
+                type: "string",
+                description: "Value is ${foo} and ${bar}",
+              },
+            },
+          },
+        },
+      },
+    });
+
+    // Should escape all ${...} in strings
+    strictEqual(
+      tsp.includes("\\${foo}") && tsp.includes("\\${bar}"),
+      true,
+      "Expected all ${...} to be escaped but got: " + tsp,
+    );
+  });
+});
+
 describe("OpenAPI 3.1 anyOf with null conversion", () => {
   it("should convert anyOf with ref + null to proper union with null", async () => {
     const tsp = await convertOpenAPI3Document({

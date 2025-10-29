@@ -1,5 +1,14 @@
 # Change Log - @typespec/http-client-python
 
+## 0.19.2
+
+### Bug Fixes
+
+- [#8720](https://github.com/microsoft/typespec/pull/8720) Fix api-version for @override
+- [#8806](https://github.com/microsoft/typespec/pull/8806) Fix runtime error for constant query parameter
+- [#8749](https://github.com/microsoft/typespec/pull/8749) Additional fixes to documentation with bullet points
+
+
 ## 0.19.1
 
 ### Bump dependencies
