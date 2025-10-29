@@ -5,6 +5,7 @@ import {
   AccessFlags,
   CollectionFormat,
   DecoratorInfo,
+  InitializedByFlags,
   SdkBuiltInKinds,
   SerializationOptions,
   UsageFlags,
@@ -16,6 +17,16 @@ import { InputServiceMethod } from "./input-service-method.js";
 import { RequestLocation } from "./request-location.js";
 
 /**
+ * The input client initialization type for the CSharp emitter.
+ * @beta
+ */
+export interface InputClientInitialization {
+  parameters: InputParameter[];
+  initializedBy?: InitializedByFlags;
+  access?: string;
+}
+
+/**
  * The input client type for the CSharp emitter.
  * @beta
  */
@@ -25,7 +36,8 @@ export interface InputClient extends DecoratedType {
   namespace: string;
   doc?: string;
   summary?: string;
-  parameters?: InputParameter[]; // TODO -- this should be replaced by clientInitialization when the clientInitialization related stuffs are done: https://github.com/microsoft/typespec/issues/4366
+  parameters?: InputParameter[]; // Deprecated: Use clientInitialization.parameters instead
+  clientInitialization?: InputClientInitialization;
   methods: InputServiceMethod[];
   apiVersions: string[];
   crossLanguageDefinitionId: string;
