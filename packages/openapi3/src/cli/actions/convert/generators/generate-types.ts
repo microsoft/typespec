@@ -1,5 +1,10 @@
 import { printIdentifier } from "@typespec/compiler";
-import { OpenAPI3Encoding, OpenAPI3Schema, Refable } from "../../../../types.js";
+import {
+  OpenAPI3Encoding,
+  OpenAPISchema3_2,
+  Refable,
+  SupportedOpenAPISchema,
+} from "../../../../types.js";
 import { Context } from "../utils/context.js";
 import {
   getDecoratorsForSchema,
@@ -12,7 +17,7 @@ export class SchemaToExpressionGenerator {
   constructor(public rootNamespace: string) {}
 
   public generateTypeFromRefableSchema(
-    schema: Refable<OpenAPI3Schema>,
+    schema: Refable<SupportedOpenAPISchema>,
     callingScope: string[],
     isHttpPart = false,
     encoding?: Record<string, OpenAPI3Encoding>,
@@ -24,7 +29,7 @@ export class SchemaToExpressionGenerator {
       : this.getTypeFromSchema(schema, callingScope, isHttpPart, encoding, context);
   }
 
-  public generateArrayType(schema: OpenAPI3Schema, callingScope: string[]): string {
+  public generateArrayType(schema: SupportedOpenAPISchema, callingScope: string[]): string {
     const items = schema.items;
     if (!items) {
       return "unknown[]";
@@ -80,7 +85,7 @@ export class SchemaToExpressionGenerator {
   }
 
   private getTypeFromSchema(
-    schema: OpenAPI3Schema,
+    schema: SupportedOpenAPISchema,
     callingScope: string[],
     isHttpPart = false,
     encoding?: Record<string, OpenAPI3Encoding>,
@@ -98,7 +103,7 @@ export class SchemaToExpressionGenerator {
         } else {
           // Create a schema with a single type to reuse existing type extraction logic
           // Remove type array, nullable, and default to avoid double-processing
-          const singleTypeSchema: OpenAPI3Schema = {
+          const singleTypeSchema: SupportedOpenAPISchema = {
             ...schema,
             type: t as any,
             nullable: undefined,
@@ -149,7 +154,7 @@ export class SchemaToExpressionGenerator {
       type = this.generateArrayType(schema, callingScope);
     }
 
-    if (schema.nullable) {
+    if ("nullable" in schema && schema.nullable) {
       type += ` | null`;
     }
 
@@ -165,7 +170,7 @@ export class SchemaToExpressionGenerator {
   }
 
   private generateDefaultValue(
-    schema: OpenAPI3Schema,
+    schema: SupportedOpenAPISchema,
     callingScope: string[],
     context?: Context,
   ): string | undefined {
@@ -219,9 +224,9 @@ export class SchemaToExpressionGenerator {
     return undefined; // Return undefined to indicate no default found
   }
 
-  private getAllOfType(schema: OpenAPI3Schema, callingScope: string[]): string {
+  private getAllOfType(schema: SupportedOpenAPISchema, callingScope: string[]): string {
     const requiredProps: string[] = schema.required || [];
-    let properties: Record<string, Refable<OpenAPI3Schema>> = {};
+    let properties: Record<string, Refable<SupportedOpenAPISchema>> = {};
     const baseTypes: string[] = [];
 
     for (const member of schema.allOf || []) {
@@ -256,7 +261,9 @@ export class SchemaToExpressionGenerator {
     }
   }
 
-  private stripDefaultsFromSchema(schema: Refable<OpenAPI3Schema>): Refable<OpenAPI3Schema> {
+  private stripDefaultsFromSchema(
+    schema: Refable<SupportedOpenAPISchema>,
+  ): Refable<SupportedOpenAPISchema> {
     if ("$ref" in schema) {
       return schema;
     }
@@ -269,24 +276,31 @@ export class SchemaToExpressionGenerator {
       strippedSchema.items = this.stripDefaultsFromSchema(strippedSchema.items);
     }
 
+    // in the next blocks the casts are ugly but safe because the stripped schema is going to be the same as the original one
     if (strippedSchema.anyOf) {
-      strippedSchema.anyOf = strippedSchema.anyOf.map((item) => this.stripDefaultsFromSchema(item));
+      strippedSchema.anyOf = strippedSchema.anyOf.map((item) =>
+        this.stripDefaultsFromSchema(item),
+      ) as unknown as OpenAPISchema3_2[];
     }
 
     if (strippedSchema.oneOf) {
-      strippedSchema.oneOf = strippedSchema.oneOf.map((item) => this.stripDefaultsFromSchema(item));
+      strippedSchema.oneOf = strippedSchema.oneOf.map((item) =>
+        this.stripDefaultsFromSchema(item),
+      ) as unknown as OpenAPISchema3_2[];
     }
 
     if (strippedSchema.allOf) {
-      strippedSchema.allOf = strippedSchema.allOf.map((item) => this.stripDefaultsFromSchema(item));
+      strippedSchema.allOf = strippedSchema.allOf.map((item) =>
+        this.stripDefaultsFromSchema(item),
+      ) as unknown as OpenAPISchema3_2[];
     }
 
     if (strippedSchema.properties) {
-      const strippedProperties: Record<string, Refable<OpenAPI3Schema>> = {};
+      const strippedProperties: Record<string, Refable<SupportedOpenAPISchema>> = {};
       for (const [key, prop] of Object.entries(strippedSchema.properties)) {
         strippedProperties[key] = this.stripDefaultsFromSchema(prop);
       }
-      strippedSchema.properties = strippedProperties;
+      strippedSchema.properties = strippedProperties as unknown as Record<string, OpenAPISchema3_2>;
     }
 
     if (
@@ -301,7 +315,7 @@ export class SchemaToExpressionGenerator {
     return strippedSchema;
   }
 
-  private getAnyOfType(schema: OpenAPI3Schema, callingScope: string[]): string {
+  private getAnyOfType(schema: SupportedOpenAPISchema, callingScope: string[]): string {
     const definitions: string[] = [];
 
     for (const item of schema.anyOf ?? []) {
@@ -313,7 +327,7 @@ export class SchemaToExpressionGenerator {
     return definitions.join(" | ");
   }
 
-  private getOneOfType(schema: OpenAPI3Schema, callingScope: string[]): string {
+  private getOneOfType(schema: SupportedOpenAPISchema, callingScope: string[]): string {
     const definitions: string[] = [];
 
     for (const item of schema.oneOf ?? []) {
@@ -403,7 +417,7 @@ export class SchemaToExpressionGenerator {
   public static readonly decoratorNamesToExcludeForParts: string[] = ["minValue", "maxValue"];
 
   private getObjectType(
-    schema: OpenAPI3Schema,
+    schema: SupportedOpenAPISchema,
     callingScope: string[],
     isHttpPart = false,
     encoding?: Record<string, OpenAPI3Encoding>,
@@ -461,7 +475,7 @@ export class SchemaToExpressionGenerator {
 }
 
 export function isReferencedEnumType(
-  propSchema: Refable<OpenAPI3Schema>,
+  propSchema: Refable<SupportedOpenAPISchema>,
   context: Context,
 ): boolean {
   let isEnumType = false;
@@ -481,7 +495,7 @@ export function isReferencedEnumType(
 }
 
 export function isReferencedUnionType(
-  propSchema: Refable<OpenAPI3Schema>,
+  propSchema: Refable<SupportedOpenAPISchema>,
   context: Context,
 ): boolean {
   let isUnionType = false;
@@ -504,7 +518,7 @@ export function isReferencedUnionType(
   return isUnionType;
 }
 
-export function getTypeSpecPrimitiveFromSchema(schema: OpenAPI3Schema): string | undefined {
+export function getTypeSpecPrimitiveFromSchema(schema: SupportedOpenAPISchema): string | undefined {
   if (schema.type === "boolean") {
     return "boolean";
   } else if ((schema as any).type === "null") {
@@ -519,7 +533,7 @@ export function getTypeSpecPrimitiveFromSchema(schema: OpenAPI3Schema): string |
   return;
 }
 
-function getIntegerType(schema: OpenAPI3Schema): string {
+function getIntegerType(schema: SupportedOpenAPISchema): string {
   const format = schema.format ?? "";
   switch (format) {
     case "int8":
@@ -538,7 +552,7 @@ function getIntegerType(schema: OpenAPI3Schema): string {
   }
 }
 
-function getNumberType(schema: OpenAPI3Schema): string {
+function getNumberType(schema: SupportedOpenAPISchema): string {
   const format = schema.format ?? "";
   switch (format) {
     case "decimal":
@@ -554,7 +568,7 @@ function getNumberType(schema: OpenAPI3Schema): string {
   }
 }
 
-function getStringType(schema: OpenAPI3Schema): string {
+function getStringType(schema: SupportedOpenAPISchema): string {
   const format = schema.format ?? "";
   let type = "string";
   switch (format) {
@@ -583,6 +597,6 @@ function getStringType(schema: OpenAPI3Schema): string {
   return type;
 }
 
-function getEnum(schemaEnum: (string | number | boolean)[]): string {
+function getEnum(schemaEnum: (string | number | boolean | null)[]): string {
   return schemaEnum.map((e) => JSON.stringify(e)).join(" | ");
 }
