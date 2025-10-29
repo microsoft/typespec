@@ -19,8 +19,8 @@ TODO checklist for @baywet:
 - [x] path item query and additional operations https://github.com/BinkyLabs/OpenAPI.net/issues/5
 - [x] tag new fields https://github.com/BinkyLabs/OpenAPI.net/issues/4
 - [x] all references to media type and encoding need to be recursively updated in the 3.2 structure
-- [ ] all references to response need to be recursively updated in the 3.2 structure
-- [ ] all references to example need to be recursively updated in the 3.2 structure (only parameter left)
+- [x] all references to response need to be recursively updated in the 3.2 structure
+- [x] all references to example need to be recursively updated in the 3.2 structure (only parameter left)
 - [ ] all references to schema need to be recursively updated in the 3.2 structure (all/any/one/additionalProperties...)
 */
 
