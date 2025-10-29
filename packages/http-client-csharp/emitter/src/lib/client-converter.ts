@@ -113,7 +113,7 @@ function fromSdkClient(
         const endpointParams = fromSdkEndpointParameter(param);
         inputParameters.push(...endpointParams);
       } else if (param.kind === "method") {
-        // Convert method parameters (like api-version)
+        // Convert method parameters
         const methodParam = fromMethodParameter(sdkContext, param, namespace);
         inputParameters.push(methodParam);
       }
