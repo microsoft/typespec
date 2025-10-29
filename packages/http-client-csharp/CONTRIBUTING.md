@@ -185,7 +185,7 @@ To regenerate test projects after making changes:
 
 ## Validating Changes Against the Azure Generator
 
-When making changes to the TypeSpec HTTP Client C# package, it's important to validate that your changes work correctly with the Azure generator that depends on this package. Follow these steps to test your changes:
+When making changes to the TypeSpec HTTP Client C# package that contain API breaking changes, it's important to validate the changes against the Azure generator that depends on this package, as the Azure Generator will need to be updated to consume them. Follow these steps to test your changes:
 
 ### 1. Create a Fork of azure-sdk-for-net
 
