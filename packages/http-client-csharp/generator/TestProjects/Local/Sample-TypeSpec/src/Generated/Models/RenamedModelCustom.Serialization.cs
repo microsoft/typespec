@@ -146,7 +146,7 @@ namespace SampleTypeSpec
         /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="RenamedModelCustom"/> from. </param>
         public static explicit operator RenamedModelCustom(ClientResult result)
         {
-            using PipelineResponse response = result.GetRawResponse();
+            PipelineResponse response = result.GetRawResponse();
             using JsonDocument document = JsonDocument.Parse(response.Content);
             return DeserializeRenamedModelCustom(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
