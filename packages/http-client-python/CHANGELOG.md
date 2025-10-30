@@ -1,5 +1,17 @@
 # Change Log - @typespec/http-client-python
 
+## 0.20.0
+
+### Features
+
+- [#8716](https://github.com/microsoft/typespec/pull/8716) Add logic to clear output folder
+
+### Bug Fixes
+
+- [#8866](https://github.com/microsoft/typespec/pull/8866) Fix bad indent
+- [#8867](https://github.com/microsoft/typespec/pull/8867) Fix setting attribute of flattened property when flattened property's name is not `properties`
+
+
 ## 0.19.2
 
 ### Bug Fixes
