@@ -1,27 +1,27 @@
 import {
-  OpenAPI3Document,
   OpenAPI3Encoding,
-  OpenAPI3Schema,
   OpenAPIDocument3_1,
   Refable,
+  SupportedOpenAPIDocuments,
+  SupportedOpenAPISchema,
 } from "../../../../types.js";
 import { Logger } from "../../../types.js";
 import { SchemaToExpressionGenerator } from "../generators/generate-types.js";
 import { generateNamespaceName } from "./generate-namespace-name.js";
 
 export interface Context {
-  readonly openApi3Doc: OpenAPI3Document;
+  readonly openApi3Doc: SupportedOpenAPIDocuments;
   readonly rootNamespace: string;
   readonly logger: Logger;
 
   generateTypeFromRefableSchema(
-    schema: Refable<OpenAPI3Schema>,
+    schema: Refable<SupportedOpenAPISchema>,
     callingScope: string[],
     isHttpPart?: boolean,
     encoding?: Record<string, OpenAPI3Encoding>,
   ): string;
   getRefName(ref: string, callingScope: string[]): string;
-  getSchemaByRef(ref: string): OpenAPI3Schema | undefined;
+  getSchemaByRef(ref: string): SupportedOpenAPISchema | undefined;
   getByRef<T>(ref: string): T | undefined;
 
   /**
@@ -53,7 +53,7 @@ export interface Context {
 }
 
 export function createContext(
-  openApi3Doc: OpenAPI3Document,
+  openApi3Doc: SupportedOpenAPIDocuments,
   logger?: Logger,
   namespace?: string,
 ): Context {
@@ -80,7 +80,7 @@ export function createContext(
       return schemaExpressionGenerator.getRefName(ref, callingScope);
     },
     generateTypeFromRefableSchema(
-      schema: Refable<OpenAPI3Schema>,
+      schema: Refable<SupportedOpenAPISchema>,
       callingScope: string[],
       isHttpPart = false,
       encoding?: Record<string, OpenAPI3Encoding>,
