@@ -24,7 +24,6 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
 
   for (const name of Object.keys(schemas)) {
     const schema = schemas[name];
-    if ("$ref" in schema) continue;
     transformComponentSchema(models, name, context, schema);
   }
 
@@ -33,7 +32,7 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
     types: TypeSpecDataTypes[],
     name: string,
     context: Context,
-    schema: SupportedOpenAPISchema,
+    schema: Refable<SupportedOpenAPISchema>,
   ): void {
     const kind = getTypeSpecKind(schema);
     switch (kind) {
@@ -73,8 +72,9 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
   function populateEnum(
     types: TypeSpecDataTypes[],
     name: string,
-    schema: SupportedOpenAPISchema,
+    schema: Refable<SupportedOpenAPISchema>,
   ): void {
+    if ("$ref" in schema) return;
     const tsEnum: TypeSpecEnum = {
       kind: "enum",
       ...getScopeAndName(name),
@@ -90,7 +90,7 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
     types: TypeSpecDataTypes[],
     rawName: string,
     context: Context,
-    schema: SupportedOpenAPISchema,
+    schema: Refable<SupportedOpenAPISchema>,
   ): void {
     const { name, scope } = getScopeAndName(rawName);
 
@@ -112,18 +112,20 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
       decorators: [...getDecoratorsForSchema(effectiveSchema)],
       doc: effectiveSchema.description || schema.description,
       properties: [
-        ...getModelPropertiesFromObjectSchema(effectiveSchema),
+        ...("$ref" in effectiveSchema ? [] : getModelPropertiesFromObjectSchema(effectiveSchema)),
         ...allOfDetails.properties,
       ],
       additionalProperties:
-        effectiveSchema.additionalProperties === true
-          ? {} // Use empty object to represent Record<unknown>
-          : typeof effectiveSchema.additionalProperties === "object"
-            ? effectiveSchema.additionalProperties
-            : undefined,
+        "additionalProperties" in effectiveSchema
+          ? effectiveSchema.additionalProperties === true
+            ? {} // Use empty object to represent Record<unknown>
+            : typeof effectiveSchema.additionalProperties === "object"
+              ? effectiveSchema.additionalProperties
+              : undefined
+          : undefined,
       extends: allOfDetails.extends,
       is: isParent,
-      type: effectiveSchema.type,
+      type: "type" in effectiveSchema ? effectiveSchema.type : undefined,
       spread: allOfDetails.spread,
       isModelReferencedAsMultipartRequestBody,
       encoding,
@@ -133,8 +135,9 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
   function populateUnion(
     types: TypeSpecDataTypes[],
     name: string,
-    schema: SupportedOpenAPISchema,
+    schema: Refable<SupportedOpenAPISchema>,
   ): void {
+    if ("$ref" in schema) return;
     // Extract description and decorators from meaningful union members
     const unionMetadata = extractUnionMetadata(schema);
 
@@ -196,14 +199,14 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
   function populateScalar(
     types: TypeSpecDataTypes[],
     name: string,
-    schema: SupportedOpenAPISchema,
+    schema: Refable<SupportedOpenAPISchema>,
   ): void {
     types.push({
       kind: "scalar",
       ...getScopeAndName(name),
       decorators: getDecoratorsForSchema(schema),
       doc: schema.description,
-      schema,
+      schema: "$ref" in schema ? {} : schema,
     });
   }
 
@@ -212,13 +215,16 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
     properties: TypeSpecModelProperty[];
     spread: string[];
   }
-  function getAllOfDetails(schema: SupportedOpenAPISchema, callingScope: string[]): AllOfDetails {
+  function getAllOfDetails(
+    schema: Refable<SupportedOpenAPISchema>,
+    callingScope: string[],
+  ): AllOfDetails {
     const details: AllOfDetails = {
       spread: [],
       properties: [],
     };
 
-    if (!schema.allOf) {
+    if ("$ref" in schema || !schema.allOf) {
       return details;
     }
 
@@ -259,8 +265,11 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
     return details;
   }
 
-  function getModelIs(schema: SupportedOpenAPISchema, callingScope: string[]): string | undefined {
-    if (schema.type !== "array") {
+  function getModelIs(
+    schema: Refable<SupportedOpenAPISchema>,
+    callingScope: string[],
+  ): string | undefined {
+    if ("$ref" in schema || schema.type !== "array") {
       return;
     }
     return context.generateTypeFromRefableSchema(schema, callingScope);
@@ -273,7 +282,10 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
  * returns that member's schema merged with any properties from the parent schema.
  * Otherwise, returns the original schema.
  */
-function unwrapSingleAnyOfOneOf(schema: SupportedOpenAPISchema): SupportedOpenAPISchema {
+function unwrapSingleAnyOfOneOf(
+  schema: Refable<SupportedOpenAPISchema>,
+): Refable<SupportedOpenAPISchema> {
+  if ("$ref" in schema) return schema;
   const unionMembers = schema.anyOf || schema.oneOf;
   if (!unionMembers) {
     return schema;
@@ -331,7 +343,7 @@ function getModelPropertiesFromObjectSchema({
   return modelProperties;
 }
 
-function getTypeSpecKind(schema: SupportedOpenAPISchema): TypeSpecDataTypes["kind"] {
+function getTypeSpecKind(schema: Refable<SupportedOpenAPISchema>): TypeSpecDataTypes["kind"] {
   if ("$ref" in schema) {
     return "alias";
   }
