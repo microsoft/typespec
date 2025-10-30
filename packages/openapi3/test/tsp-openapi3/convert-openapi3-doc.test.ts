@@ -302,3 +302,113 @@ describe("OpenAPI 3.1 anyOf with null conversion", () => {
     );
   });
 });
+
+describe("unixtime format conversion", () => {
+  it("should convert integer with unixtime format to utcDateTime with @encode decorator", async () => {
+    const tsp = await convertOpenAPI3Document({
+      openapi: "3.0.0",
+      info: {
+        title: "Test Service",
+        version: "0.0.0",
+      },
+      paths: {},
+      components: {
+        schemas: {
+          Foo: {
+            type: "object",
+            properties: {
+              created: {
+                type: "integer",
+                format: "unixtime",
+              },
+            },
+          },
+        },
+      },
+    });
+
+    // Should contain "@encode(DateTimeKnownEncoding.unixTimestamp, integer)" and "created?: utcDateTime"
+    strictEqual(
+      tsp.includes("@encode(DateTimeKnownEncoding.unixTimestamp, integer)"),
+      true,
+      "Expected '@encode(DateTimeKnownEncoding.unixTimestamp, integer)' but got: " + tsp,
+    );
+    strictEqual(
+      tsp.includes("created?: utcDateTime"),
+      true,
+      "Expected 'created?: utcDateTime' but got: " + tsp,
+    );
+  });
+
+  it("should convert number with unixtime format to utcDateTime with @encode decorator", async () => {
+    const tsp = await convertOpenAPI3Document({
+      openapi: "3.0.0",
+      info: {
+        title: "Test Service",
+        version: "0.0.0",
+      },
+      paths: {},
+      components: {
+        schemas: {
+          Foo: {
+            type: "object",
+            properties: {
+              created: {
+                type: "number",
+                format: "unixtime",
+              },
+            },
+          },
+        },
+      },
+    });
+
+    // Should contain "@encode(DateTimeKnownEncoding.unixTimestamp, numeric)" and "created?: utcDateTime"
+    strictEqual(
+      tsp.includes("@encode(DateTimeKnownEncoding.unixTimestamp, numeric)"),
+      true,
+      "Expected '@encode(DateTimeKnownEncoding.unixTimestamp, numeric)' but got: " + tsp,
+    );
+    strictEqual(
+      tsp.includes("created?: utcDateTime"),
+      true,
+      "Expected 'created?: utcDateTime' but got: " + tsp,
+    );
+  });
+
+  it("should convert string with unixtime format to utcDateTime with @encode decorator", async () => {
+    const tsp = await convertOpenAPI3Document({
+      openapi: "3.0.0",
+      info: {
+        title: "Test Service",
+        version: "0.0.0",
+      },
+      paths: {},
+      components: {
+        schemas: {
+          Foo: {
+            type: "object",
+            properties: {
+              created: {
+                type: "string",
+                format: "unixtime",
+              },
+            },
+          },
+        },
+      },
+    });
+
+    // Should contain "@encode(DateTimeKnownEncoding.unixTimestamp, string)" and "created?: utcDateTime"
+    strictEqual(
+      tsp.includes("@encode(DateTimeKnownEncoding.unixTimestamp, string)"),
+      true,
+      "Expected '@encode(DateTimeKnownEncoding.unixTimestamp, string)' but got: " + tsp,
+    );
+    strictEqual(
+      tsp.includes("created?: utcDateTime"),
+      true,
+      "Expected 'created?: utcDateTime' but got: " + tsp,
+    );
+  });
+});

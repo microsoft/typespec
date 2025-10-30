@@ -165,6 +165,11 @@ export function getDecoratorsForSchema(
     ? schema.type.find((t) => t !== "null")
     : schema.type;
 
+  // Handle unixtime format with @encode decorator
+  if (schema.format === "unixtime") {
+    decorators.push(...getUnixtimeSchemaDecorators(schema, effectiveType));
+  }
+
   switch (effectiveType) {
     case "array":
       decorators.push(...getArraySchemaDecorators(schema));
@@ -250,6 +255,29 @@ function getNumberSchemaDecorators(schema: OpenAPI3Schema | OpenAPISchema3_1) {
   return decorators;
 }
 
+function getUnixtimeSchemaDecorators(
+  schema: OpenAPI3Schema | OpenAPISchema3_1,
+  effectiveType: string | undefined,
+) {
+  const decorators: TypeSpecDecorator[] = [];
+
+  // Add @encode decorator for unixtime format
+  // The encoding type depends on the OpenAPI type (integer, number, or string)
+  let encodeType = "integer";
+  if (effectiveType === "number") {
+    encodeType = "numeric";
+  } else if (effectiveType === "string") {
+    encodeType = "string";
+  }
+
+  decorators.push({
+    name: "encode",
+    args: [createTSValue("DateTimeKnownEncoding.unixTimestamp"), createTSValue(encodeType)],
+  });
+
+  return decorators;
+}
+
 const knownStringFormats = new Set([
   "binary",
   "byte",
@@ -258,6 +286,7 @@ const knownStringFormats = new Set([
   "time",
   "duration",
   "uri",
+  "unixtime",
 ]);
 
 function getStringSchemaDecorators(schema: OpenAPI3Schema | OpenAPISchema3_1) {
