@@ -1,8 +1,8 @@
 import { deepStrictEqual, ok } from "assert";
 import { it } from "vitest";
-import { worksFor } from "./works-for.js";
+import { supportedVersions, worksFor } from "./works-for.js";
 
-worksFor(["3.0.0", "3.1.0"], ({ oapiForModel, objectSchemaIndexer }) => {
+worksFor(supportedVersions, ({ oapiForModel, objectSchemaIndexer }) => {
   it("defines record inline", async () => {
     const res = await oapiForModel(
       "Pet",
