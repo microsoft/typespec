@@ -130,13 +130,19 @@ export interface OpenAPI3Tag extends Extensions {
   externalDocs?: OpenAPI3ExternalDocs;
 }
 
-export type OpenAPI2HttpMethod = "get" | "put" | "post" | "delete" | "options" | "head" | "patch";
-
-export type OpenAPI3HttpMethod = OpenAPI2HttpMethod | "trace";
+export type OpenAPI3HttpMethod =
+  | "get"
+  | "put"
+  | "post"
+  | "delete"
+  | "options"
+  | "head"
+  | "patch"
+  | "trace";
 
 export type OpenAPIHttpMethod3_2 = OpenAPI3HttpMethod | "query";
 
-export type HttpMethod = OpenAPI2HttpMethod | OpenAPI3HttpMethod | OpenAPIHttpMethod3_2;
+export type HttpMethod = OpenAPI3HttpMethod | OpenAPIHttpMethod3_2;
 
 /**
  * Describes the operations available on a single path. A Path Item may be empty, due to ACL constraints. The path itself is still exposed to the documentation viewer but they will not know which operations and parameters are available.

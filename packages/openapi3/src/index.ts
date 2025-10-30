@@ -17,7 +17,6 @@ export type {
   JsonSchema,
   JsonSchemaType,
   JsonType,
-  OpenAPI2HttpMethod,
   OpenAPI3ApiKeySecurityScheme,
   OpenAPI3AuthorizationCodeOAuthFlow,
   OpenAPI3ClientCredentialsFlow,
