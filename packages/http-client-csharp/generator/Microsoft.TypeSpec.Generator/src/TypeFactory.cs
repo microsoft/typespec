@@ -406,6 +406,35 @@ namespace Microsoft.TypeSpec.Generator
         private string? _primaryNamespace;
         public string PrimaryNamespace => _primaryNamespace ??= GetCleanNameSpace(CodeModelGenerator.Instance.InputLibrary.InputNamespace.Name);
 
+        public string ServiceName => _serviceName ??= BuildServiceName();
+        private string? _serviceName;
+
+        /// <summary>
+        /// Builds the service name which is used as the base name for various types.
+        /// </summary>
+        protected virtual string BuildServiceName()
+        {
+            var span = CodeModelGenerator.Instance.InputLibrary.InputNamespace.Name;
+            if (span.IndexOf('.') == -1)
+            {
+                return CodeModelGenerator.Instance.InputLibrary.InputNamespace.Name;
+            }
+
+            Span<char> dest = stackalloc char[span.Length];
+            int j = 0;
+
+            for (int i = 0; i < span.Length; i++)
+            {
+                if (span[i] != '.')
+                {
+                    dest[j] = span[i];
+                    j++;
+                }
+            }
+
+            return dest[..j].ToString();
+        }
+
         public string GetCleanNameSpace(string clientNamespace)
         {
             Span<char> dest = stackalloc char[clientNamespace.Length + GetSegmentCount(clientNamespace)];
