@@ -13,25 +13,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
         private static TypeProvider[] BuildClientTypes()
         {
             var inputClients = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.RootClients;
-            var clients = new List<TypeProvider>();
+            var types = new List<TypeProvider>();
             var clientOptionsSet = new HashSet<ClientOptionsProvider>();
 
             foreach (var inputClient in inputClients)
             {
-                BuildClient(inputClient, clients, clientOptionsSet);
+                BuildClient(inputClient, types, clientOptionsSet);
             }
 
-            // Add unique client options to the clients list
-            clients.AddRange(clientOptionsSet);
+            // Add unique client options to the types list
+            types.AddRange(clientOptionsSet);
 
-            return [.. clients];
+            return [.. types];
         }
 
-        private static void BuildClient(InputClient inputClient, IList<TypeProvider> clients, HashSet<ClientOptionsProvider> clientOptionsSet)
+        private static void BuildClient(InputClient inputClient, IList<TypeProvider> types, HashSet<ClientOptionsProvider> clientOptionsSet)
         {
             foreach (var child in inputClient.Children)
             {
-                BuildClient(child, clients, clientOptionsSet);
+                BuildClient(child, types, clientOptionsSet);
             }
 
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
@@ -39,8 +39,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             {
                 return;
             }
-            clients.Add(client);
-            clients.Add(client.RestClient);
+            types.Add(client);
+            types.Add(client.RestClient);
             var clientOptions = client.ClientOptions;
             if (clientOptions != null)
             {
@@ -51,7 +51,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             {
                 if (method is ScmMethodProvider scmMethod && scmMethod.CollectionDefinition != null)
                 {
-                    clients.Add(scmMethod.CollectionDefinition);
+                    types.Add(scmMethod.CollectionDefinition);
                 }
             }
         }
