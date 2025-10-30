@@ -9,6 +9,7 @@ Welcome! This guide will help you set up your development environment and contri
 - [Development Workflow](#development-workflow)
 - [Testing](#testing)
 - [Code Generation](#code-generation)
+- [Validating Changes Against the Azure Generator](#validating-changes-against-the-azure-generator)
 - [Creating Pull Requests](#creating-pull-requests)
 - [Getting Help](#getting-help)
 - [Code of Conduct](#code-of-conduct)
@@ -176,11 +177,88 @@ Generate test projects to validate the emitter and generator:
 
 To regenerate test projects after making changes:
 
-1. **Generate projects**:
+**Generate projects**:
+
+```bash
+./eng/scripts/Generate.ps1
+```
+
+### Regenerating Azure Libraries
+
+To regenerate azure libraries using your local changes, run:
+
+```bash
+   ./eng/scripts/RegenPreview.ps1 <path-to-clone-of-azure-sdk-for-net>
+```
+
+This will regenerate all the Azure libraries and allow you to view any potential diffs your changes may cause. For more information on the script's usage, see [RegenPreview](./eng/scripts/docs/RegenPreview.md).
+
+## Validating Changes Against the Azure Generator
+
+When making changes to the TypeSpec HTTP Client C# package that contain API breaking changes, it can be helpful to validate these changes against the Azure generator that depends on this package. This validation serves two important purposes:
+
+1. **Breaking Change Awareness**: Understand the full impact of your changes on downstream consumers
+2. **Preparation for Azure Generator Updates**: Identify and prepare the necessary changes that the Azure Generator will need to accommodate your breaking changes
+
+Once breaking changes are merged and a new official generator version is published, the Azure generator will be blocked from releasing until it has been updated to absorb these breaking changes. By validating your changes early, you can help minimize disruption to the Azure SDK release cycle.
+
+Follow these steps to test your changes:
+
+### 1. Create a Fork of azure-sdk-for-net
+
+Create a fork of the [azure-sdk-for-net repository](https://github.com/Azure/azure-sdk-for-net):
+
+1. Navigate to https://github.com/Azure/azure-sdk-for-net
+2. Click the "Fork" button to create your own fork
+3. Clone your fork locally:
 
    ```bash
-   ./eng/scripts/Generate.ps1
+   git clone https://github.com/YOUR_USERNAME/azure-sdk-for-net.git
+   cd azure-sdk-for-net
    ```
+
+### 2. Publish Generator Dev Artifacts
+
+Run the generator publish pipeline to create dev artifacts from your changes:
+
+1. Navigate to the [Generator Publish Pipeline](https://dev.azure.com/azure-sdk/internal/_build?definitionId=6871)
+2. Click "Run pipeline"
+3. In the source branch field, provide your PR reference in the format `refs/pull/123/merge` (replace `123` with your actual PR number)
+4. Run the pipeline - this will publish the generator dev artifacts to the dotnet dev nuget feed
+
+### 3. Update Package Versions in Azure Generator
+
+In your azure-sdk-for-net fork, update the generator package versions to use your dev artifacts:
+
+1. Navigate to the azure generator directory in your fork
+2. Run the BumpMTG script with your PR ID:
+
+   ```powershell
+   .\eng\scripts\BumpMTG.ps1 123
+   ```
+
+   Replace `123` with the PR ID you used in step 2.
+
+This script will update the NuGet package versions of the generator to point to your dev artifacts.
+
+### 4. Build the Azure Generator
+
+Build the azure generator with your updated dependencies:
+
+```bash
+npm ci && npm run clean && npm run build
+```
+
+### 5. Validate Your Changes
+
+Now you can validate your changes by:
+
+- **Running tests**: Execute the test suite to ensure no regressions
+- **Regenerating test libraries**: Use the generator to regenerate existing test libraries and verify the output
+- **Testing new features**: If you added new functionality, test it with relevant TypeSpec definitions
+- **Checking integration**: Ensure the integration between your changes and the Azure generator works as expected
+
+This validation process helps ensure that your changes to the generator are compatible with the downstream Azure generator. If breaking changes are expected, you can prepare the required changes to the Azure Generator ahead of time to reduce the time it will take to fix and upgrade the Azure Generator once your changes merge and are consumed by the Azure Generator.
 
 ## Creating Pull Requests
 

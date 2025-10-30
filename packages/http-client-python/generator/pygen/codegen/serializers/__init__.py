@@ -122,7 +122,21 @@ class JinjaSerializer(ReaderAndWriter):
             # If parsing the version fails, we assume the version file is not valid and overwrite.
             return False
 
+    # pylint: disable=too-many-branches
     def serialize(self) -> None:
+        # remove existing folders when generate from tsp
+        if self.code_model.is_tsp and self.code_model.is_azure_flavor:
+            # remove generated_samples and generated_tests folder
+            self.remove_folder(self._generated_tests_samples_folder("generated_samples"))
+            self.remove_folder(self._generated_tests_samples_folder("generated_tests"))
+
+            # remove generated sdk files
+            generation_path = self.code_model.get_generation_dir(self.code_model.namespace)
+            for file in self.list_file_of_folder(generation_path):
+                if file.endswith(".py") and "_patch.py" not in file:
+                    self.remove_file(file)
+
+        # serialize logic
         env = Environment(
             loader=PackageLoader("pygen.codegen", "templates"),
             keep_trailing_newline=True,
@@ -519,8 +533,11 @@ class JinjaSerializer(ReaderAndWriter):
             return Path("/".join(namespace_config.split(".")[num_of_package_namespace:]))
         return Path("")
 
+    def _generated_tests_samples_folder(self, folder_name: str) -> Path:
+        return self._root_of_sdk / folder_name
+
     def _serialize_and_write_sample(self, env: Environment):
-        out_path = self._root_of_sdk / "generated_samples"
+        out_path = self._generated_tests_samples_folder("generated_samples")
         for client in self.code_model.clients:
             for op_group in client.operation_groups:
                 for operation in op_group.operations:
@@ -549,7 +566,7 @@ class JinjaSerializer(ReaderAndWriter):
 
     def _serialize_and_write_test(self, env: Environment):
         self.code_model.for_test = True
-        out_path = self._root_of_sdk / "generated_tests"
+        out_path = self._generated_tests_samples_folder("generated_tests")
         general_serializer = TestGeneralSerializer(code_model=self.code_model, env=env)
         self.write_file(out_path / "conftest.py", general_serializer.serialize_conftest())
         if not self.code_model.options["azure-arm"]:

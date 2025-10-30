@@ -2,7 +2,7 @@
 {# Check if this is a sphinx documentation line that should not have extra prefix spacing #}
 {%- set is_sphinx_doc = doc_string.strip().startswith(':ivar') or doc_string.strip().startswith(':vartype') or doc_string.strip().startswith(':param') or doc_string.strip().startswith(':type') -%}
 {# Custom handling for bullet points - normalization is now done in preprocessing #}
-{% set enable_custom_handling = "* " in doc_string %}
+{% set enable_custom_handling = "\n* " in doc_string or doc_string.startswith("* ") %}
 {%- if enable_custom_handling -%}
     {%- set lines = doc_string.split('\n') -%}
     {%- set result_lines = [] -%}

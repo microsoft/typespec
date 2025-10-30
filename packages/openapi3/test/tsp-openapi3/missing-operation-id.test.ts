@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { transformPaths } from "../../src/cli/actions/convert/transforms/transform-paths.js";
 import { createContext } from "../../src/cli/actions/convert/utils/context.js";
-import { convertOpenAPI3Document } from "../../src/index.js";
+import { convertOpenAPI3Document, JsonSchemaType } from "../../src/index.js";
 
 describe("Convert OpenAPI3 with missing operationId", () => {
   // Mock logger to capture warnings
@@ -29,7 +29,10 @@ describe("Convert OpenAPI3 with missing operationId", () => {
                 description: "Success",
                 content: {
                   "application/json": {
-                    schema: { type: "array", items: { type: "string" } },
+                    schema: {
+                      type: "array" as JsonSchemaType,
+                      items: { type: "string" as JsonSchemaType },
+                    },
                   },
                 },
               },
