@@ -13,7 +13,6 @@ export const defaultTypeSpecVitestConfig = defineConfig({
     outputFile: {
       junit: "./test-results.xml",
     },
-    include: ["src/**/*.test.ts", "src/**/*.test.tsx", "test/**/*.test.ts", "test/**/*.test.tsx"],
     exclude: ["**/node_modules", "dist/**/*.test.*", "temp/**/*.test.*"],
     hideSkippedTests: true,
   },
