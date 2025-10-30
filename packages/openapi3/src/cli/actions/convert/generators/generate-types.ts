@@ -555,8 +555,6 @@ function getNumberType(schema: OpenAPI3Schema): string {
       return "float64";
     case "float":
       return "float32";
-    case "unixtime":
-      return "utcDateTime";
     default:
       // Could be either 'float' or 'numeric' - add FIXME?
       return "numeric";
@@ -586,9 +584,6 @@ function getStringType(schema: OpenAPI3Schema): string {
       break;
     case "uri":
       type = "url";
-      break;
-    case "unixtime":
-      type = "utcDateTime";
       break;
   }
 

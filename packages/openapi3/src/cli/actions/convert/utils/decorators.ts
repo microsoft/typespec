@@ -261,19 +261,14 @@ function getUnixtimeSchemaDecorators(
 ) {
   const decorators: TypeSpecDecorator[] = [];
 
-  // Add @encode decorator for unixtime format
-  // The encoding type depends on the OpenAPI type (integer, number, or string)
-  let encodeType = "integer";
-  if (effectiveType === "number") {
-    encodeType = "numeric";
-  } else if (effectiveType === "string") {
-    encodeType = "string";
+  // Only add @encode decorator for integer types
+  // unixTimestamp encoding on utcDateTime must be serialized as integer
+  if (effectiveType === "integer") {
+    decorators.push({
+      name: "encode",
+      args: [createTSValue("DateTimeKnownEncoding.unixTimestamp"), createTSValue("integer")],
+    });
   }
-
-  decorators.push({
-    name: "encode",
-    args: [createTSValue("DateTimeKnownEncoding.unixTimestamp"), createTSValue(encodeType)],
-  });
 
   return decorators;
 }
@@ -286,7 +281,6 @@ const knownStringFormats = new Set([
   "time",
   "duration",
   "uri",
-  "unixtime",
 ]);
 
 function getStringSchemaDecorators(schema: OpenAPI3Schema | OpenAPISchema3_1) {

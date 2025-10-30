@@ -340,7 +340,7 @@ describe("unixtime format conversion", () => {
     );
   });
 
-  it("should convert number with unixtime format to utcDateTime with @encode decorator", async () => {
+  it("should keep number with unixtime format as numeric (unixTimestamp encoding only works with integer)", async () => {
     const tsp = await convertOpenAPI3Document({
       openapi: "3.0.0",
       info: {
@@ -363,20 +363,15 @@ describe("unixtime format conversion", () => {
       },
     });
 
-    // Should contain "@encode(DateTimeKnownEncoding.unixTimestamp, numeric)" and "created?: utcDateTime"
+    // Number with unixtime format stays as numeric since unixTimestamp encoding requires integer
     strictEqual(
-      tsp.includes("@encode(DateTimeKnownEncoding.unixTimestamp, numeric)"),
+      tsp.includes("created?: numeric"),
       true,
-      "Expected '@encode(DateTimeKnownEncoding.unixTimestamp, numeric)' but got: " + tsp,
-    );
-    strictEqual(
-      tsp.includes("created?: utcDateTime"),
-      true,
-      "Expected 'created?: utcDateTime' but got: " + tsp,
+      "Expected 'created?: numeric' but got: " + tsp,
     );
   });
 
-  it("should convert string with unixtime format to utcDateTime with @encode decorator", async () => {
+  it("should keep string with unixtime format as string (unixTimestamp encoding only works with integer)", async () => {
     const tsp = await convertOpenAPI3Document({
       openapi: "3.0.0",
       info: {
@@ -399,16 +394,11 @@ describe("unixtime format conversion", () => {
       },
     });
 
-    // Should contain "@encode(DateTimeKnownEncoding.unixTimestamp, string)" and "created?: utcDateTime"
+    // String with unixtime format stays as string since unixTimestamp encoding requires integer
     strictEqual(
-      tsp.includes("@encode(DateTimeKnownEncoding.unixTimestamp, string)"),
+      tsp.includes("created?: string"),
       true,
-      "Expected '@encode(DateTimeKnownEncoding.unixTimestamp, string)' but got: " + tsp,
-    );
-    strictEqual(
-      tsp.includes("created?: utcDateTime"),
-      true,
-      "Expected 'created?: utcDateTime' but got: " + tsp,
+      "Expected 'created?: string' but got: " + tsp,
     );
   });
 });
