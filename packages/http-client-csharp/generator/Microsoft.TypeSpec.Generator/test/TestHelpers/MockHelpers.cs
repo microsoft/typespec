@@ -4,9 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
+using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -80,6 +82,10 @@ namespace Microsoft.TypeSpec.Generator.Tests
             string? inputNamespaceName = null,
             string? outputPath = null)
         {
+            // reset the type cache on TypeReferenceExpression
+            var resetCacheMethod = typeof(TypeReferenceExpression).GetMethod("ResetCache", BindingFlags.Static | BindingFlags.NonPublic);
+            resetCacheMethod!.Invoke(null, null);
+
             outputPath = outputPath ?? Path.Combine(AppContext.BaseDirectory, TestHelpersFolder);
             if (includeXmlDocs)
             {
