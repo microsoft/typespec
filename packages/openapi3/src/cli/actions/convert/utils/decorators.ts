@@ -171,6 +171,11 @@ export function getDecoratorsForSchema(
     ? schema.type.find((t) => t !== "null")
     : schema.type;
 
+  // Handle unixtime format with @encode decorator
+  if (schema.format === "unixtime") {
+    decorators.push(...getUnixtimeSchemaDecorators(effectiveType));
+  }
+
   switch (effectiveType) {
     case "array":
       decorators.push(...getArraySchemaDecorators(schema));
@@ -251,6 +256,21 @@ function getNumberSchemaDecorators(schema: OpenAPI3Schema | OpenAPISchema3_1) {
     } else {
       decorators.push({ name: "maxValue", args: [schema.maximum] });
     }
+  }
+
+  return decorators;
+}
+
+function getUnixtimeSchemaDecorators(effectiveType: string | undefined) {
+  const decorators: TypeSpecDecorator[] = [];
+
+  // Only add @encode decorator for integer types
+  // unixTimestamp encoding on utcDateTime must be serialized as integer
+  if (effectiveType === "integer") {
+    decorators.push({
+      name: "encode",
+      args: [createTSValue("DateTimeKnownEncoding.unixTimestamp"), createTSValue("integer")],
+    });
   }
 
   return decorators;

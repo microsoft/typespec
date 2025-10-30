@@ -547,6 +547,8 @@ function getIntegerType(schema: SupportedOpenAPISchema): string {
       return format;
     case "double-int":
       return "safeint";
+    case "unixtime":
+      return "utcDateTime";
     default:
       return "integer";
   }

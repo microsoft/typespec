@@ -308,3 +308,103 @@ describe.each(versions)("convertOpenAPI3Document v%s", (version) => {
     });
   }
 });
+
+describe("unixtime format conversion", () => {
+  it("should convert integer with unixtime format to utcDateTime with @encode decorator", async () => {
+    const tsp = await convertOpenAPI3Document({
+      openapi: "3.0.0",
+      info: {
+        title: "Test Service",
+        version: "0.0.0",
+      },
+      paths: {},
+      components: {
+        schemas: {
+          Foo: {
+            type: "object",
+            properties: {
+              created: {
+                type: "integer",
+                format: "unixtime",
+              },
+            },
+          },
+        },
+      },
+    });
+
+    // Should contain "@encode(DateTimeKnownEncoding.unixTimestamp, integer)" and "created?: utcDateTime"
+    strictEqual(
+      tsp.includes("@encode(DateTimeKnownEncoding.unixTimestamp, integer)"),
+      true,
+      "Expected '@encode(DateTimeKnownEncoding.unixTimestamp, integer)' but got: " + tsp,
+    );
+    strictEqual(
+      tsp.includes("created?: utcDateTime"),
+      true,
+      "Expected 'created?: utcDateTime' but got: " + tsp,
+    );
+  });
+
+  it("should keep number with unixtime format as numeric (unixTimestamp encoding only works with integer)", async () => {
+    const tsp = await convertOpenAPI3Document({
+      openapi: "3.0.0",
+      info: {
+        title: "Test Service",
+        version: "0.0.0",
+      },
+      paths: {},
+      components: {
+        schemas: {
+          Foo: {
+            type: "object",
+            properties: {
+              created: {
+                type: "number",
+                format: "unixtime",
+              },
+            },
+          },
+        },
+      },
+    });
+
+    // Number with unixtime format stays as numeric since unixTimestamp encoding requires integer
+    strictEqual(
+      tsp.includes("created?: numeric"),
+      true,
+      "Expected 'created?: numeric' but got: " + tsp,
+    );
+  });
+
+  it("should keep string with unixtime format as string (unixTimestamp encoding only works with integer)", async () => {
+    const tsp = await convertOpenAPI3Document({
+      openapi: "3.0.0",
+      info: {
+        title: "Test Service",
+        version: "0.0.0",
+      },
+      paths: {},
+      components: {
+        schemas: {
+          Foo: {
+            type: "object",
+            properties: {
+              created: {
+                type: "string",
+                format: "unixtime",
+              },
+            },
+          },
+        },
+      },
+    });
+
+    // String with unixtime format stays as string since unixTimestamp encoding requires integer
+    strictEqual(
+      tsp.includes("created?: string"),
+      true,
+      "Expected 'created?: string' but got: " + tsp,
+    );
+  });
+});
