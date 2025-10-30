@@ -20,7 +20,7 @@ export function createAddDecoratorCodeFix(
       const location = getSourceLocation(diagnosticTarget);
       const { lineStart, indent } = findLineStartAndIndent(location);
       const updatedLocation = { ...location, pos: lineStart };
-      const decText = args ? `${name}(${args.join(", ")})\n` : name;
+      const decText = args ? `${name}(${args.join(", ")})\n` : `${name}\n`;
       return context.prependText(updatedLocation, `${indent}@${decText}`);
     },
   });
