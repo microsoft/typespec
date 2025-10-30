@@ -54,7 +54,7 @@ export async function emitTypeSpec(
   return emitter;
 }
 
-type EmitterSpies = Record<string, MockInstance>;
+type EmitterSpies = Record<string, MockInstance<any>>;
 function emitterSpies(emitter: typeof TypeEmitter<any, any>) {
   const spies: EmitterSpies = {};
   const methods = Object.getOwnPropertyNames(emitter.prototype);

@@ -1,7 +1,7 @@
 ---
-changeKind: internal
+changeKind: feature
 packages:
   - "@typespec/http-client-python"
 ---
 
-Add test case
+Add logic to clear output folder

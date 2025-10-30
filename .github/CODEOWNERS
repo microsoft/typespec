@@ -1,5 +1,5 @@
 # Catch all
-*                                            @bterlson @markcowl @allenjzhang @timotheeguerin @witemple-msft @chrisradek @AlitzelMendez
+*                                            @bterlson @markcowl @timotheeguerin @witemple-msft @chrisradek @AlitzelMendez
 
 # Those files/folders can be modified by anyone
 .chronus/changes/
@@ -34,13 +34,13 @@ cspell.yaml
 ######################
 # JavaScript
 ######################
-/packages/http-client-js/                    @joheredi @timotheeguerin @timovv @qiaozha @MaryGao @xirzec @bterlson @markcowl @allenjzhang @witemple-msft @chrisradek @AlitzelMendez
+/packages/http-client-js/                    @joheredi @timotheeguerin @timovv @qiaozha @MaryGao @xirzec @bterlson @markcowl @witemple-msft @chrisradek @AlitzelMendez
 
 ######################
 # IDE
 ######################
-/packages/typespec-vs/                       @RodgeFu @lirenhe @bterlson @markcowl @allenjzhang @timotheeguerin @chrisradek @AlitzelMendez
-/packages/typespec-vscode/                   @RodgeFu @lirenhe @bterlson @markcowl @allenjzhang @timotheeguerin @chrisradek @AlitzelMendez
-/packages/compiler/src/server/               @RodgeFu @bterlson @markcowl @allenjzhang @timotheeguerin @chrisradek @AlitzelMendez
+/packages/typespec-vs/                       @RodgeFu @lirenhe @bterlson @markcowl @witemple-msft @timotheeguerin @chrisradek @AlitzelMendez
+/packages/typespec-vscode/                   @RodgeFu @lirenhe @bterlson @markcowl @witemple-msft @timotheeguerin @chrisradek @AlitzelMendez
+/packages/compiler/src/server/               @RodgeFu @bterlson @markcowl @witemple-msft @timotheeguerin @chrisradek @AlitzelMendez
 
 

@@ -480,7 +480,9 @@ export const $withLifecycleUpdate: WithLifecycleUpdateDecorator = (
       any: new Set([lifecycle.members.get("Create")!, lifecycle.members.get("Update")!]),
     };
 
-    const createOrUpdateMutator = createVisibilityFilterMutator(lifecycleCreateOrUpdate);
+    const createOrUpdateMutator = createVisibilityFilterMutator(lifecycleCreateOrUpdate, {
+      nameTemplate,
+    });
 
     mutator = createVisibilityFilterMutator(lifecycleUpdate, {
       recur: createOrUpdateMutator,
@@ -681,7 +683,7 @@ function createVisibilityFilterMutator(
             realm.remove(clone);
             modified = true;
           } else {
-            const mutated = mutateSubgraph(program, [mpMutator], prop);
+            const mutated = cachedMutateSubgraph(program, mpMutator, prop);
 
             clone.properties.set(key, mutated.type as ModelProperty);
 

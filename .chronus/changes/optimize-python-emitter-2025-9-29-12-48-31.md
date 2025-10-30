@@ -4,4 +4,4 @@ packages:
   - "@typespec/http-client-python"
 ---
 
-Fix failsafe deserialize for swagger generation
+Exclude unnecessary files from pylint checks to improve execution speed

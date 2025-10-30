@@ -14,7 +14,7 @@ namespace Sample
     {
         public static explicit operator Cat(global::System.ClientModel.ClientResult result)
         {
-            using global::System.ClientModel.Primitives.PipelineResponse response = result.GetRawResponse();
+            global::System.ClientModel.Primitives.PipelineResponse response = result.GetRawResponse();
             global::System.BinaryData data = response.Content;
             using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(data);
             return global::Sample.Models.Cat.DeserializeCat(document.RootElement, data, global::Sample.ModelSerializationExtensions.WireOptions);
