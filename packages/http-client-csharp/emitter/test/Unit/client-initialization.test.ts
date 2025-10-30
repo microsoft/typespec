@@ -21,7 +21,7 @@ describe("ClientInitialization", () => {
   it("should include parameters in InputClient", async () => {
     const program = await typeSpecCompile(
       `
-        @service({
+        @service(#{
           title: "Test Service",
         })
         @server("https://example.com", "Test endpoint")
@@ -30,6 +30,7 @@ describe("ClientInitialization", () => {
         op test(): void;
       `,
       runner,
+      { IsNamespaceNeeded: false },
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
@@ -38,16 +39,13 @@ describe("ClientInitialization", () => {
     const client = root.clients[0];
     ok(client, "Client should exist");
     ok(client.parameters, "Client should have parameters");
-    ok(
-      client.parameters.length > 0,
-      "Client should have at least one parameter",
-    );
+    ok(client.parameters.length > 0, "Client should have at least one parameter");
   });
 
   it("should include initializedBy flag in InputClient", async () => {
     const program = await typeSpecCompile(
       `
-        @service({
+        @service(#{
           title: "Test Service",
         })
         @server("https://example.com", "Test endpoint")
@@ -57,6 +55,7 @@ describe("ClientInitialization", () => {
         }
       `,
       runner,
+      { IsNamespaceNeeded: false },
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
@@ -64,16 +63,13 @@ describe("ClientInitialization", () => {
 
     const client = root.clients[0];
     // initializedBy field should exist on the client (may be undefined or have a value)
-    ok(
-      "initializedBy" in client,
-      "Client should have initializedBy field",
-    );
+    ok("initializedBy" in client, "Client should have initializedBy field");
   });
 
   it("should include endpoint parameter in parameters", async () => {
     const program = await typeSpecCompile(
       `
-        @service({
+        @service(#{
           title: "Test Service",
         })
         @server("https://{endpoint}/api", "Test endpoint", {
@@ -84,6 +80,7 @@ describe("ClientInitialization", () => {
         op test(): void;
       `,
       runner,
+      { IsNamespaceNeeded: false },
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
@@ -99,7 +96,7 @@ describe("ClientInitialization", () => {
   it("should propagate initializedBy to child clients", async () => {
     const program = await typeSpecCompile(
       `
-        @service({
+        @service(#{
           title: "Test Service",
         })
         @server("https://example.com", "Test endpoint")
@@ -112,6 +109,7 @@ describe("ClientInitialization", () => {
         }
       `,
       runner,
+      { IsNamespaceNeeded: false },
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
