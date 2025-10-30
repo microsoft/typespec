@@ -137,23 +137,22 @@ $packageRoot = Resolve-Path (Join-Path $PSScriptRoot '..' '..')
 $sdkRepoPath = Resolve-Path $SdkLibraryRepoPath -ErrorAction Stop
 
 Write-Host "==================== LOCAL VALIDATION SCRIPT ====================" -ForegroundColor Cyan
-Write-Host "Unbranded Generator Path: $packageRoot" -ForegroundColor Gray
 
 if ($isOpenAIMode) {
-    Write-Host "OpenAI Repo Path: $sdkRepoPath" -ForegroundColor Gray
+    Write-Host "Repository: OpenAI .NET" -ForegroundColor Gray
     Write-Host "Mode: OpenAI library regeneration" -ForegroundColor Yellow
 } else {
-    Write-Host "Azure SDK Repo Path: $sdkRepoPath" -ForegroundColor Gray
+    Write-Host "Repository: Azure SDK for .NET" -ForegroundColor Gray
     
     # Display active mode
     $modeText = if ($Select) {
         "Interactive library selection"
     } elseif ($Azure) {
-        "Regenerate Azure generator libraries only"
+        "Regenerate Azure SDK libraries only"
     } elseif ($Unbranded) {
-        "Regenerate Unbranded generator libraries only"
+        "Regenerate Unbranded libraries only"
     } elseif ($Mgmt) {
-        "Regenerate Management plane generator libraries only"
+        "Regenerate Management plane libraries only"
     } else {
         "Regenerate ALL libraries"
     }
@@ -220,26 +219,6 @@ function Update-PackageJsonVersion {
     $packageJson = Get-Content $PackageJsonPath -Raw | ConvertFrom-Json -AsHashtable
     $packageJson.version = $NewVersion
     $packageJson | ConvertTo-Json -Depth 100 | Set-Content $PackageJsonPath -Encoding utf8 -NoNewline
-}
-
-# Update package.json dependency
-function Update-PackageDependency {
-    param(
-        [string]$PackageJsonPath,
-        [string]$DependencyName,
-        [string]$NewVersion,
-        [string]$DependencyType = "devDependencies"
-    )
-    
-    Write-Host "Updating $DependencyName to $NewVersion in $PackageJsonPath" -ForegroundColor Gray
-    $packageJson = Get-Content $PackageJsonPath -Raw | ConvertFrom-Json -AsHashtable
-    
-    if ($packageJson.ContainsKey($DependencyType) -and $packageJson[$DependencyType].ContainsKey($DependencyName)) {
-        $packageJson[$DependencyType][$DependencyName] = $NewVersion
-        $packageJson | ConvertTo-Json -Depth 100 | Set-Content $PackageJsonPath -Encoding utf8 -NoNewline
-    } else {
-        Write-Warning "$DependencyName not found in $DependencyType of $PackageJsonPath"
-    }
 }
 
 # Update UnbrandedGeneratorVersion in Packages.Data.props
@@ -340,7 +319,7 @@ function Select-LibrariesToRegenerate {
     $currentIndex = 1
     
     if ($azureLibs.Count -gt 0) {
-        Write-Host "Azure-branded libraries (@azure-typespec/http-client-csharp):" -ForegroundColor Yellow
+        Write-Host "Azure SDK Libraries:" -ForegroundColor Yellow
         for ($i = 0; $i -lt $azureLibs.Count; $i++) {
             $lib = $azureLibs[$i]
             Write-Host ("  [{0,2}] {1,-50} ({2})" -f $currentIndex, $lib.Library, $lib.Service) -ForegroundColor Gray
@@ -350,7 +329,7 @@ function Select-LibrariesToRegenerate {
     }
     
     if ($unbrandedLibs.Count -gt 0) {
-        Write-Host "Unbranded libraries (@typespec/http-client-csharp):" -ForegroundColor Yellow
+        Write-Host "Unbranded Libraries:" -ForegroundColor Yellow
         for ($i = 0; $i -lt $unbrandedLibs.Count; $i++) {
             $lib = $unbrandedLibs[$i]
             Write-Host ("  [{0,2}] {1,-50} ({2})" -f $currentIndex, $lib.Library, $lib.Service) -ForegroundColor Gray
@@ -360,7 +339,7 @@ function Select-LibrariesToRegenerate {
     }
     
     if ($mgmtLibs.Count -gt 0) {
-        Write-Host "Management plane libraries (@azure-typespec/http-client-csharp-mgmt):" -ForegroundColor Yellow
+        Write-Host "Management Plane Libraries:" -ForegroundColor Yellow
         for ($i = 0; $i -lt $mgmtLibs.Count; $i++) {
             $lib = $mgmtLibs[$i]
             Write-Host ("  [{0,2}] {1,-50} ({2})" -f $currentIndex, $lib.Library, $lib.Service) -ForegroundColor Gray
@@ -432,67 +411,6 @@ function Select-LibrariesToRegenerate {
     return @($selectedLibraries)
 }
 
-# Regenerate a single library
-function Invoke-LibraryRegeneration {
-    param(
-        [hashtable]$Library,
-        [string]$AzureSdkPath
-    )
-    
-    $libraryPath = Join-Path $AzureSdkPath $Library.Path
-    
-    if (-not (Test-Path $libraryPath)) {
-        return @{
-            Success = $false
-            Error = "Library path not found: $libraryPath"
-            Output = ""
-        }
-    }
-    
-    # Check if we need to look in a src subdirectory
-    # Some libraries have their project in sdk/<service>/<library>/src
-    $srcPath = Join-Path $libraryPath "src"
-    $buildPath = $libraryPath
-    
-    if ((Test-Path $srcPath) -and (Get-ChildItem -Path $srcPath -Filter "*.csproj" -ErrorAction SilentlyContinue)) {
-        $buildPath = $srcPath
-    }
-    
-    try {
-        # Run generation using dotnet build /t:GenerateCode
-        Write-Host "  Running: dotnet build /t:GenerateCode in $buildPath" -ForegroundColor Gray
-        
-        Push-Location $buildPath
-        try {
-            $output = & dotnet build /t:GenerateCode 2>&1
-            $exitCode = $LASTEXITCODE
-            
-            if ($exitCode -ne 0) {
-                return @{
-                    Success = $false
-                    Error = "Generation failed with exit code $exitCode"
-                    Output = $output -join "`n"
-                }
-            }
-            
-            return @{
-                Success = $true
-                Output = $output -join "`n"
-            }
-        }
-        finally {
-            Pop-Location
-        }
-    }
-    catch {
-        return @{
-            Success = $false
-            Error = $_.Exception.Message
-            Output = $_.Exception.ToString()
-        }
-    }
-}
-
 # Generate final report
 function Write-RegenerationReport {
     param(
@@ -555,9 +473,9 @@ function Write-RegenerationReport {
 $scriptStartTime = Get-Date
 
 try {
-    # Step 0: Load and select libraries to regenerate (Azure SDK Mode only, if using -Select flag)
+    # Step 1: Load and select libraries (Azure SDK Mode only, if using -Select flag)
     if ($Select -and -not $isOpenAIMode) {
-        Write-Host "`n[0/8] Loading libraries from Library_Inventory.md..." -ForegroundColor Cyan
+        Write-Host "`n[1/5] Loading libraries from Library_Inventory.md..." -ForegroundColor Cyan
         
         $inventoryPath = Join-Path $sdkRepoPath "doc" "GeneratorMigration" "Library_Inventory.md"
         if (-not (Test-Path $inventoryPath)) {
@@ -599,47 +517,46 @@ try {
     
     # Step 1: Build the unbranded generator
     if ($isOpenAIMode) {
-        Write-Host "`n[1/3] Building unbranded generator (@typespec/http-client-csharp)..." -ForegroundColor Cyan
+        Write-Host "`n[1/3] Building unbranded generator..." -ForegroundColor Cyan
     } else {
-        Write-Host "`n[1/8] Building unbranded generator (@typespec/http-client-csharp)..." -ForegroundColor Cyan
+        Write-Host "`n[2/5] Building unbranded generator..." -ForegroundColor Cyan
     }
     
     Push-Location $packageRoot
     try {
-        Write-Host "Running: npm ci" -ForegroundColor Gray
+        Write-Host "Installing dependencies..." -ForegroundColor Gray
         Invoke "npm ci"
-        
         if ($LASTEXITCODE -ne 0) {
             throw "Failed to install dependencies for unbranded generator"
         }
         
-        Write-Host "Running: npm run clean" -ForegroundColor Gray
+        Write-Host "Cleaning build artifacts..." -ForegroundColor Gray
         Invoke "npm run clean"
-        
         if ($LASTEXITCODE -ne 0) {
             throw "Failed to clean unbranded generator"
         }
         
-        Write-Host "Running: npm run build" -ForegroundColor Gray
+        Write-Host "Building generator..." -ForegroundColor Gray
         Invoke "npm run build"
-        
         if ($LASTEXITCODE -ne 0) {
             throw "Failed to build unbranded generator"
         }
+        
+        Write-Host "  Build completed" -ForegroundColor Green
     }
     finally {
         Pop-Location
     }
     
-    # Step 2: Package the unbranded generator with local version
+    # Step 2: Package the generators with local version
     if ($isOpenAIMode) {
-        Write-Host "`n[2/3] Packaging unbranded generator..." -ForegroundColor Cyan
+        Write-Host "`n[2/3] Packaging generators..." -ForegroundColor Cyan
     } else {
-        Write-Host "`n[2/8] Packaging unbranded generator..." -ForegroundColor Cyan
+        Write-Host "`n[2/5] Packaging generators..." -ForegroundColor Cyan
     }
     
     $localVersion = Get-LocalPackageVersion
-    Write-Host "Package version: $localVersion (used for all npm and NuGet packages)" -ForegroundColor Yellow
+    Write-Host "Local package version: $localVersion" -ForegroundColor Yellow
     
     $unbrandedPackageJson = Join-Path $packageRoot "package.json"
     $originalPackageJson = Get-Content $unbrandedPackageJson -Raw
@@ -647,19 +564,15 @@ try {
     try {
         Update-PackageJsonVersion -PackageJsonPath $unbrandedPackageJson -NewVersion $localVersion
         $unbrandedPackagePath = Invoke-NpmPack -WorkingDirectory $packageRoot -DebugFolder $debugFolder
-        Write-Host "Created package: $unbrandedPackagePath" -ForegroundColor Green
+        Write-Host "Created npm package: $unbrandedPackagePath" -ForegroundColor Green
     }
     finally {
         # Restore original package.json
         Set-Content $unbrandedPackageJson $originalPackageJson -Encoding utf8 -NoNewline
     }
     
-    # Step 2.5: Build and package NuGet packages for generator framework
-    if ($isOpenAIMode) {
-        Write-Host "`n[2.5/3] Building and packaging NuGet generator packages..." -ForegroundColor Cyan
-    } else {
-        Write-Host "`n[2.5/8] Building and packaging NuGet generator packages..." -ForegroundColor Cyan
-    }
+    # Build and package NuGet packages for generator framework
+    Write-Host "Building NuGet generator packages..." -ForegroundColor Gray
     
     $generatorRoot = Join-Path $packageRoot "generator"
     $nugetProjects = @(
@@ -675,38 +588,65 @@ try {
         }
         
         Write-Host "Packing: $(Split-Path $projectPath -Leaf)" -ForegroundColor Gray
-        & dotnet pack $projectPath `
-            /p:Version=$localVersion `
-            /p:PackageVersion=$localVersion `
-            /p:PackageOutputPath=$debugFolder `
-            --configuration Debug `
-            --no-build `
-            --nologo `
-            -v:quiet
-        
-        if ($LASTEXITCODE -ne 0) {
-            throw "Failed to pack $(Split-Path $projectPath -Leaf)"
-        }
+        $packCmd = "dotnet pack $projectPath /p:Version=$localVersion /p:PackageVersion=$localVersion /p:PackageOutputPath=$debugFolder --configuration Debug --no-build --nologo -v:quiet"
+        Invoke $packCmd $generatorRoot
     }
     
-    Write-Host "NuGet packages created" -ForegroundColor Green
+    Write-Host "  NuGet packages created" -ForegroundColor Green
     
     # OpenAI Mode: Update and regenerate OpenAI library
     if ($isOpenAIMode) {
         Write-Host "`n[3/3] Updating and regenerating OpenAI library..." -ForegroundColor Cyan
         
-        Update-OpenAIGenerator `
-            -OpenAIRepoPath $sdkRepoPath `
-            -UnbrandedPackagePath $unbrandedPackagePath `
-            -LocalVersion $localVersion `
-            -DebugFolder $debugFolder
+        try {
+            $generationOutput = Update-OpenAIGenerator `
+                -OpenAIRepoPath $sdkRepoPath `
+                -UnbrandedPackagePath $unbrandedPackagePath `
+                -LocalVersion $localVersion `
+                -DebugFolder $debugFolder
+            
+            # Create result object for successful regeneration
+            $result = @{
+                Success = $true
+                Library = "OpenAI .NET Library"
+                Service = "OpenAI"
+                Path = "codegen"
+                Generator = "@typespec/http-client-csharp"
+                Error = ""
+                Output = $generationOutput
+            }
+        }
+        catch {
+            # Create result object for failed regeneration
+            $result = @{
+                Success = $false
+                Library = "OpenAI .NET Library"
+                Service = "OpenAI"
+                Path = "codegen"
+                Generator = "@typespec/http-client-csharp"
+                Error = $_.Exception.Message
+                Output = $_.Exception.ToString()
+            }
+        }
         
-        Write-Host "`nOpenAI library regenerated successfully!" -ForegroundColor Green
-        Write-Host "Script completed." -ForegroundColor Cyan
-        exit 0
+        # Calculate elapsed time and generate report
+        $scriptEndTime = Get-Date
+        $elapsedTime = $scriptEndTime - $scriptStartTime
+        
+        Write-RegenerationReport -Results @($result) -ElapsedTime $elapsedTime -DebugFolder $debugFolder
+        
+        # Exit with appropriate code
+        if ($result.Success) {
+            Write-Host "`nScript completed successfully." -ForegroundColor Cyan
+            exit 0
+        } else {
+            Write-Host "`nScript failed." -ForegroundColor Red
+            exit 1
+        }
     }
     
     # Azure SDK Mode: Continue with Azure SDK-specific steps
+    
     # Update Packages.Data.props with local NuGet version
     $packagesDataPropsPath = Join-Path $sdkRepoPath "eng" "Packages.Data.props"
     if (-not (Test-Path $packagesDataPropsPath)) {
@@ -719,86 +659,148 @@ try {
     $nugetConfigPath = Join-Path $sdkRepoPath "NuGet.Config"
     Add-LocalNuGetSource -NuGetConfigPath $nugetConfigPath -SourcePath $debugFolder
     
-    # Step 3: Update and package Azure generator
-    Write-Host "`n[3/8] Updating and packaging Azure generator..." -ForegroundColor Cyan
+    # Step 3: Build required generators and update artifacts
+    Write-Host "`n[3/5] Building required generators and updating artifacts..." -ForegroundColor Cyan
     
-    $azureGeneratorPath = Join-Path $sdkRepoPath "eng" "packages" "http-client-csharp"
-    $packagesDataPropsPath = Join-Path $sdkRepoPath "eng" "Packages.Data.props"
-    
-    $azurePackagePath = Update-AzureGenerator `
-        -AzureGeneratorPath $azureGeneratorPath `
-        -UnbrandedPackagePath $unbrandedPackagePath `
-        -DebugFolder $debugFolder `
-        -PackagesDataPropsPath $packagesDataPropsPath `
-        -LocalVersion $localVersion
-    
-    Write-Host "Created Azure package: $azurePackagePath" -ForegroundColor Green
-    
-    # Step 4: Update eng folder artifacts in azure-sdk-for-net
-    Write-Host "`n[4/8] Updating eng folder artifacts..." -ForegroundColor Cyan
-    
-    $engFolder = Join-Path $sdkRepoPath "eng"
-    $tempDir = Join-Path $engFolder "temp-package-update"
-    New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
-    
-    # Helper function to update emitter package files
-    $updateEmitterPackage = {
-        param($PackagePath, $EmitterJsonName, $LockJsonName)
+    # Determine which generators are needed based on libraries to be regenerated
+    if ($Select) {
+        # Libraries were already selected at the beginning
+        $librariesToAnalyze = $libraries
+    } else {
+        # Load all libraries and apply filters to determine what would be regenerated
+        $inventoryPath = Join-Path $sdkRepoPath "doc" "GeneratorMigration" "Library_Inventory.md"
+        if (-not (Test-Path $inventoryPath)) {
+            throw "Library_Inventory.md not found at: $inventoryPath"
+        }
         
-        $emitterJson = Join-Path $engFolder $EmitterJsonName
-        $tempPackageJson = Join-Path $tempDir "package.json"
-        
-        Copy-Item $emitterJson $tempPackageJson -Force
-        
-        Push-Location $tempDir
-        try {
-            & npm install "file:$PackagePath" --package-lock-only 2>&1 | Out-Null
-            
-            Copy-Item $tempPackageJson $emitterJson -Force
-            $lockFile = Join-Path $tempDir "package-lock.json"
-            if (Test-Path $lockFile) {
-                Copy-Item $lockFile (Join-Path $engFolder $LockJsonName) -Force
+        $allLibraries = Get-LibrariesToRegenerate -InventoryPath $inventoryPath
+        $librariesToAnalyze = Filter-LibrariesByGenerator `
+            -Libraries $allLibraries `
+            -Azure:$Azure `
+            -Unbranded:$Unbranded `
+            -Mgmt:$Mgmt
+    }
+    
+    # Determine which generators are actually needed
+    $needsUnbranded = $false
+    $needsAzure = $false
+    $needsMgmt = $false
+    
+    if ($librariesToAnalyze -and $librariesToAnalyze.Count -gt 0) {
+        foreach ($lib in $librariesToAnalyze) {
+            switch ($lib.Generator) {
+                "@typespec/http-client-csharp" { $needsUnbranded = $true }
+                "@azure-typespec/http-client-csharp" { $needsAzure = $true; $needsUnbranded = $true }
+                "@azure-typespec/http-client-csharp-mgmt" { $needsMgmt = $true; $needsAzure = $true; $needsUnbranded = $true }
             }
-            
-            # Cleanup temp files
-            Remove-Item $tempPackageJson, $lockFile -Force -ErrorAction SilentlyContinue
-        }
-        finally {
-            Pop-Location
         }
     }
     
-    try {
-        Write-Host "Updating Azure emitter package..." -ForegroundColor Gray
-        & $updateEmitterPackage $azurePackagePath "azure-typespec-http-client-csharp-emitter-package.json" "azure-typespec-http-client-csharp-emitter-package-lock.json"
-        
-        Write-Host "Updating unbranded emitter package..." -ForegroundColor Gray
-        & $updateEmitterPackage $unbrandedPackagePath "http-client-csharp-emitter-package.json" "http-client-csharp-emitter-package-lock.json"
-        
-        Write-Host "Emitter packages updated" -ForegroundColor Green
-    }
-    finally {
-        Remove-Item $tempDir -Recurse -Force -ErrorAction SilentlyContinue
+    $generatorSummary = @()
+    if ($needsUnbranded) { $generatorSummary += "Unbranded" }
+    if ($needsAzure) { $generatorSummary += "Azure" }
+    if ($needsMgmt) { $generatorSummary += "Management" }
+    
+    if ($generatorSummary.Count -gt 0) {
+        Write-Host "Required generators: $($generatorSummary -join ', ')" -ForegroundColor Yellow
+    } else {
+        Write-Host "No additional generators required" -ForegroundColor Yellow
     }
     
-    # Step 5: Update and build management plane generator
-    Write-Host "`n[5/8] Updating management plane generator (@azure-typespec/http-client-csharp-mgmt)..." -ForegroundColor Cyan
-    
-    $mgmtGeneratorPath = Join-Path $engFolder "packages" "http-client-csharp-mgmt"
-    
-    if (Test-Path $mgmtGeneratorPath) {
-        Update-MgmtGenerator `
-            -EngFolder $engFolder `
+    # Update Azure generator if needed
+    if ($needsAzure) {
+        Write-Host "Building Azure generator..." -ForegroundColor Gray
+        
+        $azureGeneratorPath = Join-Path $sdkRepoPath "eng" "packages" "http-client-csharp"
+        $packagesDataPropsPath = Join-Path $sdkRepoPath "eng" "Packages.Data.props"
+        
+        $azurePackagePath = Update-AzureGenerator `
+            -AzureGeneratorPath $azureGeneratorPath `
+            -UnbrandedPackagePath $unbrandedPackagePath `
             -DebugFolder $debugFolder `
+            -PackagesDataPropsPath $packagesDataPropsPath `
             -LocalVersion $localVersion
         
-        Write-Host "Management plane generator updated successfully" -ForegroundColor Green
+        Write-Host "  Azure generator completed" -ForegroundColor Green
     } else {
-        Write-Host "Management plane generator not found, skipping..." -ForegroundColor Yellow
+        $azurePackagePath = $null
     }
     
-    # Step 6: Get or confirm libraries to regenerate
-    Write-Host "`n[6/8] Preparing library list for regeneration..." -ForegroundColor Cyan
+    # Update eng folder artifacts if needed
+    if ($needsAzure -or $needsUnbranded) {
+        Write-Host "Updating eng folder artifacts..." -ForegroundColor Gray
+        
+        $engFolder = Join-Path $sdkRepoPath "eng"
+        $tempDir = Join-Path $engFolder "temp-package-update"
+        New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
+        
+        # Helper function to update emitter package files
+        $updateEmitterPackage = {
+            param($PackagePath, $EmitterJsonName, $LockJsonName)
+            
+            $emitterJson = Join-Path $engFolder $EmitterJsonName
+            $tempPackageJson = Join-Path $tempDir "package.json"
+            
+            Copy-Item $emitterJson $tempPackageJson -Force
+            
+            Push-Location $tempDir
+            try {
+                Invoke "npm install `"`"file:$PackagePath`"`" --package-lock-only" $tempDir
+                if ($LASTEXITCODE -ne 0) {
+                    throw "Failed to install local package for emitter update."
+                }
+                
+                Copy-Item $tempPackageJson $emitterJson -Force
+                $lockFile = Join-Path $tempDir "package-lock.json"
+                if (Test-Path $lockFile) {
+                    Copy-Item $lockFile (Join-Path $engFolder $LockJsonName) -Force
+                }
+                
+                # Cleanup temp files
+                Remove-Item $tempPackageJson, $lockFile -Force -ErrorAction SilentlyContinue
+            }
+            finally {
+                Pop-Location
+            }
+        }
+        
+        try {
+            if ($needsAzure -and $azurePackagePath) {
+                & $updateEmitterPackage $azurePackagePath "azure-typespec-http-client-csharp-emitter-package.json" "azure-typespec-http-client-csharp-emitter-package-lock.json"
+            }
+            
+            if ($needsUnbranded) {
+                & $updateEmitterPackage $unbrandedPackagePath "http-client-csharp-emitter-package.json" "http-client-csharp-emitter-package-lock.json"
+            }
+            
+            Write-Host "  Artifacts updated" -ForegroundColor Green
+        }
+        finally {
+            Remove-Item $tempDir -Recurse -Force -ErrorAction SilentlyContinue
+        }
+    }
+    
+    # Update management plane generator if needed
+    if ($needsMgmt) {
+        Write-Host "Building management plane generator..." -ForegroundColor Gray
+        
+        $engFolder = Join-Path $sdkRepoPath "eng"
+        $mgmtGeneratorPath = Join-Path $engFolder "packages" "http-client-csharp-mgmt"
+        
+        if (Test-Path $mgmtGeneratorPath) {
+            Update-MgmtGenerator `
+                -EngFolder $engFolder `
+                -DebugFolder $debugFolder `
+                -LocalVersion $localVersion
+            
+            Write-Host "  Management plane generator completed" -ForegroundColor Green
+        } else {
+            Write-Host "  Management plane generator not found, skipping..." -ForegroundColor Yellow
+        }
+    }
+    
+    # Step 4: Regenerate libraries
+    Write-Host "`n[4/5] Regenerating libraries..." -ForegroundColor Cyan
     
     if (-not $Select) {
         # Load all libraries if not using -Select flag
@@ -840,12 +842,10 @@ try {
         }
     }
     
-    # Step 7: Regenerate libraries (in parallel)
     if (-not $libraries -or $libraries.Count -eq 0) {
-        Write-Host "`n[7/8] Skipping regeneration (no libraries selected)..." -ForegroundColor Yellow
+        Write-Host "No libraries selected for regeneration" -ForegroundColor Yellow
         $failedCount = 0
     } else {
-        Write-Host "`n[7/8] Regenerating libraries..." -ForegroundColor Cyan
         
         # Determine parallel execution throttle limit: (CPU cores - 2), min 1, max 8
         $cpuCores = if ($IsWindows -or $PSVersionTable.PSVersion.Major -lt 6) {
@@ -864,7 +864,7 @@ try {
         # Pre-install tsp-client to avoid concurrent npm operations
     Write-Host "Pre-installing tsp-client..." -ForegroundColor Gray
     $tspClientDir = Join-Path $sdkRepoPath "eng" "common" "tsp-client"
-    & npm ci --prefix $tspClientDir 2>&1 | Out-Null
+    Invoke "npm ci --prefix $tspClientDir" $tspClientDir
     if ($LASTEXITCODE -ne 0) {
         throw "Failed to install tsp-client"
     }
@@ -951,29 +951,35 @@ try {
     }
     
     if ($failedCount -gt 0) {
-        Write-Host "`nWARNING: $failedCount libraries failed to regenerate" -ForegroundColor Yellow
-        Write-Host "Review the report above for details" -ForegroundColor Yellow
+        Write-Host "`nValidation completed with warnings: $failedCount libraries failed to regenerate" -ForegroundColor Yellow
+        Write-Host "Check the detailed report above for error information" -ForegroundColor Yellow
     } else {
-        Write-Host "`nSUCCESS: All libraries regenerated successfully!" -ForegroundColor Green
+        Write-Host "`nValidation completed successfully! All libraries regenerated without errors." -ForegroundColor Green
         
-        # Step 8: Restore artifacts to original state
-        Write-Host "`n[8/8] Restoring artifacts to original state..." -ForegroundColor Cyan
+        # Step 5: Restore artifacts to original state
+        Write-Host "`n[5/5] Restoring artifacts to original state..." -ForegroundColor Cyan
         
         Push-Location $sdkRepoPath
         try {
             Write-Host "Restoring modified files..." -ForegroundColor Gray
-            & git restore `
-                eng/azure-typespec-http-client-csharp-emitter-package.json `
-                eng/azure-typespec-http-client-csharp-emitter-package-lock.json `
-                eng/http-client-csharp-emitter-package.json `
-                eng/http-client-csharp-emitter-package-lock.json `
-                eng/azure-typespec-http-client-csharp-mgmt-emitter-package.json `
-                eng/azure-typespec-http-client-csharp-mgmt-emitter-package-lock.json `
-                eng/packages/http-client-csharp/package-lock.json `
-                eng/packages/http-client-csharp-mgmt/package.json `
-                eng/packages/http-client-csharp-mgmt/package-lock.json `
-                eng/Packages.Data.props `
-                NuGet.Config 2>&1 | Out-Null
+            $filesToRestore = @(
+                "eng/azure-typespec-http-client-csharp-emitter-package.json"
+                "eng/azure-typespec-http-client-csharp-emitter-package-lock.json"
+                "eng/http-client-csharp-emitter-package.json"
+                "eng/http-client-csharp-emitter-package-lock.json"
+                "eng/azure-typespec-http-client-csharp-mgmt-emitter-package.json"
+                "eng/azure-typespec-http-client-csharp-mgmt-emitter-package-lock.json"
+                "eng/packages/http-client-csharp/package-lock.json"
+                "eng/packages/http-client-csharp-mgmt/package.json"
+                "eng/packages/http-client-csharp-mgmt/package-lock.json"
+                "eng/Packages.Data.props"
+                "NuGet.Config"
+            )
+            $restoreCmd = "git restore $($filesToRestore -join ' ')"
+            Invoke $restoreCmd $sdkRepoPath
+            if ($LASTEXITCODE -ne 0) {
+                throw "Failed to restore modified files"
+            }
             Write-Host "  All artifacts restored" -ForegroundColor Green
         }
         finally {
@@ -982,7 +988,7 @@ try {
     }
 }
 catch {
-    Write-Host "`nERROR: Script failed during pre-requisite steps" -ForegroundColor Red
+    Write-Host "`nScript encountered an error during setup or configuration." -ForegroundColor Red
     Write-Host $_.Exception.Message -ForegroundColor Red
     Write-Host $_.ScriptStackTrace -ForegroundColor DarkGray
     
@@ -990,7 +996,8 @@ catch {
     Write-Host "`nAttempting to restore NuGet.Config..." -ForegroundColor Yellow
     Push-Location $sdkRepoPath -ErrorAction SilentlyContinue
     try {
-        & git restore NuGet.Config 2>&1 | Out-Null
+        #& git restore NuGet.Config 2>&1 | Out-Null
+        Invoke "git restore NuGet.Config" $sdkRepoPath
         Write-Host "  NuGet.Config restored" -ForegroundColor Green
     }
     catch {

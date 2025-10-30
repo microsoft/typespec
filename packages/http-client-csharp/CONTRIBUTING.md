@@ -176,11 +176,20 @@ Generate test projects to validate the emitter and generator:
 
 To regenerate test projects after making changes:
 
-1. **Generate projects**:
+**Generate projects**:
 
    ```bash
    ./eng/scripts/Generate.ps1
    ```
+
+### Regenerating Azure Libraries
+
+To regenerate azure libraries using your local changes, run:
+```bash
+   ./eng/scripts/RegenPreview.ps1 <path-to-clone-of-azure-sdk-for-net>
+```
+This will regenerate all the Azure libraries and allow you to view any potential diffs your changes may cause. For more information on the script's usage, see [RegenPreview](./eng/scripts/docs/RegenPreview.md).
+
 
 ## Creating Pull Requests
 

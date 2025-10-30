@@ -1,3 +1,5 @@
+Import-Module "$PSScriptRoot\Generation.psm1" -DisableNameChecking -Force -Global
+
 function Update-GeneratorPackage {
     <#
     .SYNOPSIS
@@ -6,9 +8,11 @@ function Update-GeneratorPackage {
     .DESCRIPTION
         This internal function handles the common workflow for updating TypeSpec generators:
         1. Updates package.json dependencies
-        2. Runs npm clean, install, and build
-        3. Packages the generator with specified version
-        4. Moves package to debug folder
+        2. Runs npm install
+        3. Runs npm clean to ensure a clean build
+        4. Builds the generator
+        5. Packages the generator with specified version
+        6. Moves package to debug folder
         
         This is a shared helper used by Update-MgmtGenerator and Update-AzureGenerator.
 
@@ -77,17 +81,10 @@ function Update-GeneratorPackage {
             Write-Host "  Updated dependencies to local packages" -ForegroundColor Green
         }
 
-        # Step 2: Clean, install, and build
+        # Step 2: Install dependencies, clean, and build
         Push-Location $GeneratorPath
         try {
-            Write-Host "Running npm clean..." -ForegroundColor Gray
-            $cleanOutput = & npm run clean 2>&1
-            if ($LASTEXITCODE -ne 0) {
-                Write-Host $cleanOutput -ForegroundColor Red
-                throw "Failed to clean generator"
-            }
-
-            Write-Host "Running npm install..." -ForegroundColor Gray
+            Write-Host "Installing dependencies..." -ForegroundColor Gray
             if ($UseNpmCi) {
                 $installOutput = & npm install --package-lock-only 2>&1
                 if ($LASTEXITCODE -ne 0) {
@@ -108,8 +105,15 @@ function Update-GeneratorPackage {
                 }
             }
 
-            Write-Host "Running npm build..." -ForegroundColor Gray
-            $buildOutput = & npm run build 2>&1
+            Write-Host "Cleaning build artifacts..." -ForegroundColor Gray
+            $cleanOutput = Invoke "npm run clean" $GeneratorPath
+            if ($LASTEXITCODE -ne 0) {
+                Write-Host $cleanOutput -ForegroundColor Red
+                throw "Failed to clean generator"
+            }
+
+            Write-Host "Building generator..." -ForegroundColor Gray
+            $buildOutput = Invoke "npm run build" $GeneratorPath
             if ($LASTEXITCODE -ne 0) {
                 Write-Host $buildOutput -ForegroundColor Red
                 throw "Failed to build generator"
@@ -131,7 +135,7 @@ function Update-GeneratorPackage {
 
         Push-Location $GeneratorPath
         try {
-            $packOutput = & npm pack 2>&1
+            $packOutput = Invoke "npm pack" $GeneratorPath
             if ($LASTEXITCODE -ne 0) {
                 Write-Host $packOutput -ForegroundColor Red
                 throw "Failed to pack generator"
@@ -208,7 +212,6 @@ function Update-MgmtGenerator {
 
     # Derive all paths from EngFolder
     $mgmtGeneratorPath = Join-Path $EngFolder "packages" "http-client-csharp-mgmt"
-    $packagesDataPropsPath = Join-Path $EngFolder "Packages.Data.props"
     
     # Package paths come from debug folder
     $azurePackageName = "azure-typespec-http-client-csharp-$LocalVersion.tgz"
@@ -222,8 +225,6 @@ function Update-MgmtGenerator {
     if (-not (Test-Path $unbrandedPackagePath)) {
         throw "Unbranded package not found: $unbrandedPackagePath"
     }
-
-    $packageJsonPath = Join-Path $mgmtGeneratorPath "package.json"
 
     Write-Host "Management plane generator path: $mgmtGeneratorPath" -ForegroundColor Gray
     Write-Host "Azure package: $azurePackagePath" -ForegroundColor Gray
@@ -268,7 +269,7 @@ function Update-MgmtGenerator {
         Push-Location $tempDir
         try {
             # Install the mgmt package and regenerate lock file with both dependencies
-            & npm install "file:$mgmtPackagePath" --package-lock-only 2>&1 | Out-Null
+            Invoke "npm install `"`"file:$mgmtPackagePath`"`" --package-lock-only" $tempDir
             
             Copy-Item $tempPackageJson $mgmtEmitterJson -Force
             $lockFile = Join-Path $tempDir "package-lock.json"
@@ -356,28 +357,19 @@ function Update-AzureGenerator {
         -UseNpmCi $true
 
     # Build and package Azure.Generator NuGet package
-        Write-Host "Packing Azure.Generator NuGet package..." -ForegroundColor Gray
-        
-        $azureGeneratorCsprojPath = Join-Path $AzureGeneratorPath "generator" "Azure.Generator" "src" "Azure.Generator.csproj"
-        if (-not (Test-Path $azureGeneratorCsprojPath)) {
-            throw "Azure.Generator project not found at: $azureGeneratorCsprojPath"
-        }
-        
-        & dotnet pack $azureGeneratorCsprojPath `
-            /p:Version=$LocalVersion `
-            /p:PackageVersion=$LocalVersion `
-            /p:PackageOutputPath=$DebugFolder `
-            /p:HasReleaseVersion="false" `
-            --configuration Debug `
-            --no-build `
-            --nologo `
-            -v:quiet
-        
-        if ($LASTEXITCODE -ne 0) {
-            throw "Failed to pack Azure.Generator"
-        }
-        
-        Write-Host "  Azure.Generator NuGet package created" -ForegroundColor Green
+    Write-Host "Packing Azure.Generator NuGet package..." -ForegroundColor Gray
+    
+    $azureGeneratorCsprojPath = Join-Path $AzureGeneratorPath "generator" "Azure.Generator" "src" "Azure.Generator.csproj"
+    if (-not (Test-Path $azureGeneratorCsprojPath)) {
+        throw "Azure.Generator project not found at: $azureGeneratorCsprojPath"
+    }
+    $packCmd = "dotnet pack `"$azureGeneratorCsprojPath`" /p:Version=$LocalVersion /p:PackageVersion=$LocalVersion /p:PackageOutputPath=`"$DebugFolder`" /p:HasReleaseVersion=`"false`" --configuration Debug --no-build --nologo -v:quiet"
+    Invoke $packCmd $AzureGeneratorPath    
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to pack Azure.Generator"
+    }
+    
+    Write-Host "  Azure.Generator NuGet package created" -ForegroundColor Green
 
     # Update Packages.Data.props with Azure generator version
     Write-Host "Updating Packages.Data.props..." -ForegroundColor Gray
@@ -524,8 +516,6 @@ function Update-OpenAIGenerator {
         -NuGetConfigPath $nugetConfigPath `
         -SourcePath $DebugFolder `
         -PackagePatterns @(
-            "Microsoft.TypeSpec.Generator",
-            "Microsoft.TypeSpec.Generator.Input",
             "Microsoft.TypeSpec.Generator.ClientModel"
         )
 
@@ -570,15 +560,15 @@ function Update-OpenAIGenerator {
         }
 
         # Run npm install to regenerate package-lock.json with local dependencies
-        Write-Host "Running npm install in codegen directory..." -ForegroundColor Gray
+        Write-Host "Installing dependencies in codegen directory..." -ForegroundColor Gray
         Push-Location (Join-Path $OpenAIRepoPath "codegen")
         try {
-            $npmOutput = & npm install 2>&1
+            $npmOutput = Invoke "npm install" (Join-Path $OpenAIRepoPath "codegen")
             if ($LASTEXITCODE -ne 0) {
                 Write-Host $npmOutput -ForegroundColor Red
                 throw "npm install failed in codegen directory"
             }
-            Write-Host "  npm install completed" -ForegroundColor Green
+            Write-Host "  Dependencies installed" -ForegroundColor Green
         }
         finally {
             Pop-Location
@@ -611,7 +601,7 @@ function Update-OpenAIGenerator {
             throw "Invoke-CodeGen.ps1 not found: $codeGenScript"
         }
 
-        Write-Host "Running OpenAI code generation..." -ForegroundColor Gray
+        Write-Host "Generating OpenAI library code..." -ForegroundColor Gray
         Push-Location $OpenAIRepoPath
         try {
             $output = & $codeGenScript -Clean 2>&1
@@ -620,6 +610,9 @@ function Update-OpenAIGenerator {
                 throw "OpenAI code generation failed"
             }
             Write-Host "  OpenAI library regenerated successfully" -ForegroundColor Green
+            
+            # Store output for return
+            $generationOutput = $output -join "`n"
         }
         finally {
             Pop-Location
@@ -629,18 +622,15 @@ function Update-OpenAIGenerator {
         Write-Host "Restoring modified artifacts..." -ForegroundColor Gray
         Push-Location $OpenAIRepoPath
         try {
-            # Restore package.json
-            & git restore "codegen/package.json" 2>&1 | Out-Null
-            
-            # Restore package-lock.json
-            & git restore "codegen/package-lock.json" 2>&1 | Out-Null
-            
-            # Restore nuget.config
-            & git restore "nuget.config" 2>&1 | Out-Null
-            
-            # Restore .csproj file
-            & git restore "codegen/generator/src/OpenAI.Library.Plugin.csproj" 2>&1 | Out-Null
-            
+            $filesToRestore = @(
+                "codegen/package.json"
+                "package-lock.json"
+                "nuget.config"
+                "codegen/generator/src/OpenAI.Library.Plugin.csproj"
+            )
+            $restoreCmd = "git restore $($filesToRestore -join ' ')"
+            Invoke $restoreCmd $OpenAIRepoPath
+
             Write-Host "  All artifacts restored" -ForegroundColor Green
         }
         catch {
@@ -655,6 +645,9 @@ function Update-OpenAIGenerator {
     }
 
     Write-Host ""
+    
+    # Return the generation output for reporting
+    return $generationOutput
 }
 
 function Add-LocalNuGetSource {
