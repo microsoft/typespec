@@ -130,9 +130,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (this == _singletonInstance)
             {
                 // Use namespace-based naming for singleton
-                var primaryNamespace = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Name;
-                var lastSegment = GetLastNamespaceSegment(primaryNamespace);
-                return $"{lastSegment}ClientOptions";
+                return $"{ScmCodeModelGenerator.Instance.TypeFactory.ResourceProviderName}ClientOptions";
             }
 
             // Use client-specific naming
@@ -149,17 +147,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return $"Client options for {_clientProvider.Type:C}.";
-        }
-
-        /// <summary>
-        /// Gets the last segment of a namespace.
-        /// </summary>
-        /// <param name="namespace">The namespace string.</param>
-        /// <returns>The last segment of the namespace.</returns>
-        private static string GetLastNamespaceSegment(string @namespace)
-        {
-            var lastDotIndex = @namespace.LastIndexOf('.');
-            return lastDotIndex >= 0 ? @namespace.Substring(lastDotIndex + 1) : @namespace;
         }
 
         protected override CSharpType BuildBaseType()
