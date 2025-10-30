@@ -414,10 +414,10 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         protected virtual string BuildResourceProviderName()
         {
-            var span = PrimaryNamespace;
+            var span = CodeModelGenerator.Instance.InputLibrary.InputNamespace.Name;
             if (span.IndexOf('.') == -1)
             {
-                return PrimaryNamespace;
+                return CodeModelGenerator.Instance.InputLibrary.InputNamespace.Name;
             }
 
             Span<char> dest = stackalloc char[span.Length];
