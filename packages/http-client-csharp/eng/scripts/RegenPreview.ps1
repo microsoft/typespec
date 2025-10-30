@@ -60,15 +60,15 @@
 
 .EXAMPLE
     # Azure SDK Mode - Regenerate all libraries
-    .\RegenPreview.ps1 -AzureSdkForNetRepoPath "C:\repos\azure-sdk-for-net"
+    .\RegenPreview.ps1 -SdkLibraryRepoPath "C:\repos\azure-sdk-for-net"
     
 .EXAMPLE
     # OpenAI Mode - Regenerate OpenAI library
-    .\RegenPreview.ps1 -AzureSdkForNetRepoPath "C:\repos\openai-dotnet"
+    .\RegenPreview.ps1 -SdkLibraryRepoPath "C:\repos\openai-dotnet"
 
 .EXAMPLE
     # Azure SDK Mode - Interactively select libraries to regenerate (from all available)
-    .\RegenPreview.ps1 -AzureSdkForNetRepoPath "C:\repos\azure-sdk-for-net" -Select
+    .\RegenPreview.ps1 -SdkLibraryRepoPath "C:\repos\azure-sdk-for-net" -Select
 
 .EXAMPLE
     # Regenerate only Azure-branded libraries (non-interactive)
@@ -76,15 +76,15 @@
 
 .EXAMPLE
     # Interactively select from Azure-branded libraries only
-    .\RegenPreview.ps1 -AzureSdkForNetRepoPath "C:\repos\azure-sdk-for-net" -Azure -Select
+    .\RegenPreview.ps1 -SdkLibraryRepoPath "C:\repos\azure-sdk-for-net" -Azure -Select
 
 .EXAMPLE
     # Regenerate only unbranded libraries
-    .\RegenPreview.ps1 -AzureSdkForNetRepoPath "C:\repos\azure-sdk-for-net" -Unbranded
+    .\RegenPreview.ps1 -SdkLibraryRepoPath "C:\repos\azure-sdk-for-net" -Unbranded
 
 .EXAMPLE
     # Regenerate only management plane libraries
-    .\RegenPreview.ps1 -AzureSdkForNetRepoPath "C:\repos\azure-sdk-for-net" -Mgmt
+    .\RegenPreview.ps1 -SdkLibraryRepoPath "C:\repos\azure-sdk-for-net" -Mgmt
 #>
 
 param(
