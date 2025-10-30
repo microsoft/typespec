@@ -10,7 +10,7 @@ namespace Microsoft.TypeSpec.Generator.Input
     /// Matches the InitializedByFlags enum from TCGC.
     /// </summary>
     [Flags]
-    public enum InputClientInitializedByFlags
+    public enum InputClientInitializedBy
     {
         /// <summary>
         /// Default initialization strategy.
