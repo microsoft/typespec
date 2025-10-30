@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -82,9 +83,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             string? inputNamespaceName = null,
             string? outputPath = null)
         {
-            // reset the type cache on TypeReferenceExpression
-            var resetCacheMethod = typeof(TypeReferenceExpression).GetMethod("ResetCache", BindingFlags.Static | BindingFlags.NonPublic);
-            resetCacheMethod!.Invoke(null, null);
+            ResetCache();
 
             outputPath = outputPath ?? Path.Combine(AppContext.BaseDirectory, TestHelpersFolder);
             if (includeXmlDocs)
@@ -159,6 +158,22 @@ namespace Microsoft.TypeSpec.Generator.Tests
             CodeModelGenerator.Instance = mockGenerator.Object;
 
             return mockGenerator;
+        }
+
+        private static void ResetCache()
+        {
+            TypeReferenceExpression.ResetCache();
+
+            // Clear the CSharpType static cache
+            var csharpTypeType = typeof(CSharpType);
+            var cacheField = csharpTypeType.GetField("_cache",
+                BindingFlags.Static | BindingFlags.NonPublic);
+
+            if (cacheField != null)
+            {
+                var cache = cacheField.GetValue(null) as IDictionary;
+                cache?.Clear();
+            }
         }
     }
 }
