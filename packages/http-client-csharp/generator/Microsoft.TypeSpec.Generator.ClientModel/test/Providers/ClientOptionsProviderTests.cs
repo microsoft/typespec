@@ -5,6 +5,7 @@ using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Expressions;
@@ -25,6 +26,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         [SetUp]
         public void SetUp()
         {
+            // Reset the singleton instance before each test using reflection
+            var singletonField = typeof(ClientOptionsProvider).GetField("_singletonInstance", BindingFlags.Static | BindingFlags.NonPublic);
+            singletonField?.SetValue(null, null);
+
             var categories = TestContext.CurrentContext.Test?.Properties["Category"];
             bool containsApiVersions = categories?.Contains(ApiVersionsCategory) ?? false;
 
@@ -334,6 +339,110 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.IsTrue(body?.Contains("ServiceVersion.V2023_10_01_Preview_1 => \"2023-10-01-preview-1\""));
             Assert.IsTrue(body?.Contains("ServiceVersion.V2023_11_01 => \"2023-11-01\""));
             Assert.IsTrue(body?.Contains("ServiceVersion.V2024_01_01 => \"2024-01-01\""));
+        }
+
+        [Test]
+        public void SingletonCreatedForMultipleClientsWithStandardParameters()
+        {
+            var client1 = InputFactory.Client("ClientA", clientNamespace: "TestNamespace");
+            var client2 = InputFactory.Client("ClientB", clientNamespace: "TestNamespace");
+
+            MockHelpers.LoadMockGenerator(clients: () => [client1, client2]);
+
+            var clientProvider1 = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client1);
+            var clientProvider2 = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client2);
+
+            Assert.IsNotNull(clientProvider1);
+            Assert.IsNotNull(clientProvider2);
+
+            var options1 = clientProvider1!.ClientOptions;
+            var options2 = clientProvider2!.ClientOptions;
+
+            Assert.IsNotNull(options1);
+            Assert.IsNotNull(options2);
+
+            // Both clients should share the same ClientOptions instance
+            Assert.AreSame(options1, options2);
+
+            // The name should be based on the InputNamespace's last segment (which is "Sample" in MockHelpers)
+            Assert.AreEqual("SampleClientOptions", options1!.Name);
+        }
+
+        [Test]
+        public void SingleClientCreatesClientSpecificOptions()
+        {
+            var client = InputFactory.Client("TestClient", clientNamespace: "TestNamespace");
+            
+            MockHelpers.LoadMockGenerator(clients: () => [client]);
+
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client);
+
+            Assert.IsNotNull(clientProvider);
+            
+            var options = clientProvider!.ClientOptions;
+
+            Assert.IsNotNull(options);
+            
+            // The name should be based on the client name
+            Assert.AreEqual("TestClientOptions", options!.Name);
+        }
+
+        [Test]
+        public void MultipleClientsWithCustomParametersCreateSeparateOptions()
+        {
+            var customParam = InputFactory.MethodParameter(
+                "customParam",
+                InputPrimitiveType.String,
+                isRequired: false,
+                defaultValue: InputFactory.Constant.String("default"),
+                scope: InputParameterScope.Client);
+
+            var client1 = InputFactory.Client("ClientA", clientNamespace: "TestNamespace", parameters: [customParam]);
+            var client2 = InputFactory.Client("ClientB", clientNamespace: "TestNamespace");
+
+            MockHelpers.LoadMockGenerator(clients: () => [client1, client2]);
+
+            var clientProvider1 = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client1);
+            var clientProvider2 = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client2);
+
+            Assert.IsNotNull(clientProvider1);
+            Assert.IsNotNull(clientProvider2);
+
+            var options1 = clientProvider1!.ClientOptions;
+            var options2 = clientProvider2!.ClientOptions;
+
+            Assert.IsNotNull(options1);
+            Assert.IsNotNull(options2);
+
+            // ClientA has custom parameters, so it should NOT share options
+            Assert.AreNotSame(options1, options2);
+
+            // ClientA should have client-specific options
+            Assert.AreEqual("ClientAOptions", options1!.Name);
+            // ClientB should have namespace-based options (since it has only standard parameters)
+            // Note: InputNamespace in MockHelpers is set to "Sample" by default
+            Assert.AreEqual("SampleClientOptions", options2!.Name);
+        }
+
+        [Test]
+        public void NamespaceLastSegmentIsUsedForSingletonName()
+        {
+            var client1 = InputFactory.Client("ClientA", clientNamespace: "Company.Service.Api");
+            var client2 = InputFactory.Client("ClientB", clientNamespace: "Company.Service.Api");
+
+            MockHelpers.LoadMockGenerator(clients: () => [client1, client2]);
+
+            var clientProvider1 = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(client1);
+
+            Assert.IsNotNull(clientProvider1);
+
+            var options = clientProvider1!.ClientOptions;
+
+            Assert.IsNotNull(options);
+
+            // The name should be based on the InputNamespace's last segment
+            // Note: InputNamespace in MockHelpers is set to "Sample" by default, not based on client namespace
+            Assert.AreEqual("SampleClientOptions", options!.Name);
         }
     }
 }

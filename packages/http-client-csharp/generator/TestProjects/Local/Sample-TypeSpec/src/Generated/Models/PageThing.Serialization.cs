@@ -153,7 +153,7 @@ namespace SampleTypeSpec
         /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="PageThing"/> from. </param>
         public static explicit operator PageThing(ClientResult result)
         {
-            using PipelineResponse response = result.GetRawResponse();
+            PipelineResponse response = result.GetRawResponse();
             using JsonDocument document = JsonDocument.Parse(response.Content);
             return DeserializePageThing(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
