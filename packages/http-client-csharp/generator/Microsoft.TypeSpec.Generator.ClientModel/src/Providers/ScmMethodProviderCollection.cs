@@ -27,6 +27,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
     {
         private readonly MethodProvider _createRequestMethod;
         private static readonly ClientPipelineExtensionsDefinition _clientPipelineExtensionsDefinition = new();
+        private static readonly CancellationTokenExtensionsDefinition _cancellationTokenExtensionsDefinition = new();
         private IList<ParameterProvider> ProtocolMethodParameters => _protocolMethodParameters ??= RestClientProvider.GetMethodParameters(ServiceMethod, RestClientProvider.MethodType.Protocol);
         private IList<ParameterProvider>? _protocolMethodParameters;
 
@@ -533,7 +534,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             // RequestOptions argument
-            conversions.Add(IHttpRequestOptionsApiSnippets.FromCancellationToken(ScmKnownParameters.CancellationToken));
+            var requestOptionsApi = ScmCodeModelGenerator.Instance.TypeFactory.HttpRequestOptionsApi;
+            // Build method name like "ToRequestOptions" or "ToRequestContext" based on the parameter name
+            var toRequestOptionsMethodName = $"ToRequest{char.ToUpper(requestOptionsApi.ParameterName[0])}{requestOptionsApi.ParameterName.Substring(1)}";
+            conversions.Add(ScmKnownParameters.CancellationToken.Invoke(toRequestOptionsMethodName, extensionType: _cancellationTokenExtensionsDefinition.Type));
 
             return conversions;
         }

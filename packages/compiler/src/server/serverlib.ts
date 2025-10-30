@@ -134,7 +134,7 @@ import {
   ServerSourceFile,
   ServerWorkspaceFolder,
 } from "./types.js";
-import { UpdateManger } from "./update-manager.js";
+import { UpdateManager } from "./update-manager.js";
 
 export function createServer(
   host: ServerHost,
@@ -161,7 +161,7 @@ export function createServer(
     (exports) => exports.$linter !== undefined,
   );
 
-  const updateManager = new UpdateManger(log);
+  const updateManager = new UpdateManager(log);
 
   const compileService = createCompileService({
     fileService,

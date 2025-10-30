@@ -74,8 +74,8 @@ public class TypeSpecFluentPlugin extends FluentGen {
         }
         SETTINGS_MAP.put("sdk-integration", sdkIntegration);
         SETTINGS_MAP.put("output-model-immutable", true);
-        SETTINGS_MAP.put("uuid-as-string", true);
         SETTINGS_MAP.put("stream-style-serialization", options.getStreamStyleSerialization());
+        SETTINGS_MAP.put("uuid-as-string", options.getUuidAsString());
         SETTINGS_MAP.put("use-object-for-unknown", options.getUseObjectForUnknown());
         if (options.getRenameModel() != null) {
             SETTINGS_MAP.put("rename-model", options.getRenameModel());
@@ -100,6 +100,9 @@ public class TypeSpecFluentPlugin extends FluentGen {
         }
         if (options.getResourceCollectionAssociations() != null) {
             SETTINGS_MAP.put("resource-collection-associations", options.getResourceCollectionAssociations());
+        }
+        if (options.getMetadataSuffix() != null) {
+            SETTINGS_MAP.put("metadata-suffix", options.getMetadataSuffix());
         }
 
         if (options.getCustomizationClass() != null) {
@@ -135,7 +138,7 @@ public class TypeSpecFluentPlugin extends FluentGen {
             TypeSpecMetadata metadata = new TypeSpecMetadata(FluentUtils.getArtifactId(), emitterOptions.getFlavor(),
                 apiVersion, collectCrossLanguageDefinitions(client),
                 FileUtil.filterForJavaSourceFiles(javaPackage.getJavaFiles().stream().map(JavaFile::getFilePath)));
-            javaPackage.addTypeSpecMetadata(metadata);
+            javaPackage.addTypeSpecMetadata(metadata, getFluentJavaSettings().getMetadataSuffix().orElse(null));
         }
 
         return javaPackage;

@@ -216,10 +216,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodProvider BuildExplicitFromClientResult()
         {
-            var result = new ParameterProvider("result", $"The {ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseType:C} to deserialize the {Type:C} from.", ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseType);
-            var modifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Explicit | MethodSignatureModifiers.Operator;
+            var result = new ParameterProvider(
+                ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ResponseParameterName,
+                $"The {ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseType:C} to deserialize the {Type:C} from.",
+                ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseType);
+            var modifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static |
+                            MethodSignatureModifiers.Explicit | MethodSignatureModifiers.Operator;
             // using PipelineResponse response = result.GetRawResponse();
-            var responseDeclaration = UsingDeclare("response", ScmCodeModelGenerator.Instance.TypeFactory.HttpResponseApi.HttpResponseType, result.ToApi<ClientResponseApi>().GetRawResponse(), out var response);
+            var response = result.ToApi<ClientResponseApi>();
+            MethodBodyStatement responseDeclaration;
+
+            // if the GetRawResponse is a no-op we don't need to declare a new variable
+            if (response.Original == response.GetRawResponse().Original)
+            {
+                responseDeclaration = MethodBodyStatement.Empty;
+            }
+            else
+            {
+                responseDeclaration = Declare("response", ScmCodeModelGenerator.Instance.TypeFactory.HttpResponseApi.HttpResponseType, result.ToApi<ClientResponseApi>().GetRawResponse(), out var responseVar);
+                response = responseVar.ToApi<ClientResponseApi>();
+            }
+
             MethodBodyStatement[] methodBody;
 
             if (_model is ScmModelProvider { HasDynamicModelSupport: true })
@@ -1905,6 +1922,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     SerializationFormat.Duration_Seconds => TimeSpanSnippets.FromSeconds(element.GetInt32()),
                     SerializationFormat.Duration_Seconds_Float or SerializationFormat.Duration_Seconds_Double => TimeSpanSnippets.FromSeconds(element.GetDouble()),
+                    SerializationFormat.Duration_Milliseconds => TimeSpanSnippets.FromMilliseconds(element.GetInt32()),
+                    SerializationFormat.Duration_Milliseconds_Float or SerializationFormat.Duration_Milliseconds_Double => TimeSpanSnippets.FromMilliseconds(element.GetDouble()),
                     _ => element.GetTimeSpan(format.ToFormatSpecifier())
                 },
                 _ => null,
@@ -1956,8 +1975,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var format = serializationFormat.ToFormatSpecifier();
             return serializationFormat switch
             {
-                SerializationFormat.Duration_Seconds => utf8JsonWriter.WriteNumberValue(ConvertSnippets.InvokeToInt32(value.As<TimeSpan>().InvokeToString(format))),
-                SerializationFormat.Duration_Seconds_Float or SerializationFormat.Duration_Seconds_Double => utf8JsonWriter.WriteNumberValue(ConvertSnippets.InvokeToDouble(value.As<TimeSpan>().InvokeToString(format))),
+                SerializationFormat.Duration_Seconds => utf8JsonWriter.WriteNumberValue(ConvertSnippets.InvokeToInt32(value.As<TimeSpan>().TotalSeconds())),
+                SerializationFormat.Duration_Seconds_Float or SerializationFormat.Duration_Seconds_Double => utf8JsonWriter.WriteNumberValue(value.As<TimeSpan>().TotalSeconds()),
+                SerializationFormat.Duration_Milliseconds => utf8JsonWriter.WriteNumberValue(ConvertSnippets.InvokeToInt32(value.As<TimeSpan>().TotalMilliseconds())),
+                SerializationFormat.Duration_Milliseconds_Float or SerializationFormat.Duration_Milliseconds_Double => utf8JsonWriter.WriteNumberValue(value.As<TimeSpan>().TotalMilliseconds()),
                 SerializationFormat.DateTime_Unix => utf8JsonWriter.WriteNumberValue(value, format),
                 _ => format is not null ? utf8JsonWriter.WriteStringValue(value, format) : utf8JsonWriter.WriteStringValue(value)
             };

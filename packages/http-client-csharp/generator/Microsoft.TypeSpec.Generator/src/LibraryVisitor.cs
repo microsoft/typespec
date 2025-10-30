@@ -94,7 +94,15 @@ namespace Microsoft.TypeSpec.Generator
                     }
                 }
 
-                type.Update(methods, constructors, properties, fields, serializations, nestedTypes);
+                // Update the type with the potentially modified members, filtering out customized members
+                // after the visitors have been applied so that the filtering is done against the final version.
+                type.Update(
+                    type.FilterCustomizedMethods(methods),
+                    type.FilterCustomizedConstructors(constructors),
+                    type.FilterCustomizedProperties(properties),
+                    type.FilterCustomizedFields(fields),
+                    serializations,
+                    nestedTypes);
                 type = PostVisitType(type);
             }
             return type;

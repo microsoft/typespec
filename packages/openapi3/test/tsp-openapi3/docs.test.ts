@@ -55,8 +55,34 @@ it("handles different newline breaks", () => {
 it("escape @ with \\@", () => {
   strictEqual(generateDocs("Hello, @World!"), `/** Hello, \\@World! */`);
 });
+
+it("escape ${...} in doc comments", () => {
+  strictEqual(generateDocs("Value is ${foo}"), String.raw`/** Value is \${foo} */`);
+});
+
+it("escape multiple ${...} in doc comments", () => {
+  strictEqual(
+    generateDocs("Value is ${foo} and ${bar}"),
+    String.raw`/** Value is \${foo} and \${bar} */`,
+  );
+});
+
+it("escape ${...} in multi-line doc comments", () => {
+  strictEqual(
+    generateDocs("Value is ${foo}\nand ${bar}"),
+    String.raw`/**
+* Value is \${foo}
+* and \${bar}
+*/`,
+  );
+});
+
 it("uses doc generator for */", () => {
   strictEqual(generateDocs("Hello, */World!"), `@doc("Hello, */World!")`);
+});
+
+it("escape ${...} when using @doc decorator for */", () => {
+  strictEqual(generateDocs("Value is ${foo} */"), String.raw`@doc("Value is \${foo} */")`);
 });
 
 it("supports multi-line with decorator", () => {
