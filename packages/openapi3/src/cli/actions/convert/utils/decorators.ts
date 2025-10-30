@@ -173,7 +173,7 @@ export function getDecoratorsForSchema(
 
   // Handle unixtime format with @encode decorator
   if (schema.format === "unixtime") {
-    decorators.push(...getUnixtimeSchemaDecorators(schema, effectiveType));
+    decorators.push(...getUnixtimeSchemaDecorators(effectiveType));
   }
 
   switch (effectiveType) {
@@ -261,10 +261,7 @@ function getNumberSchemaDecorators(schema: OpenAPI3Schema | OpenAPISchema3_1) {
   return decorators;
 }
 
-function getUnixtimeSchemaDecorators(
-  schema: OpenAPI3Schema | OpenAPISchema3_1,
-  effectiveType: string | undefined,
-) {
+function getUnixtimeSchemaDecorators(effectiveType: string | undefined) {
   const decorators: TypeSpecDecorator[] = [];
 
   // Only add @encode decorator for integer types
