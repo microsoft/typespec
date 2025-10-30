@@ -786,9 +786,12 @@ model Foo {
         @info(#{ version: "1.0.0" })
         namespace TestService;
 
-        @route("/") @get op getFoo(): GeneratedHelpers.DefaultResponse<Headers = {
-          @header foo?: string;
-        }>;
+        @route("/") @get op getFoo(): GeneratedHelpers.DefaultResponse<
+          Description = "Test Response",
+          Headers = {
+            @header foo?: string;
+          }
+        >;
 
         namespace GeneratedHelpers {
           @doc(Description)
@@ -838,7 +841,10 @@ model Foo {
         @info(#{ version: "1.0.0" })
         namespace TestService;
 
-        @route("/") @get op getFoo(): GeneratedHelpers.DefaultResponse<Body = string>;
+        @route("/") @get op getFoo(): GeneratedHelpers.DefaultResponse<
+          Description = "Test Response",
+          Body = string
+        >;
 
         namespace GeneratedHelpers {
           @doc(Description)
