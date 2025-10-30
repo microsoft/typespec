@@ -66,15 +66,13 @@ function getLocationDecorator(
     args: [],
   };
 
-  if (!("explode" in parameter)) return decorator;
-
   let decoratorArgs: TypeSpecDecorator["args"][0] | undefined;
   switch (parameter.in) {
     case "header":
       decoratorArgs = getHeaderArgs(parameter.explode ?? false);
       break;
     case "query":
-      decoratorArgs = getQueryArgs({ explode: parameter.explode ?? false, style: parameter.style });
+      decoratorArgs = getQueryArgs({ explode: parameter.explode ?? true, style: parameter.style });
       break;
   }
 
