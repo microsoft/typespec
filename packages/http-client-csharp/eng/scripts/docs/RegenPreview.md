@@ -240,6 +240,7 @@ When the repository path contains "openai-dotnet", the script switches to OpenAI
 #### Step 3: Update OpenAI Generator and Regenerate
 
 **What the script does:**
+
 - Updates `nuget.config` (at the root of the repo) with local NuGet package source
   - Adds the local debug folder as a package source
   - Updates `packageSourceMapping` to allow Generator packages from the local source (required for OpenAI's package source mapping configuration)
@@ -436,4 +437,3 @@ Detailed report saved to: C:\...\debug\regen-report.json
 ```powershell
 .\RegenPreview.ps1 -SdkLibraryRepoPath "C:\repos\azure-sdk-for-net"
 ```
-
