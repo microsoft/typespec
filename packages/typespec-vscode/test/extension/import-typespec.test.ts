@@ -1,17 +1,26 @@
-import { execSync } from "child_process";
 import fs from "node:fs";
 import path from "node:path";
-import { beforeEach, describe } from "vitest";
-import { contrastResult, preContrastResult, startWithRightClick } from "./common/common-steps";
+import { beforeAll, beforeEach, describe } from "vitest";
+import {
+  contrastResult,
+  packagesInstall,
+  packPackages,
+  preContrastResult,
+  startWithRightClick,
+} from "./common/common-steps";
 import { mockShowOpenDialog } from "./common/mock-dialogs";
-import { CaseScreenshot, test, testfilesDir } from "./common/utils";
+import { CaseScreenshot, tempDir, test, testfilesDir } from "./common/utils";
 
-try {
-  execSync("pnpm install @typespec/openapi3", { stdio: "inherit" });
-  execSync("pnpm install @typespec/http", { stdio: "inherit" });
-} catch (e) {
-  process.exit(1);
-}
+// Test files are copied into the temporary directory before tests run
+beforeAll(async () => {
+  const src = path.resolve(testfilesDir, "ImportTypespecProjectOpenApi3");
+  const dest = path.resolve(tempDir, "ImportTypespecProjectOpenApi3");
+  fs.cpSync(src, dest, { recursive: true });
+
+  const packages = await packPackages();
+  // Install those packages locally
+  await packagesInstall(packages, "Import");
+}, 300000);
 
 enum ImportProjectTriggerType {
   CommandPalette = "CommandPalette",
@@ -26,9 +35,9 @@ type ImportConfigType = {
   expectedResults: string[];
 };
 
-const ImportTypespecProjectFolderPath = path.resolve(testfilesDir, "ImportTypespecProjectOpenApi3");
+const ImportTypespecProjectFolderPath = path.resolve(tempDir, "ImportTypespecProjectOpenApi3");
 const ImportTypespecProjectEmptyFolderPath = path.resolve(
-  testfilesDir,
+  tempDir,
   "ImportTypespecProjectOpenApi3/ImportTypespecProjectEmptyFolder",
 );
 
@@ -38,7 +47,7 @@ ImportCasesConfigList.push({
   caseName: "ImportTypespecProject Trigger RightClickOnFolder EmptyFolder",
   triggerType: ImportProjectTriggerType.RightClickOnFolder,
   selectFolderEmptyOrNonEmpty: "empty",
-  expectedResults: ["openapi.3.0.yaml", "ImportTypespecProjectEmptyFolder"],
+  expectedResults: ["main.tsp"],
 });
 
 beforeEach(() => {
@@ -49,9 +58,6 @@ beforeEach(() => {
     for (const file of fs.readdirSync(importTypespec)) {
       if (file === "openapi.3.0.yaml") {
         hasOpenapi3File = true;
-      } else if (file !== "ImportTypespecProjectEmptyFolder") {
-        const filePath = path.resolve(importTypespec, file);
-        fs.rmSync(filePath, { recursive: true, force: true });
       }
     }
     if (!hasOpenapi3File) {
@@ -91,17 +97,8 @@ describe.each(ImportCasesConfigList)("ImportTypespecFromOpenApi3", async (item) 
       cs,
       app,
     );
-    await contrastResult(expectedResults, workspacePath, cs);
+    const resultFilePath = path.resolve(workspacePath, "./ImportTypespecProjectEmptyFolder");
+    await contrastResult(expectedResults, resultFilePath, cs);
     app.close();
-    try {
-      execSync("git restore ./package.json", { stdio: "inherit" });
-    } catch (e) {
-      process.exit(1);
-    }
-    try {
-      execSync("git restore ../../pnpm-lock.yaml", { stdio: "inherit" });
-    } catch (e) {
-      process.exit(1);
-    }
   });
 });
