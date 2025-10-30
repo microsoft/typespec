@@ -406,13 +406,13 @@ namespace Microsoft.TypeSpec.Generator
         private string? _primaryNamespace;
         public string PrimaryNamespace => _primaryNamespace ??= GetCleanNameSpace(CodeModelGenerator.Instance.InputLibrary.InputNamespace.Name);
 
-        public string ResourceProviderName => _resourceProviderName ??= BuildResourceProviderName();
-        private string? _resourceProviderName;
+        public string ServiceName => _serviceName ??= BuildServiceName();
+        private string? _serviceName;
 
         /// <summary>
-        /// Builds the resource provider name which is used as the base name for various types.
+        /// Builds the service name which is used as the base name for various types.
         /// </summary>
-        protected virtual string BuildResourceProviderName()
+        protected virtual string BuildServiceName()
         {
             var span = CodeModelGenerator.Instance.InputLibrary.InputNamespace.Name;
             if (span.IndexOf('.') == -1)

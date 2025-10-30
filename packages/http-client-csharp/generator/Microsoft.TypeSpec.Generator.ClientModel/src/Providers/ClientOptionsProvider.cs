@@ -133,7 +133,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (UseSingletonInstance(_inputClient))
             {
                 // Use namespace-based naming for singleton
-                return $"{ScmCodeModelGenerator.Instance.TypeFactory.ResourceProviderName}ClientOptions";
+                return $"{ScmCodeModelGenerator.Instance.TypeFactory.ServiceName}ClientOptions";
             }
 
             // Use client-specific naming
