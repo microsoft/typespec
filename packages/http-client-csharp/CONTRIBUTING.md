@@ -185,12 +185,12 @@ To regenerate test projects after making changes:
 
 ## Validating Changes Against the Azure Generator
 
-When making changes to the TypeSpec HTTP Client C# package that contain API breaking changes, it's critical to validate these changes against the Azure generator that depends on this package. This validation serves two important purposes:
+When making changes to the TypeSpec HTTP Client C# package that contain API breaking changes, it can be helpful to validate these changes against the Azure generator that depends on this package. This validation serves two important purposes:
 
 1. **Breaking Change Awareness**: Understand the full impact of your changes on downstream consumers
 2. **Preparation for Azure Generator Updates**: Identify and prepare the necessary changes that the Azure Generator will need to accommodate your breaking changes
 
-**Important**: Once breaking changes are merged and a new official generator version is published, the Azure generator will be blocked from releasing until it has been updated to absorb these breaking changes. By validating your changes early, you can help minimize disruption to the Azure SDK release cycle.
+Once breaking changes are merged and a new official generator version is published, the Azure generator will be blocked from releasing until it has been updated to absorb these breaking changes. By validating your changes early, you can help minimize disruption to the Azure SDK release cycle.
 
 Follow these steps to test your changes:
 
@@ -248,7 +248,7 @@ Now you can validate your changes by:
 - **Testing new features**: If you added new functionality, test it with relevant TypeSpec definitions
 - **Checking integration**: Ensure the integration between your changes and the Azure generator works as expected
 
-This validation process helps ensure that your changes to the TypeSpec HTTP Client C# package are compatible with the downstream Azure generator. If breaking changes are expected, you can prepare the required changes to the Azure Generator ahead of time to reduce the time it will take to fix and upgrade the Azure Generator once your changes merge and are consumed by the Azure Generator.
+This validation process helps ensure that your changes to the generator are compatible with the downstream Azure generator. If breaking changes are expected, you can prepare the required changes to the Azure Generator ahead of time to reduce the time it will take to fix and upgrade the Azure Generator once your changes merge and are consumed by the Azure Generator.
 
 ## Creating Pull Requests
 
