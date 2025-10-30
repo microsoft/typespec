@@ -168,7 +168,7 @@ namespace SampleTypeSpec
         /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="ListWithNextLinkResponse"/> from. </param>
         public static explicit operator ListWithNextLinkResponse(ClientResult result)
         {
-            using PipelineResponse response = result.GetRawResponse();
+            PipelineResponse response = result.GetRawResponse();
             using JsonDocument document = JsonDocument.Parse(response.Content);
             return DeserializeListWithNextLinkResponse(document.RootElement, ModelSerializationExtensions.WireOptions);
         }

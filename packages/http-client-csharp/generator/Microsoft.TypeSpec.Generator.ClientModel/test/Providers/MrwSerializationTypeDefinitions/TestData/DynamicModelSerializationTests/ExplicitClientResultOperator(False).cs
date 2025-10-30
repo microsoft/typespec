@@ -13,7 +13,7 @@ namespace Sample
     {
         public static explicit operator Cat(global::System.ClientModel.ClientResult result)
         {
-            using global::System.ClientModel.Primitives.PipelineResponse response = result.GetRawResponse();
+            global::System.ClientModel.Primitives.PipelineResponse response = result.GetRawResponse();
             using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(response.Content);
             return global::Sample.Models.Cat.DeserializeCat(document.RootElement, global::Sample.ModelSerializationExtensions.WireOptions);
         }
