@@ -128,6 +128,10 @@ describe("compiler: checker: functions", () => {
         valFirst(program: Program, v: any) {
           return v;
         },
+        voidFn(program: Program, arg: any) {
+          calledArgs = [program, arg];
+          // No return value
+        },
       });
       runner = createTestWrapper(testHost, {
         autoImports: ["./test.js"],
@@ -170,6 +174,14 @@ describe("compiler: checker: functions", () => {
         `extern fn sum(...addends: valueof int32[]): valueof int32; const S = sum();`,
       );
       expectDiagnostics(diagnostics, []);
+    });
+
+    it("accepts function with explicit void return type", async () => {
+      const diagnostics = await runner.diagnose(
+        `extern fn voidFn(a: valueof string): valueof void; const X: void = voidFn("test");`,
+      );
+      expectDiagnostics(diagnostics, []);
+      expectCalledWith("test");
     });
 
     it("errors if not enough args", async () => {

@@ -360,6 +360,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     type: unknownType,
   };
 
+  // Special value representing `valueof void` undefined function returns
+  const voidValue: Value = {
+    entityKind: "Value",
+    valueKind: "NullValue",
+    value: null,
+    type: voidType,
+  };
+
   /**
    * Set keeping track of node pending type resolution.
    * Key is the SymId of a node. It can be retrieved with getNodeSymId(node)
@@ -4391,6 +4399,15 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       "entityKind" in functionReturn &&
       (functionReturn.entityKind === "Type" || functionReturn.entityKind === "Value");
 
+    // special case for when the return value is `undefined` and the return type is `void` or `valueof void`.
+    if (functionReturn === undefined && isVoidReturn(target.returnType)) {
+      if (target.returnType.valueType) {
+        return voidValue;
+      } else {
+        return voidType;
+      }
+    }
+
     const result = returnIsTypeOrValue
       ? (functionReturn as Type | Value)
       : unmarshalJsToValue(program, functionReturn, function onInvalid(value) {
@@ -4400,6 +4417,22 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     if (satisfied) checkFunctionReturn(target, result, node);
 
     return result;
+  }
+
+  function isVoidReturn(constraint: MixedParameterConstraint): boolean {
+    if (constraint.valueType) {
+      if (!isVoidType(constraint.valueType)) return false;
+    }
+
+    if (constraint.type) {
+      if (!isVoidType(constraint.type)) return false;
+    }
+
+    return true;
+
+    function isVoidType(type: Type): type is VoidType {
+      return type.kind === "Intrinsic" && type.name === "void";
+    }
   }
 
   function getDefaultFunctionResult(constraint: MixedParameterConstraint): Type | Value {
@@ -4528,7 +4561,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           resolved
             ? isValue(resolved)
               ? marshalTypeForJs(resolved, undefined, function onUnknown() {
-                  // TODO: diagnostic for unknown value
+                  satisfied = false;
+                  reportCheckerDiagnostic(
+                    createDiagnostic({
+                      code: "unknown-value",
+                      messageId: "in-js-argument",
+                      target: arg,
+                    }),
+                  );
                 })
               : resolved
             : undefined,

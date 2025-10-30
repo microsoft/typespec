@@ -80,7 +80,7 @@ Function parameters follow the same rules as decorator parameters:
 
 ```typespec
 extern fn process(
-  model: Model,                    // Type parameter
+  model: Model,                   // Type parameter
   name: valueof string,           // Value parameter
   optional?: string,              // Optional type parameter
   ...rest: valueof string[]       // Rest parameter with values
@@ -95,9 +95,14 @@ extern fn process(
 // Transform a model based on a filter
 extern fn applyVisibility(input: Model, visibility: valueof VisibilityFilter): Model;
 
-const PublicFilter: VisibilityFilter = #{ all: #[Public] };
+const PUBLIC_FILTER: VisibilityFilter = #{ any: #[Public] };
 
-alias PublicModel<M extends Model> = applyVisibility(UserModel, PublicFilter);
+// Using a template to call a function can be beneficial because templates cache
+// their instances. A function _never_ caches its results, so each time `applyVisibility`
+// is called, it will run the underlying JavaScript function. By using a template to call
+// the function, it ensures that the function is only called once per unique instance
+// of the template.
+alias PublicModel<M extends Model> = applyVisibility(UserModel, PUBLIC_FILTER);
 ```
 
 ### Value computation
@@ -111,14 +116,10 @@ model Config {
 }
 ```
 
-### Template enhancement
+## Implementation notes
 
-```typespec
-// Replace mutating template patterns with pure functions
-extern fn createFilteredType<T, F>(
-  input: T,
-  filter: valueof F
-): T;
-
-alias SafeUser<Filter> = createFilteredType(User, Filter);
-```
+- Function results are _never_ cached, unlike template instances. Calling the same function with the same arguments
+  multiple times will result in multiple function calls.
+- Functions _may_ have side-effects when called; they are not guaranteed to be "pure" functions. Be careful when writing
+  functions to avoid manipulating the type graph or storing undesirable state (though there is no rule that will prevent
+  you from doing so).

@@ -50,12 +50,12 @@ export interface DecoratorApplication {
 }
 
 export interface DecoratorFunction {
-  (program: DecoratorContext, target: any, ...customArgs: any[]): void;
+  (context: DecoratorContext, target: any, ...args: any[]): void;
   namespace?: string;
 }
 
 export interface FunctionImplementation {
-  (program: Program, ...args: any[]): Type | Value;
+  (context: FunctionContext, ...args: any[]): Type | Value;
 }
 
 export interface BaseType {
@@ -2469,28 +2469,88 @@ export interface DecoratorContext {
   decoratorTarget: DiagnosticTarget;
 
   /**
-   * Function that can be used to retrieve the target for a parameter at the given index.
-   * @param paramIndex Parameter index in the typespec
-   * @example @foo("bar", 123) -> $foo(context, target, arg0: string, arg1: number);
-   *  getArgumentTarget(0) -> target for arg0
-   *  getArgumentTarget(1) -> target for arg1
+   * Helper to get the target for a given argument index.
+   * @param argIndex Argument index in the decorator call.
+   * @example
+   * ```tsp
+   * @dec("hello", 123)
+   * model MyModel { }
+   * ```
+   * - `getArgumentTarget(0)` -> target for "hello"
+   * - `getArgumentTarget(1)` -> target for 123
    */
-  getArgumentTarget(paramIndex: number): DiagnosticTarget | undefined;
+  getArgumentTarget(argIndex: number): DiagnosticTarget | undefined;
 
   /**
-   * Helper to call out to another decorator
-   * @param decorator Other decorator function
-   * @param args Args to pass to other decorator function
+   * Helper to call a decorator implementation from within another decorator implementation.
+   * @param decorator The decorator function to call.
+   * @param target The target to which the decorator is applied.
+   * @param args Arguments to pass to the decorator.
    */
   call<T extends Type, A extends any[], R>(
     decorator: (context: DecoratorContext, target: T, ...args: A) => R,
     target: T,
     ...args: A
   ): R;
+
+  /**
+   * Helper to call a function implementation from within a decorator implementation.
+   * @param func The function implementation to call.
+   * @param args Arguments to pass to the function.
+   */
+  callFunction<A extends any[], R>(
+    func: (context: FunctionContext, ...args: A) => R,
+    ...args: A
+  ): R;
 }
 
-export interface TemplateContext {
+/**
+ * Context passed to function implementations.
+ */
+export interface FunctionContext {
+  /**
+   * The TypeSpec Program in which the function is evaluated.
+   */
   program: Program;
+
+  /**
+   * The function call diagnostic target.
+   */
+  functionCallTarget: DiagnosticTarget;
+
+  /**
+   * Helper to get the target for a given argument index.
+   * @param argIndex Argument index in the function call.
+   * @example
+   * ```tsp
+   * foo("bar", 123):
+   * ```
+   * - `getArgumentTarget(0)` -> target for "bar"
+   * - `getArgumentTarget(1)` -> target for 123
+   */
+  getArgumentTarget(argIndex: number): DiagnosticTarget | undefined;
+
+  /**
+   * Helper to call a decorator implementation from within a function implementation.
+   * @param decorator The decorator function to call.
+   * @param target The target to which the decorator is applied.
+   * @param args Arguments to pass to the decorator.
+   */
+  callDecorator<T extends Type, A extends any[], R>(
+    decorator: (context: DecoratorContext, target: T, ...args: A) => R,
+    target: T,
+    ...args: A
+  ): R;
+
+  /**
+   * Helper to call a function implementation from within another function implementation.
+   * @param func The function implementation to call.
+   * @param args Arguments to pass to the function.
+   */
+  callFunction<A extends any[], R>(
+    func: (context: FunctionContext, ...args: A) => R,
+    ...args: A
+  ): R;
 }
 
 export interface EmitContext<TOptions extends object = Record<string, never>> {
