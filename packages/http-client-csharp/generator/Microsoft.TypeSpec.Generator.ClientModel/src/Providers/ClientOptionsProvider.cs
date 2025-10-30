@@ -49,14 +49,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         /// <summary>
-        /// Internal method to reset the singleton instance. Used for testing purposes.
-        /// </summary>
-        internal static void ResetSingleton()
-        {
-            _singletonInstance = null;
-        }
-
-        /// <summary>
         /// Factory method to create a ClientOptionsProvider instance.
         /// Returns a singleton instance when there are multiple root clients and the client has no custom parameters.
         /// Otherwise, creates a new instance specific to the client.

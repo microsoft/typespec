@@ -5,6 +5,7 @@ using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Expressions;
@@ -25,8 +26,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         [SetUp]
         public void SetUp()
         {
-            // Reset the singleton instance before each test
-            ClientOptionsProvider.ResetSingleton();
+            // Reset the singleton instance before each test using reflection
+            var singletonField = typeof(ClientOptionsProvider).GetField("_singletonInstance", BindingFlags.Static | BindingFlags.NonPublic);
+            singletonField?.SetValue(null, null);
 
             var categories = TestContext.CurrentContext.Test?.Properties["Category"];
             bool containsApiVersions = categories?.Contains(ApiVersionsCategory) ?? false;
