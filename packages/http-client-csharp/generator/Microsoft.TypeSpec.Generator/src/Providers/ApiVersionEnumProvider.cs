@@ -106,14 +106,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return currentApiVersions;
             }
 
-            var currentVersionNames = new HashSet<string>(currentApiVersions.Select(v => v.Name), StringComparer.OrdinalIgnoreCase);
+            var currentVersionsLookup = currentApiVersions.ToDictionary(v => v.Name, StringComparer.OrdinalIgnoreCase);
             var allMembers = new List<EnumTypeMember>(currentApiVersions.Count + lastContractFields.Count);
-            allMembers.AddRange(currentApiVersions);
-
             bool addedPreviousApiVersion = false;
+
+            // First, add all missing backward compatibility versions in their original order
             foreach (var field in lastContractFields)
             {
-                if (!currentVersionNames.Contains(field.Name))
+                if (currentVersionsLookup.TryGetValue(field.Name, out var existingMember))
+                {
+                    allMembers.Add(existingMember);
+                }
+                else
                 {
                     var (versionPrefix, versionSeparator) = ExtractVersionFormatInfo(field.Name, currentApiVersions);
                     string enumValue = field.Name.ToApiVersionValue(versionPrefix, versionSeparator);
@@ -127,7 +131,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return currentApiVersions;
             }
 
-            SortApiVersions(allMembers);
+            var processedNames = new HashSet<string>(lastContractFields.Select(f => f.Name), StringComparer.OrdinalIgnoreCase);
+            // Then, add new versions in the wire order
+            foreach (var currentVersion in currentApiVersions)
+            {
+                if (!processedNames.Contains(currentVersion.Name))
+                {
+                    allMembers.Add(currentVersion);
+                }
+            }
 
             for (int i = 0; i < allMembers.Count; i++)
             {
@@ -145,59 +157,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return allMembers;
         }
 
-        private static void SortApiVersions(List<EnumTypeMember> allMembers)
-        {
-            allMembers.Sort((x, y) =>
-            {
-                // Extract base names and version types
-                var (xBase, xType, xPrereleaseNumber) = ParseVersionInfo(x.Name);
-                var (yBase, yType, yPreReleaseNumber) = ParseVersionInfo(y.Name);
-
-                // First compare base names
-                int baseComparison = string.Compare(xBase, yBase, StringComparison.OrdinalIgnoreCase);
-                if (baseComparison != 0)
-                {
-                    return baseComparison;
-                }
-
-                // If base names are equal, and version types are equal, compare prerelease numbers
-                if (xType == yType)
-                {
-                    return xPrereleaseNumber.CompareTo(yPreReleaseNumber);
-                }
-
-                return xType.CompareTo(yType);
-            });
-
-            static (string BaseName, VersionType VersionType, int PrereleaseNumber) ParseVersionInfo(string name)
-            {
-                // Common patterns for Beta/Preview versions
-                string[] versionIndicators = ["_Beta", "_Preview"];
-
-                foreach (var indicator in versionIndicators)
-                {
-                    int index = name.IndexOf(indicator, StringComparison.OrdinalIgnoreCase);
-                    if (index >= 0)
-                    {
-                        string baseName = name.Substring(0, index).Trim('_');
-                        return (baseName, Enum.Parse<VersionType>(indicator.TrimStart('_')),
-                            int.TryParse(name.Substring(index + indicator.Length).Trim('_'), out int prereleaseNumber) ? prereleaseNumber : 0);
-                    }
-                }
-
-                // No version indicator found, it's a GA version
-                return (name, VersionType.GA, 0);
-            }
-        }
-
-        private enum VersionType
-        {
-            Beta,
-            // Beta and Preview should never occur in the same enum, but handle it gracefully
-            Preview,
-            GA
-        }
-
         private static (string? Prefix, char? Separator) ExtractVersionFormatInfo(string previousVersion, List<EnumTypeMember> currentApiVersions)
         {
             if (currentApiVersions.Count == 0)
@@ -206,6 +165,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             bool previousVersionIsDateFormat = IsDateFormat(previousVersion);
+            string? versionPrefix = null;
+            char? separator = null;
 
             // validate if any current version is also a date format, if so follow the same format
             if (previousVersionIsDateFormat)
@@ -213,11 +174,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 EnumTypeMember? dateFormatVersion = currentApiVersions.FirstOrDefault(v => v.Value is string apiValue && IsDateFormat(apiValue));
                 if (dateFormatVersion?.Value is string apiValue)
                 {
-                    string? versionPrefix = apiValue.StartsWith("v", StringComparison.InvariantCultureIgnoreCase)
+                    versionPrefix = apiValue.StartsWith("v", StringComparison.InvariantCultureIgnoreCase)
                         ? apiValue[0].ToString()
                         : null;
-                    char? separator = ExtractApiVersionSeparator(apiValue);
-                    return (versionPrefix, separator);
+                    separator = ExtractApiVersionSeparator(apiValue);
                 }
             }
             else
@@ -226,15 +186,26 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 EnumTypeMember? nonDateVersion = currentApiVersions.FirstOrDefault(v => v.Value is string apiValue && !IsDateFormat(apiValue));
                 if (nonDateVersion?.Value is string currentVersionValue)
                 {
-                    string? versionPrefix = currentVersionValue.StartsWith("v", StringComparison.InvariantCultureIgnoreCase)
+                    versionPrefix = currentVersionValue.StartsWith("v", StringComparison.InvariantCultureIgnoreCase)
                         ? currentVersionValue[0].ToString()
                         : null;
-                    char? separator = ExtractApiVersionSeparator(currentVersionValue);
-                    return (versionPrefix, separator);
+                    separator = ExtractApiVersionSeparator(currentVersionValue);
                 }
             }
 
-            return (null, null);
+            if (!previousVersionIsDateFormat && versionPrefix == null && IsSingleDigitVersion(previousVersion))
+            {
+                versionPrefix = "v";
+            }
+
+            return (versionPrefix, separator);
+        }
+
+        private static bool IsSingleDigitVersion(string version)
+        {
+            return version.Length == 2
+                && version.StartsWith("v", StringComparison.InvariantCultureIgnoreCase)
+                && char.IsDigit(version[1]);
         }
 
         private static bool IsDateFormat(string version)
