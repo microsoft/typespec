@@ -440,6 +440,7 @@ async function addIdentifierCompletion(
           }
         : undefined,
       kind,
+      data: sym.parent?.name,
     };
 
     if (sym.name.startsWith("$")) {

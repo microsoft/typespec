@@ -1153,7 +1153,11 @@ export function createServer(
 
       // Filter out internal decorators that should not be exposed in autocomplete
       completions.items = completions.items.filter((item) => {
-        return item.label !== "indexer" && item.label !== "docFromComment";
+        return !(
+          (item.label === "indexer" || item.label === "docFromComment") &&
+          item.data === "TypeSpec" &&
+          item.documentation === undefined
+        );
       });
 
       return completions;
