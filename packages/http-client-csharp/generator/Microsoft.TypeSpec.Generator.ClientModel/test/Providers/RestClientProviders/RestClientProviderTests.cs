@@ -104,7 +104,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         [TestCaseSource(nameof(GetMethodParametersTestCases))]
         public void TestGetMethodParameters(InputServiceMethod inputServiceMethod)
         {
-            var methodParameters = RestClientProvider.GetMethodParameters(inputServiceMethod, ScmMethodProvider.MethodType.Convenience);
+            var methodParameters = RestClientProvider.GetMethodParameters(inputServiceMethod, ScmMethodKind.Convenience);
 
             Assert.IsTrue(methodParameters.Count > 0);
 
@@ -139,7 +139,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         [TestCase]
         public void TestGetMethodParameters_ProperOrdering()
         {
-            var methodParameters = RestClientProvider.GetMethodParameters(ServiceMethodWithMixedParamOrdering, ScmMethodProvider.MethodType.Convenience);
+            var methodParameters = RestClientProvider.GetMethodParameters(ServiceMethodWithMixedParamOrdering, ScmMethodKind.Convenience);
 
             Assert.AreEqual(ServiceMethodWithMixedParamOrdering.Parameters.Count, methodParameters.Count);
 
@@ -152,7 +152,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.AreEqual("optionalHeader", methodParameters[5].Name);
             Assert.AreEqual("optionalContentType", methodParameters[6].Name);
 
-            var orderedPathParams = RestClientProvider.GetMethodParameters(ServiceMethodWithOnlyPathParams, ScmMethodProvider.MethodType.Convenience);
+            var orderedPathParams = RestClientProvider.GetMethodParameters(ServiceMethodWithOnlyPathParams, ScmMethodKind.Convenience);
             Assert.AreEqual(ServiceMethodWithOnlyPathParams.Parameters.Count, orderedPathParams.Count);
             Assert.AreEqual("c", orderedPathParams[0].Name);
             Assert.AreEqual("a", orderedPathParams[1].Name);
@@ -185,7 +185,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 "TestClient",
                 methods: [testServiceMethod]);
             var clientProvider = new ClientProvider(client);
-            var parameters = RestClientProvider.GetMethodParameters(testServiceMethod, ScmMethodProvider.MethodType.Convenience);
+            var parameters = RestClientProvider.GetMethodParameters(testServiceMethod, ScmMethodKind.Convenience);
             Assert.IsNotNull(parameters);
 
             if (isRequired)
@@ -705,7 +705,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                     InputFactory.MethodParameter("normalBody", InputPrimitiveType.Boolean, isRequired: false, location: InputRequestLocation.Body)
                 ]);
 
-            var methodParameters = RestClientProvider.GetMethodParameters(inputServiceMethod, ScmMethodProvider.MethodType.Protocol);
+            var methodParameters = RestClientProvider.GetMethodParameters(inputServiceMethod, ScmMethodKind.Protocol);
 
             // Verify read-only parameters are filtered out
             Assert.IsFalse(methodParameters.Any(p => p.Name == "readOnlyPath"));
@@ -737,7 +737,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                     InputFactory.MethodParameter("normalHeader", InputPrimitiveType.Boolean, isRequired: false, location: InputRequestLocation.Header)
                 ]);
 
-            var methodParameters = RestClientProvider.GetMethodParameters(inputServiceMethod, ScmMethodProvider.MethodType.Convenience);
+            var methodParameters = RestClientProvider.GetMethodParameters(inputServiceMethod, ScmMethodKind.Convenience);
 
             // Verify read-only parameters are filtered out
             Assert.IsFalse(methodParameters.Any(p => p.Name == "readOnlyQuery"));
@@ -773,7 +773,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                     InputFactory.MethodParameter("normalBody", InputPrimitiveType.Boolean, isRequired: false, location: InputRequestLocation.Body)
                 ]);
 
-            var methodParameters = RestClientProvider.GetMethodParameters(inputServiceMethod, ScmMethodProvider.MethodType.Convenience);
+            var methodParameters = RestClientProvider.GetMethodParameters(inputServiceMethod, ScmMethodKind.Convenience);
 
             Assert.AreEqual(4, methodParameters.Count); // Only non-readonly parameters
             Assert.IsTrue(methodParameters.Any(p => p.Name == "normalPath"));

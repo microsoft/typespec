@@ -1086,33 +1086,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
 
             // Verify protocol methods
-            var protocolMethods = methodCollection.Where(m => ((ScmMethodProvider)m).IsProtocolMethod).ToList();
+            var protocolMethods = methodCollection.Where(m => ((ScmMethodProvider)m).Kind == ScmMethodKind.Protocol).ToList();
             Assert.AreEqual(2, protocolMethods.Count); // sync + async
-            foreach (ScmMethodProvider method in protocolMethods)
-            {
-                Assert.IsTrue(method.IsProtocolMethod);
-                Assert.IsFalse(method.IsConvenienceMethod);
-                Assert.IsFalse(method.IsCreateRequestMethod);
-                Assert.AreEqual(ScmMethodProvider.MethodType.Protocol, method.Type);
-            }
 
             // Verify convenience methods
-            var convenienceMethods = methodCollection.Where(m => ((ScmMethodProvider)m).IsConvenienceMethod).ToList();
+            var convenienceMethods = methodCollection.Where(m => ((ScmMethodProvider)m).Kind == ScmMethodKind.Convenience).ToList();
             Assert.AreEqual(2, convenienceMethods.Count); // sync + async
-            foreach (ScmMethodProvider method in convenienceMethods)
-            {
-                Assert.IsFalse(method.IsProtocolMethod);
-                Assert.IsTrue(method.IsConvenienceMethod);
-                Assert.IsFalse(method.IsCreateRequestMethod);
-                Assert.AreEqual(ScmMethodProvider.MethodType.Convenience, method.Type);
-            }
 
             // Verify CreateRequest method
             var createRequestMethod = (ScmMethodProvider)client!.RestClient.GetCreateRequestMethod(inputOperation);
-            Assert.IsFalse(createRequestMethod.IsProtocolMethod);
-            Assert.IsFalse(createRequestMethod.IsConvenienceMethod);
-            Assert.IsTrue(createRequestMethod.IsCreateRequestMethod);
-            Assert.AreEqual(ScmMethodProvider.MethodType.CreateRequest, createRequestMethod.Type);
+            Assert.AreEqual(ScmMethodKind.CreateRequest, createRequestMethod.Kind);
         }
     }
 }

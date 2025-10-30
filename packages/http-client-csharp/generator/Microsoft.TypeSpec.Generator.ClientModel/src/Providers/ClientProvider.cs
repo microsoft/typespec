@@ -706,7 +706,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         Static(typeof(Volatile)).Invoke(nameof(Volatile.Read), cachedClientFieldVar)
                         .NullCoalesce(interlockedCompareExchange.NullCoalesce(subClient._clientCachingField))),
                     this,
-                    ScmMethodProvider.MethodType.Convenience);
+                    ScmMethodKind.Convenience);
                 methods.Add(factoryMethod);
             }
 
