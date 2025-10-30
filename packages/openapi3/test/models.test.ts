@@ -2,9 +2,9 @@ import { DiagnosticTarget } from "@typespec/compiler";
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
-import { worksFor } from "./works-for.js";
+import { supportedVersions, worksFor } from "./works-for.js";
 
-worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) => {
+worksFor(supportedVersions, ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) => {
   it("defines models", async () => {
     const res = await oapiForModel(
       "Foo",

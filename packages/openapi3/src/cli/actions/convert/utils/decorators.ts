@@ -4,7 +4,9 @@ import {
   Extensions,
   OpenAPI3Parameter,
   OpenAPI3Schema,
+  OpenAPIParameter3_2,
   OpenAPISchema3_1,
+  OpenAPISchema3_2,
   Refable,
 } from "../../../../types.js";
 import { TSValue, TypeSpecDecorator } from "../interfaces.js";
@@ -40,11 +42,13 @@ function isExtensionKey(key: string): key is ExtensionKey {
   return key.startsWith("x-");
 }
 
-export function getParameterDecorators(parameter: OpenAPI3Parameter) {
+export function getParameterDecorators(parameter: OpenAPI3Parameter | OpenAPIParameter3_2) {
   const decorators: TypeSpecDecorator[] = [];
 
   decorators.push(...getExtensions(parameter));
-  decorators.push(...getDecoratorsForSchema(parameter.schema));
+  if ("schema" in parameter && parameter.schema) {
+    decorators.push(...getDecoratorsForSchema(parameter.schema));
+  }
 
   const locationDecorator = getLocationDecorator(parameter);
   if (locationDecorator) decorators.push(locationDecorator);
@@ -52,7 +56,9 @@ export function getParameterDecorators(parameter: OpenAPI3Parameter) {
   return decorators;
 }
 
-function getLocationDecorator(parameter: OpenAPI3Parameter): TypeSpecDecorator | undefined {
+function getLocationDecorator(
+  parameter: OpenAPI3Parameter | OpenAPIParameter3_2,
+): TypeSpecDecorator | undefined {
   if (!validLocations.includes(parameter.in)) return;
 
   const decorator: TypeSpecDecorator = {
@@ -63,10 +69,10 @@ function getLocationDecorator(parameter: OpenAPI3Parameter): TypeSpecDecorator |
   let decoratorArgs: TypeSpecDecorator["args"][0] | undefined;
   switch (parameter.in) {
     case "header":
-      decoratorArgs = getHeaderArgs(parameter);
+      decoratorArgs = getHeaderArgs(parameter.explode ?? false);
       break;
     case "query":
-      decoratorArgs = getQueryArgs(parameter);
+      decoratorArgs = getQueryArgs({ explode: parameter.explode ?? true, style: parameter.style });
       break;
   }
 
@@ -98,7 +104,7 @@ export function normalizeObjectValueToTSValueExpression(value: any): string {
   } else return `${JSON.stringify(value)}`;
 }
 
-function getQueryArgs(parameter: OpenAPI3Parameter): TSValue | undefined {
+function getQueryArgs(parameter: { explode: boolean; style?: string }): TSValue | undefined {
   const queryOptions = getNormalizedQueryOptions(parameter);
   return createTSValueFromObjectValue(queryOptions);
 }
@@ -140,7 +146,7 @@ function getNormalizedQueryOptions({
   return queryOptions;
 }
 
-function getHeaderArgs({ explode }: OpenAPI3Parameter): TSValue | undefined {
+function getHeaderArgs(explode: boolean): TSValue | undefined {
   if (explode === true) {
     return createTSValue(`#{ explode: true }`);
   }
@@ -149,7 +155,7 @@ function getHeaderArgs({ explode }: OpenAPI3Parameter): TSValue | undefined {
 }
 
 export function getDecoratorsForSchema(
-  schema: Refable<OpenAPI3Schema | OpenAPISchema3_1>,
+  schema: Refable<OpenAPI3Schema | OpenAPISchema3_1 | OpenAPISchema3_2>,
 ): TypeSpecDecorator[] {
   const decorators: TypeSpecDecorator[] = [];
 

@@ -75,6 +75,16 @@ export function getOpenApiSpecProps(specVersion: OpenAPIVersion): OpenApiSpecSpe
         getRawBinarySchema: getRawBinarySchema3_1,
         isRawBinarySchema: isRawBinarySchema3_1,
       };
+    case "3.2.0":
+      return {
+        applyEncoding: applyEncoding3_1,
+        createRootDoc(program, serviceType, serviceVersion) {
+          return createRoot(program, serviceType, specVersion, serviceVersion);
+        },
+        createSchemaEmitter: createSchemaEmitter3_1,
+        getRawBinarySchema: getRawBinarySchema3_1,
+        isRawBinarySchema: isRawBinarySchema3_1,
+      };
   }
 }
 

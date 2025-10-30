@@ -2,9 +2,9 @@ import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
 import { ApiTester, openApiForVersions } from "./test-host.js";
-import { worksFor } from "./works-for.js";
+import { supportedVersions, worksFor } from "./works-for.js";
 
-worksFor(["3.0.0", "3.1.0"], ({ openApiFor, version: specVersion }) => {
+worksFor(supportedVersions, ({ openApiFor, version: specVersion }) => {
   const TesterWithVersioning = ApiTester.importLibraries()
     .using("Http", "Rest", "Versioning")
     .emit("@typespec/openapi3", { "openapi-versions": [specVersion] });
