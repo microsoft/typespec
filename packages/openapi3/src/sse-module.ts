@@ -28,21 +28,9 @@ export async function resolveSSEModule(): Promise<SSEModule | undefined> {
   return {
     isSSEStream: (program: Program, type: Type): boolean => {
       if (type.kind !== "Model") return false;
-      // Check if this is an SSEStream by checking if it's a stream with content type "text/event-stream"
+      // Check if this is a stream - we rely on contentType filtering in the caller
       const streamOf = streams.getStreamOf(program, type);
-      if (!streamOf) return false;
-
-      // Check if the model has a contentType property with value "text/event-stream"
-      if (type.kind === "Model") {
-        const contentTypeProp = type.properties.get("contentType");
-        if (
-          contentTypeProp?.type?.kind === "String" &&
-          contentTypeProp.type.value === "text/event-stream"
-        ) {
-          return true;
-        }
-      }
-      return false;
+      return !!streamOf;
     },
 
     getSSEStreamType: (program: Program, type: Type): Type | undefined => {
