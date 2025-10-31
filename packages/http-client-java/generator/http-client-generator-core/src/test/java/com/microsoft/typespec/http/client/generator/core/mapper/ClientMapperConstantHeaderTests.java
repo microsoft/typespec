@@ -17,7 +17,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.StringSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -117,7 +117,7 @@ public class ClientMapperConstantHeaderTests {
         protocols.setHttp(httpProtocol);
         response.setProtocol(protocols);
 
-        operation.setResponses(new ArrayList<>(Collections.singletonList(response)));
+        operation.setResponses(Arrays.asList(response));
 
         return operation;
     }
@@ -163,7 +163,7 @@ public class ClientMapperConstantHeaderTests {
         protocols.setHttp(httpProtocol);
         response.setProtocol(protocols);
 
-        operation.setResponses(new ArrayList<>(Collections.singletonList(response)));
+        operation.setResponses(Arrays.asList(response));
 
         return operation;
     }

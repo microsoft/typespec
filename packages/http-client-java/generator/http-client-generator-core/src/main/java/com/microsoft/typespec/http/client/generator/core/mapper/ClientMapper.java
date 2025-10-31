@@ -573,11 +573,13 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
                 for (Header header : response.getProtocol().getHttp().getHeaders()) {
                     // Filter out constant headers - they are known beforehand and not useful in response
                     if (header.getSchema() instanceof ConstantSchema) {
+                        String headerName = header.getHeader();
+                        Object constantValue = ((ConstantSchema) header.getSchema()).getValue().getValue();
+                        String operationName = operation.getLanguage().getJava().getName();
                         Javagen.getPluginInstance()
                             .getLogger()
                             .warn("Filtered out constant response header '{}' with value '{}' in operation '{}'",
-                                header.getHeader(), ((ConstantSchema) header.getSchema()).getValue().getValue(),
-                                operation.getLanguage().getJava().getName());
+                                headerName, constantValue, operationName);
                         continue;
                     }
                     headerExtensions.put(header.getHeader(), header.getExtensions());
