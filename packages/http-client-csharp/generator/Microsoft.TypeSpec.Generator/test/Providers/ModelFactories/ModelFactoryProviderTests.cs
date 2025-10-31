@@ -22,7 +22,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         [SetUp]
         public void Setup()
         {
-            _instance = MockHelpers.LoadMockGenerator(inputModelTypes: ModelList).Object;
+            _instance = MockHelpers.LoadMockGenerator(inputNamespaceName: "Sample.Namespace", inputModelTypes: ModelList).Object;
         }
 
         [Test]
@@ -135,6 +135,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         public async Task BackCompatibility_NewModelPropertyAdded()
         {
             _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
                 inputModelTypes: ModelList,
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
 
@@ -200,6 +201,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         public async Task BackCompatibility_OnlyParamOrderingChanged()
         {
             _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
                 inputModelTypes: ModelList,
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
 
@@ -250,8 +252,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.IsNotNull(body);
             var result = body!.ToDisplayString();
             Assert.AreEqual(
-                "listProp ??= new global::Sample.ChangeTrackingList<string>();\n" +
-                "dictProp ??= new global::Sample.ChangeTrackingDictionary<string, string>();\n\n" +
+                "listProp ??= new global::Sample.Namespace.ChangeTrackingList<string>();\n" +
+                "dictProp ??= new global::Sample.Namespace.ChangeTrackingDictionary<string, string>();\n\n" +
                 "return new global::Sample.Models.PublicModel1(stringProp, modelProp, listProp.ToList(), dictProp, additionalBinaryDataProperties: null);\n",
                 result);
 
@@ -259,8 +261,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.IsNotNull(body);
             result = body!.ToDisplayString();
             Assert.AreEqual(
-                "listProp ??= new global::Sample.ChangeTrackingList<string>();\n" +
-                "dictProp ??= new global::Sample.ChangeTrackingDictionary<string, string>();\n\n" +
+                "listProp ??= new global::Sample.Namespace.ChangeTrackingList<string>();\n" +
+                "dictProp ??= new global::Sample.Namespace.ChangeTrackingDictionary<string, string>();\n\n" +
                 "return new global::Sample.Models.PublicModel2(stringProp, modelProp, listProp.ToList(), dictProp, additionalBinaryDataProperties: null);\n",
                 result);
         }
@@ -269,6 +271,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         public async Task BackCompatibility_NoCurrentOverloadFound()
         {
             _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
                 inputModelTypes: ModelList,
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
 

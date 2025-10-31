@@ -14,6 +14,7 @@ using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
+using Microsoft.TypeSpec.Generator.Tests.TestHelpers;
 using NUnit.Framework;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
@@ -59,15 +60,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Writers
                 File.Delete(Path.Join(CodeModelGenerator.Instance.Configuration.OutputDirectory, "TestName.cs"));
             }
         }
-    }
-
-    public class TestOutputLibrary : OutputLibrary
-    {
-        public TestOutputLibrary(TypeProvider typeProvider)
-        {
-            TypeProviders = new List<TypeProvider> { typeProvider };
-        }
-        protected override TypeProvider[] BuildTypeProviders() => TypeProviders.ToArray();
     }
 
     public class TestRewriter : LibraryRewriter

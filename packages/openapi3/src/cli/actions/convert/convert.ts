@@ -1,6 +1,6 @@
-import OpenAPIParser from "@apidevtools/swagger-parser";
+import { AnyObject, dereference } from "@scalar/openapi-parser";
 import { formatTypeSpec } from "@typespec/compiler";
-import { OpenAPI3Document } from "../../../types.js";
+import { SupportedOpenAPIDocuments } from "../../../types.js";
 import { generateMain } from "./generators/generate-main.js";
 import { transform } from "./transforms/transforms.js";
 import { createContext } from "./utils/context.js";
@@ -17,17 +17,24 @@ export interface ConvertOpenAPI3DocumentOptions {
 }
 
 export async function convertOpenAPI3Document(
-  document: OpenAPI3Document,
+  document: SupportedOpenAPIDocuments,
   { disableExternalRefs, namespace }: ConvertOpenAPI3DocumentOptions = {},
 ) {
-  const parser = new OpenAPIParser();
-  const bundleOptions = disableExternalRefs
+  const dereferenceOptions = disableExternalRefs
     ? {
-        resolve: { external: false, http: false, file: false },
+        onDereference: (data: { schema: AnyObject; ref: string }): void => {
+          if (data.ref.startsWith("#")) {
+            return;
+          }
+          throw new Error(`External $ref pointers are disabled, but found $ref: ${data.ref}`);
+        },
       }
     : {};
-  await parser.bundle(document as any, bundleOptions);
-  const context = createContext(parser, document, console, namespace);
+  const { specification } = await dereference(document, dereferenceOptions);
+  if (!specification) {
+    throw new Error("Failed to dereference OpenAPI document");
+  }
+  const context = createContext(document, console, namespace);
   const program = transform(context);
   const content = generateMain(program, context);
   try {

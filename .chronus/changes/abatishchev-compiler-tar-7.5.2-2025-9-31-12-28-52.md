@@ -1,8 +1,6 @@
 ---
 # Change versionKind to one of: internal, fix, dependencies, feature, deprecation, breaking
-changeKind: fix
+changeKind: internal
 packages:
-  - typespec-vs
+  - "@typespec/compiler"
 ---
-
-Upgrade VS dependencies to fix vulnerability 
