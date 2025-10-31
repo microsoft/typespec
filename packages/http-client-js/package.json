@@ -53,14 +53,14 @@
     "@typespec/rest": "workspace:^"
   },
   "dependencies": {
-    "@alloy-js/core": "^0.20.0",
-    "@alloy-js/typescript": "^0.20.0",
+    "@alloy-js/core": "^0.21.0",
+    "@alloy-js/typescript": "^0.21.0",
     "@typespec/emitter-framework": "workspace:^",
     "@typespec/http-client": "workspace:^",
     "prettier": "~3.6.2"
   },
   "devDependencies": {
-    "@alloy-js/cli": "^0.20.0",
+    "@alloy-js/cli": "^0.21.0",
     "@alloy-js/rollup-plugin": "^0.1.0",
     "@types/yargs": "~17.0.33",
     "@typespec/http": "workspace:^",
