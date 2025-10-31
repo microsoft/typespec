@@ -1,5 +1,12 @@
 # Change Log - @typespec/http-client-python
 
+## 0.20.1
+
+### Bug Fixes
+
+- [7eda352](https://github.com/microsoft/typespec/commit/7eda3523a429568b5c713d70d45976c2676fa702) [python] add flag for clear output folder and set default to false
+
+
 ## 0.20.0
 
 ### Features
