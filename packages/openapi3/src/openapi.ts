@@ -129,6 +129,7 @@ import {
 import { resolveVersioningModule } from "./versioning-module.js";
 import { resolveVisibilityUsage, VisibilityUsageTracker } from "./visibility-usage.js";
 import { resolveXmlModule, XmlModule } from "./xml-module.js";
+import { resolveSSEModule, SSEModule } from "./sse-module.js";
 
 const defaultFileType: FileType = "yaml";
 const defaultOptions = {
@@ -286,6 +287,7 @@ function createOAPIEmitter(
 
   let metadataInfo: MetadataInfo;
   let visibilityUsage: VisibilityUsageTracker;
+  let sseModule: SSEModule | undefined;
 
   // Map model properties that represent shared parameters to their parameter
   // definition that will go in #/components/parameters. Inlined parameters do not go in
@@ -378,11 +380,16 @@ function createOAPIEmitter(
     service: Service,
     allHttpAuthentications: HttpAuth[],
     defaultAuth: AuthenticationReference,
-    optionalDependencies: { jsonSchemaModule?: JsonSchemaModule; xmlModule?: XmlModule },
+    optionalDependencies: {
+      jsonSchemaModule?: JsonSchemaModule;
+      xmlModule?: XmlModule;
+      sseModule?: SSEModule;
+    },
     version?: string,
   ) {
     diagnostics = createDiagnosticCollector();
     currentService = service;
+    sseModule = optionalDependencies.sseModule;
     metadataInfo = createMetadataInfo(program, {
       canonicalVisibility: Visibility.Read,
       canShareProperty: (p) => isReadonlyProperty(program, p),
@@ -711,11 +718,12 @@ function createOAPIEmitter(
 
       const xmlModule = await resolveXmlModule();
       const jsonSchemaModule = await resolveJsonSchemaModule();
+      const sseModule = await resolveSSEModule();
       initializeEmitter(
         service,
         auth.schemes,
         auth.defaultAuth,
-        { xmlModule, jsonSchemaModule },
+        { xmlModule, jsonSchemaModule, sseModule },
         version,
       );
       reportIfNoRoutes(program, httpService.operations);
@@ -1172,6 +1180,30 @@ function createOAPIEmitter(
     const isBinary = isBinaryPayload(body.type, contentType);
     if (isBinary) {
       return { schema: getRawBinarySchema(contentType) } as OpenAPI3MediaType;
+    }
+
+    // Check if this is an SSE stream for OpenAPI 3.2
+    if (
+      contentType === "text/event-stream" &&
+      sseModule &&
+      specVersion === "3.2.0" &&
+      body.bodyKind === "single"
+    ) {
+      const isSSE = sseModule.isSSEStream(program, body.type);
+      if (isSSE) {
+        const streamType = sseModule.getSSEStreamType(program, body.type);
+        if (streamType) {
+          const mediaType: any = {};
+          sseModule.attachSSEItemSchema(
+            program,
+            options,
+            streamType,
+            mediaType,
+            (type: Type) => callSchemaEmitter(type, visibility, false, "application/json"),
+          );
+          return mediaType;
+        }
+      }
     }
 
     const oai3Examples = examples && getExampleOrExamples(program, examples);

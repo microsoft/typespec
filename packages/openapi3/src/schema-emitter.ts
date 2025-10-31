@@ -80,6 +80,7 @@ import {
 } from "./util.js";
 import { VisibilityUsageTracker } from "./visibility-usage.js";
 import { XmlModule } from "./xml-module.js";
+import { SSEModule } from "./sse-module.js";
 
 /**
  * Base OpenAPI3 schema emitter. Deals with emitting content of `components/schemas` section.
@@ -92,13 +93,18 @@ export class OpenAPI3SchemaEmitterBase<
   protected _options: ResolvedOpenAPI3EmitterOptions;
   protected _jsonSchemaModule: JsonSchemaModule | undefined;
   protected _xmlModule: XmlModule | undefined;
+  protected _sseModule: SSEModule | undefined;
 
   constructor(
     emitter: AssetEmitter<Record<string, any>, OpenAPI3EmitterOptions>,
     metadataInfo: MetadataInfo,
     visibilityUsage: VisibilityUsageTracker,
     options: ResolvedOpenAPI3EmitterOptions,
-    optionalDependencies: { jsonSchemaModule?: JsonSchemaModule; xmlModule?: XmlModule },
+    optionalDependencies: {
+      jsonSchemaModule?: JsonSchemaModule;
+      xmlModule?: XmlModule;
+      sseModule?: SSEModule;
+    },
   ) {
     super(emitter);
     this._metadataInfo = metadataInfo;
@@ -106,6 +112,7 @@ export class OpenAPI3SchemaEmitterBase<
     this._options = options;
     this._jsonSchemaModule = optionalDependencies.jsonSchemaModule;
     this._xmlModule = optionalDependencies.xmlModule;
+    this._sseModule = optionalDependencies.sseModule;
   }
 
   modelDeclarationReferenceContext(model: Model, name: string): Context {
