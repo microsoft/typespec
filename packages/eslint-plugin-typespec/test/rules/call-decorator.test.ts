@@ -1,6 +1,6 @@
 import { RuleTester } from "@typescript-eslint/rule-tester";
-import { callDecoratorRule } from "../../src/rules/call-decorator";
-import { getFixturesRootDir } from "./utils";
+import { callDecoratorRule } from "../../src/rules/call-decorator.js";
+import { getFixturesRootDir } from "./utils.js";
 
 const rootDir = getFixturesRootDir();
 

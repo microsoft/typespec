@@ -1,8 +1,8 @@
 import {
-  OpenAPI3Document,
   OpenAPI3PathItem,
   OpenAPI3RequestBody,
   Refable,
+  SupportedOpenAPIDocuments,
 } from "../../../../types.js";
 import { TypeSpecModel, TypeSpecProgram } from "../interfaces.js";
 import { Context } from "../utils/context.js";
@@ -36,7 +36,7 @@ export function transform(context: Context): TypeSpecProgram {
  * Scans all operations in the OpenAPI document to identify schemas used in multipart forms
  * and registers them with their encoding information before model generation.
  */
-function scanForMultipartSchemas(openapi: OpenAPI3Document, context: Context): void {
+function scanForMultipartSchemas(openapi: SupportedOpenAPIDocuments, context: Context): void {
   if (!openapi.paths) return;
 
   for (const path of Object.values(openapi.paths)) {

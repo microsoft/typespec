@@ -154,7 +154,7 @@ namespace SampleTypeSpec.Models.Custom
         /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="Friend"/> from. </param>
         public static explicit operator Friend(ClientResult result)
         {
-            using PipelineResponse response = result.GetRawResponse();
+            PipelineResponse response = result.GetRawResponse();
             using JsonDocument document = JsonDocument.Parse(response.Content);
             return DeserializeFriend(document.RootElement, ModelSerializationExtensions.WireOptions);
         }

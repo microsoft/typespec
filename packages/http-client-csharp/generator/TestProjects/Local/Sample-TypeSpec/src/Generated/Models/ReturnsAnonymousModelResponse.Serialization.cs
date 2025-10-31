@@ -130,7 +130,7 @@ namespace SampleTypeSpec
         /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="ReturnsAnonymousModelResponse"/> from. </param>
         public static explicit operator ReturnsAnonymousModelResponse(ClientResult result)
         {
-            using PipelineResponse response = result.GetRawResponse();
+            PipelineResponse response = result.GetRawResponse();
             using JsonDocument document = JsonDocument.Parse(response.Content);
             return DeserializeReturnsAnonymousModelResponse(document.RootElement, ModelSerializationExtensions.WireOptions);
         }

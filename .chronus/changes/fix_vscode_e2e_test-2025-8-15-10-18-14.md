@@ -1,8 +1,8 @@
 ---
 # Change versionKind to one of: internal, fix, dependencies, feature, deprecation, breaking
-changeKind: fix
+changeKind: internal
 packages:
-  - typespec-vs
+  - typespec-vscode
 ---
 
-Upgrade VS dependencies to fix vulnerability 
+Fix vscode e2e test when making a release pr

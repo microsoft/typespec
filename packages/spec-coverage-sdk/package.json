@@ -7,8 +7,7 @@
   "scripts": {
     "watch": "tsc -p ./tsconfig.build.json --watch",
     "build": "tsc -p ./tsconfig.build.json",
-    "clean": "rimraf dist/ temp/",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "clean": "rimraf dist/ temp/"
   },
   "engines": {
     "node": ">=16.0.0"
@@ -24,9 +23,9 @@
   },
   "homepage": "https://github.com/microsoft/typespec#readme",
   "dependencies": {
-    "@azure/identity": "~4.12.0",
-    "@azure/storage-blob": "~12.28.0",
-    "@types/node": "~24.3.0"
+    "@azure/identity": "~4.13.0",
+    "@azure/storage-blob": "~12.29.1",
+    "@types/node": "~24.9.1"
   },
   "devDependencies": {
     "rimraf": "~6.0.1",

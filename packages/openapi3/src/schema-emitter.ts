@@ -71,12 +71,7 @@ import { JsonSchemaModule } from "./json-schema.js";
 import { OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
 import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
 import { getSchemaForStdScalars } from "./std-scalar-schemas.js";
-import {
-  CommonOpenAPI3Schema,
-  OpenAPI3Schema,
-  OpenAPI3SchemaProperty,
-  OpenAPISchema3_1,
-} from "./types.js";
+import { CommonOpenAPI3Schema, OpenAPI3Schema, OpenAPISchema3_1, Refable } from "./types.js";
 import {
   ensureValidComponentFixedFieldKey,
   getDefaultValue,
@@ -363,7 +358,7 @@ export class OpenAPI3SchemaEmitterBase<
     return requiredProps.length > 0 ? requiredProps : undefined;
   }
 
-  modelProperties(model: Model): EmitterOutput<Record<string, OpenAPI3SchemaProperty>> {
+  modelProperties(model: Model): EmitterOutput<Record<string, Refable<OpenAPI3Schema>>> {
     const program = this.emitter.getProgram();
     const props = new ObjectBuilder();
     const visibility = this.emitter.getContext().visibility;
