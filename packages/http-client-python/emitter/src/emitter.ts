@@ -18,6 +18,7 @@ function addDefaultOptions(sdkContext: PythonSdkContext) {
     "package-version": "1.0.0b1",
     "generate-packaging-files": true,
     "validate-versioning": true,
+    "clear-output-folder": false,
   };
   sdkContext.emitContext.options = {
     ...defaultOptions,

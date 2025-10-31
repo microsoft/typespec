@@ -23,6 +23,7 @@ export interface PythonEmitterOptions {
   "head-as-boolean"?: boolean;
   "use-pyodide"?: boolean;
   "keep-setup-py"?: boolean;
+  "clear-output-folder"?: boolean;
 }
 
 export interface PythonSdkContext extends SdkContext<PythonEmitterOptions> {
@@ -98,6 +99,12 @@ export const PythonEmitterOptionsSchema: JSONSchemaType<PythonEmitterOptions> = 
       nullable: true,
       description:
         "Whether to keep the existing `setup.py` when `generate-packaging-files` is `true`. If set to `false` and by default, `pyproject.toml` will be generated instead. To generate `setup.py`, use `basic-setup-py`.",
+    },
+    "clear-output-folder": {
+      type: "boolean",
+      nullable: true,
+      description:
+        "Whether to clear the output folder before generating the code. Defaults to `false`.",
     },
   },
   required: [],
