@@ -2,7 +2,7 @@
 title: "Emitter usage"
 ---
 
-## Usage
+## Emitter usage
 
 1. Via the command line
 
@@ -101,3 +101,15 @@ Whether to generate using `pyodide` instead of `python`. If there is no python i
 **Type:** `boolean`
 
 Whether to validate the versioning of the package. Defaults to `true`. If set to `false`, we will not validate the versioning of the package.
+
+### `generation-subdir`
+
+**Type:** `string`
+
+The subdirectory to generate the code in. If not specified, the code will be generated in the root folder. Note: if you're using this flag, you will need to add and maintain the versioning file yourself.
+
+### `keep-setup-py`
+
+**Type:** `boolean`
+
+Whether to keep the existing `setup.py` when `generate-packaging-files` is `true`. If set to `false` and by default, `pyproject.toml` will be generated instead. To generate `setup.py`, use `basic-setup-py`.
