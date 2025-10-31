@@ -167,7 +167,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.StartUp
                     ""name"": ""dummy-project"",
                     ""version"": ""1.0.0"",
                     ""description"": ""Dummy project for testing purposes."",
-                    ""dependencies"": { ""plugin-1"": ""^1.0.0"", ""plugin-2"": ""^2.0.0"" }
+                    ""plugins"": { ""plugin-1"": ""^1.0.0"", ""plugin-2"": ""^2.0.0"" }
                 }");
 
                 File.WriteAllText(Path.Combine(plugin1Directory, "Plugin1.dll"), "Dummy DLL content");
@@ -182,6 +182,98 @@ namespace Microsoft.TypeSpec.Generator.Tests.StartUp
             {
                 File.Delete(Path.Combine(plugin1Directory, "Plugin1.dll"));
                 File.Delete(Path.Combine(plugin2Directory, "Plugin2.dll"));
+            }
+        }
+
+        [Test]
+        public void GetOrderedPluginDlls_ThrowsIfPluginDirectoryNotFound()
+        {
+            var testRoot = TestContext.CurrentContext.TestDirectory;
+            var pluginDirectory = Path.Combine(testRoot, "node_modules", "missing-plugin", "dist");
+            try
+            {
+                File.WriteAllText(Path.Combine(testRoot, "package.json"), @"{
+                    ""name"": ""dummy-project"",
+                    ""version"": ""1.0.0"",
+                    ""description"": ""Dummy project for testing purposes."",
+                    ""plugins"": { ""missing-plugin"": ""^1.0.0"" }
+                }");
+
+                var ex = Assert.Throws<InvalidOperationException>(() =>
+                    GeneratorHandler.GetOrderedPluginDlls(pluginDirectory));
+                
+                Assert.That(ex!.Message, Does.Contain("missing-plugin"));
+                Assert.That(ex.Message, Does.Contain("dist directory was not found"));
+            }
+            finally
+            {
+                // Cleanup
+                var packageJsonPath = Path.Combine(testRoot, "package.json");
+                if (File.Exists(packageJsonPath))
+                {
+                    File.Delete(packageJsonPath);
+                }
+            }
+        }
+
+        [Test]
+        public void GetOrderedPluginDlls_ThrowsIfPluginDllNotFound()
+        {
+            var testRoot = TestContext.CurrentContext.TestDirectory;
+            var pluginDirectory = Path.Combine(testRoot, "node_modules", "empty-plugin", "dist");
+            try
+            {
+                Directory.CreateDirectory(pluginDirectory);
+
+                File.WriteAllText(Path.Combine(testRoot, "package.json"), @"{
+                    ""name"": ""dummy-project"",
+                    ""version"": ""1.0.0"",
+                    ""description"": ""Dummy project for testing purposes."",
+                    ""plugins"": { ""empty-plugin"": ""^1.0.0"" }
+                }");
+
+                var ex = Assert.Throws<InvalidOperationException>(() =>
+                    GeneratorHandler.GetOrderedPluginDlls(pluginDirectory));
+                
+                Assert.That(ex!.Message, Does.Contain("empty-plugin"));
+                Assert.That(ex.Message, Does.Contain("no DLL files were found"));
+            }
+            finally
+            {
+                // Cleanup
+                var packageJsonPath = Path.Combine(testRoot, "package.json");
+                if (File.Exists(packageJsonPath))
+                {
+                    File.Delete(packageJsonPath);
+                }
+            }
+        }
+
+        [Test]
+        public void GetOrderedPluginDlls_ReturnsEmptyListWhenNoPluginsProperty()
+        {
+            var testRoot = TestContext.CurrentContext.TestDirectory;
+            try
+            {
+                File.WriteAllText(Path.Combine(testRoot, "package.json"), @"{
+                    ""name"": ""dummy-project"",
+                    ""version"": ""1.0.0"",
+                    ""description"": ""Dummy project for testing purposes."",
+                    ""dependencies"": { ""some-dep"": ""^1.0.0"" }
+                }");
+
+                var dlls = GeneratorHandler.GetOrderedPluginDlls(testRoot);
+
+                Assert.AreEqual(0, dlls.Count);
+            }
+            finally
+            {
+                // Cleanup
+                var packageJsonPath = Path.Combine(testRoot, "package.json");
+                if (File.Exists(packageJsonPath))
+                {
+                    File.Delete(packageJsonPath);
+                }
             }
         }
     }

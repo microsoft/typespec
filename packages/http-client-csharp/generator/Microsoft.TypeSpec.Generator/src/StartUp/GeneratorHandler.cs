@@ -102,21 +102,31 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             using var doc = JsonDocument.Parse(File.ReadAllText(packagePath));
-            if (!doc.RootElement.TryGetProperty("dependencies", out var deps))
+            if (!doc.RootElement.TryGetProperty("plugins", out var plugins))
             {
                 return dllPathsInOrder;
             }
 
-            var packageNamesInOrder = deps.EnumerateObject().Select(p => p.Name).ToList();
+            var packageNamesInOrder = plugins.EnumerateObject().Select(p => p.Name).ToList();
+
+            // We need to construct the emitter independently as the CodeModelGenerator is not yet initialized.
+            using var emitter = new Emitter(Console.OpenStandardOutput());
 
             foreach (var package in packageNamesInOrder)
             {
                 var packageDistPath = Path.Combine(rootDirectory, NodeModulesDir, package, "dist");
-                if (Directory.Exists(packageDistPath))
+                if (!Directory.Exists(packageDistPath))
                 {
-                    var dlls = Directory.EnumerateFiles(packageDistPath, "*.dll", SearchOption.AllDirectories);
-                    dllPathsInOrder.AddRange(dlls);
+                    throw new InvalidOperationException($"Plugin '{package}' specified in package.json but its dist directory was not found at '{packageDistPath}'.");
                 }
+
+                var dlls = Directory.EnumerateFiles(packageDistPath, "*.dll", SearchOption.AllDirectories).ToList();
+                if (dlls.Count == 0)
+                {
+                    throw new InvalidOperationException($"Plugin '{package}' specified in package.json but no DLL files were found in '{packageDistPath}'.");
+                }
+
+                dllPathsInOrder.AddRange(dlls);
             }
 
             return dllPathsInOrder;
