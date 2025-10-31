@@ -119,3 +119,9 @@ The subdirectory to generate the code in. If not specified, the code will be gen
 **Type:** `boolean`
 
 Whether to keep the existing `setup.py` when `generate-packaging-files` is `true`. If set to `false` and by default, `pyproject.toml` will be generated instead. To generate `setup.py`, use `basic-setup-py`.
+
+### `clear-output-folder`
+
+**Type:** `boolean`
+
+Whether to clear the output folder before generating the code. Defaults to `false`.
