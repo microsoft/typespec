@@ -116,7 +116,7 @@
     "picocolors": "~1.1.1",
     "prettier": "~3.6.2",
     "semver": "^7.7.1",
-    "tar": "^7.4.3",
+    "tar": "^7.5.2",
     "temporal-polyfill": "^0.3.0",
     "vscode-languageserver": "~9.0.1",
     "vscode-languageserver-textdocument": "~1.0.12",
