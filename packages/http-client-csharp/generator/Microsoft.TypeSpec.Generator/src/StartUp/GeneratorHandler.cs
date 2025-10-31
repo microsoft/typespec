@@ -109,9 +109,6 @@ namespace Microsoft.TypeSpec.Generator
 
             var packageNamesInOrder = plugins.EnumerateObject().Select(p => p.Name).ToList();
 
-            // We need to construct the emitter independently as the CodeModelGenerator is not yet initialized.
-            using var emitter = new Emitter(Console.OpenStandardOutput());
-
             foreach (var package in packageNamesInOrder)
             {
                 var packageDistPath = Path.Combine(rootDirectory, NodeModulesDir, package, "dist");
