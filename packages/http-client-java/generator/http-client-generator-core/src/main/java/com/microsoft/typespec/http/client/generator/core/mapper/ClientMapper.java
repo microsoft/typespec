@@ -8,6 +8,7 @@ import com.microsoft.typespec.http.client.generator.core.Javagen;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ArraySchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ChoiceSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ConstantSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.DictionarySchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Header;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Language;
@@ -570,6 +571,15 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
         for (Response response : operation.getResponses()) {
             if (response.getProtocol().getHttp().getHeaders() != null) {
                 for (Header header : response.getProtocol().getHttp().getHeaders()) {
+                    // Filter out constant headers - they are known beforehand and not useful in response
+                    if (header.getSchema() instanceof ConstantSchema) {
+                        Javagen.getPluginInstance()
+                            .getLogger()
+                            .warn("Filtered out constant response header '{}' with value '{}' in operation '{}'",
+                                header.getHeader(), ((ConstantSchema) header.getSchema()).getValue().getValue(),
+                                operation.getLanguage().getJava().getName());
+                        continue;
+                    }
                     headerExtensions.put(header.getHeader(), header.getExtensions());
                     headerMap.put(header.getHeader(), header.getSchema());
                     headerClientNameMap.put(header.getHeader(), getResponseHeaderName(header));
