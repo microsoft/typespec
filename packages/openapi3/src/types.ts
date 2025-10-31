@@ -1235,6 +1235,12 @@ export interface OpenAPIMediaType3_2 extends Omit<OpenAPI3MediaType, "examples" 
   /** The schema defining the content of the request, response, or parameter. */
   schema?: Refable<OpenAPISchema3_2>;
   /**
+   * The schema defining the structure of each item in a stream.
+   * Used for streaming content types like text/event-stream.
+   * @see https://spec.openapis.org/oas/v3.2.0.html#server-sent-event-streams
+   */
+  itemSchema?: Refable<OpenAPISchema3_2>;
+  /**
    * A map between a property name and its encoding information
    * @see https://spec.openapis.org/oas/v3.2.0#fixed-fields-11
    */

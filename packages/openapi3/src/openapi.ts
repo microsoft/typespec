@@ -71,6 +71,7 @@ import {
   resolveRequestVisibility,
   Visibility,
 } from "@typespec/http";
+import { getStreamMetadata } from "@typespec/http/experimental";
 import {
   getExtensions,
   getExternalDocs,
@@ -129,6 +130,7 @@ import {
 import { resolveVersioningModule } from "./versioning-module.js";
 import { resolveVisibilityUsage, VisibilityUsageTracker } from "./visibility-usage.js";
 import { resolveXmlModule, XmlModule } from "./xml-module.js";
+import { resolveSSEModule, SSEModule } from "./sse-module.js";
 
 const defaultFileType: FileType = "yaml";
 const defaultOptions = {
@@ -286,6 +288,7 @@ function createOAPIEmitter(
 
   let metadataInfo: MetadataInfo;
   let visibilityUsage: VisibilityUsageTracker;
+  let sseModule: SSEModule | undefined;
 
   // Map model properties that represent shared parameters to their parameter
   // definition that will go in #/components/parameters. Inlined parameters do not go in
@@ -378,11 +381,16 @@ function createOAPIEmitter(
     service: Service,
     allHttpAuthentications: HttpAuth[],
     defaultAuth: AuthenticationReference,
-    optionalDependencies: { jsonSchemaModule?: JsonSchemaModule; xmlModule?: XmlModule },
+    optionalDependencies: {
+      jsonSchemaModule?: JsonSchemaModule;
+      xmlModule?: XmlModule;
+      sseModule?: SSEModule;
+    },
     version?: string,
   ) {
     diagnostics = createDiagnosticCollector();
     currentService = service;
+    sseModule = optionalDependencies.sseModule;
     metadataInfo = createMetadataInfo(program, {
       canonicalVisibility: Visibility.Read,
       canShareProperty: (p) => isReadonlyProperty(program, p),
@@ -711,11 +719,12 @@ function createOAPIEmitter(
 
       const xmlModule = await resolveXmlModule();
       const jsonSchemaModule = await resolveJsonSchemaModule();
+      const sseModule = await resolveSSEModule();
       initializeEmitter(
         service,
         auth.schemes,
         auth.defaultAuth,
-        { xmlModule, jsonSchemaModule },
+        { xmlModule, jsonSchemaModule, sseModule },
         version,
       );
       reportIfNoRoutes(program, httpService.operations);
@@ -1055,7 +1064,7 @@ function createOAPIEmitter(
       obj.content ??= {};
       for (const contentType of data.body.contentTypes) {
         const contents = getBodyContentEntry(
-          data.body,
+          data,
           Visibility.Read,
           contentType,
           examples.responses[statusCode]?.[contentType],
@@ -1164,14 +1173,46 @@ function createOAPIEmitter(
   }
 
   function getBodyContentEntry(
-    body: HttpPayloadBody,
+    dataOrBody: HttpOperationResponseContent | HttpPayloadBody,
     visibility: Visibility,
     contentType: string,
     examples?: [Example, Type][],
   ): OpenAPI3MediaType {
+    const isResponseContent = "body" in dataOrBody && dataOrBody.body !== undefined;
+    const body: HttpPayloadBody = isResponseContent ? dataOrBody.body! : (dataOrBody as HttpPayloadBody);
+    console.log("getBodyContentEntry called with contentType:", contentType, "bodyType:", body.type.kind);
+    console.log("Check SSE:", {
+      contentType,
+      isTextEventStream: contentType === "text/event-stream",
+      hasSSEModule: !!sseModule,
+      specVersion,
+      isResponseContent,
+    });
+    
     const isBinary = isBinaryPayload(body.type, contentType);
     if (isBinary) {
       return { schema: getRawBinarySchema(contentType) } as OpenAPI3MediaType;
+    }
+
+    // Check if this is an SSE stream for OpenAPI 3.2 (only for responses)
+    if (contentType === "text/event-stream" && sseModule && specVersion === "3.2.0" && isResponseContent) {
+      // Use getStreamMetadata to check if this is a stream response
+      const streamMetadata = getStreamMetadata(program, dataOrBody as HttpOperationResponseContent);
+      console.log("streamMetadata:", streamMetadata);
+      if (streamMetadata) {
+        const mediaType: any = {};
+        sseModule.attachSSEItemSchema(
+          program,
+          options,
+          streamMetadata.streamType,
+          mediaType,
+          (type: Type) => callSchemaEmitter(type, visibility, false, "application/json"),
+        );
+        console.log("mediaType after attach:", mediaType);
+        if (Object.keys(mediaType).length > 0) {
+          return mediaType;
+        }
+      }
     }
 
     const oai3Examples = examples && getExampleOrExamples(program, examples);
