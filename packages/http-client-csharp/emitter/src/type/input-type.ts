@@ -5,6 +5,7 @@ import {
   AccessFlags,
   CollectionFormat,
   DecoratorInfo,
+  InitializedByFlags,
   SdkBuiltInKinds,
   SerializationOptions,
   UsageFlags,
@@ -25,7 +26,8 @@ export interface InputClient extends DecoratedType {
   namespace: string;
   doc?: string;
   summary?: string;
-  parameters?: InputParameter[]; // TODO -- this should be replaced by clientInitialization when the clientInitialization related stuffs are done: https://github.com/microsoft/typespec/issues/4366
+  parameters?: InputParameter[];
+  initializedBy?: InitializedByFlags;
   methods: InputServiceMethod[];
   apiVersions: string[];
   crossLanguageDefinitionId: string;
