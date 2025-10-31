@@ -735,7 +735,13 @@ export function createServer(
     }
 
     for (const each of program.diagnostics) {
-      const results = await convertDiagnosticToLsp(fileService, program, document, each);
+      const results = await convertDiagnosticToLsp(
+        fileService,
+        program,
+        document,
+        each,
+        clientConfigsProvider?.config?.lsp?.emit,
+      );
       for (const result of results) {
         const [diagnostic, diagDocument] = result;
         if (each.url) {

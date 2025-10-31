@@ -27,21 +27,29 @@ export async function convertDiagnosticToLsp(
   program: Program,
   document: TextDocument,
   diagnostic: Diagnostic,
+  emitters?: string[] | undefined,
 ): Promise<[VSDiagnostic, TextDocument][]> {
+  const emitterName = program.compilerOptions.emit?.find((emitName) =>
+    diagnostic.message.includes(emitName),
+  );
   const root = await getVSLocation(
     fileService,
     getSourceLocation(diagnostic.target, { locateId: true }),
     document,
     program.compilerOptions.config,
-    program.compilerOptions.emit?.find((emitName) => diagnostic.message.includes(emitName)),
+    emitterName,
   );
   const relatedInformation: DiagnosticRelatedInformation[] = [];
   if (root === NoTarget) {
+    let customMsg = "";
+    if (emitters && emitters.includes(emitterName || "")) {
+      customMsg = ". It's configured in vscode settings.";
+    }
     return [
       [
         createLspDiagnostic({
           range: VSRange.create(0, 0, 0, 0),
-          message: diagnostic.message + ", no target source associated",
+          message: diagnostic.message + customMsg,
           severity: convertSeverity(diagnostic.severity),
           code: diagnostic.code,
           relatedInformation,
