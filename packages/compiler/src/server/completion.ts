@@ -442,6 +442,17 @@ async function addIdentifierCompletion(
       kind,
     };
 
+    // skip indexer/docFromComment functions under TypeSpec namespace
+    // these are internal only functions(decorators) that should not be exposed to users
+    if (
+      (item.label === "indexer" || item.label === "docFromComment") &&
+      item.kind === CompletionItemKind.Function &&
+      sym.parent?.name === "TypeSpec" &&
+      item.documentation === undefined
+    ) {
+      continue;
+    }
+
     if (sym.name.startsWith("$")) {
       const targetNode = getSourceLocation(node);
       const lineAndChar = targetNode.file.getLineAndCharacterOfPosition(node.pos);
