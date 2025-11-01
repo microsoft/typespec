@@ -378,7 +378,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             string experimentalTypeJustification,
             string obsoleteTypeJustification)
         {
-            var key = GetFullyQualifiedTypeName(frameworkType);
+            var key = frameworkType.FullName ?? frameworkType.Name;
 
             var experimentalAttr = frameworkType.GetCustomAttributes(typeof(ExperimentalAttribute), false)
                 .FirstOrDefault();
@@ -405,15 +405,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private static bool IsModelReaderWriterInterfaceType(CSharpType type)
         {
             return type.Name.StartsWith("IPersistableModel") || type.Name.StartsWith("IJsonModel");
-        }
-
-        /// <summary>
-        /// Gets the fully qualified type name (namespace + name) to use as a unique dictionary key.
-        /// This ensures types with the same name but different namespaces don't collide.
-        /// </summary>
-        private static string GetFullyQualifiedTypeName(Type type)
-        {
-            return type.FullName ?? type.Name;
         }
 
         private class TypeProviderTypeNameComparer : IEqualityComparer<TypeProvider>
