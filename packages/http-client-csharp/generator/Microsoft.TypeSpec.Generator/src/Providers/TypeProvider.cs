@@ -685,6 +685,38 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return false;
             }
 
+            // For operators, we need to also check the return type and operator type (explicit vs implicit)
+            // since operators can have the same "name" (the target type) but different signatures
+            if (customMethod.Modifiers.HasFlag(MethodSignatureModifiers.Operator))
+            {
+                // Check if both are operators and of the same type (explicit or implicit)
+                if (!method.Modifiers.HasFlag(MethodSignatureModifiers.Operator))
+                {
+                    return false;
+                }
+
+                // Check explicit vs implicit
+                bool customIsExplicit = customMethod.Modifiers.HasFlag(MethodSignatureModifiers.Explicit);
+                bool methodIsExplicit = method.Modifiers.HasFlag(MethodSignatureModifiers.Explicit);
+                if (customIsExplicit != methodIsExplicit)
+                {
+                    return false;
+                }
+
+                // For operators, the return type is crucial for matching
+                if (customMethod.ReturnType != null && method.ReturnType != null)
+                {
+                    if (!IsNameMatch(customMethod.ReturnType, method.ReturnType))
+                    {
+                        return false;
+                    }
+                }
+                else if (customMethod.ReturnType != method.ReturnType) // One is null, the other is not
+                {
+                    return false;
+                }
+            }
+
             for (int i = 0; i < customMethod.Parameters.Count; i++)
             {
                 // The namespace may not be available for generated types as they are not yet generated
