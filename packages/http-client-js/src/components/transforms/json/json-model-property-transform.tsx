@@ -44,9 +44,11 @@ export function JsonModelPropertyTransform(props: JsonModelPropertyTransformProp
     );
   }
 
+  const name = JSON.stringify(targetName);
+  const trimmedName = name.replace(/^"|"$/g, "");
   return (
     <>
-      <ts.ObjectProperty name={JSON.stringify(targetName)} value={propertyValue} />
+      <ts.ObjectProperty name={trimmedName} value={propertyValue} />
     </>
   );
 }
