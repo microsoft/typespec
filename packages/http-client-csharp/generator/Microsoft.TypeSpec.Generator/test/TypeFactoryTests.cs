@@ -162,5 +162,34 @@ namespace Microsoft.TypeSpec.Generator.Tests
             var actual = factory.InvokeCreateFrameworkType(expectedType.FullName!);
             Assert.AreEqual(expectedType, actual);
         }
+
+        [TestCase("lowercase", "Lowercase")]
+        [TestCase("lowercase.namespace", "Lowercase.Namespace")]
+        [TestCase("lowercase.namespace.client", "Lowercase.Namespace.Client")]
+        [TestCase("PascalCase", "PascalCase")]
+        [TestCase("PascalCase.Namespace", "PascalCase.Namespace")]
+        [TestCase("camelCase", "CamelCase")]
+        [TestCase("camelCase.namespace", "CamelCase.Namespace")]
+        [TestCase("kebab-case", "KebabCase")]
+        [TestCase("kebab-case.namespace", "KebabCase.Namespace")]
+        [TestCase("snake_case", "SnakeCase")]
+        [TestCase("snake_case.namespace", "SnakeCase.Namespace")]
+        [TestCase("mixed_case-namespace.example", "MixedCaseNamespace.Example")]
+        [TestCase("number123", "Number123")]
+        [TestCase("number123.namespace", "Number123.Namespace")]
+        [TestCase("UPPERCASE", "UPPERCASE")]
+        [TestCase("UPPERCASE.NAMESPACE", "UPPERCASE.NAMESPACE")]
+        [TestCase("type.union", "_Type.Union")]
+        [TestCase("type.array", "_Type._Array")]
+        [TestCase("array.foo", "_Array.Foo")]
+        [TestCase("enum.bar", "_Enum.Bar")]
+        [TestCase("Type.Union", "_Type.Union")]
+        [TestCase("Array.Foo", "_Array.Foo")]
+        [TestCase("Enum.Bar", "_Enum.Bar")]
+        public void GetCleanNameSpace_ConvertsToPascalCase(string input, string expected)
+        {
+            var actual = CodeModelGenerator.Instance.TypeFactory.GetCleanNameSpace(input);
+            Assert.AreEqual(expected, actual);
+        }
     }
 }
