@@ -9,5 +9,3 @@ packages:
 overrides:
   "cross-spawn@>=7.0.0 <7.0.5": "^7.0.5"
   rollup: 4.49.0 # Regression in 4.50.0 https://github.com/rollup/rollup/issues/6099
-  "@alloy-js/core": 0.21.0-dev.8
-  "@alloy-js/csharp": 0.21.0-dev.19
