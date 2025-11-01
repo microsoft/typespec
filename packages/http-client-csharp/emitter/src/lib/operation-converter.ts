@@ -27,7 +27,6 @@ import {
 } from "@azure-tools/typespec-client-generator-core";
 import { getDeprecated, isErrorModel, NoTarget } from "@typespec/compiler";
 import { HttpStatusCodeRange } from "@typespec/http";
-import { getResourceOperation } from "@typespec/rest";
 import { CSharpEmitterContext } from "../sdk-context.js";
 import { collectionFormatToDelimMap } from "../type/collection-format.js";
 import { HttpResponseHeader } from "../type/http-response-header.js";
@@ -176,10 +175,6 @@ export function fromSdkServiceMethodOperation(
 
   operation = {
     name: method.name,
-    resourceName:
-      getResourceOperation(sdkContext.program, method.operation.__raw.operation)?.resourceType
-        .name ??
-      getOperationGroupName(sdkContext, method.operation, getClientNamespaceString(sdkContext)!),
     deprecated: getDeprecated(sdkContext.program, method.__raw!),
     summary: method.summary,
     doc: method.doc,
@@ -839,28 +834,6 @@ function getParameterScope(
       : p.onClient
         ? InputParameterScope.Client
         : InputParameterScope.Method;
-}
-
-function getOperationGroupName(
-  context: SdkContext,
-  operation: SdkHttpOperation,
-  namespace: string,
-): string {
-  const explicitOperationId = getOperationId(context, operation.__raw.operation);
-  if (explicitOperationId) {
-    const ids: string[] = explicitOperationId.split("_");
-    if (ids.length > 1) {
-      return ids.slice(0, -2).join("_");
-    }
-  }
-
-  if (operation.__raw.operation.interface) {
-    return operation.__raw.operation.interface.name;
-  }
-  if (operation.__raw.operation.namespace) {
-    return operation.__raw.operation.namespace.name;
-  }
-  return namespace;
 }
 
 // TODO: remove after https://github.com/Azure/typespec-azure/issues/1227 is fixed

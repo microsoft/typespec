@@ -13,7 +13,6 @@ namespace Microsoft.TypeSpec.Generator.Input
     {
         public InputOperation(
             string name,
-            string? resourceName,
             string? summary,
             string? doc,
             string? deprecated,
@@ -31,7 +30,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             string crossLanguageDefinitionId)
         {
             Name = name;
-            ResourceName = resourceName;
             Summary = summary;
             Doc = doc;
             Deprecated = deprecated;
@@ -51,7 +49,6 @@ namespace Microsoft.TypeSpec.Generator.Input
 
         public InputOperation() : this(
             name: string.Empty,
-            resourceName: null,
             summary: string.Empty,
             doc: string.Empty,
             deprecated: null,
@@ -70,7 +67,6 @@ namespace Microsoft.TypeSpec.Generator.Input
         { }
 
         public string Name { get; internal set; }
-        public string? ResourceName { get; internal set; }
         public string? Summary { get; internal set; }
         public string? Doc { get; internal set; }
         public string? Deprecated { get; internal set; }
@@ -94,7 +90,6 @@ namespace Microsoft.TypeSpec.Generator.Input
 
         public void Update(
             string? name = null,
-            string? resourceName = null,
             string? summary = null,
             string? doc = null,
             string? deprecated = null,
@@ -114,10 +109,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             if (name != null)
             {
                 Name = name;
-            }
-            if (resourceName != null)
-            {
-                ResourceName = resourceName;
             }
             if (summary != null)
             {
