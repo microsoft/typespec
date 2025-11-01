@@ -179,6 +179,13 @@ namespace Microsoft.TypeSpec.Generator.Tests
         [TestCase("number123.namespace", "Number123.Namespace")]
         [TestCase("UPPERCASE", "UPPERCASE")]
         [TestCase("UPPERCASE.NAMESPACE", "UPPERCASE.NAMESPACE")]
+        [TestCase("type.union", "_Type.Union")]
+        [TestCase("type.array", "_Type._Array")]
+        [TestCase("array.foo", "_Array.Foo")]
+        [TestCase("enum.bar", "_Enum.Bar")]
+        [TestCase("Type.Union", "_Type.Union")]
+        [TestCase("Array.Foo", "_Array.Foo")]
+        [TestCase("Enum.Bar", "_Enum.Bar")]
         public void GetCleanNameSpace_ConvertsToPascalCase(string input, string expected)
         {
             var actual = CodeModelGenerator.Instance.TypeFactory.GetCleanNameSpace(input);

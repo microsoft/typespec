@@ -390,11 +390,11 @@ namespace Microsoft.TypeSpec.Generator
             {
                 var segment = source.Slice(0, nextDot);
                 var segmentStr = segment.ToString();
-                if (IsSpecialSegment(segment))
-                {
-                    segmentStr = "_" + segmentStr;
-                }
                 var cleanedSegment = segmentStr.ToIdentifierName();
+                if (IsSpecialSegment(cleanedSegment))
+                {
+                    cleanedSegment = "_" + cleanedSegment;
+                }
                 cleanedSegment.AsSpan().CopyTo(dest.Slice(destIndex));
                 destIndex += cleanedSegment.Length;
                 dest[destIndex] = '.';
@@ -403,11 +403,11 @@ namespace Microsoft.TypeSpec.Generator
                 nextDot = source.IndexOf('.');
             }
             var lastSegmentStr = source.ToString();
-            if (IsSpecialSegment(source))
-            {
-                lastSegmentStr = "_" + lastSegmentStr;
-            }
             var cleanedLastSegment = lastSegmentStr.ToIdentifierName();
+            if (IsSpecialSegment(cleanedLastSegment))
+            {
+                cleanedLastSegment = "_" + cleanedLastSegment;
+            }
             cleanedLastSegment.AsSpan().CopyTo(dest.Slice(destIndex));
             destIndex += cleanedLastSegment.Length;
             return dest.Slice(0, destIndex).ToString();
