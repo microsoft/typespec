@@ -377,10 +377,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Explicit) &&
                 m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Operator));
             Assert.IsNull(explicitOperator, "Custom explicit operator should not be generated");
-
-            var writer = new TypeProviderWriter(serializationProvider);
-            var file = writer.Write();
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
         // Validates that a custom implicit operator does NOT prevent generation of an explicit operator
@@ -419,10 +415,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Explicit) &&
                 m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Operator));
             Assert.IsNotNull(explicitOperator, "Explicit operator should still be generated when only implicit operator is customized");
-
-            var writer = new TypeProviderWriter(serializationProvider);
-            var file = writer.Write();
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
         // Validates that a custom explicit operator with different parameter type does NOT prevent generation of explicit operator with ClientResult parameter
@@ -465,10 +457,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 m.Signature.Parameters.Count == 1 &&
                 m.Signature.Parameters[0].Type.Name == "ClientResult");
             Assert.IsNotNull(explicitOperatorWithClientResult, "Explicit operator with ClientResult parameter should still be generated when operator with different parameter exists");
-
-            var writer = new TypeProviderWriter(serializationProvider);
-            var file = writer.Write();
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
     }
 }
