@@ -355,7 +355,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             AttributeStatement? experimentalOrObsoleteAttribute = typeProvider.CanonicalView.Attributes
                 .FirstOrDefault(a => a.Type.Equals(typeof(ExperimentalAttribute)) || a.Type.Equals(typeof(ObsoleteAttribute)));
 
-            var key = GetFullyQualifiedTypeName(typeProvider.Type);
+            var key = typeProvider.Type.FullyQualifiedName;
 
             if (experimentalOrObsoleteAttribute?.Type.Equals(typeof(ExperimentalAttribute)) == true)
             {
@@ -405,17 +405,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private static bool IsModelReaderWriterInterfaceType(CSharpType type)
         {
             return type.Name.StartsWith("IPersistableModel") || type.Name.StartsWith("IJsonModel");
-        }
-
-        /// <summary>
-        /// Gets the fully qualified type name (namespace + name) to use as a unique dictionary key.
-        /// This ensures types with the same name but different namespaces don't collide.
-        /// </summary>
-        private static string GetFullyQualifiedTypeName(CSharpType type)
-        {
-            return string.IsNullOrEmpty(type.Namespace)
-                ? type.Name
-                : $"{type.Namespace}.{type.Name}";
         }
 
         /// <summary>
