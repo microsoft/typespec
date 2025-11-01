@@ -5,6 +5,7 @@ import {
   AccessFlags,
   CollectionFormat,
   DecoratorInfo,
+  InitializedByFlags,
   SdkBuiltInKinds,
   SerializationOptions,
   UsageFlags,
@@ -25,7 +26,8 @@ export interface InputClient extends DecoratedType {
   namespace: string;
   doc?: string;
   summary?: string;
-  parameters?: InputParameter[]; // TODO -- this should be replaced by clientInitialization when the clientInitialization related stuffs are done: https://github.com/microsoft/typespec/issues/4366
+  parameters?: InputParameter[];
+  initializedBy?: InitializedByFlags;
   methods: InputServiceMethod[];
   apiVersions: string[];
   crossLanguageDefinitionId: string;
@@ -65,7 +67,8 @@ export type InputType =
   | InputEnumValueType
   | InputArrayType
   | InputDictionaryType
-  | InputNullableType;
+  | InputNullableType
+  | InputExternalType;
 
 export interface InputPrimitiveType extends InputTypeBase {
   kind: SdkBuiltInKinds;
@@ -270,4 +273,11 @@ export interface InputDictionaryType extends InputTypeBase {
   kind: "dict";
   keyType: InputType;
   valueType: InputType;
+}
+
+export interface InputExternalType extends InputTypeBase {
+  kind: "external";
+  identity: string;
+  package?: string;
+  minVersion?: string;
 }

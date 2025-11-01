@@ -34,7 +34,7 @@
     "@alloy-js/core": "^0.21.0",
     "@alloy-js/rollup-plugin": "^0.1.0",
     "@alloy-js/typescript": "^0.21.0",
-    "@types/node": "~24.3.0",
+    "@types/node": "~24.9.1",
     "@typespec/compiler": "workspace:^",
     "@typespec/emitter-framework": "workspace:^",
     "@typespec/http": "workspace:^",
@@ -43,7 +43,7 @@
     "eslint": "^9.23.0",
     "prettier": "~3.6.2",
     "typescript": "~5.9.2",
-    "vitest": "^3.1.2"
+    "vitest": "^4.0.4"
   },
   "scripts": {
     "build": "npm run gen-extern-signature && alloy build && npm run lint-typespec-library",

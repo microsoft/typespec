@@ -153,7 +153,7 @@ namespace SampleTypeSpec
         /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="ListWithContinuationTokenHeaderResponseResponse"/> from. </param>
         public static explicit operator ListWithContinuationTokenHeaderResponseResponse(ClientResult result)
         {
-            using PipelineResponse response = result.GetRawResponse();
+            PipelineResponse response = result.GetRawResponse();
             using JsonDocument document = JsonDocument.Parse(response.Content);
             return DeserializeListWithContinuationTokenHeaderResponseResponse(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
