@@ -150,7 +150,7 @@ namespace SampleTypeSpec
             switch (format)
             {
                 case "J":
-                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
+                    using (JsonDocument document = JsonDocument.Parse(data))
                     {
                         return DeserializeListWithNextLinkResponse(document.RootElement, options);
                     }
@@ -166,7 +166,7 @@ namespace SampleTypeSpec
         public static explicit operator ListWithNextLinkResponse(ClientResult result)
         {
             using PipelineResponse response = result.GetRawResponse();
-            using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
+            using JsonDocument document = JsonDocument.Parse(response.Content);
             return DeserializeListWithNextLinkResponse(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
     }

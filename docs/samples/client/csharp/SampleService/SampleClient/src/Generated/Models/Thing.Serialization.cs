@@ -364,7 +364,7 @@ namespace SampleTypeSpec
             switch (format)
             {
                 case "J":
-                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
+                    using (JsonDocument document = JsonDocument.Parse(data))
                     {
                         return DeserializeThing(document.RootElement, options);
                     }
@@ -390,7 +390,7 @@ namespace SampleTypeSpec
         public static explicit operator Thing(ClientResult result)
         {
             using PipelineResponse response = result.GetRawResponse();
-            using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
+            using JsonDocument document = JsonDocument.Parse(response.Content);
             return DeserializeThing(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
     }

@@ -135,7 +135,7 @@ namespace SampleTypeSpec
             switch (format)
             {
                 case "J":
-                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
+                    using (JsonDocument document = JsonDocument.Parse(data))
                     {
                         return DeserializeModelWithEmbeddedNonBodyParameters(document.RootElement, options);
                     }

@@ -630,7 +630,7 @@ namespace SampleTypeSpec
             switch (format)
             {
                 case "J":
-                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
+                    using (JsonDocument document = JsonDocument.Parse(data))
                     {
                         return DeserializeRoundTripModel(document.RootElement, options);
                     }
@@ -656,7 +656,7 @@ namespace SampleTypeSpec
         public static explicit operator RoundTripModel(ClientResult result)
         {
             using PipelineResponse response = result.GetRawResponse();
-            using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
+            using JsonDocument document = JsonDocument.Parse(response.Content);
             return DeserializeRoundTripModel(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
     }

@@ -125,7 +125,7 @@ namespace SampleTypeSpec
             switch (format)
             {
                 case "J":
-                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
+                    using (JsonDocument document = JsonDocument.Parse(data))
                     {
                         return DeserializeRenamedModel(document.RootElement, options);
                     }
@@ -151,7 +151,7 @@ namespace SampleTypeSpec
         public static explicit operator RenamedModel(ClientResult result)
         {
             using PipelineResponse response = result.GetRawResponse();
-            using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
+            using JsonDocument document = JsonDocument.Parse(response.Content);
             return DeserializeRenamedModel(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
     }
