@@ -259,7 +259,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string? collectionFormat = null,
             string? serializedName = null,
             InputConstant? defaultValue = null,
-            InputParameterScope scope = InputParameterScope.Method)
+            InputParameterScope scope = InputParameterScope.Method,
+            IReadOnlyList<InputMethodParameter>? correspondingMethodParams = null)
         {
             return new InputHeaderParameter(
                 name: name,
@@ -275,7 +276,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 collectionFormat: collectionFormat,
                 scope: scope,
                 arraySerializationDelimiter: null,
-                serializedName: serializedName ?? name);
+                serializedName: serializedName ?? name,
+                correspondingMethodParams: correspondingMethodParams);
         }
 
         public static InputQueryParameter QueryParameter(
@@ -291,7 +293,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string? serializedName = null,
             bool explode = false,
             InputParameterScope scope = InputParameterScope.Method,
-            string? delimiter = null)
+            string? delimiter = null,
+            IReadOnlyList<InputMethodParameter>? correspondingMethodParams = null)
         {
             return new InputQueryParameter(
                 name: name,
@@ -307,7 +310,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 access: null,
                 serializedName: serializedName ?? name,
                 collectionFormat: collectionFormat,
-                explode: explode);
+                explode: explode,
+                correspondingMethodParams: correspondingMethodParams);
         }
 
         public static InputPathParameter PathParameter(
@@ -324,7 +328,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             bool explode = false,
             bool skipUrlEncoding = false,
             string? serverUrlTemplate = null,
-            InputParameterScope scope = InputParameterScope.Method)
+            InputParameterScope scope = InputParameterScope.Method,
+            IReadOnlyList<InputMethodParameter>? correspondingMethodParams = null)
         {
             return new InputPathParameter(
                 name: name,
@@ -341,7 +346,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 serverUrlTemplate: serverUrlTemplate,
                 access: null,
                 serializedName: serializedName ?? name,
-                allowReserved: allowReserved);
+                allowReserved: allowReserved,
+                correspondingMethodParams: correspondingMethodParams);
         }
 
         public static InputEndpointParameter EndpointParameter(
@@ -388,7 +394,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string? serializedName = null,
             string[]? contentTypes = null,
             string? defaultContentType = null,
-            InputParameterScope scope = InputParameterScope.Method)
+            InputParameterScope scope = InputParameterScope.Method,
+            IReadOnlyList<InputMethodParameter>? correspondingMethodParams = null)
         {
             return new InputBodyParameter(
                 name: name,
@@ -403,7 +410,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 contentTypes: contentTypes ?? ["application/json"],
                 scope: scope,
                 access: null,
-                serializedName: serializedName ?? name);
+                serializedName: serializedName ?? name,
+                correspondingMethodParams: correspondingMethodParams);
         }
 
         public static InputMethodParameter MethodParameter(

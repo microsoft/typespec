@@ -1082,38 +1082,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var ageMethodParam = InputFactory.MethodParameter("age", InputPrimitiveType.Int32, isRequired: true);
 
             // Create protocol parameters with correspondingMethodParams set
-            var nameQueryParam = new InputQueryParameter(
-                name: "queryName",
-                summary: null,
-                doc: "queryName description",
-                type: InputPrimitiveType.String,
+            var nameQueryParam = InputFactory.QueryParameter(
+                "queryName",
+                InputPrimitiveType.String,
                 isRequired: true,
-                isReadOnly: false,
-                access: null,
                 serializedName: "queryName",
-                collectionFormat: null,
-                explode: false,
-                isApiVersion: false,
-                defaultValue: null,
-                scope: InputParameterScope.Method,
-                arraySerializationDelimiter: null,
                 correspondingMethodParams: [nameMethodParam]);
 
-            var ageHeaderParam = new InputHeaderParameter(
-                name: "x-age",
-                summary: null,
-                doc: "x-age description",
-                type: InputPrimitiveType.Int32,
+            var ageHeaderParam = InputFactory.HeaderParameter(
+                "x-age",
+                InputPrimitiveType.Int32,
                 isRequired: true,
-                isReadOnly: false,
-                access: null,
-                collectionFormat: null,
                 serializedName: "x-age",
-                isApiVersion: false,
-                defaultValue: null,
-                scope: InputParameterScope.Method,
-                arraySerializationDelimiter: null,
-                isContentType: false,
                 correspondingMethodParams: [ageMethodParam]);
 
             var inputOperation = InputFactory.Operation(
@@ -1190,20 +1170,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             // Test that correspondingMethodParams works with body parameters
             var valueMethodParam = InputFactory.MethodParameter("value", InputPrimitiveType.String, isRequired: true);
 
-            var bodyParam = new InputBodyParameter(
-                name: "body",
-                summary: null,
-                doc: "body description",
-                type: InputPrimitiveType.String,
+            var bodyParam = InputFactory.BodyParameter(
+                "body",
+                InputPrimitiveType.String,
                 isRequired: true,
-                isReadOnly: false,
-                access: null,
                 serializedName: "body",
-                isApiVersion: false,
-                defaultValue: null,
-                scope: InputParameterScope.Method,
-                contentTypes: ["application/json"],
-                defaultContentType: "application/json",
                 correspondingMethodParams: [valueMethodParam]);
 
             var inputOperation = InputFactory.Operation(
@@ -1245,72 +1216,32 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var tokenMethodParam = InputFactory.MethodParameter("token", InputPrimitiveType.String, isRequired: true);
             var dataMethodParam = InputFactory.MethodParameter("data", InputPrimitiveType.String, isRequired: true);
 
-            var queryParam = new InputQueryParameter(
-                name: "q",
-                summary: null,
-                doc: "q description",
-                type: InputPrimitiveType.String,
+            var queryParam = InputFactory.QueryParameter(
+                "q",
+                InputPrimitiveType.String,
                 isRequired: true,
-                isReadOnly: false,
-                access: null,
                 serializedName: "q",
-                collectionFormat: null,
-                explode: false,
-                isApiVersion: false,
-                defaultValue: null,
-                scope: InputParameterScope.Method,
-                arraySerializationDelimiter: null,
                 correspondingMethodParams: [nameMethodParam]);
 
-            var pathParam = new InputPathParameter(
-                name: "id",
-                summary: null,
-                doc: "id description",
-                type: InputPrimitiveType.Int32,
+            var pathParam = InputFactory.PathParameter(
+                "id",
+                InputPrimitiveType.Int32,
                 isRequired: true,
-                isReadOnly: false,
-                access: null,
-                allowReserved: false,
                 serializedName: "id",
-                isApiVersion: false,
-                defaultValue: null,
-                scope: InputParameterScope.Method,
-                explode: false,
-                skipUrlEncoding: false,
-                serverUrlTemplate: null,
                 correspondingMethodParams: [idMethodParam]);
 
-            var headerParam = new InputHeaderParameter(
-                name: "x-token",
-                summary: null,
-                doc: "x-token description",
-                type: InputPrimitiveType.String,
+            var headerParam = InputFactory.HeaderParameter(
+                "x-token",
+                InputPrimitiveType.String,
                 isRequired: true,
-                isReadOnly: false,
-                access: null,
-                collectionFormat: null,
                 serializedName: "x-token",
-                isApiVersion: false,
-                defaultValue: null,
-                scope: InputParameterScope.Method,
-                arraySerializationDelimiter: null,
-                isContentType: false,
                 correspondingMethodParams: [tokenMethodParam]);
 
-            var bodyParam = new InputBodyParameter(
-                name: "body",
-                summary: null,
-                doc: "body description",
-                type: InputPrimitiveType.String,
+            var bodyParam = InputFactory.BodyParameter(
+                "body",
+                InputPrimitiveType.String,
                 isRequired: true,
-                isReadOnly: false,
-                access: null,
                 serializedName: "body",
-                isApiVersion: false,
-                defaultValue: null,
-                scope: InputParameterScope.Method,
-                contentTypes: ["application/json"],
-                defaultContentType: "application/json",
                 correspondingMethodParams: [dataMethodParam]);
 
             var inputOperation = InputFactory.Operation(
