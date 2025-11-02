@@ -498,18 +498,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Iterate through method parameters in their original order to build arguments in the correct order
             foreach (var methodParam in ServiceMethod.Parameters)
             {
-                // Find the protocol parameter that corresponds to this method parameter
-                var protocolParam = protocolParamToMethodParam.FirstOrDefault(kvp => kvp.Value == methodParam).Key;
+                // Find ALL protocol parameters that correspond to this method parameter
+                var correspondingProtocolParams = protocolParamToMethodParam.Where(kvp => kvp.Value == methodParam).Select(kvp => kvp.Key).ToList();
 
-                if (protocolParam == null)
+                if (correspondingProtocolParams.Count == 0)
                 {
                     // Fall back to matching by name
-                    protocolParam = ServiceMethod.Operation.Parameters.FirstOrDefault(pp =>
+                    var protocolParam = ServiceMethod.Operation.Parameters.FirstOrDefault(pp =>
                         string.Equals(pp.Name, methodParam.Name, StringComparison.OrdinalIgnoreCase) ||
                         string.Equals(pp.SerializedName, methodParam.SerializedName, StringComparison.OrdinalIgnoreCase));
+
+                    if (protocolParam != null)
+                    {
+                        correspondingProtocolParams.Add(protocolParam);
+                    }
                 }
 
-                if (protocolParam == null)
+                if (correspondingProtocolParams.Count == 0)
                 {
                     continue;
                 }
@@ -531,7 +536,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             addedSpreadSource = true;
                         }
                     }
-                    else if (convenienceParam.Location == ParameterLocation.Body && protocolParam is InputBodyParameter)
+                    else if (convenienceParam.Location == ParameterLocation.Body && correspondingProtocolParams.Any(p => p is InputBodyParameter))
                     {
                         // Add any non-body parameters that may have been declared within the request body model
                         List<ValueExpression>? requiredParameters = null;
@@ -554,10 +559,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         }
 
                         // Add the body parameter conversion
-                        var bodyArgExpression = GetArgumentExpressionForParameter(convenienceParam, declarations, ref addedSpreadSource, bodyModel, protocolParam);
-                        if (bodyArgExpression != null)
+                        var bodyProtocolParam = correspondingProtocolParams.FirstOrDefault(p => p is InputBodyParameter);
+                        if (bodyProtocolParam != null)
                         {
-                            conversions.Add(bodyArgExpression);
+                            var bodyArgExpression = GetArgumentExpressionForParameter(convenienceParam, declarations, ref addedSpreadSource, bodyModel, bodyProtocolParam);
+                            if (bodyArgExpression != null)
+                            {
+                                conversions.Add(bodyArgExpression);
+                            }
                         }
 
                         // Add optional non-body parameters
@@ -568,11 +577,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                     else
                     {
-                        // Handle regular parameters
-                        var argExpression = GetArgumentExpressionForParameter(convenienceParam, declarations, ref addedSpreadSource, bodyModel, protocolParam);
-                        if (argExpression != null)
+                        // Handle regular parameters - process each corresponding protocol parameter
+                        foreach (var protocolParam in correspondingProtocolParams)
                         {
-                            conversions.Add(argExpression);
+                            var argExpression = GetArgumentExpressionForParameter(convenienceParam, declarations, ref addedSpreadSource, bodyModel, protocolParam);
+                            if (argExpression != null)
+                            {
+                                conversions.Add(argExpression);
+                            }
                         }
                     }
                 }
@@ -629,8 +641,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
                 else
                 {
-                    // For model types, create BinaryContent using BinaryContent.Create
-                    return Static(typeof(BinaryContent)).Invoke(nameof(BinaryContent.Create), [convenienceParam, ModelSerializationExtensionsSnippets.Wire]);
+                    // For model types, check if we're extracting HTTP metadata properties
+                    // If so, pass the parameter directly; otherwise wrap in BinaryContent.Create
+                    if (bodyModel != null && convenienceParam.Type.Equals(bodyModel.Type))
+                    {
+                        // HTTP metadata properties are being extracted, pass the parameter directly
+                        return convenienceParam;
+                    }
+                    else
+                    {
+                        // No HTTP metadata extraction, wrap in BinaryContent.Create
+                        return Static(typeof(BinaryContent)).Invoke(nameof(BinaryContent.Create), [convenienceParam, ModelSerializationExtensionsSnippets.Wire]);
+                    }
                 }
             }
             else if (convenienceParam.Location == ParameterLocation.Body && !isProtocolBody)

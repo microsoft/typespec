@@ -1281,10 +1281,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         [Test]
         public void CorrespondingMethodParamsWithModelTypeParameter()
         {
-            // Create a model with properties that map to operation parameters
-            var headerProperty = InputFactory.Property("apiKey", InputPrimitiveType.String, isRequired: true);
-            var queryProperty = InputFactory.Property("filter", InputPrimitiveType.String, isRequired: true);
-            var bodyProperty = InputFactory.Property("data", InputPrimitiveType.String, isRequired: true);
+            // Create a model with properties that include HTTP metadata (header, query) and body
+            var headerProperty = InputFactory.Property(
+                "apiKey",
+                InputPrimitiveType.String,
+                isRequired: true,
+                isReadOnly: false,
+                isHttpMetadata: true,
+                serializedName: "x-api-key");
+
+            var queryProperty = InputFactory.Property(
+                "filter",
+                InputPrimitiveType.String,
+                isRequired: true,
+                isReadOnly: false,
+                isHttpMetadata: true,
+                serializedName: "filter");
+
+            var bodyProperty = InputFactory.Property(
+                "data",
+                InputPrimitiveType.String,
+                isRequired: true,
+                isReadOnly: false,
+                serializedName: "data");
 
             var requestModel = InputFactory.Model(
                 "RequestModel",
@@ -1342,15 +1361,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                     && m.Signature.Name == $"{inputOperation.Name.ToIdentifierName()}");
             Assert.IsNotNull(convenienceMethod);
 
-            // Verify the body contains the model parameter and accesses its properties
-            var bodyString = convenienceMethod!.BodyStatements!.ToDisplayString();
-            Assert.IsTrue(bodyString.Contains("request"), "Body should reference the 'request' parameter");
-            
-            // Verify that model properties are accessed when passed to protocol method
-            // The code should map request.apiKey -> x-api-key, request.filter -> filter, request -> body
-            var convenienceParams = convenienceMethod.Signature.Parameters;
+            // Verify the convenience method has the model parameter
+            var convenienceParams = convenienceMethod!.Signature.Parameters;
             Assert.AreEqual(2, convenienceParams.Count); // request + cancellation token
             Assert.IsTrue(convenienceParams.Any(p => p.Name == "request"));
+
+            // Verify the body accesses model properties when calling the protocol method
+            var bodyString = convenienceMethod.BodyStatements!.ToDisplayString();
+            Assert.IsTrue(bodyString.Contains("request"), "Body should reference the 'request' parameter");
+            
+            // Verify that the convenience method accesses properties from the model parameter
+            // e.g., request.ApiKey for header, request.Filter for query
+            Assert.IsTrue(bodyString.Contains("request.ApiKey") || bodyString.Contains("request.apiKey"),
+                "Body should access the ApiKey property of the request parameter");
+            Assert.IsTrue(bodyString.Contains("request.Filter") || bodyString.Contains("request.filter"),
+                "Body should access the Filter property of the request parameter");
         }
     }
 }
