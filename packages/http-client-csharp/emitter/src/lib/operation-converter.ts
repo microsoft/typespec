@@ -184,7 +184,12 @@ export function fromSdkServiceMethodOperation(
     summary: method.summary,
     doc: method.doc,
     accessibility: method.access,
-    parameters: fromSdkOperationParameters(sdkContext, method.operation, rootApiVersions),
+    parameters: fromSdkOperationParameters(
+      sdkContext,
+      method.operation,
+      rootApiVersions,
+      getClientNamespaceString(sdkContext)!,
+    ),
     responses: fromSdkHttpOperationResponses(sdkContext, method.operation.responses),
     httpMethod: parseHttpRequestMethod(method.operation.verb),
     uri: uri,
@@ -344,6 +349,7 @@ function fromSdkOperationParameters(
   sdkContext: CSharpEmitterContext,
   operation: SdkHttpOperation,
   rootApiVersions: string[],
+  namespace: string,
 ): InputHttpParameter[] {
   const parameters: InputHttpParameter[] = [];
   for (const p of operation.parameters) {
@@ -355,14 +361,14 @@ function fromSdkOperationParameters(
       });
       return parameters;
     }
-    const param = fromParameter(sdkContext, p, rootApiVersions);
+    const param = fromParameter(sdkContext, p, rootApiVersions, namespace);
     if (param) {
       parameters.push(param);
     }
   }
 
   if (operation.bodyParam) {
-    const bodyParam = fromParameter(sdkContext, operation.bodyParam, rootApiVersions);
+    const bodyParam = fromParameter(sdkContext, operation.bodyParam, rootApiVersions, namespace);
     if (bodyParam) {
       parameters.push(bodyParam);
     }
@@ -374,6 +380,7 @@ export function fromParameter(
   sdkContext: CSharpEmitterContext,
   p: SdkHttpParameter | SdkModelPropertyType,
   rootApiVersions: string[],
+  namespace: string,
 ): InputHttpParameter | undefined {
   let parameter = sdkContext.__typeCache.operationParameters.get(p);
   if (parameter) {
@@ -383,16 +390,16 @@ export function fromParameter(
 
   switch (parameterKind) {
     case "query":
-      parameter = fromQueryParameter(sdkContext, p, rootApiVersions);
+      parameter = fromQueryParameter(sdkContext, p, rootApiVersions, namespace);
       break;
     case "path":
-      parameter = fromPathParameter(sdkContext, p, rootApiVersions);
+      parameter = fromPathParameter(sdkContext, p, rootApiVersions, namespace);
       break;
     case "header":
-      parameter = fromHeaderParameter(sdkContext, p, rootApiVersions);
+      parameter = fromHeaderParameter(sdkContext, p, rootApiVersions, namespace);
       break;
     case "body":
-      parameter = fromBodyParameter(sdkContext, p, rootApiVersions);
+      parameter = fromBodyParameter(sdkContext, p, rootApiVersions, namespace);
       break;
     default:
       sdkContext.logger.reportDiagnostic({
@@ -410,10 +417,31 @@ export function fromParameter(
   return parameter;
 }
 
+function convertCorrespondingMethodParams(
+  sdkContext: CSharpEmitterContext,
+  p: SdkHttpParameter | SdkModelPropertyType,
+  namespace: string,
+): InputMethodParameter[] | undefined {
+  if (!("correspondingMethodParams" in p) || !p.correspondingMethodParams) {
+    return undefined;
+  }
+
+  return p.correspondingMethodParams.map((methodParam) => {
+    // Check if already cached
+    let inputMethodParam = sdkContext.__typeCache.methodParmeters.get(methodParam);
+    if (!inputMethodParam) {
+      // Convert the method parameter if not already cached
+      inputMethodParam = fromMethodParameter(sdkContext, methodParam, namespace);
+    }
+    return inputMethodParam;
+  });
+}
+
 function fromQueryParameter(
   sdkContext: CSharpEmitterContext,
   p: SdkQueryParameter,
   rootApiVersions: string[],
+  namespace: string,
 ): InputQueryParameter {
   const parameterType = fromSdkType(sdkContext, p.type);
 
@@ -433,6 +461,7 @@ function fromQueryParameter(
     decorators: p.decorators,
     crossLanguageDefinitionId: p.crossLanguageDefinitionId,
     readOnly: isReadOnly(p),
+    correspondingMethodParams: convertCorrespondingMethodParams(sdkContext, p, namespace),
   };
 
   sdkContext.__typeCache.updateSdkOperationParameterReferences(p, retVar);
@@ -443,6 +472,7 @@ function fromPathParameter(
   sdkContext: CSharpEmitterContext,
   p: SdkPathParameter,
   rootApiVersions: string[],
+  namespace: string,
 ): InputPathParameter {
   const parameterType = fromSdkType(sdkContext, p.type);
 
@@ -464,6 +494,7 @@ function fromPathParameter(
     decorators: p.decorators,
     readOnly: isReadOnly(p),
     crossLanguageDefinitionId: p.crossLanguageDefinitionId,
+    correspondingMethodParams: convertCorrespondingMethodParams(sdkContext, p, namespace),
   };
 
   sdkContext.__typeCache.updateSdkOperationParameterReferences(p, retVar);
@@ -474,6 +505,7 @@ function fromHeaderParameter(
   sdkContext: CSharpEmitterContext,
   p: SdkHeaderParameter,
   rootApiVersions: string[],
+  namespace: string,
 ): InputHeaderParameter {
   const parameterType = fromSdkType(sdkContext, p.type);
 
@@ -494,6 +526,7 @@ function fromHeaderParameter(
     readOnly: isReadOnly(p),
     decorators: p.decorators,
     crossLanguageDefinitionId: p.crossLanguageDefinitionId,
+    correspondingMethodParams: convertCorrespondingMethodParams(sdkContext, p, namespace),
   };
 
   sdkContext.__typeCache.updateSdkOperationParameterReferences(p, retVar);
@@ -504,6 +537,7 @@ function fromBodyParameter(
   sdkContext: CSharpEmitterContext,
   p: SdkBodyParameter,
   rootApiVersions: string[],
+  namespace: string,
 ): InputBodyParameter {
   const parameterType = fromSdkType(sdkContext, p.type);
 
@@ -522,6 +556,7 @@ function fromBodyParameter(
     decorators: p.decorators,
     readOnly: isReadOnly(p),
     crossLanguageDefinitionId: p.crossLanguageDefinitionId,
+    correspondingMethodParams: convertCorrespondingMethodParams(sdkContext, p, namespace),
   };
 
   sdkContext.__typeCache.updateSdkOperationParameterReferences(p, retVar);
@@ -716,7 +751,7 @@ function loadPagingServiceMetadata(
           ] as SdkModelPropertyType;
           const operationParameter = getHttpOperationParameter(method, lastParameterSegment);
           if (operationParameter) {
-            const parameter = fromParameter(context, operationParameter, rootApiVersions);
+            const parameter = fromParameter(context, operationParameter, rootApiVersions, namespace);
             if (parameter) {
               nextLinkReInjectedParameters.push(parameter);
             }
@@ -741,6 +776,7 @@ function loadPagingServiceMetadata(
       context,
       getHttpOperationParameter(method, lastParameterSegment)!,
       rootApiVersions,
+      namespace,
     );
     if (continuationTokenParameter) {
       continuationToken = {

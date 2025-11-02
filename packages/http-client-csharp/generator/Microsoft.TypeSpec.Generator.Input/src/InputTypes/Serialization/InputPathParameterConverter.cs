@@ -66,6 +66,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? serverUrlTemplate = null;
             bool allowReserved = false;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
+            IReadOnlyList<InputMethodParameter>? correspondingMethodParams = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
@@ -85,7 +86,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString("scope", ref scope)
                     || reader.TryReadBoolean("explode", ref explode)
                     || reader.TryReadBoolean("skipUrlEncoding", ref skipUrlEncoding)
-                    || reader.TryReadComplexType("decorators", options, ref decorators);
+                    || reader.TryReadComplexType("decorators", options, ref decorators)
+                    || reader.TryReadComplexType("correspondingMethodParams", options, ref correspondingMethodParams);
 
                 if (!isKnownProperty)
                 {
@@ -109,6 +111,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             parameter.Scope = InputParameter.ParseScope(type, name, scope);;
             parameter.Explode = explode;
             parameter.SkipUrlEncoding = skipUrlEncoding;
+            parameter.CorrespondingMethodParams = correspondingMethodParams;
 
             return parameter;
         }

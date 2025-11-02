@@ -20,14 +20,17 @@ namespace Microsoft.TypeSpec.Generator.Input
             InputConstant? defaultValue,
             InputParameterScope scope,
             IReadOnlyList<string> contentTypes,
-            string defaultContentType)
+            string defaultContentType,
+            IReadOnlyList<InputMethodParameter>? correspondingMethodParams = null)
             : base(name, summary, doc, type, isRequired, isReadOnly, access, serializedName, isApiVersion, defaultValue, scope)
         {
             ContentTypes = contentTypes;
             DefaultContentType = defaultContentType;
+            CorrespondingMethodParams = correspondingMethodParams;
         }
 
         public IReadOnlyList<string> ContentTypes { get; internal set; }
         public string DefaultContentType { get; internal set; }
+        public IReadOnlyList<InputMethodParameter>? CorrespondingMethodParams { get; internal set; }
     }
 }
