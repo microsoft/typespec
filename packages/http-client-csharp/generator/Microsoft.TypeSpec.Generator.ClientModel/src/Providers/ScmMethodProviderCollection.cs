@@ -475,12 +475,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
             }
 
-            // Use correspondingMethodParams for mapping when available, otherwise fall back to positional/name matching
+            // Build a reverse map from protocol parameter to method parameter using correspondingMethodParams
+            var protocolParamToMethodParam = new Dictionary<InputParameter, InputMethodParameter>();
             foreach (var protocolParam in ServiceMethod.Operation.Parameters)
             {
-                ParameterProvider? convenienceParam = null;
-
-                // Check if this protocol parameter has corresponding method params
                 IReadOnlyList<InputMethodParameter>? correspondingMethodParams = protocolParam switch
                 {
                     InputQueryParameter queryParam => queryParam.CorrespondingMethodParams,
@@ -492,16 +490,33 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 if (correspondingMethodParams != null && correspondingMethodParams.Count > 0)
                 {
-                    // Use the first corresponding method parameter
-                    var correspondingInputParam = correspondingMethodParams[0];
-                    inputMethodParamToConvenienceParam.TryGetValue(correspondingInputParam, out convenienceParam);
+                    protocolParamToMethodParam[protocolParam] = correspondingMethodParams[0];
                 }
-                else
+            }
+
+            // Iterate through method parameters in their original order to build arguments in the correct order
+            foreach (var methodParam in ServiceMethod.Parameters)
+            {
+                // Find the protocol parameter that corresponds to this method parameter
+                var protocolParam = protocolParamToMethodParam.FirstOrDefault(kvp => kvp.Value == methodParam).Key;
+
+                if (protocolParam == null)
                 {
-                    // Fall back to matching by name or serialized name
-                    convenienceParam = ConvenienceMethodParameters.FirstOrDefault(cp =>
-                        string.Equals(cp.Name, protocolParam.Name, StringComparison.OrdinalIgnoreCase) ||
-                        string.Equals(cp.WireInfo?.SerializedName, protocolParam.SerializedName, StringComparison.OrdinalIgnoreCase));
+                    // Fall back to matching by name
+                    protocolParam = ServiceMethod.Operation.Parameters.FirstOrDefault(pp =>
+                        string.Equals(pp.Name, methodParam.Name, StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(pp.SerializedName, methodParam.SerializedName, StringComparison.OrdinalIgnoreCase));
+                }
+
+                if (protocolParam == null)
+                {
+                    continue;
+                }
+
+                // Get the convenience parameter for this method parameter
+                if (!inputMethodParamToConvenienceParam.TryGetValue(methodParam, out var convenienceParam))
+                {
+                    continue;
                 }
 
                 if (convenienceParam != null)
