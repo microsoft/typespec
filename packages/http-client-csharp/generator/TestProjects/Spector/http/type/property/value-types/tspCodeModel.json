@@ -2508,7 +2508,26 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Boolean.get.accept"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Boolean.get.accept",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "243",
+                        "kind": "method",
+                        "name": "accept",
+                        "serializedName": "Accept",
+                        "type": {
+                          "$ref": "32"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.Boolean.get.accept",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -2537,21 +2556,7 @@
               },
               "parameters": [
                 {
-                  "$id": "243",
-                  "kind": "method",
-                  "name": "accept",
-                  "serializedName": "Accept",
-                  "type": {
-                    "$ref": "32"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.Boolean.get.accept",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "243"
                 }
               ],
               "response": {
@@ -2593,10 +2598,30 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Boolean.put.contentType"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Boolean.put.contentType",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "247",
+                        "kind": "method",
+                        "name": "contentType",
+                        "serializedName": "Content-Type",
+                        "doc": "Body parameter's content type. Known values are application/json",
+                        "type": {
+                          "$ref": "34"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.Boolean.put.contentType",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   },
                   {
-                    "$id": "247",
+                    "$id": "248",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -2613,7 +2638,27 @@
                     "scope": "Method",
                     "decorators": [],
                     "readOnly": false,
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Boolean.put.body"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Boolean.put.body",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "249",
+                        "kind": "method",
+                        "name": "body",
+                        "serializedName": "body",
+                        "doc": "body",
+                        "type": {
+                          "$ref": "148"
+                        },
+                        "location": "Body",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Method",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.Boolean.put.body",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -2639,40 +2684,10 @@
               },
               "parameters": [
                 {
-                  "$id": "248",
-                  "kind": "method",
-                  "name": "body",
-                  "serializedName": "body",
-                  "doc": "body",
-                  "type": {
-                    "$ref": "148"
-                  },
-                  "location": "Body",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Method",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.Boolean.put.body",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "249"
                 },
                 {
-                  "$id": "249",
-                  "kind": "method",
-                  "name": "contentType",
-                  "serializedName": "Content-Type",
-                  "doc": "Body parameter's content type. Known values are application/json",
-                  "type": {
-                    "$ref": "34"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.Boolean.put.contentType",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "247"
                 }
               ],
               "response": {},
@@ -2756,7 +2771,26 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.String.get.accept"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.String.get.accept",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "257",
+                        "kind": "method",
+                        "name": "accept",
+                        "serializedName": "Accept",
+                        "type": {
+                          "$ref": "36"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.String.get.accept",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -2785,21 +2819,7 @@
               },
               "parameters": [
                 {
-                  "$id": "257",
-                  "kind": "method",
-                  "name": "accept",
-                  "serializedName": "Accept",
-                  "type": {
-                    "$ref": "36"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.String.get.accept",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "257"
                 }
               ],
               "response": {
@@ -2841,10 +2861,30 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.String.put.contentType"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.String.put.contentType",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "261",
+                        "kind": "method",
+                        "name": "contentType",
+                        "serializedName": "Content-Type",
+                        "doc": "Body parameter's content type. Known values are application/json",
+                        "type": {
+                          "$ref": "38"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.String.put.contentType",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   },
                   {
-                    "$id": "261",
+                    "$id": "262",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -2861,7 +2901,27 @@
                     "scope": "Method",
                     "decorators": [],
                     "readOnly": false,
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.String.put.body"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.String.put.body",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "263",
+                        "kind": "method",
+                        "name": "body",
+                        "serializedName": "body",
+                        "doc": "body",
+                        "type": {
+                          "$ref": "151"
+                        },
+                        "location": "Body",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Method",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.String.put.body",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -2887,40 +2947,10 @@
               },
               "parameters": [
                 {
-                  "$id": "262",
-                  "kind": "method",
-                  "name": "body",
-                  "serializedName": "body",
-                  "doc": "body",
-                  "type": {
-                    "$ref": "151"
-                  },
-                  "location": "Body",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Method",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.String.put.body",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "263"
                 },
                 {
-                  "$id": "263",
-                  "kind": "method",
-                  "name": "contentType",
-                  "serializedName": "Content-Type",
-                  "doc": "Body parameter's content type. Known values are application/json",
-                  "type": {
-                    "$ref": "38"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.String.put.contentType",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "261"
                 }
               ],
               "response": {},
@@ -3004,7 +3034,26 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Bytes.get.accept"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Bytes.get.accept",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "271",
+                        "kind": "method",
+                        "name": "accept",
+                        "serializedName": "Accept",
+                        "type": {
+                          "$ref": "40"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.Bytes.get.accept",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -3033,21 +3082,7 @@
               },
               "parameters": [
                 {
-                  "$id": "271",
-                  "kind": "method",
-                  "name": "accept",
-                  "serializedName": "Accept",
-                  "type": {
-                    "$ref": "40"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.Bytes.get.accept",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "271"
                 }
               ],
               "response": {
@@ -3089,10 +3124,30 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Bytes.put.contentType"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Bytes.put.contentType",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "275",
+                        "kind": "method",
+                        "name": "contentType",
+                        "serializedName": "Content-Type",
+                        "doc": "Body parameter's content type. Known values are application/json",
+                        "type": {
+                          "$ref": "42"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.Bytes.put.contentType",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   },
                   {
-                    "$id": "275",
+                    "$id": "276",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -3109,7 +3164,27 @@
                     "scope": "Method",
                     "decorators": [],
                     "readOnly": false,
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Bytes.put.body"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Bytes.put.body",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "277",
+                        "kind": "method",
+                        "name": "body",
+                        "serializedName": "body",
+                        "doc": "body",
+                        "type": {
+                          "$ref": "154"
+                        },
+                        "location": "Body",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Method",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.Bytes.put.body",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -3135,40 +3210,10 @@
               },
               "parameters": [
                 {
-                  "$id": "276",
-                  "kind": "method",
-                  "name": "body",
-                  "serializedName": "body",
-                  "doc": "body",
-                  "type": {
-                    "$ref": "154"
-                  },
-                  "location": "Body",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Method",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.Bytes.put.body",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "277"
                 },
                 {
-                  "$id": "277",
-                  "kind": "method",
-                  "name": "contentType",
-                  "serializedName": "Content-Type",
-                  "doc": "Body parameter's content type. Known values are application/json",
-                  "type": {
-                    "$ref": "42"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.Bytes.put.contentType",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "275"
                 }
               ],
               "response": {},
@@ -3252,7 +3297,26 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Int.get.accept"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Int.get.accept",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "285",
+                        "kind": "method",
+                        "name": "accept",
+                        "serializedName": "Accept",
+                        "type": {
+                          "$ref": "44"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.Int.get.accept",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -3281,21 +3345,7 @@
               },
               "parameters": [
                 {
-                  "$id": "285",
-                  "kind": "method",
-                  "name": "accept",
-                  "serializedName": "Accept",
-                  "type": {
-                    "$ref": "44"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.Int.get.accept",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "285"
                 }
               ],
               "response": {
@@ -3337,10 +3387,30 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Int.put.contentType"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Int.put.contentType",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "289",
+                        "kind": "method",
+                        "name": "contentType",
+                        "serializedName": "Content-Type",
+                        "doc": "Body parameter's content type. Known values are application/json",
+                        "type": {
+                          "$ref": "46"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.Int.put.contentType",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   },
                   {
-                    "$id": "289",
+                    "$id": "290",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -3357,7 +3427,27 @@
                     "scope": "Method",
                     "decorators": [],
                     "readOnly": false,
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Int.put.body"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Int.put.body",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "291",
+                        "kind": "method",
+                        "name": "body",
+                        "serializedName": "body",
+                        "doc": "body",
+                        "type": {
+                          "$ref": "157"
+                        },
+                        "location": "Body",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Method",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.Int.put.body",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -3383,40 +3473,10 @@
               },
               "parameters": [
                 {
-                  "$id": "290",
-                  "kind": "method",
-                  "name": "body",
-                  "serializedName": "body",
-                  "doc": "body",
-                  "type": {
-                    "$ref": "157"
-                  },
-                  "location": "Body",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Method",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.Int.put.body",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "291"
                 },
                 {
-                  "$id": "291",
-                  "kind": "method",
-                  "name": "contentType",
-                  "serializedName": "Content-Type",
-                  "doc": "Body parameter's content type. Known values are application/json",
-                  "type": {
-                    "$ref": "46"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.Int.put.contentType",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "289"
                 }
               ],
               "response": {},
@@ -3500,7 +3560,26 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Float.get.accept"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Float.get.accept",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "299",
+                        "kind": "method",
+                        "name": "accept",
+                        "serializedName": "Accept",
+                        "type": {
+                          "$ref": "48"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.Float.get.accept",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -3529,21 +3608,7 @@
               },
               "parameters": [
                 {
-                  "$id": "299",
-                  "kind": "method",
-                  "name": "accept",
-                  "serializedName": "Accept",
-                  "type": {
-                    "$ref": "48"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.Float.get.accept",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "299"
                 }
               ],
               "response": {
@@ -3585,10 +3650,30 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Float.put.contentType"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Float.put.contentType",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "303",
+                        "kind": "method",
+                        "name": "contentType",
+                        "serializedName": "Content-Type",
+                        "doc": "Body parameter's content type. Known values are application/json",
+                        "type": {
+                          "$ref": "50"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.Float.put.contentType",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   },
                   {
-                    "$id": "303",
+                    "$id": "304",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -3605,7 +3690,27 @@
                     "scope": "Method",
                     "decorators": [],
                     "readOnly": false,
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Float.put.body"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Float.put.body",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "305",
+                        "kind": "method",
+                        "name": "body",
+                        "serializedName": "body",
+                        "doc": "body",
+                        "type": {
+                          "$ref": "160"
+                        },
+                        "location": "Body",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Method",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.Float.put.body",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -3631,40 +3736,10 @@
               },
               "parameters": [
                 {
-                  "$id": "304",
-                  "kind": "method",
-                  "name": "body",
-                  "serializedName": "body",
-                  "doc": "body",
-                  "type": {
-                    "$ref": "160"
-                  },
-                  "location": "Body",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Method",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.Float.put.body",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "305"
                 },
                 {
-                  "$id": "305",
-                  "kind": "method",
-                  "name": "contentType",
-                  "serializedName": "Content-Type",
-                  "doc": "Body parameter's content type. Known values are application/json",
-                  "type": {
-                    "$ref": "50"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.Float.put.contentType",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "303"
                 }
               ],
               "response": {},
@@ -3748,7 +3823,26 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal.get.accept"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal.get.accept",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "313",
+                        "kind": "method",
+                        "name": "accept",
+                        "serializedName": "Accept",
+                        "type": {
+                          "$ref": "52"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal.get.accept",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -3777,21 +3871,7 @@
               },
               "parameters": [
                 {
-                  "$id": "313",
-                  "kind": "method",
-                  "name": "accept",
-                  "serializedName": "Accept",
-                  "type": {
-                    "$ref": "52"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal.get.accept",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "313"
                 }
               ],
               "response": {
@@ -3833,10 +3913,30 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal.put.contentType"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal.put.contentType",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "317",
+                        "kind": "method",
+                        "name": "contentType",
+                        "serializedName": "Content-Type",
+                        "doc": "Body parameter's content type. Known values are application/json",
+                        "type": {
+                          "$ref": "54"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal.put.contentType",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   },
                   {
-                    "$id": "317",
+                    "$id": "318",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -3853,7 +3953,27 @@
                     "scope": "Method",
                     "decorators": [],
                     "readOnly": false,
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal.put.body"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal.put.body",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "319",
+                        "kind": "method",
+                        "name": "body",
+                        "serializedName": "body",
+                        "doc": "body",
+                        "type": {
+                          "$ref": "163"
+                        },
+                        "location": "Body",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Method",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal.put.body",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -3879,40 +3999,10 @@
               },
               "parameters": [
                 {
-                  "$id": "318",
-                  "kind": "method",
-                  "name": "body",
-                  "serializedName": "body",
-                  "doc": "body",
-                  "type": {
-                    "$ref": "163"
-                  },
-                  "location": "Body",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Method",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal.put.body",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "319"
                 },
                 {
-                  "$id": "319",
-                  "kind": "method",
-                  "name": "contentType",
-                  "serializedName": "Content-Type",
-                  "doc": "Body parameter's content type. Known values are application/json",
-                  "type": {
-                    "$ref": "54"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal.put.contentType",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "317"
                 }
               ],
               "response": {},
@@ -3996,7 +4086,26 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal128.get.accept"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal128.get.accept",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "327",
+                        "kind": "method",
+                        "name": "accept",
+                        "serializedName": "Accept",
+                        "type": {
+                          "$ref": "56"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal128.get.accept",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -4025,21 +4134,7 @@
               },
               "parameters": [
                 {
-                  "$id": "327",
-                  "kind": "method",
-                  "name": "accept",
-                  "serializedName": "Accept",
-                  "type": {
-                    "$ref": "56"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal128.get.accept",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "327"
                 }
               ],
               "response": {
@@ -4081,10 +4176,30 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal128.put.contentType"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal128.put.contentType",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "331",
+                        "kind": "method",
+                        "name": "contentType",
+                        "serializedName": "Content-Type",
+                        "doc": "Body parameter's content type. Known values are application/json",
+                        "type": {
+                          "$ref": "58"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal128.put.contentType",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   },
                   {
-                    "$id": "331",
+                    "$id": "332",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -4101,7 +4216,27 @@
                     "scope": "Method",
                     "decorators": [],
                     "readOnly": false,
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal128.put.body"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal128.put.body",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "333",
+                        "kind": "method",
+                        "name": "body",
+                        "serializedName": "body",
+                        "doc": "body",
+                        "type": {
+                          "$ref": "166"
+                        },
+                        "location": "Body",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Method",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal128.put.body",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -4127,40 +4262,10 @@
               },
               "parameters": [
                 {
-                  "$id": "332",
-                  "kind": "method",
-                  "name": "body",
-                  "serializedName": "body",
-                  "doc": "body",
-                  "type": {
-                    "$ref": "166"
-                  },
-                  "location": "Body",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Method",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal128.put.body",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "333"
                 },
                 {
-                  "$id": "333",
-                  "kind": "method",
-                  "name": "contentType",
-                  "serializedName": "Content-Type",
-                  "doc": "Body parameter's content type. Known values are application/json",
-                  "type": {
-                    "$ref": "58"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.Decimal128.put.contentType",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "331"
                 }
               ],
               "response": {},
@@ -4244,7 +4349,26 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Datetime.get.accept"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Datetime.get.accept",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "341",
+                        "kind": "method",
+                        "name": "accept",
+                        "serializedName": "Accept",
+                        "type": {
+                          "$ref": "60"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.Datetime.get.accept",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -4273,21 +4397,7 @@
               },
               "parameters": [
                 {
-                  "$id": "341",
-                  "kind": "method",
-                  "name": "accept",
-                  "serializedName": "Accept",
-                  "type": {
-                    "$ref": "60"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.Datetime.get.accept",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "341"
                 }
               ],
               "response": {
@@ -4329,10 +4439,30 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Datetime.put.contentType"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Datetime.put.contentType",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "345",
+                        "kind": "method",
+                        "name": "contentType",
+                        "serializedName": "Content-Type",
+                        "doc": "Body parameter's content type. Known values are application/json",
+                        "type": {
+                          "$ref": "62"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.Datetime.put.contentType",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   },
                   {
-                    "$id": "345",
+                    "$id": "346",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -4349,7 +4479,27 @@
                     "scope": "Method",
                     "decorators": [],
                     "readOnly": false,
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Datetime.put.body"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Datetime.put.body",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "347",
+                        "kind": "method",
+                        "name": "body",
+                        "serializedName": "body",
+                        "doc": "body",
+                        "type": {
+                          "$ref": "169"
+                        },
+                        "location": "Body",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Method",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.Datetime.put.body",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -4375,40 +4525,10 @@
               },
               "parameters": [
                 {
-                  "$id": "346",
-                  "kind": "method",
-                  "name": "body",
-                  "serializedName": "body",
-                  "doc": "body",
-                  "type": {
-                    "$ref": "169"
-                  },
-                  "location": "Body",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Method",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.Datetime.put.body",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "347"
                 },
                 {
-                  "$id": "347",
-                  "kind": "method",
-                  "name": "contentType",
-                  "serializedName": "Content-Type",
-                  "doc": "Body parameter's content type. Known values are application/json",
-                  "type": {
-                    "$ref": "62"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.Datetime.put.contentType",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "345"
                 }
               ],
               "response": {},
@@ -4492,7 +4612,26 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Duration.get.accept"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Duration.get.accept",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "355",
+                        "kind": "method",
+                        "name": "accept",
+                        "serializedName": "Accept",
+                        "type": {
+                          "$ref": "64"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.Duration.get.accept",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -4521,21 +4660,7 @@
               },
               "parameters": [
                 {
-                  "$id": "355",
-                  "kind": "method",
-                  "name": "accept",
-                  "serializedName": "Accept",
-                  "type": {
-                    "$ref": "64"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.Duration.get.accept",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "355"
                 }
               ],
               "response": {
@@ -4577,10 +4702,30 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Duration.put.contentType"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Duration.put.contentType",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "359",
+                        "kind": "method",
+                        "name": "contentType",
+                        "serializedName": "Content-Type",
+                        "doc": "Body parameter's content type. Known values are application/json",
+                        "type": {
+                          "$ref": "66"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.Duration.put.contentType",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   },
                   {
-                    "$id": "359",
+                    "$id": "360",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -4597,7 +4742,27 @@
                     "scope": "Method",
                     "decorators": [],
                     "readOnly": false,
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Duration.put.body"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Duration.put.body",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "361",
+                        "kind": "method",
+                        "name": "body",
+                        "serializedName": "body",
+                        "doc": "body",
+                        "type": {
+                          "$ref": "173"
+                        },
+                        "location": "Body",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Method",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.Duration.put.body",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -4623,40 +4788,10 @@
               },
               "parameters": [
                 {
-                  "$id": "360",
-                  "kind": "method",
-                  "name": "body",
-                  "serializedName": "body",
-                  "doc": "body",
-                  "type": {
-                    "$ref": "173"
-                  },
-                  "location": "Body",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Method",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.Duration.put.body",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "361"
                 },
                 {
-                  "$id": "361",
-                  "kind": "method",
-                  "name": "contentType",
-                  "serializedName": "Content-Type",
-                  "doc": "Body parameter's content type. Known values are application/json",
-                  "type": {
-                    "$ref": "66"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.Duration.put.contentType",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "359"
                 }
               ],
               "response": {},
@@ -4740,7 +4875,26 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Enum.get.accept"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Enum.get.accept",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "369",
+                        "kind": "method",
+                        "name": "accept",
+                        "serializedName": "Accept",
+                        "type": {
+                          "$ref": "68"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.Enum.get.accept",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -4769,21 +4923,7 @@
               },
               "parameters": [
                 {
-                  "$id": "369",
-                  "kind": "method",
-                  "name": "accept",
-                  "serializedName": "Accept",
-                  "type": {
-                    "$ref": "68"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.Enum.get.accept",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "369"
                 }
               ],
               "response": {
@@ -4825,10 +4965,30 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Enum.put.contentType"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Enum.put.contentType",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "373",
+                        "kind": "method",
+                        "name": "contentType",
+                        "serializedName": "Content-Type",
+                        "doc": "Body parameter's content type. Known values are application/json",
+                        "type": {
+                          "$ref": "70"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.Enum.put.contentType",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   },
                   {
-                    "$id": "373",
+                    "$id": "374",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -4845,7 +5005,27 @@
                     "scope": "Method",
                     "decorators": [],
                     "readOnly": false,
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Enum.put.body"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Enum.put.body",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "375",
+                        "kind": "method",
+                        "name": "body",
+                        "serializedName": "body",
+                        "doc": "body",
+                        "type": {
+                          "$ref": "177"
+                        },
+                        "location": "Body",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Method",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.Enum.put.body",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -4871,40 +5051,10 @@
               },
               "parameters": [
                 {
-                  "$id": "374",
-                  "kind": "method",
-                  "name": "body",
-                  "serializedName": "body",
-                  "doc": "body",
-                  "type": {
-                    "$ref": "177"
-                  },
-                  "location": "Body",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Method",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.Enum.put.body",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "375"
                 },
                 {
-                  "$id": "375",
-                  "kind": "method",
-                  "name": "contentType",
-                  "serializedName": "Content-Type",
-                  "doc": "Body parameter's content type. Known values are application/json",
-                  "type": {
-                    "$ref": "70"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.Enum.put.contentType",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "373"
                 }
               ],
               "response": {},
@@ -4988,7 +5138,26 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.ExtensibleEnum.get.accept"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.ExtensibleEnum.get.accept",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "383",
+                        "kind": "method",
+                        "name": "accept",
+                        "serializedName": "Accept",
+                        "type": {
+                          "$ref": "72"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.ExtensibleEnum.get.accept",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -5017,21 +5186,7 @@
               },
               "parameters": [
                 {
-                  "$id": "383",
-                  "kind": "method",
-                  "name": "accept",
-                  "serializedName": "Accept",
-                  "type": {
-                    "$ref": "72"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.ExtensibleEnum.get.accept",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "383"
                 }
               ],
               "response": {
@@ -5073,10 +5228,30 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.ExtensibleEnum.put.contentType"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.ExtensibleEnum.put.contentType",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "387",
+                        "kind": "method",
+                        "name": "contentType",
+                        "serializedName": "Content-Type",
+                        "doc": "Body parameter's content type. Known values are application/json",
+                        "type": {
+                          "$ref": "74"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.ExtensibleEnum.put.contentType",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   },
                   {
-                    "$id": "387",
+                    "$id": "388",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -5093,7 +5268,27 @@
                     "scope": "Method",
                     "decorators": [],
                     "readOnly": false,
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.ExtensibleEnum.put.body"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.ExtensibleEnum.put.body",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "389",
+                        "kind": "method",
+                        "name": "body",
+                        "serializedName": "body",
+                        "doc": "body",
+                        "type": {
+                          "$ref": "179"
+                        },
+                        "location": "Body",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Method",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.ExtensibleEnum.put.body",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -5119,40 +5314,10 @@
               },
               "parameters": [
                 {
-                  "$id": "388",
-                  "kind": "method",
-                  "name": "body",
-                  "serializedName": "body",
-                  "doc": "body",
-                  "type": {
-                    "$ref": "179"
-                  },
-                  "location": "Body",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Method",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.ExtensibleEnum.put.body",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "389"
                 },
                 {
-                  "$id": "389",
-                  "kind": "method",
-                  "name": "contentType",
-                  "serializedName": "Content-Type",
-                  "doc": "Body parameter's content type. Known values are application/json",
-                  "type": {
-                    "$ref": "74"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.ExtensibleEnum.put.contentType",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "387"
                 }
               ],
               "response": {},
@@ -5236,7 +5401,26 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Model.get.accept"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Model.get.accept",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "397",
+                        "kind": "method",
+                        "name": "accept",
+                        "serializedName": "Accept",
+                        "type": {
+                          "$ref": "76"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.Model.get.accept",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -5265,21 +5449,7 @@
               },
               "parameters": [
                 {
-                  "$id": "397",
-                  "kind": "method",
-                  "name": "accept",
-                  "serializedName": "Accept",
-                  "type": {
-                    "$ref": "76"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.Model.get.accept",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "397"
                 }
               ],
               "response": {
@@ -5321,10 +5491,30 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Model.put.contentType"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Model.put.contentType",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "401",
+                        "kind": "method",
+                        "name": "contentType",
+                        "serializedName": "Content-Type",
+                        "doc": "Body parameter's content type. Known values are application/json",
+                        "type": {
+                          "$ref": "78"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.Model.put.contentType",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   },
                   {
-                    "$id": "401",
+                    "$id": "402",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -5341,7 +5531,27 @@
                     "scope": "Method",
                     "decorators": [],
                     "readOnly": false,
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Model.put.body"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Model.put.body",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "403",
+                        "kind": "method",
+                        "name": "body",
+                        "serializedName": "body",
+                        "doc": "body",
+                        "type": {
+                          "$ref": "181"
+                        },
+                        "location": "Body",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Method",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.Model.put.body",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -5367,40 +5577,10 @@
               },
               "parameters": [
                 {
-                  "$id": "402",
-                  "kind": "method",
-                  "name": "body",
-                  "serializedName": "body",
-                  "doc": "body",
-                  "type": {
-                    "$ref": "181"
-                  },
-                  "location": "Body",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Method",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.Model.put.body",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "403"
                 },
                 {
-                  "$id": "403",
-                  "kind": "method",
-                  "name": "contentType",
-                  "serializedName": "Content-Type",
-                  "doc": "Body parameter's content type. Known values are application/json",
-                  "type": {
-                    "$ref": "78"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.Model.put.contentType",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "401"
                 }
               ],
               "response": {},
@@ -5484,7 +5664,26 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsString.get.accept"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsString.get.accept",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "411",
+                        "kind": "method",
+                        "name": "accept",
+                        "serializedName": "Accept",
+                        "type": {
+                          "$ref": "80"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsString.get.accept",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -5513,21 +5712,7 @@
               },
               "parameters": [
                 {
-                  "$id": "411",
-                  "kind": "method",
-                  "name": "accept",
-                  "serializedName": "Accept",
-                  "type": {
-                    "$ref": "80"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsString.get.accept",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "411"
                 }
               ],
               "response": {
@@ -5569,10 +5754,30 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsString.put.contentType"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsString.put.contentType",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "415",
+                        "kind": "method",
+                        "name": "contentType",
+                        "serializedName": "Content-Type",
+                        "doc": "Body parameter's content type. Known values are application/json",
+                        "type": {
+                          "$ref": "82"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsString.put.contentType",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   },
                   {
-                    "$id": "415",
+                    "$id": "416",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -5589,7 +5794,27 @@
                     "scope": "Method",
                     "decorators": [],
                     "readOnly": false,
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsString.put.body"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsString.put.body",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "417",
+                        "kind": "method",
+                        "name": "body",
+                        "serializedName": "body",
+                        "doc": "body",
+                        "type": {
+                          "$ref": "186"
+                        },
+                        "location": "Body",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Method",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsString.put.body",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -5615,40 +5840,10 @@
               },
               "parameters": [
                 {
-                  "$id": "416",
-                  "kind": "method",
-                  "name": "body",
-                  "serializedName": "body",
-                  "doc": "body",
-                  "type": {
-                    "$ref": "186"
-                  },
-                  "location": "Body",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Method",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsString.put.body",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "417"
                 },
                 {
-                  "$id": "417",
-                  "kind": "method",
-                  "name": "contentType",
-                  "serializedName": "Content-Type",
-                  "doc": "Body parameter's content type. Known values are application/json",
-                  "type": {
-                    "$ref": "82"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsString.put.contentType",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "415"
                 }
               ],
               "response": {},
@@ -5732,7 +5927,26 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsInt.get.accept"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsInt.get.accept",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "425",
+                        "kind": "method",
+                        "name": "accept",
+                        "serializedName": "Accept",
+                        "type": {
+                          "$ref": "84"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsInt.get.accept",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -5761,21 +5975,7 @@
               },
               "parameters": [
                 {
-                  "$id": "425",
-                  "kind": "method",
-                  "name": "accept",
-                  "serializedName": "Accept",
-                  "type": {
-                    "$ref": "84"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsInt.get.accept",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "425"
                 }
               ],
               "response": {
@@ -5817,10 +6017,30 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsInt.put.contentType"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsInt.put.contentType",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "429",
+                        "kind": "method",
+                        "name": "contentType",
+                        "serializedName": "Content-Type",
+                        "doc": "Body parameter's content type. Known values are application/json",
+                        "type": {
+                          "$ref": "86"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsInt.put.contentType",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   },
                   {
-                    "$id": "429",
+                    "$id": "430",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -5837,7 +6057,27 @@
                     "scope": "Method",
                     "decorators": [],
                     "readOnly": false,
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsInt.put.body"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsInt.put.body",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "431",
+                        "kind": "method",
+                        "name": "body",
+                        "serializedName": "body",
+                        "doc": "body",
+                        "type": {
+                          "$ref": "190"
+                        },
+                        "location": "Body",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Method",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsInt.put.body",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -5863,40 +6103,10 @@
               },
               "parameters": [
                 {
-                  "$id": "430",
-                  "kind": "method",
-                  "name": "body",
-                  "serializedName": "body",
-                  "doc": "body",
-                  "type": {
-                    "$ref": "190"
-                  },
-                  "location": "Body",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Method",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsInt.put.body",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "431"
                 },
                 {
-                  "$id": "431",
-                  "kind": "method",
-                  "name": "contentType",
-                  "serializedName": "Content-Type",
-                  "doc": "Body parameter's content type. Known values are application/json",
-                  "type": {
-                    "$ref": "86"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsInt.put.contentType",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "429"
                 }
               ],
               "response": {},
@@ -5980,7 +6190,26 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsModel.get.accept"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsModel.get.accept",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "439",
+                        "kind": "method",
+                        "name": "accept",
+                        "serializedName": "Accept",
+                        "type": {
+                          "$ref": "88"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsModel.get.accept",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -6009,21 +6238,7 @@
               },
               "parameters": [
                 {
-                  "$id": "439",
-                  "kind": "method",
-                  "name": "accept",
-                  "serializedName": "Accept",
-                  "type": {
-                    "$ref": "88"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsModel.get.accept",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "439"
                 }
               ],
               "response": {
@@ -6065,10 +6280,30 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsModel.put.contentType"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsModel.put.contentType",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "443",
+                        "kind": "method",
+                        "name": "contentType",
+                        "serializedName": "Content-Type",
+                        "doc": "Body parameter's content type. Known values are application/json",
+                        "type": {
+                          "$ref": "90"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsModel.put.contentType",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   },
                   {
-                    "$id": "443",
+                    "$id": "444",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -6085,7 +6320,27 @@
                     "scope": "Method",
                     "decorators": [],
                     "readOnly": false,
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsModel.put.body"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsModel.put.body",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "445",
+                        "kind": "method",
+                        "name": "body",
+                        "serializedName": "body",
+                        "doc": "body",
+                        "type": {
+                          "$ref": "194"
+                        },
+                        "location": "Body",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Method",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsModel.put.body",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -6111,40 +6366,10 @@
               },
               "parameters": [
                 {
-                  "$id": "444",
-                  "kind": "method",
-                  "name": "body",
-                  "serializedName": "body",
-                  "doc": "body",
-                  "type": {
-                    "$ref": "194"
-                  },
-                  "location": "Body",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Method",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsModel.put.body",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "445"
                 },
                 {
-                  "$id": "445",
-                  "kind": "method",
-                  "name": "contentType",
-                  "serializedName": "Content-Type",
-                  "doc": "Body parameter's content type. Known values are application/json",
-                  "type": {
-                    "$ref": "90"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.CollectionsModel.put.contentType",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "443"
                 }
               ],
               "response": {},
@@ -6228,7 +6453,26 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.DictionaryString.get.accept"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.DictionaryString.get.accept",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "453",
+                        "kind": "method",
+                        "name": "accept",
+                        "serializedName": "Accept",
+                        "type": {
+                          "$ref": "92"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.DictionaryString.get.accept",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -6257,21 +6501,7 @@
               },
               "parameters": [
                 {
-                  "$id": "453",
-                  "kind": "method",
-                  "name": "accept",
-                  "serializedName": "Accept",
-                  "type": {
-                    "$ref": "92"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.DictionaryString.get.accept",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "453"
                 }
               ],
               "response": {
@@ -6313,10 +6543,30 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.DictionaryString.put.contentType"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.DictionaryString.put.contentType",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "457",
+                        "kind": "method",
+                        "name": "contentType",
+                        "serializedName": "Content-Type",
+                        "doc": "Body parameter's content type. Known values are application/json",
+                        "type": {
+                          "$ref": "94"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.DictionaryString.put.contentType",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   },
                   {
-                    "$id": "457",
+                    "$id": "458",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -6333,7 +6583,27 @@
                     "scope": "Method",
                     "decorators": [],
                     "readOnly": false,
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.DictionaryString.put.body"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.DictionaryString.put.body",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "459",
+                        "kind": "method",
+                        "name": "body",
+                        "serializedName": "body",
+                        "doc": "body",
+                        "type": {
+                          "$ref": "197"
+                        },
+                        "location": "Body",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Method",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.DictionaryString.put.body",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -6359,40 +6629,10 @@
               },
               "parameters": [
                 {
-                  "$id": "458",
-                  "kind": "method",
-                  "name": "body",
-                  "serializedName": "body",
-                  "doc": "body",
-                  "type": {
-                    "$ref": "197"
-                  },
-                  "location": "Body",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Method",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.DictionaryString.put.body",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "459"
                 },
                 {
-                  "$id": "459",
-                  "kind": "method",
-                  "name": "contentType",
-                  "serializedName": "Content-Type",
-                  "doc": "Body parameter's content type. Known values are application/json",
-                  "type": {
-                    "$ref": "94"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.DictionaryString.put.contentType",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "457"
                 }
               ],
               "response": {},
@@ -6476,7 +6716,26 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Never.get.accept"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Never.get.accept",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "467",
+                        "kind": "method",
+                        "name": "accept",
+                        "serializedName": "Accept",
+                        "type": {
+                          "$ref": "96"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.Never.get.accept",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -6505,21 +6764,7 @@
               },
               "parameters": [
                 {
-                  "$id": "467",
-                  "kind": "method",
-                  "name": "accept",
-                  "serializedName": "Accept",
-                  "type": {
-                    "$ref": "96"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.Never.get.accept",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "467"
                 }
               ],
               "response": {
@@ -6561,10 +6806,30 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Never.put.contentType"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Never.put.contentType",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "471",
+                        "kind": "method",
+                        "name": "contentType",
+                        "serializedName": "Content-Type",
+                        "doc": "Body parameter's content type. Known values are application/json",
+                        "type": {
+                          "$ref": "98"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.Never.put.contentType",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   },
                   {
-                    "$id": "471",
+                    "$id": "472",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -6581,7 +6846,27 @@
                     "scope": "Method",
                     "decorators": [],
                     "readOnly": false,
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Never.put.body"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.Never.put.body",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "473",
+                        "kind": "method",
+                        "name": "body",
+                        "serializedName": "body",
+                        "doc": "body",
+                        "type": {
+                          "$ref": "202"
+                        },
+                        "location": "Body",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Method",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.Never.put.body",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -6607,40 +6892,10 @@
               },
               "parameters": [
                 {
-                  "$id": "472",
-                  "kind": "method",
-                  "name": "body",
-                  "serializedName": "body",
-                  "doc": "body",
-                  "type": {
-                    "$ref": "202"
-                  },
-                  "location": "Body",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Method",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.Never.put.body",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "473"
                 },
                 {
-                  "$id": "473",
-                  "kind": "method",
-                  "name": "contentType",
-                  "serializedName": "Content-Type",
-                  "doc": "Body parameter's content type. Known values are application/json",
-                  "type": {
-                    "$ref": "98"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.Never.put.contentType",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "471"
                 }
               ],
               "response": {},
@@ -6724,7 +6979,26 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownString.get.accept"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownString.get.accept",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "481",
+                        "kind": "method",
+                        "name": "accept",
+                        "serializedName": "Accept",
+                        "type": {
+                          "$ref": "100"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownString.get.accept",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -6753,21 +7027,7 @@
               },
               "parameters": [
                 {
-                  "$id": "481",
-                  "kind": "method",
-                  "name": "accept",
-                  "serializedName": "Accept",
-                  "type": {
-                    "$ref": "100"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownString.get.accept",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "481"
                 }
               ],
               "response": {
@@ -6809,10 +7069,30 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownString.put.contentType"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownString.put.contentType",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "485",
+                        "kind": "method",
+                        "name": "contentType",
+                        "serializedName": "Content-Type",
+                        "doc": "Body parameter's content type. Known values are application/json",
+                        "type": {
+                          "$ref": "102"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownString.put.contentType",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   },
                   {
-                    "$id": "485",
+                    "$id": "486",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -6829,7 +7109,27 @@
                     "scope": "Method",
                     "decorators": [],
                     "readOnly": false,
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownString.put.body"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownString.put.body",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "487",
+                        "kind": "method",
+                        "name": "body",
+                        "serializedName": "body",
+                        "doc": "body",
+                        "type": {
+                          "$ref": "203"
+                        },
+                        "location": "Body",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Method",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownString.put.body",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -6855,40 +7155,10 @@
               },
               "parameters": [
                 {
-                  "$id": "486",
-                  "kind": "method",
-                  "name": "body",
-                  "serializedName": "body",
-                  "doc": "body",
-                  "type": {
-                    "$ref": "203"
-                  },
-                  "location": "Body",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Method",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownString.put.body",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "487"
                 },
                 {
-                  "$id": "487",
-                  "kind": "method",
-                  "name": "contentType",
-                  "serializedName": "Content-Type",
-                  "doc": "Body parameter's content type. Known values are application/json",
-                  "type": {
-                    "$ref": "102"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownString.put.contentType",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "485"
                 }
               ],
               "response": {},
@@ -6972,7 +7242,26 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownInt.get.accept"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownInt.get.accept",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "495",
+                        "kind": "method",
+                        "name": "accept",
+                        "serializedName": "Accept",
+                        "type": {
+                          "$ref": "104"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownInt.get.accept",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -7001,21 +7290,7 @@
               },
               "parameters": [
                 {
-                  "$id": "495",
-                  "kind": "method",
-                  "name": "accept",
-                  "serializedName": "Accept",
-                  "type": {
-                    "$ref": "104"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownInt.get.accept",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "495"
                 }
               ],
               "response": {
@@ -7057,10 +7332,30 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownInt.put.contentType"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownInt.put.contentType",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "499",
+                        "kind": "method",
+                        "name": "contentType",
+                        "serializedName": "Content-Type",
+                        "doc": "Body parameter's content type. Known values are application/json",
+                        "type": {
+                          "$ref": "106"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownInt.put.contentType",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   },
                   {
-                    "$id": "499",
+                    "$id": "500",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -7077,7 +7372,27 @@
                     "scope": "Method",
                     "decorators": [],
                     "readOnly": false,
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownInt.put.body"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownInt.put.body",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "501",
+                        "kind": "method",
+                        "name": "body",
+                        "serializedName": "body",
+                        "doc": "body",
+                        "type": {
+                          "$ref": "206"
+                        },
+                        "location": "Body",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Method",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownInt.put.body",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -7103,40 +7418,10 @@
               },
               "parameters": [
                 {
-                  "$id": "500",
-                  "kind": "method",
-                  "name": "body",
-                  "serializedName": "body",
-                  "doc": "body",
-                  "type": {
-                    "$ref": "206"
-                  },
-                  "location": "Body",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Method",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownInt.put.body",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "501"
                 },
                 {
-                  "$id": "501",
-                  "kind": "method",
-                  "name": "contentType",
-                  "serializedName": "Content-Type",
-                  "doc": "Body parameter's content type. Known values are application/json",
-                  "type": {
-                    "$ref": "106"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownInt.put.contentType",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "499"
                 }
               ],
               "response": {},
@@ -7220,7 +7505,26 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownDict.get.accept"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownDict.get.accept",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "509",
+                        "kind": "method",
+                        "name": "accept",
+                        "serializedName": "Accept",
+                        "type": {
+                          "$ref": "108"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownDict.get.accept",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -7249,21 +7553,7 @@
               },
               "parameters": [
                 {
-                  "$id": "509",
-                  "kind": "method",
-                  "name": "accept",
-                  "serializedName": "Accept",
-                  "type": {
-                    "$ref": "108"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownDict.get.accept",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "509"
                 }
               ],
               "response": {
@@ -7305,10 +7595,30 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownDict.put.contentType"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownDict.put.contentType",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "513",
+                        "kind": "method",
+                        "name": "contentType",
+                        "serializedName": "Content-Type",
+                        "doc": "Body parameter's content type. Known values are application/json",
+                        "type": {
+                          "$ref": "110"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownDict.put.contentType",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   },
                   {
-                    "$id": "513",
+                    "$id": "514",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -7325,7 +7635,27 @@
                     "scope": "Method",
                     "decorators": [],
                     "readOnly": false,
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownDict.put.body"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownDict.put.body",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "515",
+                        "kind": "method",
+                        "name": "body",
+                        "serializedName": "body",
+                        "doc": "body",
+                        "type": {
+                          "$ref": "209"
+                        },
+                        "location": "Body",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Method",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownDict.put.body",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -7351,40 +7681,10 @@
               },
               "parameters": [
                 {
-                  "$id": "514",
-                  "kind": "method",
-                  "name": "body",
-                  "serializedName": "body",
-                  "doc": "body",
-                  "type": {
-                    "$ref": "209"
-                  },
-                  "location": "Body",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Method",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownDict.put.body",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "515"
                 },
                 {
-                  "$id": "515",
-                  "kind": "method",
-                  "name": "contentType",
-                  "serializedName": "Content-Type",
-                  "doc": "Body parameter's content type. Known values are application/json",
-                  "type": {
-                    "$ref": "110"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownDict.put.contentType",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "513"
                 }
               ],
               "response": {},
@@ -7468,7 +7768,26 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownArray.get.accept"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownArray.get.accept",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "523",
+                        "kind": "method",
+                        "name": "accept",
+                        "serializedName": "Accept",
+                        "type": {
+                          "$ref": "112"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownArray.get.accept",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -7497,21 +7816,7 @@
               },
               "parameters": [
                 {
-                  "$id": "523",
-                  "kind": "method",
-                  "name": "accept",
-                  "serializedName": "Accept",
-                  "type": {
-                    "$ref": "112"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownArray.get.accept",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "523"
                 }
               ],
               "response": {
@@ -7553,10 +7858,30 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownArray.put.contentType"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownArray.put.contentType",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "527",
+                        "kind": "method",
+                        "name": "contentType",
+                        "serializedName": "Content-Type",
+                        "doc": "Body parameter's content type. Known values are application/json",
+                        "type": {
+                          "$ref": "114"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownArray.put.contentType",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   },
                   {
-                    "$id": "527",
+                    "$id": "528",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -7573,7 +7898,27 @@
                     "scope": "Method",
                     "decorators": [],
                     "readOnly": false,
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownArray.put.body"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownArray.put.body",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "529",
+                        "kind": "method",
+                        "name": "body",
+                        "serializedName": "body",
+                        "doc": "body",
+                        "type": {
+                          "$ref": "212"
+                        },
+                        "location": "Body",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Method",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownArray.put.body",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -7599,40 +7944,10 @@
               },
               "parameters": [
                 {
-                  "$id": "528",
-                  "kind": "method",
-                  "name": "body",
-                  "serializedName": "body",
-                  "doc": "body",
-                  "type": {
-                    "$ref": "212"
-                  },
-                  "location": "Body",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Method",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownArray.put.body",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "529"
                 },
                 {
-                  "$id": "529",
-                  "kind": "method",
-                  "name": "contentType",
-                  "serializedName": "Content-Type",
-                  "doc": "Body parameter's content type. Known values are application/json",
-                  "type": {
-                    "$ref": "114"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnknownArray.put.contentType",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "527"
                 }
               ],
               "response": {},
@@ -7716,7 +8031,26 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.StringLiteral.get.accept"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.StringLiteral.get.accept",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "537",
+                        "kind": "method",
+                        "name": "accept",
+                        "serializedName": "Accept",
+                        "type": {
+                          "$ref": "116"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.StringLiteral.get.accept",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -7745,21 +8079,7 @@
               },
               "parameters": [
                 {
-                  "$id": "537",
-                  "kind": "method",
-                  "name": "accept",
-                  "serializedName": "Accept",
-                  "type": {
-                    "$ref": "116"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.StringLiteral.get.accept",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "537"
                 }
               ],
               "response": {
@@ -7801,10 +8121,30 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.StringLiteral.put.contentType"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.StringLiteral.put.contentType",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "541",
+                        "kind": "method",
+                        "name": "contentType",
+                        "serializedName": "Content-Type",
+                        "doc": "Body parameter's content type. Known values are application/json",
+                        "type": {
+                          "$ref": "118"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.StringLiteral.put.contentType",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   },
                   {
-                    "$id": "541",
+                    "$id": "542",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -7821,7 +8161,27 @@
                     "scope": "Method",
                     "decorators": [],
                     "readOnly": false,
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.StringLiteral.put.body"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.StringLiteral.put.body",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "543",
+                        "kind": "method",
+                        "name": "body",
+                        "serializedName": "body",
+                        "doc": "body",
+                        "type": {
+                          "$ref": "215"
+                        },
+                        "location": "Body",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Method",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.StringLiteral.put.body",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -7847,40 +8207,10 @@
               },
               "parameters": [
                 {
-                  "$id": "542",
-                  "kind": "method",
-                  "name": "body",
-                  "serializedName": "body",
-                  "doc": "body",
-                  "type": {
-                    "$ref": "215"
-                  },
-                  "location": "Body",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Method",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.StringLiteral.put.body",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "543"
                 },
                 {
-                  "$id": "543",
-                  "kind": "method",
-                  "name": "contentType",
-                  "serializedName": "Content-Type",
-                  "doc": "Body parameter's content type. Known values are application/json",
-                  "type": {
-                    "$ref": "118"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.StringLiteral.put.contentType",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "541"
                 }
               ],
               "response": {},
@@ -7964,7 +8294,26 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.IntLiteral.get.accept"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.IntLiteral.get.accept",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "551",
+                        "kind": "method",
+                        "name": "accept",
+                        "serializedName": "Accept",
+                        "type": {
+                          "$ref": "120"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.IntLiteral.get.accept",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -7993,21 +8342,7 @@
               },
               "parameters": [
                 {
-                  "$id": "551",
-                  "kind": "method",
-                  "name": "accept",
-                  "serializedName": "Accept",
-                  "type": {
-                    "$ref": "120"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.IntLiteral.get.accept",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "551"
                 }
               ],
               "response": {
@@ -8049,10 +8384,30 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.IntLiteral.put.contentType"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.IntLiteral.put.contentType",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "555",
+                        "kind": "method",
+                        "name": "contentType",
+                        "serializedName": "Content-Type",
+                        "doc": "Body parameter's content type. Known values are application/json",
+                        "type": {
+                          "$ref": "122"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.IntLiteral.put.contentType",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   },
                   {
-                    "$id": "555",
+                    "$id": "556",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -8069,7 +8424,27 @@
                     "scope": "Method",
                     "decorators": [],
                     "readOnly": false,
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.IntLiteral.put.body"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.IntLiteral.put.body",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "557",
+                        "kind": "method",
+                        "name": "body",
+                        "serializedName": "body",
+                        "doc": "body",
+                        "type": {
+                          "$ref": "217"
+                        },
+                        "location": "Body",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Method",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.IntLiteral.put.body",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -8095,40 +8470,10 @@
               },
               "parameters": [
                 {
-                  "$id": "556",
-                  "kind": "method",
-                  "name": "body",
-                  "serializedName": "body",
-                  "doc": "body",
-                  "type": {
-                    "$ref": "217"
-                  },
-                  "location": "Body",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Method",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.IntLiteral.put.body",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "557"
                 },
                 {
-                  "$id": "557",
-                  "kind": "method",
-                  "name": "contentType",
-                  "serializedName": "Content-Type",
-                  "doc": "Body parameter's content type. Known values are application/json",
-                  "type": {
-                    "$ref": "122"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.IntLiteral.put.contentType",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "555"
                 }
               ],
               "response": {},
@@ -8212,7 +8557,26 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.FloatLiteral.get.accept"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.FloatLiteral.get.accept",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "565",
+                        "kind": "method",
+                        "name": "accept",
+                        "serializedName": "Accept",
+                        "type": {
+                          "$ref": "124"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.FloatLiteral.get.accept",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -8241,21 +8605,7 @@
               },
               "parameters": [
                 {
-                  "$id": "565",
-                  "kind": "method",
-                  "name": "accept",
-                  "serializedName": "Accept",
-                  "type": {
-                    "$ref": "124"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.FloatLiteral.get.accept",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "565"
                 }
               ],
               "response": {
@@ -8297,10 +8647,30 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.FloatLiteral.put.contentType"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.FloatLiteral.put.contentType",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "569",
+                        "kind": "method",
+                        "name": "contentType",
+                        "serializedName": "Content-Type",
+                        "doc": "Body parameter's content type. Known values are application/json",
+                        "type": {
+                          "$ref": "126"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.FloatLiteral.put.contentType",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   },
                   {
-                    "$id": "569",
+                    "$id": "570",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -8317,7 +8687,27 @@
                     "scope": "Method",
                     "decorators": [],
                     "readOnly": false,
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.FloatLiteral.put.body"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.FloatLiteral.put.body",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "571",
+                        "kind": "method",
+                        "name": "body",
+                        "serializedName": "body",
+                        "doc": "body",
+                        "type": {
+                          "$ref": "219"
+                        },
+                        "location": "Body",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Method",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.FloatLiteral.put.body",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -8343,40 +8733,10 @@
               },
               "parameters": [
                 {
-                  "$id": "570",
-                  "kind": "method",
-                  "name": "body",
-                  "serializedName": "body",
-                  "doc": "body",
-                  "type": {
-                    "$ref": "219"
-                  },
-                  "location": "Body",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Method",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.FloatLiteral.put.body",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "571"
                 },
                 {
-                  "$id": "571",
-                  "kind": "method",
-                  "name": "contentType",
-                  "serializedName": "Content-Type",
-                  "doc": "Body parameter's content type. Known values are application/json",
-                  "type": {
-                    "$ref": "126"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.FloatLiteral.put.contentType",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "569"
                 }
               ],
               "response": {},
@@ -8460,7 +8820,26 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.BooleanLiteral.get.accept"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.BooleanLiteral.get.accept",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "579",
+                        "kind": "method",
+                        "name": "accept",
+                        "serializedName": "Accept",
+                        "type": {
+                          "$ref": "128"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.BooleanLiteral.get.accept",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -8489,21 +8868,7 @@
               },
               "parameters": [
                 {
-                  "$id": "579",
-                  "kind": "method",
-                  "name": "accept",
-                  "serializedName": "Accept",
-                  "type": {
-                    "$ref": "128"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.BooleanLiteral.get.accept",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "579"
                 }
               ],
               "response": {
@@ -8545,10 +8910,30 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.BooleanLiteral.put.contentType"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.BooleanLiteral.put.contentType",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "583",
+                        "kind": "method",
+                        "name": "contentType",
+                        "serializedName": "Content-Type",
+                        "doc": "Body parameter's content type. Known values are application/json",
+                        "type": {
+                          "$ref": "130"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.BooleanLiteral.put.contentType",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   },
                   {
-                    "$id": "583",
+                    "$id": "584",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -8565,7 +8950,27 @@
                     "scope": "Method",
                     "decorators": [],
                     "readOnly": false,
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.BooleanLiteral.put.body"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.BooleanLiteral.put.body",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "585",
+                        "kind": "method",
+                        "name": "body",
+                        "serializedName": "body",
+                        "doc": "body",
+                        "type": {
+                          "$ref": "221"
+                        },
+                        "location": "Body",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Method",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.BooleanLiteral.put.body",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -8591,40 +8996,10 @@
               },
               "parameters": [
                 {
-                  "$id": "584",
-                  "kind": "method",
-                  "name": "body",
-                  "serializedName": "body",
-                  "doc": "body",
-                  "type": {
-                    "$ref": "221"
-                  },
-                  "location": "Body",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Method",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.BooleanLiteral.put.body",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "585"
                 },
                 {
-                  "$id": "585",
-                  "kind": "method",
-                  "name": "contentType",
-                  "serializedName": "Content-Type",
-                  "doc": "Body parameter's content type. Known values are application/json",
-                  "type": {
-                    "$ref": "130"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.BooleanLiteral.put.contentType",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "583"
                 }
               ],
               "response": {},
@@ -8708,7 +9083,26 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionStringLiteral.get.accept"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionStringLiteral.get.accept",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "593",
+                        "kind": "method",
+                        "name": "accept",
+                        "serializedName": "Accept",
+                        "type": {
+                          "$ref": "132"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionStringLiteral.get.accept",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -8737,21 +9131,7 @@
               },
               "parameters": [
                 {
-                  "$id": "593",
-                  "kind": "method",
-                  "name": "accept",
-                  "serializedName": "Accept",
-                  "type": {
-                    "$ref": "132"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionStringLiteral.get.accept",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "593"
                 }
               ],
               "response": {
@@ -8793,10 +9173,30 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionStringLiteral.put.contentType"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionStringLiteral.put.contentType",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "597",
+                        "kind": "method",
+                        "name": "contentType",
+                        "serializedName": "Content-Type",
+                        "doc": "Body parameter's content type. Known values are application/json",
+                        "type": {
+                          "$ref": "134"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionStringLiteral.put.contentType",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   },
                   {
-                    "$id": "597",
+                    "$id": "598",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -8813,7 +9213,27 @@
                     "scope": "Method",
                     "decorators": [],
                     "readOnly": false,
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionStringLiteral.put.body"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionStringLiteral.put.body",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "599",
+                        "kind": "method",
+                        "name": "body",
+                        "serializedName": "body",
+                        "doc": "body",
+                        "type": {
+                          "$ref": "223"
+                        },
+                        "location": "Body",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Method",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionStringLiteral.put.body",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -8839,40 +9259,10 @@
               },
               "parameters": [
                 {
-                  "$id": "598",
-                  "kind": "method",
-                  "name": "body",
-                  "serializedName": "body",
-                  "doc": "body",
-                  "type": {
-                    "$ref": "223"
-                  },
-                  "location": "Body",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Method",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionStringLiteral.put.body",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "599"
                 },
                 {
-                  "$id": "599",
-                  "kind": "method",
-                  "name": "contentType",
-                  "serializedName": "Content-Type",
-                  "doc": "Body parameter's content type. Known values are application/json",
-                  "type": {
-                    "$ref": "134"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionStringLiteral.put.contentType",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "597"
                 }
               ],
               "response": {},
@@ -8956,7 +9346,26 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionIntLiteral.get.accept"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionIntLiteral.get.accept",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "607",
+                        "kind": "method",
+                        "name": "accept",
+                        "serializedName": "Accept",
+                        "type": {
+                          "$ref": "136"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionIntLiteral.get.accept",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -8985,21 +9394,7 @@
               },
               "parameters": [
                 {
-                  "$id": "607",
-                  "kind": "method",
-                  "name": "accept",
-                  "serializedName": "Accept",
-                  "type": {
-                    "$ref": "136"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionIntLiteral.get.accept",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "607"
                 }
               ],
               "response": {
@@ -9041,10 +9436,30 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionIntLiteral.put.contentType"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionIntLiteral.put.contentType",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "611",
+                        "kind": "method",
+                        "name": "contentType",
+                        "serializedName": "Content-Type",
+                        "doc": "Body parameter's content type. Known values are application/json",
+                        "type": {
+                          "$ref": "138"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionIntLiteral.put.contentType",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   },
                   {
-                    "$id": "611",
+                    "$id": "612",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -9061,7 +9476,27 @@
                     "scope": "Method",
                     "decorators": [],
                     "readOnly": false,
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionIntLiteral.put.body"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionIntLiteral.put.body",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "613",
+                        "kind": "method",
+                        "name": "body",
+                        "serializedName": "body",
+                        "doc": "body",
+                        "type": {
+                          "$ref": "225"
+                        },
+                        "location": "Body",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Method",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionIntLiteral.put.body",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -9087,40 +9522,10 @@
               },
               "parameters": [
                 {
-                  "$id": "612",
-                  "kind": "method",
-                  "name": "body",
-                  "serializedName": "body",
-                  "doc": "body",
-                  "type": {
-                    "$ref": "225"
-                  },
-                  "location": "Body",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Method",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionIntLiteral.put.body",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "613"
                 },
                 {
-                  "$id": "613",
-                  "kind": "method",
-                  "name": "contentType",
-                  "serializedName": "Content-Type",
-                  "doc": "Body parameter's content type. Known values are application/json",
-                  "type": {
-                    "$ref": "138"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionIntLiteral.put.contentType",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "611"
                 }
               ],
               "response": {},
@@ -9204,7 +9609,26 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionFloatLiteral.get.accept"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionFloatLiteral.get.accept",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "621",
+                        "kind": "method",
+                        "name": "accept",
+                        "serializedName": "Accept",
+                        "type": {
+                          "$ref": "140"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionFloatLiteral.get.accept",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -9233,21 +9657,7 @@
               },
               "parameters": [
                 {
-                  "$id": "621",
-                  "kind": "method",
-                  "name": "accept",
-                  "serializedName": "Accept",
-                  "type": {
-                    "$ref": "140"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionFloatLiteral.get.accept",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "621"
                 }
               ],
               "response": {
@@ -9289,10 +9699,30 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionFloatLiteral.put.contentType"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionFloatLiteral.put.contentType",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "625",
+                        "kind": "method",
+                        "name": "contentType",
+                        "serializedName": "Content-Type",
+                        "doc": "Body parameter's content type. Known values are application/json",
+                        "type": {
+                          "$ref": "142"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionFloatLiteral.put.contentType",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   },
                   {
-                    "$id": "625",
+                    "$id": "626",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -9309,7 +9739,27 @@
                     "scope": "Method",
                     "decorators": [],
                     "readOnly": false,
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionFloatLiteral.put.body"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionFloatLiteral.put.body",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "627",
+                        "kind": "method",
+                        "name": "body",
+                        "serializedName": "body",
+                        "doc": "body",
+                        "type": {
+                          "$ref": "227"
+                        },
+                        "location": "Body",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Method",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionFloatLiteral.put.body",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -9335,40 +9785,10 @@
               },
               "parameters": [
                 {
-                  "$id": "626",
-                  "kind": "method",
-                  "name": "body",
-                  "serializedName": "body",
-                  "doc": "body",
-                  "type": {
-                    "$ref": "227"
-                  },
-                  "location": "Body",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Method",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionFloatLiteral.put.body",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "627"
                 },
                 {
-                  "$id": "627",
-                  "kind": "method",
-                  "name": "contentType",
-                  "serializedName": "Content-Type",
-                  "doc": "Body parameter's content type. Known values are application/json",
-                  "type": {
-                    "$ref": "142"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionFloatLiteral.put.contentType",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "625"
                 }
               ],
               "response": {},
@@ -9452,7 +9872,26 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionEnumValue.get.accept"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionEnumValue.get.accept",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "635",
+                        "kind": "method",
+                        "name": "accept",
+                        "serializedName": "Accept",
+                        "type": {
+                          "$ref": "144"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionEnumValue.get.accept",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -9481,21 +9920,7 @@
               },
               "parameters": [
                 {
-                  "$id": "635",
-                  "kind": "method",
-                  "name": "accept",
-                  "serializedName": "Accept",
-                  "type": {
-                    "$ref": "144"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionEnumValue.get.accept",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "635"
                 }
               ],
               "response": {
@@ -9537,10 +9962,30 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionEnumValue.put.contentType"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionEnumValue.put.contentType",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "639",
+                        "kind": "method",
+                        "name": "contentType",
+                        "serializedName": "Content-Type",
+                        "doc": "Body parameter's content type. Known values are application/json",
+                        "type": {
+                          "$ref": "146"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionEnumValue.put.contentType",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   },
                   {
-                    "$id": "639",
+                    "$id": "640",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -9557,7 +10002,27 @@
                     "scope": "Method",
                     "decorators": [],
                     "readOnly": false,
-                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionEnumValue.put.body"
+                    "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionEnumValue.put.body",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "641",
+                        "kind": "method",
+                        "name": "body",
+                        "serializedName": "body",
+                        "doc": "body",
+                        "type": {
+                          "$ref": "229"
+                        },
+                        "location": "Body",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Method",
+                        "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionEnumValue.put.body",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -9583,40 +10048,10 @@
               },
               "parameters": [
                 {
-                  "$id": "640",
-                  "kind": "method",
-                  "name": "body",
-                  "serializedName": "body",
-                  "doc": "body",
-                  "type": {
-                    "$ref": "229"
-                  },
-                  "location": "Body",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Method",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionEnumValue.put.body",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "641"
                 },
                 {
-                  "$id": "641",
-                  "kind": "method",
-                  "name": "contentType",
-                  "serializedName": "Content-Type",
-                  "doc": "Body parameter's content type. Known values are application/json",
-                  "type": {
-                    "$ref": "146"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.ValueTypes.UnionEnumValue.put.contentType",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "639"
                 }
               ],
               "response": {},
