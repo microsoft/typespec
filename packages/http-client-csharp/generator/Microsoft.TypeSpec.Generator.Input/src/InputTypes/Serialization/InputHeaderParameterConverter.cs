@@ -64,6 +64,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? access = null;
             string? collectionFormat = null;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
+            IReadOnlyList<InputMethodParameter>? correspondingMethodParams = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
@@ -82,7 +83,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString("scope", ref scope)
                     || reader.TryReadString("arraySerializationDelimiter", ref arraySerializationDelimiter)
                     || reader.TryReadBoolean("isContentType", ref isContentType)
-                    || reader.TryReadComplexType("decorators", options, ref decorators);
+                    || reader.TryReadComplexType("decorators", options, ref decorators)
+                    || reader.TryReadComplexType("correspondingMethodParams", options, ref correspondingMethodParams);
 
                 if (!isKnownProperty)
                 {
@@ -105,6 +107,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             parameter.Scope = InputParameter.ParseScope(type, name, scope);;
             parameter.ArraySerializationDelimiter = arraySerializationDelimiter;
             parameter.IsContentType = isContentType;
+            parameter.CorrespondingMethodParams = correspondingMethodParams;
 
             return parameter;
         }

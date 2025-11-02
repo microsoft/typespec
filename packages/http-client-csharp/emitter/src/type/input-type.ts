@@ -196,6 +196,7 @@ export interface InputQueryParameter extends InputPropertyTypeBase {
   explode: boolean;
   scope: InputParameterScope;
   serializedName: string;
+  correspondingMethodParams?: InputMethodParameter[];
 }
 
 export interface InputPathParameter extends InputPropertyTypeBase {
@@ -207,6 +208,7 @@ export interface InputPathParameter extends InputPropertyTypeBase {
   serverUrlTemplate?: string;
   scope: InputParameterScope;
   serializedName: string;
+  correspondingMethodParams?: InputMethodParameter[];
 }
 
 export interface InputHeaderParameter extends InputPropertyTypeBase {
@@ -216,6 +218,7 @@ export interface InputHeaderParameter extends InputPropertyTypeBase {
   isContentType: boolean;
   scope: InputParameterScope;
   serializedName: string;
+  correspondingMethodParams?: InputMethodParameter[];
 }
 
 export interface InputBodyParameter extends InputPropertyTypeBase {
@@ -224,6 +227,7 @@ export interface InputBodyParameter extends InputPropertyTypeBase {
   defaultContentType: string;
   scope: InputParameterScope;
   serializedName: string;
+  correspondingMethodParams?: InputMethodParameter[];
 }
 
 export interface InputEndpointParameter extends InputPropertyTypeBase {
