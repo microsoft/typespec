@@ -463,73 +463,102 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 bodyModel = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(model);
             }
 
-            foreach (var param in ConvenienceMethodParameters)
+            // Build a map of input method parameters to convenience provider parameters
+            var inputMethodParamToConvenienceParam = new Dictionary<InputMethodParameter, ParameterProvider>();
+            foreach (var inputMethodParam in ServiceMethod.Parameters)
             {
-                // handle spread
-                if (param.SpreadSource is not null)
+                var convenienceParam = ConvenienceMethodParameters.FirstOrDefault(cp =>
+                    string.Equals(cp.Name, inputMethodParam.Name, StringComparison.OrdinalIgnoreCase));
+                if (convenienceParam != null)
                 {
-                    if (!addedSpreadSource && declarations.TryGetValue("spread", out ValueExpression? spread))
-                    {
-                        conversions.Add(spread);
-                        addedSpreadSource = true;
-                    }
+                    inputMethodParamToConvenienceParam[inputMethodParam] = convenienceParam;
                 }
-                else if (param.Location == ParameterLocation.Body)
+            }
+
+            // Use correspondingMethodParams for mapping when available, otherwise fall back to positional/name matching
+            foreach (var protocolParam in ServiceMethod.Operation.Parameters)
+            {
+                ParameterProvider? convenienceParam = null;
+
+                // Check if this protocol parameter has corresponding method params
+                IReadOnlyList<InputMethodParameter>? correspondingMethodParams = protocolParam switch
                 {
-                    // Add any non-body parameters that may have been declared within the request body model
-                    List<ValueExpression>? requiredParameters = null;
-                    List<ValueExpression>? optionalParameters = null;
+                    InputQueryParameter queryParam => queryParam.CorrespondingMethodParams,
+                    InputPathParameter pathParam => pathParam.CorrespondingMethodParams,
+                    InputHeaderParameter headerParam => headerParam.CorrespondingMethodParams,
+                    InputBodyParameter bodyParam => bodyParam.CorrespondingMethodParams,
+                    _ => null
+                };
 
-                    if (param.Type.Equals(bodyModel?.Type) == true)
-                    {
-                        var parameterConversions = GetNonBodyModelPropertiesConversions(param, bodyModel);
-                        if (parameterConversions != null)
-                        {
-                            requiredParameters = parameterConversions.Value.RequiredParameters;
-                            optionalParameters = parameterConversions.Value.OptionalParameters;
-                        }
-                    }
-
-                    // Add required non-body parameters
-                    if (requiredParameters != null)
-                    {
-                        conversions.AddRange(requiredParameters);
-                    }
-
-                    if (param.Type.IsReadOnlyMemory || param.Type.IsList)
-                    {
-                        conversions.Add(declarations["content"]);
-                    }
-                    else if (param.Type.IsEnum)
-                    {
-                        conversions.Add(RequestContentApiSnippets.Create(BinaryDataSnippets.FromObjectAsJson(param.Type.ToSerial(param))));
-                    }
-                    else if (param.Type.Equals(typeof(BinaryData)))
-                    {
-                        conversions.Add(RequestContentApiSnippets.Create(param));
-                    }
-                    else if (param.Type.IsFrameworkType)
-                    {
-                        conversions.Add(declarations["content"]);
-                    }
-                    else
-                    {
-                        conversions.Add(param);
-                    }
-
-                    // Add optional non-body parameters
-                    if (optionalParameters != null)
-                    {
-                        conversions.AddRange(optionalParameters);
-                    }
-                }
-                else if (param.Type.IsEnum)
+                if (correspondingMethodParams != null && correspondingMethodParams.Count > 0)
                 {
-                    conversions.Add(param.Type.ToSerial(param));
+                    // Use the first corresponding method parameter
+                    var correspondingInputParam = correspondingMethodParams[0];
+                    inputMethodParamToConvenienceParam.TryGetValue(correspondingInputParam, out convenienceParam);
                 }
                 else
                 {
-                    conversions.Add(param);
+                    // Fall back to matching by name or serialized name
+                    convenienceParam = ConvenienceMethodParameters.FirstOrDefault(cp =>
+                        string.Equals(cp.Name, protocolParam.Name, StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(cp.WireInfo?.SerializedName, protocolParam.SerializedName, StringComparison.OrdinalIgnoreCase));
+                }
+
+                if (convenienceParam != null)
+                {
+                    // Handle spread
+                    if (convenienceParam.SpreadSource is not null)
+                    {
+                        if (!addedSpreadSource && declarations.TryGetValue("spread", out ValueExpression? spread))
+                        {
+                            conversions.Add(spread);
+                            addedSpreadSource = true;
+                        }
+                    }
+                    else if (convenienceParam.Location == ParameterLocation.Body && protocolParam is InputBodyParameter)
+                    {
+                        // Add any non-body parameters that may have been declared within the request body model
+                        List<ValueExpression>? requiredParameters = null;
+                        List<ValueExpression>? optionalParameters = null;
+
+                        if (convenienceParam.Type.Equals(bodyModel?.Type) == true)
+                        {
+                            var parameterConversions = GetNonBodyModelPropertiesConversions(convenienceParam, bodyModel);
+                            if (parameterConversions != null)
+                            {
+                                requiredParameters = parameterConversions.Value.RequiredParameters;
+                                optionalParameters = parameterConversions.Value.OptionalParameters;
+                            }
+                        }
+
+                        // Add required non-body parameters
+                        if (requiredParameters != null)
+                        {
+                            conversions.AddRange(requiredParameters);
+                        }
+
+                        // Add the body parameter conversion
+                        var bodyArgExpression = GetArgumentExpressionForParameter(convenienceParam, declarations, ref addedSpreadSource, bodyModel, protocolParam);
+                        if (bodyArgExpression != null)
+                        {
+                            conversions.Add(bodyArgExpression);
+                        }
+
+                        // Add optional non-body parameters
+                        if (optionalParameters != null)
+                        {
+                            conversions.AddRange(optionalParameters);
+                        }
+                    }
+                    else
+                    {
+                        // Handle regular parameters
+                        var argExpression = GetArgumentExpressionForParameter(convenienceParam, declarations, ref addedSpreadSource, bodyModel, protocolParam);
+                        if (argExpression != null)
+                        {
+                            conversions.Add(argExpression);
+                        }
+                    }
                 }
             }
 
@@ -540,6 +569,76 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             conversions.Add(ScmKnownParameters.CancellationToken.Invoke(toRequestOptionsMethodName, extensionType: _cancellationTokenExtensionsDefinition.Type));
 
             return conversions;
+        }
+
+        private ValueExpression? GetArgumentExpressionForParameter(
+            ParameterProvider convenienceParam,
+            Dictionary<string, ValueExpression> declarations,
+            ref bool addedSpreadSource,
+            ModelProvider? bodyModel,
+            InputParameter protocolParam)
+        {
+            // handle spread
+            if (convenienceParam.SpreadSource is not null)
+            {
+                if (!addedSpreadSource && declarations.TryGetValue("spread", out ValueExpression? spread))
+                {
+                    addedSpreadSource = true;
+                    return spread;
+                }
+                return null;
+            }
+
+            // Determine if protocol parameter is a body parameter
+            bool isProtocolBody = protocolParam is InputBodyParameter;
+
+            if (convenienceParam.Location == ParameterLocation.Body && isProtocolBody)
+            {
+                // Handle body parameter conversions
+                if (convenienceParam.Type.IsReadOnlyMemory || convenienceParam.Type.IsList)
+                {
+                    return declarations.GetValueOrDefault("content");
+                }
+                else if (convenienceParam.Type.IsEnum)
+                {
+                    return RequestContentApiSnippets.Create(BinaryDataSnippets.FromObjectAsJson(convenienceParam.Type.ToSerial(convenienceParam)));
+                }
+                else if (convenienceParam.Type.Equals(typeof(BinaryData)))
+                {
+                    return RequestContentApiSnippets.Create(convenienceParam);
+                }
+                else if (convenienceParam.Type.IsFrameworkType)
+                {
+                    return declarations.GetValueOrDefault("content");
+                }
+                else
+                {
+                    return convenienceParam;
+                }
+            }
+            else if (convenienceParam.Location == ParameterLocation.Body && !isProtocolBody)
+            {
+                // Handle extraction of non-body parameters from body model
+                // This handles the case where a property in the body model maps to a protocol parameter
+                if (bodyModel != null && convenienceParam.Type.Equals(bodyModel.Type))
+                {
+                    var property = bodyModel.CanonicalView.Properties.FirstOrDefault(p =>
+                        string.Equals(p.WireInfo?.SerializedName, protocolParam.SerializedName, StringComparison.OrdinalIgnoreCase));
+                    if (property != null)
+                    {
+                        return convenienceParam.Property(property.Name);
+                    }
+                }
+                return convenienceParam;
+            }
+            else if (convenienceParam.Type.IsEnum)
+            {
+                return convenienceParam.Type.ToSerial(convenienceParam);
+            }
+            else
+            {
+                return convenienceParam;
+            }
         }
 
         private (List<ValueExpression> RequiredParameters, List<ValueExpression> OptionalParameters)?
