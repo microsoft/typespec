@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections;
 using System.Collections.Generic;
@@ -628,7 +629,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
                 else
                 {
-                    return convenienceParam;
+                    // For model types, create BinaryContent using BinaryContent.Create
+                    return Static(typeof(BinaryContent)).Invoke(nameof(BinaryContent.Create), [convenienceParam, ModelSerializationExtensionsSnippets.Wire]);
                 }
             }
             else if (convenienceParam.Location == ParameterLocation.Body && !isProtocolBody)
