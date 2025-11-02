@@ -111,11 +111,24 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult SayHi(string headParameter, string queryParameter, string optionalQuery, RequestOptions options)
         {
-            Argument.AssertNotNullOrEmpty(headParameter, nameof(headParameter));
-            Argument.AssertNotNullOrEmpty(queryParameter, nameof(queryParameter));
+            try
+            {
+                System.Console.WriteLine("Entering method SayHi.");
+                Argument.AssertNotNullOrEmpty(headParameter, nameof(headParameter));
+                Argument.AssertNotNullOrEmpty(queryParameter, nameof(queryParameter));
 
-            using PipelineMessage message = CreateSayHiRequest(headParameter, queryParameter, optionalQuery, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+                using PipelineMessage message = CreateSayHiRequest(headParameter, queryParameter, optionalQuery, options);
+                return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method SayHi: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method SayHi.");
+            }
         }
 
         /// <summary>
@@ -136,11 +149,24 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> SayHiAsync(string headParameter, string queryParameter, string optionalQuery, RequestOptions options)
         {
-            Argument.AssertNotNullOrEmpty(headParameter, nameof(headParameter));
-            Argument.AssertNotNullOrEmpty(queryParameter, nameof(queryParameter));
+            try
+            {
+                System.Console.WriteLine("Entering method SayHiAsync.");
+                Argument.AssertNotNullOrEmpty(headParameter, nameof(headParameter));
+                Argument.AssertNotNullOrEmpty(queryParameter, nameof(queryParameter));
 
-            using PipelineMessage message = CreateSayHiRequest(headParameter, queryParameter, optionalQuery, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+                using PipelineMessage message = CreateSayHiRequest(headParameter, queryParameter, optionalQuery, options);
+                return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method SayHiAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method SayHiAsync.");
+            }
         }
 
         /// <summary> Return hi. </summary>
@@ -153,11 +179,24 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult<Thing> SayHi(string headParameter, string queryParameter, string optionalQuery = default, CancellationToken cancellationToken = default)
         {
-            Argument.AssertNotNullOrEmpty(headParameter, nameof(headParameter));
-            Argument.AssertNotNullOrEmpty(queryParameter, nameof(queryParameter));
+            try
+            {
+                System.Console.WriteLine("Entering method SayHi.");
+                Argument.AssertNotNullOrEmpty(headParameter, nameof(headParameter));
+                Argument.AssertNotNullOrEmpty(queryParameter, nameof(queryParameter));
 
-            ClientResult result = SayHi(headParameter, queryParameter, optionalQuery, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
-            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+                ClientResult result = SayHi(headParameter, queryParameter, optionalQuery, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+                return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method SayHi: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method SayHi.");
+            }
         }
 
         /// <summary> Return hi. </summary>
@@ -170,11 +209,24 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult<Thing>> SayHiAsync(string headParameter, string queryParameter, string optionalQuery = default, CancellationToken cancellationToken = default)
         {
-            Argument.AssertNotNullOrEmpty(headParameter, nameof(headParameter));
-            Argument.AssertNotNullOrEmpty(queryParameter, nameof(queryParameter));
+            try
+            {
+                System.Console.WriteLine("Entering method SayHiAsync.");
+                Argument.AssertNotNullOrEmpty(headParameter, nameof(headParameter));
+                Argument.AssertNotNullOrEmpty(queryParameter, nameof(queryParameter));
 
-            ClientResult result = await SayHiAsync(headParameter, queryParameter, optionalQuery, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
-            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+                ClientResult result = await SayHiAsync(headParameter, queryParameter, optionalQuery, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+                return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method SayHiAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method SayHiAsync.");
+            }
         }
 
         /// <summary>
@@ -195,12 +247,25 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult HelloAgain(string p2, string p1, BinaryContent content, RequestOptions options = null)
         {
-            Argument.AssertNotNullOrEmpty(p2, nameof(p2));
-            Argument.AssertNotNullOrEmpty(p1, nameof(p1));
-            Argument.AssertNotNull(content, nameof(content));
+            try
+            {
+                System.Console.WriteLine("Entering method HelloAgain.");
+                Argument.AssertNotNullOrEmpty(p2, nameof(p2));
+                Argument.AssertNotNullOrEmpty(p1, nameof(p1));
+                Argument.AssertNotNull(content, nameof(content));
 
-            using PipelineMessage message = CreateHelloAgainRequest(p2, p1, content, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+                using PipelineMessage message = CreateHelloAgainRequest(p2, p1, content, options);
+                return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method HelloAgain: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method HelloAgain.");
+            }
         }
 
         /// <summary>
@@ -221,12 +286,25 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> HelloAgainAsync(string p2, string p1, BinaryContent content, RequestOptions options = null)
         {
-            Argument.AssertNotNullOrEmpty(p2, nameof(p2));
-            Argument.AssertNotNullOrEmpty(p1, nameof(p1));
-            Argument.AssertNotNull(content, nameof(content));
+            try
+            {
+                System.Console.WriteLine("Entering method HelloAgainAsync.");
+                Argument.AssertNotNullOrEmpty(p2, nameof(p2));
+                Argument.AssertNotNullOrEmpty(p1, nameof(p1));
+                Argument.AssertNotNull(content, nameof(content));
 
-            using PipelineMessage message = CreateHelloAgainRequest(p2, p1, content, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+                using PipelineMessage message = CreateHelloAgainRequest(p2, p1, content, options);
+                return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method HelloAgainAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method HelloAgainAsync.");
+            }
         }
 
         /// <summary> Return hi again. </summary>
@@ -239,12 +317,25 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult<RoundTripModel> HelloAgain(string p2, string p1, RoundTripModel action, CancellationToken cancellationToken = default)
         {
-            Argument.AssertNotNullOrEmpty(p2, nameof(p2));
-            Argument.AssertNotNullOrEmpty(p1, nameof(p1));
-            Argument.AssertNotNull(action, nameof(action));
+            try
+            {
+                System.Console.WriteLine("Entering method HelloAgain.");
+                Argument.AssertNotNullOrEmpty(p2, nameof(p2));
+                Argument.AssertNotNullOrEmpty(p1, nameof(p1));
+                Argument.AssertNotNull(action, nameof(action));
 
-            ClientResult result = HelloAgain(p2, p1, action, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
-            return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
+                ClientResult result = HelloAgain(p2, p1, action, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+                return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method HelloAgain: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method HelloAgain.");
+            }
         }
 
         /// <summary> Return hi again. </summary>
@@ -257,12 +348,25 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult<RoundTripModel>> HelloAgainAsync(string p2, string p1, RoundTripModel action, CancellationToken cancellationToken = default)
         {
-            Argument.AssertNotNullOrEmpty(p2, nameof(p2));
-            Argument.AssertNotNullOrEmpty(p1, nameof(p1));
-            Argument.AssertNotNull(action, nameof(action));
+            try
+            {
+                System.Console.WriteLine("Entering method HelloAgainAsync.");
+                Argument.AssertNotNullOrEmpty(p2, nameof(p2));
+                Argument.AssertNotNullOrEmpty(p1, nameof(p1));
+                Argument.AssertNotNull(action, nameof(action));
 
-            ClientResult result = await HelloAgainAsync(p2, p1, action, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
-            return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
+                ClientResult result = await HelloAgainAsync(p2, p1, action, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+                return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method HelloAgainAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method HelloAgainAsync.");
+            }
         }
 
         /// <summary>
@@ -283,12 +387,25 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult NoContentType(string p2, string p1, BinaryContent content, RequestOptions options = null)
         {
-            Argument.AssertNotNullOrEmpty(p2, nameof(p2));
-            Argument.AssertNotNullOrEmpty(p1, nameof(p1));
-            Argument.AssertNotNull(content, nameof(content));
+            try
+            {
+                System.Console.WriteLine("Entering method NoContentType.");
+                Argument.AssertNotNullOrEmpty(p2, nameof(p2));
+                Argument.AssertNotNullOrEmpty(p1, nameof(p1));
+                Argument.AssertNotNull(content, nameof(content));
 
-            using PipelineMessage message = CreateNoContentTypeRequest(p2, p1, content, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+                using PipelineMessage message = CreateNoContentTypeRequest(p2, p1, content, options);
+                return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method NoContentType: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method NoContentType.");
+            }
         }
 
         /// <summary>
@@ -309,12 +426,25 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> NoContentTypeAsync(string p2, string p1, BinaryContent content, RequestOptions options = null)
         {
-            Argument.AssertNotNullOrEmpty(p2, nameof(p2));
-            Argument.AssertNotNullOrEmpty(p1, nameof(p1));
-            Argument.AssertNotNull(content, nameof(content));
+            try
+            {
+                System.Console.WriteLine("Entering method NoContentTypeAsync.");
+                Argument.AssertNotNullOrEmpty(p2, nameof(p2));
+                Argument.AssertNotNullOrEmpty(p1, nameof(p1));
+                Argument.AssertNotNull(content, nameof(content));
 
-            using PipelineMessage message = CreateNoContentTypeRequest(p2, p1, content, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+                using PipelineMessage message = CreateNoContentTypeRequest(p2, p1, content, options);
+                return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method NoContentTypeAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method NoContentTypeAsync.");
+            }
         }
 
         /// <summary>
@@ -330,8 +460,21 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult HelloDemo2(RequestOptions options)
         {
-            using PipelineMessage message = CreateHelloDemo2Request(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            try
+            {
+                System.Console.WriteLine("Entering method HelloDemo2.");
+                using PipelineMessage message = CreateHelloDemo2Request(options);
+                return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method HelloDemo2: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method HelloDemo2.");
+            }
         }
 
         /// <summary>
@@ -347,8 +490,21 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> HelloDemo2Async(RequestOptions options)
         {
-            using PipelineMessage message = CreateHelloDemo2Request(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            try
+            {
+                System.Console.WriteLine("Entering method HelloDemo2Async.");
+                using PipelineMessage message = CreateHelloDemo2Request(options);
+                return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method HelloDemo2Async: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method HelloDemo2Async.");
+            }
         }
 
         /// <summary> Return hi in demo2. </summary>
@@ -356,8 +512,21 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult<Thing> HelloDemo2(CancellationToken cancellationToken = default)
         {
-            ClientResult result = HelloDemo2(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
-            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            try
+            {
+                System.Console.WriteLine("Entering method HelloDemo2.");
+                ClientResult result = HelloDemo2(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+                return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method HelloDemo2: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method HelloDemo2.");
+            }
         }
 
         /// <summary> Return hi in demo2. </summary>
@@ -365,8 +534,21 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult<Thing>> HelloDemo2Async(CancellationToken cancellationToken = default)
         {
-            ClientResult result = await HelloDemo2Async(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
-            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            try
+            {
+                System.Console.WriteLine("Entering method HelloDemo2Async.");
+                ClientResult result = await HelloDemo2Async(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+                return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method HelloDemo2Async: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method HelloDemo2Async.");
+            }
         }
 
         /// <summary>
@@ -384,10 +566,23 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult CreateLiteral(BinaryContent content, RequestOptions options = null)
         {
-            Argument.AssertNotNull(content, nameof(content));
+            try
+            {
+                System.Console.WriteLine("Entering method CreateLiteral.");
+                Argument.AssertNotNull(content, nameof(content));
 
-            using PipelineMessage message = CreateCreateLiteralRequest(content, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+                using PipelineMessage message = CreateCreateLiteralRequest(content, options);
+                return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method CreateLiteral: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method CreateLiteral.");
+            }
         }
 
         /// <summary>
@@ -405,10 +600,23 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> CreateLiteralAsync(BinaryContent content, RequestOptions options = null)
         {
-            Argument.AssertNotNull(content, nameof(content));
+            try
+            {
+                System.Console.WriteLine("Entering method CreateLiteralAsync.");
+                Argument.AssertNotNull(content, nameof(content));
 
-            using PipelineMessage message = CreateCreateLiteralRequest(content, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+                using PipelineMessage message = CreateCreateLiteralRequest(content, options);
+                return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method CreateLiteralAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method CreateLiteralAsync.");
+            }
         }
 
         /// <summary> Create with literal value. </summary>
@@ -418,10 +626,23 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult<Thing> CreateLiteral(Thing body, CancellationToken cancellationToken = default)
         {
-            Argument.AssertNotNull(body, nameof(body));
+            try
+            {
+                System.Console.WriteLine("Entering method CreateLiteral.");
+                Argument.AssertNotNull(body, nameof(body));
 
-            ClientResult result = CreateLiteral(body, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
-            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+                ClientResult result = CreateLiteral(body, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+                return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method CreateLiteral: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method CreateLiteral.");
+            }
         }
 
         /// <summary> Create with literal value. </summary>
@@ -431,10 +652,23 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult<Thing>> CreateLiteralAsync(Thing body, CancellationToken cancellationToken = default)
         {
-            Argument.AssertNotNull(body, nameof(body));
+            try
+            {
+                System.Console.WriteLine("Entering method CreateLiteralAsync.");
+                Argument.AssertNotNull(body, nameof(body));
 
-            ClientResult result = await CreateLiteralAsync(body, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
-            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+                ClientResult result = await CreateLiteralAsync(body, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+                return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method CreateLiteralAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method CreateLiteralAsync.");
+            }
         }
 
         /// <summary>
@@ -450,8 +684,21 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult HelloLiteral(RequestOptions options)
         {
-            using PipelineMessage message = CreateHelloLiteralRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            try
+            {
+                System.Console.WriteLine("Entering method HelloLiteral.");
+                using PipelineMessage message = CreateHelloLiteralRequest(options);
+                return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method HelloLiteral: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method HelloLiteral.");
+            }
         }
 
         /// <summary>
@@ -467,8 +714,21 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> HelloLiteralAsync(RequestOptions options)
         {
-            using PipelineMessage message = CreateHelloLiteralRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            try
+            {
+                System.Console.WriteLine("Entering method HelloLiteralAsync.");
+                using PipelineMessage message = CreateHelloLiteralRequest(options);
+                return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method HelloLiteralAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method HelloLiteralAsync.");
+            }
         }
 
         /// <summary> Send literal parameters. </summary>
@@ -476,8 +736,21 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult<Thing> HelloLiteral(CancellationToken cancellationToken = default)
         {
-            ClientResult result = HelloLiteral(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
-            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            try
+            {
+                System.Console.WriteLine("Entering method HelloLiteral.");
+                ClientResult result = HelloLiteral(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+                return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method HelloLiteral: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method HelloLiteral.");
+            }
         }
 
         /// <summary> Send literal parameters. </summary>
@@ -485,8 +758,21 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult<Thing>> HelloLiteralAsync(CancellationToken cancellationToken = default)
         {
-            ClientResult result = await HelloLiteralAsync(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
-            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            try
+            {
+                System.Console.WriteLine("Entering method HelloLiteralAsync.");
+                ClientResult result = await HelloLiteralAsync(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+                return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method HelloLiteralAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method HelloLiteralAsync.");
+            }
         }
 
         /// <summary>
@@ -503,8 +789,21 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult TopAction(DateTimeOffset action, RequestOptions options)
         {
-            using PipelineMessage message = CreateTopActionRequest(action, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            try
+            {
+                System.Console.WriteLine("Entering method TopAction.");
+                using PipelineMessage message = CreateTopActionRequest(action, options);
+                return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method TopAction: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method TopAction.");
+            }
         }
 
         /// <summary>
@@ -521,8 +820,21 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> TopActionAsync(DateTimeOffset action, RequestOptions options)
         {
-            using PipelineMessage message = CreateTopActionRequest(action, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            try
+            {
+                System.Console.WriteLine("Entering method TopActionAsync.");
+                using PipelineMessage message = CreateTopActionRequest(action, options);
+                return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method TopActionAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method TopActionAsync.");
+            }
         }
 
         /// <summary> top level method. </summary>
@@ -531,8 +843,21 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult<Thing> TopAction(DateTimeOffset action, CancellationToken cancellationToken = default)
         {
-            ClientResult result = TopAction(action, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
-            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            try
+            {
+                System.Console.WriteLine("Entering method TopAction.");
+                ClientResult result = TopAction(action, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+                return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method TopAction: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method TopAction.");
+            }
         }
 
         /// <summary> top level method. </summary>
@@ -541,8 +866,21 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult<Thing>> TopActionAsync(DateTimeOffset action, CancellationToken cancellationToken = default)
         {
-            ClientResult result = await TopActionAsync(action, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
-            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            try
+            {
+                System.Console.WriteLine("Entering method TopActionAsync.");
+                ClientResult result = await TopActionAsync(action, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+                return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method TopActionAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method TopActionAsync.");
+            }
         }
 
         /// <summary>
@@ -558,8 +896,21 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult TopAction2(RequestOptions options = null)
         {
-            using PipelineMessage message = CreateTopAction2Request(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            try
+            {
+                System.Console.WriteLine("Entering method TopAction2.");
+                using PipelineMessage message = CreateTopAction2Request(options);
+                return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method TopAction2: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method TopAction2.");
+            }
         }
 
         /// <summary>
@@ -575,8 +926,21 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> TopAction2Async(RequestOptions options = null)
         {
-            using PipelineMessage message = CreateTopAction2Request(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            try
+            {
+                System.Console.WriteLine("Entering method TopAction2Async.");
+                using PipelineMessage message = CreateTopAction2Request(options);
+                return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method TopAction2Async: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method TopAction2Async.");
+            }
         }
 
         /// <summary>
@@ -594,10 +958,23 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult PatchAction(BinaryContent content, RequestOptions options = null)
         {
-            Argument.AssertNotNull(content, nameof(content));
+            try
+            {
+                System.Console.WriteLine("Entering method PatchAction.");
+                Argument.AssertNotNull(content, nameof(content));
 
-            using PipelineMessage message = CreatePatchActionRequest(content, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+                using PipelineMessage message = CreatePatchActionRequest(content, options);
+                return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method PatchAction: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method PatchAction.");
+            }
         }
 
         /// <summary>
@@ -615,10 +992,23 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> PatchActionAsync(BinaryContent content, RequestOptions options = null)
         {
-            Argument.AssertNotNull(content, nameof(content));
+            try
+            {
+                System.Console.WriteLine("Entering method PatchActionAsync.");
+                Argument.AssertNotNull(content, nameof(content));
 
-            using PipelineMessage message = CreatePatchActionRequest(content, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+                using PipelineMessage message = CreatePatchActionRequest(content, options);
+                return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method PatchActionAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method PatchActionAsync.");
+            }
         }
 
         /// <summary>
@@ -636,10 +1026,23 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult AnonymousBody(BinaryContent content, RequestOptions options = null)
         {
-            Argument.AssertNotNull(content, nameof(content));
+            try
+            {
+                System.Console.WriteLine("Entering method AnonymousBody.");
+                Argument.AssertNotNull(content, nameof(content));
 
-            using PipelineMessage message = CreateAnonymousBodyRequest(content, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+                using PipelineMessage message = CreateAnonymousBodyRequest(content, options);
+                return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method AnonymousBody: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method AnonymousBody.");
+            }
         }
 
         /// <summary>
@@ -657,10 +1060,23 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> AnonymousBodyAsync(BinaryContent content, RequestOptions options = null)
         {
-            Argument.AssertNotNull(content, nameof(content));
+            try
+            {
+                System.Console.WriteLine("Entering method AnonymousBodyAsync.");
+                Argument.AssertNotNull(content, nameof(content));
 
-            using PipelineMessage message = CreateAnonymousBodyRequest(content, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+                using PipelineMessage message = CreateAnonymousBodyRequest(content, options);
+                return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method AnonymousBodyAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method AnonymousBodyAsync.");
+            }
         }
 
         /// <summary> body parameter without body decorator. </summary>
@@ -686,31 +1102,44 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult<Thing> AnonymousBody(string name, BinaryData requiredUnion, string requiredLiteralString, string requiredNullableString, int requiredLiteralInt, float requiredLiteralFloat, bool requiredLiteralBool, string requiredNullableLiteralString, string requiredBadDescription, IEnumerable<int> requiredNullableList, string optionalNullableString = default, string optionalLiteralString = default, int? optionalLiteralInt = default, float? optionalLiteralFloat = default, bool? optionalLiteralBool = default, IEnumerable<int> optionalNullableList = default, CancellationToken cancellationToken = default)
         {
-            Argument.AssertNotNullOrEmpty(name, nameof(name));
-            Argument.AssertNotNull(requiredUnion, nameof(requiredUnion));
-            Argument.AssertNotNull(requiredLiteralString, nameof(requiredLiteralString));
-            Argument.AssertNotNullOrEmpty(requiredBadDescription, nameof(requiredBadDescription));
+            try
+            {
+                System.Console.WriteLine("Entering method AnonymousBody.");
+                Argument.AssertNotNullOrEmpty(name, nameof(name));
+                Argument.AssertNotNull(requiredUnion, nameof(requiredUnion));
+                Argument.AssertNotNull(requiredLiteralString, nameof(requiredLiteralString));
+                Argument.AssertNotNullOrEmpty(requiredBadDescription, nameof(requiredBadDescription));
 
-            Thing spreadModel = new Thing(
-                name,
-                requiredUnion,
-                requiredLiteralString,
-                requiredNullableString,
-                optionalNullableString,
-                requiredLiteralInt,
-                requiredLiteralFloat,
-                requiredLiteralBool,
-                optionalLiteralString,
-                requiredNullableLiteralString,
-                optionalLiteralInt,
-                optionalLiteralFloat,
-                optionalLiteralBool,
-                requiredBadDescription,
-                optionalNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
-                requiredNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
-                null);
-            ClientResult result = AnonymousBody(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
-            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+                Thing spreadModel = new Thing(
+                    name,
+                    requiredUnion,
+                    requiredLiteralString,
+                    requiredNullableString,
+                    optionalNullableString,
+                    requiredLiteralInt,
+                    requiredLiteralFloat,
+                    requiredLiteralBool,
+                    optionalLiteralString,
+                    requiredNullableLiteralString,
+                    optionalLiteralInt,
+                    optionalLiteralFloat,
+                    optionalLiteralBool,
+                    requiredBadDescription,
+                    optionalNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
+                    requiredNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
+                    null);
+                ClientResult result = AnonymousBody(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+                return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method AnonymousBody: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method AnonymousBody.");
+            }
         }
 
         /// <summary> body parameter without body decorator. </summary>
@@ -736,31 +1165,44 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult<Thing>> AnonymousBodyAsync(string name, BinaryData requiredUnion, string requiredLiteralString, string requiredNullableString, int requiredLiteralInt, float requiredLiteralFloat, bool requiredLiteralBool, string requiredNullableLiteralString, string requiredBadDescription, IEnumerable<int> requiredNullableList, string optionalNullableString = default, string optionalLiteralString = default, int? optionalLiteralInt = default, float? optionalLiteralFloat = default, bool? optionalLiteralBool = default, IEnumerable<int> optionalNullableList = default, CancellationToken cancellationToken = default)
         {
-            Argument.AssertNotNullOrEmpty(name, nameof(name));
-            Argument.AssertNotNull(requiredUnion, nameof(requiredUnion));
-            Argument.AssertNotNull(requiredLiteralString, nameof(requiredLiteralString));
-            Argument.AssertNotNullOrEmpty(requiredBadDescription, nameof(requiredBadDescription));
+            try
+            {
+                System.Console.WriteLine("Entering method AnonymousBodyAsync.");
+                Argument.AssertNotNullOrEmpty(name, nameof(name));
+                Argument.AssertNotNull(requiredUnion, nameof(requiredUnion));
+                Argument.AssertNotNull(requiredLiteralString, nameof(requiredLiteralString));
+                Argument.AssertNotNullOrEmpty(requiredBadDescription, nameof(requiredBadDescription));
 
-            Thing spreadModel = new Thing(
-                name,
-                requiredUnion,
-                requiredLiteralString,
-                requiredNullableString,
-                optionalNullableString,
-                requiredLiteralInt,
-                requiredLiteralFloat,
-                requiredLiteralBool,
-                optionalLiteralString,
-                requiredNullableLiteralString,
-                optionalLiteralInt,
-                optionalLiteralFloat,
-                optionalLiteralBool,
-                requiredBadDescription,
-                optionalNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
-                requiredNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
-                null);
-            ClientResult result = await AnonymousBodyAsync(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
-            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+                Thing spreadModel = new Thing(
+                    name,
+                    requiredUnion,
+                    requiredLiteralString,
+                    requiredNullableString,
+                    optionalNullableString,
+                    requiredLiteralInt,
+                    requiredLiteralFloat,
+                    requiredLiteralBool,
+                    optionalLiteralString,
+                    requiredNullableLiteralString,
+                    optionalLiteralInt,
+                    optionalLiteralFloat,
+                    optionalLiteralBool,
+                    requiredBadDescription,
+                    optionalNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
+                    requiredNullableList?.ToList() as IList<int> ?? new ChangeTrackingList<int>(),
+                    null);
+                ClientResult result = await AnonymousBodyAsync(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+                return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method AnonymousBodyAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method AnonymousBodyAsync.");
+            }
         }
 
         /// <summary>
@@ -778,10 +1220,23 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult FriendlyModel(BinaryContent content, RequestOptions options = null)
         {
-            Argument.AssertNotNull(content, nameof(content));
+            try
+            {
+                System.Console.WriteLine("Entering method FriendlyModel.");
+                Argument.AssertNotNull(content, nameof(content));
 
-            using PipelineMessage message = CreateFriendlyModelRequest(content, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+                using PipelineMessage message = CreateFriendlyModelRequest(content, options);
+                return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method FriendlyModel: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method FriendlyModel.");
+            }
         }
 
         /// <summary>
@@ -799,10 +1254,23 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> FriendlyModelAsync(BinaryContent content, RequestOptions options = null)
         {
-            Argument.AssertNotNull(content, nameof(content));
+            try
+            {
+                System.Console.WriteLine("Entering method FriendlyModelAsync.");
+                Argument.AssertNotNull(content, nameof(content));
 
-            using PipelineMessage message = CreateFriendlyModelRequest(content, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+                using PipelineMessage message = CreateFriendlyModelRequest(content, options);
+                return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method FriendlyModelAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method FriendlyModelAsync.");
+            }
         }
 
         /// <summary> Model can have its friendly name. </summary>
@@ -813,11 +1281,24 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult<Friend> FriendlyModel(string name, CancellationToken cancellationToken = default)
         {
-            Argument.AssertNotNullOrEmpty(name, nameof(name));
+            try
+            {
+                System.Console.WriteLine("Entering method FriendlyModel.");
+                Argument.AssertNotNullOrEmpty(name, nameof(name));
 
-            Friend spreadModel = new Friend(name, null);
-            ClientResult result = FriendlyModel(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
-            return ClientResult.FromValue((Friend)result, result.GetRawResponse());
+                Friend spreadModel = new Friend(name, null);
+                ClientResult result = FriendlyModel(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+                return ClientResult.FromValue((Friend)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method FriendlyModel: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method FriendlyModel.");
+            }
         }
 
         /// <summary> Model can have its friendly name. </summary>
@@ -828,11 +1309,24 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult<Friend>> FriendlyModelAsync(string name, CancellationToken cancellationToken = default)
         {
-            Argument.AssertNotNullOrEmpty(name, nameof(name));
+            try
+            {
+                System.Console.WriteLine("Entering method FriendlyModelAsync.");
+                Argument.AssertNotNullOrEmpty(name, nameof(name));
 
-            Friend spreadModel = new Friend(name, null);
-            ClientResult result = await FriendlyModelAsync(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
-            return ClientResult.FromValue((Friend)result, result.GetRawResponse());
+                Friend spreadModel = new Friend(name, null);
+                ClientResult result = await FriendlyModelAsync(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+                return ClientResult.FromValue((Friend)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method FriendlyModelAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method FriendlyModelAsync.");
+            }
         }
 
         /// <summary>
@@ -848,8 +1342,21 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult AddTimeHeader(RequestOptions options)
         {
-            using PipelineMessage message = CreateAddTimeHeaderRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            try
+            {
+                System.Console.WriteLine("Entering method AddTimeHeader.");
+                using PipelineMessage message = CreateAddTimeHeaderRequest(options);
+                return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method AddTimeHeader: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method AddTimeHeader.");
+            }
         }
 
         /// <summary>
@@ -865,8 +1372,21 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> AddTimeHeaderAsync(RequestOptions options)
         {
-            using PipelineMessage message = CreateAddTimeHeaderRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            try
+            {
+                System.Console.WriteLine("Entering method AddTimeHeaderAsync.");
+                using PipelineMessage message = CreateAddTimeHeaderRequest(options);
+                return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method AddTimeHeaderAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method AddTimeHeaderAsync.");
+            }
         }
 
         /// <summary> AddTimeHeader. </summary>
@@ -874,7 +1394,20 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult AddTimeHeader(CancellationToken cancellationToken = default)
         {
-            return AddTimeHeader(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            try
+            {
+                System.Console.WriteLine("Entering method AddTimeHeader.");
+                return AddTimeHeader(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method AddTimeHeader: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method AddTimeHeader.");
+            }
         }
 
         /// <summary> AddTimeHeader. </summary>
@@ -882,7 +1415,20 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> AddTimeHeaderAsync(CancellationToken cancellationToken = default)
         {
-            return await AddTimeHeaderAsync(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+            try
+            {
+                System.Console.WriteLine("Entering method AddTimeHeaderAsync.");
+                return await AddTimeHeaderAsync(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method AddTimeHeaderAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method AddTimeHeaderAsync.");
+            }
         }
 
         /// <summary>
@@ -900,10 +1446,23 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult ProjectedNameModel(BinaryContent content, RequestOptions options = null)
         {
-            Argument.AssertNotNull(content, nameof(content));
+            try
+            {
+                System.Console.WriteLine("Entering method ProjectedNameModel.");
+                Argument.AssertNotNull(content, nameof(content));
 
-            using PipelineMessage message = CreateProjectedNameModelRequest(content, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+                using PipelineMessage message = CreateProjectedNameModelRequest(content, options);
+                return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method ProjectedNameModel: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method ProjectedNameModel.");
+            }
         }
 
         /// <summary>
@@ -921,10 +1480,23 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> ProjectedNameModelAsync(BinaryContent content, RequestOptions options = null)
         {
-            Argument.AssertNotNull(content, nameof(content));
+            try
+            {
+                System.Console.WriteLine("Entering method ProjectedNameModelAsync.");
+                Argument.AssertNotNull(content, nameof(content));
 
-            using PipelineMessage message = CreateProjectedNameModelRequest(content, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+                using PipelineMessage message = CreateProjectedNameModelRequest(content, options);
+                return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method ProjectedNameModelAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method ProjectedNameModelAsync.");
+            }
         }
 
         /// <summary> Model can have its projected name. </summary>
@@ -935,11 +1507,24 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult<RenamedModel> ProjectedNameModel(string otherName, CancellationToken cancellationToken = default)
         {
-            Argument.AssertNotNullOrEmpty(otherName, nameof(otherName));
+            try
+            {
+                System.Console.WriteLine("Entering method ProjectedNameModel.");
+                Argument.AssertNotNullOrEmpty(otherName, nameof(otherName));
 
-            RenamedModel spreadModel = new RenamedModel(otherName, null);
-            ClientResult result = ProjectedNameModel(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
-            return ClientResult.FromValue((RenamedModel)result, result.GetRawResponse());
+                RenamedModel spreadModel = new RenamedModel(otherName, null);
+                ClientResult result = ProjectedNameModel(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+                return ClientResult.FromValue((RenamedModel)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method ProjectedNameModel: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method ProjectedNameModel.");
+            }
         }
 
         /// <summary> Model can have its projected name. </summary>
@@ -950,11 +1535,24 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult<RenamedModel>> ProjectedNameModelAsync(string otherName, CancellationToken cancellationToken = default)
         {
-            Argument.AssertNotNullOrEmpty(otherName, nameof(otherName));
+            try
+            {
+                System.Console.WriteLine("Entering method ProjectedNameModelAsync.");
+                Argument.AssertNotNullOrEmpty(otherName, nameof(otherName));
 
-            RenamedModel spreadModel = new RenamedModel(otherName, null);
-            ClientResult result = await ProjectedNameModelAsync(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
-            return ClientResult.FromValue((RenamedModel)result, result.GetRawResponse());
+                RenamedModel spreadModel = new RenamedModel(otherName, null);
+                ClientResult result = await ProjectedNameModelAsync(spreadModel, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+                return ClientResult.FromValue((RenamedModel)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method ProjectedNameModelAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method ProjectedNameModelAsync.");
+            }
         }
 
         /// <summary>
@@ -970,8 +1568,21 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult ReturnsAnonymousModel(RequestOptions options)
         {
-            using PipelineMessage message = CreateReturnsAnonymousModelRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            try
+            {
+                System.Console.WriteLine("Entering method ReturnsAnonymousModel.");
+                using PipelineMessage message = CreateReturnsAnonymousModelRequest(options);
+                return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method ReturnsAnonymousModel: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method ReturnsAnonymousModel.");
+            }
         }
 
         /// <summary>
@@ -987,8 +1598,21 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> ReturnsAnonymousModelAsync(RequestOptions options)
         {
-            using PipelineMessage message = CreateReturnsAnonymousModelRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            try
+            {
+                System.Console.WriteLine("Entering method ReturnsAnonymousModelAsync.");
+                using PipelineMessage message = CreateReturnsAnonymousModelRequest(options);
+                return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method ReturnsAnonymousModelAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method ReturnsAnonymousModelAsync.");
+            }
         }
 
         /// <summary> return anonymous model. </summary>
@@ -996,8 +1620,21 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult<ReturnsAnonymousModelResponse> ReturnsAnonymousModel(CancellationToken cancellationToken = default)
         {
-            ClientResult result = ReturnsAnonymousModel(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
-            return ClientResult.FromValue((ReturnsAnonymousModelResponse)result, result.GetRawResponse());
+            try
+            {
+                System.Console.WriteLine("Entering method ReturnsAnonymousModel.");
+                ClientResult result = ReturnsAnonymousModel(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+                return ClientResult.FromValue((ReturnsAnonymousModelResponse)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method ReturnsAnonymousModel: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method ReturnsAnonymousModel.");
+            }
         }
 
         /// <summary> return anonymous model. </summary>
@@ -1005,8 +1642,21 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult<ReturnsAnonymousModelResponse>> ReturnsAnonymousModelAsync(CancellationToken cancellationToken = default)
         {
-            ClientResult result = await ReturnsAnonymousModelAsync(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
-            return ClientResult.FromValue((ReturnsAnonymousModelResponse)result, result.GetRawResponse());
+            try
+            {
+                System.Console.WriteLine("Entering method ReturnsAnonymousModelAsync.");
+                ClientResult result = await ReturnsAnonymousModelAsync(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+                return ClientResult.FromValue((ReturnsAnonymousModelResponse)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method ReturnsAnonymousModelAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method ReturnsAnonymousModelAsync.");
+            }
         }
 
         /// <summary>
@@ -1025,10 +1675,23 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult GetUnknownValue(string accept, RequestOptions options)
         {
-            Argument.AssertNotNullOrEmpty(accept, nameof(accept));
+            try
+            {
+                System.Console.WriteLine("Entering method GetUnknownValue.");
+                Argument.AssertNotNullOrEmpty(accept, nameof(accept));
 
-            using PipelineMessage message = CreateGetUnknownValueRequest(accept, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+                using PipelineMessage message = CreateGetUnknownValueRequest(accept, options);
+                return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method GetUnknownValue: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method GetUnknownValue.");
+            }
         }
 
         /// <summary>
@@ -1047,10 +1710,23 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> GetUnknownValueAsync(string accept, RequestOptions options)
         {
-            Argument.AssertNotNullOrEmpty(accept, nameof(accept));
+            try
+            {
+                System.Console.WriteLine("Entering method GetUnknownValueAsync.");
+                Argument.AssertNotNullOrEmpty(accept, nameof(accept));
 
-            using PipelineMessage message = CreateGetUnknownValueRequest(accept, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+                using PipelineMessage message = CreateGetUnknownValueRequest(accept, options);
+                return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method GetUnknownValueAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method GetUnknownValueAsync.");
+            }
         }
 
         /// <summary> get extensible enum. </summary>
@@ -1061,10 +1737,23 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult<string> GetUnknownValue(string accept, CancellationToken cancellationToken = default)
         {
-            Argument.AssertNotNullOrEmpty(accept, nameof(accept));
+            try
+            {
+                System.Console.WriteLine("Entering method GetUnknownValue.");
+                Argument.AssertNotNullOrEmpty(accept, nameof(accept));
 
-            ClientResult result = GetUnknownValue(accept, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
-            return ClientResult.FromValue(result.GetRawResponse().Content.ToString(), result.GetRawResponse());
+                ClientResult result = GetUnknownValue(accept, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+                return ClientResult.FromValue(result.GetRawResponse().Content.ToString(), result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method GetUnknownValue: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method GetUnknownValue.");
+            }
         }
 
         /// <summary> get extensible enum. </summary>
@@ -1075,10 +1764,23 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult<string>> GetUnknownValueAsync(string accept, CancellationToken cancellationToken = default)
         {
-            Argument.AssertNotNullOrEmpty(accept, nameof(accept));
+            try
+            {
+                System.Console.WriteLine("Entering method GetUnknownValueAsync.");
+                Argument.AssertNotNullOrEmpty(accept, nameof(accept));
 
-            ClientResult result = await GetUnknownValueAsync(accept, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
-            return ClientResult.FromValue(result.GetRawResponse().Content.ToString(), result.GetRawResponse());
+                ClientResult result = await GetUnknownValueAsync(accept, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+                return ClientResult.FromValue(result.GetRawResponse().Content.ToString(), result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method GetUnknownValueAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method GetUnknownValueAsync.");
+            }
         }
 
         /// <summary>
@@ -1096,10 +1798,23 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult InternalProtocol(BinaryContent content, RequestOptions options = null)
         {
-            Argument.AssertNotNull(content, nameof(content));
+            try
+            {
+                System.Console.WriteLine("Entering method InternalProtocol.");
+                Argument.AssertNotNull(content, nameof(content));
 
-            using PipelineMessage message = CreateInternalProtocolRequest(content, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+                using PipelineMessage message = CreateInternalProtocolRequest(content, options);
+                return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method InternalProtocol: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method InternalProtocol.");
+            }
         }
 
         /// <summary>
@@ -1117,10 +1832,23 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> InternalProtocolAsync(BinaryContent content, RequestOptions options = null)
         {
-            Argument.AssertNotNull(content, nameof(content));
+            try
+            {
+                System.Console.WriteLine("Entering method InternalProtocolAsync.");
+                Argument.AssertNotNull(content, nameof(content));
 
-            using PipelineMessage message = CreateInternalProtocolRequest(content, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+                using PipelineMessage message = CreateInternalProtocolRequest(content, options);
+                return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method InternalProtocolAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method InternalProtocolAsync.");
+            }
         }
 
         /// <summary> When set protocol false and convenient true, then the protocol method should be internal. </summary>
@@ -1130,10 +1858,23 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult<Thing> InternalProtocol(Thing body, CancellationToken cancellationToken = default)
         {
-            Argument.AssertNotNull(body, nameof(body));
+            try
+            {
+                System.Console.WriteLine("Entering method InternalProtocol.");
+                Argument.AssertNotNull(body, nameof(body));
 
-            ClientResult result = InternalProtocol(body, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
-            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+                ClientResult result = InternalProtocol(body, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+                return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method InternalProtocol: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method InternalProtocol.");
+            }
         }
 
         /// <summary> When set protocol false and convenient true, then the protocol method should be internal. </summary>
@@ -1143,10 +1884,23 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult<Thing>> InternalProtocolAsync(Thing body, CancellationToken cancellationToken = default)
         {
-            Argument.AssertNotNull(body, nameof(body));
+            try
+            {
+                System.Console.WriteLine("Entering method InternalProtocolAsync.");
+                Argument.AssertNotNull(body, nameof(body));
 
-            ClientResult result = await InternalProtocolAsync(body, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
-            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+                ClientResult result = await InternalProtocolAsync(body, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+                return ClientResult.FromValue((Thing)result, result.GetRawResponse());
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method InternalProtocolAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method InternalProtocolAsync.");
+            }
         }
 
         /// <summary>
@@ -1162,8 +1916,21 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult StillConvenient(RequestOptions options)
         {
-            using PipelineMessage message = CreateStillConvenientRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            try
+            {
+                System.Console.WriteLine("Entering method StillConvenient.");
+                using PipelineMessage message = CreateStillConvenientRequest(options);
+                return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method StillConvenient: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method StillConvenient.");
+            }
         }
 
         /// <summary>
@@ -1179,8 +1946,21 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> StillConvenientAsync(RequestOptions options)
         {
-            using PipelineMessage message = CreateStillConvenientRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            try
+            {
+                System.Console.WriteLine("Entering method StillConvenientAsync.");
+                using PipelineMessage message = CreateStillConvenientRequest(options);
+                return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method StillConvenientAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method StillConvenientAsync.");
+            }
         }
 
         /// <summary> When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one. </summary>
@@ -1188,7 +1968,20 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult StillConvenient(CancellationToken cancellationToken = default)
         {
-            return StillConvenient(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            try
+            {
+                System.Console.WriteLine("Entering method StillConvenient.");
+                return StillConvenient(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method StillConvenient: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method StillConvenient.");
+            }
         }
 
         /// <summary> When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one. </summary>
@@ -1196,7 +1989,20 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> StillConvenientAsync(CancellationToken cancellationToken = default)
         {
-            return await StillConvenientAsync(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+            try
+            {
+                System.Console.WriteLine("Entering method StillConvenientAsync.");
+                return await StillConvenientAsync(cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method StillConvenientAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method StillConvenientAsync.");
+            }
         }
 
         /// <summary>
@@ -1215,10 +2021,23 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult HeadAsBoolean(string id, RequestOptions options)
         {
-            Argument.AssertNotNullOrEmpty(id, nameof(id));
+            try
+            {
+                System.Console.WriteLine("Entering method HeadAsBoolean.");
+                Argument.AssertNotNullOrEmpty(id, nameof(id));
 
-            using PipelineMessage message = CreateHeadAsBooleanRequest(id, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+                using PipelineMessage message = CreateHeadAsBooleanRequest(id, options);
+                return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method HeadAsBoolean: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method HeadAsBoolean.");
+            }
         }
 
         /// <summary>
@@ -1237,10 +2056,23 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> HeadAsBooleanAsync(string id, RequestOptions options)
         {
-            Argument.AssertNotNullOrEmpty(id, nameof(id));
+            try
+            {
+                System.Console.WriteLine("Entering method HeadAsBooleanAsync.");
+                Argument.AssertNotNullOrEmpty(id, nameof(id));
 
-            using PipelineMessage message = CreateHeadAsBooleanRequest(id, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+                using PipelineMessage message = CreateHeadAsBooleanRequest(id, options);
+                return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method HeadAsBooleanAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method HeadAsBooleanAsync.");
+            }
         }
 
         /// <summary> head as boolean. </summary>
@@ -1251,9 +2083,22 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult HeadAsBoolean(string id, CancellationToken cancellationToken = default)
         {
-            Argument.AssertNotNullOrEmpty(id, nameof(id));
+            try
+            {
+                System.Console.WriteLine("Entering method HeadAsBoolean.");
+                Argument.AssertNotNullOrEmpty(id, nameof(id));
 
-            return HeadAsBoolean(id, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+                return HeadAsBoolean(id, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method HeadAsBoolean: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method HeadAsBoolean.");
+            }
         }
 
         /// <summary> head as boolean. </summary>
@@ -1264,9 +2109,22 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> HeadAsBooleanAsync(string id, CancellationToken cancellationToken = default)
         {
-            Argument.AssertNotNullOrEmpty(id, nameof(id));
+            try
+            {
+                System.Console.WriteLine("Entering method HeadAsBooleanAsync.");
+                Argument.AssertNotNullOrEmpty(id, nameof(id));
 
-            return await HeadAsBooleanAsync(id, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+                return await HeadAsBooleanAsync(id, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method HeadAsBooleanAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method HeadAsBooleanAsync.");
+            }
         }
 
         /// <summary>
@@ -1285,10 +2143,23 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult WithApiVersion(string p1, RequestOptions options)
         {
-            Argument.AssertNotNullOrEmpty(p1, nameof(p1));
+            try
+            {
+                System.Console.WriteLine("Entering method WithApiVersion.");
+                Argument.AssertNotNullOrEmpty(p1, nameof(p1));
 
-            using PipelineMessage message = CreateWithApiVersionRequest(p1, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+                using PipelineMessage message = CreateWithApiVersionRequest(p1, options);
+                return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method WithApiVersion: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method WithApiVersion.");
+            }
         }
 
         /// <summary>
@@ -1307,10 +2178,23 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> WithApiVersionAsync(string p1, RequestOptions options)
         {
-            Argument.AssertNotNullOrEmpty(p1, nameof(p1));
+            try
+            {
+                System.Console.WriteLine("Entering method WithApiVersionAsync.");
+                Argument.AssertNotNullOrEmpty(p1, nameof(p1));
 
-            using PipelineMessage message = CreateWithApiVersionRequest(p1, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+                using PipelineMessage message = CreateWithApiVersionRequest(p1, options);
+                return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method WithApiVersionAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method WithApiVersionAsync.");
+            }
         }
 
         /// <summary> Return hi again. </summary>
@@ -1321,9 +2205,22 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult WithApiVersion(string p1, CancellationToken cancellationToken = default)
         {
-            Argument.AssertNotNullOrEmpty(p1, nameof(p1));
+            try
+            {
+                System.Console.WriteLine("Entering method WithApiVersion.");
+                Argument.AssertNotNullOrEmpty(p1, nameof(p1));
 
-            return WithApiVersion(p1, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+                return WithApiVersion(p1, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method WithApiVersion: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method WithApiVersion.");
+            }
         }
 
         /// <summary> Return hi again. </summary>
@@ -1334,9 +2231,22 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> WithApiVersionAsync(string p1, CancellationToken cancellationToken = default)
         {
-            Argument.AssertNotNullOrEmpty(p1, nameof(p1));
+            try
+            {
+                System.Console.WriteLine("Entering method WithApiVersionAsync.");
+                Argument.AssertNotNullOrEmpty(p1, nameof(p1));
 
-            return await WithApiVersionAsync(p1, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+                return await WithApiVersionAsync(p1, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method WithApiVersionAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method WithApiVersionAsync.");
+            }
         }
 
         /// <summary>
@@ -1352,7 +2262,20 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual CollectionResult GetWithNextLink(RequestOptions options)
         {
-            return new SampleTypeSpecClientGetWithNextLinkCollectionResult(this, options);
+            try
+            {
+                System.Console.WriteLine("Entering method GetWithNextLink.");
+                return new SampleTypeSpecClientGetWithNextLinkCollectionResult(this, options);
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method GetWithNextLink: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method GetWithNextLink.");
+            }
         }
 
         /// <summary>
@@ -1368,7 +2291,20 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual AsyncCollectionResult GetWithNextLinkAsync(RequestOptions options)
         {
-            return new SampleTypeSpecClientGetWithNextLinkAsyncCollectionResult(this, options);
+            try
+            {
+                System.Console.WriteLine("Entering method GetWithNextLinkAsync.");
+                return new SampleTypeSpecClientGetWithNextLinkAsyncCollectionResult(this, options);
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method GetWithNextLinkAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method GetWithNextLinkAsync.");
+            }
         }
 
         /// <summary> List things with nextlink. </summary>
@@ -1376,7 +2312,20 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual CollectionResult<Thing> GetWithNextLink(CancellationToken cancellationToken = default)
         {
-            return new SampleTypeSpecClientGetWithNextLinkCollectionResultOfT(this, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            try
+            {
+                System.Console.WriteLine("Entering method GetWithNextLink.");
+                return new SampleTypeSpecClientGetWithNextLinkCollectionResultOfT(this, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method GetWithNextLink: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method GetWithNextLink.");
+            }
         }
 
         /// <summary> List things with nextlink. </summary>
@@ -1384,7 +2333,20 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual AsyncCollectionResult<Thing> GetWithNextLinkAsync(CancellationToken cancellationToken = default)
         {
-            return new SampleTypeSpecClientGetWithNextLinkAsyncCollectionResultOfT(this, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            try
+            {
+                System.Console.WriteLine("Entering method GetWithNextLinkAsync.");
+                return new SampleTypeSpecClientGetWithNextLinkAsyncCollectionResultOfT(this, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method GetWithNextLinkAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method GetWithNextLinkAsync.");
+            }
         }
 
         /// <summary>
@@ -1400,7 +2362,20 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual CollectionResult GetWithStringNextLink(RequestOptions options)
         {
-            return new SampleTypeSpecClientGetWithStringNextLinkCollectionResult(this, options);
+            try
+            {
+                System.Console.WriteLine("Entering method GetWithStringNextLink.");
+                return new SampleTypeSpecClientGetWithStringNextLinkCollectionResult(this, options);
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method GetWithStringNextLink: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method GetWithStringNextLink.");
+            }
         }
 
         /// <summary>
@@ -1416,7 +2391,20 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual AsyncCollectionResult GetWithStringNextLinkAsync(RequestOptions options)
         {
-            return new SampleTypeSpecClientGetWithStringNextLinkAsyncCollectionResult(this, options);
+            try
+            {
+                System.Console.WriteLine("Entering method GetWithStringNextLinkAsync.");
+                return new SampleTypeSpecClientGetWithStringNextLinkAsyncCollectionResult(this, options);
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method GetWithStringNextLinkAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method GetWithStringNextLinkAsync.");
+            }
         }
 
         /// <summary> List things with nextlink. </summary>
@@ -1424,7 +2412,20 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual CollectionResult<Thing> GetWithStringNextLink(CancellationToken cancellationToken = default)
         {
-            return new SampleTypeSpecClientGetWithStringNextLinkCollectionResultOfT(this, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            try
+            {
+                System.Console.WriteLine("Entering method GetWithStringNextLink.");
+                return new SampleTypeSpecClientGetWithStringNextLinkCollectionResultOfT(this, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method GetWithStringNextLink: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method GetWithStringNextLink.");
+            }
         }
 
         /// <summary> List things with nextlink. </summary>
@@ -1432,7 +2433,20 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual AsyncCollectionResult<Thing> GetWithStringNextLinkAsync(CancellationToken cancellationToken = default)
         {
-            return new SampleTypeSpecClientGetWithStringNextLinkAsyncCollectionResultOfT(this, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            try
+            {
+                System.Console.WriteLine("Entering method GetWithStringNextLinkAsync.");
+                return new SampleTypeSpecClientGetWithStringNextLinkAsyncCollectionResultOfT(this, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method GetWithStringNextLinkAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method GetWithStringNextLinkAsync.");
+            }
         }
 
         /// <summary>
@@ -1449,7 +2463,20 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual CollectionResult GetWithContinuationToken(string token, RequestOptions options)
         {
-            return new SampleTypeSpecClientGetWithContinuationTokenCollectionResult(this, token, options);
+            try
+            {
+                System.Console.WriteLine("Entering method GetWithContinuationToken.");
+                return new SampleTypeSpecClientGetWithContinuationTokenCollectionResult(this, token, options);
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method GetWithContinuationToken: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method GetWithContinuationToken.");
+            }
         }
 
         /// <summary>
@@ -1466,7 +2493,20 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual AsyncCollectionResult GetWithContinuationTokenAsync(string token, RequestOptions options)
         {
-            return new SampleTypeSpecClientGetWithContinuationTokenAsyncCollectionResult(this, token, options);
+            try
+            {
+                System.Console.WriteLine("Entering method GetWithContinuationTokenAsync.");
+                return new SampleTypeSpecClientGetWithContinuationTokenAsyncCollectionResult(this, token, options);
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method GetWithContinuationTokenAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method GetWithContinuationTokenAsync.");
+            }
         }
 
         /// <summary> List things with continuation token. </summary>
@@ -1475,7 +2515,20 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual CollectionResult<Thing> GetWithContinuationToken(string token = default, CancellationToken cancellationToken = default)
         {
-            return new SampleTypeSpecClientGetWithContinuationTokenCollectionResultOfT(this, token, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            try
+            {
+                System.Console.WriteLine("Entering method GetWithContinuationToken.");
+                return new SampleTypeSpecClientGetWithContinuationTokenCollectionResultOfT(this, token, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method GetWithContinuationToken: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method GetWithContinuationToken.");
+            }
         }
 
         /// <summary> List things with continuation token. </summary>
@@ -1484,7 +2537,20 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual AsyncCollectionResult<Thing> GetWithContinuationTokenAsync(string token = default, CancellationToken cancellationToken = default)
         {
-            return new SampleTypeSpecClientGetWithContinuationTokenAsyncCollectionResultOfT(this, token, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            try
+            {
+                System.Console.WriteLine("Entering method GetWithContinuationTokenAsync.");
+                return new SampleTypeSpecClientGetWithContinuationTokenAsyncCollectionResultOfT(this, token, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method GetWithContinuationTokenAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method GetWithContinuationTokenAsync.");
+            }
         }
 
         /// <summary>
@@ -1501,7 +2567,20 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual CollectionResult GetWithContinuationTokenHeaderResponse(string token, RequestOptions options)
         {
-            return new SampleTypeSpecClientGetWithContinuationTokenHeaderResponseCollectionResult(this, token, options);
+            try
+            {
+                System.Console.WriteLine("Entering method GetWithContinuationTokenHeaderResponse.");
+                return new SampleTypeSpecClientGetWithContinuationTokenHeaderResponseCollectionResult(this, token, options);
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method GetWithContinuationTokenHeaderResponse: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method GetWithContinuationTokenHeaderResponse.");
+            }
         }
 
         /// <summary>
@@ -1518,7 +2597,20 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual AsyncCollectionResult GetWithContinuationTokenHeaderResponseAsync(string token, RequestOptions options)
         {
-            return new SampleTypeSpecClientGetWithContinuationTokenHeaderResponseAsyncCollectionResult(this, token, options);
+            try
+            {
+                System.Console.WriteLine("Entering method GetWithContinuationTokenHeaderResponseAsync.");
+                return new SampleTypeSpecClientGetWithContinuationTokenHeaderResponseAsyncCollectionResult(this, token, options);
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method GetWithContinuationTokenHeaderResponseAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method GetWithContinuationTokenHeaderResponseAsync.");
+            }
         }
 
         /// <summary> List things with continuation token header response. </summary>
@@ -1527,7 +2619,20 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual CollectionResult<Thing> GetWithContinuationTokenHeaderResponse(string token = default, CancellationToken cancellationToken = default)
         {
-            return new SampleTypeSpecClientGetWithContinuationTokenHeaderResponseCollectionResultOfT(this, token, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            try
+            {
+                System.Console.WriteLine("Entering method GetWithContinuationTokenHeaderResponse.");
+                return new SampleTypeSpecClientGetWithContinuationTokenHeaderResponseCollectionResultOfT(this, token, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method GetWithContinuationTokenHeaderResponse: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method GetWithContinuationTokenHeaderResponse.");
+            }
         }
 
         /// <summary> List things with continuation token header response. </summary>
@@ -1536,7 +2641,20 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual AsyncCollectionResult<Thing> GetWithContinuationTokenHeaderResponseAsync(string token = default, CancellationToken cancellationToken = default)
         {
-            return new SampleTypeSpecClientGetWithContinuationTokenHeaderResponseAsyncCollectionResultOfT(this, token, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            try
+            {
+                System.Console.WriteLine("Entering method GetWithContinuationTokenHeaderResponseAsync.");
+                return new SampleTypeSpecClientGetWithContinuationTokenHeaderResponseAsyncCollectionResultOfT(this, token, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method GetWithContinuationTokenHeaderResponseAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method GetWithContinuationTokenHeaderResponseAsync.");
+            }
         }
 
         /// <summary>
@@ -1552,7 +2670,20 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual CollectionResult GetWithPaging(RequestOptions options)
         {
-            return new SampleTypeSpecClientGetWithPagingCollectionResult(this, options);
+            try
+            {
+                System.Console.WriteLine("Entering method GetWithPaging.");
+                return new SampleTypeSpecClientGetWithPagingCollectionResult(this, options);
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method GetWithPaging: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method GetWithPaging.");
+            }
         }
 
         /// <summary>
@@ -1568,7 +2699,20 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual AsyncCollectionResult GetWithPagingAsync(RequestOptions options)
         {
-            return new SampleTypeSpecClientGetWithPagingAsyncCollectionResult(this, options);
+            try
+            {
+                System.Console.WriteLine("Entering method GetWithPagingAsync.");
+                return new SampleTypeSpecClientGetWithPagingAsyncCollectionResult(this, options);
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method GetWithPagingAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method GetWithPagingAsync.");
+            }
         }
 
         /// <summary> List things with paging. </summary>
@@ -1576,7 +2720,20 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual CollectionResult<Thing> GetWithPaging(CancellationToken cancellationToken = default)
         {
-            return new SampleTypeSpecClientGetWithPagingCollectionResultOfT(this, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            try
+            {
+                System.Console.WriteLine("Entering method GetWithPaging.");
+                return new SampleTypeSpecClientGetWithPagingCollectionResultOfT(this, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method GetWithPaging: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method GetWithPaging.");
+            }
         }
 
         /// <summary> List things with paging. </summary>
@@ -1584,7 +2741,20 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual AsyncCollectionResult<Thing> GetWithPagingAsync(CancellationToken cancellationToken = default)
         {
-            return new SampleTypeSpecClientGetWithPagingAsyncCollectionResultOfT(this, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            try
+            {
+                System.Console.WriteLine("Entering method GetWithPagingAsync.");
+                return new SampleTypeSpecClientGetWithPagingAsyncCollectionResultOfT(this, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method GetWithPagingAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method GetWithPagingAsync.");
+            }
         }
 
         /// <summary>
@@ -1607,12 +2777,25 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult EmbeddedParameters(string requiredHeader, string requiredQuery, BinaryContent content, string optionalHeader = default, string optionalQuery = default, RequestOptions options = null)
         {
-            Argument.AssertNotNullOrEmpty(requiredHeader, nameof(requiredHeader));
-            Argument.AssertNotNullOrEmpty(requiredQuery, nameof(requiredQuery));
-            Argument.AssertNotNull(content, nameof(content));
+            try
+            {
+                System.Console.WriteLine("Entering method EmbeddedParameters.");
+                Argument.AssertNotNullOrEmpty(requiredHeader, nameof(requiredHeader));
+                Argument.AssertNotNullOrEmpty(requiredQuery, nameof(requiredQuery));
+                Argument.AssertNotNull(content, nameof(content));
 
-            using PipelineMessage message = CreateEmbeddedParametersRequest(requiredHeader, requiredQuery, content, optionalHeader, optionalQuery, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+                using PipelineMessage message = CreateEmbeddedParametersRequest(requiredHeader, requiredQuery, content, optionalHeader, optionalQuery, options);
+                return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method EmbeddedParameters: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method EmbeddedParameters.");
+            }
         }
 
         /// <summary>
@@ -1635,12 +2818,25 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> EmbeddedParametersAsync(string requiredHeader, string requiredQuery, BinaryContent content, string optionalHeader = default, string optionalQuery = default, RequestOptions options = null)
         {
-            Argument.AssertNotNullOrEmpty(requiredHeader, nameof(requiredHeader));
-            Argument.AssertNotNullOrEmpty(requiredQuery, nameof(requiredQuery));
-            Argument.AssertNotNull(content, nameof(content));
+            try
+            {
+                System.Console.WriteLine("Entering method EmbeddedParametersAsync.");
+                Argument.AssertNotNullOrEmpty(requiredHeader, nameof(requiredHeader));
+                Argument.AssertNotNullOrEmpty(requiredQuery, nameof(requiredQuery));
+                Argument.AssertNotNull(content, nameof(content));
 
-            using PipelineMessage message = CreateEmbeddedParametersRequest(requiredHeader, requiredQuery, content, optionalHeader, optionalQuery, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+                using PipelineMessage message = CreateEmbeddedParametersRequest(requiredHeader, requiredQuery, content, optionalHeader, optionalQuery, options);
+                return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method EmbeddedParametersAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method EmbeddedParametersAsync.");
+            }
         }
 
         /// <summary> An operation with embedded parameters within the body. </summary>
@@ -1650,9 +2846,22 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult EmbeddedParameters(ModelWithEmbeddedNonBodyParameters body, CancellationToken cancellationToken = default)
         {
-            Argument.AssertNotNull(body, nameof(body));
+            try
+            {
+                System.Console.WriteLine("Entering method EmbeddedParameters.");
+                Argument.AssertNotNull(body, nameof(body));
 
-            return EmbeddedParameters(body.RequiredHeader, body.RequiredQuery, body, body.OptionalHeader, body.OptionalQuery, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+                return EmbeddedParameters(body.RequiredHeader, body.RequiredQuery, body, body.OptionalHeader, body.OptionalQuery, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method EmbeddedParameters: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method EmbeddedParameters.");
+            }
         }
 
         /// <summary> An operation with embedded parameters within the body. </summary>
@@ -1662,9 +2871,22 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> EmbeddedParametersAsync(ModelWithEmbeddedNonBodyParameters body, CancellationToken cancellationToken = default)
         {
-            Argument.AssertNotNull(body, nameof(body));
+            try
+            {
+                System.Console.WriteLine("Entering method EmbeddedParametersAsync.");
+                Argument.AssertNotNull(body, nameof(body));
 
-            return await EmbeddedParametersAsync(body.RequiredHeader, body.RequiredQuery, body, body.OptionalHeader, body.OptionalQuery, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+                return await EmbeddedParametersAsync(body.RequiredHeader, body.RequiredQuery, body, body.OptionalHeader, body.OptionalQuery, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method EmbeddedParametersAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method EmbeddedParametersAsync.");
+            }
         }
 
         /// <summary>
@@ -1682,10 +2904,23 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual ClientResult DynamicModelOperation(BinaryContent content, RequestOptions options = null)
         {
-            Argument.AssertNotNull(content, nameof(content));
+            try
+            {
+                System.Console.WriteLine("Entering method DynamicModelOperation.");
+                Argument.AssertNotNull(content, nameof(content));
 
-            using PipelineMessage message = CreateDynamicModelOperationRequest(content, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+                using PipelineMessage message = CreateDynamicModelOperationRequest(content, options);
+                return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method DynamicModelOperation: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method DynamicModelOperation.");
+            }
         }
 
         /// <summary>
@@ -1703,10 +2938,23 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual async Task<ClientResult> DynamicModelOperationAsync(BinaryContent content, RequestOptions options = null)
         {
-            Argument.AssertNotNull(content, nameof(content));
+            try
+            {
+                System.Console.WriteLine("Entering method DynamicModelOperationAsync.");
+                Argument.AssertNotNull(content, nameof(content));
 
-            using PipelineMessage message = CreateDynamicModelOperationRequest(content, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+                using PipelineMessage message = CreateDynamicModelOperationRequest(content, options);
+                return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method DynamicModelOperationAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method DynamicModelOperationAsync.");
+            }
         }
 
         /// <summary> An operation with a dynamic model. </summary>
@@ -1716,9 +2964,22 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual ClientResult DynamicModelOperation(DynamicModel body, CancellationToken cancellationToken = default)
         {
-            Argument.AssertNotNull(body, nameof(body));
+            try
+            {
+                System.Console.WriteLine("Entering method DynamicModelOperation.");
+                Argument.AssertNotNull(body, nameof(body));
 
-            return DynamicModelOperation(body, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+                return DynamicModelOperation(body, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method DynamicModelOperation: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method DynamicModelOperation.");
+            }
         }
 
         /// <summary> An operation with a dynamic model. </summary>
@@ -1728,9 +2989,22 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async Task<ClientResult> DynamicModelOperationAsync(DynamicModel body, CancellationToken cancellationToken = default)
         {
-            Argument.AssertNotNull(body, nameof(body));
+            try
+            {
+                System.Console.WriteLine("Entering method DynamicModelOperationAsync.");
+                Argument.AssertNotNull(body, nameof(body));
 
-            return await DynamicModelOperationAsync(body, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+                return await DynamicModelOperationAsync(body, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method DynamicModelOperationAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method DynamicModelOperationAsync.");
+            }
         }
     }
 }
