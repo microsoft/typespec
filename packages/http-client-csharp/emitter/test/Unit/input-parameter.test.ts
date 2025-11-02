@@ -1043,5 +1043,179 @@ describe("Test Operation Parameters", () => {
       // When not spread, correspondingMethodParams should be empty or contain just the body parameter itself
       ok(typedParam.correspondingMethodParams === undefined || typedParam.correspondingMethodParams.length <= 1);
     });
+
+    it("should map query parameter to corresponding method parameters when spread", async () => {
+      const program = await typeSpecCompile(
+        `
+          model QueryParams {
+            @query filter: string;
+            @query limit: int32;
+          }
+          
+          @route("test")
+          op test(...QueryParams): void;
+        `,
+        runner,
+      );
+      const context = createEmitterContext(program);
+      const sdkContext = await createCSharpSdkContext(context);
+      const root = createModel(sdkContext);
+
+      const operation = root.clients[0].methods[0].operation;
+      const queryParams = operation.parameters.filter((p) => p.kind === "query");
+
+      strictEqual(queryParams.length, 2);
+      
+      for (const param of queryParams) {
+        const typedParam = param as InputQueryParameter;
+        ok(typedParam.correspondingMethodParams);
+        strictEqual(typedParam.correspondingMethodParams.length, 1);
+        ok(
+          typedParam.correspondingMethodParams.some(
+            (p) => p.name === "filter" || p.name === "limit",
+          ),
+        );
+      }
+    });
+
+    it("should map path parameter to corresponding method parameters when spread", async () => {
+      const program = await typeSpecCompile(
+        `
+          model PathParams {
+            @path id: string;
+            @path version: string;
+          }
+          
+          @route("test/{id}/{version}")
+          op test(...PathParams): void;
+        `,
+        runner,
+      );
+      const context = createEmitterContext(program);
+      const sdkContext = await createCSharpSdkContext(context);
+      const root = createModel(sdkContext);
+
+      const operation = root.clients[0].methods[0].operation;
+      const pathParams = operation.parameters.filter((p) => p.kind === "path");
+
+      strictEqual(pathParams.length, 2);
+      
+      for (const param of pathParams) {
+        const typedParam = param as InputPathParameter;
+        ok(typedParam.correspondingMethodParams);
+        strictEqual(typedParam.correspondingMethodParams.length, 1);
+        ok(
+          typedParam.correspondingMethodParams.some(
+            (p) => p.name === "id" || p.name === "version",
+          ),
+        );
+      }
+    });
+
+    it("should map header parameter to corresponding method parameters when spread", async () => {
+      const program = await typeSpecCompile(
+        `
+          model HeaderParams {
+            @header("x-api-key") apiKey: string;
+            @header("x-request-id") requestId: string;
+          }
+          
+          @route("test")
+          op test(...HeaderParams): void;
+        `,
+        runner,
+      );
+      const context = createEmitterContext(program);
+      const sdkContext = await createCSharpSdkContext(context);
+      const root = createModel(sdkContext);
+
+      const operation = root.clients[0].methods[0].operation;
+      const headerParams = operation.parameters.filter((p) => p.kind === "header");
+
+      strictEqual(headerParams.length, 2);
+      
+      for (const param of headerParams) {
+        const typedParam = param as InputHeaderParameter;
+        ok(typedParam.correspondingMethodParams);
+        strictEqual(typedParam.correspondingMethodParams.length, 1);
+        ok(
+          typedParam.correspondingMethodParams.some(
+            (p) => p.name === "apiKey" || p.name === "requestId",
+          ),
+        );
+      }
+    });
+
+    it("should have correspondingMethodParams for regular query parameter", async () => {
+      const program = await typeSpecCompile(
+        `
+          @route("test")
+          op test(@query filter: string): void;
+        `,
+        runner,
+      );
+      const context = createEmitterContext(program);
+      const sdkContext = await createCSharpSdkContext(context);
+      const root = createModel(sdkContext);
+
+      const operation = root.clients[0].methods[0].operation;
+      const queryParam = operation.parameters.find((p) => p.kind === "query");
+
+      ok(queryParam);
+      strictEqual(queryParam.kind, "query");
+
+      const typedParam = queryParam as InputQueryParameter;
+      ok(typedParam.correspondingMethodParams);
+      strictEqual(typedParam.correspondingMethodParams.length, 1);
+      strictEqual(typedParam.correspondingMethodParams[0].name, "filter");
+    });
+
+    it("should have correspondingMethodParams for regular path parameter", async () => {
+      const program = await typeSpecCompile(
+        `
+          @route("test/{id}")
+          op test(@path id: string): void;
+        `,
+        runner,
+      );
+      const context = createEmitterContext(program);
+      const sdkContext = await createCSharpSdkContext(context);
+      const root = createModel(sdkContext);
+
+      const operation = root.clients[0].methods[0].operation;
+      const pathParam = operation.parameters.find((p) => p.kind === "path");
+
+      ok(pathParam);
+      strictEqual(pathParam.kind, "path");
+
+      const typedParam = pathParam as InputPathParameter;
+      ok(typedParam.correspondingMethodParams);
+      strictEqual(typedParam.correspondingMethodParams.length, 1);
+      strictEqual(typedParam.correspondingMethodParams[0].name, "id");
+    });
+
+    it("should have correspondingMethodParams for regular header parameter", async () => {
+      const program = await typeSpecCompile(
+        `
+          @route("test")
+          op test(@header("x-api-key") apiKey: string): void;
+        `,
+        runner,
+      );
+      const context = createEmitterContext(program);
+      const sdkContext = await createCSharpSdkContext(context);
+      const root = createModel(sdkContext);
+
+      const operation = root.clients[0].methods[0].operation;
+      const headerParam = operation.parameters.find((p) => p.kind === "header");
+
+      ok(headerParam);
+      strictEqual(headerParam.kind, "header");
+
+      const typedParam = headerParam as InputHeaderParameter;
+      ok(typedParam.correspondingMethodParams);
+      strictEqual(typedParam.correspondingMethodParams.length, 1);
+      strictEqual(typedParam.correspondingMethodParams[0].name, "apiKey");
+    });
   });
 });
