@@ -426,15 +426,17 @@ function convertCorrespondingMethodParams(
     return undefined;
   }
 
-  return p.correspondingMethodParams.map((methodParam) => {
-    // Check if already cached
-    let inputMethodParam = sdkContext.__typeCache.methodParmeters.get(methodParam);
-    if (!inputMethodParam) {
-      // Convert the method parameter if not already cached
-      inputMethodParam = fromMethodParameter(sdkContext, methodParam, namespace);
-    }
-    return inputMethodParam;
-  });
+  return p.correspondingMethodParams
+    .filter((param) => param.kind === "method") // Only include method parameters
+    .map((methodParam) => {
+      // Check if already cached
+      let inputMethodParam = sdkContext.__typeCache.methodParmeters.get(methodParam);
+      if (!inputMethodParam) {
+        // Convert the method parameter if not already cached
+        inputMethodParam = fromMethodParameter(sdkContext, methodParam, namespace);
+      }
+      return inputMethodParam;
+    });
 }
 
 function fromQueryParameter(

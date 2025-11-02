@@ -984,4 +984,64 @@ describe("Test Operation Parameters", () => {
       ok(typedParam.contentTypes.includes("application/json"));
     });
   });
+
+  describe("correspondingMethodParams", () => {
+    it("should map body parameter to corresponding method parameters when spread", async () => {
+      const program = await typeSpecCompile(
+        `
+          model TestModel {
+            name: string;
+            value: int32;
+          }
+          
+          @route("test")
+          op test(...TestModel): void;
+        `,
+        runner,
+      );
+      const context = createEmitterContext(program);
+      const sdkContext = await createCSharpSdkContext(context);
+      const root = createModel(sdkContext);
+
+      const operation = root.clients[0].methods[0].operation;
+      const bodyParam = operation.parameters.find((p) => p.kind === "body");
+
+      ok(bodyParam);
+      strictEqual(bodyParam.kind, "body");
+
+      const typedParam = bodyParam as InputBodyParameter;
+      ok(typedParam.correspondingMethodParams);
+      strictEqual(typedParam.correspondingMethodParams.length, 2);
+      ok(typedParam.correspondingMethodParams.some((p) => p.name === "name"));
+      ok(typedParam.correspondingMethodParams.some((p) => p.name === "value"));
+    });
+
+    it("should have empty correspondingMethodParams for non-spread body parameter", async () => {
+      const program = await typeSpecCompile(
+        `
+          model TestModel {
+            name: string;
+            value: int32;
+          }
+          
+          @route("test")
+          op test(@body body: TestModel): void;
+        `,
+        runner,
+      );
+      const context = createEmitterContext(program);
+      const sdkContext = await createCSharpSdkContext(context);
+      const root = createModel(sdkContext);
+
+      const operation = root.clients[0].methods[0].operation;
+      const bodyParam = operation.parameters.find((p) => p.kind === "body");
+
+      ok(bodyParam);
+      strictEqual(bodyParam.kind, "body");
+
+      const typedParam = bodyParam as InputBodyParameter;
+      // When not spread, correspondingMethodParams should be empty or contain just the body parameter itself
+      ok(typedParam.correspondingMethodParams === undefined || typedParam.correspondingMethodParams.length <= 1);
+    });
+  });
 });
