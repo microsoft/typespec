@@ -5,7 +5,7 @@
 class {{ model.name }}(TypedDict, total=False):
     """{{ op_tools.wrap_string(model.description(is_operation_file=False), "\n    ") }}
 
-    {% if model.properties != None %}
+    {% if model.properties is not None %}
         {% for p in model.properties %}
             {% for line in serializer.variable_documentation_string(p) %}
     {{ macros.wrap_model_string(line, '\n    ') -}}
