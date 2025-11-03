@@ -72,9 +72,6 @@ describe("openapi3: SSE (Server-Sent Events)", () => {
       ok(response, "expected 200 response");
       ok(response.content, "expected content");
 
-      // Debug: Log what we actually have
-      console.log("Response content:", JSON.stringify(response.content, null, 2));
-
       ok(response.content["text/event-stream"], "expected text/event-stream content type");
 
       const eventStreamContent = response.content["text/event-stream"];

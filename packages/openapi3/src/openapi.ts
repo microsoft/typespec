@@ -1182,19 +1182,6 @@ function createOAPIEmitter(
     const body: HttpPayloadBody = isResponseContent
       ? dataOrBody.body!
       : (dataOrBody as HttpPayloadBody);
-    console.log(
-      "getBodyContentEntry called with contentType:",
-      contentType,
-      "bodyType:",
-      body.type.kind,
-    );
-    console.log("Check SSE:", {
-      contentType,
-      isTextEventStream: contentType === "text/event-stream",
-      hasSSEModule: !!sseModule,
-      specVersion,
-      isResponseContent,
-    });
 
     const isBinary = isBinaryPayload(body.type, contentType);
     if (isBinary) {
@@ -1210,7 +1197,6 @@ function createOAPIEmitter(
     ) {
       // Use getStreamMetadata to check if this is a stream response
       const streamMetadata = getStreamMetadata(program, dataOrBody as HttpOperationResponseContent);
-      console.log("streamMetadata:", streamMetadata);
       if (streamMetadata) {
         const mediaType: any = {};
         sseModule.attachSSEItemSchema(
@@ -1220,7 +1206,6 @@ function createOAPIEmitter(
           mediaType,
           (type: Type) => callSchemaEmitter(type, visibility, false, "application/json"),
         );
-        console.log("mediaType after attach:", mediaType);
         if (Object.keys(mediaType).length > 0) {
           return mediaType;
         }
