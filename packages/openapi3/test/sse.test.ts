@@ -33,7 +33,7 @@ async function openApiFor(code: string) {
   const outPath = "{emitter-output-dir}/openapi.json";
   const { outputs } = await host.compile(code, {
     compilerOptions: {
-      options: { "@typespec/openapi3": { "output-file": outPath } },
+      options: { "@typespec/openapi3": { "output-file": outPath, "openapi-versions": ["3.2.0"] } },
     },
   });
 
@@ -71,10 +71,10 @@ describe("openapi3: SSE (Server-Sent Events)", () => {
       const response = openApi.paths["/channel"].get.responses["200"];
       ok(response, "expected 200 response");
       ok(response.content, "expected content");
-      
+
       // Debug: Log what we actually have
       console.log("Response content:", JSON.stringify(response.content, null, 2));
-      
+
       ok(response.content["text/event-stream"], "expected text/event-stream content type");
 
       const eventStreamContent = response.content["text/event-stream"];
@@ -93,21 +93,27 @@ describe("openapi3: SSE (Server-Sent Events)", () => {
 
       // Check userconnect event
       const userConnectVariant = eventStreamContent.itemSchema.oneOf.find(
-        (v: any) => v.properties?.event?.const === "userconnect"
+        (v: any) => v.properties?.event?.const === "userconnect",
       );
       ok(userConnectVariant, "expected userconnect variant");
       deepStrictEqual(userConnectVariant.properties.event.const, "userconnect");
       deepStrictEqual(userConnectVariant.properties.data.contentMediaType, "application/json");
-      ok(userConnectVariant.properties.data.contentSchema, "expected contentSchema for userconnect");
+      ok(
+        userConnectVariant.properties.data.contentSchema,
+        "expected contentSchema for userconnect",
+      );
 
       // Check usermessage event
       const userMessageVariant = eventStreamContent.itemSchema.oneOf.find(
-        (v: any) => v.properties?.event?.const === "usermessage"
+        (v: any) => v.properties?.event?.const === "usermessage",
       );
       ok(userMessageVariant, "expected usermessage variant");
       deepStrictEqual(userMessageVariant.properties.event.const, "usermessage");
       deepStrictEqual(userMessageVariant.properties.data.contentMediaType, "application/json");
-      ok(userMessageVariant.properties.data.contentSchema, "expected contentSchema for usermessage");
+      ok(
+        userMessageVariant.properties.data.contentSchema,
+        "expected contentSchema for usermessage",
+      );
     });
   });
 
@@ -151,7 +157,7 @@ describe("openapi3: SSE (Server-Sent Events)", () => {
 
       // Check terminal event
       const terminalVariant = eventStreamContent.itemSchema.oneOf.find(
-        (v: any) => v["x-ms-sse-terminal-event"] === true
+        (v: any) => v["x-ms-sse-terminal-event"] === true,
       );
       ok(terminalVariant, "expected terminal event variant");
       deepStrictEqual(terminalVariant.properties.data.const, "[done]");
