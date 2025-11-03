@@ -385,7 +385,13 @@ public class Transformer {
                     .getProtocol()
                     .getHttp()
                     .setUri(operation.getRequests().get(0).getProtocol().getHttp().getUri());
-                nextOperation.getRequests().get(0).getProtocol().getHttp().setMethod("get");
+                nextOperation.getRequests()
+                    .get(0)
+                    .getProtocol()
+                    .getHttp()
+                    .setMethod("POST".equalsIgnoreCase(operation.getExtensions().getXmsPageable().getNextLinkVerb())
+                        ? "post"
+                        : "get");
                 nextOperation.getRequests().get(0).setExtensions(operation.getRequests().get(0).getExtensions());
                 nextOperation.getRequests().get(0).setLanguage(operation.getLanguage());
                 Parameter nextLink = new Parameter();

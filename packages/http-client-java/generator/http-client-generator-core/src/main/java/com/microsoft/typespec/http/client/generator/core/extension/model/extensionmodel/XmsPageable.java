@@ -15,10 +15,12 @@ public class XmsPageable {
     private String itemName = "value";
     private String nextLinkName;
     private String operationName;
+    // this part is only available in TypeSpec
     private List<Property> pageItemsProperty;
     private List<Property> nextLinkProperty;
     private PageableContinuationToken continuationToken;
     private List<Parameter> nextLinkReInjectedParameters;
+    private String nextLinkVerb;
 
     // internal
     private Operation nextOperation;
@@ -143,4 +145,21 @@ public class XmsPageable {
         this.nextOperation = nextOperation;
     }
 
+    /**
+     * Gets the HTTP verb used for the nextLink operation.
+     *
+     * @return The HTTP verb for the nextLink operation.
+     */
+    public String getNextLinkVerb() {
+        return nextLinkVerb;
+    }
+
+    /**
+     * Sets the HTTP verb used for the nextLink operation.
+     *
+     * @param nextLinkVerb The HTTP verb for the nextLink operation.
+     */
+    public void setNextLinkVerb(String nextLinkVerb) {
+        this.nextLinkVerb = nextLinkVerb;
+    }
 }
