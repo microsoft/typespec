@@ -26,7 +26,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private readonly FieldProvider _uriBuilderField;
 
-        private readonly FieldProvider _stringBuilderField;
+        private readonly FieldProvider _pathAndQueryBuilderField;
 
         private PropertyProvider? _uriBuilderProperty;
         private PropertyProvider UriBuilderProperty => _uriBuilderProperty ??= new(
@@ -46,19 +46,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ScmCodeModelGenerator.Instance.SerializationFormatDefinition.Type,
             new MemberExpression(ScmCodeModelGenerator.Instance.SerializationFormatDefinition.Type, "Default"));
 
-        private PropertyProvider? _stringBuilderProperty;
-        private PropertyProvider StringBuilderProperty => _stringBuilderProperty ??= new(
+        private PropertyProvider? _pathAndQueryBuilderProperty;
+        private PropertyProvider PathAndQueryBuilderProperty => _pathAndQueryBuilderProperty ??= new(
             modifiers: MethodSignatureModifiers.Private,
-            name: "StringBuilder",
+            name: "PathAndQueryBuilder",
             type: typeof(StringBuilder),
-            body: new ExpressionPropertyBody(new BinaryOperatorExpression(" ??= ", _stringBuilderField, New.Instance(typeof(StringBuilder)))),
+            body: new ExpressionPropertyBody(new BinaryOperatorExpression(" ??= ", _pathAndQueryBuilderField, New.Instance(typeof(StringBuilder)))),
             description: null,
             enclosingType: this);
 
         public ClientUriBuilderDefinition()
         {
             _uriBuilderField = new(FieldModifiers.Private, typeof(UriBuilder), "_uriBuilder", this);
-            _stringBuilderField = new(FieldModifiers.Private, typeof(StringBuilder), "_stringBuilder", this);
+            _pathAndQueryBuilderField = new(FieldModifiers.Private, typeof(StringBuilder), "_pathAndQueryBuilder", this);
         }
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
@@ -72,12 +72,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override FieldProvider[] BuildFields()
         {
-            return [_uriBuilderField, _stringBuilderField];
+            return [_uriBuilderField, _pathAndQueryBuilderField];
         }
 
         protected override PropertyProvider[] BuildProperties()
         {
-            return [UriBuilderProperty, StringBuilderProperty];
+            return [UriBuilderProperty, PathAndQueryBuilderProperty];
         }
 
         protected override ConstructorProvider[] BuildConstructors()
@@ -120,7 +120,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var body = new MethodBodyStatement[]
             {
                 _uriBuilderField.Assign(New.Instance(_uriBuilderField.Type, uriParameter)).Terminate(),
-                _stringBuilderField.Assign(New.Instance(_stringBuilderField.Type)).Terminate()
+                _pathAndQueryBuilderField.Assign(New.Instance(_pathAndQueryBuilderField.Type)).Terminate()
             };
 
             return new(signature, body, this, XmlDocProvider.Empty);
@@ -137,7 +137,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ReturnType: null,
                 Description: null, ReturnDescription: null);
 
-            var stringBuilder = StringBuilderProperty.As<StringBuilder>();
+            var stringBuilder = PathAndQueryBuilderProperty.As<StringBuilder>();
             MethodBodyStatement body = new MethodBodyStatement[]
             {
                 MethodBodyStatement.Empty,
@@ -206,7 +206,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ReturnType: null,
                 Description: null, ReturnDescription: null);
 
-            var stringBuilder = StringBuilderProperty.As<StringBuilder>();
+            var stringBuilder = PathAndQueryBuilderProperty.As<StringBuilder>();
             var body = new MethodBodyStatement[]
             {
                 MethodBodyStatement.Empty,

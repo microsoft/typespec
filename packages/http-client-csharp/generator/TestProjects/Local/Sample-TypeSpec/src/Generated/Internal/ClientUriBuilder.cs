@@ -15,7 +15,7 @@ namespace SampleTypeSpec
     internal partial class ClientUriBuilder
     {
         private UriBuilder _uriBuilder;
-        private StringBuilder _stringBuilder;
+        private StringBuilder _pathAndQueryBuilder;
 
         public ClientUriBuilder()
         {
@@ -23,12 +23,12 @@ namespace SampleTypeSpec
 
         private UriBuilder UriBuilder => _uriBuilder  ??=  new UriBuilder();
 
-        private StringBuilder StringBuilder => _stringBuilder  ??=  new StringBuilder();
+        private StringBuilder PathAndQueryBuilder => _pathAndQueryBuilder  ??=  new StringBuilder();
 
         public void Reset(Uri uri)
         {
             _uriBuilder = new UriBuilder(uri);
-            _stringBuilder = new StringBuilder();
+            _pathAndQueryBuilder = new StringBuilder();
         }
 
         public void AppendPath(string value, bool escape)
@@ -37,14 +37,14 @@ namespace SampleTypeSpec
             {
                 value = Uri.EscapeDataString(value);
             }
-            StringBuilder.Clear();
-            StringBuilder.Append(UriBuilder.Path);
-            if (StringBuilder.Length > 0 && StringBuilder[StringBuilder.Length - 1] == '/' && value[0] == '/')
+            PathAndQueryBuilder.Clear();
+            PathAndQueryBuilder.Append(UriBuilder.Path);
+            if (PathAndQueryBuilder.Length > 0 && PathAndQueryBuilder[PathAndQueryBuilder.Length - 1] == '/' && value[0] == '/')
             {
-                StringBuilder.Remove(StringBuilder.Length - 1, 1);
+                PathAndQueryBuilder.Remove(PathAndQueryBuilder.Length - 1, 1);
             }
-            StringBuilder.Append(value);
-            UriBuilder.Path = StringBuilder.ToString();
+            PathAndQueryBuilder.Append(value);
+            UriBuilder.Path = PathAndQueryBuilder.ToString();
         }
 
         public void AppendPath(bool value, bool escape = false) => AppendPath(TypeFormatters.ConvertToString(value), escape);
@@ -74,20 +74,20 @@ namespace SampleTypeSpec
 
         public void AppendQuery(string name, string value, bool escape)
         {
-            StringBuilder.Clear();
-            StringBuilder.Append(UriBuilder.Query);
-            if (StringBuilder.Length > 0)
+            PathAndQueryBuilder.Clear();
+            PathAndQueryBuilder.Append(UriBuilder.Query);
+            if (PathAndQueryBuilder.Length > 0)
             {
-                StringBuilder.Append('&');
+                PathAndQueryBuilder.Append('&');
             }
             if (escape)
             {
                 value = Uri.EscapeDataString(value);
             }
-            StringBuilder.Append(name);
-            StringBuilder.Append('=');
-            StringBuilder.Append(value);
-            UriBuilder.Query = StringBuilder.ToString();
+            PathAndQueryBuilder.Append(name);
+            PathAndQueryBuilder.Append('=');
+            PathAndQueryBuilder.Append(value);
+            UriBuilder.Query = PathAndQueryBuilder.ToString();
         }
 
         public void AppendQuery(string name, bool value, bool escape = false) => AppendQuery(name, TypeFormatters.ConvertToString(value), escape);
