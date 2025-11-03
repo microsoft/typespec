@@ -2,10 +2,10 @@
 {% import "macros.jinja2" as macros %}
 
 
-class {{ model.name }}(TypedDict, total=False):
+{{ serializer.declare_model(model) }}
     """{{ op_tools.wrap_string(model.description(is_operation_file=False), "\n    ") }}
 
-    {% if model.properties is not None %}
+    {% if model.properties %}
         {% for p in model.properties %}
             {% for line in serializer.variable_documentation_string(p) %}
     {{ macros.wrap_model_string(line, '\n    ') -}}
