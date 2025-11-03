@@ -522,7 +522,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         return "response"
 
     def example_template(self, builder: OperationType) -> list[str]:
-        if self.code_model.options["models-mode"] in ("msrest", "dpg"):
+        if self.code_model.options["models-mode"] in ("msrest", "dpg", "typeddict"):
             return []
         retval = super().example_template(builder)
         for response in builder.responses:
@@ -713,6 +713,15 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                     )
             elif xml_serializable(body_param.default_content_type):
                 create_body_call = f"_{body_kwarg_name} = _get_element({body_param.client_name})"
+            else:
+                create_body_call = f"_{body_kwarg_name} = {body_param.client_name}"
+        elif self.code_model.options["models-mode"] == "typeddict":
+            # TypedDict models are just dicts, serialize them as JSON
+            if json_serializable(body_param.default_content_type):
+                create_body_call = (
+                    f"_{body_kwarg_name} = json.dumps({body_param.client_name}, "
+                    "cls=SdkJSONEncoder, exclude_readonly=True)  # type: ignore"
+                )
             else:
                 create_body_call = f"_{body_kwarg_name} = {body_param.client_name}"
         else:

@@ -249,7 +249,7 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         return (
             self.need_utils_utils(async_mode, client_namespace)
             or self.need_utils_serialization
-            or self.options["models-mode"] == "dpg"
+            or self.options["models-mode"] in ("dpg", "typeddict")
         )
 
     @property
