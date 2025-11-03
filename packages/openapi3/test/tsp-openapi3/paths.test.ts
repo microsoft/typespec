@@ -668,7 +668,7 @@ model Foo {
               operationId: "getFoo",
               parameters: [],
               responses: {
-                [statusCode]: {},
+                [statusCode]: {} as OpenAPI3Response,
               },
             },
           },
@@ -765,8 +765,9 @@ model Foo {
               parameters: [],
               responses: {
                 [statusCode]: {
+                  description: "Test Response",
                   headers: { foo: { schema: { type: "string" } } },
-                },
+                } as OpenAPI3Response,
               },
             },
           },
@@ -785,9 +786,12 @@ model Foo {
         @info(#{ version: "1.0.0" })
         namespace TestService;
 
-        @route("/") @get op getFoo(): GeneratedHelpers.DefaultResponse<Headers = {
-          @header foo?: string;
-        }>;
+        @route("/") @get op getFoo(): GeneratedHelpers.DefaultResponse<
+          Description = "Test Response",
+          Headers = {
+            @header foo?: string;
+          }
+        >;
 
         namespace GeneratedHelpers {
           @doc(Description)
@@ -816,8 +820,9 @@ model Foo {
               parameters: [],
               responses: {
                 [statusCode]: {
+                  description: "Test Response",
                   content: { "application/json": { schema: { type: "string" } } },
-                },
+                } as OpenAPI3Response,
               },
             },
           },
@@ -836,7 +841,10 @@ model Foo {
         @info(#{ version: "1.0.0" })
         namespace TestService;
 
-        @route("/") @get op getFoo(): GeneratedHelpers.DefaultResponse<Body = string>;
+        @route("/") @get op getFoo(): GeneratedHelpers.DefaultResponse<
+          Description = "Test Response",
+          Body = string
+        >;
 
         namespace GeneratedHelpers {
           @doc(Description)
@@ -939,8 +947,9 @@ model Foo {
               parameters: [],
               responses: {
                 [statusCode]: {
+                  description: "Test Response",
                   content: { "application/json": { schema: { $ref: "#/components/schemas/Foo" } } },
-                },
+                } as OpenAPI3Response,
               },
             },
           },

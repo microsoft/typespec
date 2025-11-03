@@ -40,6 +40,7 @@ class OptionsDict(MutableMapping):
         "validate-versioning": True,
         "version-tolerant": True,
         "generation-subdir": None,  # subdirectory to generate the code in
+        "clear-output-folder": False,  # whether to clear the output folder before generating code
     }
 
     def __init__(self, options: Optional[dict[str, Any]] = None) -> None:

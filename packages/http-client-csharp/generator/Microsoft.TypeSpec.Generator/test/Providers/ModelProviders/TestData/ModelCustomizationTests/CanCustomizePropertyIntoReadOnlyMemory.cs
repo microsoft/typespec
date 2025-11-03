@@ -7,7 +7,7 @@ using Sample.Models;
 
 namespace Sample
 {
-    public static partial class SampleNamespaceModelFactory
+    public static partial class SampleModelFactory
     {
         public static global::Sample.Models.MockInputModel MockInputModel(global::System.ReadOnlyMemory<byte> prop1 = default)
         {

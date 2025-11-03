@@ -58,11 +58,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// <returns>A ClientOptionsProvider instance.</returns>
         public static ClientOptionsProvider CreateClientOptionsProvider(InputClient inputClient, ClientProvider clientProvider)
         {
-            var rootClients = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.RootClients;
-            var hasMultipleRootClients = rootClients.Count > 1;
-            var hasOnlyStandardParameters = HasOnlyStandardParameters(inputClient);
-
-            if (hasMultipleRootClients && hasOnlyStandardParameters)
+            if (UseSingletonInstance(inputClient))
             {
                 // Use singleton instance
                 if (_singletonInstance == null)
@@ -82,8 +78,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// </summary>
         /// <param name="inputClient">The input client to check.</param>
         /// <returns>True if the client has only standard parameters, false otherwise.</returns>
-        private static bool HasOnlyStandardParameters(InputClient inputClient)
+        private static bool UseSingletonInstance(InputClient inputClient)
         {
+            var rootClients = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.RootClients;
+            if (rootClients.Count <= 1)
+            {
+                // Only one root client, no need for singleton
+                return false;
+            }
+
             foreach (var parameter in inputClient.Parameters)
             {
                 // Check if parameter is NOT an ApiVersion or Endpoint parameter
@@ -127,12 +130,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override string BuildName()
         {
-            if (this == _singletonInstance)
+            if (UseSingletonInstance(_inputClient))
             {
                 // Use namespace-based naming for singleton
-                var primaryNamespace = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Name;
-                var lastSegment = GetLastNamespaceSegment(primaryNamespace);
-                return $"{lastSegment}ClientOptions";
+                return $"{ScmCodeModelGenerator.Instance.TypeFactory.ServiceName}ClientOptions";
             }
 
             // Use client-specific naming
@@ -149,17 +150,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return $"Client options for {_clientProvider.Type:C}.";
-        }
-
-        /// <summary>
-        /// Gets the last segment of a namespace.
-        /// </summary>
-        /// <param name="namespace">The namespace string.</param>
-        /// <returns>The last segment of the namespace.</returns>
-        private static string GetLastNamespaceSegment(string @namespace)
-        {
-            var lastDotIndex = @namespace.LastIndexOf('.');
-            return lastDotIndex >= 0 ? @namespace.Substring(lastDotIndex + 1) : @namespace;
         }
 
         protected override CSharpType BuildBaseType()

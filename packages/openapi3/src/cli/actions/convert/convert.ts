@@ -1,6 +1,6 @@
 import { AnyObject, dereference } from "@scalar/openapi-parser";
 import { formatTypeSpec } from "@typespec/compiler";
-import { OpenAPI3Document } from "../../../types.js";
+import { SupportedOpenAPIDocuments } from "../../../types.js";
 import { generateMain } from "./generators/generate-main.js";
 import { transform } from "./transforms/transforms.js";
 import { createContext } from "./utils/context.js";
@@ -17,7 +17,7 @@ export interface ConvertOpenAPI3DocumentOptions {
 }
 
 export async function convertOpenAPI3Document(
-  document: OpenAPI3Document,
+  document: SupportedOpenAPIDocuments,
   { disableExternalRefs, namespace }: ConvertOpenAPI3DocumentOptions = {},
 ) {
   const dereferenceOptions = disableExternalRefs
