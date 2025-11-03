@@ -8,6 +8,10 @@ TypeSpec offers a scaffolding feature through the `tsp init` command.
 tsp init <templateUrl>
 ```
 
+:::warning
+When using `tsp init` with an external template URL, be aware that downloading or using an untrusted template may contain malicious packages that can compromise your system and data. Proceed with caution and verify the source.
+:::
+
 ## Setting a minimum TypeSpec version
 
 If your template requires a feature that was introduced in a later version of TypeSpec, you can specify this in the template. This will alert the user that the template may not function as expected and ask them to confirm if they wish to proceed.
