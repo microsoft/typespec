@@ -2,7 +2,8 @@
 param(
     $filter,
     [bool]$Stubbed = $true,
-    [bool]$LaunchOnly = $false
+    [bool]$LaunchOnly = $false,
+    [bool]$SkipPluginSample = $false
 )
 
 Import-Module "$PSScriptRoot\Generation.psm1" -DisableNameChecking -Force;
@@ -17,7 +18,7 @@ $solutionDir = Join-Path $packageRoot 'generator'
 if (-not $LaunchOnly) {
     Refresh-Build
 
-    if ($null -eq $filter -or $filter -eq "Sample-TypeSpec") {
+    if (-not $SkipPluginSample -and ($null -eq $filter -or $filter -eq "Sample-TypeSpec")) {
 
        Write-Host "Building logging plugin" -ForegroundColor Cyan
        $pluginDir = Join-Path $packageRoot '..' '..' 'docs' 'samples' 'client' 'csharp' 'plugins' 'logging' 'Logging.Plugin' 'src'
