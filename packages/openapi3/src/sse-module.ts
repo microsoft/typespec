@@ -1,4 +1,4 @@
-import { Program, Type, Union } from "@typespec/compiler";
+import { Program, Type } from "@typespec/compiler";
 import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
 import { OpenAPIMediaType3_2, OpenAPISchema3_2, Refable } from "./types.js";
 
@@ -52,7 +52,10 @@ export async function resolveSSEModule(): Promise<SSEModule | undefined> {
       if (!isEventsUnion) return;
 
       // Get event definitions
-      const [eventDefinitions, diagnostics] = events.unsafe_getEventDefinitions(program, streamType);
+      const [eventDefinitions, diagnostics] = events.unsafe_getEventDefinitions(
+        program,
+        streamType,
+      );
       if (diagnostics && diagnostics.length) {
         // TODO: Handle diagnostics
         return;

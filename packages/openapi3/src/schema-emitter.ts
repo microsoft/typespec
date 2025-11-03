@@ -70,6 +70,7 @@ import { getOneOf, getRef } from "./decorators.js";
 import { JsonSchemaModule } from "./json-schema.js";
 import { OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
 import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
+import { SSEModule } from "./sse-module.js";
 import { getSchemaForStdScalars } from "./std-scalar-schemas.js";
 import { CommonOpenAPI3Schema, OpenAPI3Schema, OpenAPISchema3_1, Refable } from "./types.js";
 import {
@@ -80,7 +81,6 @@ import {
 } from "./util.js";
 import { VisibilityUsageTracker } from "./visibility-usage.js";
 import { XmlModule } from "./xml-module.js";
-import { SSEModule } from "./sse-module.js";
 
 /**
  * Base OpenAPI3 schema emitter. Deals with emitting content of `components/schemas` section.

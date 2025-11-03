@@ -95,6 +95,7 @@ import {
 import { getOpenApiSpecProps } from "./openapi-spec-mappings.js";
 import { OperationIdResolver } from "./operation-id-resolver/operation-id-resolver.js";
 import { getParameterStyle } from "./parameters.js";
+import { resolveSSEModule, SSEModule } from "./sse-module.js";
 import { getOpenAPI3StatusCodes } from "./status-codes.js";
 import {
   OpenAPI3Encoding,
@@ -130,7 +131,6 @@ import {
 import { resolveVersioningModule } from "./versioning-module.js";
 import { resolveVisibilityUsage, VisibilityUsageTracker } from "./visibility-usage.js";
 import { resolveXmlModule, XmlModule } from "./xml-module.js";
-import { resolveSSEModule, SSEModule } from "./sse-module.js";
 
 const defaultFileType: FileType = "yaml";
 const defaultOptions = {
@@ -1179,8 +1179,15 @@ function createOAPIEmitter(
     examples?: [Example, Type][],
   ): OpenAPI3MediaType {
     const isResponseContent = "body" in dataOrBody && dataOrBody.body !== undefined;
-    const body: HttpPayloadBody = isResponseContent ? dataOrBody.body! : (dataOrBody as HttpPayloadBody);
-    console.log("getBodyContentEntry called with contentType:", contentType, "bodyType:", body.type.kind);
+    const body: HttpPayloadBody = isResponseContent
+      ? dataOrBody.body!
+      : (dataOrBody as HttpPayloadBody);
+    console.log(
+      "getBodyContentEntry called with contentType:",
+      contentType,
+      "bodyType:",
+      body.type.kind,
+    );
     console.log("Check SSE:", {
       contentType,
       isTextEventStream: contentType === "text/event-stream",
@@ -1188,14 +1195,19 @@ function createOAPIEmitter(
       specVersion,
       isResponseContent,
     });
-    
+
     const isBinary = isBinaryPayload(body.type, contentType);
     if (isBinary) {
       return { schema: getRawBinarySchema(contentType) } as OpenAPI3MediaType;
     }
 
     // Check if this is an SSE stream for OpenAPI 3.2 (only for responses)
-    if (contentType === "text/event-stream" && sseModule && specVersion === "3.2.0" && isResponseContent) {
+    if (
+      contentType === "text/event-stream" &&
+      sseModule &&
+      specVersion === "3.2.0" &&
+      isResponseContent
+    ) {
       // Use getStreamMetadata to check if this is a stream response
       const streamMetadata = getStreamMetadata(program, dataOrBody as HttpOperationResponseContent);
       console.log("streamMetadata:", streamMetadata);

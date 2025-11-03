@@ -17,10 +17,10 @@ import {
 import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
 import { createSchemaEmitter3_0 } from "./schema-emitter-3-0.js";
 import { createSchemaEmitter3_1 } from "./schema-emitter-3-1.js";
+import { SSEModule } from "./sse-module.js";
 import { OpenAPI3Schema, OpenAPISchema3_1, SupportedOpenAPIDocuments } from "./types.js";
 import { VisibilityUsageTracker } from "./visibility-usage.js";
 import { XmlModule } from "./xml-module.js";
-import { SSEModule } from "./sse-module.js";
 
 export type CreateSchemaEmitter = (props: {
   program: Program;
