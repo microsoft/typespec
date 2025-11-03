@@ -6,7 +6,7 @@ title: Cli usage
 See full usage documentation by typing `tsp --help`:
 
 :::warning
-When using `tsp init` with an external template URL (via the `[templatesUrl]` parameter), be aware that downloading or using an untrusted template may contain malicious packages that can compromise your system and data. Proceed with caution and verify the source.
+When using `tsp init` with an external template URL, be aware that downloading or using an untrusted template may contain malicious packages that can compromise your system and data. Proceed with caution and verify the source.
 :::
 
 ```bash
