@@ -16,11 +16,11 @@ namespace SampleTypeSpec
     /// </summary>
     [ModelReaderWriterBuildable(typeof(AnotherDynamicModel))]
     [ModelReaderWriterBuildable(typeof(DynamicModel))]
-    [ModelReaderWriterBuildable(typeof(Friend))]
     [ModelReaderWriterBuildable(typeof(ListWithContinuationTokenHeaderResponseResponse))]
     [ModelReaderWriterBuildable(typeof(ListWithContinuationTokenResponse))]
     [ModelReaderWriterBuildable(typeof(ListWithNextLinkResponse))]
     [ModelReaderWriterBuildable(typeof(ListWithStringNextLinkResponse))]
+    [ModelReaderWriterBuildable(typeof(Friend))]
     [ModelReaderWriterBuildable(typeof(ModelWithEmbeddedNonBodyParameters))]
     [ModelReaderWriterBuildable(typeof(ModelWithRequiredNullableProperties))]
     [ModelReaderWriterBuildable(typeof(PageThing))]
