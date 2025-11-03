@@ -76,26 +76,12 @@ export async function resolveSSEModule(): Promise<SSEModule | undefined> {
         // Check if this is a terminal event
         const isTerminal = sse.isTerminalEvent(program, variant);
 
-        // Build the event schema
-        const eventSchema: any = {
-          type: "object",
-          properties: {
-            event: {
-              type: "string",
-            },
-            data: {
-              type: "string",
-            },
-          },
-          required: ["event"],
-        };
-
         // Build the oneOf variant schema
-        const variantSchema: any = {
+        const variantSchema: OpenAPISchema3_2 = {
           properties: {
             data: {
               contentMediaType: payloadContentType,
-            },
+            } as OpenAPISchema3_2,
           },
         };
 
@@ -105,19 +91,21 @@ export async function resolveSSEModule(): Promise<SSEModule | undefined> {
 
           // If the variant type is a string literal, use it as const
           if (variant.type.kind === "String") {
-            variantSchema.properties.data.const = variant.type.value;
-            variantSchema.properties.data.contentMediaType = payloadContentType;
+            (variantSchema.properties!.data as OpenAPISchema3_2).const = variant.type.value;
+            (variantSchema.properties!.data as OpenAPISchema3_2).contentMediaType =
+              payloadContentType;
           }
         } else {
           // For non-terminal events, add the event type
           if (eventType) {
-            variantSchema.properties.event = {
+            variantSchema.properties!.event = {
               const: eventType,
             };
           }
 
           // Add contentSchema for the payload
-          variantSchema.properties.data.contentSchema = getSchemaForType(payloadType);
+          (variantSchema.properties!.data as OpenAPISchema3_2).contentSchema =
+            getSchemaForType(payloadType);
         }
 
         oneOfSchemas.push(variantSchema);
