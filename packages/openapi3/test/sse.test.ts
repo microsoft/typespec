@@ -115,6 +115,51 @@ describe("openapi3: SSE (Server-Sent Events)", () => {
   });
 
   describe("SSE stream with terminal event", () => {
+    it("emits itemSchema with terminal event not marked by extension", async () => {
+      const openApi = await openApiFor(
+        `
+        model UserConnect {
+          username: string;
+        }
+
+        model UserMessage {
+          text: string;
+        }
+
+        @events
+        union ChannelEvents {
+          userconnect: UserConnect,
+          usermessage: UserMessage,
+          @contentType("text/plain")
+          @terminalEvent
+          "[done]",
+        }
+
+        @service
+        @route("/channel")
+        namespace Channel {
+          @get op subscribe(): SSEStream<ChannelEvents>;
+        }
+        `,
+      );
+
+      ok(openApi.paths["/channel"], "expected /channel path");
+      const response = openApi.paths["/channel"].get.responses["200"];
+      const eventStreamContent = response.content["text/event-stream"];
+      ok(eventStreamContent.itemSchema, "expected itemSchema for SSE");
+
+      // Check oneOf includes all three events
+      ok(eventStreamContent.itemSchema.oneOf, "expected oneOf");
+      deepStrictEqual(eventStreamContent.itemSchema.oneOf.length, 3);
+
+      // Check terminal event
+      const terminalVariant = eventStreamContent.itemSchema.oneOf[2];
+      ok(terminalVariant, "expected terminal event variant");
+      deepStrictEqual(terminalVariant.properties.data.const, "[done]");
+      deepStrictEqual(terminalVariant.properties.data.contentMediaType, "text/plain");
+      deepStrictEqual(terminalVariant["x-ms-sse-terminal-event"], true);
+    });
+
     it("emits itemSchema with terminal event marked by extension", async () => {
       const openApi = await openApiFor(
         `
@@ -132,6 +177,7 @@ describe("openapi3: SSE (Server-Sent Events)", () => {
           usermessage: UserMessage,
           @contentType("text/plain")
           @terminalEvent
+          @extension("x-ms-sse-terminal-event", true)
           "[done]",
         }
 
