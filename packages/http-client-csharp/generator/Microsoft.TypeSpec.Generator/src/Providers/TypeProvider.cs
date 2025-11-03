@@ -695,10 +695,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     return false;
                 }
 
-                // Check explicit vs implicit
+                // Check explicit vs implicit - both flags must match
                 bool customIsExplicit = customMethod.Modifiers.HasFlag(MethodSignatureModifiers.Explicit);
                 bool methodIsExplicit = method.Modifiers.HasFlag(MethodSignatureModifiers.Explicit);
-                if (customIsExplicit != methodIsExplicit)
+                bool customIsImplicit = customMethod.Modifiers.HasFlag(MethodSignatureModifiers.Implicit);
+                bool methodIsImplicit = method.Modifiers.HasFlag(MethodSignatureModifiers.Implicit);
+                if (customIsExplicit != methodIsExplicit || customIsImplicit != methodIsImplicit)
                 {
                     return false;
                 }
