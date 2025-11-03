@@ -70,11 +70,10 @@ export async function generateExternSignatureForExports(
   pkgJson: PackageJson,
   exports: string[],
 ): Promise<[undefined, readonly Diagnostic[]]> {
-  //
   const [main] = exports;
   const diagnostics = createDiagnosticCollector();
   const program = await compile(host, main, {
-    // additionalImports, // See: github.com/microsoft/typespec/issues/8913 -- additional imports are disabled pending further design discussion.
+    // additionalImports, See: github.com/microsoft/typespec/issues/8913 -- additional imports are disabled pending further design discussion.
     parseOptions: { comments: true, docs: true },
   });
   const prettierConfig = await prettier.resolveConfig(libraryPath);
