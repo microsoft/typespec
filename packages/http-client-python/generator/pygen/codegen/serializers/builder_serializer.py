@@ -29,6 +29,7 @@ from ..models import (
     CombinedType,
     JSONModelType,
     DPGModelType,
+    TypedDictModelType,
     ParameterListType,
     ByteArraySchema,
 )
