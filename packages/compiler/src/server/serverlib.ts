@@ -740,7 +740,8 @@ export function createServer(
         program,
         document,
         each,
-        clientConfigsProvider?.config?.lsp?.emit,
+        clientConfigsProvider?.config,
+        compilerHost.readFile,
       );
       for (const result of results) {
         const [diagnostic, diagDocument] = result;

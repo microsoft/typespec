@@ -16,10 +16,9 @@ import { parse } from "../core/parser.js";
 import { getBaseFileName, getDirectoryPath } from "../core/path-utils.js";
 import type { CompilerHost, TypeSpecScriptNode } from "../core/types.js";
 import { distinctArray } from "../utils/misc.js";
-import { getLocationInYamlScript } from "../yaml/diagnostics.js";
-import { parseYaml } from "../yaml/parser.js";
 import { ClientConfigProvider } from "./client-config-provider.js";
 import { serverOptions } from "./constants.js";
+import { getDiagnosticRangeInTspConfig } from "./diagnostics.js";
 import { resolveEntrypointFile } from "./entrypoint-resolver.js";
 import { FileService } from "./file-service.js";
 import { FileSystemCache } from "./file-system-cache.js";
@@ -238,25 +237,22 @@ export function createCompileService({
       }
 
       let uri = document.uri;
-      let range = Range.create(0, 0, 0, 0);
+      let range: Range | undefined;
       if (err.name === "ExternalError" && err.info.kind === "emitter" && configFilePath) {
         const emitterName = err.info.metadata.name;
-        const [yamlScript] = parseYaml(await serverHost.compilerHost.readFile(configFilePath));
-        const target = getLocationInYamlScript(yamlScript, ["emit", emitterName], "key");
-        if (target.pos === 0) {
+        range = await getDiagnosticRangeInTspConfig(
+          configFilePath,
+          serverHost.compilerHost.readFile,
+          emitterName,
+        );
+
+        uri = fileService.getURL(configFilePath);
+        if (range === undefined) {
           log({
             level: "debug",
             message: `Unexpected situation, can't find emitter '${emitterName}' in config file '${configFilePath}'`,
           });
         }
-        uri = fileService.getURL(configFilePath);
-        const lineAndChar = target.file.getLineAndCharacterOfPosition(target.pos);
-        range = Range.create(
-          lineAndChar.line,
-          lineAndChar.character,
-          lineAndChar.line,
-          lineAndChar.character + emitterName.length,
-        );
       }
 
       serverHost.sendDiagnostics({
@@ -264,7 +260,7 @@ export function createCompileService({
         diagnostics: [
           {
             severity: DiagnosticSeverity.Error,
-            range,
+            range: range ?? Range.create(0, 0, 0, 0),
             message:
               (err.name === "ExternalError"
                 ? "External compiler error!\n"
