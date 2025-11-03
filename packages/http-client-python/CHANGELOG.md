@@ -1,5 +1,12 @@
 # Change Log - @typespec/http-client-python
 
+## 0.20.2
+
+### Bug Fixes
+
+- [#8905](https://github.com/microsoft/typespec/pull/8905) Avoid duplicated delete operation for autorest emitter
+
+
 ## 0.20.1
 
 ### Bug Fixes
