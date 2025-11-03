@@ -476,8 +476,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
             }
 
-            // Build a map from protocol parameter to corresponding method parameter using correspondingMethodParams
-            var protocolParamToMethodParam = new Dictionary<InputParameter, InputMethodParameter>();
+            // Build a map from method parameter to corresponding protocol parameters using correspondingMethodParams
+            var methodParamToProtocolParams = new Dictionary<InputMethodParameter, List<InputParameter>>();
             foreach (var protocolParam in ServiceMethod.Operation.Parameters)
             {
                 IReadOnlyList<InputMethodParameter>? correspondingMethodParams = protocolParam switch
@@ -491,37 +491,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 if (correspondingMethodParams != null && correspondingMethodParams.Count > 0)
                 {
-                    protocolParamToMethodParam[protocolParam] = correspondingMethodParams[0];
+                    var methodParam = correspondingMethodParams[0];
+                    if (!methodParamToProtocolParams.ContainsKey(methodParam))
+                    {
+                        methodParamToProtocolParams[methodParam] = new List<InputParameter>();
+                    }
+                    methodParamToProtocolParams[methodParam].Add(protocolParam);
                 }
             }
 
             // Find the body protocol parameter and its corresponding method parameter to identify HTTP metadata properties
             InputParameter? bodyProtocolParam = ServiceMethod.Operation.Parameters.FirstOrDefault(p => p is InputBodyParameter);
-            InputMethodParameter? bodyMethodParam = bodyProtocolParam != null && protocolParamToMethodParam.TryGetValue(bodyProtocolParam, out var bmp) ? bmp : null;
+            InputMethodParameter? bodyMethodParam = bodyProtocolParam != null && methodParamToProtocolParams.Any(kvp => kvp.Value.Contains(bodyProtocolParam))
+                ? methodParamToProtocolParams.First(kvp => kvp.Value.Contains(bodyProtocolParam)).Key
+                : null;
 
-            // Iterate through protocol parameters in their original order to build arguments in protocol method order
-            foreach (var protocolParam in ServiceMethod.Operation.Parameters)
+            // Iterate through method parameters in their original order to build arguments matching convenience method order
+            foreach (var methodParam in ServiceMethod.Parameters)
             {
-                // Find the corresponding method parameter for this protocol parameter
-                InputMethodParameter? methodParam = null;
-
-                if (protocolParamToMethodParam.TryGetValue(protocolParam, out var correspondingMethodParam))
-                {
-                    methodParam = correspondingMethodParam;
-                }
-                else
-                {
-                    // Fall back to matching by name
-                    methodParam = ServiceMethod.Parameters.FirstOrDefault(mp =>
-                        string.Equals(mp.Name, protocolParam.Name, StringComparison.OrdinalIgnoreCase) ||
-                        string.Equals(mp.SerializedName, protocolParam.SerializedName, StringComparison.OrdinalIgnoreCase));
-                }
-
-                if (methodParam == null)
-                {
-                    continue;
-                }
-
                 // Get the convenience parameter for this method parameter
                 if (!inputMethodParamToConvenienceParam.TryGetValue(methodParam, out var convenienceParam))
                 {
@@ -533,13 +520,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                // Skip non-body protocol parameters that come from a body model's HTTP metadata properties
-                // These will be handled when we process the body parameter
-                bool isHttpMetadataFromBody = protocolParam is not InputBodyParameter &&
-                    methodParam == bodyMethodParam &&
-                    convenienceParam.Location == ParameterLocation.Body;
+                // Find the corresponding protocol parameters for this method parameter
+                List<InputParameter>? protocolParams = null;
+                if (methodParamToProtocolParams.TryGetValue(methodParam, out var correspondingProtocolParams))
+                {
+                    protocolParams = correspondingProtocolParams;
+                }
+                else
+                {
+                    // Fall back to matching by name
+                    protocolParams = ServiceMethod.Operation.Parameters
+                        .Where(pp => string.Equals(pp.Name, methodParam.Name, StringComparison.OrdinalIgnoreCase) ||
+                                    string.Equals(pp.SerializedName, methodParam.SerializedName, StringComparison.OrdinalIgnoreCase))
+                        .ToList();
+                }
 
-                if (isHttpMetadataFromBody)
+                if (protocolParams == null || protocolParams.Count == 0)
                 {
                     continue;
                 }
@@ -552,10 +548,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         conversions.Add(spread);
                         addedSpreadSource = true;
                     }
+                    continue;
                 }
-                else if (protocolParam is InputBodyParameter && convenienceParam.Location == ParameterLocation.Body)
+
+                // Check if this is a body parameter with HTTP metadata properties
+                var methodBodyProtocolParam = protocolParams.FirstOrDefault(p => p is InputBodyParameter);
+                bool hasHttpMetadataProperties = methodBodyProtocolParam != null &&
+                    protocolParams.Count > 1 &&
+                    convenienceParam.Location == ParameterLocation.Body;
+
+                if (hasHttpMetadataProperties)
                 {
-                    // Handle body parameter: extract HTTP metadata properties first, then add body
+                    // Handle body parameter with HTTP metadata: extract metadata properties first, then add body
                     List<ValueExpression>? requiredParameters = null;
                     List<ValueExpression>? optionalParameters = null;
 
@@ -576,10 +580,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
 
                     // Add the body parameter
-                    var argExpression = GetArgumentExpressionForParameter(convenienceParam, declarations, ref addedSpreadSource, bodyModel, protocolParam);
-                    if (argExpression != null)
+                    if (methodBodyProtocolParam != null)
                     {
-                        conversions.Add(argExpression);
+                        var argExpression = GetArgumentExpressionForParameter(convenienceParam, declarations, ref addedSpreadSource, bodyModel, methodBodyProtocolParam);
+                        if (argExpression != null)
+                        {
+                            conversions.Add(argExpression);
+                        }
                     }
 
                     // Add optional non-body HTTP metadata parameters
@@ -590,6 +597,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
                 else
                 {
+                    // Regular parameter - add argument for the first (and likely only) protocol parameter
+                    var protocolParam = protocolParams[0];
                     var argExpression = GetArgumentExpressionForParameter(convenienceParam, declarations, ref addedSpreadSource, bodyModel, protocolParam);
                     if (argExpression != null)
                     {
