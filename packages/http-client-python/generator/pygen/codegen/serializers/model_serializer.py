@@ -376,3 +376,60 @@ class DpgModelSerializer(_ModelSerializer):
         if final_result:
             return "# pylint: disable=" + ", ".join(final_result)
         return ""
+
+
+class TypedDictModelSerializer(_ModelSerializer):
+    """Serializer for TypedDict-based models (input-only, basic types)."""
+
+    def imports(self) -> FileImport:
+        file_import = FileImport(self.code_model)
+        # Add TypedDict import
+        file_import.add_submodule_import("typing", "TypedDict", ImportType.STDLIB)
+        
+        for model in self.models:
+            if model.base == "json":
+                continue
+            file_import.merge(
+                model.imports(
+                    is_operation_file=False,
+                    serialize_namespace=self.serialize_namespace,
+                    serialize_namespace_type=NamespaceType.MODEL,
+                )
+            )
+            for prop in model.properties:
+                file_import.merge(
+                    prop.imports(
+                        serialize_namespace=self.serialize_namespace,
+                        serialize_namespace_type=NamespaceType.MODEL,
+                        called_by_property=True,
+                    )
+                )
+        return file_import
+
+    def declare_model(self, model: ModelType) -> str:
+        # TypedDict doesn't support inheritance in the traditional way
+        # For now, we'll keep it simple without inheritance
+        return f"class {model.name}(TypedDict):{model.pylint_disable()}"
+
+    def get_properties_to_declare(self, model: ModelType) -> list[Property]:
+        # For TypedDict, include all properties
+        return model.properties
+
+    def declare_property(self, prop: Property) -> str:
+        # TypedDict uses simple type annotations
+        type_annotation = prop.type_annotation(serialize_namespace=self.serialize_namespace)
+        return f"{prop.client_name}: {type_annotation}"
+
+    def initialize_properties(self, model: ModelType) -> list[str]:
+        # TypedDict doesn't need initialization
+        return []
+
+    def need_init(self, model: ModelType) -> bool:
+        # TypedDict doesn't have __init__ methods
+        return False
+
+    def pylint_disable_items(self, model: ModelType) -> list[str]:
+        return []
+
+    def global_pylint_disables(self) -> str:
+        return ""

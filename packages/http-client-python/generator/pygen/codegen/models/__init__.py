@@ -9,7 +9,7 @@ from .base import BaseModel
 from .base_builder import BaseBuilder, ParameterListType
 from .code_model import CodeModel
 from .client import Client
-from .model_type import ModelType, JSONModelType, DPGModelType, MsrestModelType
+from .model_type import ModelType, JSONModelType, DPGModelType, MsrestModelType, TypedDictModelType
 from .dictionary_type import DictionaryType
 from .list_type import ListType
 from .combined_type import CombinedType
@@ -169,6 +169,8 @@ def build_type(yaml_data: dict[str, Any], code_model: CodeModel) -> BaseType:
             model_type = JSONModelType
         elif yaml_data["base"] == "dpg":
             model_type = DPGModelType  # type: ignore
+        elif yaml_data["base"] == "typeddict":
+            model_type = TypedDictModelType  # type: ignore
         else:
             model_type = MsrestModelType  # type: ignore
         response = model_type(yaml_data, code_model)

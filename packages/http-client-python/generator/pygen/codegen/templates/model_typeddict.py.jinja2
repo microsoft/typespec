@@ -1,0 +1,18 @@
+{# actual template starts here #}
+{% import "macros.jinja2" as macros %}
+
+
+class {{ model.name }}(TypedDict, total=False):
+    """{{ op_tools.wrap_string(model.description(is_operation_file=False), "\n    ") }}
+
+    {% if model.properties != None %}
+        {% for p in model.properties %}
+            {% for line in serializer.variable_documentation_string(p) %}
+    {{ macros.wrap_model_string(line, '\n    ') -}}
+            {% endfor %}
+        {% endfor %}
+    {% endif %}
+    """
+    {% for p in model.properties %}
+    {{ p.client_name }}: {{ p.type_annotation(serialize_namespace=serializer.serialize_namespace) }}
+    {% endfor %}

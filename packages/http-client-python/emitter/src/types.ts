@@ -270,6 +270,7 @@ function emitModel(context: PythonSdkContext, type: SdkModelType): Record<string
       submodule: "exceptions",
     };
   }
+  const modelsMode = (context.emitContext.options as any)["models-mode"] ?? "dpg";
   const parents: Record<string, any>[] = [];
   const newValue = {
     type: type.kind,
@@ -280,7 +281,7 @@ function emitModel(context: PythonSdkContext, type: SdkModelType): Record<string
     discriminatedSubtypes: {} as Record<string, Record<string, any>>,
     properties: new Array<Record<string, any>>(),
     snakeCaseName: camelToSnakeCase(type.name),
-    base: "dpg",
+    base: modelsMode,
     internal: type.access === "internal",
     crossLanguageDefinitionId: type.crossLanguageDefinitionId,
     usage: type.usage,

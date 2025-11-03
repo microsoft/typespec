@@ -374,3 +374,21 @@ class DPGModelType(GeneratedModelType):
         if self.flattened_property:
             file_import.add_submodule_import("typing", "Any", ImportType.STDLIB)
         return file_import
+
+
+class TypedDictModelType(GeneratedModelType):
+    base = "typeddict"
+
+    def serialization_type(self, **kwargs: Any) -> str:
+        # TypedDict models serialize as plain dictionaries
+        return "dict"
+
+    @property
+    def instance_check_template(self) -> str:
+        return "isinstance({}, dict)"
+
+    def imports(self, **kwargs: Any) -> FileImport:
+        file_import = super().imports(**kwargs)
+        # TypedDict needs the TypedDict import
+        file_import.add_submodule_import("typing", "TypedDict", ImportType.STDLIB)
+        return file_import
