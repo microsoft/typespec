@@ -1232,7 +1232,7 @@ export class CodeModelBuilder {
           )
         : undefined,
       nextLinkReInjectedParameters: nextLinkReInjectedParameters,
-      nextLinkVerb: "POST",
+      nextLinkVerb: "GET",
     };
   }
 
