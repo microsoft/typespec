@@ -16,18 +16,18 @@ namespace SampleTypeSpec
         }
 
         /// <param name="propertyName"> The property name which these hooks apply to. </param>
-        /// <param name="serializationName"> The serialization name of the property. </param>
-        public CodeGenSerializationAttribute(string propertyName, string serializationName)
+        /// <param name="propertySerializationName"> The serialization name of the property. </param>
+        public CodeGenSerializationAttribute(string propertyName, string propertySerializationName)
         {
             PropertyName = propertyName;
-            SerializationName = serializationName;
+            PropertySerializationName = propertySerializationName;
         }
 
         /// <summary> Gets or sets the property name which these hooks should apply to. </summary>
         public string PropertyName { get; }
 
         /// <summary> Gets or sets the serialization name of the property. </summary>
-        public string SerializationName { get; set; }
+        public string PropertySerializationName { get; set; }
 
         /// <summary>
         /// Gets or sets the method name to use when serializing the property value (property name excluded).
