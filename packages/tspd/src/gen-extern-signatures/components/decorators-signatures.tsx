@@ -8,7 +8,8 @@ import {
   StatementList,
 } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { Program } from "@typespec/compiler";
+import { NoTarget, Program } from "@typespec/compiler";
+import { reportDiagnostic } from "../../ref-doc/lib.js";
 import { typespecCompiler } from "../external-packages/compiler.js";
 import { DecoratorSignature } from "../types.js";
 import { DecoratorSignatureTests } from "./decorator-signature-tests.jsx";
@@ -77,14 +78,31 @@ export function generateSignatures(
   const context = createTspdContext(program);
   const base = namespaceName === "" ? "__global__" : namespaceName;
   const $decoratorsRef = refkey();
+  const locations = [...new Set(decorators.map((d) => d.location ?? "."))];
+  if (locations.length > 1) {
+    reportDiagnostic(program, {
+      code: "decorator-locations",
+      format: { namespace: namespaceName },
+      target: NoTarget,
+    });
+  }
+  const descriptor = Object.fromEntries(
+    locations.map((l) => {
+      return [l, { named: ["$decorators"] }];
+    }),
+  );
+
   const userLib = ts.createPackage({
     name: libraryName,
     version: "0.0.0",
-    descriptor: {
-      ".": {
-        named: ["$decorators"],
-      },
-    },
+    descriptor,
+  });
+  const refKeys = locations.map((d) => {
+    if (d === "." || !d) {
+      return userLib.$decorators;
+    } else {
+      return userLib[d].$decorators;
+    }
   });
 
   const jsxContent = (
@@ -104,7 +122,7 @@ export function generateSignatures(
           >
             <DecoratorSignatureTests
               namespaceName={namespaceName}
-              dollarDecoratorRefKey={userLib.$decorators}
+              refKeys={refKeys}
               dollarDecoratorsTypeRefKey={$decoratorsRef}
             />
           </ts.SourceFile>

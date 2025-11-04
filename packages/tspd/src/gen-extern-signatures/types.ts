@@ -11,4 +11,6 @@ export interface DecoratorSignature {
   typeName: string;
 
   decorator: Decorator;
+
+  location?: string;
 }

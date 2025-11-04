@@ -23,7 +23,7 @@ async function generateDecoratorSignatures(code: string) {
     host.program.diagnostics.filter((x) => x.code !== "missing-implementation"),
   );
 
-  const result = await generateExternDecorators(host.program, "test-lib", {
+  const result = await generateExternDecorators(host.program, "test-lib", new Map(), {
     prettierConfig: {
       printWidth: 160, // So there is no inconsistency in the .each test with different parameter length
       plugins: [],
@@ -251,7 +251,7 @@ export type Decorators = {
     it("generate local model as interface", async () => {
       await expectSignatures({
         code: `
-          model Info { name: string, age?: int32} 
+          model Info { name: string, age?: int32}
           extern dec simple(target, arg1: valueof Info);`,
         expected: `
 ${importLine(["Type"])}
@@ -296,7 +296,7 @@ describe("generate rest parameter type", () => {
   it("include as rest", async () => {
     await expectSignatures({
       code: `
-/** Some doc comment */      
+/** Some doc comment */
 extern dec simple(target, ...args: Model[]);`,
       expected: `
 ${importLine(["Type", "Model"])}
@@ -347,7 +347,7 @@ describe("decorator comments", () => {
   it("include basic doc comment", async () => {
     await expectSignatures({
       code: `
-/** Some doc comment */      
+/** Some doc comment */
 extern dec simple(target);`,
       expected: `
 ${importLine(["Type"])}
@@ -367,12 +367,12 @@ export type Decorators = {
   it("include @param doc comment", async () => {
     await expectSignatures({
       code: `
-/** 
- * Some doc comment 
- * 
+/**
+ * Some doc comment
+ *
  * @param arg1 This is the first argument
  * @param arg2 This is the second argument
- */      
+ */
 extern dec simple(target, arg1, arg2);`,
       expected: `
 ${importLine(["Type"])}

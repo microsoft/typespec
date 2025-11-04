@@ -25,6 +25,12 @@ export const libDef = {
         scalar: paramMessage`Missing documentation for scalar '${"name"}'.`,
       },
     },
+    "decorator-locations": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Multiple locations found for decorators in ${"namespace"}. Only one location is supported.`,
+      },
+    },
   },
 } as const;
 
