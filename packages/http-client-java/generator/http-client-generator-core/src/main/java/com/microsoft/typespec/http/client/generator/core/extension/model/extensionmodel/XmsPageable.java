@@ -20,7 +20,7 @@ public class XmsPageable {
     private List<Property> nextLinkProperty;
     private PageableContinuationToken continuationToken;
     private List<Parameter> nextLinkReInjectedParameters;
-    private String nextLinkVerb;
+    private NextLinkVerb nextLinkVerb;
 
     // internal
     private Operation nextOperation;
@@ -150,7 +150,7 @@ public class XmsPageable {
      *
      * @return The HTTP verb for the nextLink operation.
      */
-    public String getNextLinkVerb() {
+    public NextLinkVerb getNextLinkVerb() {
         return nextLinkVerb;
     }
 
@@ -159,7 +159,7 @@ public class XmsPageable {
      *
      * @param nextLinkVerb The HTTP verb for the nextLink operation.
      */
-    public void setNextLinkVerb(String nextLinkVerb) {
+    public void setNextLinkVerb(NextLinkVerb nextLinkVerb) {
         this.nextLinkVerb = nextLinkVerb;
     }
 }

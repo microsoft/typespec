@@ -1232,6 +1232,7 @@ export class CodeModelBuilder {
           )
         : undefined,
       nextLinkReInjectedParameters: nextLinkReInjectedParameters,
+      // change this to "sdkMethod.pagingMetadata.nextLinkVerbType"
       nextLinkVerb: "GET",
     };
   }
