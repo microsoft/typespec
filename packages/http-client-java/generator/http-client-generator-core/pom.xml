@@ -25,6 +25,20 @@
       <groupId>com.azure</groupId>
       <artifactId>azure-core</artifactId>
       <version>1.57.0</version>
+      <exclusions>
+        <exclusion>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-annotations</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-core</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-databind</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>io.clientcore</groupId>
@@ -35,11 +49,7 @@
       <groupId>com.azure</groupId>
       <artifactId>azure-json</artifactId>
       <version>1.5.0</version>
-    </dependency>
-    <dependency>
-      <groupId>com.azure</groupId>
-      <artifactId>azure-xml</artifactId>
-      <version>1.2.0</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.yaml</groupId>

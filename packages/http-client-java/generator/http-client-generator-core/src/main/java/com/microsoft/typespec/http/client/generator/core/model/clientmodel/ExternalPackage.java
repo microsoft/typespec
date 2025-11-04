@@ -83,6 +83,12 @@ public class ExternalPackage {
                         groupId = "com.azure";
                         artifactId = "azure-json";
                         break;
+
+                    case CLIENTCORE_XML_PACKAGE_NAME:
+                        packageName = AZURE_XML_PACKAGE_NAME;
+                        groupId = "com.azure";
+                        artifactId = "azure-xml";
+                        break;
                 }
             }
             return new ExternalPackage(packageName, groupId, artifactId);

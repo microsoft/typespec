@@ -3,8 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
-import com.azure.json.JsonProviders;
-import com.azure.json.JsonWriter;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
@@ -15,6 +13,8 @@ import com.microsoft.typespec.http.client.generator.core.template.example.ModelE
 import com.microsoft.typespec.http.client.generator.core.util.ConstantStringTooLongException;
 import com.microsoft.typespec.http.client.generator.core.util.ModelExampleUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ModelTestCaseUtil;
+import io.clientcore.core.serialization.json.JsonWriter;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -72,7 +72,7 @@ public class ModelTestTemplate implements IJavaTemplate<ModelTestTemplate.ModelU
         String jsonStr;
         ExampleNode exampleNode;
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            JsonWriter jsonWriter = JsonProviders.createWriter(outputStream)) {
+            JsonWriter jsonWriter = JsonWriter.toStream(outputStream)) {
             Map<String, Object> jsonObject = ModelTestCaseUtil.jsonFromModel(model);
             jsonWriter.writeMap(jsonObject, JsonWriter::writeUntyped).flush();
             jsonStr = outputStream.toString(StandardCharsets.UTF_8);

@@ -3,10 +3,11 @@
 
 package com.microsoft.typespec.http.client.generator.core;
 
-import com.azure.json.JsonReader;
-import com.azure.json.ReadValueCallback;
 import com.microsoft.typespec.http.client.generator.core.extension.jsonrpc.Connection;
 import com.microsoft.typespec.http.client.generator.core.extension.model.Message;
+import io.clientcore.core.serialization.json.JsonReader;
+import io.clientcore.core.utils.IOExceptionCheckedFunction;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -51,13 +52,13 @@ public class MockUnitJavagen extends Javagen {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T getValue(String key, ReadValueCallback<String, T> converter) {
+    public <T> T getValue(String key, IOExceptionCheckedFunction<String, T> converter) {
         return (T) SETTINGS_MAP.get(key);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T getValueWithJsonReader(String key, ReadValueCallback<JsonReader, T> converter) {
+    public <T> T getValueWithJsonReader(String key, IOExceptionCheckedFunction<JsonReader, T> converter) {
         return (T) SETTINGS_MAP.get(key);
     }
 

@@ -3,11 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
-import static com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil.JSON_MERGE_PATCH_HELPER_CLASS_NAME;
-import static com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil.includePropertyInConstructor;
-
 import com.azure.core.util.CoreUtils;
-import com.azure.xml.XmlSerializable;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.implementation.ClientModelPropertiesManager;
 import com.microsoft.typespec.http.client.generator.core.implementation.ClientModelPropertyWithMetadata;
@@ -28,6 +24,9 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaIfB
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaJavadocComment;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
+
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -44,8 +43,9 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamException;
+
+import static com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil.JSON_MERGE_PATCH_HELPER_CLASS_NAME;
+import static com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil.includePropertyInConstructor;
 
 /**
  * Writes a ClientModel to a JavaFile using stream-style serialization.
@@ -110,7 +110,7 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
         }
 
         String interfaceName = (model.getXmlName() != null)
-            ? XmlSerializable.class.getSimpleName()
+            ? ClassType.XML_SERIALIZABLE.getName()
             : ClassType.JSON_SERIALIZABLE.getName();
 
         return classSignature + " implements " + interfaceName + "<" + model.getName() + ">";

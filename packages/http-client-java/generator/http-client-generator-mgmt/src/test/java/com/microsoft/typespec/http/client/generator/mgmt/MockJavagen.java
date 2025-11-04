@@ -3,11 +3,12 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt;
 
-import com.azure.json.JsonReader;
-import com.azure.json.ReadValueCallback;
 import com.microsoft.typespec.http.client.generator.core.Javagen;
 import com.microsoft.typespec.http.client.generator.core.extension.jsonrpc.Connection;
 import com.microsoft.typespec.http.client.generator.core.extension.model.Message;
+import io.clientcore.core.serialization.json.JsonReader;
+import io.clientcore.core.utils.IOExceptionCheckedFunction;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,13 +23,13 @@ public class MockJavagen extends Javagen {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T getValue(String key, ReadValueCallback<String, T> converter) {
+    public <T> T getValue(String key, IOExceptionCheckedFunction<String, T> converter) {
         return (T) DEFAULT_SETTINGS.get(key);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T getValueWithJsonReader(String key, ReadValueCallback<JsonReader, T> converter) {
+    public <T> T getValueWithJsonReader(String key, IOExceptionCheckedFunction<JsonReader, T> converter) {
         return (T) DEFAULT_SETTINGS.get(key);
     }
 

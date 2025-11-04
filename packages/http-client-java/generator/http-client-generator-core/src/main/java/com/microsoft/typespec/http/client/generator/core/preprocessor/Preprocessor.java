@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.preprocessor;
 
-import com.azure.json.ReadValueCallback;
 import com.microsoft.typespec.http.client.generator.core.extension.base.util.FileUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.jsonrpc.Connection;
 import com.microsoft.typespec.http.client.generator.core.extension.model.Message;
@@ -32,6 +31,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import io.clientcore.core.utils.IOExceptionCheckedFunction;
 import org.slf4j.Logger;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.LoaderOptions;
@@ -248,7 +249,7 @@ public class Preprocessor extends NewPlugin {
     }
 
     @Override
-    public <T> T getValue(String key, ReadValueCallback<String, T> converter) {
+    public <T> T getValue(String key, IOExceptionCheckedFunction<String, T> converter) {
         return wrappedPlugin.getValue(key, converter);
     }
 

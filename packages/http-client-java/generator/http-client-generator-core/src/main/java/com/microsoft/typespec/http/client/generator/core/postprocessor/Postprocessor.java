@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.postprocessor;
 
-import com.azure.json.JsonReader;
 import com.microsoft.typespec.http.client.generator.core.customization.Customization;
 import com.microsoft.typespec.http.client.generator.core.customization.implementation.Utils;
 import com.microsoft.typespec.http.client.generator.core.extension.base.util.FileUtils;
@@ -25,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+
+import io.clientcore.core.serialization.json.JsonReader;
 import org.slf4j.Logger;
 
 public class Postprocessor {

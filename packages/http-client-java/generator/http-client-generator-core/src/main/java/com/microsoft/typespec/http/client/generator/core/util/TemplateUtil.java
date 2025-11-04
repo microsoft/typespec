@@ -4,8 +4,6 @@
 package com.microsoft.typespec.http.client.generator.core.util;
 
 import com.azure.core.util.CoreUtils;
-import com.azure.json.JsonProviders;
-import com.azure.json.JsonWriter;
 import com.microsoft.typespec.http.client.generator.core.Javagen;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
@@ -34,6 +32,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+
+import io.clientcore.core.serialization.json.JsonWriter;
 import org.slf4j.Logger;
 
 public class TemplateUtil {
@@ -79,7 +79,7 @@ public class TemplateUtil {
      */
     public static String prettyPrintToJson(Object jsonObject) {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            JsonWriter jsonWriter = JsonProviders.createWriter(outputStream)) {
+            JsonWriter jsonWriter = JsonWriter.toStream(outputStream)) {
             jsonWriter.writeUntyped(jsonObject).flush();
 
             return outputStream.toString(StandardCharsets.UTF_8);

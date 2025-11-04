@@ -7,8 +7,6 @@ import com.azure.core.credential.AccessToken;
 import com.azure.core.http.HttpMethod;
 import com.azure.core.http.HttpResponse;
 import com.azure.core.management.profile.AzureProfile;
-import com.azure.json.JsonProviders;
-import com.azure.json.JsonWriter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
@@ -20,6 +18,10 @@ import com.microsoft.typespec.http.client.generator.core.template.example.ModelE
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.examplemodel.FluentMethodMockUnitTest;
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
+import io.clientcore.core.serialization.json.JsonWriter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -28,8 +30,6 @@ import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 public class FluentMethodMockTestTemplate
     implements IJavaTemplate<FluentMethodMockTestTemplate.ClientMethodInfo, JavaFile> {
@@ -108,7 +108,7 @@ public class FluentMethodMockTestTemplate
         String verificationObjectName = fluentMethodMockUnitTest.getResponseVerificationVariableName();
         String jsonStr;
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            JsonWriter jsonWriter = JsonProviders.createWriter(outputStream)) {
+            JsonWriter jsonWriter = JsonWriter.toStream(outputStream)) {
             jsonWriter.writeUntyped(jsonObject).flush();
             jsonStr = outputStream.toString(StandardCharsets.UTF_8);
         } catch (IOException e) {

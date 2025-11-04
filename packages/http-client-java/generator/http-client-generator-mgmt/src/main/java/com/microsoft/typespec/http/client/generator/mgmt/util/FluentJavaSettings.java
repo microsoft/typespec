@@ -4,7 +4,6 @@
 package com.microsoft.typespec.http.client.generator.mgmt.util;
 
 import com.azure.core.util.CoreUtils;
-import com.azure.json.JsonReader;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlugin;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
 import com.microsoft.typespec.http.client.generator.mgmt.model.ResourceCollectionAssociation;

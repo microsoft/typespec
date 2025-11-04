@@ -2,9 +2,10 @@
 // Licensed under the MIT License.
 package com.microsoft.typespec.http.client.generator.core.extension.base.util;
 
-import com.azure.json.JsonReader;
-import com.azure.json.JsonToken;
-import com.azure.json.WriteValueCallback;
+import io.clientcore.core.serialization.json.JsonReader;
+import io.clientcore.core.serialization.json.JsonToken;
+import io.clientcore.core.utils.IOExceptionCheckedBiConsumer;
+
 import java.io.IOException;
 import java.util.function.Supplier;
 
@@ -79,13 +80,13 @@ public final class JsonUtils {
      * @param fieldConsumer The consumer that will consume the field name and reader for each field in the object.
      * @throws IOException If an error occurs while reading the JSON object.
      */
-    public static void fieldReaderLoop(JsonReader jsonReader, WriteValueCallback<String, JsonReader> fieldConsumer)
+    public static void fieldReaderLoop(JsonReader jsonReader, IOExceptionCheckedBiConsumer<String, JsonReader> fieldConsumer)
         throws IOException {
         while (jsonReader.nextToken() != JsonToken.END_OBJECT) {
             String fieldName = jsonReader.getFieldName();
             jsonReader.nextToken();
 
-            fieldConsumer.write(fieldName, jsonReader);
+            fieldConsumer.accept(fieldName, jsonReader);
         }
     }
 

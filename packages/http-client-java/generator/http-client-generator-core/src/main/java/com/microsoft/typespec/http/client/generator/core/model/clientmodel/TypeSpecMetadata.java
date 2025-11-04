@@ -4,11 +4,12 @@
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
 import com.azure.core.util.CoreUtils;
-import com.azure.json.JsonReader;
-import com.azure.json.JsonSerializable;
-import com.azure.json.JsonToken;
-import com.azure.json.JsonWriter;
 import com.microsoft.typespec.http.client.generator.core.mapper.CollectionUtil;
+import io.clientcore.core.serialization.json.JsonReader;
+import io.clientcore.core.serialization.json.JsonSerializable;
+import io.clientcore.core.serialization.json.JsonToken;
+import io.clientcore.core.serialization.json.JsonWriter;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
