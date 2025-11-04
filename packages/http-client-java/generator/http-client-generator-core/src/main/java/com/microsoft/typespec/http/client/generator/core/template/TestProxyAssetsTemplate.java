@@ -9,7 +9,6 @@ import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonWriter;
-
 import java.io.IOException;
 
 public class TestProxyAssetsTemplate {

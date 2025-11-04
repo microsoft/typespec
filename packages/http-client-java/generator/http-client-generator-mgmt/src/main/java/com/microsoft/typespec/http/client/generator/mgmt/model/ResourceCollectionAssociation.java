@@ -7,7 +7,6 @@ import com.microsoft.typespec.http.client.generator.core.extension.base.util.Jso
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonWriter;
-
 import java.io.IOException;
 
 public class ResourceCollectionAssociation implements JsonSerializable<ResourceCollectionAssociation> {

@@ -11,6 +11,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlu
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
 import com.microsoft.typespec.http.client.generator.core.partialupdate.util.PartialUpdateHandler;
 import com.microsoft.typespec.http.client.generator.core.postprocessor.implementation.CodeFormatterUtil;
+import io.clientcore.core.serialization.json.JsonReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -24,8 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-
-import io.clientcore.core.serialization.json.JsonReader;
 import org.slf4j.Logger;
 
 public class Postprocessor {

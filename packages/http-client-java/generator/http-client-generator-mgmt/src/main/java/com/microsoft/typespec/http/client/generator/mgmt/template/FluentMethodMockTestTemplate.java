@@ -19,9 +19,6 @@ import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.examplemodel.FluentMethodMockUnitTest;
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import io.clientcore.core.serialization.json.JsonWriter;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -30,6 +27,8 @@ import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 public class FluentMethodMockTestTemplate
     implements IJavaTemplate<FluentMethodMockTestTemplate.ClientMethodInfo, JavaFile> {

@@ -8,6 +8,8 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.Message
 import com.microsoft.typespec.http.client.generator.core.extension.model.MessageChannel;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.AnnotatedPropertyUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModelCustomConstructor;
+import io.clientcore.core.serialization.json.JsonReader;
+import io.clientcore.core.utils.IOExceptionCheckedFunction;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -18,9 +20,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
-import io.clientcore.core.serialization.json.JsonReader;
-import io.clientcore.core.utils.IOExceptionCheckedFunction;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;

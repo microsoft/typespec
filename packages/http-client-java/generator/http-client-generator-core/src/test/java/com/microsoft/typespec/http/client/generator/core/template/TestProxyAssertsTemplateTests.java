@@ -4,10 +4,9 @@
 package com.microsoft.typespec.http.client.generator.core.template;
 
 import com.microsoft.typespec.http.client.generator.core.model.projectmodel.Project;
+import io.clientcore.core.serialization.json.JsonReader;
 import java.io.IOException;
 import java.util.Map;
-
-import io.clientcore.core.serialization.json.JsonReader;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

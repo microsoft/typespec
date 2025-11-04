@@ -14,7 +14,6 @@ import com.microsoft.typespec.http.client.generator.core.util.ConstantStringTooL
 import com.microsoft.typespec.http.client.generator.core.util.ModelExampleUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ModelTestCaseUtil;
 import io.clientcore.core.serialization.json.JsonWriter;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

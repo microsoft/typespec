@@ -11,7 +11,6 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.Fluen
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentJavaSettings;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.utils.IOExceptionCheckedFunction;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

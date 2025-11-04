@@ -10,6 +10,8 @@ import com.microsoft.typespec.http.client.generator.core.mapper.clientcore.Clien
 import com.microsoft.typespec.http.client.generator.core.template.Templates;
 import com.microsoft.typespec.http.client.generator.core.template.azurevnext.AzureVNextTemplateFactory;
 import com.microsoft.typespec.http.client.generator.core.template.clientcore.ClientCoreTemplateFactory;
+import io.clientcore.core.serialization.json.JsonReader;
+import io.clientcore.core.serialization.json.JsonToken;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,9 +24,6 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import io.clientcore.core.serialization.json.JsonReader;
-import io.clientcore.core.serialization.json.JsonToken;
 import org.slf4j.Logger;
 
 /**

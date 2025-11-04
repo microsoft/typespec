@@ -5,7 +5,6 @@ package com.microsoft.typespec.http.client.generator.core.extension.base.util;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonToken;
 import io.clientcore.core.utils.IOExceptionCheckedBiConsumer;
-
 import java.io.IOException;
 import java.util.function.Supplier;
 
@@ -80,8 +79,8 @@ public final class JsonUtils {
      * @param fieldConsumer The consumer that will consume the field name and reader for each field in the object.
      * @throws IOException If an error occurs while reading the JSON object.
      */
-    public static void fieldReaderLoop(JsonReader jsonReader, IOExceptionCheckedBiConsumer<String, JsonReader> fieldConsumer)
-        throws IOException {
+    public static void fieldReaderLoop(JsonReader jsonReader,
+        IOExceptionCheckedBiConsumer<String, JsonReader> fieldConsumer) throws IOException {
         while (jsonReader.nextToken() != JsonToken.END_OBJECT) {
             String fieldName = jsonReader.getFieldName();
             jsonReader.nextToken();

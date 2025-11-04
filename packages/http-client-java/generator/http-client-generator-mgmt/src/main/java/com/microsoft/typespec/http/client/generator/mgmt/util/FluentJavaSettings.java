@@ -7,6 +7,7 @@ import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlugin;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
 import com.microsoft.typespec.http.client.generator.mgmt.model.ResourceCollectionAssociation;
+import io.clientcore.core.serialization.json.JsonReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;

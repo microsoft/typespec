@@ -8,6 +8,7 @@ import com.azure.core.http.HttpHeaders;
 import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.Javagen;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
+import io.clientcore.core.serialization.json.JsonWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -20,8 +21,6 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import io.clientcore.core.serialization.json.JsonWriter;
 import org.slf4j.Logger;
 
 public class ProxyMethodExample {

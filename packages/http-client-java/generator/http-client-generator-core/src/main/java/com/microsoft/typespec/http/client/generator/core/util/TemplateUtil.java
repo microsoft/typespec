@@ -20,6 +20,7 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaCla
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFileContents;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaType;
 import com.microsoft.typespec.http.client.generator.core.template.Templates;
+import io.clientcore.core.serialization.json.JsonWriter;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -32,8 +33,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-
-import io.clientcore.core.serialization.json.JsonWriter;
 import org.slf4j.Logger;
 
 public class TemplateUtil {

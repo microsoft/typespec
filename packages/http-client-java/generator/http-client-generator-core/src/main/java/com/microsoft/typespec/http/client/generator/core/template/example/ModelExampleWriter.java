@@ -26,6 +26,7 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaMod
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
+import io.clientcore.core.serialization.json.JsonWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -39,8 +40,6 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import io.clientcore.core.serialization.json.JsonWriter;
 import org.slf4j.Logger;
 
 public class ModelExampleWriter {

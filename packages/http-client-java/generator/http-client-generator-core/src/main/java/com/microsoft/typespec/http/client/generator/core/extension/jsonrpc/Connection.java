@@ -5,7 +5,6 @@ package com.microsoft.typespec.http.client.generator.core.extension.jsonrpc;
 
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonWriter;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -223,7 +222,7 @@ public class Connection {
         }
 
         executorService.submit(() -> {
-            try (JsonReader jsonReader =JsonReader.fromString(content)) {
+            try (JsonReader jsonReader = JsonReader.fromString(content)) {
                 Map<String, String> jobject = jsonReader.readMap(reader -> {
                     if (reader.isStartArrayOrObject()) {
                         return reader.readChildren();

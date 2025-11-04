@@ -6,7 +6,6 @@ package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonWriter;
-
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;

@@ -65,7 +65,6 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.extensi
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import io.clientcore.core.credentials.oauth.OAuthTokenRequestContext;
-
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
@@ -145,7 +144,8 @@ public class ClassType implements IType {
         createEntry(KeyCredentialTrait.class.getName(), "io.clientcore.core.traits.KeyCredentialTrait"),
         createEntry(ClientLogger.class.getName(), "io.clientcore.core.instrumentation.logging.ClientLogger"),
         createEntry(LogLevel.class.getName(), "io.clientcore.core.instrumentation.logging.LogLevel"),
-        createEntry(com.azure.core.util.ServiceVersion.class.getName(), "io.clientcore.core.http.models.ServiceVersion"),
+        createEntry(com.azure.core.util.ServiceVersion.class.getName(),
+            "io.clientcore.core.http.models.ServiceVersion"),
         createEntry(UserAgentPolicy.class.getName(), "io.clientcore.core.http.pipeline.UserAgentPolicy"),
 
         createEntry(DateTimeRfc1123.class.getName(), "io.clientcore.core.utils.DateTimeRfc1123"),
@@ -160,7 +160,8 @@ public class ClassType implements IType {
         createEntry(CoreUtils.class.getName(), "io.clientcore.core.utils.CoreUtils"),
         createEntry(MatchConditions.class.getName(), "io.clientcore.core.http.models.HttpMatchConditions"),
         createEntry(RequestConditions.class.getName(), "io.clientcore.core.http.models.HttpRequestConditions"),
-        createEntry(ResponseError.class.getName(), "io.clientcore.core.Error", "com.azure.v2.core.models.AzureResponseError"),
+        createEntry(ResponseError.class.getName(), "io.clientcore.core.Error",
+            "com.azure.v2.core.models.AzureResponseError"),
         createEntry(SyncPoller.class.getName(), "io.clientcore.core.Poller", "com.azure.v2.core.http.polling.Poller"),
         createEntry(PollingStrategyOptions.class.getName(), "io.clientcore.core.PollingStrategyOptions",
             "com.azure.v2.core.http.polling.PollingStrategyOptions"));

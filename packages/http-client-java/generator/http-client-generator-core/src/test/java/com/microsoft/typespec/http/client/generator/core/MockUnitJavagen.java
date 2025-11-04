@@ -7,7 +7,6 @@ import com.microsoft.typespec.http.client.generator.core.extension.jsonrpc.Conne
 import com.microsoft.typespec.http.client.generator.core.extension.model.Message;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.utils.IOExceptionCheckedFunction;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
