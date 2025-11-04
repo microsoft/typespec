@@ -19,7 +19,10 @@
             {%- set wrapped = line.strip() | wordwrap(width=95, break_long_words=False, break_on_hyphens=False, wrapstring=wrap_string) -%}
             {%- set _ = result_lines.append(wrapped) -%}
         {%- else -%}
-            {%- set _ = result_lines.append('') -%}
+            {# Do not add continuous blank lines #}
+            {%- if (result_lines and result_lines[-1] != '') or not result_lines -%}
+              {%- set _ = result_lines.append('') -%}
+            {%- endif -%}
         {%- endif -%}
     {%- endfor -%}
     {%- set original_result = result_lines | join('\n') -%}
