@@ -3,7 +3,7 @@ import "@typespec/http";
 using Http;
 
 @service(#{ title: "Doc Service" })
-namespace DocString;
+namespace Azure.DocString;
 
 model DocModel {
   @doc("""
