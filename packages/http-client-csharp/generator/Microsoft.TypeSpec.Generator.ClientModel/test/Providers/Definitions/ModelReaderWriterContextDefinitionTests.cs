@@ -1303,5 +1303,59 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             Assert.IsTrue(attributeStrings.Any(s => s.Contains("Namespace2")),
                 "Should include model from Namespace2");
         }
+
+        [Test]
+        public void ValidateAttributeSortingByTypeName()
+        {
+            // Create models with different namespaces to test that sorting is by type name, not fully qualified name
+            var modelA = InputFactory.Model("AModel",
+                @namespace: "Sample.Namespace2",
+                properties:
+                [
+                    InputFactory.Property("Property1", InputPrimitiveType.String)
+                ]);
+
+            var modelB = InputFactory.Model("BModel",
+                @namespace: "Sample.Namespace1",
+                properties:
+                [
+                    InputFactory.Property("Property2", InputPrimitiveType.Int32)
+                ]);
+
+            var modelC = InputFactory.Model("CModel",
+                @namespace: "Sample.Namespace2",
+                properties:
+                [
+                    InputFactory.Property("Property3", InputPrimitiveType.Boolean)
+                ]);
+
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [modelB, modelC, modelA]); // Add in non-alphabetical order
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var attributes = contextDefinition.Attributes;
+
+            Assert.IsNotNull(attributes);
+            Assert.AreEqual(3, attributes.Count);
+
+            // Verify attributes are sorted by type name (A, B, C) not by fully qualified name
+            var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType &&
+                a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute)).ToList();
+            Assert.AreEqual(3, buildableAttributes.Count());
+
+            var attributeStrings = buildableAttributes.Select(a => a.Arguments.First().ToDisplayString()).ToList();
+
+            // Extract simple type names from the typeof expressions
+            var typeNames = attributeStrings.Select(s =>
+            {
+                // Extract "AModel", "BModel", "CModel" from "typeof(global::Sample.NamespaceX.XModel)"
+                var match = System.Text.RegularExpressions.Regex.Match(s, @"\.([A-Z]\w+)\)$");
+                return match.Success ? match.Groups[1].Value : "";
+            }).ToList();
+
+            Assert.AreEqual("AModel", typeNames[0], "First attribute should be AModel");
+            Assert.AreEqual("BModel", typeNames[1], "Second attribute should be BModel");
+            Assert.AreEqual("CModel", typeNames[2], "Third attribute should be CModel");
+        }
     }
 }
