@@ -8,7 +8,6 @@ using SpecialWords._Models;
 
 namespace SpecialWords
 {
-    [ModelReaderWriterBuildable(typeof(SameAsModel))]
     [ModelReaderWriterBuildable(typeof(And))]
     [ModelReaderWriterBuildable(typeof(As))]
     [ModelReaderWriterBuildable(typeof(Assert))]
@@ -38,6 +37,7 @@ namespace SpecialWords
     [ModelReaderWriterBuildable(typeof(Pass))]
     [ModelReaderWriterBuildable(typeof(Raise))]
     [ModelReaderWriterBuildable(typeof(Return))]
+    [ModelReaderWriterBuildable(typeof(SameAsModel))]
     [ModelReaderWriterBuildable(typeof(Try))]
     [ModelReaderWriterBuildable(typeof(While))]
     [ModelReaderWriterBuildable(typeof(With))]
