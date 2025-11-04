@@ -12,5 +12,6 @@ export interface DecoratorSignature {
 
   decorator: Decorator;
 
-  location?: string;
+  /** Name of the sub export where this decorator is exported via $decorators */
+  exportName?: string;
 }
