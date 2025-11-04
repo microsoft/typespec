@@ -262,8 +262,21 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                 AddAdditionalModifiers(methodSymbol, ref modifiers);
                 var explicitInterface = methodSymbol.ExplicitInterfaceImplementations.FirstOrDefault();
+
+                // For conversion operators, use the target type name as the method name to match generated code
+                string methodName;
+                if (methodSymbol.MethodKind == MethodKind.Conversion)
+                {
+                    // Use the return type name for conversion operators (explicit/implicit)
+                    methodName = methodSymbol.ReturnType.Name;
+                }
+                else
+                {
+                    methodName = methodSymbol.ToDisplayString(format);
+                }
+
                 var signature = new MethodSignature(
-                    methodSymbol.ToDisplayString(format),
+                    methodName,
                     GetSymbolXmlDoc(methodSymbol, "summary"),
                     // remove private modifier for explicit interface implementations
                     explicitInterface != null ? modifiers & ~MethodSignatureModifiers.Private : modifiers,
@@ -310,6 +323,25 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (methodSymbol.IsStatic)
             {
                 modifiers |= MethodSignatureModifiers.Static;
+            }
+            // Handle conversion operators (explicit and implicit)
+            if (methodSymbol.MethodKind == MethodKind.Conversion)
+            {
+                modifiers |= MethodSignatureModifiers.Operator;
+                // Check if it's explicit or implicit
+                if (methodSymbol.Name == "op_Explicit")
+                {
+                    modifiers |= MethodSignatureModifiers.Explicit;
+                }
+                else if (methodSymbol.Name == "op_Implicit")
+                {
+                    modifiers |= MethodSignatureModifiers.Implicit;
+                }
+            }
+            // Handle user-defined operators
+            else if (methodSymbol.MethodKind == MethodKind.UserDefinedOperator)
+            {
+                modifiers |= MethodSignatureModifiers.Operator;
             }
         }
 

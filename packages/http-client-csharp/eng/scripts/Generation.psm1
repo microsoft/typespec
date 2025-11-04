@@ -73,8 +73,15 @@ function Refresh-Build {
     }
 
     # we don't want to build the entire solution because the test projects might not build until after regeneration
-    # generating Microsoft.TypeSpec.Generator.ClientModel.csproj is enough
+    # build Microsoft.TypeSpec.Generator.ClientModel.csproj and StubLibraryGenerator which are needed for generation
     Invoke "dotnet build $packageRoot/../generator/Microsoft.TypeSpec.Generator.ClientModel/src"
+
+    # exit if the generation failed
+    if ($LASTEXITCODE -ne 0) {
+        exit $LASTEXITCODE
+    }
+
+    Invoke "dotnet build $packageRoot/../generator/Microsoft.TypeSpec.Generator.ClientModel.StubLibrary/src"
 
     # exit if the generation failed
     if ($LASTEXITCODE -ne 0) {

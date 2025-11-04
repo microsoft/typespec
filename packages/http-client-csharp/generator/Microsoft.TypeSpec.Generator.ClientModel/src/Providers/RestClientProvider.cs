@@ -99,7 +99,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private ScmMethodProvider BuildCreateRequestMethod(InputServiceMethod serviceMethod, bool isNextLinkRequest = false)
         {
             var options = ScmKnownParameters.RequestOptions;
-            var parameters = GetMethodParameters(serviceMethod, MethodType.CreateRequest);
+            var parameters = GetMethodParameters(serviceMethod, ScmMethodKind.CreateRequest);
             if (isNextLinkRequest)
             {
                 parameters = [ScmKnownParameters.NextPage, .. parameters];
@@ -123,6 +123,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 signature,
                 messageStatements,
                 this,
+                ScmMethodKind.CreateRequest,
                 xmlDocProvider: XmlDocProvider.Empty,
                 serviceMethod: serviceMethod);
         }
@@ -757,7 +758,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return NextMethodCache[operation];
         }
 
-        internal static List<ParameterProvider> GetMethodParameters(InputServiceMethod serviceMethod, MethodType methodType)
+        internal static List<ParameterProvider> GetMethodParameters(InputServiceMethod serviceMethod, ScmMethodKind methodType)
         {
             SortedList<int, ParameterProvider> sortedParams = [];
             int path = 0;
@@ -768,10 +769,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var operation = serviceMethod.Operation;
             // For convenience methods, use the service method parameters
-            var inputParameters = methodType is MethodType.Convenience ? serviceMethod.Parameters : operation.Parameters;
+            var inputParameters = methodType is ScmMethodKind.Convenience ? serviceMethod.Parameters : operation.Parameters;
 
             ModelProvider? spreadSource = null;
-            if (methodType == MethodType.Convenience)
+            if (methodType == ScmMethodKind.Convenience)
             {
                 InputParameter? inputOperationSpreadParameter = operation.Parameters.FirstOrDefault(p => p.Scope.HasFlag(InputParameterScope.Spread));
                 spreadSource = inputOperationSpreadParameter != null
@@ -816,11 +817,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                if (methodType is MethodType.Protocol or MethodType.CreateRequest)
+                if (methodType is ScmMethodKind.Protocol or ScmMethodKind.CreateRequest)
                 {
                     if (inputParam is InputBodyParameter)
                     {
-                        if (methodType == MethodType.CreateRequest)
+                        if (methodType == ScmMethodKind.CreateRequest)
                         {
                             parameter = ScmKnownParameters.RequestContent;
                         }
@@ -836,7 +837,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         parameter.Type = parameter.Type.IsEnum ? parameter.Type.UnderlyingEnumType : parameter.Type;
                     }
                 }
-                else if (methodType is MethodType.Convenience &&
+                else if (methodType is ScmMethodKind.Convenience &&
                     spreadSource != null
                     && inputParam is InputMethodParameter inputMethodParameter
                     && inputMethodParameter.Location == InputRequestLocation.Body)
@@ -875,7 +876,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 sortedParams.Add(bodyRequired++, ScmKnownParameters.ContentType);
             }
 
-            if (methodType == MethodType.CreateRequest)
+            if (methodType == ScmMethodKind.CreateRequest)
             {
                 // All the parameters should be required for the CreateRequest method
                 foreach (var parameter in sortedParams.Values)
@@ -895,13 +896,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             throw new InvalidOperationException($"inputParam `{inputParam.Name}` is `Spread` but not a model type");
-        }
-
-        internal enum MethodType
-        {
-            CreateRequest,
-            Protocol,
-            Convenience
         }
 
         private class StatusCodesComparer : IEqualityComparer<List<int>>

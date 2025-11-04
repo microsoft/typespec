@@ -355,17 +355,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             AttributeStatement? experimentalOrObsoleteAttribute = typeProvider.CanonicalView.Attributes
                 .FirstOrDefault(a => a.Type.Equals(typeof(ExperimentalAttribute)) || a.Type.Equals(typeof(ObsoleteAttribute)));
 
+            var key = typeProvider.Type.FullyQualifiedName;
+
             if (experimentalOrObsoleteAttribute?.Type.Equals(typeof(ExperimentalAttribute)) == true)
             {
-                attributes.Add(typeProvider.Type.Name, new SuppressionStatement(attributeStatement, experimentalOrObsoleteAttribute.Arguments[0], experimentalTypeJustification));
+                attributes.Add(key, new SuppressionStatement(attributeStatement, experimentalOrObsoleteAttribute.Arguments[0], experimentalTypeJustification));
             }
             else if (experimentalOrObsoleteAttribute?.Type.Equals(typeof(ObsoleteAttribute)) == true)
             {
-                attributes.Add(typeProvider.Type.Name, new SuppressionStatement(attributeStatement, Literal(DefaultObsoleteDiagnosticId), obsoleteTypeJustification));
+                attributes.Add(key, new SuppressionStatement(attributeStatement, Literal(DefaultObsoleteDiagnosticId), obsoleteTypeJustification));
             }
             else
             {
-                attributes.Add(typeProvider.Type.Name, attributeStatement);
+                attributes.Add(key, attributeStatement);
             }
         }
 
@@ -376,12 +378,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             string experimentalTypeJustification,
             string obsoleteTypeJustification)
         {
+            var key = frameworkType.FullName ?? frameworkType.Name;
+
             var experimentalAttr = frameworkType.GetCustomAttributes(typeof(ExperimentalAttribute), false)
                 .FirstOrDefault();
             if (experimentalAttr != null)
             {
-                var key = experimentalAttr.GetType().GetProperty("DiagnosticId")?.GetValue(experimentalAttr);
-                attributes.Add(frameworkType.Name, new SuppressionStatement(attributeStatement, Literal(key), experimentalTypeJustification));
+                var diagnosticId = experimentalAttr.GetType().GetProperty("DiagnosticId")?.GetValue(experimentalAttr);
+                attributes.Add(key, new SuppressionStatement(attributeStatement, Literal(diagnosticId), experimentalTypeJustification));
                 return;
             }
 
@@ -389,13 +393,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 .FirstOrDefault();
             if (obsoleteAttr != null)
             {
-                var key = obsoleteAttr.GetType().GetProperty("DiagnosticId")?.GetValue(obsoleteAttr)
+                var diagnosticId = obsoleteAttr.GetType().GetProperty("DiagnosticId")?.GetValue(obsoleteAttr)
                     ?? DefaultObsoleteDiagnosticId;
-                attributes.Add(frameworkType.Name, new SuppressionStatement(attributeStatement, Literal(key), obsoleteTypeJustification));
+                attributes.Add(key, new SuppressionStatement(attributeStatement, Literal(diagnosticId), obsoleteTypeJustification));
                 return;
             }
 
-            attributes.Add(frameworkType.Name, attributeStatement);
+            attributes.Add(key, attributeStatement);
         }
 
         private static bool IsModelReaderWriterInterfaceType(CSharpType type)
