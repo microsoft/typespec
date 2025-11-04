@@ -1073,5 +1073,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                     ]));
             }
         }
+
+        [Test]
+        public void TestMethodTypeIdentification()
+        {
+            MockHelpers.LoadMockGenerator();
+
+            var inputOperation = InputFactory.Operation("TestOperation");
+            var inputServiceMethod = InputFactory.BasicServiceMethod("Test", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+
+            // Verify protocol methods
+            var protocolMethods = methodCollection.Where(m => ((ScmMethodProvider)m).Kind == ScmMethodKind.Protocol).ToList();
+            Assert.AreEqual(2, protocolMethods.Count); // sync + async
+
+            // Verify convenience methods
+            var convenienceMethods = methodCollection.Where(m => ((ScmMethodProvider)m).Kind == ScmMethodKind.Convenience).ToList();
+            Assert.AreEqual(2, convenienceMethods.Count); // sync + async
+
+            // Verify CreateRequest method
+            var createRequestMethod = (ScmMethodProvider)client!.RestClient.GetCreateRequestMethod(inputOperation);
+            Assert.AreEqual(ScmMethodKind.CreateRequest, createRequestMethod.Kind);
+        }
     }
 }
