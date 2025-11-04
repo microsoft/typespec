@@ -16,6 +16,8 @@ namespace SampleTypeSpec
     /// </summary>
     [ModelReaderWriterBuildable(typeof(AnotherDynamicModel))]
     [ModelReaderWriterBuildable(typeof(DynamicModel))]
+    [ModelReaderWriterBuildable(typeof(DynamicModelWithBase))]
+    [ModelReaderWriterBuildable(typeof(ImplicitDynamicModel))]
     [ModelReaderWriterBuildable(typeof(ListWithContinuationTokenHeaderResponseResponse))]
     [ModelReaderWriterBuildable(typeof(ListWithContinuationTokenResponse))]
     [ModelReaderWriterBuildable(typeof(ListWithNextLinkResponse))]
