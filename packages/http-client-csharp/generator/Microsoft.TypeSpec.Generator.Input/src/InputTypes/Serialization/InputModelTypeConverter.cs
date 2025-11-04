@@ -158,6 +158,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             if (inputType is InputModelType modelType)
             {
                 modelType.IsDynamicModel = true;
+
                 foreach (var property in modelType.Properties)
                 {
                     switch (property.Type)
@@ -181,6 +182,11 @@ namespace Microsoft.TypeSpec.Generator.Input
                             }
                             break;
                     }
+                }
+
+                if (modelType.BaseModel != null)
+                {
+                    MarkModelsAsDynamicRecursive(modelType.BaseModel, visited);
                 }
             }
             else if (inputType is InputUnionType unionType)

@@ -230,5 +230,22 @@ namespace SampleTypeSpec
         {
             return new AnotherDynamicModel(bar, default);
         }
+
+        /// <summary> The DynamicModelWithBase. </summary>
+        /// <param name="name"></param>
+        /// <param name="id"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.DynamicModelWithBase"/> instance for mocking. </returns>
+        public static DynamicModelWithBase DynamicModelWithBase(string name = default, string id = default)
+        {
+            return new DynamicModelWithBase(name, default, id);
+        }
+
+        /// <summary> The ImplicitDynamicModel. </summary>
+        /// <param name="name"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ImplicitDynamicModel"/> instance for mocking. </returns>
+        public static ImplicitDynamicModel ImplicitDynamicModel(string name = default)
+        {
+            return new ImplicitDynamicModel(name, default);
+        }
     }
 }
