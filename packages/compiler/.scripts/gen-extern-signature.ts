@@ -39,7 +39,12 @@ for (const [namespace, diagnostics] of resolved) {
   namespaces.push(namespace);
 }
 
-const files = await generateExternDecorators(program, "@typespec/compiler", { namespaces });
+const files = await generateExternDecorators(
+  program,
+  "@typespec/compiler",
+  new Map<string, string>(),
+  { namespaces },
+);
 for (const [name, content] of Object.entries(files)) {
   const updatedContent = content.replace(
     /from "\@typespec\/compiler"/g,
