@@ -78,7 +78,7 @@ export function generateSignatures(
   const context = createTspdContext(program);
   const base = namespaceName === "" ? "__global__" : namespaceName;
   const $decoratorsRef = refkey();
-  const locations = [...new Set(decorators.map((d) => d.location ?? "."))];
+  const locations = [...new Set(decorators.map((d) => d.exportName ?? "."))];
   if (locations.length > 1) {
     reportDiagnostic(program, {
       code: "decorator-locations",
