@@ -298,6 +298,15 @@ model AnotherDynamicModel {
   bar: string;
 }
 
+@dynamicModel
+model DynamicModelWithBase extends ImplicitDynamicModel {
+  id?: string;
+}
+
+model ImplicitDynamicModel {
+  name: string;
+}
+
 union DaysOfWeekExtensibleEnum {
   string,
   Monday: "Monday",
@@ -501,3 +510,8 @@ op EmbeddedParameters(@bodyRoot body: ModelWithEmbeddedNonBodyParameters): void;
 @doc("An operation with a dynamic model")
 @post
 op DynamicModelOperation(@body body: DynamicModel): void;
+
+@route("dynamicModelWithBase")
+@doc("An operation with a dynamic model that has a base model")
+@post
+op DynamicModelWithBaseOperation(@body body: DynamicModelWithBase): void;

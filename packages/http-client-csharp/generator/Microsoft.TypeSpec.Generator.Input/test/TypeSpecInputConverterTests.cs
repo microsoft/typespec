@@ -255,5 +255,198 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
 
             Assert.IsTrue(inputModel!.Usage.HasFlag(InputModelTypeUsage.Json));
         }
+
+        [Test]
+        public void LoadsDynamicDerivedModelMarksBaseModelAsDynamic()
+        {
+            var directory = Helpers.GetAssetFileOrDirectoryPath(false);
+            // this tspCodeModel.json contains a partial part of the full tspCodeModel.json
+            var content = File.ReadAllText(Path.Combine(directory, "tspCodeModel.json"));
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true,
+                Converters =
+                {
+                    new JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
+                    new InputNamespaceConverter(referenceHandler),
+                    new InputTypeConverter(referenceHandler),
+                    new InputDecoratorInfoConverter(),
+                    new InputModelTypeConverter(referenceHandler),
+                    new InputModelPropertyConverter(referenceHandler),
+                },
+            };
+            var inputNamespace = JsonSerializer.Deserialize<InputNamespace>(content, options);
+
+            Assert.IsNotNull(inputNamespace);
+
+            // Find the base model (should not have @dynamicModel decorator)
+            var baseModel = inputNamespace!.Models.SingleOrDefault(m => m.Name == "BaseModel");
+            Assert.IsNotNull(baseModel);
+            Assert.IsFalse(baseModel!.Decorators.Any(d => d.Name.Equals("TypeSpec.HttpClient.CSharp.@dynamicModel")));
+
+            var derivedModel = inputNamespace.Models.SingleOrDefault(m => m.Name == "DerivedModel");
+            Assert.IsNotNull(derivedModel);
+            Assert.IsTrue(derivedModel!.Decorators.Any(d => d.Name.Equals("TypeSpec.HttpClient.CSharp.@dynamicModel")));
+            Assert.IsTrue(derivedModel.IsDynamicModel);
+
+            // Verify that the base model is marked as dynamic even though it doesn't have the decorator
+            Assert.IsTrue(baseModel.IsDynamicModel);
+            Assert.AreEqual(baseModel, derivedModel.BaseModel);
+        }
+
+        [Test]
+        public void LoadsDynamicDerivedModelMarksBaseModelPropertiesAsDynamic()
+        {
+            var directory = Helpers.GetAssetFileOrDirectoryPath(false);
+            // this tspCodeModel.json contains a partial part of the full tspCodeModel.json
+            var content = File.ReadAllText(Path.Combine(directory, "tspCodeModel.json"));
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true,
+                Converters =
+                {
+                    new JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
+                    new InputNamespaceConverter(referenceHandler),
+                    new InputTypeConverter(referenceHandler),
+                    new InputDecoratorInfoConverter(),
+                    new InputModelTypeConverter(referenceHandler),
+                    new InputModelPropertyConverter(referenceHandler),
+                },
+            };
+            var inputNamespace = JsonSerializer.Deserialize<InputNamespace>(content, options);
+
+            Assert.IsNotNull(inputNamespace);
+
+            // Find the base model with model properties
+            var baseModelWithProperties = inputNamespace!.Models.SingleOrDefault(m => m.Name == "BaseModelWithProperties");
+            Assert.IsNotNull(baseModelWithProperties);
+            Assert.IsTrue(baseModelWithProperties!.IsDynamicModel);
+
+            // Find the derived model (should have @dynamicModel decorator)
+            var derivedModel = inputNamespace.Models.SingleOrDefault(m => m.Name == "DerivedModelExtendingBase");
+            Assert.IsNotNull(derivedModel);
+            Assert.IsTrue(derivedModel!.IsDynamicModel);
+
+            // Verify that the base model is marked as dynamic
+            Assert.IsTrue(baseModelWithProperties!.IsDynamicModel);
+
+            // Verify that model properties in the base model are also marked as dynamic
+            var nestedModelProperty = baseModelWithProperties.Properties.SingleOrDefault(p => p.Name == "NestedModel");
+            Assert.IsNotNull(nestedModelProperty);
+            Assert.IsTrue(nestedModelProperty!.Type is InputModelType);
+            var nestedModel = (InputModelType)nestedModelProperty.Type;
+            Assert.IsTrue(nestedModel.IsDynamicModel);
+
+            // Verify nested array of models
+            var arrayProperty = baseModelWithProperties.Properties.SingleOrDefault(p => p.Name == "ArrayOfModels");
+            Assert.IsNotNull(arrayProperty);
+            Assert.IsTrue(arrayProperty!.Type is InputArrayType);
+            var arrayType = (InputArrayType)arrayProperty.Type;
+            Assert.IsTrue(arrayType.ValueType is InputModelType);
+            var arrayValueModel = (InputModelType)arrayType.ValueType;
+            Assert.IsTrue(arrayValueModel.IsDynamicModel);
+        }
+
+        [Test]
+        public void LoadsDynamicDerivedModelWithMultipleLevelsOfInheritance()
+        {
+            var directory = Helpers.GetAssetFileOrDirectoryPath(false);
+            // this tspCodeModel.json contains a partial part of the full tspCodeModel.json
+            var content = File.ReadAllText(Path.Combine(directory, "tspCodeModel.json"));
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true,
+                Converters =
+                {
+                    new JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
+                    new InputNamespaceConverter(referenceHandler),
+                    new InputTypeConverter(referenceHandler),
+                    new InputDecoratorInfoConverter(),
+                    new InputModelTypeConverter(referenceHandler),
+                    new InputModelPropertyConverter(referenceHandler),
+                },
+            };
+            var inputNamespace = JsonSerializer.Deserialize<InputNamespace>(content, options);
+
+            Assert.IsNotNull(inputNamespace);
+
+            // Find models at different levels
+            var grandparentModel = inputNamespace!.Models.SingleOrDefault(m => m.Name == "GrandparentModel");
+            var parentModel = inputNamespace.Models.SingleOrDefault(m => m.Name == "ParentModel");
+            var childModel = inputNamespace.Models.SingleOrDefault(m => m.Name == "ChildModel");
+
+            Assert.IsNotNull(grandparentModel);
+            Assert.IsNotNull(parentModel);
+            Assert.IsNotNull(childModel);
+
+            // Verify inheritance chain
+            Assert.AreEqual(grandparentModel, parentModel!.BaseModel);
+            Assert.AreEqual(parentModel, childModel!.BaseModel);
+
+            // Only the child has the @dynamicModel decorator
+            Assert.IsTrue(childModel.Decorators.Any(d => d.Name.Equals("TypeSpec.HttpClient.CSharp.@dynamicModel")));
+            Assert.IsFalse(parentModel.Decorators.Any(d => d.Name.Equals("TypeSpec.HttpClient.CSharp.@dynamicModel")));
+            Assert.IsFalse(grandparentModel!.Decorators.Any(d => d.Name.Equals("TypeSpec.HttpClient.CSharp.@dynamicModel")));
+
+            // Verify all models in the chain are marked as dynamic
+            Assert.IsTrue(childModel.IsDynamicModel);
+            Assert.IsTrue(parentModel.IsDynamicModel);
+            Assert.IsTrue(grandparentModel.IsDynamicModel);
+        }
+
+        [Test]
+        public void LoadsBaseModelWithMultipleDynamicDerivedModels()
+        {
+            var directory = Helpers.GetAssetFileOrDirectoryPath(false);
+            // this tspCodeModel.json contains a partial part of the full tspCodeModel.json
+            var content = File.ReadAllText(Path.Combine(directory, "tspCodeModel.json"));
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true,
+                Converters =
+                {
+                    new JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
+                    new InputNamespaceConverter(referenceHandler),
+                    new InputTypeConverter(referenceHandler),
+                    new InputDecoratorInfoConverter(),
+                    new InputModelTypeConverter(referenceHandler),
+                    new InputModelPropertyConverter(referenceHandler),
+                },
+            };
+            var inputNamespace = JsonSerializer.Deserialize<InputNamespace>(content, options);
+
+            Assert.IsNotNull(inputNamespace);
+
+            // Find the shared base model
+            var sharedBaseModel = inputNamespace!.Models.SingleOrDefault(m => m.Name == "SharedBaseModel");
+            Assert.IsNotNull(sharedBaseModel);
+            Assert.IsTrue(sharedBaseModel!.IsDynamicModel);
+
+            // Find multiple derived models with @dynamicModel decorator
+            var derivedModel1 = inputNamespace.Models.SingleOrDefault(m => m.Name == "DynamicDerived1");
+            var derivedModel2 = inputNamespace.Models.SingleOrDefault(m => m.Name == "DynamicDerived2");
+
+            Assert.IsNotNull(derivedModel1);
+            Assert.IsNotNull(derivedModel2);
+
+            // Verify both derived models have @dynamicModel decorator
+            Assert.IsTrue(derivedModel1!.Decorators.Any(d => d.Name.Equals("TypeSpec.HttpClient.CSharp.@dynamicModel")));
+            Assert.IsTrue(derivedModel2!.Decorators.Any(d => d.Name.Equals("TypeSpec.HttpClient.CSharp.@dynamicModel")));
+
+            // Verify base model is marked as dynamic
+            Assert.IsTrue(sharedBaseModel!.IsDynamicModel);
+
+            // Verify all derived models are marked as dynamic
+            Assert.IsTrue(derivedModel1.IsDynamicModel);
+            Assert.IsTrue(derivedModel2.IsDynamicModel);
+
+            // Verify inheritance relationships
+            Assert.AreEqual(sharedBaseModel, derivedModel1.BaseModel);
+            Assert.AreEqual(sharedBaseModel, derivedModel2.BaseModel);
+        }
     }
 }

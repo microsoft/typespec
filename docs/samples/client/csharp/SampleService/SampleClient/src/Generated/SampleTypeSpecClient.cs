@@ -3006,5 +3006,123 @@ namespace SampleTypeSpec
                 System.Console.WriteLine("Exiting method DynamicModelOperationAsync.");
             }
         }
+
+        /// <summary>
+        /// [Protocol Method] An operation with a dynamic model that has a base model
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult DynamicModelWithBaseOperation(BinaryContent content, RequestOptions options = null)
+        {
+            try
+            {
+                System.Console.WriteLine("Entering method DynamicModelWithBaseOperation.");
+                Argument.AssertNotNull(content, nameof(content));
+
+                using PipelineMessage message = CreateDynamicModelWithBaseOperationRequest(content, options);
+                return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method DynamicModelWithBaseOperation: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method DynamicModelWithBaseOperation.");
+            }
+        }
+
+        /// <summary>
+        /// [Protocol Method] An operation with a dynamic model that has a base model
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> DynamicModelWithBaseOperationAsync(BinaryContent content, RequestOptions options = null)
+        {
+            try
+            {
+                System.Console.WriteLine("Entering method DynamicModelWithBaseOperationAsync.");
+                Argument.AssertNotNull(content, nameof(content));
+
+                using PipelineMessage message = CreateDynamicModelWithBaseOperationRequest(content, options);
+                return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method DynamicModelWithBaseOperationAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method DynamicModelWithBaseOperationAsync.");
+            }
+        }
+
+        /// <summary> An operation with a dynamic model that has a base model. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult DynamicModelWithBaseOperation(DynamicModelWithBase body, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                System.Console.WriteLine("Entering method DynamicModelWithBaseOperation.");
+                Argument.AssertNotNull(body, nameof(body));
+
+                return DynamicModelWithBaseOperation(body, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null);
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method DynamicModelWithBaseOperation: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method DynamicModelWithBaseOperation.");
+            }
+        }
+
+        /// <summary> An operation with a dynamic model that has a base model. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> DynamicModelWithBaseOperationAsync(DynamicModelWithBase body, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                System.Console.WriteLine("Entering method DynamicModelWithBaseOperationAsync.");
+                Argument.AssertNotNull(body, nameof(body));
+
+                return await DynamicModelWithBaseOperationAsync(body, cancellationToken.CanBeCanceled ? new RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"An exception was thrown in method DynamicModelWithBaseOperationAsync: {ex}");
+                throw;
+            }
+            finally
+            {
+                System.Console.WriteLine("Exiting method DynamicModelWithBaseOperationAsync.");
+            }
+        }
     }
 }
