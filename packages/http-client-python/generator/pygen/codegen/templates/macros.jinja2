@@ -18,7 +18,10 @@
         {%- elif line.strip() -%}
             {%- set line_indent = '' if line.strip().startswith(':') or loop.index == 1 else (base_indent + ' ') -%}
             {%- set wrapped = (line_indent + line) | wordwrap(width=95, break_long_words=False, break_on_hyphens=False, wrapstring=wrap_string) -%}
-            {%- set _ = result_lines.append(wrapped) -%}
+            {%- for line in wrapped.split('\n') -%}
+            {%- set prefix = "" if loop.index == 1 else " " -%}
+            {%- set _ = result_lines.append(prefix + line) -%}
+            {%- endfor -%}
         {%- else -%}
             {# Do not add continuous blank lines #}
             {%- if (result_lines and result_lines[-1] != '') or not result_lines -%}
