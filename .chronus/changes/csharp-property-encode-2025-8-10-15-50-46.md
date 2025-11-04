@@ -4,4 +4,4 @@ packages:
   - "@typespec/emitter-framework"
 ---
 
-[c#] Support encode when generating csharp property
+[c#] Support encode when generating csharp property.
