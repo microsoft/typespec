@@ -415,7 +415,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private static string GetSimpleTypeName(string fullyQualifiedName)
         {
             var lastDotIndex = fullyQualifiedName.LastIndexOf('.');
-            return lastDotIndex >= 0 ? fullyQualifiedName.Substring(lastDotIndex + 1) : fullyQualifiedName;
+            return lastDotIndex >= 0 ? fullyQualifiedName[(lastDotIndex + 1)..] : fullyQualifiedName;
         }
 
         private class TypeProviderTypeNameComparer : IEqualityComparer<TypeProvider>

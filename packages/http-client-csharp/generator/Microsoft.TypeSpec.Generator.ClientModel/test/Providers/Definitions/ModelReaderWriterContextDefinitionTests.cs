@@ -1341,15 +1341,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             // Verify attributes are sorted by type name (A, B, C) not by fully qualified name
             var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType &&
                 a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute)).ToList();
-            Assert.AreEqual(3, buildableAttributes.Count());
+            Assert.AreEqual(3, buildableAttributes.Count);
 
             var attributeStrings = buildableAttributes.Select(a => a.Arguments.First().ToDisplayString()).ToList();
 
             // Extract simple type names from the typeof expressions
+            // Pattern matches: typeof(global::Sample.NamespaceX.XModel) and extracts "XModel"
+            var typeNameRegex = new System.Text.RegularExpressions.Regex(@"\.([A-Z]\w+)\)$");
             var typeNames = attributeStrings.Select(s =>
             {
-                // Extract "AModel", "BModel", "CModel" from "typeof(global::Sample.NamespaceX.XModel)"
-                var match = System.Text.RegularExpressions.Regex.Match(s, @"\.([A-Z]\w+)\)$");
+                var match = typeNameRegex.Match(s);
                 return match.Success ? match.Groups[1].Value : "";
             }).ToList();
 
