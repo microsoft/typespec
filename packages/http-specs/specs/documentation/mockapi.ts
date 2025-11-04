@@ -31,29 +31,27 @@ function createPostServerTests(uri: string, requestBody: unknown, responseBody?:
 
 // Lists namespace tests
 Scenarios.Documentation_Lists_bulletPointsOp = createGetServerTests(
-  "/documentation/lists/bullet-points/op"
+  "/documentation/lists/bullet-points/op",
 );
 
 Scenarios.Documentation_Lists_bulletPointsModel = createPostServerTests(
   "/documentation/lists/bullet-points/model",
   {
-    prop: "Simple"
-  }
+    prop: "Simple",
+  },
 );
 
-Scenarios.Documentation_Lists_numbered = createGetServerTests(
-  "/documentation/lists/numbered"
-);
+Scenarios.Documentation_Lists_numbered = createGetServerTests("/documentation/lists/numbered");
 
 // TextFormatting namespace tests
 Scenarios.Documentation_TextFormatting_boldText = createGetServerTests(
-  "/documentation/text-formatting/bold"
+  "/documentation/text-formatting/bold",
 );
 
 Scenarios.Documentation_TextFormatting_italicText = createGetServerTests(
-  "/documentation/text-formatting/italic"
+  "/documentation/text-formatting/italic",
 );
 
 Scenarios.Documentation_TextFormatting_combinedFormatting = createGetServerTests(
-  "/documentation/text-formatting/combined"
+  "/documentation/text-formatting/combined",
 );

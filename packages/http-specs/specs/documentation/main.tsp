@@ -66,12 +66,14 @@ namespace Lists {
      * - Two: two. This line is intentionally long to test text wrapping in bullet points within enum documentation comments. It should properly indent the wrapped lines.
      */
     Simple: "Simple",
+
     /**
      * Bullet point with **bold text**. This line is intentionally long to test text wrapping in bullet points within enum documentation comments. It should properly indent the wrapped lines.
      * - **One**: one. This line is intentionally long to test text wrapping in bullet points within enum documentation comments. It should properly indent the wrapped lines.
      * - **Two**: two. This line is intentionally long to test text wrapping in bullet points within enum documentation comments. It should properly indent the wrapped lines.
      */
     Bold: "Bold",
+
     /**
      * Bullet point with *italic text*. This line is intentionally long to test text wrapping in bullet points within enum documentation comments. It should properly indent the wrapped lines.
      * - *One*: one. This line is intentionally long to test text wrapping in bullet points within enum documentation comments. It should properly indent the wrapped lines.
