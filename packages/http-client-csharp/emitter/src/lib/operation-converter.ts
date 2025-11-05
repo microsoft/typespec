@@ -753,7 +753,12 @@ function loadPagingServiceMetadata(
           ] as SdkModelPropertyType;
           const operationParameter = getHttpOperationParameter(method, lastParameterSegment);
           if (operationParameter) {
-            const parameter = fromParameter(context, operationParameter, rootApiVersions, namespace);
+            const parameter = fromParameter(
+              context,
+              operationParameter,
+              rootApiVersions,
+              namespace,
+            );
             if (parameter) {
               nextLinkReInjectedParameters.push(parameter);
             }

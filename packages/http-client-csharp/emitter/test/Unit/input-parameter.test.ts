@@ -1041,7 +1041,10 @@ describe("Test Operation Parameters", () => {
 
       const typedParam = bodyParam as InputBodyParameter;
       // When not spread, correspondingMethodParams should be empty or contain just the body parameter itself
-      ok(typedParam.correspondingMethodParams === undefined || typedParam.correspondingMethodParams.length <= 1);
+      ok(
+        typedParam.correspondingMethodParams === undefined ||
+          typedParam.correspondingMethodParams.length <= 1,
+      );
     });
 
     it("should map query parameter to corresponding method parameters when spread", async () => {
@@ -1065,7 +1068,7 @@ describe("Test Operation Parameters", () => {
       const queryParams = operation.parameters.filter((p) => p.kind === "query");
 
       strictEqual(queryParams.length, 2);
-      
+
       for (const param of queryParams) {
         const typedParam = param as InputQueryParameter;
         ok(typedParam.correspondingMethodParams);
@@ -1099,15 +1102,13 @@ describe("Test Operation Parameters", () => {
       const pathParams = operation.parameters.filter((p) => p.kind === "path");
 
       strictEqual(pathParams.length, 2);
-      
+
       for (const param of pathParams) {
         const typedParam = param as InputPathParameter;
         ok(typedParam.correspondingMethodParams);
         strictEqual(typedParam.correspondingMethodParams.length, 1);
         ok(
-          typedParam.correspondingMethodParams.some(
-            (p) => p.name === "id" || p.name === "version",
-          ),
+          typedParam.correspondingMethodParams.some((p) => p.name === "id" || p.name === "version"),
         );
       }
     });
@@ -1133,7 +1134,7 @@ describe("Test Operation Parameters", () => {
       const headerParams = operation.parameters.filter((p) => p.kind === "header");
 
       strictEqual(headerParams.length, 2);
-      
+
       for (const param of headerParams) {
         const typedParam = param as InputHeaderParameter;
         ok(typedParam.correspondingMethodParams);
