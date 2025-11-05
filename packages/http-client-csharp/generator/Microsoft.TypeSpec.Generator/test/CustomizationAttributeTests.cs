@@ -23,12 +23,12 @@ namespace Microsoft.TypeSpec.Generator.Tests
             {
                 SerializationValueHook = "Foo",
                 DeserializationValueHook = "Bar",
-                PropertySerializationName = "Baz",
+                SerializationName = "Baz",
             };
             Assert.AreEqual("PropertyName", codeGenMemberAttribute.PropertyName);
             Assert.AreEqual("Foo", codeGenMemberAttribute.SerializationValueHook);
             Assert.AreEqual("Bar", codeGenMemberAttribute.DeserializationValueHook);
-            Assert.AreEqual("Baz", codeGenMemberAttribute.PropertySerializationName);
+            Assert.AreEqual("Baz", codeGenMemberAttribute.SerializationName);
         }
 
         [Test]
