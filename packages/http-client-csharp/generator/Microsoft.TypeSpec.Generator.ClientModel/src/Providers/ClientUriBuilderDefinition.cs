@@ -225,7 +225,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 new IfStatement(stringBuilder.Length().GreaterThan(pathLength).And(stringBuilder.Index(new BinaryOperatorExpression(" - ", stringBuilder.Length(), Int(1))).NotEqual(Literal('?'))))
                 {
                     stringBuilder.Append(Literal('&')).Terminate()
-                    stringBuilder.Append(Literal('&')).Terminate()
                 },
                 MethodBodyStatement.Empty,
                 new IfStatement(escapeParameter)
