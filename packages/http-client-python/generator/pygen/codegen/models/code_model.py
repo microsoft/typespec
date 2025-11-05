@@ -331,13 +331,19 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
         except StopIteration as exc:
             raise KeyError(f"Couldn't find schema with id {schema_id}") from exc
 
+    def is_model_exposed(self, schema: Any) -> bool:
+        """Return True if a given schema (model) should be part of the public API."""
+        if isinstance(schema, ModelType):
+            if self.options["models-mode"] == "typeddict":
+                return (schema.usage & UsageFlags.Input.value) > 0
+            return schema.usage != UsageFlags.Default.value
+        return False
+
     @property
     def model_types(self) -> list[ModelType]:
         """All of the model types in this class"""
         if not self._model_types:
-            self._model_types = [
-                t for t in self.types_map.values() if isinstance(t, ModelType) and t.usage != UsageFlags.Default.value
-            ]
+            self._model_types = [t for t in self.types_map.values() if self.is_model_exposed(t)]
         return self._model_types
 
     @model_types.setter
