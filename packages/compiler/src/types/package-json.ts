@@ -37,6 +37,7 @@ export interface PackageJson {
 }
 
 /**
+ * Specify the place where your code lives.
  * @see https://yarnpkg.com/en/docs/package-json#toc-repository
  * @see https://docs.npmjs.com/files/package.json#repository
  */
