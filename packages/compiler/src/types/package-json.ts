@@ -33,13 +33,18 @@ export interface PackageJson {
   dependencies?: Record<string, string>;
   peerDependencies?: Record<string, string>;
   devDependencies?: Record<string, string>;
-  repository?:
-    | string
-    | {
-        url?: string;
-      };
+  repository?: string | Repository;
 }
 
+/**
+ * @see https://yarnpkg.com/en/docs/package-json#toc-repository
+ * @see https://docs.npmjs.com/files/package.json#repository
+ */
+export interface Repository {
+  directory?: string;
+  type: string;
+  url: string;
+}
 /**
  * Entry points of a module, optionally with conditions and subpath imports.
  */
