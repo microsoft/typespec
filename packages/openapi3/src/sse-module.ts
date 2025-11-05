@@ -1,4 +1,5 @@
 import { Program, Type } from "@typespec/compiler";
+import { attachExtensions } from "./attach-extensions.js";
 import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
 import { OpenAPIMediaType3_2, OpenAPISchema3_2, Refable } from "./types.js";
 
@@ -104,6 +105,9 @@ export async function resolveSSEModule(): Promise<SSEModule | undefined> {
           (variantSchema.properties!.data as OpenAPISchema3_2).contentSchema =
             getSchemaForType(payloadType);
         }
+
+        // Attach any extensions from the union variant
+        attachExtensions(program, variant, variantSchema);
 
         oneOfSchemas.push(variantSchema);
       }
