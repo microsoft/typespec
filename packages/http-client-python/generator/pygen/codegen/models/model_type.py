@@ -57,7 +57,7 @@ class ModelType(BaseType):  # pylint: disable=too-many-instance-attributes, too-
     :type properties: dict(str, str)
     """
 
-    base: Literal["msrest", "dpg", "json"]
+    base: Literal["msrest", "dpg", "json", "typeddict"]
 
     def __init__(
         self,
@@ -391,4 +391,11 @@ class TypedDictModelType(GeneratedModelType):
         file_import = super().imports(**kwargs)
         # TypedDict needs the TypedDict import
         file_import.add_submodule_import("typing", "TypedDict", ImportType.STDLIB)
+        if kwargs.get("is_response", False):
+            file_import.define_mutable_mapping_type()
         return file_import
+
+    def type_annotation(self, **kwargs: Any) -> str:
+      if kwargs.get("is_response", False):
+          return self.type_annotation(**kwargs)
+      return "JSON"

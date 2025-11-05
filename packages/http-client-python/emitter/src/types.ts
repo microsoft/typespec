@@ -246,6 +246,7 @@ function emitProperty(
     flatten: property.flatten,
     isMultipartFileInput: isMultipartFileInput,
     xmlMetadata: getXmlMetadata(property),
+    isNullable: sourceType.kind === "nullable",
   };
 }
 

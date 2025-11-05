@@ -24,7 +24,7 @@ export interface PythonEmitterOptions {
   "use-pyodide"?: boolean;
   "keep-setup-py"?: boolean;
   "clear-output-folder"?: boolean;
-  "models-mode"?: "dpg" | "msrest" | "typeddict";
+  "models-mode"?: "dpg" | "typeddict";
 }
 
 export interface PythonSdkContext extends SdkContext<PythonEmitterOptions> {
@@ -109,10 +109,10 @@ export const PythonEmitterOptionsSchema: JSONSchemaType<PythonEmitterOptions> = 
     },
     "models-mode": {
       type: "string",
-      enum: ["dpg", "msrest", "typeddict"],
+      enum: ["dpg", "typeddict"],
       nullable: true,
       description:
-        "The mode to use for generating models. Options are 'dpg' (default), 'msrest', or 'typeddict'. 'typeddict' generates models using Python's TypedDict for input-only scenarios with basic types.",
+        "The mode to use for generating models. Options are 'dpg' (default) or 'typeddict'. 'typeddict' generates models using Python's TypedDict for input-only scenarios with basic types.",
     },
   },
   required: [],

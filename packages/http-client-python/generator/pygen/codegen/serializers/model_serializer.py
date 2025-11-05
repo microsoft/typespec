@@ -407,8 +407,7 @@ class TypedDictModelSerializer(_ModelSerializer):
         return file_import
 
     def declare_model(self, model: ModelType) -> str:
-        # TypedDict with total=False to allow optional properties
-        return f"class {model.name}(TypedDict, total=False):{model.pylint_disable()}"
+        return f"class {model.name}(TypedDict):{model.pylint_disable()}"
 
     def get_properties_to_declare(self, model: ModelType) -> list[Property]:
         # For TypedDict, include all properties

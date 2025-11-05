@@ -276,6 +276,8 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
 
     @property
     def need_deserialize(self) -> bool:
+        if self.code_model.options["models-mode"] == "typeddict":
+            return False
         return any(r.type and not isinstance(r.type, BinaryIteratorType) for r in self.responses)
 
     def imports(  # pylint: disable=too-many-branches, disable=too-many-statements

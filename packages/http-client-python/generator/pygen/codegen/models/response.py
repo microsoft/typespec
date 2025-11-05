@@ -95,7 +95,7 @@ class Response(BaseModel):
     def type_annotation(self, **kwargs: Any) -> str:
         if self.type:
             kwargs["is_operation_file"] = True
-            type_annotation = self.type.type_annotation(**kwargs)
+            type_annotation = self.type.type_annotation(is_response=True, **kwargs)
             if self.nullable:
                 return f"Optional[{type_annotation}]"
             return type_annotation
@@ -114,7 +114,7 @@ class Response(BaseModel):
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = FileImport(self.code_model)
         if self.type:
-            file_import.merge(self.type.imports(**kwargs))
+            file_import.merge(self.type.imports(is_response=True, **kwargs))
         if self.nullable:
             file_import.add_submodule_import("typing", "Optional", ImportType.STDLIB)
         if isinstance(self.type, CombinedType) and self.type.name:

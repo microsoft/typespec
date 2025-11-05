@@ -701,12 +701,11 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             )
         elif self.code_model.options["models-mode"] in ("dpg", "typeddict"):
             if json_serializable(body_param.default_content_type):
-                # DPG supports encode format, TypedDict doesn't
-                if (
-                    self.code_model.options["models-mode"] == "dpg"
-                    and hasattr(body_param.type, "encode")
-                    and body_param.type.encode  # type: ignore
-                ):
+                if self.code_model.options["models-mode"] == "typeddict":
+                    create_body_call = (
+                        f"_{body_kwarg_name} = json.dumps({body_param.client_name})"
+                    )
+                elif hasattr(body_param.type, "encode") and body_param.type.encode: # type: ignore
                     create_body_call = (
                         f"_{body_kwarg_name} = json.dumps({body_param.client_name}, "
                         "cls=SdkJSONEncoder, exclude_readonly=True, "
@@ -982,7 +981,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                 deserialize_code.append(f"    '{serialization_type}',{pylint_disable}")
                 deserialize_code.append(" pipeline_response.http_response")
                 deserialize_code.append(")")
-            elif self.code_model.options["models-mode"] == "dpg":
+            elif self.code_model.options["models-mode"] in ("dpg", "typeddict"):
                 if builder.has_stream_response:
                     deserialize_code.append("deserialized = response.content")
                 else:
@@ -996,13 +995,16 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                     deserialize_func = "_deserialize"
                     if xml_serializable(str(response.default_content_type)):
                         deserialize_func = "_deserialize_xml"
-                    deserialize_code.append(f"deserialized = {deserialize_func}(")
-                    type_annotation = response.type.type_annotation(
-                        is_operation_file=True, serialize_namespace=self.serialize_namespace
-                    )
-                    deserialize_code.append(f"    {type_annotation},{pylint_disable}")
-                    deserialize_code.append(f"    response.{response_attr}(){response.result_property}{format_filed}")
-                    deserialize_code.append(")")
+                    if self.code_model.options["models-mode"] == "dpg":
+                      deserialize_code.append(f"deserialized = {deserialize_func}(")
+                      type_annotation = response.type.type_annotation(
+                          is_operation_file=True, serialize_namespace=self.serialize_namespace
+                      )
+                      deserialize_code.append(f"    {type_annotation},{pylint_disable}")
+                      deserialize_code.append(f"    response.{response_attr}(){response.result_property}{format_filed}")
+                      deserialize_code.append(")")
+                    else:
+                      deserialize_code.append(f"deserialized = response.{response_attr}(){response.result_property}")
 
             else:
                 deserialized_value = "ET.fromstring(response.text())" if response.type.is_xml else "response.json()"

@@ -39,6 +39,7 @@ class Property(BaseModel):  # pylint: disable=too-many-instance-attributes
         self.flattened_names: list[str] = yaml_data.get("flattenedNames", [])
         self.is_multipart_file_input: bool = yaml_data.get("isMultipartFileInput", False)
         self.flatten = self.yaml_data.get("flatten", False) and not getattr(self.type, "flattened_property", False)
+        self.is_nullable: bool = self.yaml_data.get("isNullable", False)
 
     def pylint_disable(self) -> str:
         retval: str = ""
@@ -109,6 +110,10 @@ class Property(BaseModel):  # pylint: disable=too-many-instance-attributes
             return "str"
         types_type_annotation = self.type.type_annotation(is_operation_file=is_operation_file, **kwargs)
         if (self.optional and self.client_default_value is None) or self.readonly:
+            if self.code_model.options["models-mode"] == "typeddict":
+                if self.is_nullable:
+                    return f"Optional[NotRequired[{types_type_annotation}]]"
+                return f"NotRequired[{types_type_annotation}]"
             return f"Optional[{types_type_annotation}]"
         return types_type_annotation
 
@@ -151,7 +156,12 @@ class Property(BaseModel):  # pylint: disable=too-many-instance-attributes
             return file_import
         file_import.merge(self.type.imports(**kwargs))
         if (self.optional and self.client_default_value is None) or self.readonly:
-            file_import.add_submodule_import("typing", "Optional", ImportType.STDLIB)
+            if self.code_model.options["models-mode"] == "typeddict":
+              file_import.add_submodule_import("typing_extensions", "NotRequired", ImportType.STDLIB, version_modules=[((3, 11), "typing")])
+              if self.is_nullable:
+                  file_import.add_submodule_import("typing", "Optional", ImportType.STDLIB)
+            else:
+                file_import.add_submodule_import("typing", "Optional", ImportType.STDLIB)
         if self.code_model.options["models-mode"] == "dpg":
             serialize_namespace = kwargs.get("serialize_namespace", self.code_model.namespace)
             file_import.add_submodule_import(
