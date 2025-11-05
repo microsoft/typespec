@@ -1232,6 +1232,8 @@ export class CodeModelBuilder {
           )
         : undefined,
       nextLinkReInjectedParameters: nextLinkReInjectedParameters,
+      // change this to "sdkMethod.pagingMetadata.nextLinkVerbType"
+      nextLinkVerb: "GET",
     };
   }
 
@@ -2159,6 +2161,20 @@ export class CodeModelBuilder {
     if (sdkResponse.headers) {
       for (const header of sdkResponse.headers) {
         const schema = this.processSchema(header.type, header.name);
+
+        if (schema instanceof ConstantSchema) {
+          // skip constant header in response
+          if (header.serializedName.toLowerCase() !== "content-type") {
+            // we does not warn on content-type as constant, as this is the most common case
+            reportDiagnostic(this.program, {
+              code: "constant-header-in-response-removed",
+              format: { headerName: header.serializedName },
+              target: header.__raw ?? NoTarget,
+            });
+          }
+          break;
+        }
+
         headers.push(
           new HttpHeader(header.serializedName, schema, {
             language: {

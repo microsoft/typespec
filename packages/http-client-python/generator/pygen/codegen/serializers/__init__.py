@@ -125,7 +125,7 @@ class JinjaSerializer(ReaderAndWriter):
     # pylint: disable=too-many-branches
     def serialize(self) -> None:
         # remove existing folders when generate from tsp
-        if self.code_model.is_tsp and self.code_model.is_azure_flavor:
+        if self.code_model.is_tsp and self.code_model.options.get("clear-output-folder"):
             # remove generated_samples and generated_tests folder
             self.remove_folder(self._generated_tests_samples_folder("generated_samples"))
             self.remove_folder(self._generated_tests_samples_folder("generated_tests"))
