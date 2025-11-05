@@ -91,6 +91,7 @@ import {
   OpenAPI3EmitterOptions,
   OpenAPIVersion,
   OperationIdStrategy,
+  reportDiagnostic,
 } from "./lib.js";
 import { getOpenApiSpecProps } from "./openapi-spec-mappings.js";
 import { OperationIdResolver } from "./operation-id-resolver/operation-id-resolver.js";
@@ -1188,26 +1189,31 @@ function createOAPIEmitter(
       return { schema: getRawBinarySchema(contentType) } as OpenAPI3MediaType;
     }
 
-    // Check if this is an SSE stream for OpenAPI 3.2 (only for responses)
-    if (
-      contentType === "text/event-stream" &&
-      sseModule &&
-      specVersion === "3.2.0" &&
-      isResponseContent
-    ) {
+    // Check if this is an SSE stream (only for responses)
+    if (contentType === "text/event-stream" && sseModule && isResponseContent) {
       // Use getStreamMetadata to check if this is a stream response
       const streamMetadata = getStreamMetadata(program, dataOrBody as HttpOperationResponseContent);
       if (streamMetadata) {
-        const mediaType: any = {};
-        sseModule.attachSSEItemSchema(
-          program,
-          options,
-          streamMetadata.streamType,
-          mediaType,
-          (type: Type) => callSchemaEmitter(type, visibility, false, "application/json"),
-        );
-        if (Object.keys(mediaType).length > 0) {
-          return mediaType;
+        if (specVersion === "3.1.0" || specVersion === "3.0.0") {
+          // Limited SSE support for OpenAPI 3.1.0 - emit warning and continue without itemSchema
+          reportDiagnostic(program, {
+            code: "sse-not-supported",
+            target: body.type,
+          });
+          // Fall through to normal processing without itemSchema
+        } else {
+          // Full SSE support for OpenAPI 3.2.0
+          const mediaType: any = {};
+          sseModule.attachSSEItemSchema(
+            program,
+            options,
+            streamMetadata.streamType,
+            mediaType,
+            (type: Type) => callSchemaEmitter(type, visibility, false, "application/json"),
+          );
+          if (Object.keys(mediaType).length > 0) {
+            return mediaType;
+          }
         }
       }
     }

@@ -1,5 +1,5 @@
 import { resolvePath } from "@typespec/compiler";
-import { createTester } from "@typespec/compiler/testing";
+import { createTester, expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok } from "assert";
 import { describe, it } from "vitest";
 
@@ -28,16 +28,32 @@ const SSETester = createTester(resolvePath(import.meta.dirname, ".."), {
   .using("Http", "Rest", "OpenAPI", "TypeSpec.Streams", "TypeSpec.Events", "SSE")
   .emit("@typespec/openapi3", { "openapi-versions": ["3.2.0"] });
 
-async function openApiFor(code: string) {
+async function openApiFor(code: string, openAPIVersion = "3.2.0") {
   const host = await SSETester.createInstance();
   const outPath = "{emitter-output-dir}/openapi.json";
   const { outputs } = await host.compile(code, {
     compilerOptions: {
-      options: { "@typespec/openapi3": { "output-file": outPath, "openapi-versions": ["3.2.0"] } },
+      options: {
+        "@typespec/openapi3": { "output-file": outPath, "openapi-versions": [openAPIVersion] },
+      },
     },
   });
 
   return JSON.parse(outputs["openapi.json"]);
+}
+
+async function openApiWithDiagnosticsFor(code: string, openAPIVersion = "3.2.0") {
+  const host = await SSETester.createInstance();
+  const outPath = "{emitter-output-dir}/openapi.json";
+  const [result, diagnostics] = await host.compileAndDiagnose(code, {
+    compilerOptions: {
+      options: {
+        "@typespec/openapi3": { "output-file": outPath, "openapi-versions": [openAPIVersion] },
+      },
+    },
+  });
+
+  return { openApi: JSON.parse(result.outputs["openapi.json"]), diagnostics };
 }
 
 describe("openapi3: SSE (Server-Sent Events)", () => {
@@ -236,6 +252,60 @@ describe("openapi3: SSE (Server-Sent Events)", () => {
       // Check the binary event has custom content type
       const binaryVariant = eventStreamContent.itemSchema.oneOf[0];
       deepStrictEqual(binaryVariant.properties.data.contentMediaType, "application/octet-stream");
+    });
+  });
+
+  describe("OpenAPI 3.1.0 SSE handling", () => {
+    it("emits text/event-stream response without itemSchema and logs warning for OpenAPI 3.1.0", async () => {
+      const { openApi, diagnostics } = await openApiWithDiagnosticsFor(
+        `
+        model UserConnect {
+          username: string;
+        }
+
+        model UserMessage {
+          text: string;
+        }
+
+        @events
+        union ChannelEvents {
+          userconnect: UserConnect,
+          usermessage: UserMessage,
+        }
+
+        @service
+        @route("/channel")
+        namespace Channel {
+          @get op subscribe(): SSEStream<ChannelEvents>;
+        }
+        `,
+        "3.1.0",
+      );
+
+      // Verify the warning is emitted
+      expectDiagnostics(diagnostics, [
+        {
+          code: "@typespec/openapi3/sse-not-supported",
+          severity: "warning",
+        },
+      ]);
+
+      // Verify the response structure
+      ok(openApi.paths["/channel"], "expected /channel path");
+      const response = (openApi.paths["/channel"] as any).get.responses["200"];
+      ok(response, "expected 200 response");
+      ok(response.content, "expected content");
+
+      ok(response.content["text/event-stream"], "expected text/event-stream content type");
+
+      const eventStreamContent = response.content["text/event-stream"];
+
+      // For OpenAPI 3.1.0, itemSchema should NOT be present
+      ok(!eventStreamContent.itemSchema, "itemSchema should not be present for OpenAPI 3.1.0");
+
+      // Should have basic schema for string type
+      ok(eventStreamContent.schema, "expected basic schema");
+      deepStrictEqual(eventStreamContent.schema.type, "string");
     });
   });
 });
