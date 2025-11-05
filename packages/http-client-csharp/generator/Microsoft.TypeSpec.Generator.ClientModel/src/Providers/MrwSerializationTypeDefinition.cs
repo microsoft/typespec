@@ -245,7 +245,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 [
                     responseDeclaration,
                     Declare("data", typeof(BinaryData), response.Property(nameof(HttpResponseApi.Content)), out var dataVariable),
-                    UsingDeclare("document", typeof(JsonDocument), dataVariable.As<BinaryData>().Parse(), out var docVariable),
+                    UsingDeclare("document", typeof(JsonDocument), dataVariable.As<BinaryData>().Parse(ModelSerializationExtensionsSnippets.JsonDocumentOptions), out var docVariable),
                     Return(GetDeserializationMethodInvocationForType(_model, docVariable.As<JsonDocument>().RootElement(), dataVariable))
                 ];
             }
@@ -254,7 +254,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 methodBody =
                 [
                     responseDeclaration,
-                    UsingDeclare("document", typeof(JsonDocument), response.Property(nameof(HttpResponseApi.Content)).As<BinaryData>().Parse(), out var docVariable),
+                    UsingDeclare("document", typeof(JsonDocument), response.Property(nameof(HttpResponseApi.Content)).As<BinaryData>().Parse(ModelSerializationExtensionsSnippets.JsonDocumentOptions), out var docVariable),
                     Return(GetDeserializationMethodInvocationForType(_model, docVariable.As<JsonDocument>().RootElement()))
                 ];
             }
@@ -833,7 +833,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ModelReaderWriterOptionsSnippets.JsonFormat,
                 new MethodBodyStatement[]
                 {
-                    new UsingScopeStatement(typeof(JsonDocument), "document", JsonDocumentSnippets.Parse(_dataParameter), out var jsonDocumentVar)
+                    new UsingScopeStatement(typeof(JsonDocument), "document", JsonDocumentSnippets.Parse(_dataParameter, ModelSerializationExtensionsSnippets.JsonDocumentOptions), out var jsonDocumentVar)
                     {
                         Return(GetDeserializationMethodInvocationForType(
                             typeForDeserialize,

@@ -129,7 +129,7 @@ namespace SampleTypeSpec.Models.Custom
             switch (format)
             {
                 case "J":
-                    using (JsonDocument document = JsonDocument.Parse(data))
+                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
                     {
                         return DeserializeFriend(document.RootElement, options);
                     }
@@ -155,7 +155,7 @@ namespace SampleTypeSpec.Models.Custom
         public static explicit operator Friend(ClientResult result)
         {
             PipelineResponse response = result.GetRawResponse();
-            using JsonDocument document = JsonDocument.Parse(response.Content);
+            using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
             return DeserializeFriend(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
     }

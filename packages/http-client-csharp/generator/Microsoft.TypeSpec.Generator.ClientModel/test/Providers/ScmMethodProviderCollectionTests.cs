@@ -1075,6 +1075,30 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
+        public void TestMethodTypeIdentification()
+        {
+            MockHelpers.LoadMockGenerator();
+
+            var inputOperation = InputFactory.Operation("TestOperation");
+            var inputServiceMethod = InputFactory.BasicServiceMethod("Test", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+
+            // Verify protocol methods
+            var protocolMethods = methodCollection.Where(m => ((ScmMethodProvider)m).Kind == ScmMethodKind.Protocol).ToList();
+            Assert.AreEqual(2, protocolMethods.Count); // sync + async
+
+            // Verify convenience methods
+            var convenienceMethods = methodCollection.Where(m => ((ScmMethodProvider)m).Kind == ScmMethodKind.Convenience).ToList();
+            Assert.AreEqual(2, convenienceMethods.Count); // sync + async
+
+            // Verify CreateRequest method
+            var createRequestMethod = (ScmMethodProvider)client!.RestClient.GetCreateRequestMethod(inputOperation);
+            Assert.AreEqual(ScmMethodKind.CreateRequest, createRequestMethod.Kind);
+        }
+
+        [Test]
         public void CorrespondingMethodParamsMapParametersCorrectly()
         {
             // Create method parameters that will be used in correspondingMethodParams
@@ -1203,7 +1227,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
             // Verify body parameter mapping works correctly
             var bodyString = convenienceMethod!.BodyStatements!.ToDisplayString();
-            Assert.IsTrue(bodyString.Contains("content") || bodyString.Contains("value"), 
+            Assert.IsTrue(bodyString.Contains("content") || bodyString.Contains("value"),
                 "Body should contain content conversion or value parameter");
         }
 
@@ -1369,7 +1393,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             // Verify the body accesses model properties when calling the protocol method
             var bodyString = convenienceMethod.BodyStatements!.ToDisplayString();
             Assert.IsTrue(bodyString.Contains("request"), "Body should reference the 'request' parameter");
-            
+
             // Verify that the convenience method accesses properties from the model parameter
             // e.g., request.ApiKey for header, request.Filter for query
             Assert.IsTrue(bodyString.Contains("request.ApiKey") || bodyString.Contains("request.apiKey"),
