@@ -2693,6 +2693,13 @@ export class CodeModelBuilder {
       },
     });
     objectSchema.language.default.crossLanguageDefinitionId = type.crossLanguageDefinitionId;
+
+    if (type.external) {
+      this.trackSchemaUsage(objectSchema, {
+        usage: [SchemaContext.External],
+      });
+    }
+
     this.codeModel.schemas.add(objectSchema);
 
     // cache this now before we accidentally recurse on this type.
