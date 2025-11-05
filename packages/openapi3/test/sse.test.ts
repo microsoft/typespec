@@ -255,57 +255,61 @@ describe("openapi3: SSE (Server-Sent Events)", () => {
     });
   });
 
-  describe("OpenAPI 3.1.0 SSE handling", () => {
-    it("emits text/event-stream response without itemSchema and logs warning for OpenAPI 3.1.0", async () => {
-      const { openApi, diagnostics } = await openApiWithDiagnosticsFor(
-        `
-        model UserConnect {
-          username: string;
-        }
+  const versionsWithNoItemSchema = ["3.0.0", "3.1.0"];
 
-        model UserMessage {
-          text: string;
-        }
+  versionsWithNoItemSchema.forEach((version) => {
+    describe(`OpenAPI ${version} SSE handling`, () => {
+      it(`emits text/event-stream response without itemSchema and logs warning for OpenAPI ${version}`, async () => {
+        const { openApi, diagnostics } = await openApiWithDiagnosticsFor(
+          `
+          model UserConnect {
+            username: string;
+          }
 
-        @events
-        union ChannelEvents {
-          userconnect: UserConnect,
-          usermessage: UserMessage,
-        }
+          model UserMessage {
+            text: string;
+          }
 
-        @service
-        @route("/channel")
-        namespace Channel {
-          @get op subscribe(): SSEStream<ChannelEvents>;
-        }
-        `,
-        "3.1.0",
-      );
+          @events
+          union ChannelEvents {
+            userconnect: UserConnect,
+            usermessage: UserMessage,
+          }
 
-      // Verify the warning is emitted
-      expectDiagnostics(diagnostics, [
-        {
-          code: "@typespec/openapi3/sse-not-supported",
-          severity: "warning",
-        },
-      ]);
+          @service
+          @route("/channel")
+          namespace Channel {
+            @get op subscribe(): SSEStream<ChannelEvents>;
+          }
+          `,
+          "3.1.0",
+        );
 
-      // Verify the response structure
-      ok(openApi.paths["/channel"], "expected /channel path");
-      const response = (openApi.paths["/channel"] as any).get.responses["200"];
-      ok(response, "expected 200 response");
-      ok(response.content, "expected content");
+        // Verify the warning is emitted
+        expectDiagnostics(diagnostics, [
+          {
+            code: "@typespec/openapi3/sse-not-supported",
+            severity: "warning",
+          },
+        ]);
 
-      ok(response.content["text/event-stream"], "expected text/event-stream content type");
+        // Verify the response structure
+        ok(openApi.paths["/channel"], "expected /channel path");
+        const response = (openApi.paths["/channel"] as any).get.responses["200"];
+        ok(response, "expected 200 response");
+        ok(response.content, "expected content");
 
-      const eventStreamContent = response.content["text/event-stream"];
+        ok(response.content["text/event-stream"], "expected text/event-stream content type");
 
-      // For OpenAPI 3.1.0, itemSchema should NOT be present
-      ok(!eventStreamContent.itemSchema, "itemSchema should not be present for OpenAPI 3.1.0");
+        const eventStreamContent = response.content["text/event-stream"];
 
-      // Should have basic schema for string type
-      ok(eventStreamContent.schema, "expected basic schema");
-      deepStrictEqual(eventStreamContent.schema.type, "string");
+        // For OpenAPI 3.1.0, itemSchema should NOT be present
+        ok(!eventStreamContent.itemSchema, "itemSchema should not be present for OpenAPI 3.1.0");
+
+        // Should have basic schema for string type
+        ok(eventStreamContent.schema, "expected basic schema");
+        deepStrictEqual(eventStreamContent.schema.type, "string");
+      });
     });
   });
 });
