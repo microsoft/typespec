@@ -1,6 +1,7 @@
 import { getUnionAsEnum } from "@azure-tools/typespec-azure-core";
 import {
   SdkDurationType,
+  SdkEnumType,
   SdkModelPropertyType,
   SdkModelType,
   SdkType,
@@ -480,4 +481,18 @@ export function scopeImplicitlyIncludeJava(scope: string): boolean {
 function scopeIsNegationOfMultiple(scope: string): boolean {
   const trimmedScope = scope.trim();
   return trimmedScope.startsWith("!(") && trimmedScope.endsWith(")");
+}
+
+/**
+ * Gets the name of the type, considering ExternalType "external.identity".
+ * @param type the type.
+ * @returns the name of the type.
+ */
+export function getTypeName(type: SdkModelType | SdkEnumType): string {
+  if (type.external) {
+    const fullyQualifiedClassName = type.external.identity;
+    return fullyQualifiedClassName.substring(fullyQualifiedClassName.lastIndexOf(".") + 1);
+  } else {
+    return type.name;
+  }
 }

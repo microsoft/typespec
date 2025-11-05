@@ -146,6 +146,7 @@ import {
   getDurationFormat,
   getNonNullSdkType,
   getPropertySerializedName,
+  getTypeName,
   getUnionDescription,
   getUsage,
   getXmlSerializationFormat,
@@ -2572,7 +2573,7 @@ export class CodeModelBuilder {
 
     const schemaType = type.isFixed ? SealedChoiceSchema : ChoiceSchema;
 
-    const schema = new schemaType(type.name ?? name, type.doc ?? "", {
+    const schema = new schemaType(getTypeName(type) ?? name, type.doc ?? "", {
       summary: type.summary,
       choiceType: valueType as any,
       choices: choices,
@@ -2680,7 +2681,7 @@ export class CodeModelBuilder {
       });
     }
     const namespace = getNamespace(rawModelType);
-    const objectSchema = new ObjectSchema(type.name ?? name, type.doc ?? "", {
+    const objectSchema = new ObjectSchema(getTypeName(type) ?? name, type.doc ?? "", {
       summary: type.summary,
       language: {
         default: {
@@ -3128,7 +3129,16 @@ export class CodeModelBuilder {
     // we still keep the mapping of models from TypeSpec namespace and Azure namespace to "baseJavaNamespace"
     if (type) {
       const crossLanguageDefinitionId = type.crossLanguageDefinitionId;
-      if (this.isBranded()) {
+
+      if (type.kind !== "client" && type.external) {
+        // external model, Java namespace is on "external.identity"
+        const fullyQualifiedClassName = type.external.identity;
+        const javaNamespace = fullyQualifiedClassName.substring(
+          0,
+          fullyQualifiedClassName.lastIndexOf("."),
+        );
+        return this.escapeJavaNamespace(javaNamespace);
+      } else if (this.isBranded()) {
         // special handling for namespace of model that cannot be mapped to azure-core
         if (crossLanguageDefinitionId === "TypeSpec.Http.File") {
           // TypeSpec.Http.File
