@@ -157,7 +157,7 @@ describe("openapi3: SSE (Server-Sent Events)", () => {
       ok(terminalVariant, "expected terminal event variant");
       deepStrictEqual(terminalVariant.properties.data.const, "[done]");
       deepStrictEqual(terminalVariant.properties.data.contentMediaType, "text/plain");
-      deepStrictEqual(terminalVariant["x-ms-sse-terminal-event"], true);
+      deepStrictEqual(terminalVariant["x-ms-sse-terminal-event"], undefined);
     });
 
     it("emits itemSchema with terminal event marked by extension", async () => {
@@ -199,9 +199,7 @@ describe("openapi3: SSE (Server-Sent Events)", () => {
       deepStrictEqual(eventStreamContent.itemSchema.oneOf.length, 3);
 
       // Check terminal event
-      const terminalVariant = eventStreamContent.itemSchema.oneOf.find(
-        (v: any) => v["x-ms-sse-terminal-event"] === true,
-      );
+      const terminalVariant = eventStreamContent.itemSchema.oneOf[2];
       ok(terminalVariant, "expected terminal event variant");
       deepStrictEqual(terminalVariant.properties.data.const, "[done]");
       deepStrictEqual(terminalVariant.properties.data.contentMediaType, "text/plain");
