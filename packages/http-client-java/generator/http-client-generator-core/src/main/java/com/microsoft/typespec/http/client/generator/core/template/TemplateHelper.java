@@ -13,19 +13,18 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Pipel
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.SecurityInfo;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
 import io.clientcore.core.serialization.json.JsonWriter;
-import org.slf4j.Logger;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
+import org.slf4j.Logger;
 
 public final class TemplateHelper {
     private final static Logger LOGGER
         = new PluginLogger(Javagen.getPluginInstance(), ServiceClientBuilderTemplate.class);
 
     public static String getPomProjectName(String serviceName) {
-        return JavaSettings.getInstance().isAzureV1() 
+        return JavaSettings.getInstance().isAzureV1()
             ? "Microsoft Azure SDK for " + serviceName
             : "SDK for " + serviceName;
     }
@@ -37,9 +36,11 @@ public final class TemplateHelper {
     }
 
     public static String getByteCloneExpression(String propertyName) {
-        return JavaSettings.getInstance().isAzureV1()
-            ? "CoreUtils.clone(" + propertyName + ")"
-            : propertyName; // TODO: generic not having CoreUtils
+        return JavaSettings.getInstance().isAzureV1() ? "CoreUtils.clone(" + propertyName + ")" : propertyName; // TODO:
+                                                                                                                // generic
+                                                                                                                // not
+                                                                                                                // having
+                                                                                                                // CoreUtils
     }
 
     public static void createHttpPipelineMethod(JavaSettings settings, String defaultCredentialScopes,
@@ -61,7 +62,7 @@ public final class TemplateHelper {
         SecurityInfo securityInfo, PipelinePolicyDetails pipelinePolicyDetails, JavaBlock function) {
         function.line("Configuration buildConfiguration = (configuration == null) ? Configuration"
             + ".getGlobalConfiguration() : configuration;");
-        function.line("HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions " 
+        function.line("HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions "
             + "== null ? new HttpInstrumentationOptions() : this.httpInstrumentationOptions;");
 
         function.line("HttpPipelineBuilder httpPipelineBuilder = new HttpPipelineBuilder();");
@@ -102,7 +103,8 @@ public final class TemplateHelper {
         SecurityInfo securityInfo, PipelinePolicyDetails pipelinePolicyDetails, JavaBlock function) {
         function.line("Configuration buildConfiguration = (configuration == null) ? Configuration"
             + ".getGlobalConfiguration() : configuration;");
-        function.line("HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null ? new HttpInstrumentationOptions() : this.httpInstrumentationOptions;");
+        function.line(
+            "HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null ? new HttpInstrumentationOptions() : this.httpInstrumentationOptions;");
 
         function.line("String clientName = PROPERTIES.getOrDefault(SDK_NAME, \"UnknownName\");");
         function.line("String clientVersion = PROPERTIES.getOrDefault(SDK_VERSION, \"UnknownVersion\");");
@@ -126,8 +128,9 @@ public final class TemplateHelper {
             });
         }
         if (securityInfo.getSecurityTypes().contains(Scheme.SecuritySchemeType.OAUTH2)) {
-            function.ifBlock("tokenCredential != null", action -> action.line("policies.add(new BearerTokenAuthenticationPolicy(tokenCredential, %s));",
-                defaultCredentialScopes));
+            function.ifBlock("tokenCredential != null",
+                action -> action.line("policies.add(new BearerTokenAuthenticationPolicy(tokenCredential, %s));",
+                    defaultCredentialScopes));
         }
         function.line("policies.add(new HttpInstrumentationPolicy(localHttpInstrumentationOptions));");
         function.line("policies.forEach(httpPipelineBuilder::addPolicy);");
@@ -139,8 +142,10 @@ public final class TemplateHelper {
         function.line("Configuration buildConfiguration = (configuration == null) ? Configuration"
             + ".getGlobalConfiguration() : configuration;");
 
-        function.line("HttpLogOptions localHttpLogOptions = this.httpLogOptions == null ? new HttpLogOptions() : this.httpLogOptions;");
-        function.line("ClientOptions localClientOptions = this.clientOptions == null ? new ClientOptions() : this.clientOptions;");
+        function.line(
+            "HttpLogOptions localHttpLogOptions = this.httpLogOptions == null ? new HttpLogOptions() : this.httpLogOptions;");
+        function.line(
+            "ClientOptions localClientOptions = this.clientOptions == null ? new ClientOptions() : this.clientOptions;");
 
         function.line("List<HttpPipelinePolicy> policies = new ArrayList<>();");
 
@@ -160,8 +165,7 @@ public final class TemplateHelper {
         function.line("policies.add(new AddHeadersFromContextPolicy());");
 
         // clientOptions header
-        function.line(
-            "HttpHeaders headers = CoreUtils.createHttpHeadersFromClientOptions(localClientOptions);");
+        function.line("HttpHeaders headers = CoreUtils.createHttpHeadersFromClientOptions(localClientOptions);");
         function.ifBlock("headers != null", block -> block.line("policies.add(new AddHeadersPolicy(headers));"));
 
         function.line(
@@ -202,8 +206,9 @@ public final class TemplateHelper {
             }
         }
         if (securityInfo.getSecurityTypes().contains(Scheme.SecuritySchemeType.OAUTH2)) {
-            function.ifBlock("tokenCredential != null", action -> action.line("policies.add(new BearerTokenAuthenticationPolicy(tokenCredential, %s));",
-                defaultCredentialScopes));
+            function.ifBlock("tokenCredential != null",
+                action -> action.line("policies.add(new BearerTokenAuthenticationPolicy(tokenCredential, %s));",
+                    defaultCredentialScopes));
         }
         function.line(
             "this.pipelinePolicies.stream().filter(p -> p.getPipelinePosition() == HttpPipelinePosition.PER_RETRY)"
