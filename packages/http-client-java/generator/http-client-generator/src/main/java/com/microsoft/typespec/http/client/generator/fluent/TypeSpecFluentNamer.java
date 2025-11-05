@@ -9,7 +9,6 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlu
 import com.microsoft.typespec.http.client.generator.mgmt.FluentNamer;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.utils.IOExceptionCheckedFunction;
-
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.stream.Collectors;

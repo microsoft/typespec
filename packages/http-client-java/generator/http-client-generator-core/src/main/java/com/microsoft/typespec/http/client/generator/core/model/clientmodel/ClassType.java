@@ -42,8 +42,6 @@ import com.azure.core.http.rest.Response;
 import com.azure.core.http.rest.RestProxy;
 import com.azure.core.http.rest.SimpleResponse;
 import com.azure.core.http.rest.StreamResponse;
-import com.azure.core.models.JsonPatchDocument;
-import com.azure.core.models.ResponseError;
 import com.azure.core.util.Base64Url;
 import com.azure.core.util.Base64Util;
 import com.azure.core.util.BinaryData;
@@ -56,7 +54,6 @@ import com.azure.core.util.ExpandableEnum;
 import com.azure.core.util.ExpandableStringEnum;
 import com.azure.core.util.logging.ClientLogger;
 import com.azure.core.util.logging.LogLevel;
-import com.azure.core.util.polling.PollOperationDetails;
 import com.azure.core.util.polling.PollingStrategyOptions;
 import com.azure.core.util.polling.SyncPoller;
 import com.azure.core.util.serializer.JsonSerializer;
@@ -111,60 +108,62 @@ public class ClassType implements IType {
 
     }
 
-    private static final Map<String, ClassDetails> CLASS_TYPE_MAPPING = Map.ofEntries(
-        createEntry(RestProxy.class.getName(), "io.clientcore.core.http.RestProxy"),
-        createEntry(HttpPipeline.class.getName(), "io.clientcore.core.http.pipeline.HttpPipeline"),
-        createEntry(HttpPipelineBuilder.class.getName(), "io.clientcore.core.http.pipeline.HttpPipelineBuilder"),
-        createEntry(Context.class.getName(), "io.clientcore.core.utils.Context"),
-        createEntry(HttpClient.class.getName(), "io.clientcore.core.http.client.HttpClient"),
-        createEntry(HttpLogOptions.class.getName(), "io.clientcore.core.http.pipeline.HttpInstrumentationOptions"),
-        createEntry(HttpPipelinePolicy.class.getName(), "io.clientcore.core.http.pipeline.HttpPipelinePolicy"),
-        createEntry(KeyCredential.class.getName(), "io.clientcore.core.credentials.KeyCredential"),
-        createEntry(KeyCredentialPolicy.class.getName(), "io.clientcore.core.http.pipeline.KeyCredentialPolicy"),
-        createEntry(RetryPolicy.class.getName(), "io.clientcore.core.http.pipeline.HttpRetryPolicy"),
-        createEntry(RedirectPolicy.class.getName(), "io.clientcore.core.http.pipeline.HttpRedirectPolicy"),
-        createEntry(HttpLoggingPolicy.class.getName(), "io.clientcore.core.http.pipeline.HttpInstrumentationPolicy"),
-        createEntry(Configuration.class.getName(), "io.clientcore.core.utils.configuration.Configuration"),
-        createEntry(HttpHeaders.class.getName(), "io.clientcore.core.http.models.HttpHeaders"),
-        createEntry(HttpHeader.class.getName(), "io.clientcore.core.http.models.HttpHeader"),
-        createEntry(HttpHeaderName.class.getName(), "io.clientcore.core.http.models.HttpHeaderName"),
-        createEntry(HttpRequest.class.getName(), "io.clientcore.core.http.models.HttpRequest"),
-        createEntry(HttpResponse.class.getName(), "io.clientcore.core.http.models.HttpResponse"),
-        createEntry(BinaryData.class.getName(), "io.clientcore.core.models.binarydata.BinaryData"),
-        createEntry(RetryOptions.class.getName(), "io.clientcore.core.http.pipeline.HttpRetryOptions"),
-        createEntry(ProxyOptions.class.getName(), "io.clientcore.core.http.models.ProxyOptions"),
-        createEntry(Response.class.getName(), "io.clientcore.core.http.models.Response"),
-        createEntry(SimpleResponse.class.getName(), "io.clientcore.core.http.SimpleResponse"),
-        createEntry(ExpandableStringEnum.class.getName(), "io.clientcore.core.utils.ExpandableEnum"),
-        createEntry(ExpandableEnum.class.getName(), "io.clientcore.core.utils.ExpandableEnum"),
-        createEntry(HttpResponseException.class.getName(), "io.clientcore.core.http.models.HttpResponseException"),
-        createEntry(HttpTrait.class.getName(), "io.clientcore.core.traits.HttpTrait"),
-        createEntry(ConfigurationTrait.class.getName(), "io.clientcore.core.traits.ConfigurationTrait"),
-        createEntry(EndpointTrait.class.getName(), "io.clientcore.core.traits.EndpointTrait"),
-        createEntry(KeyCredentialTrait.class.getName(), "io.clientcore.core.traits.KeyCredentialTrait"),
-        createEntry(ClientLogger.class.getName(), "io.clientcore.core.instrumentation.logging.ClientLogger"),
-        createEntry(LogLevel.class.getName(), "io.clientcore.core.instrumentation.logging.LogLevel"),
-        createEntry(com.azure.core.util.ServiceVersion.class.getName(),
-            "io.clientcore.core.http.models.ServiceVersion"),
-        createEntry(UserAgentPolicy.class.getName(), "io.clientcore.core.http.pipeline.UserAgentPolicy"),
+    private static final Map<String, ClassDetails> CLASS_TYPE_MAPPING
+        = Map.ofEntries(createEntry(RestProxy.class.getName(), "io.clientcore.core.http.RestProxy"),
+            createEntry(HttpPipeline.class.getName(), "io.clientcore.core.http.pipeline.HttpPipeline"),
+            createEntry(HttpPipelineBuilder.class.getName(), "io.clientcore.core.http.pipeline.HttpPipelineBuilder"),
+            createEntry(Context.class.getName(), "io.clientcore.core.utils.Context"),
+            createEntry(HttpClient.class.getName(), "io.clientcore.core.http.client.HttpClient"),
+            createEntry(HttpLogOptions.class.getName(), "io.clientcore.core.http.pipeline.HttpInstrumentationOptions"),
+            createEntry(HttpPipelinePolicy.class.getName(), "io.clientcore.core.http.pipeline.HttpPipelinePolicy"),
+            createEntry(KeyCredential.class.getName(), "io.clientcore.core.credentials.KeyCredential"),
+            createEntry(KeyCredentialPolicy.class.getName(), "io.clientcore.core.http.pipeline.KeyCredentialPolicy"),
+            createEntry(RetryPolicy.class.getName(), "io.clientcore.core.http.pipeline.HttpRetryPolicy"),
+            createEntry(RedirectPolicy.class.getName(), "io.clientcore.core.http.pipeline.HttpRedirectPolicy"),
+            createEntry(HttpLoggingPolicy.class.getName(),
+                "io.clientcore.core.http.pipeline.HttpInstrumentationPolicy"),
+            createEntry(Configuration.class.getName(), "io.clientcore.core.utils.configuration.Configuration"),
+            createEntry(HttpHeaders.class.getName(), "io.clientcore.core.http.models.HttpHeaders"),
+            createEntry(HttpHeader.class.getName(), "io.clientcore.core.http.models.HttpHeader"),
+            createEntry(HttpHeaderName.class.getName(), "io.clientcore.core.http.models.HttpHeaderName"),
+            createEntry(HttpRequest.class.getName(), "io.clientcore.core.http.models.HttpRequest"),
+            createEntry(HttpResponse.class.getName(), "io.clientcore.core.http.models.HttpResponse"),
+            createEntry(BinaryData.class.getName(), "io.clientcore.core.models.binarydata.BinaryData"),
+            createEntry(RetryOptions.class.getName(), "io.clientcore.core.http.pipeline.HttpRetryOptions"),
+            createEntry(ProxyOptions.class.getName(), "io.clientcore.core.http.models.ProxyOptions"),
+            createEntry(Response.class.getName(), "io.clientcore.core.http.models.Response"),
+            createEntry(SimpleResponse.class.getName(), "io.clientcore.core.http.SimpleResponse"),
+            createEntry(ExpandableStringEnum.class.getName(), "io.clientcore.core.utils.ExpandableEnum"),
+            createEntry(ExpandableEnum.class.getName(), "io.clientcore.core.utils.ExpandableEnum"),
+            createEntry(HttpResponseException.class.getName(), "io.clientcore.core.http.models.HttpResponseException"),
+            createEntry(HttpTrait.class.getName(), "io.clientcore.core.traits.HttpTrait"),
+            createEntry(ConfigurationTrait.class.getName(), "io.clientcore.core.traits.ConfigurationTrait"),
+            createEntry(EndpointTrait.class.getName(), "io.clientcore.core.traits.EndpointTrait"),
+            createEntry(KeyCredentialTrait.class.getName(), "io.clientcore.core.traits.KeyCredentialTrait"),
+            createEntry(ClientLogger.class.getName(), "io.clientcore.core.instrumentation.logging.ClientLogger"),
+            createEntry(LogLevel.class.getName(), "io.clientcore.core.instrumentation.logging.LogLevel"),
+            createEntry(com.azure.core.util.ServiceVersion.class.getName(),
+                "io.clientcore.core.http.models.ServiceVersion"),
+            createEntry(UserAgentPolicy.class.getName(), "io.clientcore.core.http.pipeline.UserAgentPolicy"),
 
-        createEntry(DateTimeRfc1123.class.getName(), "io.clientcore.core.utils.DateTimeRfc1123"),
-        createEntry(Base64Url.class.getName(), "io.clientcore.core.utils.Base64Uri"),
-        createEntry(TokenCredential.class.getName(), "io.clientcore.core.credentials.oauth.OAuthTokenCredential",
-            "com.azure.v2.core.credentials.TokenCredential"),
-        createEntry(TokenCredentialTrait.class.getName(), "io.clientcore.core.traits.OAuthTokenCredentialTrait",
-            "com.azure.v2.core.traits.TokenCredentialTrait"),
-        createEntry(BearerTokenAuthenticationPolicy.class.getName(),
-            "io.clientcore.core.http.pipeline.OAuthBearerTokenAuthenticationPolicy",
-            "com.azure.v2.core.http.pipeline.BearerTokenAuthenticationPolicy"),
-        createEntry(CoreUtils.class.getName(), "io.clientcore.core.utils.CoreUtils"),
-        createEntry(MatchConditions.class.getName(), "io.clientcore.core.http.models.HttpMatchConditions"),
-        createEntry(RequestConditions.class.getName(), "io.clientcore.core.http.models.HttpRequestConditions"),
-        createEntry(ResponseError.class.getName(), "io.clientcore.core.Error",
-            "com.azure.v2.core.models.AzureResponseError"),
-        createEntry(SyncPoller.class.getName(), "io.clientcore.core.Poller", "com.azure.v2.core.http.polling.Poller"),
-        createEntry(PollingStrategyOptions.class.getName(), "io.clientcore.core.PollingStrategyOptions",
-            "com.azure.v2.core.http.polling.PollingStrategyOptions"));
+            createEntry(DateTimeRfc1123.class.getName(), "io.clientcore.core.utils.DateTimeRfc1123"),
+            createEntry(Base64Url.class.getName(), "io.clientcore.core.utils.Base64Uri"),
+            createEntry(TokenCredential.class.getName(), "io.clientcore.core.credentials.oauth.OAuthTokenCredential",
+                "com.azure.v2.core.credentials.TokenCredential"),
+            createEntry(TokenCredentialTrait.class.getName(), "io.clientcore.core.traits.OAuthTokenCredentialTrait",
+                "com.azure.v2.core.traits.TokenCredentialTrait"),
+            createEntry(BearerTokenAuthenticationPolicy.class.getName(),
+                "io.clientcore.core.http.pipeline.OAuthBearerTokenAuthenticationPolicy",
+                "com.azure.v2.core.http.pipeline.BearerTokenAuthenticationPolicy"),
+            createEntry(CoreUtils.class.getName(), "io.clientcore.core.utils.CoreUtils"),
+            createEntry(MatchConditions.class.getName(), "io.clientcore.core.http.models.HttpMatchConditions"),
+            createEntry(RequestConditions.class.getName(), "io.clientcore.core.http.models.HttpRequestConditions"),
+            createEntry("com.azure.core.models.ResponseError", "io.clientcore.core.Error",
+                "com.azure.v2.core.models.AzureResponseError"),
+            createEntry("com.azure.core.util.polling.SyncPoller", "io.clientcore.core.Poller",
+                "com.azure.v2.core.http.polling.Poller"),
+            createEntry("com.azure.core.util.polling.PollingStrategyOptions",
+                "io.clientcore.core.PollingStrategyOptions", "com.azure.v2.core.http.polling.PollingStrategyOptions"));
 
     private static Map.Entry<String, ClassDetails> createEntry(String azureClass, String genericClass) {
         return createEntry(azureClass, genericClass, genericClass);
@@ -241,7 +240,8 @@ public class ClassType implements IType {
     public static final ClassType CONFIGURATION_TRAIT = getClassTypeBuilder(ConfigurationTrait.class).build();
     public static final ClassType PROXY_TRAIT
         = new ClassType.Builder(false).packageName("io.clientcore.core.traits").name("ProxyTrait").build();
-    public static final ClassType POLL_OPERATION_DETAILS = getClassTypeBuilder(PollOperationDetails.class).build();
+    public static final ClassType POLL_OPERATION_DETAILS
+        = getClassTypeBuilder("com.azure.core.util.polling", "PollOperationDetails").build();
     public static final ClassType JSON_SERIALIZABLE = getClassTypeBuilder("com.azure.json", "JsonSerializable").build();
     public static final ClassType JSON_WRITER = getClassTypeBuilder("com.azure.json", "JsonWriter").build();
     public static final ClassType JSON_READER = getClassTypeBuilder("com.azure.json", "JsonReader").build();
@@ -528,12 +528,12 @@ public class ClassType implements IType {
     public static final ClassType RETRY_OPTIONS = getClassTypeBuilder(RetryOptions.class).build();
 
     public static final ClassType REDIRECT_OPTIONS
-        = new ClassType.Builder(false).packageName("io.clientcore.core.http.pipeline")
-            .name("HttpRedirectOptions")
-            .build();
+        = new Builder(false).packageName("io.clientcore.core.http.pipeline").name("HttpRedirectOptions").build();
 
-    public static final ClassType JSON_PATCH_DOCUMENT
-        = new ClassType.Builder(false).knownClass(JsonPatchDocument.class).jsonToken("JsonToken.START_OBJECT").build();
+    public static final ClassType JSON_PATCH_DOCUMENT = new Builder(false).packageName("com.azure.core.models")
+        .name("JsonPatchDocument")
+        .jsonToken("JsonToken.START_OBJECT")
+        .build();
 
     public static final ClassType BINARY_DATA = getClassTypeBuilder(BinaryData.class)
         .defaultValueExpressionConverter(
@@ -572,7 +572,8 @@ public class ClassType implements IType {
     public static final ClassType TOO_MANY_REDIRECTS_EXCEPTION
         = getClassTypeBuilder(TooManyRedirectsException.class).build();
     public static final ClassType RESPONSE_ERROR
-        = getClassTypeBuilder(ResponseError.class, true).jsonToken("JsonToken.START_OBJECT").build();
+        = getClassTypeBuilder("com.azure.core.models", "ResponseError", true).jsonToken("JsonToken.START_OBJECT")
+            .build();
     public static final ClassType RESPONSE_INNER_ERROR = new Builder().packageName("com.azure.core.models")
         .name("ResponseInnerError")
         .jsonToken("JsonToken.START_OBJECT")

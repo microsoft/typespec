@@ -21,6 +21,7 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.javamodel.FluentJ
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import com.microsoft.typespec.http.client.generator.model.EmitterOptions;
 import com.microsoft.typespec.http.client.generator.util.FileUtil;
+import io.clientcore.core.serialization.json.JsonReader;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -37,8 +38,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import io.clientcore.core.serialization.json.JsonReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.DumperOptions;

@@ -28,6 +28,8 @@ import com.microsoft.typespec.http.client.generator.model.EmitterOptions;
 import com.microsoft.typespec.http.client.generator.util.FileUtil;
 import com.microsoft.typespec.http.client.generator.util.MetadataUtil;
 import com.microsoft.typespec.http.client.generator.util.ModelUtil;
+import io.clientcore.core.serialization.json.JsonReader;
+import io.clientcore.core.utils.IOExceptionCheckedFunction;
 import java.io.OutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -36,9 +38,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
-
-import io.clientcore.core.serialization.json.JsonReader;
-import io.clientcore.core.utils.IOExceptionCheckedFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
