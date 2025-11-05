@@ -71,7 +71,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     obsoleteTypeJustification);
             }
 
-            return attributes.OrderBy(a => a.Key).Select(kvp => kvp.Value).ToList();
+            // Sort by the simple type name (last part after the last dot) instead of the fully qualified name
+            return attributes.OrderBy(a => GetSimpleTypeName(a.Key)).Select(kvp => kvp.Value).ToList();
         }
 
         /// <summary>
@@ -405,6 +406,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private static bool IsModelReaderWriterInterfaceType(CSharpType type)
         {
             return type.Name.StartsWith("IPersistableModel") || type.Name.StartsWith("IJsonModel");
+        }
+
+        /// <summary>
+        /// Extracts the simple type name from a fully qualified type name.
+        /// For example, "Namespace.Type" returns "Type", and "Namespace.Outer.Nested" returns "Nested".
+        /// </summary>
+        private static string GetSimpleTypeName(string fullyQualifiedName)
+        {
+            var lastDotIndex = fullyQualifiedName.LastIndexOf('.');
+            return lastDotIndex >= 0 ? fullyQualifiedName[(lastDotIndex + 1)..] : fullyQualifiedName;
         }
 
         private class TypeProviderTypeNameComparer : IEqualityComparer<TypeProvider>
