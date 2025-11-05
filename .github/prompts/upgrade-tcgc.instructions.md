@@ -28,6 +28,7 @@ Mark each todo as `in-progress` when starting work on it, and `completed` when f
 ## Step-by-Step Migration Process
 
 ### IMPORTANT GUARDRAILS:
+
 - ONLY use `npm` commands don't try to use `pnpm`, `yarn`, or any other package manager.
 - Although emitter packages are within a pnpm monorepo, they are NOT part of the workspace. Always run `npm install` within the emitter package directory.
 
@@ -38,8 +39,8 @@ Mark each todo as `in-progress` when starting work on it, and `completed` when f
 1. **Identify the target package** to upgrade in `package.json` dependencies or devDependencies.
    - The prompt provides the emitter name and target version.
    - Locate the target package under packages
-      - First try to find it in packages/<emitter-name>, if emitter-name includes npm scope (e.g. @azure/my-emitter), look for packages/my-emitter
-      - If not found, search all packages for the emitter name in package.json
+     - First try to find it in packages/<emitter-name>, if emitter-name includes npm scope (e.g. @azure/my-emitter), look for packages/my-emitter
+     - If not found, search all packages for the emitter name in package.json
 
 2. **Determine build command** by checking `package.json` scripts in this order:
    1. `build`
@@ -49,17 +50,20 @@ Mark each todo as `in-progress` when starting work on it, and `completed` when f
 3. **Install Dependencies** using the detected package manager:
 
    ```bash
-    npm install
-  ```
+   npm install
+   ```
+
+````
 
 4. **Run initial build** to establish baseline:
 
-   ```bash
-   # Use the appropriate command
-   npm run build
-   ```
-   - If build fails, note the errors but continue (existing issues)
-   - If build succeeds, proceed to upgrade
+ ```bash
+ # Use the appropriate command
+ npm run build
+````
+
+- If build fails, note the errors but continue (existing issues)
+- If build succeeds, proceed to upgrade
 
 **Mark "Pre-migration assessment" as completed and "Package upgrade" as in-progress**
 
@@ -73,22 +77,22 @@ Mark each todo as `in-progress` when starting work on it, and `completed` when f
 - Success also = the target package is at the version the user said.
 
 Copilot may:
+
 1. **Read/parse/write**: `package.json`, `package-lock.json` (if present).
 2. **Run shell commands** in the emitter folder:
-
-   * `npm view <pkg>@<version> peerDependencies --json`
-   * `npm view <pkg>@<version> dependencies --json` (sometimes useful)
-   * `npm view <pkg>@<version> version` (verify version exists)
-   * `npm view <pkg>@"<range>" version` (find versions matching a range)
-   * `npm view <pkg> versions --json` (list all available versions)
-   * `npm ls --all --json`
+   - `npm view <pkg>@<version> peerDependencies --json`
+   - `npm view <pkg>@<version> dependencies --json` (sometimes useful)
+   - `npm view <pkg>@<version> version` (verify version exists)
+   - `npm view <pkg>@"<range>" version` (find versions matching a range)
+   - `npm view <pkg> versions --json` (list all available versions)
+   - `npm ls --all --json`
 
 3. **Parse npm ERESOLVE output** and extract:
+   - the **required** peer
+   - who is **requesting** it
+   - what **range** is incompatible
+   - which **specific version** is causing the conflict
 
-   * the **required** peer
-   * who is **requesting** it
-   * what **range** is incompatible
-   * which **specific version** is causing the conflict
 4. **Edit JSON in-place** and re-run.
 5. **Version verification**: Always verify versions exist before setting them, especially for dev versions which may not be released for all packages in a family.
 6. **Handle mixed version strategies**: When constraint satisfaction requires using different specific versions across a package family (e.g., compiler@0.67.2 but http@0.67.1).
@@ -117,18 +121,16 @@ tcgc upgrade my-emitter 0.54.0-dev.19
 ```
 
 #### Upgrade steps:
-1. **Load current state**
 
-   * Read `package.json` → keep original copy.
-   * If exists, read `package-lock.json`.
+1. **Load current state**
+   - Read `package.json` → keep original copy.
+   - If exists, read `package-lock.json`.
 
 2. **Apply the user's wish**
-
-   * Set **the exact target package** (`devDependencies` if there, else `dependencies`) to the requested version.
-   * **CRITICAL**: Use exact versions for dev packages, not tilde ranges. A range like `~0.54.0-dev.5` can resolve to the stable `0.54.0` release, which may have incompatible peer dependencies.
-   * Example: user says `upgrade @azure-tools/typespec-client-generator-core 0.54.0-dev.19`
-
-     * In this repo it lives in `devDependencies`, so:
+   - Set **the exact target package** (`devDependencies` if there, else `dependencies`) to the requested version.
+   - **CRITICAL**: Use exact versions for dev packages, not tilde ranges. A range like `~0.54.0-dev.5` can resolve to the stable `0.54.0` release, which may have incompatible peer dependencies.
+   - Example: user says `upgrade @azure-tools/typespec-client-generator-core 0.54.0-dev.19`
+     - In this repo it lives in `devDependencies`, so:
 
        ```json
        "devDependencies": {
@@ -136,15 +138,16 @@ tcgc upgrade my-emitter 0.54.0-dev.19
          ...
        }
        ```
-3. **Interrogate the target**
 
-   * Run:
+3. **Interrogate the target**
+   - Run:
 
      ```bash
      npm view @azure-tools/typespec-client-generator-core@0.54.0-dev.19 peerDependencies --json
      ```
-   * Call that result **TARGET_PEERS**.
-   * This is usually something like (example from your earlier trials):
+
+   - Call that result **TARGET_PEERS**.
+   - This is usually something like (example from your earlier trials):
 
      ```json
      {
@@ -158,160 +161,156 @@ tcgc upgrade my-emitter 0.54.0-dev.19
      ```
 
 4. **Build the “TypeSpec universe” for this package**
+   - From your `package.json` we know this package is in a “bundle” with these families:
+     - `@azure-tools/*`
+     - `@typespec/*`
 
-   * From your `package.json` we know this package is in a “bundle” with these families:
-
-     * `@azure-tools/*`
-     * `@typespec/*`
-   * The agent should make a working set called `TSP_SET` containing **all** packages in your `peerDependencies` and `devDependencies` whose names start with **either** of those prefixes.
-   * In your case that’s things like:
-
-     * `@azure-tools/typespec-autorest`
-     * `@azure-tools/typespec-azure-core`
-     * `@azure-tools/typespec-azure-resource-manager`
-     * `@azure-tools/typespec-azure-rulesets`
-     * `@azure-tools/typespec-client-generator-core` (target)
-     * `@typespec/compiler`
-     * `@typespec/http`
-     * `@typespec/openapi`
-     * `@typespec/rest`
-     * `@typespec/versioning`
-     * `@typespec/http-specs`
-     * (possibly more if present)
+   - The agent should make a working set called `TSP_SET` containing **all** packages in your `peerDependencies` and `devDependencies` whose names start with **either** of those prefixes.
+   - In your case that’s things like:
+     - `@azure-tools/typespec-autorest`
+     - `@azure-tools/typespec-azure-core`
+     - `@azure-tools/typespec-azure-resource-manager`
+     - `@azure-tools/typespec-azure-rulesets`
+     - `@azure-tools/typespec-client-generator-core` (target)
+     - `@typespec/compiler`
+     - `@typespec/http`
+     - `@typespec/openapi`
+     - `@typespec/rest`
+     - `@typespec/versioning`
+     - `@typespec/http-specs`
+     - (possibly more if present)
 
 5. **For every package in TARGET_PEERS → check compatibility with our own declared peers**
-
-   * For each `(peerName → peerRangeRequired)` in **TARGET_PEERS**:
-
+   - For each `(peerName → peerRangeRequired)` in **TARGET_PEERS**:
      1. If our `package.json` has `peerDependencies[peerName]`:
-
-        * **Do NOT change the upper bound**.
-        * If the required lower bound is **higher** than our current lower bound, bump **only the lower bound** to match, preserving the right side.
-        * Example:
-
-          * Current: `"@typespec/http": ">=0.67.0 <1.0.0"`
-          * Required: `>=0.68.0-dev <0.68.0`
-          * We **can** rewrite ours to:
+        - **Do NOT change the upper bound**.
+        - If the required lower bound is **higher** than our current lower bound, bump **only the lower bound** to match, preserving the right side.
+        - Example:
+          - Current: `"@typespec/http": ">=0.67.0 <1.0.0"`
+          - Required: `>=0.68.0-dev <0.68.0`
+          - We **can** rewrite ours to:
 
             ```text
             ">=0.68.0-dev <1.0.0"
             ```
 
             i.e. **left side comes from the stricter requirement**, right side stays ours.
-        * If the required range is actually **a disjunction** (like `^0.67.1 || >=0.68.0-dev <0.68.0`), then:
 
-          * **First check which versions actually exist** using `npm view <pkg>@"<range>" version`
-          * pick the **highest available lower-bound option** that is **still below our upper bound**,
-          * normalize to our style.
-          * Example:
+        - If the required range is actually **a disjunction** (like `^0.67.1 || >=0.68.0-dev <0.68.0`), then:
+          - **First check which versions actually exist** using `npm view <pkg>@"<range>" version`
+          - pick the **highest available lower-bound option** that is **still below our upper bound**,
+          - normalize to our style.
+          - Example:
+            - Our upper: `<1.0.0`
+            - Options: `^0.67.1` or `>=0.68.0-dev <0.68.0`
+            - Check: `npm view @typespec/http@"^0.67.1" version` → might return 0.67.1
+            - Check: `npm view @typespec/http@">=0.68.0-dev <0.68.0" version` → might return 0.68.0-dev.9
+            - Pick the highest available version that satisfies constraints
+            - Final: `>=0.67.1 <1.0.0` or `>=0.68.0-dev.9 <1.0.0`
 
-            * Our upper: `<1.0.0`
-            * Options: `^0.67.1` or `>=0.68.0-dev <0.68.0`
-            * Check: `npm view @typespec/http@"^0.67.1" version` → might return 0.67.1
-            * Check: `npm view @typespec/http@">=0.68.0-dev <0.68.0" version` → might return 0.68.0-dev.9
-            * Pick the highest available version that satisfies constraints
-            * Final: `>=0.67.1 <1.0.0` or `>=0.68.0-dev.9 <1.0.0`
      2. Else if our `package.json` has it only in **devDependencies**:
-
-        * Then we must bump **that** devDependency to at least the required version.
-        * And (important) check if we also have it in **peerDependencies** — if not, and this is a “core TypeSpec runtime” like `@typespec/http` or `@typespec/compiler`, we **should also declare it as a peer** with our usual guard:
+        - Then we must bump **that** devDependency to at least the required version.
+        - And (important) check if we also have it in **peerDependencies** — if not, and this is a “core TypeSpec runtime” like `@typespec/http` or `@typespec/compiler`, we **should also declare it as a peer** with our usual guard:
 
           ```json
           "@typespec/http": ">=0.68.0-dev <1.0.0"
           ```
 
           (still keep `<1.0.0`)
+
      3. Else (we don't declare it at all):
+        - Add it to **devDependencies** at the **exact** version the target is asking for (or the min version in its range),
+        - **Verify the version exists** using `npm view <pkg>@<version> version`
+        - and if it's one of the foundational packages (`@typespec/*`), also add as peer with guard.
 
-        * Add it to **devDependencies** at the **exact** version the target is asking for (or the min version in its range),
-        * **Verify the version exists** using `npm view <pkg>@<version> version`
-        * and if it's one of the foundational packages (`@typespec/*`), also add as peer with guard.
-
-   * **Important**: Not all packages in the TypeSpec family release the same version numbers. For example, `@typespec/compiler` might have version `0.67.2` while `@typespec/http` only goes up to `0.67.1`. Always verify version existence before setting dependencies.
-
+   - **Important**: Not all packages in the TypeSpec family release the same version numbers. For example, `@typespec/compiler` might have version `0.67.2` while `@typespec/http` only goes up to `0.67.1`. Always verify version existence before setting dependencies.
 
 6. **Synchronize the “other Azure TypeSpec packages”**
-   * Note: “a package that is not a peer directly to TCGC could need updating”.
-   * After updating peers for the target, the agent must **query** the versions of the other Azure packages you already depend on at **the same level**.
-   * For each package in your current `devDependencies` that starts with `@azure-tools/typespec-`:
-
-     * Run:
+   - Note: “a package that is not a peer directly to TCGC could need updating”.
+   - After updating peers for the target, the agent must **query** the versions of the other Azure packages you already depend on at **the same level**.
+   - For each package in your current `devDependencies` that starts with `@azure-tools/typespec-`:
+     - Run:
 
        ```bash
-       npm view <that-package>@"*"
-       npm view <that-package>@latest peerDependencies --json
+       npm view < that-package > @"*"
+       npm view peerDependencies --json < that-package > @latest
        ```
 
        or better
 
        ```bash
-       npm view <that-package>@<matching-series> peerDependencies --json
+       npm view --json < that-package > @ < matching-series > peerDependencies
        ```
 
        where `<matching-series>` is **the same major/minor** as the TCGC you just set (often they evolve together).
-     * Then do the **same reconciliation** as in step 5: raise lower bounds in our peers/devDeps but **do not** touch upper bounds.
+
+     - Then do the **same reconciliation** as in step 5: raise lower bounds in our peers/devDeps but **do not** touch upper bounds.
 
 7. **Attempt install (validation step)**
-
-   * **First, clean any existing resolution state**: `rm -rf node_modules package-lock.json` to avoid npm cache conflicts
-   * Run:
+   - **First, clean any existing resolution state**: `rm -rf node_modules package-lock.json` to avoid npm cache conflicts
+   - Run:
 
      ```bash
      npm install --package-lock-only
      ```
-   * If it **succeeds** → we’re done.
-   * If it **fails with ERESOLVE**:
 
-     * **Parse the error**. npm gives you something like:
+   - If it **succeeds** → we’re done.
+   - If it **fails with ERESOLVE**:
+     - **Parse the error**. npm gives you something like:
 
        > While resolving: X
        > Found: @typespec/compiler@1.0.0
        > Could not resolve peer … wants @typespec/compiler@"^0.67.0"
-     * The agent must **not** “fix” this by adding `--legacy-peer-deps`.
-     * Instead it must:
 
+     - The agent must **not** “fix” this by adding `--legacy-peer-deps`.
+     - Instead it must:
        1. Identify the **requester** (e.g. `@azure-tools/typespec-azure-core@0.53.0`)
        2. Run:
 
           ```bash
           npm view @azure-tools/typespec-azure-core@0.53.0 peerDependencies --json
           ```
+
        3. See which of your local peers is **too old** → bump that peer’s **lower** bound (keep the upper)
        4. Possibly bump the **devDependency** to the exact version the requesting package wants
        5. **Re-run** `npm install --package-lock-only`
-     * This becomes a **loop**:
+
+     - This becomes a **loop**:
 
        ```text
        edit → npm install → ERESOLVE → look at who is unhappy → bump that package → npm install → ...
        ```
-     * Stop when install succeeds.
+
+     - Stop when install succeeds.
 
 8. **Write final state**
-
-   * Save the modified `package.json`.
-   * Save the updated `package-lock.json`.
+   - Save the modified `package.json`.
+   - Save the updated `package-lock.json`.
 
 9. **Validate** by running:
 
    ```bash
    npm install
    ```
-    - This should now succeed without errors
+
+   - This should now succeed without errors
+
 10. **Report**
 
-   * Agent outputs:
-
-     * target package and final version
-     * list of packages whose **peer lower bound** it raised
-     * list of packages whose **devDependency** it bumped
-     * final npm command that passed
+- Agent outputs:
+  - target package and final version
+  - list of packages whose **peer lower bound** it raised
+  - list of packages whose **devDependency** it bumped
+  - final npm command that passed
 
 **Mark "Package upgrade" as completed and start marking specific fix categories as in-progress**
 
 #### Critical Lessons Learned from Actual Upgrades
+
 Based on real upgrade experiences, these are the most critical issues to handle:
 
 ### **Version Existence Verification Strategy**
+
 - **Always verify versions exist** before setting them: `npm view <pkg>@<version> version`
 - TypeSpec packages don't release in lockstep. `@typespec/compiler` might have `0.67.2` while `@typespec/http` only has `0.67.1`
 - Dev versions are particularly inconsistent across packages
@@ -324,6 +323,7 @@ Based on real upgrade experiences, these are the most critical issues to handle:
   ```
 
 ### **Smart Version Selection Algorithm**
+
 When disjunctive constraints like `^0.67.1 || >=0.68.0-dev <0.68.0` are encountered:
 
 1. **Parse constraint components**: Split on `||` to get individual options
@@ -337,11 +337,12 @@ When disjunctive constraints like `^0.67.1 || >=0.68.0-dev <0.68.0` are encounte
    - If TCGC was built against 0.67.x → prefer 0.67.x option for stability
    - **Check TCGC's own peer dependencies** to understand its expected TypeSpec version
 
-4. **Constraint boundary awareness**: 
+4. **Constraint boundary awareness**:
    - `<0.68.0` excludes `0.68.0-dev.9` and higher dev versions
    - Use highest compatible version within bounds: `0.68.0-dev.8` instead of `0.68.0-dev.9`
 
 ### **TypeSpec Version Series Detection**
+
 Determine the TypeSpec version series that TCGC was designed for:
 
 1. **Check TCGC's published peer dependencies**:
@@ -358,6 +359,7 @@ Determine the TypeSpec version series that TCGC was designed for:
    - **For TCGC 0.55.0+**: Likely requires full 0.68.0-dev or 1.0.0+ series
 
 ### **Azure Package Family Synchronization**
+
 - When upgrading TCGC to `0.54.0-dev.19`, other Azure packages likely need similar upgrades
 - **Find compatible versions in the same dev series**:
   ```bash
@@ -371,29 +373,36 @@ Determine the TypeSpec version series that TCGC was designed for:
 - **Update strategy**: Update **both** devDependencies and peerDependencies for Azure packages
 
 ### **Advanced ERESOLVE Resolution Patterns**
+
 Based on common error patterns encountered:
 
 1. **TCGC version mismatch pattern**:
+
    ```
-   Could not resolve peer @azure-tools/typespec-client-generator-core@"^0.53.0" 
+   Could not resolve peer @azure-tools/typespec-client-generator-core@"^0.53.0"
    from @azure-tools/typespec-autorest@0.53.0
    ```
+
    **Solution**: Upgrade autorest to 0.54.0-dev.X that accepts the new TCGC version
    **Command**: `npm view @azure-tools/typespec-autorest versions --json | grep "0.54.0-dev"`
 
 2. **TypeSpec version boundary conflicts**:
+
    ```
-   Found: @typespec/compiler@0.68.0-dev.9 
+   Found: @typespec/compiler@0.68.0-dev.9
    wants @typespec/compiler@"^0.67.2 || >=0.68.0-dev <0.68.0"
    ```
+
    **Analysis**: Constraint `<0.68.0` excludes `0.68.0-dev.9`
    **Solution**: Use `0.68.0-dev.8` or lower, or use the `^0.67.2` option if available
 
 3. **Mixed ecosystem requirements**:
+
    ```
    Found: @typespec/http@0.67.1
    wants @typespec/http@">=0.68.0-dev <0.68.0"
    ```
+
    **Solution**: Check if 0.68.0-dev versions exist and are compatible with other constraints
 
 4. **Iterative resolution strategy**:
@@ -402,36 +411,42 @@ Based on common error patterns encountered:
    - Work from target outward: Fix TCGC conflicts first, then Azure package conflicts, then TypeSpec conflicts
 
 ### **Environment State Management & Validation**
+
 Critical for reliable dependency resolution:
 
 1. **Clean slate approach**:
+
    ```bash
    rm -rf node_modules package-lock.json
-   npm install --package-lock-only  # Test resolution without scripts
+   npm install --package-lock-only # Test resolution without scripts
    ```
+
    - npm caches resolution decisions that can hide real conflicts
    - Always validate from clean state before declaring success
 
 2. **Progressive validation steps**:
+
    ```bash
-   npm install --package-lock-only     # Test pure resolution
-   npm install --ignore-scripts       # Test without post-install hooks
-   npm install                         # Full installation
-   npm run build                       # Final functionality test
+   npm install --package-lock-only # Test pure resolution
+   npm install --ignore-scripts    # Test without post-install hooks
+   npm install                     # Full installation
+   npm run build                   # Final functionality test
    ```
 
 3. **Version verification commands**:
-  Before running these, you need to run `npm install` successfully. `npm install --package-lock-only` is not enough to populate the `node_modules` tree for `npm ls` to work correctly.
+   Before running these, you need to run `npm install` successfully. `npm install --package-lock-only` is not enough to populate the `node_modules` tree for `npm ls` to work correctly.
    ```bash
-   npm ls @azure-tools/typespec-client-generator-core  # Verify target version
-   npm ls @typespec/http                               # Check TypeSpec version
+   npm ls @azure-tools/typespec-client-generator-core # Verify target version
+   npm ls @typespec/http                              # Check TypeSpec version
    npm ls --depth=0 | grep "@typespec\|@azure-tools"  # Overview of ecosystem
    ```
 
 ### **Transitive Dependency Management & Bridge Versions**
+
 When packages have conflicting peer dependency requirements:
 
 1. **Identify bridge versions**: Look for versions that support multiple ranges
+
    ```bash
    # Example: Find azure-http-specs versions that bridge 0.53.x and 0.54.0-dev
    npm view @azure-tools/azure-http-specs versions --json | grep -E "(alpha|dev)"
@@ -446,9 +461,10 @@ When packages have conflicting peer dependency requirements:
    - Find versions that work with both old and new ecosystems
 
 ### **Version Range Pitfalls & Solutions**
+
 Critical patterns discovered during migration:
 
-1. **Tilde ranges on dev versions are dangerous**: 
+1. **Tilde ranges on dev versions are dangerous**:
    - `~0.54.0-dev.5` can resolve to stable `0.54.0` which may expect different TypeSpec versions
    - **Always use exact versions for dev packages**: `0.54.0-dev.5` not `~0.54.0-dev.5`
 
@@ -461,7 +477,7 @@ Critical patterns discovered during migration:
    - Example working combination for TCGC 0.54.0-dev.19:
      ```json
      "@typespec/compiler": "~0.67.2",
-     "@typespec/http": "~0.67.1", 
+     "@typespec/http": "~0.67.1",
      "@typespec/rest": "~0.67.1"
      ```
 
@@ -470,28 +486,32 @@ Critical patterns discovered during migration:
    - Verify stable releases don't leak in with: `npm ls <pkg> --depth=0` after install
 
 ### **Environment State Management**
+
 - **Always clean npm state** before final validation: `rm -rf node_modules package-lock.json`
 - npm can cache resolution decisions that prevent seeing the real dependency conflicts
 - Use `--ignore-scripts` flag during validation to avoid post-install script errors that mask successful resolution
 
 ### **Version Range Pitfalls**
+
 1. **Version verification first**: Before setting any dependency, verify it exists with `npm view <pkg>@<version> version`
 2. **Family-aware upgrading**: For Azure packages, upgrade all related packages together in the same version series
 3. **Constraint parsing**: Handle `<0.68.0` constraints correctly (excludes certain `0.68.0-dev.X` versions)
 4. **Iterative ERESOLVE resolution**: Each error reveals another package needing updates - work systematically from target outward
 5. **Use version availability discovery commands**:
+
    ```bash
    # Quick version series check
-   npm view <pkg> versions --json | grep -E "0.54.0-dev|0.68.0-dev" | tail -5
+   npm view --json < pkg > versions | grep -E "0.54.0-dev|0.68.0-dev" | tail -5
    
    # Test constraint matches
-   npm view <pkg>@">=0.68.0-dev <0.68.0" version
+   npm view version < pkg > @">=0.68.0-dev <0.68.0"
    
    # Verify exact version exists
-   npm view <pkg>@0.68.0-dev.8 version
+   npm view version < pkg > @0.68.0-dev.8
    ```
 
 ### **Recommended Version Selection Workflow**
+
 1. **Start with version discovery**: Map what versions exist across the TypeSpec ecosystem
 2. **Check TCGC's expectations**: Understand what TypeSpec series the target TCGC was built for
 3. **Pick ecosystem strategy**: Either full 0.67.x, mixed 0.67.x/0.68.0-dev, or full 0.68.0-dev
@@ -499,26 +519,28 @@ Critical patterns discovered during migration:
 5. **Validate iteratively**: Test resolution after each major package upgrade
 6. **Clean state validation**: Always verify final state from clean npm environment
 
-
 ### Phase 3: Fix Breaking Changes - Enhanced Strategy
 
 **Mark "Post-upgrade build analysis" as in-progress**
 
 1. **Immediate build analysis after package upgrade**:
+
    ```bash
    npm run build 2>&1 | tee build-errors.log
    ```
+
    - Capture ALL error output for systematic analysis
    - TypeScript compilation errors often reveal exactly what broke
    - Parse error patterns to identify fix categories
 
 2. Fetch @azure-tools/typespec-client-generator-core changelog and breaking changes documentation to understand common upgrade issues.
-  - Fetch: https://raw.githubusercontent.com/Azure/typespec-azure/refs/heads/main/packages/typespec-client-generator-core/CHANGELOG.md
-  - Identify documented breaking changes between old and new versions
+
+- Fetch: https://raw.githubusercontent.com/Azure/typespec-azure/refs/heads/main/packages/typespec-client-generator-core/CHANGELOG.md
+- Identify documented breaking changes between old and new versions
 
 3. **Error categorization framework**:
    - **Import/Export changes**: Missing exports, renamed interfaces
-   - **Type signature changes**: Method parameter/return type changes  
+   - **Type signature changes**: Method parameter/return type changes
    - **API structure changes**: Removed properties, changed object hierarchy
    - **Build configuration issues**: Internal library compatibility problems
 
@@ -552,14 +574,15 @@ When internal TCGC dependencies cause TypeScript compilation issues:
 
 1. **Fix in dependency order**:
    - Start with import/export errors (foundation issues)
-   - Then fix type signature mismatches  
+   - Then fix type signature mismatches
    - Finally address API structure changes
    - Handle build configuration last (after verifying real code issues)
 
 2. **Per-error category workflow**:
+
    ```
-   Mark category as in-progress → 
-   semantic_search for affected files → 
+   Mark category as in-progress →
+   semantic_search for affected files →
    Apply multi_replace_string_in_file for batch fixes →
    npm run build to validate fixes →
    Mark category as completed
@@ -600,7 +623,7 @@ When internal TCGC dependencies cause TypeScript compilation issues:
 
    ```bash
    # Use same build command as before
-   npm run build                          # for npm
+   npm run build # for npm
    ```
 
 2. **Verify success:**
@@ -661,4 +684,3 @@ When internal TCGC dependencies cause TypeScript compilation issues:
 - **No any type assertions:** Avoid using `any` type assertions; prefer precise typings or implicit inference.
 
 This migration should be **fully automated** with minimal user intervention beyond the initial command.
- 
