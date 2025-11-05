@@ -33,6 +33,11 @@ export interface PackageJson {
   dependencies?: Record<string, string>;
   peerDependencies?: Record<string, string>;
   devDependencies?: Record<string, string>;
+  repository?:
+    | string
+    | {
+        url?: string;
+      };
 }
 
 /**
