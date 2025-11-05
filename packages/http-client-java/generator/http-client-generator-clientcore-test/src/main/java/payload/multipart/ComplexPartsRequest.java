@@ -9,6 +9,7 @@ import java.util.List;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class ComplexPartsRequest {
+
     /*
      * The id property.
      */
@@ -35,7 +36,7 @@ public final class ComplexPartsRequest {
 
     /**
      * Creates an instance of ComplexPartsRequest class.
-     * 
+     *
      * @param id the id value to set.
      * @param address the address value to set.
      * @param profileImage the profileImage value to set.
@@ -52,7 +53,7 @@ public final class ComplexPartsRequest {
 
     /**
      * Get the id property: The id property.
-     * 
+     *
      * @return the id value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -62,7 +63,7 @@ public final class ComplexPartsRequest {
 
     /**
      * Get the address property: The address property.
-     * 
+     *
      * @return the address value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -72,7 +73,7 @@ public final class ComplexPartsRequest {
 
     /**
      * Get the profileImage property: The profileImage property.
-     * 
+     *
      * @return the profileImage value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -82,7 +83,7 @@ public final class ComplexPartsRequest {
 
     /**
      * Get the pictures property: The pictures property.
-     * 
+     *
      * @return the pictures value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

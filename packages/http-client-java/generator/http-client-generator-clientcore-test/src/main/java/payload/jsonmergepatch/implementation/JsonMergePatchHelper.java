@@ -7,9 +7,11 @@ import payload.jsonmergepatch.ResourcePatch;
  * This is the Helper class to enable json merge patch serialization for a model.
  */
 public class JsonMergePatchHelper {
+
     private static InnerModelAccessor innerModelAccessor;
 
     public interface InnerModelAccessor {
+
         InnerModel prepareModelForJsonMergePatch(InnerModel innerModel, boolean jsonMergePatchEnabled);
 
         boolean isJsonMergePatch(InnerModel innerModel);
@@ -26,6 +28,7 @@ public class JsonMergePatchHelper {
     private static ResourcePatchAccessor resourcePatchAccessor;
 
     public interface ResourcePatchAccessor {
+
         ResourcePatch prepareModelForJsonMergePatch(ResourcePatch resourcePatch, boolean jsonMergePatchEnabled);
 
         boolean isJsonMergePatch(ResourcePatch resourcePatch);

@@ -17,6 +17,7 @@ import java.util.Map;
 @Metadata(properties = { MetadataProperties.FLUENT })
 public final class ExtendsModelArrayAdditionalProperties
     implements JsonSerializable<ExtendsModelArrayAdditionalProperties> {
+
     /*
      * The knownProp property.
      */
@@ -31,7 +32,7 @@ public final class ExtendsModelArrayAdditionalProperties
 
     /**
      * Creates an instance of ExtendsModelArrayAdditionalProperties class.
-     * 
+     *
      * @param knownProp the knownProp value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -41,7 +42,7 @@ public final class ExtendsModelArrayAdditionalProperties
 
     /**
      * Get the knownProp property: The knownProp property.
-     * 
+     *
      * @return the knownProp value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -51,7 +52,7 @@ public final class ExtendsModelArrayAdditionalProperties
 
     /**
      * Get the additionalProperties property: The model extends from Record&lt;ModelForRecord[]&gt; type.
-     * 
+     *
      * @return the additionalProperties value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -61,7 +62,7 @@ public final class ExtendsModelArrayAdditionalProperties
 
     /**
      * Set the additionalProperties property: The model extends from Record&lt;ModelForRecord[]&gt; type.
-     * 
+     *
      * @param additionalProperties the additionalProperties value to set.
      * @return the ExtendsModelArrayAdditionalProperties object itself.
      */
@@ -90,7 +91,7 @@ public final class ExtendsModelArrayAdditionalProperties
 
     /**
      * Reads an instance of ExtendsModelArrayAdditionalProperties from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of ExtendsModelArrayAdditionalProperties if the JsonReader was pointing to an instance of it,
      * or null if it was pointing to JSON null.
@@ -105,14 +106,12 @@ public final class ExtendsModelArrayAdditionalProperties
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("knownProp".equals(fieldName)) {
                     knownProp = reader.readArray(reader1 -> ModelForRecord.fromJson(reader1));
                 } else {
                     if (additionalProperties == null) {
                         additionalProperties = new LinkedHashMap<>();
                     }
-
                     List<ModelForRecord> additionalPropertiesArrayItem
                         = reader.readArray(reader1 -> ModelForRecord.fromJson(reader1));
                     additionalProperties.put(fieldName, additionalPropertiesArrayItem);
@@ -121,7 +120,6 @@ public final class ExtendsModelArrayAdditionalProperties
             ExtendsModelArrayAdditionalProperties deserializedExtendsModelArrayAdditionalProperties
                 = new ExtendsModelArrayAdditionalProperties(knownProp);
             deserializedExtendsModelArrayAdditionalProperties.additionalProperties = additionalProperties;
-
             return deserializedExtendsModelArrayAdditionalProperties;
         });
     }

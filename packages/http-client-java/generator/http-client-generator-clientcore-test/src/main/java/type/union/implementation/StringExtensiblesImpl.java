@@ -22,6 +22,7 @@ import type.union.GetResponseProp1;
  * An instance of this class provides access to all the operations defined in StringExtensibles.
  */
 public final class StringExtensiblesImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -39,7 +40,7 @@ public final class StringExtensiblesImpl {
 
     /**
      * Initializes an instance of StringExtensiblesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     StringExtensiblesImpl(UnionClientImpl client) {
@@ -54,6 +55,7 @@ public final class StringExtensiblesImpl {
      */
     @ServiceInterface(name = "UnionClientStringExtensibles", host = "{endpoint}")
     public interface StringExtensiblesService {
+
         static StringExtensiblesService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("type.union.implementation.StringExtensiblesServiceImpl");
@@ -63,7 +65,6 @@ public final class StringExtensiblesImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         @HttpRequestInformation(
@@ -85,7 +86,7 @@ public final class StringExtensiblesImpl {
 
     /**
      * The get operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -103,7 +104,7 @@ public final class StringExtensiblesImpl {
 
     /**
      * The send operation.
-     * 
+     *
      * @param prop The prop parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

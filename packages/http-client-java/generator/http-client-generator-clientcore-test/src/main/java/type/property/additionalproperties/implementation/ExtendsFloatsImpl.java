@@ -21,6 +21,7 @@ import type.property.additionalproperties.ExtendsFloatAdditionalProperties;
  * An instance of this class provides access to all the operations defined in ExtendsFloats.
  */
 public final class ExtendsFloatsImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -38,7 +39,7 @@ public final class ExtendsFloatsImpl {
 
     /**
      * Initializes an instance of ExtendsFloatsImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     ExtendsFloatsImpl(AdditionalPropertiesClientImpl client) {
@@ -53,6 +54,7 @@ public final class ExtendsFloatsImpl {
      */
     @ServiceInterface(name = "AdditionalPropertiesClientExtendsFloats", host = "{endpoint}")
     public interface ExtendsFloatsService {
+
         static ExtendsFloatsService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz
@@ -63,7 +65,6 @@ public final class ExtendsFloatsImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         @HttpRequestInformation(
@@ -85,7 +86,7 @@ public final class ExtendsFloatsImpl {
 
     /**
      * Get call.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -103,7 +104,7 @@ public final class ExtendsFloatsImpl {
 
     /**
      * Put operation.
-     * 
+     *
      * @param body body.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

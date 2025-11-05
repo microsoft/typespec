@@ -16,6 +16,7 @@ import java.util.Map;
  */
 @Metadata(properties = { MetadataProperties.FLUENT })
 public class ExtendsUnknownAdditionalProperties implements JsonSerializable<ExtendsUnknownAdditionalProperties> {
+
     /*
      * The name property
      */
@@ -30,7 +31,7 @@ public class ExtendsUnknownAdditionalProperties implements JsonSerializable<Exte
 
     /**
      * Creates an instance of ExtendsUnknownAdditionalProperties class.
-     * 
+     *
      * @param name the name value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -40,7 +41,7 @@ public class ExtendsUnknownAdditionalProperties implements JsonSerializable<Exte
 
     /**
      * Get the name property: The name property.
-     * 
+     *
      * @return the name value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -50,7 +51,7 @@ public class ExtendsUnknownAdditionalProperties implements JsonSerializable<Exte
 
     /**
      * Get the additionalProperties property: The model extends from Record&lt;unknown&gt; type.
-     * 
+     *
      * @return the additionalProperties value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -60,7 +61,7 @@ public class ExtendsUnknownAdditionalProperties implements JsonSerializable<Exte
 
     /**
      * Set the additionalProperties property: The model extends from Record&lt;unknown&gt; type.
-     * 
+     *
      * @param additionalProperties the additionalProperties value to set.
      * @return the ExtendsUnknownAdditionalProperties object itself.
      */
@@ -93,7 +94,7 @@ public class ExtendsUnknownAdditionalProperties implements JsonSerializable<Exte
 
     /**
      * Reads an instance of ExtendsUnknownAdditionalProperties from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of ExtendsUnknownAdditionalProperties if the JsonReader was pointing to an instance of it, or
      * null if it was pointing to JSON null.
@@ -108,14 +109,12 @@ public class ExtendsUnknownAdditionalProperties implements JsonSerializable<Exte
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("name".equals(fieldName)) {
                     name = reader.getString();
                 } else {
                     if (additionalProperties == null) {
                         additionalProperties = new LinkedHashMap<>();
                     }
-
                     additionalProperties.put(fieldName,
                         reader.getNullable(nonNullReader -> BinaryData.fromObject(nonNullReader.readUntyped())));
                 }
@@ -123,7 +122,6 @@ public class ExtendsUnknownAdditionalProperties implements JsonSerializable<Exte
             ExtendsUnknownAdditionalProperties deserializedExtendsUnknownAdditionalProperties
                 = new ExtendsUnknownAdditionalProperties(name);
             deserializedExtendsUnknownAdditionalProperties.additionalProperties = additionalProperties;
-
             return deserializedExtendsUnknownAdditionalProperties;
         });
     }

@@ -16,6 +16,7 @@ import type.model.visibility.implementation.VisibilityClientImpl;
  */
 @ServiceClient(builder = VisibilityClientBuilder.class)
 public final class VisibilityClient {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final VisibilityClientImpl serviceClient;
 
@@ -23,7 +24,7 @@ public final class VisibilityClient {
 
     /**
      * Initializes an instance of VisibilityClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,7 +36,7 @@ public final class VisibilityClient {
 
     /**
      * The getModel operation.
-     * 
+     *
      * @param queryProp Required int32, illustrating a query property.
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -54,7 +55,7 @@ public final class VisibilityClient {
 
     /**
      * The getModel operation.
-     * 
+     *
      * @param queryProp Required int32, illustrating a query property.
      * @param input The input parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -70,7 +71,7 @@ public final class VisibilityClient {
 
     /**
      * The headModel operation.
-     * 
+     *
      * @param queryProp Required int32, illustrating a query property.
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -88,7 +89,7 @@ public final class VisibilityClient {
 
     /**
      * The headModel operation.
-     * 
+     *
      * @param queryProp Required int32, illustrating a query property.
      * @param input The input parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -103,7 +104,7 @@ public final class VisibilityClient {
 
     /**
      * The putModel operation.
-     * 
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -120,7 +121,7 @@ public final class VisibilityClient {
 
     /**
      * The putModel operation.
-     * 
+     *
      * @param input The input parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -134,7 +135,7 @@ public final class VisibilityClient {
 
     /**
      * The patchModel operation.
-     * 
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -151,7 +152,7 @@ public final class VisibilityClient {
 
     /**
      * The patchModel operation.
-     * 
+     *
      * @param input The input parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -165,7 +166,7 @@ public final class VisibilityClient {
 
     /**
      * The postModel operation.
-     * 
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -182,7 +183,7 @@ public final class VisibilityClient {
 
     /**
      * The postModel operation.
-     * 
+     *
      * @param input The input parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -196,7 +197,7 @@ public final class VisibilityClient {
 
     /**
      * The deleteModel operation.
-     * 
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -213,7 +214,7 @@ public final class VisibilityClient {
 
     /**
      * The deleteModel operation.
-     * 
+     *
      * @param input The input parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -227,7 +228,7 @@ public final class VisibilityClient {
 
     /**
      * The putReadOnlyModel operation.
-     * 
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -244,7 +245,7 @@ public final class VisibilityClient {
 
     /**
      * The putReadOnlyModel operation.
-     * 
+     *
      * @param input The input parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

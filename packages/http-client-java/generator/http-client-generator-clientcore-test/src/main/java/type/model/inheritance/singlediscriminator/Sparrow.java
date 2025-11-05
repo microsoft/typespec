@@ -12,6 +12,7 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class Sparrow extends Bird {
+
     /*
      * The kind property.
      */
@@ -20,7 +21,7 @@ public final class Sparrow extends Bird {
 
     /**
      * Creates an instance of Sparrow class.
-     * 
+     *
      * @param wingspan the wingspan value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -30,7 +31,7 @@ public final class Sparrow extends Bird {
 
     /**
      * Get the kind property: The kind property.
-     * 
+     *
      * @return the kind value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -53,7 +54,7 @@ public final class Sparrow extends Bird {
 
     /**
      * Reads an instance of Sparrow from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of Sparrow if the JsonReader was pointing to an instance of it, or null if it was pointing to
      * JSON null.
@@ -68,7 +69,6 @@ public final class Sparrow extends Bird {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("wingspan".equals(fieldName)) {
                     wingspan = reader.getInt();
                 } else if ("kind".equals(fieldName)) {
@@ -79,7 +79,6 @@ public final class Sparrow extends Bird {
             }
             Sparrow deserializedSparrow = new Sparrow(wingspan);
             deserializedSparrow.kind = kind;
-
             return deserializedSparrow;
         });
     }

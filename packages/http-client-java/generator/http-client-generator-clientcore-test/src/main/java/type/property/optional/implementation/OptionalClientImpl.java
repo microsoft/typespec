@@ -7,6 +7,7 @@ import io.clientcore.core.instrumentation.Instrumentation;
  * Initializes a new instance of the OptionalClient type.
  */
 public final class OptionalClientImpl {
+
     /**
      * Service host.
      */
@@ -14,7 +15,7 @@ public final class OptionalClientImpl {
 
     /**
      * Gets Service host.
-     * 
+     *
      * @return the endpoint value.
      */
     public String getEndpoint() {
@@ -28,7 +29,7 @@ public final class OptionalClientImpl {
 
     /**
      * Gets The HTTP pipeline to send requests through.
-     * 
+     *
      * @return the httpPipeline value.
      */
     public HttpPipeline getHttpPipeline() {
@@ -42,7 +43,7 @@ public final class OptionalClientImpl {
 
     /**
      * Gets The instance of instrumentation to report telemetry.
-     * 
+     *
      * @return the instrumentation value.
      */
     public Instrumentation getInstrumentation() {
@@ -56,7 +57,7 @@ public final class OptionalClientImpl {
 
     /**
      * Gets the StringOperationsImpl object to access its operations.
-     * 
+     *
      * @return the StringOperationsImpl object.
      */
     public StringOperationsImpl getStringOperations() {
@@ -70,7 +71,7 @@ public final class OptionalClientImpl {
 
     /**
      * Gets the BytesImpl object to access its operations.
-     * 
+     *
      * @return the BytesImpl object.
      */
     public BytesImpl getBytes() {
@@ -84,7 +85,7 @@ public final class OptionalClientImpl {
 
     /**
      * Gets the DatetimeOperationsImpl object to access its operations.
-     * 
+     *
      * @return the DatetimeOperationsImpl object.
      */
     public DatetimeOperationsImpl getDatetimeOperations() {
@@ -98,7 +99,7 @@ public final class OptionalClientImpl {
 
     /**
      * Gets the DurationOperationsImpl object to access its operations.
-     * 
+     *
      * @return the DurationOperationsImpl object.
      */
     public DurationOperationsImpl getDurationOperations() {
@@ -112,7 +113,7 @@ public final class OptionalClientImpl {
 
     /**
      * Gets the PlainDatesImpl object to access its operations.
-     * 
+     *
      * @return the PlainDatesImpl object.
      */
     public PlainDatesImpl getPlainDates() {
@@ -126,7 +127,7 @@ public final class OptionalClientImpl {
 
     /**
      * Gets the PlainTimesImpl object to access its operations.
-     * 
+     *
      * @return the PlainTimesImpl object.
      */
     public PlainTimesImpl getPlainTimes() {
@@ -140,7 +141,7 @@ public final class OptionalClientImpl {
 
     /**
      * Gets the CollectionsBytesImpl object to access its operations.
-     * 
+     *
      * @return the CollectionsBytesImpl object.
      */
     public CollectionsBytesImpl getCollectionsBytes() {
@@ -154,7 +155,7 @@ public final class OptionalClientImpl {
 
     /**
      * Gets the CollectionsModelsImpl object to access its operations.
-     * 
+     *
      * @return the CollectionsModelsImpl object.
      */
     public CollectionsModelsImpl getCollectionsModels() {
@@ -168,7 +169,7 @@ public final class OptionalClientImpl {
 
     /**
      * Gets the StringLiteralsImpl object to access its operations.
-     * 
+     *
      * @return the StringLiteralsImpl object.
      */
     public StringLiteralsImpl getStringLiterals() {
@@ -182,7 +183,7 @@ public final class OptionalClientImpl {
 
     /**
      * Gets the IntLiteralsImpl object to access its operations.
-     * 
+     *
      * @return the IntLiteralsImpl object.
      */
     public IntLiteralsImpl getIntLiterals() {
@@ -196,7 +197,7 @@ public final class OptionalClientImpl {
 
     /**
      * Gets the FloatLiteralsImpl object to access its operations.
-     * 
+     *
      * @return the FloatLiteralsImpl object.
      */
     public FloatLiteralsImpl getFloatLiterals() {
@@ -210,7 +211,7 @@ public final class OptionalClientImpl {
 
     /**
      * Gets the BooleanLiteralsImpl object to access its operations.
-     * 
+     *
      * @return the BooleanLiteralsImpl object.
      */
     public BooleanLiteralsImpl getBooleanLiterals() {
@@ -224,7 +225,7 @@ public final class OptionalClientImpl {
 
     /**
      * Gets the UnionStringLiteralsImpl object to access its operations.
-     * 
+     *
      * @return the UnionStringLiteralsImpl object.
      */
     public UnionStringLiteralsImpl getUnionStringLiterals() {
@@ -238,7 +239,7 @@ public final class OptionalClientImpl {
 
     /**
      * Gets the UnionIntLiteralsImpl object to access its operations.
-     * 
+     *
      * @return the UnionIntLiteralsImpl object.
      */
     public UnionIntLiteralsImpl getUnionIntLiterals() {
@@ -252,7 +253,7 @@ public final class OptionalClientImpl {
 
     /**
      * Gets the UnionFloatLiteralsImpl object to access its operations.
-     * 
+     *
      * @return the UnionFloatLiteralsImpl object.
      */
     public UnionFloatLiteralsImpl getUnionFloatLiterals() {
@@ -266,7 +267,7 @@ public final class OptionalClientImpl {
 
     /**
      * Gets the RequiredAndOptionalsImpl object to access its operations.
-     * 
+     *
      * @return the RequiredAndOptionalsImpl object.
      */
     public RequiredAndOptionalsImpl getRequiredAndOptionals() {
@@ -275,7 +276,7 @@ public final class OptionalClientImpl {
 
     /**
      * Initializes an instance of OptionalClient client.
-     * 
+     *
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.

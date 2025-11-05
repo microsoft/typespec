@@ -21,6 +21,7 @@ import payload.multipart.ComplexHttpPartsModelRequest;
  * An instance of this class provides access to all the operations defined in FormDataHttpParts.
  */
 public final class FormDataHttpPartsImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -38,7 +39,7 @@ public final class FormDataHttpPartsImpl {
 
     /**
      * Initializes an instance of FormDataHttpPartsImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     FormDataHttpPartsImpl(MultiPartClientImpl client) {
@@ -53,6 +54,7 @@ public final class FormDataHttpPartsImpl {
      */
     @ServiceInterface(name = "MultiPartClientFormDataHttpParts", host = "{endpoint}")
     public interface FormDataHttpPartsService {
+
         static FormDataHttpPartsService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("payload.multipart.implementation.FormDataHttpPartsServiceImpl");
@@ -62,7 +64,6 @@ public final class FormDataHttpPartsImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         // @Multipart not supported by RestProxy
@@ -78,7 +79,7 @@ public final class FormDataHttpPartsImpl {
 
     /**
      * Test content-type: multipart/form-data for mixed scenarios.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

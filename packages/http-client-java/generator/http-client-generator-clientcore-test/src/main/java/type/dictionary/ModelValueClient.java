@@ -17,6 +17,7 @@ import type.dictionary.implementation.ModelValuesImpl;
  */
 @ServiceClient(builder = DictionaryClientBuilder.class)
 public final class ModelValueClient {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final ModelValuesImpl serviceClient;
 
@@ -24,7 +25,7 @@ public final class ModelValueClient {
 
     /**
      * Initializes an instance of ModelValueClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -36,7 +37,7 @@ public final class ModelValueClient {
 
     /**
      * The get operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -52,7 +53,7 @@ public final class ModelValueClient {
 
     /**
      * The get operation.
-     * 
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
@@ -65,7 +66,7 @@ public final class ModelValueClient {
 
     /**
      * The put operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -82,7 +83,7 @@ public final class ModelValueClient {
 
     /**
      * The put operation.
-     * 
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

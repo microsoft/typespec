@@ -65,6 +65,7 @@ import type.property.valuetypes.implementation.ValueTypesClientImpl;
 public final class ValueTypesClientBuilder
     implements HttpTrait<ValueTypesClientBuilder>, ProxyTrait<ValueTypesClientBuilder>,
     ConfigurationTrait<ValueTypesClientBuilder>, EndpointTrait<ValueTypesClientBuilder> {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -211,7 +212,7 @@ public final class ValueTypesClientBuilder
 
     /**
      * Builds an instance of ValueTypesClientImpl with the provided parameters.
-     * 
+     *
      * @return an instance of ValueTypesClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -256,7 +257,7 @@ public final class ValueTypesClientBuilder
 
     /**
      * Builds an instance of BooleanOperationClient class.
-     * 
+     *
      * @return an instance of BooleanOperationClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -267,7 +268,7 @@ public final class ValueTypesClientBuilder
 
     /**
      * Builds an instance of StringOperationClient class.
-     * 
+     *
      * @return an instance of StringOperationClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -278,7 +279,7 @@ public final class ValueTypesClientBuilder
 
     /**
      * Builds an instance of BytesClient class.
-     * 
+     *
      * @return an instance of BytesClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -289,7 +290,7 @@ public final class ValueTypesClientBuilder
 
     /**
      * Builds an instance of IntClient class.
-     * 
+     *
      * @return an instance of IntClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -300,7 +301,7 @@ public final class ValueTypesClientBuilder
 
     /**
      * Builds an instance of FloatOperationClient class.
-     * 
+     *
      * @return an instance of FloatOperationClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -311,7 +312,7 @@ public final class ValueTypesClientBuilder
 
     /**
      * Builds an instance of DecimalClient class.
-     * 
+     *
      * @return an instance of DecimalClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -322,7 +323,7 @@ public final class ValueTypesClientBuilder
 
     /**
      * Builds an instance of Decimal128Client class.
-     * 
+     *
      * @return an instance of Decimal128Client.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -333,7 +334,7 @@ public final class ValueTypesClientBuilder
 
     /**
      * Builds an instance of DatetimeOperationClient class.
-     * 
+     *
      * @return an instance of DatetimeOperationClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -344,7 +345,7 @@ public final class ValueTypesClientBuilder
 
     /**
      * Builds an instance of DurationOperationClient class.
-     * 
+     *
      * @return an instance of DurationOperationClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -355,7 +356,7 @@ public final class ValueTypesClientBuilder
 
     /**
      * Builds an instance of EnumClient class.
-     * 
+     *
      * @return an instance of EnumClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -366,7 +367,7 @@ public final class ValueTypesClientBuilder
 
     /**
      * Builds an instance of ExtensibleEnumClient class.
-     * 
+     *
      * @return an instance of ExtensibleEnumClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -377,7 +378,7 @@ public final class ValueTypesClientBuilder
 
     /**
      * Builds an instance of ModelClient class.
-     * 
+     *
      * @return an instance of ModelClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -388,7 +389,7 @@ public final class ValueTypesClientBuilder
 
     /**
      * Builds an instance of CollectionsStringClient class.
-     * 
+     *
      * @return an instance of CollectionsStringClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -399,7 +400,7 @@ public final class ValueTypesClientBuilder
 
     /**
      * Builds an instance of CollectionsIntClient class.
-     * 
+     *
      * @return an instance of CollectionsIntClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -410,7 +411,7 @@ public final class ValueTypesClientBuilder
 
     /**
      * Builds an instance of CollectionsModelClient class.
-     * 
+     *
      * @return an instance of CollectionsModelClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -421,7 +422,7 @@ public final class ValueTypesClientBuilder
 
     /**
      * Builds an instance of DictionaryStringClient class.
-     * 
+     *
      * @return an instance of DictionaryStringClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -432,7 +433,7 @@ public final class ValueTypesClientBuilder
 
     /**
      * Builds an instance of NeverClient class.
-     * 
+     *
      * @return an instance of NeverClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -443,7 +444,7 @@ public final class ValueTypesClientBuilder
 
     /**
      * Builds an instance of UnknownStringClient class.
-     * 
+     *
      * @return an instance of UnknownStringClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -454,7 +455,7 @@ public final class ValueTypesClientBuilder
 
     /**
      * Builds an instance of UnknownIntClient class.
-     * 
+     *
      * @return an instance of UnknownIntClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -465,7 +466,7 @@ public final class ValueTypesClientBuilder
 
     /**
      * Builds an instance of UnknownDictClient class.
-     * 
+     *
      * @return an instance of UnknownDictClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -476,7 +477,7 @@ public final class ValueTypesClientBuilder
 
     /**
      * Builds an instance of UnknownArrayClient class.
-     * 
+     *
      * @return an instance of UnknownArrayClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -487,7 +488,7 @@ public final class ValueTypesClientBuilder
 
     /**
      * Builds an instance of StringLiteralClient class.
-     * 
+     *
      * @return an instance of StringLiteralClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -498,7 +499,7 @@ public final class ValueTypesClientBuilder
 
     /**
      * Builds an instance of IntLiteralClient class.
-     * 
+     *
      * @return an instance of IntLiteralClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -509,7 +510,7 @@ public final class ValueTypesClientBuilder
 
     /**
      * Builds an instance of FloatLiteralClient class.
-     * 
+     *
      * @return an instance of FloatLiteralClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -520,7 +521,7 @@ public final class ValueTypesClientBuilder
 
     /**
      * Builds an instance of BooleanLiteralClient class.
-     * 
+     *
      * @return an instance of BooleanLiteralClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -531,7 +532,7 @@ public final class ValueTypesClientBuilder
 
     /**
      * Builds an instance of UnionStringLiteralClient class.
-     * 
+     *
      * @return an instance of UnionStringLiteralClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -542,7 +543,7 @@ public final class ValueTypesClientBuilder
 
     /**
      * Builds an instance of UnionIntLiteralClient class.
-     * 
+     *
      * @return an instance of UnionIntLiteralClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -553,7 +554,7 @@ public final class ValueTypesClientBuilder
 
     /**
      * Builds an instance of UnionFloatLiteralClient class.
-     * 
+     *
      * @return an instance of UnionFloatLiteralClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -564,7 +565,7 @@ public final class ValueTypesClientBuilder
 
     /**
      * Builds an instance of UnionEnumValueClient class.
-     * 
+     *
      * @return an instance of UnionEnumValueClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

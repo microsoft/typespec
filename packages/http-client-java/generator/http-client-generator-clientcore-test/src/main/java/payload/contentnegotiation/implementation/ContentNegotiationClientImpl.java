@@ -7,6 +7,7 @@ import io.clientcore.core.instrumentation.Instrumentation;
  * Initializes a new instance of the ContentNegotiationClient type.
  */
 public final class ContentNegotiationClientImpl {
+
     /**
      * Service host.
      */
@@ -14,7 +15,7 @@ public final class ContentNegotiationClientImpl {
 
     /**
      * Gets Service host.
-     * 
+     *
      * @return the endpoint value.
      */
     public String getEndpoint() {
@@ -28,7 +29,7 @@ public final class ContentNegotiationClientImpl {
 
     /**
      * Gets The HTTP pipeline to send requests through.
-     * 
+     *
      * @return the httpPipeline value.
      */
     public HttpPipeline getHttpPipeline() {
@@ -42,7 +43,7 @@ public final class ContentNegotiationClientImpl {
 
     /**
      * Gets The instance of instrumentation to report telemetry.
-     * 
+     *
      * @return the instrumentation value.
      */
     public Instrumentation getInstrumentation() {
@@ -56,7 +57,7 @@ public final class ContentNegotiationClientImpl {
 
     /**
      * Gets the SameBodiesImpl object to access its operations.
-     * 
+     *
      * @return the SameBodiesImpl object.
      */
     public SameBodiesImpl getSameBodies() {
@@ -70,7 +71,7 @@ public final class ContentNegotiationClientImpl {
 
     /**
      * Gets the DifferentBodiesImpl object to access its operations.
-     * 
+     *
      * @return the DifferentBodiesImpl object.
      */
     public DifferentBodiesImpl getDifferentBodies() {
@@ -79,7 +80,7 @@ public final class ContentNegotiationClientImpl {
 
     /**
      * Initializes an instance of ContentNegotiationClient client.
-     * 
+     *
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.

@@ -34,6 +34,7 @@ import java.util.Objects;
 @ServiceClientBuilder(serviceClients = { QueryClient.class, PropertyClient.class, HeaderClient.class })
 public final class DurationClientBuilder implements HttpTrait<DurationClientBuilder>, ProxyTrait<DurationClientBuilder>,
     ConfigurationTrait<DurationClientBuilder>, EndpointTrait<DurationClientBuilder> {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -179,7 +180,7 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
 
     /**
      * Builds an instance of DurationClientImpl with the provided parameters.
-     * 
+     *
      * @return an instance of DurationClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -224,7 +225,7 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
 
     /**
      * Builds an instance of QueryClient class.
-     * 
+     *
      * @return an instance of QueryClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -235,7 +236,7 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
 
     /**
      * Builds an instance of PropertyClient class.
-     * 
+     *
      * @return an instance of PropertyClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -246,7 +247,7 @@ public final class DurationClientBuilder implements HttpTrait<DurationClientBuil
 
     /**
      * Builds an instance of HeaderClient class.
-     * 
+     *
      * @return an instance of HeaderClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

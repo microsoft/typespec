@@ -22,6 +22,7 @@ import type.union.GetResponse5;
  * An instance of this class provides access to all the operations defined in ModelsOnlies.
  */
 public final class ModelsOnliesImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -39,7 +40,7 @@ public final class ModelsOnliesImpl {
 
     /**
      * Initializes an instance of ModelsOnliesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     ModelsOnliesImpl(UnionClientImpl client) {
@@ -54,6 +55,7 @@ public final class ModelsOnliesImpl {
      */
     @ServiceInterface(name = "UnionClientModelsOnlies", host = "{endpoint}")
     public interface ModelsOnliesService {
+
         static ModelsOnliesService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("type.union.implementation.ModelsOnliesServiceImpl");
@@ -63,7 +65,6 @@ public final class ModelsOnliesImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         @HttpRequestInformation(
@@ -85,7 +86,7 @@ public final class ModelsOnliesImpl {
 
     /**
      * The get operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -103,7 +104,7 @@ public final class ModelsOnliesImpl {
 
     /**
      * The send operation.
-     * 
+     *
      * @param prop The prop parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

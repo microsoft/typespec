@@ -49,6 +49,7 @@ import type.array.implementation.ArrayClientImpl;
         NullableModelValueClient.class })
 public final class ArrayClientBuilder implements HttpTrait<ArrayClientBuilder>, ProxyTrait<ArrayClientBuilder>,
     ConfigurationTrait<ArrayClientBuilder>, EndpointTrait<ArrayClientBuilder> {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -194,7 +195,7 @@ public final class ArrayClientBuilder implements HttpTrait<ArrayClientBuilder>, 
 
     /**
      * Builds an instance of ArrayClientImpl with the provided parameters.
-     * 
+     *
      * @return an instance of ArrayClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -239,7 +240,7 @@ public final class ArrayClientBuilder implements HttpTrait<ArrayClientBuilder>, 
 
     /**
      * Builds an instance of Int32ValueClient class.
-     * 
+     *
      * @return an instance of Int32ValueClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -250,7 +251,7 @@ public final class ArrayClientBuilder implements HttpTrait<ArrayClientBuilder>, 
 
     /**
      * Builds an instance of Int64ValueClient class.
-     * 
+     *
      * @return an instance of Int64ValueClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -261,7 +262,7 @@ public final class ArrayClientBuilder implements HttpTrait<ArrayClientBuilder>, 
 
     /**
      * Builds an instance of BooleanValueClient class.
-     * 
+     *
      * @return an instance of BooleanValueClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -272,7 +273,7 @@ public final class ArrayClientBuilder implements HttpTrait<ArrayClientBuilder>, 
 
     /**
      * Builds an instance of StringValueClient class.
-     * 
+     *
      * @return an instance of StringValueClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -283,7 +284,7 @@ public final class ArrayClientBuilder implements HttpTrait<ArrayClientBuilder>, 
 
     /**
      * Builds an instance of Float32ValueClient class.
-     * 
+     *
      * @return an instance of Float32ValueClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -294,7 +295,7 @@ public final class ArrayClientBuilder implements HttpTrait<ArrayClientBuilder>, 
 
     /**
      * Builds an instance of DatetimeValueClient class.
-     * 
+     *
      * @return an instance of DatetimeValueClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -305,7 +306,7 @@ public final class ArrayClientBuilder implements HttpTrait<ArrayClientBuilder>, 
 
     /**
      * Builds an instance of DurationValueClient class.
-     * 
+     *
      * @return an instance of DurationValueClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -316,7 +317,7 @@ public final class ArrayClientBuilder implements HttpTrait<ArrayClientBuilder>, 
 
     /**
      * Builds an instance of UnknownValueClient class.
-     * 
+     *
      * @return an instance of UnknownValueClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -327,7 +328,7 @@ public final class ArrayClientBuilder implements HttpTrait<ArrayClientBuilder>, 
 
     /**
      * Builds an instance of ModelValueClient class.
-     * 
+     *
      * @return an instance of ModelValueClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -338,7 +339,7 @@ public final class ArrayClientBuilder implements HttpTrait<ArrayClientBuilder>, 
 
     /**
      * Builds an instance of NullableFloatValueClient class.
-     * 
+     *
      * @return an instance of NullableFloatValueClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -349,7 +350,7 @@ public final class ArrayClientBuilder implements HttpTrait<ArrayClientBuilder>, 
 
     /**
      * Builds an instance of NullableInt32ValueClient class.
-     * 
+     *
      * @return an instance of NullableInt32ValueClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -360,7 +361,7 @@ public final class ArrayClientBuilder implements HttpTrait<ArrayClientBuilder>, 
 
     /**
      * Builds an instance of NullableBooleanValueClient class.
-     * 
+     *
      * @return an instance of NullableBooleanValueClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -371,7 +372,7 @@ public final class ArrayClientBuilder implements HttpTrait<ArrayClientBuilder>, 
 
     /**
      * Builds an instance of NullableStringValueClient class.
-     * 
+     *
      * @return an instance of NullableStringValueClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -382,7 +383,7 @@ public final class ArrayClientBuilder implements HttpTrait<ArrayClientBuilder>, 
 
     /**
      * Builds an instance of NullableModelValueClient class.
-     * 
+     *
      * @return an instance of NullableModelValueClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

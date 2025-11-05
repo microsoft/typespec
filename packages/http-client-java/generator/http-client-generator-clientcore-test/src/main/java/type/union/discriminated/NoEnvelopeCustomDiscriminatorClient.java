@@ -17,6 +17,7 @@ import type.union.discriminated.implementation.NoEnvelopeCustomDiscriminatorsImp
  */
 @ServiceClient(builder = DiscriminatedClientBuilder.class)
 public final class NoEnvelopeCustomDiscriminatorClient {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final NoEnvelopeCustomDiscriminatorsImpl serviceClient;
 
@@ -24,7 +25,7 @@ public final class NoEnvelopeCustomDiscriminatorClient {
 
     /**
      * Initializes an instance of NoEnvelopeCustomDiscriminatorClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -37,7 +38,7 @@ public final class NoEnvelopeCustomDiscriminatorClient {
 
     /**
      * The get operation.
-     * 
+     *
      * @param type The type parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -57,7 +58,7 @@ public final class NoEnvelopeCustomDiscriminatorClient {
 
     /**
      * The get operation.
-     * 
+     *
      * @param type The type parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -74,7 +75,7 @@ public final class NoEnvelopeCustomDiscriminatorClient {
 
     /**
      * The get operation.
-     * 
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return test discriminated union with inline discriminator and custom discriminator property name.
@@ -90,7 +91,7 @@ public final class NoEnvelopeCustomDiscriminatorClient {
 
     /**
      * The put operation.
-     * 
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -110,7 +111,7 @@ public final class NoEnvelopeCustomDiscriminatorClient {
 
     /**
      * The put operation.
-     * 
+     *
      * @param input The input parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

@@ -4,6 +4,7 @@ package type.property.optional;
  * Defines values for StringLiteralPropertyProperty.
  */
 public enum StringLiteralPropertyProperty {
+
     /**
      * Enum value hello.
      */
@@ -20,7 +21,7 @@ public enum StringLiteralPropertyProperty {
 
     /**
      * Parses a serialized value to a StringLiteralPropertyProperty instance.
-     * 
+     *
      * @param value the serialized value to parse.
      * @return the parsed StringLiteralPropertyProperty object, or null if unable to parse.
      */

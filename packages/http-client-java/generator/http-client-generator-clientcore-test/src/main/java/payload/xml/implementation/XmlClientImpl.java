@@ -7,6 +7,7 @@ import io.clientcore.core.instrumentation.Instrumentation;
  * Initializes a new instance of the XmlClient type.
  */
 public final class XmlClientImpl {
+
     /**
      * Service host.
      */
@@ -14,7 +15,7 @@ public final class XmlClientImpl {
 
     /**
      * Gets Service host.
-     * 
+     *
      * @return the endpoint value.
      */
     public String getEndpoint() {
@@ -28,7 +29,7 @@ public final class XmlClientImpl {
 
     /**
      * Gets The HTTP pipeline to send requests through.
-     * 
+     *
      * @return the httpPipeline value.
      */
     public HttpPipeline getHttpPipeline() {
@@ -42,7 +43,7 @@ public final class XmlClientImpl {
 
     /**
      * Gets The instance of instrumentation to report telemetry.
-     * 
+     *
      * @return the instrumentation value.
      */
     public Instrumentation getInstrumentation() {
@@ -56,7 +57,7 @@ public final class XmlClientImpl {
 
     /**
      * Gets the SimpleModelValuesImpl object to access its operations.
-     * 
+     *
      * @return the SimpleModelValuesImpl object.
      */
     public SimpleModelValuesImpl getSimpleModelValues() {
@@ -70,7 +71,7 @@ public final class XmlClientImpl {
 
     /**
      * Gets the ModelWithSimpleArraysValuesImpl object to access its operations.
-     * 
+     *
      * @return the ModelWithSimpleArraysValuesImpl object.
      */
     public ModelWithSimpleArraysValuesImpl getModelWithSimpleArraysValues() {
@@ -84,7 +85,7 @@ public final class XmlClientImpl {
 
     /**
      * Gets the ModelWithArrayOfModelValuesImpl object to access its operations.
-     * 
+     *
      * @return the ModelWithArrayOfModelValuesImpl object.
      */
     public ModelWithArrayOfModelValuesImpl getModelWithArrayOfModelValues() {
@@ -98,7 +99,7 @@ public final class XmlClientImpl {
 
     /**
      * Gets the ModelWithOptionalFieldValuesImpl object to access its operations.
-     * 
+     *
      * @return the ModelWithOptionalFieldValuesImpl object.
      */
     public ModelWithOptionalFieldValuesImpl getModelWithOptionalFieldValues() {
@@ -112,7 +113,7 @@ public final class XmlClientImpl {
 
     /**
      * Gets the ModelWithAttributesValuesImpl object to access its operations.
-     * 
+     *
      * @return the ModelWithAttributesValuesImpl object.
      */
     public ModelWithAttributesValuesImpl getModelWithAttributesValues() {
@@ -126,7 +127,7 @@ public final class XmlClientImpl {
 
     /**
      * Gets the ModelWithUnwrappedArrayValuesImpl object to access its operations.
-     * 
+     *
      * @return the ModelWithUnwrappedArrayValuesImpl object.
      */
     public ModelWithUnwrappedArrayValuesImpl getModelWithUnwrappedArrayValues() {
@@ -140,7 +141,7 @@ public final class XmlClientImpl {
 
     /**
      * Gets the ModelWithRenamedArraysValuesImpl object to access its operations.
-     * 
+     *
      * @return the ModelWithRenamedArraysValuesImpl object.
      */
     public ModelWithRenamedArraysValuesImpl getModelWithRenamedArraysValues() {
@@ -154,7 +155,7 @@ public final class XmlClientImpl {
 
     /**
      * Gets the ModelWithRenamedFieldsValuesImpl object to access its operations.
-     * 
+     *
      * @return the ModelWithRenamedFieldsValuesImpl object.
      */
     public ModelWithRenamedFieldsValuesImpl getModelWithRenamedFieldsValues() {
@@ -168,7 +169,7 @@ public final class XmlClientImpl {
 
     /**
      * Gets the ModelWithEmptyArrayValuesImpl object to access its operations.
-     * 
+     *
      * @return the ModelWithEmptyArrayValuesImpl object.
      */
     public ModelWithEmptyArrayValuesImpl getModelWithEmptyArrayValues() {
@@ -182,7 +183,7 @@ public final class XmlClientImpl {
 
     /**
      * Gets the ModelWithTextValuesImpl object to access its operations.
-     * 
+     *
      * @return the ModelWithTextValuesImpl object.
      */
     public ModelWithTextValuesImpl getModelWithTextValues() {
@@ -196,7 +197,7 @@ public final class XmlClientImpl {
 
     /**
      * Gets the ModelWithDictionaryValuesImpl object to access its operations.
-     * 
+     *
      * @return the ModelWithDictionaryValuesImpl object.
      */
     public ModelWithDictionaryValuesImpl getModelWithDictionaryValues() {
@@ -210,7 +211,7 @@ public final class XmlClientImpl {
 
     /**
      * Gets the ModelWithEncodedNamesValuesImpl object to access its operations.
-     * 
+     *
      * @return the ModelWithEncodedNamesValuesImpl object.
      */
     public ModelWithEncodedNamesValuesImpl getModelWithEncodedNamesValues() {
@@ -219,7 +220,7 @@ public final class XmlClientImpl {
 
     /**
      * Initializes an instance of XmlClient client.
-     * 
+     *
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.

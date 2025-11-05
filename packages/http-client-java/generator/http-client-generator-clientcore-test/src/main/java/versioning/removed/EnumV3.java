@@ -4,11 +4,11 @@ package versioning.removed;
  * Defines values for EnumV3.
  */
 public enum EnumV3 {
+
     /**
      * Enum value enumMemberV1.
      */
     ENUM_MEMBER_V1("enumMemberV1"),
-
     /**
      * Enum value enumMemberV2Preview.
      */
@@ -25,7 +25,7 @@ public enum EnumV3 {
 
     /**
      * Parses a serialized value to a EnumV3 instance.
-     * 
+     *
      * @param value the serialized value to parse.
      * @return the parsed EnumV3 object, or null if unable to parse.
      */

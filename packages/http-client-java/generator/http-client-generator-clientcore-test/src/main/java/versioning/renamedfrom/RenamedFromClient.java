@@ -16,6 +16,7 @@ import versioning.renamedfrom.implementation.RenamedFromClientImpl;
  */
 @ServiceClient(builder = RenamedFromClientBuilder.class)
 public final class RenamedFromClient {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final RenamedFromClientImpl serviceClient;
 
@@ -23,7 +24,7 @@ public final class RenamedFromClient {
 
     /**
      * Initializes an instance of RenamedFromClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,7 +36,7 @@ public final class RenamedFromClient {
 
     /**
      * The newOp operation.
-     * 
+     *
      * @param newQuery The newQuery parameter.
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -53,7 +54,7 @@ public final class RenamedFromClient {
 
     /**
      * The newOp operation.
-     * 
+     *
      * @param newQuery The newQuery parameter.
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

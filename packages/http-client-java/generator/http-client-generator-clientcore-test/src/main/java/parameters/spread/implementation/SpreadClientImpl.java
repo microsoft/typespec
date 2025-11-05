@@ -7,6 +7,7 @@ import io.clientcore.core.instrumentation.Instrumentation;
  * Initializes a new instance of the SpreadClient type.
  */
 public final class SpreadClientImpl {
+
     /**
      * Service host.
      */
@@ -14,7 +15,7 @@ public final class SpreadClientImpl {
 
     /**
      * Gets Service host.
-     * 
+     *
      * @return the endpoint value.
      */
     public String getEndpoint() {
@@ -28,7 +29,7 @@ public final class SpreadClientImpl {
 
     /**
      * Gets The HTTP pipeline to send requests through.
-     * 
+     *
      * @return the httpPipeline value.
      */
     public HttpPipeline getHttpPipeline() {
@@ -42,7 +43,7 @@ public final class SpreadClientImpl {
 
     /**
      * Gets The instance of instrumentation to report telemetry.
-     * 
+     *
      * @return the instrumentation value.
      */
     public Instrumentation getInstrumentation() {
@@ -56,7 +57,7 @@ public final class SpreadClientImpl {
 
     /**
      * Gets the ModelsImpl object to access its operations.
-     * 
+     *
      * @return the ModelsImpl object.
      */
     public ModelsImpl getModels() {
@@ -70,7 +71,7 @@ public final class SpreadClientImpl {
 
     /**
      * Gets the AliasImpl object to access its operations.
-     * 
+     *
      * @return the AliasImpl object.
      */
     public AliasImpl getAlias() {
@@ -79,7 +80,7 @@ public final class SpreadClientImpl {
 
     /**
      * Initializes an instance of SpreadClient client.
-     * 
+     *
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.

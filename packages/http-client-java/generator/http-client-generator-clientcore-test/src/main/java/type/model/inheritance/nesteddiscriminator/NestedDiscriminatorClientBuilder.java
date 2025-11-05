@@ -35,6 +35,7 @@ import type.model.inheritance.nesteddiscriminator.implementation.NestedDiscrimin
 public final class NestedDiscriminatorClientBuilder
     implements HttpTrait<NestedDiscriminatorClientBuilder>, ProxyTrait<NestedDiscriminatorClientBuilder>,
     ConfigurationTrait<NestedDiscriminatorClientBuilder>, EndpointTrait<NestedDiscriminatorClientBuilder> {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -182,7 +183,7 @@ public final class NestedDiscriminatorClientBuilder
 
     /**
      * Builds an instance of NestedDiscriminatorClientImpl with the provided parameters.
-     * 
+     *
      * @return an instance of NestedDiscriminatorClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -228,7 +229,7 @@ public final class NestedDiscriminatorClientBuilder
 
     /**
      * Builds an instance of NestedDiscriminatorClient class.
-     * 
+     *
      * @return an instance of NestedDiscriminatorClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

@@ -16,6 +16,7 @@ import type.model.inheritance.notdiscriminated.implementation.NotDiscriminatedCl
  */
 @ServiceClient(builder = NotDiscriminatedClientBuilder.class)
 public final class NotDiscriminatedClient {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final NotDiscriminatedClientImpl serviceClient;
 
@@ -23,7 +24,7 @@ public final class NotDiscriminatedClient {
 
     /**
      * Initializes an instance of NotDiscriminatedClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,7 +36,7 @@ public final class NotDiscriminatedClient {
 
     /**
      * The postValid operation.
-     * 
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -52,7 +53,7 @@ public final class NotDiscriminatedClient {
 
     /**
      * The postValid operation.
-     * 
+     *
      * @param input The input parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -66,7 +67,7 @@ public final class NotDiscriminatedClient {
 
     /**
      * The getValid operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -82,7 +83,7 @@ public final class NotDiscriminatedClient {
 
     /**
      * The getValid operation.
-     * 
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the third level model in the normal multiple levels inheritance.
@@ -95,7 +96,7 @@ public final class NotDiscriminatedClient {
 
     /**
      * The putValid operation.
-     * 
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -112,7 +113,7 @@ public final class NotDiscriminatedClient {
 
     /**
      * The putValid operation.
-     * 
+     *
      * @param input The input parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

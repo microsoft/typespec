@@ -34,6 +34,7 @@ import server.path.multiple.implementation.MultipleClientImpl;
 @ServiceClientBuilder(serviceClients = { MultipleClient.class })
 public final class MultipleClientBuilder implements HttpTrait<MultipleClientBuilder>, ProxyTrait<MultipleClientBuilder>,
     ConfigurationTrait<MultipleClientBuilder>, EndpointTrait<MultipleClientBuilder> {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -185,7 +186,7 @@ public final class MultipleClientBuilder implements HttpTrait<MultipleClientBuil
 
     /**
      * Sets Service version.
-     * 
+     *
      * @param serviceVersion the serviceVersion value.
      * @return the MultipleClientBuilder.
      */
@@ -197,7 +198,7 @@ public final class MultipleClientBuilder implements HttpTrait<MultipleClientBuil
 
     /**
      * Builds an instance of MultipleClientImpl with the provided parameters.
-     * 
+     *
      * @return an instance of MultipleClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -245,7 +246,7 @@ public final class MultipleClientBuilder implements HttpTrait<MultipleClientBuil
 
     /**
      * Builds an instance of MultipleClient class.
-     * 
+     *
      * @return an instance of MultipleClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

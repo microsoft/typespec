@@ -16,6 +16,7 @@ import type.enumnamespace.fixed.implementation.StringOperationsImpl;
  */
 @ServiceClient(builder = FixedClientBuilder.class)
 public final class FixedClient {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final StringOperationsImpl serviceClient;
 
@@ -23,7 +24,7 @@ public final class FixedClient {
 
     /**
      * Initializes an instance of FixedClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,7 +36,7 @@ public final class FixedClient {
 
     /**
      * getKnownValue.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -51,7 +52,7 @@ public final class FixedClient {
 
     /**
      * getKnownValue.
-     * 
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return days of the week.
@@ -64,7 +65,7 @@ public final class FixedClient {
 
     /**
      * putKnownValue.
-     * 
+     *
      * @param body _.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -81,7 +82,7 @@ public final class FixedClient {
 
     /**
      * putKnownValue.
-     * 
+     *
      * @param body _.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -95,7 +96,7 @@ public final class FixedClient {
 
     /**
      * putUnknownValue.
-     * 
+     *
      * @param body _.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -112,7 +113,7 @@ public final class FixedClient {
 
     /**
      * putUnknownValue.
-     * 
+     *
      * @param body _.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

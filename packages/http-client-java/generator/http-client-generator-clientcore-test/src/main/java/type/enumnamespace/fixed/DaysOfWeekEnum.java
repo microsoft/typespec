@@ -4,36 +4,31 @@ package type.enumnamespace.fixed;
  * Days of the week.
  */
 public enum DaysOfWeekEnum {
+
     /**
      * Monday.
      */
     MONDAY("Monday"),
-
     /**
      * Tuesday.
      */
     TUESDAY("Tuesday"),
-
     /**
      * Wednesday.
      */
     WEDNESDAY("Wednesday"),
-
     /**
      * Thursday.
      */
     THURSDAY("Thursday"),
-
     /**
      * Friday.
      */
     FRIDAY("Friday"),
-
     /**
      * Saturday.
      */
     SATURDAY("Saturday"),
-
     /**
      * Sunday.
      */
@@ -50,7 +45,7 @@ public enum DaysOfWeekEnum {
 
     /**
      * Parses a serialized value to a DaysOfWeekEnum instance.
-     * 
+     *
      * @param value the serialized value to parse.
      * @return the parsed DaysOfWeekEnum object, or null if unable to parse.
      */

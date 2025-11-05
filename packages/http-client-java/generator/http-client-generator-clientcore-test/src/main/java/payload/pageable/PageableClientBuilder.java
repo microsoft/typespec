@@ -38,6 +38,7 @@ import payload.pageable.implementation.PageableClientImpl;
         PageSizeClient.class })
 public final class PageableClientBuilder implements HttpTrait<PageableClientBuilder>, ProxyTrait<PageableClientBuilder>,
     ConfigurationTrait<PageableClientBuilder>, EndpointTrait<PageableClientBuilder> {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -183,7 +184,7 @@ public final class PageableClientBuilder implements HttpTrait<PageableClientBuil
 
     /**
      * Builds an instance of PageableClientImpl with the provided parameters.
-     * 
+     *
      * @return an instance of PageableClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -228,7 +229,7 @@ public final class PageableClientBuilder implements HttpTrait<PageableClientBuil
 
     /**
      * Builds an instance of ServerDrivenPaginationClient class.
-     * 
+     *
      * @return an instance of ServerDrivenPaginationClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -240,7 +241,7 @@ public final class PageableClientBuilder implements HttpTrait<PageableClientBuil
 
     /**
      * Builds an instance of ServerDrivenPaginationContinuationTokenClient class.
-     * 
+     *
      * @return an instance of ServerDrivenPaginationContinuationTokenClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -252,7 +253,7 @@ public final class PageableClientBuilder implements HttpTrait<PageableClientBuil
 
     /**
      * Builds an instance of PageSizeClient class.
-     * 
+     *
      * @return an instance of PageSizeClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

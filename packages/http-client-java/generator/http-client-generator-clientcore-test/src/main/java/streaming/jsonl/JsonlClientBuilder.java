@@ -34,6 +34,7 @@ import streaming.jsonl.implementation.JsonlClientImpl;
 @ServiceClientBuilder(serviceClients = { JsonlClient.class })
 public final class JsonlClientBuilder implements HttpTrait<JsonlClientBuilder>, ProxyTrait<JsonlClientBuilder>,
     ConfigurationTrait<JsonlClientBuilder>, EndpointTrait<JsonlClientBuilder> {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -179,7 +180,7 @@ public final class JsonlClientBuilder implements HttpTrait<JsonlClientBuilder>, 
 
     /**
      * Builds an instance of JsonlClientImpl with the provided parameters.
-     * 
+     *
      * @return an instance of JsonlClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -224,7 +225,7 @@ public final class JsonlClientBuilder implements HttpTrait<JsonlClientBuilder>, 
 
     /**
      * Builds an instance of JsonlClient class.
-     * 
+     *
      * @return an instance of JsonlClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

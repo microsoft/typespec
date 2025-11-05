@@ -35,6 +35,7 @@ import type.model.inheritance.recursive.implementation.RecursiveClientImpl;
 public final class RecursiveClientBuilder
     implements HttpTrait<RecursiveClientBuilder>, ProxyTrait<RecursiveClientBuilder>,
     ConfigurationTrait<RecursiveClientBuilder>, EndpointTrait<RecursiveClientBuilder> {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -181,7 +182,7 @@ public final class RecursiveClientBuilder
 
     /**
      * Builds an instance of RecursiveClientImpl with the provided parameters.
-     * 
+     *
      * @return an instance of RecursiveClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -226,7 +227,7 @@ public final class RecursiveClientBuilder
 
     /**
      * Builds an instance of RecursiveClient class.
-     * 
+     *
      * @return an instance of RecursiveClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

@@ -35,6 +35,7 @@ import type.model.inheritance.enumdiscriminator.implementation.EnumDiscriminator
 public final class EnumDiscriminatorClientBuilder
     implements HttpTrait<EnumDiscriminatorClientBuilder>, ProxyTrait<EnumDiscriminatorClientBuilder>,
     ConfigurationTrait<EnumDiscriminatorClientBuilder>, EndpointTrait<EnumDiscriminatorClientBuilder> {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -182,7 +183,7 @@ public final class EnumDiscriminatorClientBuilder
 
     /**
      * Builds an instance of EnumDiscriminatorClientImpl with the provided parameters.
-     * 
+     *
      * @return an instance of EnumDiscriminatorClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -228,7 +229,7 @@ public final class EnumDiscriminatorClientBuilder
 
     /**
      * Builds an instance of EnumDiscriminatorClient class.
-     * 
+     *
      * @return an instance of EnumDiscriminatorClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

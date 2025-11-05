@@ -15,6 +15,7 @@ import java.util.Map;
  */
 @Metadata(properties = { MetadataProperties.FLUENT })
 public final class Salmon extends Fish {
+
     /*
      * Discriminator property for Fish.
      */
@@ -41,7 +42,7 @@ public final class Salmon extends Fish {
 
     /**
      * Creates an instance of Salmon class.
-     * 
+     *
      * @param age the age value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -51,7 +52,7 @@ public final class Salmon extends Fish {
 
     /**
      * Get the kind property: Discriminator property for Fish.
-     * 
+     *
      * @return the kind value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -62,7 +63,7 @@ public final class Salmon extends Fish {
 
     /**
      * Get the friends property: The friends property.
-     * 
+     *
      * @return the friends value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -72,7 +73,7 @@ public final class Salmon extends Fish {
 
     /**
      * Set the friends property: The friends property.
-     * 
+     *
      * @param friends the friends value to set.
      * @return the Salmon object itself.
      */
@@ -84,7 +85,7 @@ public final class Salmon extends Fish {
 
     /**
      * Get the hate property: The hate property.
-     * 
+     *
      * @return the hate value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -94,7 +95,7 @@ public final class Salmon extends Fish {
 
     /**
      * Set the hate property: The hate property.
-     * 
+     *
      * @param hate the hate value to set.
      * @return the Salmon object itself.
      */
@@ -106,7 +107,7 @@ public final class Salmon extends Fish {
 
     /**
      * Get the partner property: The partner property.
-     * 
+     *
      * @return the partner value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -116,7 +117,7 @@ public final class Salmon extends Fish {
 
     /**
      * Set the partner property: The partner property.
-     * 
+     *
      * @param partner the partner value to set.
      * @return the Salmon object itself.
      */
@@ -143,7 +144,7 @@ public final class Salmon extends Fish {
 
     /**
      * Reads an instance of Salmon from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of Salmon if the JsonReader was pointing to an instance of it, or null if it was pointing to
      * JSON null.
@@ -161,7 +162,6 @@ public final class Salmon extends Fish {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("age".equals(fieldName)) {
                     age = reader.getInt();
                 } else if ("kind".equals(fieldName)) {
@@ -181,7 +181,6 @@ public final class Salmon extends Fish {
             deserializedSalmon.friends = friends;
             deserializedSalmon.hate = hate;
             deserializedSalmon.partner = partner;
-
             return deserializedSalmon;
         });
     }

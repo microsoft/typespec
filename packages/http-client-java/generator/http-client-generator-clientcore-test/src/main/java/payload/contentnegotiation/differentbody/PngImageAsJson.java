@@ -13,6 +13,7 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class PngImageAsJson implements JsonSerializable<PngImageAsJson> {
+
     /*
      * The content property.
      */
@@ -21,7 +22,7 @@ public final class PngImageAsJson implements JsonSerializable<PngImageAsJson> {
 
     /**
      * Creates an instance of PngImageAsJson class.
-     * 
+     *
      * @param content the content value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -31,7 +32,7 @@ public final class PngImageAsJson implements JsonSerializable<PngImageAsJson> {
 
     /**
      * Get the content property: The content property.
-     * 
+     *
      * @return the content value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -52,7 +53,7 @@ public final class PngImageAsJson implements JsonSerializable<PngImageAsJson> {
 
     /**
      * Reads an instance of PngImageAsJson from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of PngImageAsJson if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.
@@ -66,7 +67,6 @@ public final class PngImageAsJson implements JsonSerializable<PngImageAsJson> {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("content".equals(fieldName)) {
                     content = reader.getBinary();
                 } else {

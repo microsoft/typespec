@@ -7,6 +7,7 @@ import io.clientcore.core.instrumentation.Instrumentation;
  * Initializes a new instance of the BytesClient type.
  */
 public final class BytesClientImpl {
+
     /**
      * Service host.
      */
@@ -14,7 +15,7 @@ public final class BytesClientImpl {
 
     /**
      * Gets Service host.
-     * 
+     *
      * @return the endpoint value.
      */
     public String getEndpoint() {
@@ -28,7 +29,7 @@ public final class BytesClientImpl {
 
     /**
      * Gets The HTTP pipeline to send requests through.
-     * 
+     *
      * @return the httpPipeline value.
      */
     public HttpPipeline getHttpPipeline() {
@@ -42,7 +43,7 @@ public final class BytesClientImpl {
 
     /**
      * Gets The instance of instrumentation to report telemetry.
-     * 
+     *
      * @return the instrumentation value.
      */
     public Instrumentation getInstrumentation() {
@@ -56,7 +57,7 @@ public final class BytesClientImpl {
 
     /**
      * Gets the QueriesImpl object to access its operations.
-     * 
+     *
      * @return the QueriesImpl object.
      */
     public QueriesImpl getQueries() {
@@ -70,7 +71,7 @@ public final class BytesClientImpl {
 
     /**
      * Gets the PropertiesImpl object to access its operations.
-     * 
+     *
      * @return the PropertiesImpl object.
      */
     public PropertiesImpl getProperties() {
@@ -84,7 +85,7 @@ public final class BytesClientImpl {
 
     /**
      * Gets the HeadersImpl object to access its operations.
-     * 
+     *
      * @return the HeadersImpl object.
      */
     public HeadersImpl getHeaders() {
@@ -98,7 +99,7 @@ public final class BytesClientImpl {
 
     /**
      * Gets the RequestBodiesImpl object to access its operations.
-     * 
+     *
      * @return the RequestBodiesImpl object.
      */
     public RequestBodiesImpl getRequestBodies() {
@@ -112,7 +113,7 @@ public final class BytesClientImpl {
 
     /**
      * Gets the ResponseBodiesImpl object to access its operations.
-     * 
+     *
      * @return the ResponseBodiesImpl object.
      */
     public ResponseBodiesImpl getResponseBodies() {
@@ -121,7 +122,7 @@ public final class BytesClientImpl {
 
     /**
      * Initializes an instance of BytesClient client.
-     * 
+     *
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.

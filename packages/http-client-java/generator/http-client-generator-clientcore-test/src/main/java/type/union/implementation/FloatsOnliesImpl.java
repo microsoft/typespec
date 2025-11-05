@@ -22,6 +22,7 @@ import type.union.GetResponseProp3;
  * An instance of this class provides access to all the operations defined in FloatsOnlies.
  */
 public final class FloatsOnliesImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -39,7 +40,7 @@ public final class FloatsOnliesImpl {
 
     /**
      * Initializes an instance of FloatsOnliesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     FloatsOnliesImpl(UnionClientImpl client) {
@@ -54,6 +55,7 @@ public final class FloatsOnliesImpl {
      */
     @ServiceInterface(name = "UnionClientFloatsOnlies", host = "{endpoint}")
     public interface FloatsOnliesService {
+
         static FloatsOnliesService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("type.union.implementation.FloatsOnliesServiceImpl");
@@ -63,7 +65,6 @@ public final class FloatsOnliesImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         @HttpRequestInformation(
@@ -85,7 +86,7 @@ public final class FloatsOnliesImpl {
 
     /**
      * The get operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -103,7 +104,7 @@ public final class FloatsOnliesImpl {
 
     /**
      * The send operation.
-     * 
+     *
      * @param prop The prop parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

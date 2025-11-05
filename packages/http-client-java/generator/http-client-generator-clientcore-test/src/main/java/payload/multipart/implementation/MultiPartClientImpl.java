@@ -7,6 +7,7 @@ import io.clientcore.core.instrumentation.Instrumentation;
  * Initializes a new instance of the MultiPartClient type.
  */
 public final class MultiPartClientImpl {
+
     /**
      * Service host.
      */
@@ -14,7 +15,7 @@ public final class MultiPartClientImpl {
 
     /**
      * Gets Service host.
-     * 
+     *
      * @return the endpoint value.
      */
     public String getEndpoint() {
@@ -28,7 +29,7 @@ public final class MultiPartClientImpl {
 
     /**
      * Gets The HTTP pipeline to send requests through.
-     * 
+     *
      * @return the httpPipeline value.
      */
     public HttpPipeline getHttpPipeline() {
@@ -42,7 +43,7 @@ public final class MultiPartClientImpl {
 
     /**
      * Gets The instance of instrumentation to report telemetry.
-     * 
+     *
      * @return the instrumentation value.
      */
     public Instrumentation getInstrumentation() {
@@ -56,7 +57,7 @@ public final class MultiPartClientImpl {
 
     /**
      * Gets the FormDatasImpl object to access its operations.
-     * 
+     *
      * @return the FormDatasImpl object.
      */
     public FormDatasImpl getFormDatas() {
@@ -70,7 +71,7 @@ public final class MultiPartClientImpl {
 
     /**
      * Gets the FormDataHttpPartsImpl object to access its operations.
-     * 
+     *
      * @return the FormDataHttpPartsImpl object.
      */
     public FormDataHttpPartsImpl getFormDataHttpParts() {
@@ -84,7 +85,7 @@ public final class MultiPartClientImpl {
 
     /**
      * Gets the FormDataHttpPartsContentTypesImpl object to access its operations.
-     * 
+     *
      * @return the FormDataHttpPartsContentTypesImpl object.
      */
     public FormDataHttpPartsContentTypesImpl getFormDataHttpPartsContentTypes() {
@@ -98,7 +99,7 @@ public final class MultiPartClientImpl {
 
     /**
      * Gets the FormDataHttpPartsNonStringsImpl object to access its operations.
-     * 
+     *
      * @return the FormDataHttpPartsNonStringsImpl object.
      */
     public FormDataHttpPartsNonStringsImpl getFormDataHttpPartsNonStrings() {
@@ -107,7 +108,7 @@ public final class MultiPartClientImpl {
 
     /**
      * Initializes an instance of MultiPartClient client.
-     * 
+     *
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.

@@ -9,6 +9,7 @@ import io.clientcore.core.models.binarydata.BinaryData;
  */
 @Metadata(properties = { MetadataProperties.FLUENT })
 public final class PicturesFileDetails {
+
     /*
      * The content of the file.
      */
@@ -29,7 +30,7 @@ public final class PicturesFileDetails {
 
     /**
      * Creates an instance of PicturesFileDetails class.
-     * 
+     *
      * @param content the content value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -39,7 +40,7 @@ public final class PicturesFileDetails {
 
     /**
      * Get the content property: The content of the file.
-     * 
+     *
      * @return the content value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -49,7 +50,7 @@ public final class PicturesFileDetails {
 
     /**
      * Get the filename property: The filename of the file.
-     * 
+     *
      * @return the filename value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -59,7 +60,7 @@ public final class PicturesFileDetails {
 
     /**
      * Set the filename property: The filename of the file.
-     * 
+     *
      * @param filename the filename value to set.
      * @return the PicturesFileDetails object itself.
      */
@@ -71,7 +72,7 @@ public final class PicturesFileDetails {
 
     /**
      * Get the contentType property: The content-type of the file.
-     * 
+     *
      * @return the contentType value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -81,7 +82,7 @@ public final class PicturesFileDetails {
 
     /**
      * Set the contentType property: The content-type of the file.
-     * 
+     *
      * @param contentType the contentType value to set.
      * @return the PicturesFileDetails object itself.
      */

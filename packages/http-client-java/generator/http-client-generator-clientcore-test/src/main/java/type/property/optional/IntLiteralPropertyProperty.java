@@ -4,6 +4,7 @@ package type.property.optional;
  * Defines values for IntLiteralPropertyProperty.
  */
 public enum IntLiteralPropertyProperty {
+
     /**
      * Enum value 1.
      */
@@ -20,7 +21,7 @@ public enum IntLiteralPropertyProperty {
 
     /**
      * Parses a serialized value to a IntLiteralPropertyProperty instance.
-     * 
+     *
      * @param value the serialized value to parse.
      * @return the parsed IntLiteralPropertyProperty object, or null if unable to parse.
      */
@@ -36,7 +37,7 @@ public enum IntLiteralPropertyProperty {
 
     /**
      * De-serializes the instance to int value.
-     * 
+     *
      * @return the int value.
      */
     public int toInt() {

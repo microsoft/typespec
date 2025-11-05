@@ -19,6 +19,7 @@ import java.util.function.Function;
  * Enum that will be used as a property for model EnumProperty. Extensible.
  */
 public final class InnerEnum implements ExpandableEnum<String>, JsonSerializable<InnerEnum> {
+
     private static final Map<String, InnerEnum> VALUES = new ConcurrentHashMap<>();
 
     private static final Function<String, InnerEnum> NEW_INSTANCE = InnerEnum::new;
@@ -43,7 +44,7 @@ public final class InnerEnum implements ExpandableEnum<String>, JsonSerializable
 
     /**
      * Creates or finds a InnerEnum.
-     * 
+     *
      * @param value a value to look for.
      * @return the corresponding InnerEnum.
      * @throws IllegalArgumentException if value is null.
@@ -58,7 +59,7 @@ public final class InnerEnum implements ExpandableEnum<String>, JsonSerializable
 
     /**
      * Gets known InnerEnum values.
-     * 
+     *
      * @return Known InnerEnum values.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -68,7 +69,7 @@ public final class InnerEnum implements ExpandableEnum<String>, JsonSerializable
 
     /**
      * Gets the value of the InnerEnum instance.
-     * 
+     *
      * @return the value of the InnerEnum instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -88,7 +89,7 @@ public final class InnerEnum implements ExpandableEnum<String>, JsonSerializable
 
     /**
      * Reads an instance of InnerEnum from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of InnerEnum if the JsonReader was pointing to an instance of it, or null if the JsonReader
      * was pointing to JSON null.

@@ -16,6 +16,7 @@ import routes.implementation.InInterfacesImpl;
  */
 @ServiceClient(builder = RoutesClientBuilder.class)
 public final class InInterfaceClient {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final InInterfacesImpl serviceClient;
 
@@ -23,7 +24,7 @@ public final class InInterfaceClient {
 
     /**
      * Initializes an instance of InInterfaceClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,7 +36,7 @@ public final class InInterfaceClient {
 
     /**
      * The fixed operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -51,7 +52,7 @@ public final class InInterfaceClient {
 
     /**
      * The fixed operation.
-     * 
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */

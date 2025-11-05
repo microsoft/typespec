@@ -15,6 +15,7 @@ import java.util.Map;
  */
 @Metadata(properties = { MetadataProperties.FLUENT })
 public final class IsUnknownAdditionalPropertiesDerived extends IsUnknownAdditionalProperties {
+
     /*
      * The index property
      */
@@ -29,7 +30,7 @@ public final class IsUnknownAdditionalPropertiesDerived extends IsUnknownAdditio
 
     /**
      * Creates an instance of IsUnknownAdditionalPropertiesDerived class.
-     * 
+     *
      * @param name the name value to set.
      * @param index the index value to set.
      */
@@ -41,7 +42,7 @@ public final class IsUnknownAdditionalPropertiesDerived extends IsUnknownAdditio
 
     /**
      * Get the index property: The index property.
-     * 
+     *
      * @return the index value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -51,7 +52,7 @@ public final class IsUnknownAdditionalPropertiesDerived extends IsUnknownAdditio
 
     /**
      * Get the age property: The age property.
-     * 
+     *
      * @return the age value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -61,7 +62,7 @@ public final class IsUnknownAdditionalPropertiesDerived extends IsUnknownAdditio
 
     /**
      * Set the age property: The age property.
-     * 
+     *
      * @param age the age value to set.
      * @return the IsUnknownAdditionalPropertiesDerived object itself.
      */
@@ -96,7 +97,7 @@ public final class IsUnknownAdditionalPropertiesDerived extends IsUnknownAdditio
 
     /**
      * Reads an instance of IsUnknownAdditionalPropertiesDerived from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of IsUnknownAdditionalPropertiesDerived if the JsonReader was pointing to an instance of it,
      * or null if it was pointing to JSON null.
@@ -113,7 +114,6 @@ public final class IsUnknownAdditionalPropertiesDerived extends IsUnknownAdditio
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("name".equals(fieldName)) {
                     name = reader.getString();
                 } else if ("index".equals(fieldName)) {
@@ -124,7 +124,6 @@ public final class IsUnknownAdditionalPropertiesDerived extends IsUnknownAdditio
                     if (additionalProperties == null) {
                         additionalProperties = new LinkedHashMap<>();
                     }
-
                     additionalProperties.put(fieldName,
                         reader.getNullable(nonNullReader -> BinaryData.fromObject(nonNullReader.readUntyped())));
                 }
@@ -133,7 +132,6 @@ public final class IsUnknownAdditionalPropertiesDerived extends IsUnknownAdditio
                 = new IsUnknownAdditionalPropertiesDerived(name, index);
             deserializedIsUnknownAdditionalPropertiesDerived.age = age;
             deserializedIsUnknownAdditionalPropertiesDerived.setAdditionalProperties(additionalProperties);
-
             return deserializedIsUnknownAdditionalPropertiesDerived;
         });
     }

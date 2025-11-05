@@ -21,6 +21,7 @@ import type.property.valuetypes.DictionaryStringProperty;
  * An instance of this class provides access to all the operations defined in DictionaryStrings.
  */
 public final class DictionaryStringsImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -38,7 +39,7 @@ public final class DictionaryStringsImpl {
 
     /**
      * Initializes an instance of DictionaryStringsImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     DictionaryStringsImpl(ValueTypesClientImpl client) {
@@ -53,6 +54,7 @@ public final class DictionaryStringsImpl {
      */
     @ServiceInterface(name = "ValueTypesClientDictionaryStrings", host = "{endpoint}")
     public interface DictionaryStringsService {
+
         static DictionaryStringsService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("type.property.valuetypes.implementation.DictionaryStringsServiceImpl");
@@ -62,7 +64,6 @@ public final class DictionaryStringsImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         @HttpRequestInformation(
@@ -84,7 +85,7 @@ public final class DictionaryStringsImpl {
 
     /**
      * Get call.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -102,7 +103,7 @@ public final class DictionaryStringsImpl {
 
     /**
      * Put operation.
-     * 
+     *
      * @param body body.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

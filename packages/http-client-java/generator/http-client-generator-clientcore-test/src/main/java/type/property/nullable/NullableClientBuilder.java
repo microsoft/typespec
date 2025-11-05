@@ -42,6 +42,7 @@ import type.property.nullable.implementation.NullableClientImpl;
         CollectionsStringClient.class })
 public final class NullableClientBuilder implements HttpTrait<NullableClientBuilder>, ProxyTrait<NullableClientBuilder>,
     ConfigurationTrait<NullableClientBuilder>, EndpointTrait<NullableClientBuilder> {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -187,7 +188,7 @@ public final class NullableClientBuilder implements HttpTrait<NullableClientBuil
 
     /**
      * Builds an instance of NullableClientImpl with the provided parameters.
-     * 
+     *
      * @return an instance of NullableClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -232,7 +233,7 @@ public final class NullableClientBuilder implements HttpTrait<NullableClientBuil
 
     /**
      * Builds an instance of StringOperationClient class.
-     * 
+     *
      * @return an instance of StringOperationClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -243,7 +244,7 @@ public final class NullableClientBuilder implements HttpTrait<NullableClientBuil
 
     /**
      * Builds an instance of BytesClient class.
-     * 
+     *
      * @return an instance of BytesClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -254,7 +255,7 @@ public final class NullableClientBuilder implements HttpTrait<NullableClientBuil
 
     /**
      * Builds an instance of DatetimeOperationClient class.
-     * 
+     *
      * @return an instance of DatetimeOperationClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -265,7 +266,7 @@ public final class NullableClientBuilder implements HttpTrait<NullableClientBuil
 
     /**
      * Builds an instance of DurationOperationClient class.
-     * 
+     *
      * @return an instance of DurationOperationClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -276,7 +277,7 @@ public final class NullableClientBuilder implements HttpTrait<NullableClientBuil
 
     /**
      * Builds an instance of CollectionsByteClient class.
-     * 
+     *
      * @return an instance of CollectionsByteClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -287,7 +288,7 @@ public final class NullableClientBuilder implements HttpTrait<NullableClientBuil
 
     /**
      * Builds an instance of CollectionsModelClient class.
-     * 
+     *
      * @return an instance of CollectionsModelClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -298,7 +299,7 @@ public final class NullableClientBuilder implements HttpTrait<NullableClientBuil
 
     /**
      * Builds an instance of CollectionsStringClient class.
-     * 
+     *
      * @return an instance of CollectionsStringClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

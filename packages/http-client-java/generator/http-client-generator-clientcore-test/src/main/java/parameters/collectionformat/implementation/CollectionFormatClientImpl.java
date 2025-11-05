@@ -7,6 +7,7 @@ import io.clientcore.core.instrumentation.Instrumentation;
  * Initializes a new instance of the CollectionFormatClient type.
  */
 public final class CollectionFormatClientImpl {
+
     /**
      * Service host.
      */
@@ -14,7 +15,7 @@ public final class CollectionFormatClientImpl {
 
     /**
      * Gets Service host.
-     * 
+     *
      * @return the endpoint value.
      */
     public String getEndpoint() {
@@ -28,7 +29,7 @@ public final class CollectionFormatClientImpl {
 
     /**
      * Gets The HTTP pipeline to send requests through.
-     * 
+     *
      * @return the httpPipeline value.
      */
     public HttpPipeline getHttpPipeline() {
@@ -42,7 +43,7 @@ public final class CollectionFormatClientImpl {
 
     /**
      * Gets The instance of instrumentation to report telemetry.
-     * 
+     *
      * @return the instrumentation value.
      */
     public Instrumentation getInstrumentation() {
@@ -56,7 +57,7 @@ public final class CollectionFormatClientImpl {
 
     /**
      * Gets the QueriesImpl object to access its operations.
-     * 
+     *
      * @return the QueriesImpl object.
      */
     public QueriesImpl getQueries() {
@@ -70,7 +71,7 @@ public final class CollectionFormatClientImpl {
 
     /**
      * Gets the HeadersImpl object to access its operations.
-     * 
+     *
      * @return the HeadersImpl object.
      */
     public HeadersImpl getHeaders() {
@@ -79,7 +80,7 @@ public final class CollectionFormatClientImpl {
 
     /**
      * Initializes an instance of CollectionFormatClient client.
-     * 
+     *
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.

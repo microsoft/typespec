@@ -23,6 +23,7 @@ import versioning.removed.RemovedServiceVersion;
  * Initializes a new instance of the RemovedClient type.
  */
 public final class RemovedClientImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -35,7 +36,7 @@ public final class RemovedClientImpl {
 
     /**
      * Gets Need to be set as 'http://localhost:3000' in client.
-     * 
+     *
      * @return the endpoint value.
      */
     public String getEndpoint() {
@@ -49,7 +50,7 @@ public final class RemovedClientImpl {
 
     /**
      * Gets Service version.
-     * 
+     *
      * @return the serviceVersion value.
      */
     public RemovedServiceVersion getServiceVersion() {
@@ -63,7 +64,7 @@ public final class RemovedClientImpl {
 
     /**
      * Gets The HTTP pipeline to send requests through.
-     * 
+     *
      * @return the httpPipeline value.
      */
     public HttpPipeline getHttpPipeline() {
@@ -77,7 +78,7 @@ public final class RemovedClientImpl {
 
     /**
      * Gets The instance of instrumentation to report telemetry.
-     * 
+     *
      * @return the instrumentation value.
      */
     public Instrumentation getInstrumentation() {
@@ -86,7 +87,7 @@ public final class RemovedClientImpl {
 
     /**
      * Initializes an instance of RemovedClient client.
-     * 
+     *
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
@@ -106,6 +107,7 @@ public final class RemovedClientImpl {
      */
     @ServiceInterface(name = "RemovedClient", host = "{endpoint}/versioning/removed/api-version:{version}")
     public interface RemovedClientService {
+
         static RemovedClientService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("versioning.removed.implementation.RemovedClientServiceImpl");
@@ -115,7 +117,6 @@ public final class RemovedClientImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         @HttpRequestInformation(method = HttpMethod.POST, path = "/v2", expectedStatusCodes = { 200 })
@@ -133,7 +134,7 @@ public final class RemovedClientImpl {
 
     /**
      * The v2 operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -153,7 +154,7 @@ public final class RemovedClientImpl {
 
     /**
      * This operation will pass different paths and different request bodies based on different versions.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

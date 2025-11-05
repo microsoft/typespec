@@ -16,6 +16,7 @@ import io.clientcore.core.instrumentation.Instrumentation;
  */
 @ServiceClient(builder = OAuth2ClientBuilder.class)
 public final class OAuth2Client {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final OAuth2ClientImpl serviceClient;
 
@@ -23,7 +24,7 @@ public final class OAuth2Client {
 
     /**
      * Initializes an instance of OAuth2Client class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,7 +36,7 @@ public final class OAuth2Client {
 
     /**
      * Check whether client is authenticated.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -51,7 +52,7 @@ public final class OAuth2Client {
 
     /**
      * Check whether client is authenticated.
-     * 
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
@@ -63,7 +64,7 @@ public final class OAuth2Client {
 
     /**
      * Check whether client is authenticated. Will return an invalid bearer error.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -79,7 +80,7 @@ public final class OAuth2Client {
 
     /**
      * Check whether client is authenticated. Will return an invalid bearer error.
-     * 
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */

@@ -21,6 +21,7 @@ import payload.multipart.formdata.httpparts.nonstring.FloatRequest;
  * An instance of this class provides access to all the operations defined in FormDataHttpPartsNonStrings.
  */
 public final class FormDataHttpPartsNonStringsImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -38,7 +39,7 @@ public final class FormDataHttpPartsNonStringsImpl {
 
     /**
      * Initializes an instance of FormDataHttpPartsNonStringsImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     FormDataHttpPartsNonStringsImpl(MultiPartClientImpl client) {
@@ -53,6 +54,7 @@ public final class FormDataHttpPartsNonStringsImpl {
      */
     @ServiceInterface(name = "MultiPartClientFormDataHttpPartsNonStrings", host = "{endpoint}")
     public interface FormDataHttpPartsNonStringsService {
+
         static FormDataHttpPartsNonStringsService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz
@@ -63,7 +65,6 @@ public final class FormDataHttpPartsNonStringsImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         // @Multipart not supported by RestProxy
@@ -79,7 +80,7 @@ public final class FormDataHttpPartsNonStringsImpl {
 
     /**
      * Test content-type: multipart/form-data for non string.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

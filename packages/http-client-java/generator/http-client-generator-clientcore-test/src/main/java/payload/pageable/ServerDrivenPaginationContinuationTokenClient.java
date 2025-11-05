@@ -16,6 +16,7 @@ import payload.pageable.implementation.ServerDrivenPaginationContinuationTokensI
  */
 @ServiceClient(builder = PageableClientBuilder.class)
 public final class ServerDrivenPaginationContinuationTokenClient {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final ServerDrivenPaginationContinuationTokensImpl serviceClient;
 
@@ -23,7 +24,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
 
     /**
      * Initializes an instance of ServerDrivenPaginationContinuationTokenClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -36,7 +37,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
 
     /**
      * The requestQueryResponseBody operation.
-     * 
+     *
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -52,7 +53,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
 
     /**
      * The requestQueryResponseBody operation.
-     * 
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
@@ -67,7 +68,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
 
     /**
      * The requestQueryResponseBody operation.
-     * 
+     *
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -84,7 +85,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
 
     /**
      * The requestHeaderResponseBody operation.
-     * 
+     *
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -100,7 +101,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
 
     /**
      * The requestHeaderResponseBody operation.
-     * 
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
@@ -115,7 +116,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
 
     /**
      * The requestHeaderResponseBody operation.
-     * 
+     *
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -132,7 +133,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
 
     /**
      * The requestQueryResponseHeader operation.
-     * 
+     *
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -148,7 +149,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
 
     /**
      * The requestQueryResponseHeader operation.
-     * 
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
@@ -163,7 +164,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
 
     /**
      * The requestQueryResponseHeader operation.
-     * 
+     *
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -180,7 +181,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
 
     /**
      * The requestHeaderResponseHeader operation.
-     * 
+     *
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -196,7 +197,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
 
     /**
      * The requestHeaderResponseHeader operation.
-     * 
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
@@ -211,7 +212,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
 
     /**
      * The requestHeaderResponseHeader operation.
-     * 
+     *
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -228,7 +229,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
 
     /**
      * The requestQueryNestedResponseBody operation.
-     * 
+     *
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -244,7 +245,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
 
     /**
      * The requestQueryNestedResponseBody operation.
-     * 
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
@@ -259,7 +260,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
 
     /**
      * The requestQueryNestedResponseBody operation.
-     * 
+     *
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -276,7 +277,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
 
     /**
      * The requestHeaderNestedResponseBody operation.
-     * 
+     *
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -292,7 +293,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
 
     /**
      * The requestHeaderNestedResponseBody operation.
-     * 
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
@@ -307,7 +308,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
 
     /**
      * The requestHeaderNestedResponseBody operation.
-     * 
+     *
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.

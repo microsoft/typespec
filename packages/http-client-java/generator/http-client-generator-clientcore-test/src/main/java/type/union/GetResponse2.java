@@ -13,6 +13,7 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class GetResponse2 implements JsonSerializable<GetResponse2> {
+
     /*
      * The prop property.
      */
@@ -21,7 +22,7 @@ public final class GetResponse2 implements JsonSerializable<GetResponse2> {
 
     /**
      * Creates an instance of GetResponse2 class.
-     * 
+     *
      * @param prop the prop value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -31,7 +32,7 @@ public final class GetResponse2 implements JsonSerializable<GetResponse2> {
 
     /**
      * Get the prop property: The prop property.
-     * 
+     *
      * @return the prop value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -52,7 +53,7 @@ public final class GetResponse2 implements JsonSerializable<GetResponse2> {
 
     /**
      * Reads an instance of GetResponse2 from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of GetResponse2 if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.
@@ -66,7 +67,6 @@ public final class GetResponse2 implements JsonSerializable<GetResponse2> {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("prop".equals(fieldName)) {
                     prop = StringExtensibleNamedUnion.fromValue(reader.getString());
                 } else {

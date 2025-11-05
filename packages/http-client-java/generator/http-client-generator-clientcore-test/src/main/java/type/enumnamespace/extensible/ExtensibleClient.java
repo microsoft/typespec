@@ -16,6 +16,7 @@ import type.enumnamespace.extensible.implementation.StringOperationsImpl;
  */
 @ServiceClient(builder = ExtensibleClientBuilder.class)
 public final class ExtensibleClient {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final StringOperationsImpl serviceClient;
 
@@ -23,7 +24,7 @@ public final class ExtensibleClient {
 
     /**
      * Initializes an instance of ExtensibleClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,7 +36,7 @@ public final class ExtensibleClient {
 
     /**
      * The getKnownValue operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -51,7 +52,7 @@ public final class ExtensibleClient {
 
     /**
      * The getKnownValue operation.
-     * 
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return days of the week.
@@ -64,7 +65,7 @@ public final class ExtensibleClient {
 
     /**
      * The getUnknownValue operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -80,7 +81,7 @@ public final class ExtensibleClient {
 
     /**
      * The getUnknownValue operation.
-     * 
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return days of the week.
@@ -93,7 +94,7 @@ public final class ExtensibleClient {
 
     /**
      * The putKnownValue operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -110,7 +111,7 @@ public final class ExtensibleClient {
 
     /**
      * The putKnownValue operation.
-     * 
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -124,7 +125,7 @@ public final class ExtensibleClient {
 
     /**
      * The putUnknownValue operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -141,7 +142,7 @@ public final class ExtensibleClient {
 
     /**
      * The putUnknownValue operation.
-     * 
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

@@ -21,6 +21,7 @@ import type.property.additionalproperties.DifferentSpreadStringDerived;
  * An instance of this class provides access to all the operations defined in ExtendsDifferentSpreadStrings.
  */
 public final class ExtendsDifferentSpreadStringsImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -38,7 +39,7 @@ public final class ExtendsDifferentSpreadStringsImpl {
 
     /**
      * Initializes an instance of ExtendsDifferentSpreadStringsImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     ExtendsDifferentSpreadStringsImpl(AdditionalPropertiesClientImpl client) {
@@ -53,6 +54,7 @@ public final class ExtendsDifferentSpreadStringsImpl {
      */
     @ServiceInterface(name = "AdditionalPropertiesClientExtendsDifferentSpreadStrings", host = "{endpoint}")
     public interface ExtendsDifferentSpreadStringsService {
+
         static ExtendsDifferentSpreadStringsService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName(
@@ -63,7 +65,6 @@ public final class ExtendsDifferentSpreadStringsImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         @HttpRequestInformation(
@@ -85,7 +86,7 @@ public final class ExtendsDifferentSpreadStringsImpl {
 
     /**
      * Get call.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -103,7 +104,7 @@ public final class ExtendsDifferentSpreadStringsImpl {
 
     /**
      * Put operation.
-     * 
+     *
      * @param body body.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

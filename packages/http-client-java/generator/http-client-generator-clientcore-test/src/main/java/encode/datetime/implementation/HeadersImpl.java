@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
  * An instance of this class provides access to all the operations defined in Headers.
  */
 public final class HeadersImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -41,7 +42,7 @@ public final class HeadersImpl {
 
     /**
      * Initializes an instance of HeadersImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     HeadersImpl(DatetimeClientImpl client) {
@@ -56,6 +57,7 @@ public final class HeadersImpl {
      */
     @ServiceInterface(name = "DatetimeClientHeaders", host = "{endpoint}")
     public interface HeadersService {
+
         static HeadersService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("encode.datetime.implementation.HeadersServiceImpl");
@@ -64,7 +66,6 @@ public final class HeadersImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         @HttpRequestInformation(
@@ -110,7 +111,7 @@ public final class HeadersImpl {
 
     /**
      * The defaultMethod operation.
-     * 
+     *
      * @param value The value parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -129,7 +130,7 @@ public final class HeadersImpl {
 
     /**
      * The rfc3339 operation.
-     * 
+     *
      * @param value The value parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -147,7 +148,7 @@ public final class HeadersImpl {
 
     /**
      * The rfc7231 operation.
-     * 
+     *
      * @param value The value parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -166,7 +167,7 @@ public final class HeadersImpl {
 
     /**
      * The unixTimestamp operation.
-     * 
+     *
      * @param value The value parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -185,7 +186,7 @@ public final class HeadersImpl {
 
     /**
      * The unixTimestampArray operation.
-     * 
+     *
      * @param value The value parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -222,7 +223,6 @@ public final class HeadersImpl {
                                 if (itemValueString.charAt(endOffset) != '"') {
                                     break;
                                 }
-
                                 endOffset--;
                             }
                             return itemValueString.substring(startOffset, endOffset + 1);

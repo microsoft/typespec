@@ -14,6 +14,7 @@ import javax.xml.stream.XMLStreamException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class ModelWithRenamedFields implements XmlSerializable<ModelWithRenamedFields> {
+
     /*
      * The InputData property.
      */
@@ -28,7 +29,7 @@ public final class ModelWithRenamedFields implements XmlSerializable<ModelWithRe
 
     /**
      * Creates an instance of ModelWithRenamedFields class.
-     * 
+     *
      * @param inputData the inputData value to set.
      * @param outputData the outputData value to set.
      */
@@ -40,7 +41,7 @@ public final class ModelWithRenamedFields implements XmlSerializable<ModelWithRe
 
     /**
      * Get the inputData property: The InputData property.
-     * 
+     *
      * @return the inputData value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -50,7 +51,7 @@ public final class ModelWithRenamedFields implements XmlSerializable<ModelWithRe
 
     /**
      * Get the outputData property: The OutputData property.
-     * 
+     *
      * @return the outputData value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -77,7 +78,7 @@ public final class ModelWithRenamedFields implements XmlSerializable<ModelWithRe
 
     /**
      * Reads an instance of ModelWithRenamedFields from the XmlReader.
-     * 
+     *
      * @param xmlReader The XmlReader being read.
      * @return An instance of ModelWithRenamedFields if the XmlReader was pointing to an instance of it, or null if it
      * was pointing to XML null.
@@ -91,7 +92,7 @@ public final class ModelWithRenamedFields implements XmlSerializable<ModelWithRe
 
     /**
      * Reads an instance of ModelWithRenamedFields from the XmlReader.
-     * 
+     *
      * @param xmlReader The XmlReader being read.
      * @param rootElementName Optional root element name to override the default defined by the model. Used to support
      * cases where the model can deserialize from different root element names.
@@ -110,7 +111,6 @@ public final class ModelWithRenamedFields implements XmlSerializable<ModelWithRe
             SimpleModel outputData = null;
             while (reader.nextElement() != XmlToken.END_ELEMENT) {
                 QName elementName = reader.getElementName();
-
                 if ("InputData".equals(elementName.getLocalPart())) {
                     inputData = SimpleModel.fromXml(reader, "InputData");
                 } else if ("OutputData".equals(elementName.getLocalPart())) {

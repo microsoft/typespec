@@ -20,6 +20,7 @@ import java.lang.reflect.InvocationTargetException;
  * An instance of this class provides access to all the operations defined in BooleanOperations.
  */
 public final class BooleanOperationsImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -37,7 +38,7 @@ public final class BooleanOperationsImpl {
 
     /**
      * Initializes an instance of BooleanOperationsImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     BooleanOperationsImpl(ScalarClientImpl client) {
@@ -52,6 +53,7 @@ public final class BooleanOperationsImpl {
      */
     @ServiceInterface(name = "ScalarClientBooleanOperations", host = "{endpoint}")
     public interface BooleanOperationsService {
+
         static BooleanOperationsService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("type.scalar.implementation.BooleanOperationsServiceImpl");
@@ -61,7 +63,6 @@ public final class BooleanOperationsImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         @HttpRequestInformation(method = HttpMethod.GET, path = "/type/scalar/boolean", expectedStatusCodes = { 200 })
@@ -77,7 +78,7 @@ public final class BooleanOperationsImpl {
 
     /**
      * get boolean value.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -95,7 +96,7 @@ public final class BooleanOperationsImpl {
 
     /**
      * put boolean value.
-     * 
+     *
      * @param body _.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

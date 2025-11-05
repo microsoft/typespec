@@ -4,11 +4,11 @@ package type.property.optional;
  * Defines values for UnionIntLiteralPropertyProperty.
  */
 public enum UnionIntLiteralPropertyProperty {
+
     /**
      * Enum value 1.
      */
     ONE(1),
-
     /**
      * Enum value 2.
      */
@@ -25,7 +25,7 @@ public enum UnionIntLiteralPropertyProperty {
 
     /**
      * Parses a serialized value to a UnionIntLiteralPropertyProperty instance.
-     * 
+     *
      * @param value the serialized value to parse.
      * @return the parsed UnionIntLiteralPropertyProperty object, or null if unable to parse.
      */
@@ -41,7 +41,7 @@ public enum UnionIntLiteralPropertyProperty {
 
     /**
      * De-serializes the instance to int value.
-     * 
+     *
      * @return the int value.
      */
     public int toInt() {

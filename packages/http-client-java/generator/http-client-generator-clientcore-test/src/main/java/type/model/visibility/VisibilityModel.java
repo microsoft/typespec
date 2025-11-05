@@ -14,6 +14,7 @@ import java.util.List;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class VisibilityModel implements JsonSerializable<VisibilityModel> {
+
     /*
      * Required string, illustrating a readonly property.
      */
@@ -40,7 +41,7 @@ public final class VisibilityModel implements JsonSerializable<VisibilityModel> 
 
     /**
      * Creates an instance of VisibilityModel class.
-     * 
+     *
      * @param createProp the createProp value to set.
      * @param updateProp the updateProp value to set.
      * @param deleteProp the deleteProp value to set.
@@ -54,7 +55,7 @@ public final class VisibilityModel implements JsonSerializable<VisibilityModel> 
 
     /**
      * Get the readProp property: Required string, illustrating a readonly property.
-     * 
+     *
      * @return the readProp value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -64,7 +65,7 @@ public final class VisibilityModel implements JsonSerializable<VisibilityModel> 
 
     /**
      * Get the createProp property: Required string[], illustrating a create property.
-     * 
+     *
      * @return the createProp value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -74,7 +75,7 @@ public final class VisibilityModel implements JsonSerializable<VisibilityModel> 
 
     /**
      * Get the updateProp property: Required int32[], illustrating a update property.
-     * 
+     *
      * @return the updateProp value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -84,7 +85,7 @@ public final class VisibilityModel implements JsonSerializable<VisibilityModel> 
 
     /**
      * Get the deleteProp property: Required bool, illustrating a delete property.
-     * 
+     *
      * @return the deleteProp value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -107,7 +108,7 @@ public final class VisibilityModel implements JsonSerializable<VisibilityModel> 
 
     /**
      * Reads an instance of VisibilityModel from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of VisibilityModel if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.
@@ -124,7 +125,6 @@ public final class VisibilityModel implements JsonSerializable<VisibilityModel> 
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("readProp".equals(fieldName)) {
                     readProp = reader.getString();
                 } else if ("createProp".equals(fieldName)) {
@@ -139,7 +139,6 @@ public final class VisibilityModel implements JsonSerializable<VisibilityModel> 
             }
             VisibilityModel deserializedVisibilityModel = new VisibilityModel(createProp, updateProp, deleteProp);
             deserializedVisibilityModel.readProp = readProp;
-
             return deserializedVisibilityModel;
         });
     }

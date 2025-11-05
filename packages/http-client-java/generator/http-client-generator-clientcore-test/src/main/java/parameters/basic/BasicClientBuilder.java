@@ -34,6 +34,7 @@ import parameters.basic.implementation.BasicClientImpl;
 @ServiceClientBuilder(serviceClients = { ExplicitBodyClient.class, ImplicitBodyClient.class })
 public final class BasicClientBuilder implements HttpTrait<BasicClientBuilder>, ProxyTrait<BasicClientBuilder>,
     ConfigurationTrait<BasicClientBuilder>, EndpointTrait<BasicClientBuilder> {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -179,7 +180,7 @@ public final class BasicClientBuilder implements HttpTrait<BasicClientBuilder>, 
 
     /**
      * Builds an instance of BasicClientImpl with the provided parameters.
-     * 
+     *
      * @return an instance of BasicClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -224,7 +225,7 @@ public final class BasicClientBuilder implements HttpTrait<BasicClientBuilder>, 
 
     /**
      * Builds an instance of ExplicitBodyClient class.
-     * 
+     *
      * @return an instance of ExplicitBodyClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -235,7 +236,7 @@ public final class BasicClientBuilder implements HttpTrait<BasicClientBuilder>, 
 
     /**
      * Builds an instance of ImplicitBodyClient class.
-     * 
+     *
      * @return an instance of ImplicitBodyClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

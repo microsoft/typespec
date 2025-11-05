@@ -21,6 +21,7 @@ import java.util.List;
  * An instance of this class provides access to all the operations defined in NullableBooleanValues.
  */
 public final class NullableBooleanValuesImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -38,7 +39,7 @@ public final class NullableBooleanValuesImpl {
 
     /**
      * Initializes an instance of NullableBooleanValuesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     NullableBooleanValuesImpl(ArrayClientImpl client) {
@@ -53,6 +54,7 @@ public final class NullableBooleanValuesImpl {
      */
     @ServiceInterface(name = "ArrayClientNullableBooleanValues", host = "{endpoint}")
     public interface NullableBooleanValuesService {
+
         static NullableBooleanValuesService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("type.array.implementation.NullableBooleanValuesServiceImpl");
@@ -62,7 +64,6 @@ public final class NullableBooleanValuesImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         @HttpRequestInformation(
@@ -84,7 +85,7 @@ public final class NullableBooleanValuesImpl {
 
     /**
      * The get operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -102,7 +103,7 @@ public final class NullableBooleanValuesImpl {
 
     /**
      * The put operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

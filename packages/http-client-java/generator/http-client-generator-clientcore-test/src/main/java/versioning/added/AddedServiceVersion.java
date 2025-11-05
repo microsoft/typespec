@@ -6,11 +6,11 @@ import io.clientcore.core.http.models.ServiceVersion;
  * Service version of AddedClient.
  */
 public enum AddedServiceVersion implements ServiceVersion {
+
     /**
      * Enum value v1.
      */
     V1("v1"),
-
     /**
      * Enum value v2.
      */
@@ -32,7 +32,7 @@ public enum AddedServiceVersion implements ServiceVersion {
 
     /**
      * Gets the latest service version supported by this client library.
-     * 
+     *
      * @return The latest {@link AddedServiceVersion}.
      */
     public static AddedServiceVersion getLatest() {

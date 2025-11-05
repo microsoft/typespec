@@ -26,6 +26,7 @@ import payload.multipart.formdata.AnonymousModelRequest;
  * An instance of this class provides access to all the operations defined in FormDatas.
  */
 public final class FormDatasImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -43,7 +44,7 @@ public final class FormDatasImpl {
 
     /**
      * Initializes an instance of FormDatasImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     FormDatasImpl(MultiPartClientImpl client) {
@@ -58,6 +59,7 @@ public final class FormDatasImpl {
      */
     @ServiceInterface(name = "MultiPartClientFormDatas", host = "{endpoint}")
     public interface FormDatasService {
+
         static FormDatasService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("payload.multipart.implementation.FormDatasServiceImpl");
@@ -66,7 +68,6 @@ public final class FormDatasImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         // @Multipart not supported by RestProxy
@@ -140,7 +141,7 @@ public final class FormDatasImpl {
 
     /**
      * Test content-type: multipart/form-data.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -159,7 +160,7 @@ public final class FormDatasImpl {
 
     /**
      * Test content-type: multipart/form-data for mixed scenarios.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -178,7 +179,7 @@ public final class FormDatasImpl {
 
     /**
      * Test content-type: multipart/form-data for scenario contains json part and binary part.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -197,7 +198,7 @@ public final class FormDatasImpl {
 
     /**
      * Test content-type: multipart/form-data for scenario contains multi binary parts.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -216,7 +217,7 @@ public final class FormDatasImpl {
 
     /**
      * Test content-type: multipart/form-data for scenario contains multi binary parts.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -235,7 +236,7 @@ public final class FormDatasImpl {
 
     /**
      * Test content-type: multipart/form-data.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -256,7 +257,7 @@ public final class FormDatasImpl {
 
     /**
      * Test content-type: multipart/form-data.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

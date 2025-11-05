@@ -19,6 +19,7 @@ import java.lang.reflect.InvocationTargetException;
  * An instance of this class provides access to all the operations defined in QueryParameters.
  */
 public final class QueryParametersImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -36,7 +37,7 @@ public final class QueryParametersImpl {
 
     /**
      * Initializes an instance of QueryParametersImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     QueryParametersImpl(RoutesClientImpl client) {
@@ -51,6 +52,7 @@ public final class QueryParametersImpl {
      */
     @ServiceInterface(name = "RoutesClientQueryParameters", host = "{endpoint}")
     public interface QueryParametersService {
+
         static QueryParametersService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("routes.implementation.QueryParametersServiceImpl");
@@ -60,7 +62,6 @@ public final class QueryParametersImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         @HttpRequestInformation(
@@ -87,7 +88,7 @@ public final class QueryParametersImpl {
 
     /**
      * The templateOnly operation.
-     * 
+     *
      * @param param The param parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -105,7 +106,7 @@ public final class QueryParametersImpl {
 
     /**
      * The explicit operation.
-     * 
+     *
      * @param param The param parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -123,7 +124,7 @@ public final class QueryParametersImpl {
 
     /**
      * The annotationOnly operation.
-     * 
+     *
      * @param param The param parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

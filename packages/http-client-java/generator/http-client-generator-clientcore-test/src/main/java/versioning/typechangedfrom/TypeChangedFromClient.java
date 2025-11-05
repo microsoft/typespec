@@ -16,6 +16,7 @@ import versioning.typechangedfrom.implementation.TypeChangedFromClientImpl;
  */
 @ServiceClient(builder = TypeChangedFromClientBuilder.class)
 public final class TypeChangedFromClient {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final TypeChangedFromClientImpl serviceClient;
 
@@ -23,7 +24,7 @@ public final class TypeChangedFromClient {
 
     /**
      * Initializes an instance of TypeChangedFromClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,7 +36,7 @@ public final class TypeChangedFromClient {
 
     /**
      * The test operation.
-     * 
+     *
      * @param param The param parameter.
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -53,7 +54,7 @@ public final class TypeChangedFromClient {
 
     /**
      * The test operation.
-     * 
+     *
      * @param param The param parameter.
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

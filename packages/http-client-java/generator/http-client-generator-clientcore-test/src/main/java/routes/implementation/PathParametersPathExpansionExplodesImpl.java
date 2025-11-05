@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
  * An instance of this class provides access to all the operations defined in PathParametersPathExpansionExplodes.
  */
 public final class PathParametersPathExpansionExplodesImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -40,7 +41,7 @@ public final class PathParametersPathExpansionExplodesImpl {
 
     /**
      * Initializes an instance of PathParametersPathExpansionExplodesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     PathParametersPathExpansionExplodesImpl(RoutesClientImpl client) {
@@ -55,6 +56,7 @@ public final class PathParametersPathExpansionExplodesImpl {
      */
     @ServiceInterface(name = "RoutesClientPathParametersPathExpansionExplodes", host = "{endpoint}")
     public interface PathParametersPathExpansionExplodesService {
+
         static PathParametersPathExpansionExplodesService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("routes.implementation.PathParametersPathExpansionExplodesServiceImpl");
@@ -65,7 +67,6 @@ public final class PathParametersPathExpansionExplodesImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         @HttpRequestInformation(
@@ -95,7 +96,7 @@ public final class PathParametersPathExpansionExplodesImpl {
 
     /**
      * The primitive operation.
-     * 
+     *
      * @param param The param parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -113,7 +114,7 @@ public final class PathParametersPathExpansionExplodesImpl {
 
     /**
      * The array operation.
-     * 
+     *
      * @param param The param parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -134,7 +135,7 @@ public final class PathParametersPathExpansionExplodesImpl {
 
     /**
      * The record operation.
-     * 
+     *
      * @param param The param parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

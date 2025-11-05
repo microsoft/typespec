@@ -17,6 +17,7 @@ import specialheaders.conditionalrequest.implementation.ConditionalRequestClient
  */
 @ServiceClient(builder = ConditionalRequestClientBuilder.class)
 public final class ConditionalRequestClient {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final ConditionalRequestClientImpl serviceClient;
 
@@ -24,7 +25,7 @@ public final class ConditionalRequestClient {
 
     /**
      * Initializes an instance of ConditionalRequestClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -36,7 +37,7 @@ public final class ConditionalRequestClient {
 
     /**
      * Check when only If-Match in header is defined.
-     * 
+     *
      * @param ifMatch The request should only proceed if an entity matches this string.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -53,7 +54,7 @@ public final class ConditionalRequestClient {
 
     /**
      * Check when only If-Match in header is defined.
-     * 
+     *
      * @param ifMatch The request should only proceed if an entity matches this string.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -67,7 +68,7 @@ public final class ConditionalRequestClient {
 
     /**
      * Check when only If-Match in header is defined.
-     * 
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
@@ -80,7 +81,7 @@ public final class ConditionalRequestClient {
 
     /**
      * Check when only If-None-Match in header is defined.
-     * 
+     *
      * @param ifNoneMatch The request should only proceed if no entity matches this string.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -98,7 +99,7 @@ public final class ConditionalRequestClient {
 
     /**
      * Check when only If-None-Match in header is defined.
-     * 
+     *
      * @param ifNoneMatch The request should only proceed if no entity matches this string.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -112,7 +113,7 @@ public final class ConditionalRequestClient {
 
     /**
      * Check when only If-None-Match in header is defined.
-     * 
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
@@ -125,7 +126,7 @@ public final class ConditionalRequestClient {
 
     /**
      * Check when only If-Modified-Since in header is defined.
-     * 
+     *
      * @param ifModifiedSince A timestamp indicating the last modified time of the resource known to the
      * client. The operation will be performed only if the resource on the service has
      * been modified since the specified time.
@@ -146,7 +147,7 @@ public final class ConditionalRequestClient {
 
     /**
      * Check when only If-Modified-Since in header is defined.
-     * 
+     *
      * @param ifModifiedSince A timestamp indicating the last modified time of the resource known to the
      * client. The operation will be performed only if the resource on the service has
      * been modified since the specified time.
@@ -162,7 +163,7 @@ public final class ConditionalRequestClient {
 
     /**
      * Check when only If-Modified-Since in header is defined.
-     * 
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
@@ -175,7 +176,7 @@ public final class ConditionalRequestClient {
 
     /**
      * Check when only If-Unmodified-Since in header is defined.
-     * 
+     *
      * @param ifUnmodifiedSince A timestamp indicating the last modified time of the resource known to the
      * client. The operation will be performed only if the resource on the service has
      * not been modified since the specified time.
@@ -196,7 +197,7 @@ public final class ConditionalRequestClient {
 
     /**
      * Check when only If-Unmodified-Since in header is defined.
-     * 
+     *
      * @param ifUnmodifiedSince A timestamp indicating the last modified time of the resource known to the
      * client. The operation will be performed only if the resource on the service has
      * not been modified since the specified time.
@@ -212,7 +213,7 @@ public final class ConditionalRequestClient {
 
     /**
      * Check when only If-Unmodified-Since in header is defined.
-     * 
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */

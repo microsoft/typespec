@@ -22,6 +22,7 @@ import type.array.InnerModel;
  * An instance of this class provides access to all the operations defined in NullableModelValues.
  */
 public final class NullableModelValuesImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -39,7 +40,7 @@ public final class NullableModelValuesImpl {
 
     /**
      * Initializes an instance of NullableModelValuesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     NullableModelValuesImpl(ArrayClientImpl client) {
@@ -54,6 +55,7 @@ public final class NullableModelValuesImpl {
      */
     @ServiceInterface(name = "ArrayClientNullableModelValues", host = "{endpoint}")
     public interface NullableModelValuesService {
+
         static NullableModelValuesService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("type.array.implementation.NullableModelValuesServiceImpl");
@@ -63,7 +65,6 @@ public final class NullableModelValuesImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         @HttpRequestInformation(
@@ -85,7 +86,7 @@ public final class NullableModelValuesImpl {
 
     /**
      * The get operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -103,7 +104,7 @@ public final class NullableModelValuesImpl {
 
     /**
      * The put operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

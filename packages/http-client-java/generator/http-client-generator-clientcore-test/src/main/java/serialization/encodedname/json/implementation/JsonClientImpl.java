@@ -7,6 +7,7 @@ import io.clientcore.core.instrumentation.Instrumentation;
  * Initializes a new instance of the JsonClient type.
  */
 public final class JsonClientImpl {
+
     /**
      * Service host.
      */
@@ -14,7 +15,7 @@ public final class JsonClientImpl {
 
     /**
      * Gets Service host.
-     * 
+     *
      * @return the endpoint value.
      */
     public String getEndpoint() {
@@ -28,7 +29,7 @@ public final class JsonClientImpl {
 
     /**
      * Gets The HTTP pipeline to send requests through.
-     * 
+     *
      * @return the httpPipeline value.
      */
     public HttpPipeline getHttpPipeline() {
@@ -42,7 +43,7 @@ public final class JsonClientImpl {
 
     /**
      * Gets The instance of instrumentation to report telemetry.
-     * 
+     *
      * @return the instrumentation value.
      */
     public Instrumentation getInstrumentation() {
@@ -56,7 +57,7 @@ public final class JsonClientImpl {
 
     /**
      * Gets the PropertiesImpl object to access its operations.
-     * 
+     *
      * @return the PropertiesImpl object.
      */
     public PropertiesImpl getProperties() {
@@ -65,7 +66,7 @@ public final class JsonClientImpl {
 
     /**
      * Initializes an instance of JsonClient client.
-     * 
+     *
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.

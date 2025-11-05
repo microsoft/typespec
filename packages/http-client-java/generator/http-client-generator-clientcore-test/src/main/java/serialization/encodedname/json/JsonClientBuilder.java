@@ -34,6 +34,7 @@ import serialization.encodedname.json.implementation.JsonClientImpl;
 @ServiceClientBuilder(serviceClients = { JsonClient.class })
 public final class JsonClientBuilder implements HttpTrait<JsonClientBuilder>, ProxyTrait<JsonClientBuilder>,
     ConfigurationTrait<JsonClientBuilder>, EndpointTrait<JsonClientBuilder> {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -180,7 +181,7 @@ public final class JsonClientBuilder implements HttpTrait<JsonClientBuilder>, Pr
 
     /**
      * Builds an instance of JsonClientImpl with the provided parameters.
-     * 
+     *
      * @return an instance of JsonClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -225,7 +226,7 @@ public final class JsonClientBuilder implements HttpTrait<JsonClientBuilder>, Pr
 
     /**
      * Builds an instance of JsonClient class.
-     * 
+     *
      * @return an instance of JsonClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

@@ -16,6 +16,7 @@ import payload.pageable.Pet;
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class RequestHeaderResponseHeaderResponse
     implements JsonSerializable<RequestHeaderResponseHeaderResponse> {
+
     /*
      * The pets property.
      */
@@ -24,7 +25,7 @@ public final class RequestHeaderResponseHeaderResponse
 
     /**
      * Creates an instance of RequestHeaderResponseHeaderResponse class.
-     * 
+     *
      * @param pets the pets value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -34,7 +35,7 @@ public final class RequestHeaderResponseHeaderResponse
 
     /**
      * Get the pets property: The pets property.
-     * 
+     *
      * @return the pets value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -55,7 +56,7 @@ public final class RequestHeaderResponseHeaderResponse
 
     /**
      * Reads an instance of RequestHeaderResponseHeaderResponse from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of RequestHeaderResponseHeaderResponse if the JsonReader was pointing to an instance of it,
      * or null if it was pointing to JSON null.
@@ -69,7 +70,6 @@ public final class RequestHeaderResponseHeaderResponse
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("pets".equals(fieldName)) {
                     pets = reader.readArray(reader1 -> Pet.fromJson(reader1));
                 } else {

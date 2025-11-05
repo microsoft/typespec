@@ -17,6 +17,7 @@ import type.scalar.implementation.Decimal128TypesImpl;
  */
 @ServiceClient(builder = ScalarClientBuilder.class)
 public final class Decimal128TypeClient {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final Decimal128TypesImpl serviceClient;
 
@@ -24,7 +25,7 @@ public final class Decimal128TypeClient {
 
     /**
      * Initializes an instance of Decimal128TypeClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -36,7 +37,7 @@ public final class Decimal128TypeClient {
 
     /**
      * The responseBody operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -52,7 +53,7 @@ public final class Decimal128TypeClient {
 
     /**
      * The responseBody operation.
-     * 
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return a 128-bit decimal number.
@@ -65,7 +66,7 @@ public final class Decimal128TypeClient {
 
     /**
      * The requestBody operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -82,7 +83,7 @@ public final class Decimal128TypeClient {
 
     /**
      * The requestBody operation.
-     * 
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -96,7 +97,7 @@ public final class Decimal128TypeClient {
 
     /**
      * The requestParameter operation.
-     * 
+     *
      * @param value The value parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -113,7 +114,7 @@ public final class Decimal128TypeClient {
 
     /**
      * The requestParameter operation.
-     * 
+     *
      * @param value The value parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

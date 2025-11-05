@@ -49,6 +49,7 @@ import specialwords.models.Yield;
  */
 @ServiceClient(builder = SpecialWordsClientBuilder.class)
 public final class ModelsClient {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final ModelsImpl serviceClient;
 
@@ -56,7 +57,7 @@ public final class ModelsClient {
 
     /**
      * Initializes an instance of ModelsClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -68,7 +69,7 @@ public final class ModelsClient {
 
     /**
      * The withAnd operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -85,7 +86,7 @@ public final class ModelsClient {
 
     /**
      * The withAnd operation.
-     * 
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -99,7 +100,7 @@ public final class ModelsClient {
 
     /**
      * The withAs operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -116,7 +117,7 @@ public final class ModelsClient {
 
     /**
      * The withAs operation.
-     * 
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -130,7 +131,7 @@ public final class ModelsClient {
 
     /**
      * The withAssert operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -147,7 +148,7 @@ public final class ModelsClient {
 
     /**
      * The withAssert operation.
-     * 
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -161,7 +162,7 @@ public final class ModelsClient {
 
     /**
      * The withAsync operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -178,7 +179,7 @@ public final class ModelsClient {
 
     /**
      * The withAsync operation.
-     * 
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -192,7 +193,7 @@ public final class ModelsClient {
 
     /**
      * The withAwait operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -209,7 +210,7 @@ public final class ModelsClient {
 
     /**
      * The withAwait operation.
-     * 
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -223,7 +224,7 @@ public final class ModelsClient {
 
     /**
      * The withBreak operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -240,7 +241,7 @@ public final class ModelsClient {
 
     /**
      * The withBreak operation.
-     * 
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -254,7 +255,7 @@ public final class ModelsClient {
 
     /**
      * The withClass operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -271,7 +272,7 @@ public final class ModelsClient {
 
     /**
      * The withClass operation.
-     * 
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -285,7 +286,7 @@ public final class ModelsClient {
 
     /**
      * The withConstructor operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -302,7 +303,7 @@ public final class ModelsClient {
 
     /**
      * The withConstructor operation.
-     * 
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -316,7 +317,7 @@ public final class ModelsClient {
 
     /**
      * The withContinue operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -333,7 +334,7 @@ public final class ModelsClient {
 
     /**
      * The withContinue operation.
-     * 
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -347,7 +348,7 @@ public final class ModelsClient {
 
     /**
      * The withDef operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -364,7 +365,7 @@ public final class ModelsClient {
 
     /**
      * The withDef operation.
-     * 
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -378,7 +379,7 @@ public final class ModelsClient {
 
     /**
      * The withDel operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -395,7 +396,7 @@ public final class ModelsClient {
 
     /**
      * The withDel operation.
-     * 
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -409,7 +410,7 @@ public final class ModelsClient {
 
     /**
      * The withElif operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -426,7 +427,7 @@ public final class ModelsClient {
 
     /**
      * The withElif operation.
-     * 
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -440,7 +441,7 @@ public final class ModelsClient {
 
     /**
      * The withElse operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -457,7 +458,7 @@ public final class ModelsClient {
 
     /**
      * The withElse operation.
-     * 
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -471,7 +472,7 @@ public final class ModelsClient {
 
     /**
      * The withExcept operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -488,7 +489,7 @@ public final class ModelsClient {
 
     /**
      * The withExcept operation.
-     * 
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -502,7 +503,7 @@ public final class ModelsClient {
 
     /**
      * The withExec operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -519,7 +520,7 @@ public final class ModelsClient {
 
     /**
      * The withExec operation.
-     * 
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -533,7 +534,7 @@ public final class ModelsClient {
 
     /**
      * The withFinally operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -550,7 +551,7 @@ public final class ModelsClient {
 
     /**
      * The withFinally operation.
-     * 
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -564,7 +565,7 @@ public final class ModelsClient {
 
     /**
      * The withFor operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -581,7 +582,7 @@ public final class ModelsClient {
 
     /**
      * The withFor operation.
-     * 
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -595,7 +596,7 @@ public final class ModelsClient {
 
     /**
      * The withFrom operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -612,7 +613,7 @@ public final class ModelsClient {
 
     /**
      * The withFrom operation.
-     * 
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -626,7 +627,7 @@ public final class ModelsClient {
 
     /**
      * The withGlobal operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -643,7 +644,7 @@ public final class ModelsClient {
 
     /**
      * The withGlobal operation.
-     * 
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -657,7 +658,7 @@ public final class ModelsClient {
 
     /**
      * The withIf operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -674,7 +675,7 @@ public final class ModelsClient {
 
     /**
      * The withIf operation.
-     * 
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -688,7 +689,7 @@ public final class ModelsClient {
 
     /**
      * The withImport operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -705,7 +706,7 @@ public final class ModelsClient {
 
     /**
      * The withImport operation.
-     * 
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -719,7 +720,7 @@ public final class ModelsClient {
 
     /**
      * The withIn operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -736,7 +737,7 @@ public final class ModelsClient {
 
     /**
      * The withIn operation.
-     * 
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -750,7 +751,7 @@ public final class ModelsClient {
 
     /**
      * The withIs operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -767,7 +768,7 @@ public final class ModelsClient {
 
     /**
      * The withIs operation.
-     * 
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -781,7 +782,7 @@ public final class ModelsClient {
 
     /**
      * The withLambda operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -798,7 +799,7 @@ public final class ModelsClient {
 
     /**
      * The withLambda operation.
-     * 
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -812,7 +813,7 @@ public final class ModelsClient {
 
     /**
      * The withNot operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -829,7 +830,7 @@ public final class ModelsClient {
 
     /**
      * The withNot operation.
-     * 
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -843,7 +844,7 @@ public final class ModelsClient {
 
     /**
      * The withOr operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -860,7 +861,7 @@ public final class ModelsClient {
 
     /**
      * The withOr operation.
-     * 
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -874,7 +875,7 @@ public final class ModelsClient {
 
     /**
      * The withPass operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -891,7 +892,7 @@ public final class ModelsClient {
 
     /**
      * The withPass operation.
-     * 
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -905,7 +906,7 @@ public final class ModelsClient {
 
     /**
      * The withRaise operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -922,7 +923,7 @@ public final class ModelsClient {
 
     /**
      * The withRaise operation.
-     * 
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -936,7 +937,7 @@ public final class ModelsClient {
 
     /**
      * The withReturn operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -953,7 +954,7 @@ public final class ModelsClient {
 
     /**
      * The withReturn operation.
-     * 
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -967,7 +968,7 @@ public final class ModelsClient {
 
     /**
      * The withTry operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -984,7 +985,7 @@ public final class ModelsClient {
 
     /**
      * The withTry operation.
-     * 
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -998,7 +999,7 @@ public final class ModelsClient {
 
     /**
      * The withWhile operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -1015,7 +1016,7 @@ public final class ModelsClient {
 
     /**
      * The withWhile operation.
-     * 
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -1029,7 +1030,7 @@ public final class ModelsClient {
 
     /**
      * The withWith operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -1046,7 +1047,7 @@ public final class ModelsClient {
 
     /**
      * The withWith operation.
-     * 
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -1060,7 +1061,7 @@ public final class ModelsClient {
 
     /**
      * The withYield operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -1077,7 +1078,7 @@ public final class ModelsClient {
 
     /**
      * The withYield operation.
-     * 
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

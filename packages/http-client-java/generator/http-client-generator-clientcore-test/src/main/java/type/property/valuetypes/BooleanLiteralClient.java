@@ -16,6 +16,7 @@ import type.property.valuetypes.implementation.BooleanLiteralsImpl;
  */
 @ServiceClient(builder = ValueTypesClientBuilder.class)
 public final class BooleanLiteralClient {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final BooleanLiteralsImpl serviceClient;
 
@@ -23,7 +24,7 @@ public final class BooleanLiteralClient {
 
     /**
      * Initializes an instance of BooleanLiteralClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,7 +36,7 @@ public final class BooleanLiteralClient {
 
     /**
      * Get call.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -51,7 +52,7 @@ public final class BooleanLiteralClient {
 
     /**
      * Get call.
-     * 
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return call.
@@ -64,7 +65,7 @@ public final class BooleanLiteralClient {
 
     /**
      * Put operation.
-     * 
+     *
      * @param body body.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -81,7 +82,7 @@ public final class BooleanLiteralClient {
 
     /**
      * Put operation.
-     * 
+     *
      * @param body body.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

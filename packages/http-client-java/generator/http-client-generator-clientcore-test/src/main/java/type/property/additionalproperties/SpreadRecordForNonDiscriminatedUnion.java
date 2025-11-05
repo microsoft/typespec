@@ -17,6 +17,7 @@ import java.util.Map;
 @Metadata(properties = { MetadataProperties.FLUENT })
 public final class SpreadRecordForNonDiscriminatedUnion
     implements JsonSerializable<SpreadRecordForNonDiscriminatedUnion> {
+
     /*
      * The name property
      */
@@ -31,7 +32,7 @@ public final class SpreadRecordForNonDiscriminatedUnion
 
     /**
      * Creates an instance of SpreadRecordForNonDiscriminatedUnion class.
-     * 
+     *
      * @param name the name value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -41,7 +42,7 @@ public final class SpreadRecordForNonDiscriminatedUnion
 
     /**
      * Get the name property: The name property.
-     * 
+     *
      * @return the name value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -51,7 +52,7 @@ public final class SpreadRecordForNonDiscriminatedUnion
 
     /**
      * Get the additionalProperties property: The model spread Record&lt;WidgetData0 | WidgetData1&gt;.
-     * 
+     *
      * @return the additionalProperties value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -61,7 +62,7 @@ public final class SpreadRecordForNonDiscriminatedUnion
 
     /**
      * Set the additionalProperties property: The model spread Record&lt;WidgetData0 | WidgetData1&gt;.
-     * 
+     *
      * @param additionalProperties the additionalProperties value to set.
      * @return the SpreadRecordForNonDiscriminatedUnion object itself.
      */
@@ -94,7 +95,7 @@ public final class SpreadRecordForNonDiscriminatedUnion
 
     /**
      * Reads an instance of SpreadRecordForNonDiscriminatedUnion from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of SpreadRecordForNonDiscriminatedUnion if the JsonReader was pointing to an instance of it,
      * or null if it was pointing to JSON null.
@@ -109,14 +110,12 @@ public final class SpreadRecordForNonDiscriminatedUnion
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("name".equals(fieldName)) {
                     name = reader.getString();
                 } else {
                     if (additionalProperties == null) {
                         additionalProperties = new LinkedHashMap<>();
                     }
-
                     additionalProperties.put(fieldName,
                         reader.getNullable(nonNullReader -> BinaryData.fromObject(nonNullReader.readUntyped())));
                 }
@@ -124,7 +123,6 @@ public final class SpreadRecordForNonDiscriminatedUnion
             SpreadRecordForNonDiscriminatedUnion deserializedSpreadRecordForNonDiscriminatedUnion
                 = new SpreadRecordForNonDiscriminatedUnion(name);
             deserializedSpreadRecordForNonDiscriminatedUnion.additionalProperties = additionalProperties;
-
             return deserializedSpreadRecordForNonDiscriminatedUnion;
         });
     }

@@ -7,6 +7,7 @@ import io.clientcore.core.instrumentation.Instrumentation;
  * Initializes a new instance of the AdditionalPropertiesClient type.
  */
 public final class AdditionalPropertiesClientImpl {
+
     /**
      * Service host.
      */
@@ -14,7 +15,7 @@ public final class AdditionalPropertiesClientImpl {
 
     /**
      * Gets Service host.
-     * 
+     *
      * @return the endpoint value.
      */
     public String getEndpoint() {
@@ -28,7 +29,7 @@ public final class AdditionalPropertiesClientImpl {
 
     /**
      * Gets The HTTP pipeline to send requests through.
-     * 
+     *
      * @return the httpPipeline value.
      */
     public HttpPipeline getHttpPipeline() {
@@ -42,7 +43,7 @@ public final class AdditionalPropertiesClientImpl {
 
     /**
      * Gets The instance of instrumentation to report telemetry.
-     * 
+     *
      * @return the instrumentation value.
      */
     public Instrumentation getInstrumentation() {
@@ -56,7 +57,7 @@ public final class AdditionalPropertiesClientImpl {
 
     /**
      * Gets the ExtendsUnknownsImpl object to access its operations.
-     * 
+     *
      * @return the ExtendsUnknownsImpl object.
      */
     public ExtendsUnknownsImpl getExtendsUnknowns() {
@@ -70,7 +71,7 @@ public final class AdditionalPropertiesClientImpl {
 
     /**
      * Gets the ExtendsUnknownDerivedsImpl object to access its operations.
-     * 
+     *
      * @return the ExtendsUnknownDerivedsImpl object.
      */
     public ExtendsUnknownDerivedsImpl getExtendsUnknownDeriveds() {
@@ -84,7 +85,7 @@ public final class AdditionalPropertiesClientImpl {
 
     /**
      * Gets the ExtendsUnknownDiscriminatedsImpl object to access its operations.
-     * 
+     *
      * @return the ExtendsUnknownDiscriminatedsImpl object.
      */
     public ExtendsUnknownDiscriminatedsImpl getExtendsUnknownDiscriminateds() {
@@ -98,7 +99,7 @@ public final class AdditionalPropertiesClientImpl {
 
     /**
      * Gets the IsUnknownsImpl object to access its operations.
-     * 
+     *
      * @return the IsUnknownsImpl object.
      */
     public IsUnknownsImpl getIsUnknowns() {
@@ -112,7 +113,7 @@ public final class AdditionalPropertiesClientImpl {
 
     /**
      * Gets the IsUnknownDerivedsImpl object to access its operations.
-     * 
+     *
      * @return the IsUnknownDerivedsImpl object.
      */
     public IsUnknownDerivedsImpl getIsUnknownDeriveds() {
@@ -126,7 +127,7 @@ public final class AdditionalPropertiesClientImpl {
 
     /**
      * Gets the IsUnknownDiscriminatedsImpl object to access its operations.
-     * 
+     *
      * @return the IsUnknownDiscriminatedsImpl object.
      */
     public IsUnknownDiscriminatedsImpl getIsUnknownDiscriminateds() {
@@ -140,7 +141,7 @@ public final class AdditionalPropertiesClientImpl {
 
     /**
      * Gets the ExtendsStringsImpl object to access its operations.
-     * 
+     *
      * @return the ExtendsStringsImpl object.
      */
     public ExtendsStringsImpl getExtendsStrings() {
@@ -154,7 +155,7 @@ public final class AdditionalPropertiesClientImpl {
 
     /**
      * Gets the IsStringsImpl object to access its operations.
-     * 
+     *
      * @return the IsStringsImpl object.
      */
     public IsStringsImpl getIsStrings() {
@@ -168,7 +169,7 @@ public final class AdditionalPropertiesClientImpl {
 
     /**
      * Gets the SpreadStringsImpl object to access its operations.
-     * 
+     *
      * @return the SpreadStringsImpl object.
      */
     public SpreadStringsImpl getSpreadStrings() {
@@ -182,7 +183,7 @@ public final class AdditionalPropertiesClientImpl {
 
     /**
      * Gets the ExtendsFloatsImpl object to access its operations.
-     * 
+     *
      * @return the ExtendsFloatsImpl object.
      */
     public ExtendsFloatsImpl getExtendsFloats() {
@@ -196,7 +197,7 @@ public final class AdditionalPropertiesClientImpl {
 
     /**
      * Gets the IsFloatsImpl object to access its operations.
-     * 
+     *
      * @return the IsFloatsImpl object.
      */
     public IsFloatsImpl getIsFloats() {
@@ -210,7 +211,7 @@ public final class AdditionalPropertiesClientImpl {
 
     /**
      * Gets the SpreadFloatsImpl object to access its operations.
-     * 
+     *
      * @return the SpreadFloatsImpl object.
      */
     public SpreadFloatsImpl getSpreadFloats() {
@@ -224,7 +225,7 @@ public final class AdditionalPropertiesClientImpl {
 
     /**
      * Gets the ExtendsModelsImpl object to access its operations.
-     * 
+     *
      * @return the ExtendsModelsImpl object.
      */
     public ExtendsModelsImpl getExtendsModels() {
@@ -238,7 +239,7 @@ public final class AdditionalPropertiesClientImpl {
 
     /**
      * Gets the IsModelsImpl object to access its operations.
-     * 
+     *
      * @return the IsModelsImpl object.
      */
     public IsModelsImpl getIsModels() {
@@ -252,7 +253,7 @@ public final class AdditionalPropertiesClientImpl {
 
     /**
      * Gets the SpreadModelsImpl object to access its operations.
-     * 
+     *
      * @return the SpreadModelsImpl object.
      */
     public SpreadModelsImpl getSpreadModels() {
@@ -266,7 +267,7 @@ public final class AdditionalPropertiesClientImpl {
 
     /**
      * Gets the ExtendsModelArraysImpl object to access its operations.
-     * 
+     *
      * @return the ExtendsModelArraysImpl object.
      */
     public ExtendsModelArraysImpl getExtendsModelArrays() {
@@ -280,7 +281,7 @@ public final class AdditionalPropertiesClientImpl {
 
     /**
      * Gets the IsModelArraysImpl object to access its operations.
-     * 
+     *
      * @return the IsModelArraysImpl object.
      */
     public IsModelArraysImpl getIsModelArrays() {
@@ -294,7 +295,7 @@ public final class AdditionalPropertiesClientImpl {
 
     /**
      * Gets the SpreadModelArraysImpl object to access its operations.
-     * 
+     *
      * @return the SpreadModelArraysImpl object.
      */
     public SpreadModelArraysImpl getSpreadModelArrays() {
@@ -308,7 +309,7 @@ public final class AdditionalPropertiesClientImpl {
 
     /**
      * Gets the SpreadDifferentStringsImpl object to access its operations.
-     * 
+     *
      * @return the SpreadDifferentStringsImpl object.
      */
     public SpreadDifferentStringsImpl getSpreadDifferentStrings() {
@@ -322,7 +323,7 @@ public final class AdditionalPropertiesClientImpl {
 
     /**
      * Gets the SpreadDifferentFloatsImpl object to access its operations.
-     * 
+     *
      * @return the SpreadDifferentFloatsImpl object.
      */
     public SpreadDifferentFloatsImpl getSpreadDifferentFloats() {
@@ -336,7 +337,7 @@ public final class AdditionalPropertiesClientImpl {
 
     /**
      * Gets the SpreadDifferentModelsImpl object to access its operations.
-     * 
+     *
      * @return the SpreadDifferentModelsImpl object.
      */
     public SpreadDifferentModelsImpl getSpreadDifferentModels() {
@@ -350,7 +351,7 @@ public final class AdditionalPropertiesClientImpl {
 
     /**
      * Gets the SpreadDifferentModelArraysImpl object to access its operations.
-     * 
+     *
      * @return the SpreadDifferentModelArraysImpl object.
      */
     public SpreadDifferentModelArraysImpl getSpreadDifferentModelArrays() {
@@ -364,7 +365,7 @@ public final class AdditionalPropertiesClientImpl {
 
     /**
      * Gets the ExtendsDifferentSpreadStringsImpl object to access its operations.
-     * 
+     *
      * @return the ExtendsDifferentSpreadStringsImpl object.
      */
     public ExtendsDifferentSpreadStringsImpl getExtendsDifferentSpreadStrings() {
@@ -378,7 +379,7 @@ public final class AdditionalPropertiesClientImpl {
 
     /**
      * Gets the ExtendsDifferentSpreadFloatsImpl object to access its operations.
-     * 
+     *
      * @return the ExtendsDifferentSpreadFloatsImpl object.
      */
     public ExtendsDifferentSpreadFloatsImpl getExtendsDifferentSpreadFloats() {
@@ -392,7 +393,7 @@ public final class AdditionalPropertiesClientImpl {
 
     /**
      * Gets the ExtendsDifferentSpreadModelsImpl object to access its operations.
-     * 
+     *
      * @return the ExtendsDifferentSpreadModelsImpl object.
      */
     public ExtendsDifferentSpreadModelsImpl getExtendsDifferentSpreadModels() {
@@ -406,7 +407,7 @@ public final class AdditionalPropertiesClientImpl {
 
     /**
      * Gets the ExtendsDifferentSpreadModelArraysImpl object to access its operations.
-     * 
+     *
      * @return the ExtendsDifferentSpreadModelArraysImpl object.
      */
     public ExtendsDifferentSpreadModelArraysImpl getExtendsDifferentSpreadModelArrays() {
@@ -420,7 +421,7 @@ public final class AdditionalPropertiesClientImpl {
 
     /**
      * Gets the MultipleSpreadsImpl object to access its operations.
-     * 
+     *
      * @return the MultipleSpreadsImpl object.
      */
     public MultipleSpreadsImpl getMultipleSpreads() {
@@ -434,7 +435,7 @@ public final class AdditionalPropertiesClientImpl {
 
     /**
      * Gets the SpreadRecordUnionsImpl object to access its operations.
-     * 
+     *
      * @return the SpreadRecordUnionsImpl object.
      */
     public SpreadRecordUnionsImpl getSpreadRecordUnions() {
@@ -448,7 +449,7 @@ public final class AdditionalPropertiesClientImpl {
 
     /**
      * Gets the SpreadRecordNonDiscriminatedUnionsImpl object to access its operations.
-     * 
+     *
      * @return the SpreadRecordNonDiscriminatedUnionsImpl object.
      */
     public SpreadRecordNonDiscriminatedUnionsImpl getSpreadRecordNonDiscriminatedUnions() {
@@ -462,7 +463,7 @@ public final class AdditionalPropertiesClientImpl {
 
     /**
      * Gets the SpreadRecordNonDiscriminatedUnion2sImpl object to access its operations.
-     * 
+     *
      * @return the SpreadRecordNonDiscriminatedUnion2sImpl object.
      */
     public SpreadRecordNonDiscriminatedUnion2sImpl getSpreadRecordNonDiscriminatedUnion2s() {
@@ -476,7 +477,7 @@ public final class AdditionalPropertiesClientImpl {
 
     /**
      * Gets the SpreadRecordNonDiscriminatedUnion3sImpl object to access its operations.
-     * 
+     *
      * @return the SpreadRecordNonDiscriminatedUnion3sImpl object.
      */
     public SpreadRecordNonDiscriminatedUnion3sImpl getSpreadRecordNonDiscriminatedUnion3s() {
@@ -485,7 +486,7 @@ public final class AdditionalPropertiesClientImpl {
 
     /**
      * Initializes an instance of AdditionalPropertiesClient client.
-     * 
+     *
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.

@@ -38,6 +38,7 @@ import java.util.Objects;
 public final class CustomClientBuilder
     implements HttpTrait<CustomClientBuilder>, ProxyTrait<CustomClientBuilder>, ConfigurationTrait<CustomClientBuilder>,
     KeyCredentialTrait<CustomClientBuilder>, EndpointTrait<CustomClientBuilder> {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -200,7 +201,7 @@ public final class CustomClientBuilder
 
     /**
      * Builds an instance of CustomClientImpl with the provided parameters.
-     * 
+     *
      * @return an instance of CustomClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -248,7 +249,7 @@ public final class CustomClientBuilder
 
     /**
      * Builds an instance of CustomClient class.
-     * 
+     *
      * @return an instance of CustomClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

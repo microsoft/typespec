@@ -15,6 +15,7 @@ import java.util.Objects;
  */
 @Metadata(properties = { MetadataProperties.FLUENT })
 public final class DurationProperty implements JsonSerializable<DurationProperty> {
+
     /*
      * Property
      */
@@ -30,7 +31,7 @@ public final class DurationProperty implements JsonSerializable<DurationProperty
 
     /**
      * Get the property property: Property.
-     * 
+     *
      * @return the property value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -40,7 +41,7 @@ public final class DurationProperty implements JsonSerializable<DurationProperty
 
     /**
      * Set the property property: Property.
-     * 
+     *
      * @param property the property value to set.
      * @return the DurationProperty object itself.
      */
@@ -63,7 +64,7 @@ public final class DurationProperty implements JsonSerializable<DurationProperty
 
     /**
      * Reads an instance of DurationProperty from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of DurationProperty if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.
@@ -76,7 +77,6 @@ public final class DurationProperty implements JsonSerializable<DurationProperty
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("property".equals(fieldName)) {
                     deserializedDurationProperty.property
                         = reader.getNullable(nonNullReader -> Duration.parse(nonNullReader.getString()));
@@ -84,7 +84,6 @@ public final class DurationProperty implements JsonSerializable<DurationProperty
                     reader.skipChildren();
                 }
             }
-
             return deserializedDurationProperty;
         });
     }

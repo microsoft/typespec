@@ -21,6 +21,7 @@ import type.property.optional.FloatLiteralProperty;
  * An instance of this class provides access to all the operations defined in FloatLiterals.
  */
 public final class FloatLiteralsImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -38,7 +39,7 @@ public final class FloatLiteralsImpl {
 
     /**
      * Initializes an instance of FloatLiteralsImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     FloatLiteralsImpl(OptionalClientImpl client) {
@@ -53,6 +54,7 @@ public final class FloatLiteralsImpl {
      */
     @ServiceInterface(name = "OptionalClientFloatLiterals", host = "{endpoint}")
     public interface FloatLiteralsService {
+
         static FloatLiteralsService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("type.property.optional.implementation.FloatLiteralsServiceImpl");
@@ -62,7 +64,6 @@ public final class FloatLiteralsImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         @HttpRequestInformation(
@@ -101,7 +102,7 @@ public final class FloatLiteralsImpl {
 
     /**
      * Get models that will return all properties in the model.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -119,7 +120,7 @@ public final class FloatLiteralsImpl {
 
     /**
      * Get models that will return the default object.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -137,7 +138,7 @@ public final class FloatLiteralsImpl {
 
     /**
      * Put a body with all properties present.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -156,7 +157,7 @@ public final class FloatLiteralsImpl {
 
     /**
      * Put a body with default properties.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

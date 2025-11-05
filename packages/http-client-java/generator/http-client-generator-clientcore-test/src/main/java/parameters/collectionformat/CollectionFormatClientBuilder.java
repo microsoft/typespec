@@ -35,6 +35,7 @@ import parameters.collectionformat.implementation.CollectionFormatClientImpl;
 public final class CollectionFormatClientBuilder
     implements HttpTrait<CollectionFormatClientBuilder>, ProxyTrait<CollectionFormatClientBuilder>,
     ConfigurationTrait<CollectionFormatClientBuilder>, EndpointTrait<CollectionFormatClientBuilder> {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -182,7 +183,7 @@ public final class CollectionFormatClientBuilder
 
     /**
      * Builds an instance of CollectionFormatClientImpl with the provided parameters.
-     * 
+     *
      * @return an instance of CollectionFormatClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -228,7 +229,7 @@ public final class CollectionFormatClientBuilder
 
     /**
      * Builds an instance of QueryClient class.
-     * 
+     *
      * @return an instance of QueryClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -239,7 +240,7 @@ public final class CollectionFormatClientBuilder
 
     /**
      * Builds an instance of HeaderClient class.
-     * 
+     *
      * @return an instance of HeaderClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

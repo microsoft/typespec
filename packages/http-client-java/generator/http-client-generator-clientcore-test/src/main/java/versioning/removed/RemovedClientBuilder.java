@@ -34,6 +34,7 @@ import versioning.removed.implementation.RemovedClientImpl;
 @ServiceClientBuilder(serviceClients = { RemovedClient.class })
 public final class RemovedClientBuilder implements HttpTrait<RemovedClientBuilder>, ProxyTrait<RemovedClientBuilder>,
     ConfigurationTrait<RemovedClientBuilder>, EndpointTrait<RemovedClientBuilder> {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -185,7 +186,7 @@ public final class RemovedClientBuilder implements HttpTrait<RemovedClientBuilde
 
     /**
      * Sets Service version.
-     * 
+     *
      * @param serviceVersion the serviceVersion value.
      * @return the RemovedClientBuilder.
      */
@@ -197,7 +198,7 @@ public final class RemovedClientBuilder implements HttpTrait<RemovedClientBuilde
 
     /**
      * Builds an instance of RemovedClientImpl with the provided parameters.
-     * 
+     *
      * @return an instance of RemovedClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -245,7 +246,7 @@ public final class RemovedClientBuilder implements HttpTrait<RemovedClientBuilde
 
     /**
      * Builds an instance of RemovedClient class.
-     * 
+     *
      * @return an instance of RemovedClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

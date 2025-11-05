@@ -7,6 +7,7 @@ import io.clientcore.core.instrumentation.Instrumentation;
  * Initializes a new instance of the ValueTypesClient type.
  */
 public final class ValueTypesClientImpl {
+
     /**
      * Service host.
      */
@@ -14,7 +15,7 @@ public final class ValueTypesClientImpl {
 
     /**
      * Gets Service host.
-     * 
+     *
      * @return the endpoint value.
      */
     public String getEndpoint() {
@@ -28,7 +29,7 @@ public final class ValueTypesClientImpl {
 
     /**
      * Gets The HTTP pipeline to send requests through.
-     * 
+     *
      * @return the httpPipeline value.
      */
     public HttpPipeline getHttpPipeline() {
@@ -42,7 +43,7 @@ public final class ValueTypesClientImpl {
 
     /**
      * Gets The instance of instrumentation to report telemetry.
-     * 
+     *
      * @return the instrumentation value.
      */
     public Instrumentation getInstrumentation() {
@@ -56,7 +57,7 @@ public final class ValueTypesClientImpl {
 
     /**
      * Gets the BooleanOperationsImpl object to access its operations.
-     * 
+     *
      * @return the BooleanOperationsImpl object.
      */
     public BooleanOperationsImpl getBooleanOperations() {
@@ -70,7 +71,7 @@ public final class ValueTypesClientImpl {
 
     /**
      * Gets the StringOperationsImpl object to access its operations.
-     * 
+     *
      * @return the StringOperationsImpl object.
      */
     public StringOperationsImpl getStringOperations() {
@@ -84,7 +85,7 @@ public final class ValueTypesClientImpl {
 
     /**
      * Gets the BytesImpl object to access its operations.
-     * 
+     *
      * @return the BytesImpl object.
      */
     public BytesImpl getBytes() {
@@ -98,7 +99,7 @@ public final class ValueTypesClientImpl {
 
     /**
      * Gets the IntsImpl object to access its operations.
-     * 
+     *
      * @return the IntsImpl object.
      */
     public IntsImpl getInts() {
@@ -112,7 +113,7 @@ public final class ValueTypesClientImpl {
 
     /**
      * Gets the FloatOperationsImpl object to access its operations.
-     * 
+     *
      * @return the FloatOperationsImpl object.
      */
     public FloatOperationsImpl getFloatOperations() {
@@ -126,7 +127,7 @@ public final class ValueTypesClientImpl {
 
     /**
      * Gets the DecimalsImpl object to access its operations.
-     * 
+     *
      * @return the DecimalsImpl object.
      */
     public DecimalsImpl getDecimals() {
@@ -140,7 +141,7 @@ public final class ValueTypesClientImpl {
 
     /**
      * Gets the Decimal128sImpl object to access its operations.
-     * 
+     *
      * @return the Decimal128sImpl object.
      */
     public Decimal128sImpl getDecimal128s() {
@@ -154,7 +155,7 @@ public final class ValueTypesClientImpl {
 
     /**
      * Gets the DatetimeOperationsImpl object to access its operations.
-     * 
+     *
      * @return the DatetimeOperationsImpl object.
      */
     public DatetimeOperationsImpl getDatetimeOperations() {
@@ -168,7 +169,7 @@ public final class ValueTypesClientImpl {
 
     /**
      * Gets the DurationOperationsImpl object to access its operations.
-     * 
+     *
      * @return the DurationOperationsImpl object.
      */
     public DurationOperationsImpl getDurationOperations() {
@@ -182,7 +183,7 @@ public final class ValueTypesClientImpl {
 
     /**
      * Gets the EnumsImpl object to access its operations.
-     * 
+     *
      * @return the EnumsImpl object.
      */
     public EnumsImpl getEnums() {
@@ -196,7 +197,7 @@ public final class ValueTypesClientImpl {
 
     /**
      * Gets the ExtensibleEnumsImpl object to access its operations.
-     * 
+     *
      * @return the ExtensibleEnumsImpl object.
      */
     public ExtensibleEnumsImpl getExtensibleEnums() {
@@ -210,7 +211,7 @@ public final class ValueTypesClientImpl {
 
     /**
      * Gets the ModelsImpl object to access its operations.
-     * 
+     *
      * @return the ModelsImpl object.
      */
     public ModelsImpl getModels() {
@@ -224,7 +225,7 @@ public final class ValueTypesClientImpl {
 
     /**
      * Gets the CollectionsStringsImpl object to access its operations.
-     * 
+     *
      * @return the CollectionsStringsImpl object.
      */
     public CollectionsStringsImpl getCollectionsStrings() {
@@ -238,7 +239,7 @@ public final class ValueTypesClientImpl {
 
     /**
      * Gets the CollectionsIntsImpl object to access its operations.
-     * 
+     *
      * @return the CollectionsIntsImpl object.
      */
     public CollectionsIntsImpl getCollectionsInts() {
@@ -252,7 +253,7 @@ public final class ValueTypesClientImpl {
 
     /**
      * Gets the CollectionsModelsImpl object to access its operations.
-     * 
+     *
      * @return the CollectionsModelsImpl object.
      */
     public CollectionsModelsImpl getCollectionsModels() {
@@ -266,7 +267,7 @@ public final class ValueTypesClientImpl {
 
     /**
      * Gets the DictionaryStringsImpl object to access its operations.
-     * 
+     *
      * @return the DictionaryStringsImpl object.
      */
     public DictionaryStringsImpl getDictionaryStrings() {
@@ -280,7 +281,7 @@ public final class ValueTypesClientImpl {
 
     /**
      * Gets the NeversImpl object to access its operations.
-     * 
+     *
      * @return the NeversImpl object.
      */
     public NeversImpl getNevers() {
@@ -294,7 +295,7 @@ public final class ValueTypesClientImpl {
 
     /**
      * Gets the UnknownStringsImpl object to access its operations.
-     * 
+     *
      * @return the UnknownStringsImpl object.
      */
     public UnknownStringsImpl getUnknownStrings() {
@@ -308,7 +309,7 @@ public final class ValueTypesClientImpl {
 
     /**
      * Gets the UnknownIntsImpl object to access its operations.
-     * 
+     *
      * @return the UnknownIntsImpl object.
      */
     public UnknownIntsImpl getUnknownInts() {
@@ -322,7 +323,7 @@ public final class ValueTypesClientImpl {
 
     /**
      * Gets the UnknownDictsImpl object to access its operations.
-     * 
+     *
      * @return the UnknownDictsImpl object.
      */
     public UnknownDictsImpl getUnknownDicts() {
@@ -336,7 +337,7 @@ public final class ValueTypesClientImpl {
 
     /**
      * Gets the UnknownArraysImpl object to access its operations.
-     * 
+     *
      * @return the UnknownArraysImpl object.
      */
     public UnknownArraysImpl getUnknownArrays() {
@@ -350,7 +351,7 @@ public final class ValueTypesClientImpl {
 
     /**
      * Gets the StringLiteralsImpl object to access its operations.
-     * 
+     *
      * @return the StringLiteralsImpl object.
      */
     public StringLiteralsImpl getStringLiterals() {
@@ -364,7 +365,7 @@ public final class ValueTypesClientImpl {
 
     /**
      * Gets the IntLiteralsImpl object to access its operations.
-     * 
+     *
      * @return the IntLiteralsImpl object.
      */
     public IntLiteralsImpl getIntLiterals() {
@@ -378,7 +379,7 @@ public final class ValueTypesClientImpl {
 
     /**
      * Gets the FloatLiteralsImpl object to access its operations.
-     * 
+     *
      * @return the FloatLiteralsImpl object.
      */
     public FloatLiteralsImpl getFloatLiterals() {
@@ -392,7 +393,7 @@ public final class ValueTypesClientImpl {
 
     /**
      * Gets the BooleanLiteralsImpl object to access its operations.
-     * 
+     *
      * @return the BooleanLiteralsImpl object.
      */
     public BooleanLiteralsImpl getBooleanLiterals() {
@@ -406,7 +407,7 @@ public final class ValueTypesClientImpl {
 
     /**
      * Gets the UnionStringLiteralsImpl object to access its operations.
-     * 
+     *
      * @return the UnionStringLiteralsImpl object.
      */
     public UnionStringLiteralsImpl getUnionStringLiterals() {
@@ -420,7 +421,7 @@ public final class ValueTypesClientImpl {
 
     /**
      * Gets the UnionIntLiteralsImpl object to access its operations.
-     * 
+     *
      * @return the UnionIntLiteralsImpl object.
      */
     public UnionIntLiteralsImpl getUnionIntLiterals() {
@@ -434,7 +435,7 @@ public final class ValueTypesClientImpl {
 
     /**
      * Gets the UnionFloatLiteralsImpl object to access its operations.
-     * 
+     *
      * @return the UnionFloatLiteralsImpl object.
      */
     public UnionFloatLiteralsImpl getUnionFloatLiterals() {
@@ -448,7 +449,7 @@ public final class ValueTypesClientImpl {
 
     /**
      * Gets the UnionEnumValuesImpl object to access its operations.
-     * 
+     *
      * @return the UnionEnumValuesImpl object.
      */
     public UnionEnumValuesImpl getUnionEnumValues() {
@@ -457,7 +458,7 @@ public final class ValueTypesClientImpl {
 
     /**
      * Initializes an instance of ValueTypesClient client.
-     * 
+     *
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.

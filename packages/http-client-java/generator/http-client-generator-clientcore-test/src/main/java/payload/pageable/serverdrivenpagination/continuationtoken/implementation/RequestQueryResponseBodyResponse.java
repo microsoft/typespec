@@ -15,6 +15,7 @@ import payload.pageable.Pet;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class RequestQueryResponseBodyResponse implements JsonSerializable<RequestQueryResponseBodyResponse> {
+
     /*
      * The pets property.
      */
@@ -29,7 +30,7 @@ public final class RequestQueryResponseBodyResponse implements JsonSerializable<
 
     /**
      * Creates an instance of RequestQueryResponseBodyResponse class.
-     * 
+     *
      * @param pets the pets value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -39,7 +40,7 @@ public final class RequestQueryResponseBodyResponse implements JsonSerializable<
 
     /**
      * Get the pets property: The pets property.
-     * 
+     *
      * @return the pets value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -49,7 +50,7 @@ public final class RequestQueryResponseBodyResponse implements JsonSerializable<
 
     /**
      * Get the nextToken property: The nextToken property.
-     * 
+     *
      * @return the nextToken value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -71,7 +72,7 @@ public final class RequestQueryResponseBodyResponse implements JsonSerializable<
 
     /**
      * Reads an instance of RequestQueryResponseBodyResponse from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of RequestQueryResponseBodyResponse if the JsonReader was pointing to an instance of it, or
      * null if it was pointing to JSON null.
@@ -86,7 +87,6 @@ public final class RequestQueryResponseBodyResponse implements JsonSerializable<
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("pets".equals(fieldName)) {
                     pets = reader.readArray(reader1 -> Pet.fromJson(reader1));
                 } else if ("nextToken".equals(fieldName)) {
@@ -98,7 +98,6 @@ public final class RequestQueryResponseBodyResponse implements JsonSerializable<
             RequestQueryResponseBodyResponse deserializedRequestQueryResponseBodyResponse
                 = new RequestQueryResponseBodyResponse(pets);
             deserializedRequestQueryResponseBodyResponse.nextToken = nextToken;
-
             return deserializedRequestQueryResponseBodyResponse;
         });
     }

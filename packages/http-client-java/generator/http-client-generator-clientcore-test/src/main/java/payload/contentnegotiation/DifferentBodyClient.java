@@ -18,6 +18,7 @@ import payload.contentnegotiation.implementation.DifferentBodiesImpl;
  */
 @ServiceClient(builder = ContentNegotiationClientBuilder.class)
 public final class DifferentBodyClient {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final DifferentBodiesImpl serviceClient;
 
@@ -25,7 +26,7 @@ public final class DifferentBodyClient {
 
     /**
      * Initializes an instance of DifferentBodyClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -37,7 +38,7 @@ public final class DifferentBodyClient {
 
     /**
      * The getAvatarAsPng operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -53,7 +54,7 @@ public final class DifferentBodyClient {
 
     /**
      * The getAvatarAsPng operation.
-     * 
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
@@ -66,7 +67,7 @@ public final class DifferentBodyClient {
 
     /**
      * The getAvatarAsJson operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -82,7 +83,7 @@ public final class DifferentBodyClient {
 
     /**
      * The getAvatarAsJson operation.
-     * 
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.

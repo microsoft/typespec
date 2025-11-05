@@ -22,6 +22,7 @@ import type.union.GetResponse6;
  * An instance of this class provides access to all the operations defined in EnumsOnlies.
  */
 public final class EnumsOnliesImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -39,7 +40,7 @@ public final class EnumsOnliesImpl {
 
     /**
      * Initializes an instance of EnumsOnliesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     EnumsOnliesImpl(UnionClientImpl client) {
@@ -54,6 +55,7 @@ public final class EnumsOnliesImpl {
      */
     @ServiceInterface(name = "UnionClientEnumsOnlies", host = "{endpoint}")
     public interface EnumsOnliesService {
+
         static EnumsOnliesService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("type.union.implementation.EnumsOnliesServiceImpl");
@@ -63,7 +65,6 @@ public final class EnumsOnliesImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         @HttpRequestInformation(method = HttpMethod.GET, path = "/type/union/enums-only", expectedStatusCodes = { 200 })
@@ -82,7 +83,7 @@ public final class EnumsOnliesImpl {
 
     /**
      * The get operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -100,7 +101,7 @@ public final class EnumsOnliesImpl {
 
     /**
      * The send operation.
-     * 
+     *
      * @param prop The prop parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

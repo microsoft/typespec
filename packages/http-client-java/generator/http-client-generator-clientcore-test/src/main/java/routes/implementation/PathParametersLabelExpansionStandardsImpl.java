@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
  * An instance of this class provides access to all the operations defined in PathParametersLabelExpansionStandards.
  */
 public final class PathParametersLabelExpansionStandardsImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -40,7 +41,7 @@ public final class PathParametersLabelExpansionStandardsImpl {
 
     /**
      * Initializes an instance of PathParametersLabelExpansionStandardsImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     PathParametersLabelExpansionStandardsImpl(RoutesClientImpl client) {
@@ -55,6 +56,7 @@ public final class PathParametersLabelExpansionStandardsImpl {
      */
     @ServiceInterface(name = "RoutesClientPathParametersLabelExpansionStandards", host = "{endpoint}")
     public interface PathParametersLabelExpansionStandardsService {
+
         static PathParametersLabelExpansionStandardsService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz
@@ -66,7 +68,6 @@ public final class PathParametersLabelExpansionStandardsImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         @HttpRequestInformation(
@@ -96,7 +97,7 @@ public final class PathParametersLabelExpansionStandardsImpl {
 
     /**
      * The primitive operation.
-     * 
+     *
      * @param param The param parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -114,7 +115,7 @@ public final class PathParametersLabelExpansionStandardsImpl {
 
     /**
      * The array operation.
-     * 
+     *
      * @param param The param parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -135,7 +136,7 @@ public final class PathParametersLabelExpansionStandardsImpl {
 
     /**
      * The record operation.
-     * 
+     *
      * @param param The param parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

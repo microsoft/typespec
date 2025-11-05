@@ -16,6 +16,7 @@ import payload.multipart.implementation.FormDataHttpPartsContentTypesImpl;
  */
 @ServiceClient(builder = MultiPartClientBuilder.class)
 public final class FormDataHttpPartsContentTypeClient {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final FormDataHttpPartsContentTypesImpl serviceClient;
 
@@ -23,7 +24,7 @@ public final class FormDataHttpPartsContentTypeClient {
 
     /**
      * Initializes an instance of FormDataHttpPartsContentTypeClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -36,7 +37,7 @@ public final class FormDataHttpPartsContentTypeClient {
 
     /**
      * Test content-type: multipart/form-data.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -57,7 +58,7 @@ public final class FormDataHttpPartsContentTypeClient {
 
     /**
      * Test content-type: multipart/form-data.
-     * 
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -71,7 +72,7 @@ public final class FormDataHttpPartsContentTypeClient {
 
     /**
      * Test content-type: multipart/form-data.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -92,7 +93,7 @@ public final class FormDataHttpPartsContentTypeClient {
 
     /**
      * Test content-type: multipart/form-data.
-     * 
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -106,7 +107,7 @@ public final class FormDataHttpPartsContentTypeClient {
 
     /**
      * Test content-type: multipart/form-data for optional content type.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -127,7 +128,7 @@ public final class FormDataHttpPartsContentTypeClient {
 
     /**
      * Test content-type: multipart/form-data for optional content type.
-     * 
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

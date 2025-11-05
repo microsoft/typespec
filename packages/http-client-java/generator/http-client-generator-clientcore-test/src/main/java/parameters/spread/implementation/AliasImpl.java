@@ -23,6 +23,7 @@ import parameters.spread.alias.implementation.SpreadAsRequestBodyRequest;
  * An instance of this class provides access to all the operations defined in Alias.
  */
 public final class AliasImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -40,7 +41,7 @@ public final class AliasImpl {
 
     /**
      * Initializes an instance of AliasImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     AliasImpl(SpreadClientImpl client) {
@@ -55,6 +56,7 @@ public final class AliasImpl {
      */
     @ServiceInterface(name = "SpreadClientAlias", host = "{endpoint}")
     public interface AliasService {
+
         static AliasService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("parameters.spread.implementation.AliasServiceImpl");
@@ -63,7 +65,6 @@ public final class AliasImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         @HttpRequestInformation(
@@ -119,7 +120,7 @@ public final class AliasImpl {
 
     /**
      * The spreadAsRequestBody operation.
-     * 
+     *
      * @param name The name parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -140,7 +141,7 @@ public final class AliasImpl {
 
     /**
      * The spreadParameterWithInnerModel operation.
-     * 
+     *
      * @param id The id parameter.
      * @param xMsTestHeader The xMsTestHeader parameter.
      * @param name The name parameter.
@@ -165,7 +166,7 @@ public final class AliasImpl {
 
     /**
      * The spreadAsRequestParameter operation.
-     * 
+     *
      * @param id The id parameter.
      * @param xMsTestHeader The xMsTestHeader parameter.
      * @param name The name parameter.
@@ -190,7 +191,7 @@ public final class AliasImpl {
 
     /**
      * The spreadWithMultipleParameters operation.
-     * 
+     *
      * @param id The id parameter.
      * @param xMsTestHeader The xMsTestHeader parameter.
      * @param requiredString required string.
@@ -221,7 +222,7 @@ public final class AliasImpl {
 
     /**
      * spread an alias with contains another alias property as body.
-     * 
+     *
      * @param id The id parameter.
      * @param xMsTestHeader The xMsTestHeader parameter.
      * @param name name of the Thing.

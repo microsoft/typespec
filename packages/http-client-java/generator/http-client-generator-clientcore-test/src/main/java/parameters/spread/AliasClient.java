@@ -17,6 +17,7 @@ import parameters.spread.implementation.AliasImpl;
  */
 @ServiceClient(builder = SpreadClientBuilder.class)
 public final class AliasClient {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final AliasImpl serviceClient;
 
@@ -24,7 +25,7 @@ public final class AliasClient {
 
     /**
      * Initializes an instance of AliasClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -36,7 +37,7 @@ public final class AliasClient {
 
     /**
      * The spreadAsRequestBody operation.
-     * 
+     *
      * @param name The name parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -53,7 +54,7 @@ public final class AliasClient {
 
     /**
      * The spreadAsRequestBody operation.
-     * 
+     *
      * @param name The name parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -67,7 +68,7 @@ public final class AliasClient {
 
     /**
      * The spreadParameterWithInnerModel operation.
-     * 
+     *
      * @param id The id parameter.
      * @param xMsTestHeader The xMsTestHeader parameter.
      * @param name The name parameter.
@@ -88,7 +89,7 @@ public final class AliasClient {
 
     /**
      * The spreadParameterWithInnerModel operation.
-     * 
+     *
      * @param id The id parameter.
      * @param xMsTestHeader The xMsTestHeader parameter.
      * @param name The name parameter.
@@ -104,7 +105,7 @@ public final class AliasClient {
 
     /**
      * The spreadAsRequestParameter operation.
-     * 
+     *
      * @param id The id parameter.
      * @param xMsTestHeader The xMsTestHeader parameter.
      * @param name The name parameter.
@@ -125,7 +126,7 @@ public final class AliasClient {
 
     /**
      * The spreadAsRequestParameter operation.
-     * 
+     *
      * @param id The id parameter.
      * @param xMsTestHeader The xMsTestHeader parameter.
      * @param name The name parameter.
@@ -141,7 +142,7 @@ public final class AliasClient {
 
     /**
      * The spreadWithMultipleParameters operation.
-     * 
+     *
      * @param id The id parameter.
      * @param xMsTestHeader The xMsTestHeader parameter.
      * @param requiredString required string.
@@ -166,7 +167,7 @@ public final class AliasClient {
 
     /**
      * The spreadWithMultipleParameters operation.
-     * 
+     *
      * @param id The id parameter.
      * @param xMsTestHeader The xMsTestHeader parameter.
      * @param requiredString required string.
@@ -187,7 +188,7 @@ public final class AliasClient {
 
     /**
      * The spreadWithMultipleParameters operation.
-     * 
+     *
      * @param id The id parameter.
      * @param xMsTestHeader The xMsTestHeader parameter.
      * @param requiredString required string.
@@ -208,7 +209,7 @@ public final class AliasClient {
 
     /**
      * spread an alias with contains another alias property as body.
-     * 
+     *
      * @param id The id parameter.
      * @param xMsTestHeader The xMsTestHeader parameter.
      * @param name name of the Thing.
@@ -230,7 +231,7 @@ public final class AliasClient {
 
     /**
      * spread an alias with contains another alias property as body.
-     * 
+     *
      * @param id The id parameter.
      * @param xMsTestHeader The xMsTestHeader parameter.
      * @param name name of the Thing.

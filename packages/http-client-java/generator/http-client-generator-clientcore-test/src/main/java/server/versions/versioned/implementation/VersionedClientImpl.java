@@ -21,6 +21,7 @@ import server.versions.versioned.VersionedServiceVersion;
  * Initializes a new instance of the VersionedClient type.
  */
 public final class VersionedClientImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -33,7 +34,7 @@ public final class VersionedClientImpl {
 
     /**
      * Gets Need to be set as 'http://localhost:3000' in client.
-     * 
+     *
      * @return the endpoint value.
      */
     public String getEndpoint() {
@@ -47,7 +48,7 @@ public final class VersionedClientImpl {
 
     /**
      * Gets Service version.
-     * 
+     *
      * @return the serviceVersion value.
      */
     public VersionedServiceVersion getServiceVersion() {
@@ -61,7 +62,7 @@ public final class VersionedClientImpl {
 
     /**
      * Gets The HTTP pipeline to send requests through.
-     * 
+     *
      * @return the httpPipeline value.
      */
     public HttpPipeline getHttpPipeline() {
@@ -75,7 +76,7 @@ public final class VersionedClientImpl {
 
     /**
      * Gets The instance of instrumentation to report telemetry.
-     * 
+     *
      * @return the instrumentation value.
      */
     public Instrumentation getInstrumentation() {
@@ -84,7 +85,7 @@ public final class VersionedClientImpl {
 
     /**
      * Initializes an instance of VersionedClient client.
-     * 
+     *
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
@@ -105,6 +106,7 @@ public final class VersionedClientImpl {
      */
     @ServiceInterface(name = "VersionedClient", host = "{endpoint}")
     public interface VersionedClientService {
+
         static VersionedClientService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("server.versions.versioned.implementation.VersionedClientServiceImpl");
@@ -114,7 +116,6 @@ public final class VersionedClientImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         @HttpRequestInformation(
@@ -151,7 +152,7 @@ public final class VersionedClientImpl {
 
     /**
      * The withoutApiVersion operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -168,7 +169,7 @@ public final class VersionedClientImpl {
 
     /**
      * The withQueryApiVersion operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -186,7 +187,7 @@ public final class VersionedClientImpl {
 
     /**
      * The withPathApiVersion operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -204,7 +205,7 @@ public final class VersionedClientImpl {
 
     /**
      * The withQueryOldApiVersion operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

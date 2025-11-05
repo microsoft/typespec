@@ -4,11 +4,11 @@ package type.union;
  * Defines values for EnumsOnlyCasesUd.
  */
 public enum EnumsOnlyCasesUd {
+
     /**
      * Enum value up.
      */
     UP("up"),
-
     /**
      * Enum value down.
      */
@@ -25,7 +25,7 @@ public enum EnumsOnlyCasesUd {
 
     /**
      * Parses a serialized value to a EnumsOnlyCasesUd instance.
-     * 
+     *
      * @param value the serialized value to parse.
      * @return the parsed EnumsOnlyCasesUd object, or null if unable to parse.
      */

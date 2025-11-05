@@ -17,6 +17,7 @@ import type.union.discriminated.implementation.EnvelopeObjectDefaultsImpl;
  */
 @ServiceClient(builder = DiscriminatedClientBuilder.class)
 public final class EnvelopeObjectDefaultClient {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final EnvelopeObjectDefaultsImpl serviceClient;
 
@@ -24,7 +25,7 @@ public final class EnvelopeObjectDefaultClient {
 
     /**
      * Initializes an instance of EnvelopeObjectDefaultClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -36,7 +37,7 @@ public final class EnvelopeObjectDefaultClient {
 
     /**
      * The get operation.
-     * 
+     *
      * @param kind The kind parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -55,7 +56,7 @@ public final class EnvelopeObjectDefaultClient {
 
     /**
      * The get operation.
-     * 
+     *
      * @param kind The kind parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -72,7 +73,7 @@ public final class EnvelopeObjectDefaultClient {
 
     /**
      * The get operation.
-     * 
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return test discriminated union with default envelope serialization.
@@ -88,7 +89,7 @@ public final class EnvelopeObjectDefaultClient {
 
     /**
      * The put operation.
-     * 
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -107,7 +108,7 @@ public final class EnvelopeObjectDefaultClient {
 
     /**
      * The put operation.
-     * 
+     *
      * @param input The input parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

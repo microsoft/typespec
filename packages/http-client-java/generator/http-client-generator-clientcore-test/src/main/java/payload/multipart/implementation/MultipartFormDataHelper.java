@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.UUID;
 
 // DO NOT modify this helper class
-
 public final class MultipartFormDataHelper {
+
     /**
      * Line separator for the multipart HTTP request.
      */
@@ -42,9 +42,11 @@ public final class MultipartFormDataHelper {
     private final Charset encoderCharset = StandardCharsets.UTF_8;
 
     private InputStream requestDataStream = new ByteArrayInputStream(new byte[0]);
+
     private long requestLength = 0;
 
     private RequestContext requestContext;
+
     private BinaryData requestBody;
 
     /**
@@ -162,14 +164,11 @@ public final class MultipartFormDataHelper {
     public MultipartFormDataHelper end() {
         byte[] data = endMarker.getBytes(encoderCharset);
         appendBytes(data);
-
         requestBody = BinaryData.fromStream(requestDataStream, requestLength);
-
         requestContext = requestContext.toBuilder()
             .setHeader(HttpHeaderName.CONTENT_TYPE, "multipart/form-data; boundary=" + this.boundary)
             .setHeader(HttpHeaderName.CONTENT_LENGTH, String.valueOf(requestLength))
             .build();
-
         return this;
     }
 
@@ -178,18 +177,15 @@ public final class MultipartFormDataHelper {
         if (filename != null && !filename.isEmpty()) {
             contentDispositionFilename = "; filename=\"" + escapeName(filename) + "\"";
         }
-
         // Multipart preamble
         String fileFieldPreamble
             = partSeparator + CRLF + "Content-Disposition: form-data; name=\"" + escapeName(fieldName) + "\""
                 + contentDispositionFilename + CRLF + "Content-Type: " + contentType + CRLF + CRLF;
         byte[] data = fileFieldPreamble.getBytes(encoderCharset);
         appendBytes(data);
-
         // Writing the file into the request as a byte stream
         requestLength += file.getLength();
         requestDataStream = new SequenceInputStream(requestDataStream, file.toStream());
-
         // CRLF
         data = CRLF.getBytes(encoderCharset);
         appendBytes(data);

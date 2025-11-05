@@ -18,6 +18,7 @@ import java.lang.reflect.InvocationTargetException;
  * An instance of this class provides access to all the operations defined in InInterfaces.
  */
 public final class InInterfacesImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -35,7 +36,7 @@ public final class InInterfacesImpl {
 
     /**
      * Initializes an instance of InInterfacesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     InInterfacesImpl(RoutesClientImpl client) {
@@ -50,6 +51,7 @@ public final class InInterfacesImpl {
      */
     @ServiceInterface(name = "RoutesClientInInterfaces", host = "{endpoint}")
     public interface InInterfacesService {
+
         static InInterfacesService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("routes.implementation.InInterfacesServiceImpl");
@@ -59,7 +61,6 @@ public final class InInterfacesImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         @HttpRequestInformation(
@@ -72,7 +73,7 @@ public final class InInterfacesImpl {
 
     /**
      * The fixed operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

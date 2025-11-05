@@ -21,6 +21,7 @@ import specialwords.modelproperties.SameAsModel;
  * An instance of this class provides access to all the operations defined in ModelProperties.
  */
 public final class ModelPropertiesImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -38,7 +39,7 @@ public final class ModelPropertiesImpl {
 
     /**
      * Initializes an instance of ModelPropertiesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     ModelPropertiesImpl(SpecialWordsClientImpl client) {
@@ -53,6 +54,7 @@ public final class ModelPropertiesImpl {
      */
     @ServiceInterface(name = "SpecialWordsClientModelProperties", host = "{endpoint}")
     public interface ModelPropertiesService {
+
         static ModelPropertiesService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("specialwords.implementation.ModelPropertiesServiceImpl");
@@ -62,7 +64,6 @@ public final class ModelPropertiesImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         @HttpRequestInformation(
@@ -77,7 +78,7 @@ public final class ModelPropertiesImpl {
 
     /**
      * The sameAsModel operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

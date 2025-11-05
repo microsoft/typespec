@@ -16,6 +16,7 @@ import java.util.Map;
  */
 @Metadata(properties = { MetadataProperties.FLUENT })
 public final class SpreadModelArrayRecord implements JsonSerializable<SpreadModelArrayRecord> {
+
     /*
      * The knownProp property.
      */
@@ -30,7 +31,7 @@ public final class SpreadModelArrayRecord implements JsonSerializable<SpreadMode
 
     /**
      * Creates an instance of SpreadModelArrayRecord class.
-     * 
+     *
      * @param knownProp the knownProp value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -40,7 +41,7 @@ public final class SpreadModelArrayRecord implements JsonSerializable<SpreadMode
 
     /**
      * Get the knownProp property: The knownProp property.
-     * 
+     *
      * @return the knownProp value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -50,7 +51,7 @@ public final class SpreadModelArrayRecord implements JsonSerializable<SpreadMode
 
     /**
      * Get the additionalProperties property: Additional properties.
-     * 
+     *
      * @return the additionalProperties value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -60,7 +61,7 @@ public final class SpreadModelArrayRecord implements JsonSerializable<SpreadMode
 
     /**
      * Set the additionalProperties property: Additional properties.
-     * 
+     *
      * @param additionalProperties the additionalProperties value to set.
      * @return the SpreadModelArrayRecord object itself.
      */
@@ -88,7 +89,7 @@ public final class SpreadModelArrayRecord implements JsonSerializable<SpreadMode
 
     /**
      * Reads an instance of SpreadModelArrayRecord from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of SpreadModelArrayRecord if the JsonReader was pointing to an instance of it, or null if it
      * was pointing to JSON null.
@@ -103,14 +104,12 @@ public final class SpreadModelArrayRecord implements JsonSerializable<SpreadMode
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("knownProp".equals(fieldName)) {
                     knownProp = reader.readArray(reader1 -> ModelForRecord.fromJson(reader1));
                 } else {
                     if (additionalProperties == null) {
                         additionalProperties = new LinkedHashMap<>();
                     }
-
                     List<ModelForRecord> additionalPropertiesArrayItem
                         = reader.readArray(reader1 -> ModelForRecord.fromJson(reader1));
                     additionalProperties.put(fieldName, additionalPropertiesArrayItem);
@@ -118,7 +117,6 @@ public final class SpreadModelArrayRecord implements JsonSerializable<SpreadMode
             }
             SpreadModelArrayRecord deserializedSpreadModelArrayRecord = new SpreadModelArrayRecord(knownProp);
             deserializedSpreadModelArrayRecord.additionalProperties = additionalProperties;
-
             return deserializedSpreadModelArrayRecord;
         });
     }

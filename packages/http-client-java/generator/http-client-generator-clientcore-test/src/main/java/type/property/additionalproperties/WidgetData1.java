@@ -15,6 +15,7 @@ import java.time.format.DateTimeFormatter;
  */
 @Metadata(properties = { MetadataProperties.FLUENT })
 public final class WidgetData1 implements JsonSerializable<WidgetData1> {
+
     /*
      * The kind property.
      */
@@ -35,7 +36,7 @@ public final class WidgetData1 implements JsonSerializable<WidgetData1> {
 
     /**
      * Creates an instance of WidgetData1 class.
-     * 
+     *
      * @param start the start value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -45,7 +46,7 @@ public final class WidgetData1 implements JsonSerializable<WidgetData1> {
 
     /**
      * Get the kind property: The kind property.
-     * 
+     *
      * @return the kind value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -55,7 +56,7 @@ public final class WidgetData1 implements JsonSerializable<WidgetData1> {
 
     /**
      * Get the start property: The start property.
-     * 
+     *
      * @return the start value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -65,7 +66,7 @@ public final class WidgetData1 implements JsonSerializable<WidgetData1> {
 
     /**
      * Get the end property: The end property.
-     * 
+     *
      * @return the end value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -75,7 +76,7 @@ public final class WidgetData1 implements JsonSerializable<WidgetData1> {
 
     /**
      * Set the end property: The end property.
-     * 
+     *
      * @param end the end value to set.
      * @return the WidgetData1 object itself.
      */
@@ -102,7 +103,7 @@ public final class WidgetData1 implements JsonSerializable<WidgetData1> {
 
     /**
      * Reads an instance of WidgetData1 from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of WidgetData1 if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.
@@ -117,7 +118,6 @@ public final class WidgetData1 implements JsonSerializable<WidgetData1> {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("start".equals(fieldName)) {
                     start = reader.getNullable(nonNullReader -> OffsetDateTime.parse(nonNullReader.getString()));
                 } else if ("end".equals(fieldName)) {
@@ -128,7 +128,6 @@ public final class WidgetData1 implements JsonSerializable<WidgetData1> {
             }
             WidgetData1 deserializedWidgetData1 = new WidgetData1(start);
             deserializedWidgetData1.end = end;
-
             return deserializedWidgetData1;
         });
     }

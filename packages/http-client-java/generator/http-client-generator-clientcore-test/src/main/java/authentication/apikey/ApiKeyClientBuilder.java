@@ -38,6 +38,7 @@ import java.util.Objects;
 public final class ApiKeyClientBuilder
     implements HttpTrait<ApiKeyClientBuilder>, ProxyTrait<ApiKeyClientBuilder>, ConfigurationTrait<ApiKeyClientBuilder>,
     KeyCredentialTrait<ApiKeyClientBuilder>, EndpointTrait<ApiKeyClientBuilder> {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -199,7 +200,7 @@ public final class ApiKeyClientBuilder
 
     /**
      * Builds an instance of ApiKeyClientImpl with the provided parameters.
-     * 
+     *
      * @return an instance of ApiKeyClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -247,7 +248,7 @@ public final class ApiKeyClientBuilder
 
     /**
      * Builds an instance of ApiKeyClient class.
-     * 
+     *
      * @return an instance of ApiKeyClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

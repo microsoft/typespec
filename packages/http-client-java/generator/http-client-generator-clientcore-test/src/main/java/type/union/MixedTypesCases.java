@@ -15,6 +15,7 @@ import java.util.List;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class MixedTypesCases implements JsonSerializable<MixedTypesCases> {
+
     /*
      * This should be receive/send the Cat variant
      */
@@ -47,7 +48,7 @@ public final class MixedTypesCases implements JsonSerializable<MixedTypesCases> 
 
     /**
      * Creates an instance of MixedTypesCases class.
-     * 
+     *
      * @param model the model value to set.
      * @param literal the literal value to set.
      * @param intProperty the intProperty value to set.
@@ -66,7 +67,7 @@ public final class MixedTypesCases implements JsonSerializable<MixedTypesCases> 
 
     /**
      * Get the model property: This should be receive/send the Cat variant.
-     * 
+     *
      * @return the model value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -76,7 +77,7 @@ public final class MixedTypesCases implements JsonSerializable<MixedTypesCases> 
 
     /**
      * Get the literal property: This should be receive/send the "a" variant.
-     * 
+     *
      * @return the literal value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -86,7 +87,7 @@ public final class MixedTypesCases implements JsonSerializable<MixedTypesCases> 
 
     /**
      * Get the intProperty property: This should be receive/send the int variant.
-     * 
+     *
      * @return the intProperty value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -96,7 +97,7 @@ public final class MixedTypesCases implements JsonSerializable<MixedTypesCases> 
 
     /**
      * Get the booleanProperty property: This should be receive/send the boolean variant.
-     * 
+     *
      * @return the booleanProperty value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -106,7 +107,7 @@ public final class MixedTypesCases implements JsonSerializable<MixedTypesCases> 
 
     /**
      * Get the array property: This should be receive/send 4 element with Cat, "a", int, and boolean.
-     * 
+     *
      * @return the array value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -136,7 +137,7 @@ public final class MixedTypesCases implements JsonSerializable<MixedTypesCases> 
 
     /**
      * Reads an instance of MixedTypesCases from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of MixedTypesCases if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.
@@ -154,7 +155,6 @@ public final class MixedTypesCases implements JsonSerializable<MixedTypesCases> 
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("model".equals(fieldName)) {
                     model = reader.getNullable(nonNullReader -> BinaryData.fromObject(nonNullReader.readUntyped()));
                 } else if ("literal".equals(fieldName)) {

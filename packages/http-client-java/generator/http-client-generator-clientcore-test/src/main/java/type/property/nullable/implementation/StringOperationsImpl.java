@@ -21,6 +21,7 @@ import type.property.nullable.StringProperty;
  * An instance of this class provides access to all the operations defined in StringOperations.
  */
 public final class StringOperationsImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -38,7 +39,7 @@ public final class StringOperationsImpl {
 
     /**
      * Initializes an instance of StringOperationsImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     StringOperationsImpl(NullableClientImpl client) {
@@ -53,6 +54,7 @@ public final class StringOperationsImpl {
      */
     @ServiceInterface(name = "NullableClientStringOperations", host = "{endpoint}")
     public interface StringOperationsService {
+
         static StringOperationsService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("type.property.nullable.implementation.StringOperationsServiceImpl");
@@ -62,7 +64,6 @@ public final class StringOperationsImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         @HttpRequestInformation(
@@ -102,7 +103,7 @@ public final class StringOperationsImpl {
 
     /**
      * Get models that will return all properties in the model.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -120,7 +121,7 @@ public final class StringOperationsImpl {
 
     /**
      * Get models that will return the default object.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -138,7 +139,7 @@ public final class StringOperationsImpl {
 
     /**
      * Put a body with all properties present.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -157,7 +158,7 @@ public final class StringOperationsImpl {
 
     /**
      * Put a body with default properties.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

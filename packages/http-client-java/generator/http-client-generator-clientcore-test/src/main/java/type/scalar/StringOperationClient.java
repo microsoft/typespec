@@ -16,6 +16,7 @@ import type.scalar.implementation.StringOperationsImpl;
  */
 @ServiceClient(builder = ScalarClientBuilder.class)
 public final class StringOperationClient {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final StringOperationsImpl serviceClient;
 
@@ -23,7 +24,7 @@ public final class StringOperationClient {
 
     /**
      * Initializes an instance of StringOperationClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,7 +36,7 @@ public final class StringOperationClient {
 
     /**
      * get string value.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -51,7 +52,7 @@ public final class StringOperationClient {
 
     /**
      * get string value.
-     * 
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return string value.
@@ -64,7 +65,7 @@ public final class StringOperationClient {
 
     /**
      * put string value.
-     * 
+     *
      * @param body _.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -81,7 +82,7 @@ public final class StringOperationClient {
 
     /**
      * put string value.
-     * 
+     *
      * @param body _.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

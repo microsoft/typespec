@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
  * An instance of this class provides access to all the operations defined in Headers.
  */
 public final class HeadersImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -39,7 +40,7 @@ public final class HeadersImpl {
 
     /**
      * Initializes an instance of HeadersImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     HeadersImpl(CollectionFormatClientImpl client) {
@@ -54,6 +55,7 @@ public final class HeadersImpl {
      */
     @ServiceInterface(name = "CollectionFormatClientHeaders", host = "{endpoint}")
     public interface HeadersService {
+
         static HeadersService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("parameters.collectionformat.implementation.HeadersServiceImpl");
@@ -62,7 +64,6 @@ public final class HeadersImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         @HttpRequestInformation(
@@ -76,7 +77,7 @@ public final class HeadersImpl {
 
     /**
      * The csv operation.
-     * 
+     *
      * @param colors Possible values for colors are [blue,red,green].
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

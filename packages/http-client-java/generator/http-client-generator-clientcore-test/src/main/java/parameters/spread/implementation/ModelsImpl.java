@@ -22,6 +22,7 @@ import parameters.spread.model.BodyParameter;
  * An instance of this class provides access to all the operations defined in Models.
  */
 public final class ModelsImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -39,7 +40,7 @@ public final class ModelsImpl {
 
     /**
      * Initializes an instance of ModelsImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     ModelsImpl(SpreadClientImpl client) {
@@ -54,6 +55,7 @@ public final class ModelsImpl {
      */
     @ServiceInterface(name = "SpreadClientModels", host = "{endpoint}")
     public interface ModelsService {
+
         static ModelsService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("parameters.spread.implementation.ModelsServiceImpl");
@@ -62,7 +64,6 @@ public final class ModelsImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         @HttpRequestInformation(
@@ -114,7 +115,7 @@ public final class ModelsImpl {
 
     /**
      * The spreadAsRequestBody operation.
-     * 
+     *
      * @param name The name parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -135,7 +136,7 @@ public final class ModelsImpl {
 
     /**
      * The spreadCompositeRequestOnlyWithBody operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -156,7 +157,7 @@ public final class ModelsImpl {
 
     /**
      * The spreadCompositeRequestWithoutBody operation.
-     * 
+     *
      * @param name The name parameter.
      * @param testHeader The testHeader parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -177,7 +178,7 @@ public final class ModelsImpl {
 
     /**
      * The spreadCompositeRequest operation.
-     * 
+     *
      * @param name The name parameter.
      * @param testHeader The testHeader parameter.
      * @param body The body parameter.
@@ -200,7 +201,7 @@ public final class ModelsImpl {
 
     /**
      * The spreadCompositeRequestMix operation.
-     * 
+     *
      * @param name The name parameter.
      * @param testHeader The testHeader parameter.
      * @param prop The prop parameter.

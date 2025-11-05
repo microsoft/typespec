@@ -19,6 +19,7 @@ import java.lang.reflect.InvocationTargetException;
  * An instance of this class provides access to all the operations defined in Parameters.
  */
 public final class ParametersImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -36,7 +37,7 @@ public final class ParametersImpl {
 
     /**
      * Initializes an instance of ParametersImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     ParametersImpl(SpecialWordsClientImpl client) {
@@ -51,6 +52,7 @@ public final class ParametersImpl {
      */
     @ServiceInterface(name = "SpecialWordsClientParameters", host = "{endpoint}")
     public interface ParametersService {
+
         static ParametersService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("specialwords.implementation.ParametersServiceImpl");
@@ -59,7 +61,6 @@ public final class ParametersImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         @HttpRequestInformation(
@@ -337,7 +338,7 @@ public final class ParametersImpl {
 
     /**
      * The withAnd operation.
-     * 
+     *
      * @param and The and parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -355,7 +356,7 @@ public final class ParametersImpl {
 
     /**
      * The withAs operation.
-     * 
+     *
      * @param as The as parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -373,7 +374,7 @@ public final class ParametersImpl {
 
     /**
      * The withAssert operation.
-     * 
+     *
      * @param assertParameter The assertParameter parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -391,7 +392,7 @@ public final class ParametersImpl {
 
     /**
      * The withAsync operation.
-     * 
+     *
      * @param async The async parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -409,7 +410,7 @@ public final class ParametersImpl {
 
     /**
      * The withAwait operation.
-     * 
+     *
      * @param await The await parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -427,7 +428,7 @@ public final class ParametersImpl {
 
     /**
      * The withBreak operation.
-     * 
+     *
      * @param breakParameter The breakParameter parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -445,7 +446,7 @@ public final class ParametersImpl {
 
     /**
      * The withClass operation.
-     * 
+     *
      * @param classParameter The classParameter parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -463,7 +464,7 @@ public final class ParametersImpl {
 
     /**
      * The withConstructor operation.
-     * 
+     *
      * @param constructor The constructor parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -481,7 +482,7 @@ public final class ParametersImpl {
 
     /**
      * The withContinue operation.
-     * 
+     *
      * @param continueParameter The continueParameter parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -499,7 +500,7 @@ public final class ParametersImpl {
 
     /**
      * The withDef operation.
-     * 
+     *
      * @param def The def parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -517,7 +518,7 @@ public final class ParametersImpl {
 
     /**
      * The withDel operation.
-     * 
+     *
      * @param del The del parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -535,7 +536,7 @@ public final class ParametersImpl {
 
     /**
      * The withElif operation.
-     * 
+     *
      * @param elif The elif parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -553,7 +554,7 @@ public final class ParametersImpl {
 
     /**
      * The withElse operation.
-     * 
+     *
      * @param elseParameter The elseParameter parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -571,7 +572,7 @@ public final class ParametersImpl {
 
     /**
      * The withExcept operation.
-     * 
+     *
      * @param except The except parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -589,7 +590,7 @@ public final class ParametersImpl {
 
     /**
      * The withExec operation.
-     * 
+     *
      * @param exec The exec parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -607,7 +608,7 @@ public final class ParametersImpl {
 
     /**
      * The withFinally operation.
-     * 
+     *
      * @param finallyParameter The finallyParameter parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -625,7 +626,7 @@ public final class ParametersImpl {
 
     /**
      * The withFor operation.
-     * 
+     *
      * @param forParameter The forParameter parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -643,7 +644,7 @@ public final class ParametersImpl {
 
     /**
      * The withFrom operation.
-     * 
+     *
      * @param from The from parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -661,7 +662,7 @@ public final class ParametersImpl {
 
     /**
      * The withGlobal operation.
-     * 
+     *
      * @param global The global parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -679,7 +680,7 @@ public final class ParametersImpl {
 
     /**
      * The withIf operation.
-     * 
+     *
      * @param ifParameter The ifParameter parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -697,7 +698,7 @@ public final class ParametersImpl {
 
     /**
      * The withImport operation.
-     * 
+     *
      * @param importParameter The importParameter parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -715,7 +716,7 @@ public final class ParametersImpl {
 
     /**
      * The withIn operation.
-     * 
+     *
      * @param in The in parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -733,7 +734,7 @@ public final class ParametersImpl {
 
     /**
      * The withIs operation.
-     * 
+     *
      * @param is The is parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -751,7 +752,7 @@ public final class ParametersImpl {
 
     /**
      * The withLambda operation.
-     * 
+     *
      * @param lambda The lambda parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -769,7 +770,7 @@ public final class ParametersImpl {
 
     /**
      * The withNot operation.
-     * 
+     *
      * @param not The not parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -787,7 +788,7 @@ public final class ParametersImpl {
 
     /**
      * The withOr operation.
-     * 
+     *
      * @param or The or parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -805,7 +806,7 @@ public final class ParametersImpl {
 
     /**
      * The withPass operation.
-     * 
+     *
      * @param pass The pass parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -823,7 +824,7 @@ public final class ParametersImpl {
 
     /**
      * The withRaise operation.
-     * 
+     *
      * @param raise The raise parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -841,7 +842,7 @@ public final class ParametersImpl {
 
     /**
      * The withReturn operation.
-     * 
+     *
      * @param returnParameter The returnParameter parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -859,7 +860,7 @@ public final class ParametersImpl {
 
     /**
      * The withTry operation.
-     * 
+     *
      * @param tryParameter The tryParameter parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -877,7 +878,7 @@ public final class ParametersImpl {
 
     /**
      * The withWhile operation.
-     * 
+     *
      * @param whileParameter The whileParameter parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -895,7 +896,7 @@ public final class ParametersImpl {
 
     /**
      * The withWith operation.
-     * 
+     *
      * @param with The with parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -913,7 +914,7 @@ public final class ParametersImpl {
 
     /**
      * The withYield operation.
-     * 
+     *
      * @param yield The yield parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -931,7 +932,7 @@ public final class ParametersImpl {
 
     /**
      * The withCancellationToken operation.
-     * 
+     *
      * @param cancellationToken The cancellationToken parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

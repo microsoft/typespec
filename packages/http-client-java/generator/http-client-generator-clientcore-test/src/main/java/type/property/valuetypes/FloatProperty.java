@@ -13,6 +13,7 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class FloatProperty implements JsonSerializable<FloatProperty> {
+
     /*
      * Property
      */
@@ -21,7 +22,7 @@ public final class FloatProperty implements JsonSerializable<FloatProperty> {
 
     /**
      * Creates an instance of FloatProperty class.
-     * 
+     *
      * @param property the property value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -31,7 +32,7 @@ public final class FloatProperty implements JsonSerializable<FloatProperty> {
 
     /**
      * Get the property property: Property.
-     * 
+     *
      * @return the property value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -52,7 +53,7 @@ public final class FloatProperty implements JsonSerializable<FloatProperty> {
 
     /**
      * Reads an instance of FloatProperty from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of FloatProperty if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.
@@ -66,7 +67,6 @@ public final class FloatProperty implements JsonSerializable<FloatProperty> {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("property".equals(fieldName)) {
                     property = reader.getDouble();
                 } else {

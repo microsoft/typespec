@@ -16,6 +16,7 @@ import versioning.added.implementation.InterfaceV2sImpl;
  */
 @ServiceClient(builder = AddedClientBuilder.class)
 public final class InterfaceV2Client {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final InterfaceV2sImpl serviceClient;
 
@@ -23,7 +24,7 @@ public final class InterfaceV2Client {
 
     /**
      * Initializes an instance of InterfaceV2Client class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,7 +36,7 @@ public final class InterfaceV2Client {
 
     /**
      * The v2InInterface operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -52,7 +53,7 @@ public final class InterfaceV2Client {
 
     /**
      * The v2InInterface operation.
-     * 
+     *
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

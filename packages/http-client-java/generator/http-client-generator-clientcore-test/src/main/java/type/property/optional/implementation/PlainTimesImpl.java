@@ -21,6 +21,7 @@ import type.property.optional.PlainTimeProperty;
  * An instance of this class provides access to all the operations defined in PlainTimes.
  */
 public final class PlainTimesImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -38,7 +39,7 @@ public final class PlainTimesImpl {
 
     /**
      * Initializes an instance of PlainTimesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     PlainTimesImpl(OptionalClientImpl client) {
@@ -53,6 +54,7 @@ public final class PlainTimesImpl {
      */
     @ServiceInterface(name = "OptionalClientPlainTimes", host = "{endpoint}")
     public interface PlainTimesService {
+
         static PlainTimesService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("type.property.optional.implementation.PlainTimesServiceImpl");
@@ -61,7 +63,6 @@ public final class PlainTimesImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         @HttpRequestInformation(
@@ -100,7 +101,7 @@ public final class PlainTimesImpl {
 
     /**
      * Get models that will return all properties in the model.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -118,7 +119,7 @@ public final class PlainTimesImpl {
 
     /**
      * Get models that will return the default object.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -136,7 +137,7 @@ public final class PlainTimesImpl {
 
     /**
      * Put a body with all properties present.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -155,7 +156,7 @@ public final class PlainTimesImpl {
 
     /**
      * Put a body with default properties.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

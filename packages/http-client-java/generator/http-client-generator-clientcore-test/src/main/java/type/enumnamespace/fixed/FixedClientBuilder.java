@@ -34,6 +34,7 @@ import type.enumnamespace.fixed.implementation.FixedClientImpl;
 @ServiceClientBuilder(serviceClients = { FixedClient.class })
 public final class FixedClientBuilder implements HttpTrait<FixedClientBuilder>, ProxyTrait<FixedClientBuilder>,
     ConfigurationTrait<FixedClientBuilder>, EndpointTrait<FixedClientBuilder> {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -180,7 +181,7 @@ public final class FixedClientBuilder implements HttpTrait<FixedClientBuilder>, 
 
     /**
      * Builds an instance of FixedClientImpl with the provided parameters.
-     * 
+     *
      * @return an instance of FixedClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -225,7 +226,7 @@ public final class FixedClientBuilder implements HttpTrait<FixedClientBuilder>, 
 
     /**
      * Builds an instance of FixedClient class.
-     * 
+     *
      * @return an instance of FixedClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

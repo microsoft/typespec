@@ -4,11 +4,11 @@ package type.property.valuetypes;
  * Enum that will be used as a property for model EnumProperty. Non-extensible.
  */
 public enum FixedInnerEnum {
+
     /**
      * First value.
      */
     VALUE_ONE("ValueOne"),
-
     /**
      * Second value.
      */
@@ -25,7 +25,7 @@ public enum FixedInnerEnum {
 
     /**
      * Parses a serialized value to a FixedInnerEnum instance.
-     * 
+     *
      * @param value the serialized value to parse.
      * @return the parsed FixedInnerEnum object, or null if unable to parse.
      */

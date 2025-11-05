@@ -21,6 +21,7 @@ import type.property.valuetypes.UnionFloatLiteralProperty;
  * An instance of this class provides access to all the operations defined in UnionFloatLiterals.
  */
 public final class UnionFloatLiteralsImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -38,7 +39,7 @@ public final class UnionFloatLiteralsImpl {
 
     /**
      * Initializes an instance of UnionFloatLiteralsImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     UnionFloatLiteralsImpl(ValueTypesClientImpl client) {
@@ -53,6 +54,7 @@ public final class UnionFloatLiteralsImpl {
      */
     @ServiceInterface(name = "ValueTypesClientUnionFloatLiterals", host = "{endpoint}")
     public interface UnionFloatLiteralsService {
+
         static UnionFloatLiteralsService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("type.property.valuetypes.implementation.UnionFloatLiteralsServiceImpl");
@@ -62,7 +64,6 @@ public final class UnionFloatLiteralsImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         @HttpRequestInformation(
@@ -84,7 +85,7 @@ public final class UnionFloatLiteralsImpl {
 
     /**
      * Get call.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -102,7 +103,7 @@ public final class UnionFloatLiteralsImpl {
 
     /**
      * Put operation.
-     * 
+     *
      * @param body body.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

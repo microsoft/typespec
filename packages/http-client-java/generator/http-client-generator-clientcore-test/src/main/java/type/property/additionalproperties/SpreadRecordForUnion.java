@@ -16,6 +16,7 @@ import java.util.Map;
  */
 @Metadata(properties = { MetadataProperties.FLUENT })
 public final class SpreadRecordForUnion implements JsonSerializable<SpreadRecordForUnion> {
+
     /*
      * The name property
      */
@@ -30,7 +31,7 @@ public final class SpreadRecordForUnion implements JsonSerializable<SpreadRecord
 
     /**
      * Creates an instance of SpreadRecordForUnion class.
-     * 
+     *
      * @param flag the flag value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -40,7 +41,7 @@ public final class SpreadRecordForUnion implements JsonSerializable<SpreadRecord
 
     /**
      * Get the flag property: The name property.
-     * 
+     *
      * @return the flag value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -50,7 +51,7 @@ public final class SpreadRecordForUnion implements JsonSerializable<SpreadRecord
 
     /**
      * Get the additionalProperties property: The model spread Record&lt;string | float32&gt;.
-     * 
+     *
      * @return the additionalProperties value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -60,7 +61,7 @@ public final class SpreadRecordForUnion implements JsonSerializable<SpreadRecord
 
     /**
      * Set the additionalProperties property: The model spread Record&lt;string | float32&gt;.
-     * 
+     *
      * @param additionalProperties the additionalProperties value to set.
      * @return the SpreadRecordForUnion object itself.
      */
@@ -93,7 +94,7 @@ public final class SpreadRecordForUnion implements JsonSerializable<SpreadRecord
 
     /**
      * Reads an instance of SpreadRecordForUnion from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of SpreadRecordForUnion if the JsonReader was pointing to an instance of it, or null if it
      * was pointing to JSON null.
@@ -108,21 +109,18 @@ public final class SpreadRecordForUnion implements JsonSerializable<SpreadRecord
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("flag".equals(fieldName)) {
                     flag = reader.getBoolean();
                 } else {
                     if (additionalProperties == null) {
                         additionalProperties = new LinkedHashMap<>();
                     }
-
                     additionalProperties.put(fieldName,
                         reader.getNullable(nonNullReader -> BinaryData.fromObject(nonNullReader.readUntyped())));
                 }
             }
             SpreadRecordForUnion deserializedSpreadRecordForUnion = new SpreadRecordForUnion(flag);
             deserializedSpreadRecordForUnion.additionalProperties = additionalProperties;
-
             return deserializedSpreadRecordForUnion;
         });
     }

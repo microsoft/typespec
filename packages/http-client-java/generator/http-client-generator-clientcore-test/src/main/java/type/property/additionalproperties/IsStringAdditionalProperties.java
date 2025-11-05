@@ -15,6 +15,7 @@ import java.util.Map;
  */
 @Metadata(properties = { MetadataProperties.FLUENT })
 public final class IsStringAdditionalProperties implements JsonSerializable<IsStringAdditionalProperties> {
+
     /*
      * The name property
      */
@@ -29,7 +30,7 @@ public final class IsStringAdditionalProperties implements JsonSerializable<IsSt
 
     /**
      * Creates an instance of IsStringAdditionalProperties class.
-     * 
+     *
      * @param name the name value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -39,7 +40,7 @@ public final class IsStringAdditionalProperties implements JsonSerializable<IsSt
 
     /**
      * Get the name property: The name property.
-     * 
+     *
      * @return the name value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -49,7 +50,7 @@ public final class IsStringAdditionalProperties implements JsonSerializable<IsSt
 
     /**
      * Get the additionalProperties property: The model is from Record&lt;string&gt; type.
-     * 
+     *
      * @return the additionalProperties value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -59,7 +60,7 @@ public final class IsStringAdditionalProperties implements JsonSerializable<IsSt
 
     /**
      * Set the additionalProperties property: The model is from Record&lt;string&gt; type.
-     * 
+     *
      * @param additionalProperties the additionalProperties value to set.
      * @return the IsStringAdditionalProperties object itself.
      */
@@ -87,7 +88,7 @@ public final class IsStringAdditionalProperties implements JsonSerializable<IsSt
 
     /**
      * Reads an instance of IsStringAdditionalProperties from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of IsStringAdditionalProperties if the JsonReader was pointing to an instance of it, or null
      * if it was pointing to JSON null.
@@ -102,21 +103,18 @@ public final class IsStringAdditionalProperties implements JsonSerializable<IsSt
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("name".equals(fieldName)) {
                     name = reader.getString();
                 } else {
                     if (additionalProperties == null) {
                         additionalProperties = new LinkedHashMap<>();
                     }
-
                     additionalProperties.put(fieldName, reader.getString());
                 }
             }
             IsStringAdditionalProperties deserializedIsStringAdditionalProperties
                 = new IsStringAdditionalProperties(name);
             deserializedIsStringAdditionalProperties.additionalProperties = additionalProperties;
-
             return deserializedIsStringAdditionalProperties;
         });
     }

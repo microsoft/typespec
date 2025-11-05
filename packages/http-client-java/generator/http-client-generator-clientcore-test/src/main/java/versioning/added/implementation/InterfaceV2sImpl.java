@@ -22,6 +22,7 @@ import versioning.added.ModelV2;
  * An instance of this class provides access to all the operations defined in InterfaceV2s.
  */
 public final class InterfaceV2sImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -39,7 +40,7 @@ public final class InterfaceV2sImpl {
 
     /**
      * Initializes an instance of InterfaceV2sImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     InterfaceV2sImpl(AddedClientImpl client) {
@@ -50,7 +51,7 @@ public final class InterfaceV2sImpl {
 
     /**
      * Gets Service version.
-     * 
+     *
      * @return the serviceVersion value.
      */
     public AddedServiceVersion getServiceVersion() {
@@ -63,6 +64,7 @@ public final class InterfaceV2sImpl {
      */
     @ServiceInterface(name = "AddedClientInterfaceV2s", host = "{endpoint}/versioning/added/api-version:{version}")
     public interface InterfaceV2sService {
+
         static InterfaceV2sService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("versioning.added.implementation.InterfaceV2sServiceImpl");
@@ -72,7 +74,6 @@ public final class InterfaceV2sImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         @HttpRequestInformation(method = HttpMethod.POST, path = "/interface-v2/v2", expectedStatusCodes = { 200 })
@@ -84,7 +85,7 @@ public final class InterfaceV2sImpl {
 
     /**
      * The v2InInterface operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

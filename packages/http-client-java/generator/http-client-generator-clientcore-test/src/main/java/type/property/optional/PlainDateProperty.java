@@ -15,6 +15,7 @@ import java.util.Objects;
  */
 @Metadata(properties = { MetadataProperties.FLUENT })
 public final class PlainDateProperty implements JsonSerializable<PlainDateProperty> {
+
     /*
      * Property
      */
@@ -30,7 +31,7 @@ public final class PlainDateProperty implements JsonSerializable<PlainDateProper
 
     /**
      * Get the property property: Property.
-     * 
+     *
      * @return the property value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -40,7 +41,7 @@ public final class PlainDateProperty implements JsonSerializable<PlainDateProper
 
     /**
      * Set the property property: Property.
-     * 
+     *
      * @param property the property value to set.
      * @return the PlainDateProperty object itself.
      */
@@ -63,7 +64,7 @@ public final class PlainDateProperty implements JsonSerializable<PlainDateProper
 
     /**
      * Reads an instance of PlainDateProperty from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of PlainDateProperty if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.
@@ -76,7 +77,6 @@ public final class PlainDateProperty implements JsonSerializable<PlainDateProper
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("property".equals(fieldName)) {
                     deserializedPlainDateProperty.property
                         = reader.getNullable(nonNullReader -> LocalDate.parse(nonNullReader.getString()));
@@ -84,7 +84,6 @@ public final class PlainDateProperty implements JsonSerializable<PlainDateProper
                     reader.skipChildren();
                 }
             }
-
             return deserializedPlainDateProperty;
         });
     }

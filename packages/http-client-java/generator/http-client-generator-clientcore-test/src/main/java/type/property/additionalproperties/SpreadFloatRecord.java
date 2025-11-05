@@ -15,6 +15,7 @@ import java.util.Map;
  */
 @Metadata(properties = { MetadataProperties.FLUENT })
 public final class SpreadFloatRecord implements JsonSerializable<SpreadFloatRecord> {
+
     /*
      * The id property
      */
@@ -29,7 +30,7 @@ public final class SpreadFloatRecord implements JsonSerializable<SpreadFloatReco
 
     /**
      * Creates an instance of SpreadFloatRecord class.
-     * 
+     *
      * @param id the id value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -39,7 +40,7 @@ public final class SpreadFloatRecord implements JsonSerializable<SpreadFloatReco
 
     /**
      * Get the id property: The id property.
-     * 
+     *
      * @return the id value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -49,7 +50,7 @@ public final class SpreadFloatRecord implements JsonSerializable<SpreadFloatReco
 
     /**
      * Get the additionalProperties property: The model spread Record&lt;float32&gt; with the same known property type.
-     * 
+     *
      * @return the additionalProperties value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -59,7 +60,7 @@ public final class SpreadFloatRecord implements JsonSerializable<SpreadFloatReco
 
     /**
      * Set the additionalProperties property: The model spread Record&lt;float32&gt; with the same known property type.
-     * 
+     *
      * @param additionalProperties the additionalProperties value to set.
      * @return the SpreadFloatRecord object itself.
      */
@@ -87,7 +88,7 @@ public final class SpreadFloatRecord implements JsonSerializable<SpreadFloatReco
 
     /**
      * Reads an instance of SpreadFloatRecord from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of SpreadFloatRecord if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.
@@ -102,20 +103,17 @@ public final class SpreadFloatRecord implements JsonSerializable<SpreadFloatReco
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("id".equals(fieldName)) {
                     id = reader.getDouble();
                 } else {
                     if (additionalProperties == null) {
                         additionalProperties = new LinkedHashMap<>();
                     }
-
                     additionalProperties.put(fieldName, reader.getDouble());
                 }
             }
             SpreadFloatRecord deserializedSpreadFloatRecord = new SpreadFloatRecord(id);
             deserializedSpreadFloatRecord.additionalProperties = additionalProperties;
-
             return deserializedSpreadFloatRecord;
         });
     }

@@ -4,6 +4,7 @@ package versioning.renamedfrom;
  * Defines values for NewEnum.
  */
 public enum NewEnum {
+
     /**
      * Enum value newEnumMember.
      */
@@ -20,7 +21,7 @@ public enum NewEnum {
 
     /**
      * Parses a serialized value to a NewEnum instance.
-     * 
+     *
      * @param value the serialized value to parse.
      * @return the parsed NewEnum object, or null if unable to parse.
      */

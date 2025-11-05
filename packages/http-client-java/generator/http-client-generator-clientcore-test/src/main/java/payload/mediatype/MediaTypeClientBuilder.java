@@ -35,6 +35,7 @@ import payload.mediatype.implementation.MediaTypeClientImpl;
 public final class MediaTypeClientBuilder
     implements HttpTrait<MediaTypeClientBuilder>, ProxyTrait<MediaTypeClientBuilder>,
     ConfigurationTrait<MediaTypeClientBuilder>, EndpointTrait<MediaTypeClientBuilder> {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -180,7 +181,7 @@ public final class MediaTypeClientBuilder
 
     /**
      * Builds an instance of MediaTypeClientImpl with the provided parameters.
-     * 
+     *
      * @return an instance of MediaTypeClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -225,7 +226,7 @@ public final class MediaTypeClientBuilder
 
     /**
      * Builds an instance of MediaTypeClient class.
-     * 
+     *
      * @return an instance of MediaTypeClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

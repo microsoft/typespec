@@ -16,6 +16,7 @@ import javax.xml.stream.XMLStreamException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class ModelWithDictionary implements XmlSerializable<ModelWithDictionary> {
+
     /*
      * The metadata property.
      */
@@ -24,7 +25,7 @@ public final class ModelWithDictionary implements XmlSerializable<ModelWithDicti
 
     /**
      * Creates an instance of ModelWithDictionary class.
-     * 
+     *
      * @param metadata the metadata value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -34,7 +35,7 @@ public final class ModelWithDictionary implements XmlSerializable<ModelWithDicti
 
     /**
      * Get the metadata property: The metadata property.
-     * 
+     *
      * @return the metadata value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -66,7 +67,7 @@ public final class ModelWithDictionary implements XmlSerializable<ModelWithDicti
 
     /**
      * Reads an instance of ModelWithDictionary from the XmlReader.
-     * 
+     *
      * @param xmlReader The XmlReader being read.
      * @return An instance of ModelWithDictionary if the XmlReader was pointing to an instance of it, or null if it was
      * pointing to XML null.
@@ -80,7 +81,7 @@ public final class ModelWithDictionary implements XmlSerializable<ModelWithDicti
 
     /**
      * Reads an instance of ModelWithDictionary from the XmlReader.
-     * 
+     *
      * @param xmlReader The XmlReader being read.
      * @param rootElementName Optional root element name to override the default defined by the model. Used to support
      * cases where the model can deserialize from different root element names.
@@ -97,7 +98,6 @@ public final class ModelWithDictionary implements XmlSerializable<ModelWithDicti
             Map<String, String> metadata = null;
             while (reader.nextElement() != XmlToken.END_ELEMENT) {
                 QName elementName = reader.getElementName();
-
                 if ("metadata".equals(elementName.getLocalPart())) {
                     while (reader.nextElement() != XmlToken.END_ELEMENT) {
                         if (metadata == null) {

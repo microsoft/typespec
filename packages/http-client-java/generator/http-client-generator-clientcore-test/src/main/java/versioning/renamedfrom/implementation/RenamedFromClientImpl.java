@@ -23,6 +23,7 @@ import versioning.renamedfrom.RenamedFromServiceVersion;
  * Initializes a new instance of the RenamedFromClient type.
  */
 public final class RenamedFromClientImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -35,7 +36,7 @@ public final class RenamedFromClientImpl {
 
     /**
      * Gets Need to be set as 'http://localhost:3000' in client.
-     * 
+     *
      * @return the endpoint value.
      */
     public String getEndpoint() {
@@ -49,7 +50,7 @@ public final class RenamedFromClientImpl {
 
     /**
      * Gets Service version.
-     * 
+     *
      * @return the serviceVersion value.
      */
     public RenamedFromServiceVersion getServiceVersion() {
@@ -63,7 +64,7 @@ public final class RenamedFromClientImpl {
 
     /**
      * Gets The HTTP pipeline to send requests through.
-     * 
+     *
      * @return the httpPipeline value.
      */
     public HttpPipeline getHttpPipeline() {
@@ -77,7 +78,7 @@ public final class RenamedFromClientImpl {
 
     /**
      * Gets The instance of instrumentation to report telemetry.
-     * 
+     *
      * @return the instrumentation value.
      */
     public Instrumentation getInstrumentation() {
@@ -91,7 +92,7 @@ public final class RenamedFromClientImpl {
 
     /**
      * Gets the NewInterfacesImpl object to access its operations.
-     * 
+     *
      * @return the NewInterfacesImpl object.
      */
     public NewInterfacesImpl getNewInterfaces() {
@@ -100,7 +101,7 @@ public final class RenamedFromClientImpl {
 
     /**
      * Initializes an instance of RenamedFromClient client.
-     * 
+     *
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
@@ -122,6 +123,7 @@ public final class RenamedFromClientImpl {
      */
     @ServiceInterface(name = "RenamedFromClient", host = "{endpoint}/versioning/renamed-from/api-version:{version}")
     public interface RenamedFromClientService {
+
         static RenamedFromClientService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("versioning.renamedfrom.implementation.RenamedFromClientServiceImpl");
@@ -131,7 +133,6 @@ public final class RenamedFromClientImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         @HttpRequestInformation(method = HttpMethod.POST, path = "/test", expectedStatusCodes = { 200 })
@@ -144,7 +145,7 @@ public final class RenamedFromClientImpl {
 
     /**
      * The newOp operation.
-     * 
+     *
      * @param newQuery The newQuery parameter.
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.

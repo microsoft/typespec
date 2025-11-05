@@ -17,6 +17,7 @@ import parameters.collectionformat.implementation.QueriesImpl;
  */
 @ServiceClient(builder = CollectionFormatClientBuilder.class)
 public final class QueryClient {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final QueriesImpl serviceClient;
 
@@ -24,7 +25,7 @@ public final class QueryClient {
 
     /**
      * Initializes an instance of QueryClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -36,7 +37,7 @@ public final class QueryClient {
 
     /**
      * The multi operation.
-     * 
+     *
      * @param colors Possible values for colors are [blue,red,green].
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -53,7 +54,7 @@ public final class QueryClient {
 
     /**
      * The multi operation.
-     * 
+     *
      * @param colors Possible values for colors are [blue,red,green].
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -67,7 +68,7 @@ public final class QueryClient {
 
     /**
      * The ssv operation.
-     * 
+     *
      * @param colors Possible values for colors are [blue,red,green].
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -84,7 +85,7 @@ public final class QueryClient {
 
     /**
      * The ssv operation.
-     * 
+     *
      * @param colors Possible values for colors are [blue,red,green].
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -98,7 +99,7 @@ public final class QueryClient {
 
     /**
      * The pipes operation.
-     * 
+     *
      * @param colors Possible values for colors are [blue,red,green].
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -115,7 +116,7 @@ public final class QueryClient {
 
     /**
      * The pipes operation.
-     * 
+     *
      * @param colors Possible values for colors are [blue,red,green].
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -129,7 +130,7 @@ public final class QueryClient {
 
     /**
      * The csv operation.
-     * 
+     *
      * @param colors Possible values for colors are [blue,red,green].
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -146,7 +147,7 @@ public final class QueryClient {
 
     /**
      * The csv operation.
-     * 
+     *
      * @param colors Possible values for colors are [blue,red,green].
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

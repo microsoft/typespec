@@ -20,6 +20,7 @@ import java.lang.reflect.InvocationTargetException;
  * An instance of this class provides access to all the operations defined in SameBodies.
  */
 public final class SameBodiesImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -37,7 +38,7 @@ public final class SameBodiesImpl {
 
     /**
      * Initializes an instance of SameBodiesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     SameBodiesImpl(ContentNegotiationClientImpl client) {
@@ -52,6 +53,7 @@ public final class SameBodiesImpl {
      */
     @ServiceInterface(name = "ContentNegotiationClientSameBodies", host = "{endpoint}")
     public interface SameBodiesService {
+
         static SameBodiesService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("payload.contentnegotiation.implementation.SameBodiesServiceImpl");
@@ -60,7 +62,6 @@ public final class SameBodiesImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         @HttpRequestInformation(
@@ -82,7 +83,7 @@ public final class SameBodiesImpl {
 
     /**
      * The getAvatarAsPng operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -100,7 +101,7 @@ public final class SameBodiesImpl {
 
     /**
      * The getAvatarAsJpeg operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

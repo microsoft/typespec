@@ -22,6 +22,7 @@ import java.lang.reflect.InvocationTargetException;
  * An instance of this class provides access to all the operations defined in EnvelopeObjectDefaults.
  */
 public final class EnvelopeObjectDefaultsImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -39,7 +40,7 @@ public final class EnvelopeObjectDefaultsImpl {
 
     /**
      * Initializes an instance of EnvelopeObjectDefaultsImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     EnvelopeObjectDefaultsImpl(DiscriminatedClientImpl client) {
@@ -54,6 +55,7 @@ public final class EnvelopeObjectDefaultsImpl {
      */
     @ServiceInterface(name = "DiscriminatedClientEnvelopeObjectDefaults", host = "{endpoint}")
     public interface EnvelopeObjectDefaultsService {
+
         static EnvelopeObjectDefaultsService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz
@@ -64,7 +66,6 @@ public final class EnvelopeObjectDefaultsImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         @HttpRequestInformation(
@@ -87,7 +88,7 @@ public final class EnvelopeObjectDefaultsImpl {
 
     /**
      * The get operation.
-     * 
+     *
      * @param kind The kind parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -108,7 +109,7 @@ public final class EnvelopeObjectDefaultsImpl {
 
     /**
      * The put operation.
-     * 
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

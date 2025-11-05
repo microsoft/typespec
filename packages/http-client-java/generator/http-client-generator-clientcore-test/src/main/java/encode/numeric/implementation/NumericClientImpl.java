@@ -7,6 +7,7 @@ import io.clientcore.core.instrumentation.Instrumentation;
  * Initializes a new instance of the NumericClient type.
  */
 public final class NumericClientImpl {
+
     /**
      * Service host.
      */
@@ -14,7 +15,7 @@ public final class NumericClientImpl {
 
     /**
      * Gets Service host.
-     * 
+     *
      * @return the endpoint value.
      */
     public String getEndpoint() {
@@ -28,7 +29,7 @@ public final class NumericClientImpl {
 
     /**
      * Gets The HTTP pipeline to send requests through.
-     * 
+     *
      * @return the httpPipeline value.
      */
     public HttpPipeline getHttpPipeline() {
@@ -42,7 +43,7 @@ public final class NumericClientImpl {
 
     /**
      * Gets The instance of instrumentation to report telemetry.
-     * 
+     *
      * @return the instrumentation value.
      */
     public Instrumentation getInstrumentation() {
@@ -56,7 +57,7 @@ public final class NumericClientImpl {
 
     /**
      * Gets the PropertiesImpl object to access its operations.
-     * 
+     *
      * @return the PropertiesImpl object.
      */
     public PropertiesImpl getProperties() {
@@ -65,7 +66,7 @@ public final class NumericClientImpl {
 
     /**
      * Initializes an instance of NumericClient client.
-     * 
+     *
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.

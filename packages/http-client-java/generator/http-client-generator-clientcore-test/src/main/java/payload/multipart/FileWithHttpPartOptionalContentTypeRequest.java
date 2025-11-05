@@ -8,6 +8,7 @@ import io.clientcore.core.annotations.MetadataProperties;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class FileWithHttpPartOptionalContentTypeRequest {
+
     /*
      * The profileImage property.
      */
@@ -16,7 +17,7 @@ public final class FileWithHttpPartOptionalContentTypeRequest {
 
     /**
      * Creates an instance of FileWithHttpPartOptionalContentTypeRequest class.
-     * 
+     *
      * @param profileImage the profileImage value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -26,7 +27,7 @@ public final class FileWithHttpPartOptionalContentTypeRequest {
 
     /**
      * Get the profileImage property: The profileImage property.
-     * 
+     *
      * @return the profileImage value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

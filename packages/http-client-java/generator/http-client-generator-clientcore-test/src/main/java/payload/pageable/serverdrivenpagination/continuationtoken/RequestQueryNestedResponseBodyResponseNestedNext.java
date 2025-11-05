@@ -14,6 +14,7 @@ import java.io.IOException;
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class RequestQueryNestedResponseBodyResponseNestedNext
     implements JsonSerializable<RequestQueryNestedResponseBodyResponseNestedNext> {
+
     /*
      * The nextToken property.
      */
@@ -29,7 +30,7 @@ public final class RequestQueryNestedResponseBodyResponseNestedNext
 
     /**
      * Get the nextToken property: The nextToken property.
-     * 
+     *
      * @return the nextToken value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -50,7 +51,7 @@ public final class RequestQueryNestedResponseBodyResponseNestedNext
 
     /**
      * Reads an instance of RequestQueryNestedResponseBodyResponseNestedNext from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of RequestQueryNestedResponseBodyResponseNestedNext if the JsonReader was pointing to an
      * instance of it, or null if it was pointing to JSON null.
@@ -64,14 +65,12 @@ public final class RequestQueryNestedResponseBodyResponseNestedNext
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("nextToken".equals(fieldName)) {
                     deserializedRequestQueryNestedResponseBodyResponseNestedNext.nextToken = reader.getString();
                 } else {
                     reader.skipChildren();
                 }
             }
-
             return deserializedRequestQueryNestedResponseBodyResponseNestedNext;
         });
     }

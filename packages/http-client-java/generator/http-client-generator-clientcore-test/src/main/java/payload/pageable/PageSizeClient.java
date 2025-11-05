@@ -16,6 +16,7 @@ import payload.pageable.implementation.PageSizesImpl;
  */
 @ServiceClient(builder = PageableClientBuilder.class)
 public final class PageSizeClient {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final PageSizesImpl serviceClient;
 
@@ -23,7 +24,7 @@ public final class PageSizeClient {
 
     /**
      * Initializes an instance of PageSizeClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,7 +36,7 @@ public final class PageSizeClient {
 
     /**
      * The listWithoutContinuation operation.
-     * 
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
@@ -48,7 +49,7 @@ public final class PageSizeClient {
 
     /**
      * The listWithoutContinuation operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -63,7 +64,7 @@ public final class PageSizeClient {
 
     /**
      * The listWithPageSize operation.
-     * 
+     *
      * @param pageSize The pageSize parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -78,7 +79,7 @@ public final class PageSizeClient {
 
     /**
      * The listWithPageSize operation.
-     * 
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
@@ -92,7 +93,7 @@ public final class PageSizeClient {
 
     /**
      * The listWithPageSize operation.
-     * 
+     *
      * @param pageSize The pageSize parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

@@ -40,6 +40,7 @@ import type.union.discriminated.implementation.DiscriminatedClientImpl;
 public final class DiscriminatedClientBuilder
     implements HttpTrait<DiscriminatedClientBuilder>, ProxyTrait<DiscriminatedClientBuilder>,
     ConfigurationTrait<DiscriminatedClientBuilder>, EndpointTrait<DiscriminatedClientBuilder> {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -187,7 +188,7 @@ public final class DiscriminatedClientBuilder
 
     /**
      * Builds an instance of DiscriminatedClientImpl with the provided parameters.
-     * 
+     *
      * @return an instance of DiscriminatedClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -233,7 +234,7 @@ public final class DiscriminatedClientBuilder
 
     /**
      * Builds an instance of EnvelopeObjectDefaultClient class.
-     * 
+     *
      * @return an instance of EnvelopeObjectDefaultClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -245,7 +246,7 @@ public final class DiscriminatedClientBuilder
 
     /**
      * Builds an instance of EnvelopeObjectCustomPropertiesClient class.
-     * 
+     *
      * @return an instance of EnvelopeObjectCustomPropertiesClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -257,7 +258,7 @@ public final class DiscriminatedClientBuilder
 
     /**
      * Builds an instance of NoEnvelopeDefaultClient class.
-     * 
+     *
      * @return an instance of NoEnvelopeDefaultClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -268,7 +269,7 @@ public final class DiscriminatedClientBuilder
 
     /**
      * Builds an instance of NoEnvelopeCustomDiscriminatorClient class.
-     * 
+     *
      * @return an instance of NoEnvelopeCustomDiscriminatorClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

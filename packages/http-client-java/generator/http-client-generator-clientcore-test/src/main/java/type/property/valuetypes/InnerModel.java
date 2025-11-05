@@ -13,6 +13,7 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class InnerModel implements JsonSerializable<InnerModel> {
+
     /*
      * Required string property
      */
@@ -21,7 +22,7 @@ public final class InnerModel implements JsonSerializable<InnerModel> {
 
     /**
      * Creates an instance of InnerModel class.
-     * 
+     *
      * @param property the property value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -31,7 +32,7 @@ public final class InnerModel implements JsonSerializable<InnerModel> {
 
     /**
      * Get the property property: Required string property.
-     * 
+     *
      * @return the property value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -52,7 +53,7 @@ public final class InnerModel implements JsonSerializable<InnerModel> {
 
     /**
      * Reads an instance of InnerModel from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of InnerModel if the JsonReader was pointing to an instance of it, or null if it was pointing
      * to JSON null.
@@ -66,7 +67,6 @@ public final class InnerModel implements JsonSerializable<InnerModel> {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("property".equals(fieldName)) {
                     property = reader.getString();
                 } else {

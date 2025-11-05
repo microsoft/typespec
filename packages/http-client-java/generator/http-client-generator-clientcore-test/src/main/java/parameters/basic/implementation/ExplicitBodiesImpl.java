@@ -21,6 +21,7 @@ import parameters.basic.explicitbody.User;
  * An instance of this class provides access to all the operations defined in ExplicitBodies.
  */
 public final class ExplicitBodiesImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -38,7 +39,7 @@ public final class ExplicitBodiesImpl {
 
     /**
      * Initializes an instance of ExplicitBodiesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     ExplicitBodiesImpl(BasicClientImpl client) {
@@ -53,6 +54,7 @@ public final class ExplicitBodiesImpl {
      */
     @ServiceInterface(name = "BasicClientExplicitBodies", host = "{endpoint}")
     public interface ExplicitBodiesService {
+
         static ExplicitBodiesService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("parameters.basic.implementation.ExplicitBodiesServiceImpl");
@@ -62,7 +64,6 @@ public final class ExplicitBodiesImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         @HttpRequestInformation(
@@ -76,7 +77,7 @@ public final class ExplicitBodiesImpl {
 
     /**
      * The simple operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

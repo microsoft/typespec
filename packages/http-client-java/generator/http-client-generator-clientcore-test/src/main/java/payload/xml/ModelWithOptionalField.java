@@ -14,6 +14,7 @@ import javax.xml.stream.XMLStreamException;
  */
 @Metadata(properties = { MetadataProperties.FLUENT })
 public final class ModelWithOptionalField implements XmlSerializable<ModelWithOptionalField> {
+
     /*
      * The item property.
      */
@@ -28,7 +29,7 @@ public final class ModelWithOptionalField implements XmlSerializable<ModelWithOp
 
     /**
      * Creates an instance of ModelWithOptionalField class.
-     * 
+     *
      * @param item the item value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -38,7 +39,7 @@ public final class ModelWithOptionalField implements XmlSerializable<ModelWithOp
 
     /**
      * Get the item property: The item property.
-     * 
+     *
      * @return the item value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -48,7 +49,7 @@ public final class ModelWithOptionalField implements XmlSerializable<ModelWithOp
 
     /**
      * Get the value property: The value property.
-     * 
+     *
      * @return the value value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -58,7 +59,7 @@ public final class ModelWithOptionalField implements XmlSerializable<ModelWithOp
 
     /**
      * Set the value property: The value property.
-     * 
+     *
      * @param value the value value to set.
      * @return the ModelWithOptionalField object itself.
      */
@@ -87,7 +88,7 @@ public final class ModelWithOptionalField implements XmlSerializable<ModelWithOp
 
     /**
      * Reads an instance of ModelWithOptionalField from the XmlReader.
-     * 
+     *
      * @param xmlReader The XmlReader being read.
      * @return An instance of ModelWithOptionalField if the XmlReader was pointing to an instance of it, or null if it
      * was pointing to XML null.
@@ -101,7 +102,7 @@ public final class ModelWithOptionalField implements XmlSerializable<ModelWithOp
 
     /**
      * Reads an instance of ModelWithOptionalField from the XmlReader.
-     * 
+     *
      * @param xmlReader The XmlReader being read.
      * @param rootElementName Optional root element name to override the default defined by the model. Used to support
      * cases where the model can deserialize from different root element names.
@@ -120,7 +121,6 @@ public final class ModelWithOptionalField implements XmlSerializable<ModelWithOp
             Integer value = null;
             while (reader.nextElement() != XmlToken.END_ELEMENT) {
                 QName elementName = reader.getElementName();
-
                 if ("item".equals(elementName.getLocalPart())) {
                     item = reader.getStringElement();
                 } else if ("value".equals(elementName.getLocalPart())) {
@@ -131,7 +131,6 @@ public final class ModelWithOptionalField implements XmlSerializable<ModelWithOp
             }
             ModelWithOptionalField deserializedModelWithOptionalField = new ModelWithOptionalField(item);
             deserializedModelWithOptionalField.value = value;
-
             return deserializedModelWithOptionalField;
         });
     }

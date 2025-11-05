@@ -67,6 +67,7 @@ import type.property.additionalproperties.implementation.AdditionalPropertiesCli
 public final class AdditionalPropertiesClientBuilder
     implements HttpTrait<AdditionalPropertiesClientBuilder>, ProxyTrait<AdditionalPropertiesClientBuilder>,
     ConfigurationTrait<AdditionalPropertiesClientBuilder>, EndpointTrait<AdditionalPropertiesClientBuilder> {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -214,7 +215,7 @@ public final class AdditionalPropertiesClientBuilder
 
     /**
      * Builds an instance of AdditionalPropertiesClientImpl with the provided parameters.
-     * 
+     *
      * @return an instance of AdditionalPropertiesClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -260,7 +261,7 @@ public final class AdditionalPropertiesClientBuilder
 
     /**
      * Builds an instance of ExtendsUnknownClient class.
-     * 
+     *
      * @return an instance of ExtendsUnknownClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -271,7 +272,7 @@ public final class AdditionalPropertiesClientBuilder
 
     /**
      * Builds an instance of ExtendsUnknownDerivedClient class.
-     * 
+     *
      * @return an instance of ExtendsUnknownDerivedClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -283,7 +284,7 @@ public final class AdditionalPropertiesClientBuilder
 
     /**
      * Builds an instance of ExtendsUnknownDiscriminatedClient class.
-     * 
+     *
      * @return an instance of ExtendsUnknownDiscriminatedClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -295,7 +296,7 @@ public final class AdditionalPropertiesClientBuilder
 
     /**
      * Builds an instance of IsUnknownClient class.
-     * 
+     *
      * @return an instance of IsUnknownClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -306,7 +307,7 @@ public final class AdditionalPropertiesClientBuilder
 
     /**
      * Builds an instance of IsUnknownDerivedClient class.
-     * 
+     *
      * @return an instance of IsUnknownDerivedClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -317,7 +318,7 @@ public final class AdditionalPropertiesClientBuilder
 
     /**
      * Builds an instance of IsUnknownDiscriminatedClient class.
-     * 
+     *
      * @return an instance of IsUnknownDiscriminatedClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -329,7 +330,7 @@ public final class AdditionalPropertiesClientBuilder
 
     /**
      * Builds an instance of ExtendsStringClient class.
-     * 
+     *
      * @return an instance of ExtendsStringClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -340,7 +341,7 @@ public final class AdditionalPropertiesClientBuilder
 
     /**
      * Builds an instance of IsStringClient class.
-     * 
+     *
      * @return an instance of IsStringClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -351,7 +352,7 @@ public final class AdditionalPropertiesClientBuilder
 
     /**
      * Builds an instance of SpreadStringClient class.
-     * 
+     *
      * @return an instance of SpreadStringClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -362,7 +363,7 @@ public final class AdditionalPropertiesClientBuilder
 
     /**
      * Builds an instance of ExtendsFloatClient class.
-     * 
+     *
      * @return an instance of ExtendsFloatClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -373,7 +374,7 @@ public final class AdditionalPropertiesClientBuilder
 
     /**
      * Builds an instance of IsFloatClient class.
-     * 
+     *
      * @return an instance of IsFloatClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -384,7 +385,7 @@ public final class AdditionalPropertiesClientBuilder
 
     /**
      * Builds an instance of SpreadFloatClient class.
-     * 
+     *
      * @return an instance of SpreadFloatClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -395,7 +396,7 @@ public final class AdditionalPropertiesClientBuilder
 
     /**
      * Builds an instance of ExtendsModelClient class.
-     * 
+     *
      * @return an instance of ExtendsModelClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -406,7 +407,7 @@ public final class AdditionalPropertiesClientBuilder
 
     /**
      * Builds an instance of IsModelClient class.
-     * 
+     *
      * @return an instance of IsModelClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -417,7 +418,7 @@ public final class AdditionalPropertiesClientBuilder
 
     /**
      * Builds an instance of SpreadModelClient class.
-     * 
+     *
      * @return an instance of SpreadModelClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -428,7 +429,7 @@ public final class AdditionalPropertiesClientBuilder
 
     /**
      * Builds an instance of ExtendsModelArrayClient class.
-     * 
+     *
      * @return an instance of ExtendsModelArrayClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -439,7 +440,7 @@ public final class AdditionalPropertiesClientBuilder
 
     /**
      * Builds an instance of IsModelArrayClient class.
-     * 
+     *
      * @return an instance of IsModelArrayClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -450,7 +451,7 @@ public final class AdditionalPropertiesClientBuilder
 
     /**
      * Builds an instance of SpreadModelArrayClient class.
-     * 
+     *
      * @return an instance of SpreadModelArrayClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -461,7 +462,7 @@ public final class AdditionalPropertiesClientBuilder
 
     /**
      * Builds an instance of SpreadDifferentStringClient class.
-     * 
+     *
      * @return an instance of SpreadDifferentStringClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -473,7 +474,7 @@ public final class AdditionalPropertiesClientBuilder
 
     /**
      * Builds an instance of SpreadDifferentFloatClient class.
-     * 
+     *
      * @return an instance of SpreadDifferentFloatClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -484,7 +485,7 @@ public final class AdditionalPropertiesClientBuilder
 
     /**
      * Builds an instance of SpreadDifferentModelClient class.
-     * 
+     *
      * @return an instance of SpreadDifferentModelClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -495,7 +496,7 @@ public final class AdditionalPropertiesClientBuilder
 
     /**
      * Builds an instance of SpreadDifferentModelArrayClient class.
-     * 
+     *
      * @return an instance of SpreadDifferentModelArrayClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -507,7 +508,7 @@ public final class AdditionalPropertiesClientBuilder
 
     /**
      * Builds an instance of ExtendsDifferentSpreadStringClient class.
-     * 
+     *
      * @return an instance of ExtendsDifferentSpreadStringClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -519,7 +520,7 @@ public final class AdditionalPropertiesClientBuilder
 
     /**
      * Builds an instance of ExtendsDifferentSpreadFloatClient class.
-     * 
+     *
      * @return an instance of ExtendsDifferentSpreadFloatClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -531,7 +532,7 @@ public final class AdditionalPropertiesClientBuilder
 
     /**
      * Builds an instance of ExtendsDifferentSpreadModelClient class.
-     * 
+     *
      * @return an instance of ExtendsDifferentSpreadModelClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -543,7 +544,7 @@ public final class AdditionalPropertiesClientBuilder
 
     /**
      * Builds an instance of ExtendsDifferentSpreadModelArrayClient class.
-     * 
+     *
      * @return an instance of ExtendsDifferentSpreadModelArrayClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -555,7 +556,7 @@ public final class AdditionalPropertiesClientBuilder
 
     /**
      * Builds an instance of MultipleSpreadClient class.
-     * 
+     *
      * @return an instance of MultipleSpreadClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -566,7 +567,7 @@ public final class AdditionalPropertiesClientBuilder
 
     /**
      * Builds an instance of SpreadRecordUnionClient class.
-     * 
+     *
      * @return an instance of SpreadRecordUnionClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -577,7 +578,7 @@ public final class AdditionalPropertiesClientBuilder
 
     /**
      * Builds an instance of SpreadRecordNonDiscriminatedUnionClient class.
-     * 
+     *
      * @return an instance of SpreadRecordNonDiscriminatedUnionClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -589,7 +590,7 @@ public final class AdditionalPropertiesClientBuilder
 
     /**
      * Builds an instance of SpreadRecordNonDiscriminatedUnion2Client class.
-     * 
+     *
      * @return an instance of SpreadRecordNonDiscriminatedUnion2Client.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -601,7 +602,7 @@ public final class AdditionalPropertiesClientBuilder
 
     /**
      * Builds an instance of SpreadRecordNonDiscriminatedUnion3Client class.
-     * 
+     *
      * @return an instance of SpreadRecordNonDiscriminatedUnion3Client.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

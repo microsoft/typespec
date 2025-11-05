@@ -35,6 +35,7 @@ import type.model.inheritance.notdiscriminated.implementation.NotDiscriminatedCl
 public final class NotDiscriminatedClientBuilder
     implements HttpTrait<NotDiscriminatedClientBuilder>, ProxyTrait<NotDiscriminatedClientBuilder>,
     ConfigurationTrait<NotDiscriminatedClientBuilder>, EndpointTrait<NotDiscriminatedClientBuilder> {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -182,7 +183,7 @@ public final class NotDiscriminatedClientBuilder
 
     /**
      * Builds an instance of NotDiscriminatedClientImpl with the provided parameters.
-     * 
+     *
      * @return an instance of NotDiscriminatedClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -228,7 +229,7 @@ public final class NotDiscriminatedClientBuilder
 
     /**
      * Builds an instance of NotDiscriminatedClient class.
-     * 
+     *
      * @return an instance of NotDiscriminatedClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

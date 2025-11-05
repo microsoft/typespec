@@ -13,6 +13,7 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.FLUENT })
 public final class BooleanLiteralProperty implements JsonSerializable<BooleanLiteralProperty> {
+
     /*
      * Property
      */
@@ -28,7 +29,7 @@ public final class BooleanLiteralProperty implements JsonSerializable<BooleanLit
 
     /**
      * Get the property property: Property.
-     * 
+     *
      * @return the property value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -38,7 +39,7 @@ public final class BooleanLiteralProperty implements JsonSerializable<BooleanLit
 
     /**
      * Set the property property: Property.
-     * 
+     *
      * @param property the property value to set.
      * @return the BooleanLiteralProperty object itself.
      */
@@ -61,7 +62,7 @@ public final class BooleanLiteralProperty implements JsonSerializable<BooleanLit
 
     /**
      * Reads an instance of BooleanLiteralProperty from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of BooleanLiteralProperty if the JsonReader was pointing to an instance of it, or null if it
      * was pointing to JSON null.
@@ -74,7 +75,6 @@ public final class BooleanLiteralProperty implements JsonSerializable<BooleanLit
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("property".equals(fieldName)) {
                     deserializedBooleanLiteralProperty.property
                         = BooleanLiteralPropertyProperty.fromBoolean(reader.getBoolean());
@@ -82,7 +82,6 @@ public final class BooleanLiteralProperty implements JsonSerializable<BooleanLit
                     reader.skipChildren();
                 }
             }
-
             return deserializedBooleanLiteralProperty;
         });
     }

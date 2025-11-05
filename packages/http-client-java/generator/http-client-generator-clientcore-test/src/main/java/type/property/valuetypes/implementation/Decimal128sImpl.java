@@ -21,6 +21,7 @@ import type.property.valuetypes.Decimal128Property;
  * An instance of this class provides access to all the operations defined in Decimal128s.
  */
 public final class Decimal128sImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -38,7 +39,7 @@ public final class Decimal128sImpl {
 
     /**
      * Initializes an instance of Decimal128sImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     Decimal128sImpl(ValueTypesClientImpl client) {
@@ -53,6 +54,7 @@ public final class Decimal128sImpl {
      */
     @ServiceInterface(name = "ValueTypesClientDecimal128s", host = "{endpoint}")
     public interface Decimal128sService {
+
         static Decimal128sService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("type.property.valuetypes.implementation.Decimal128sServiceImpl");
@@ -62,7 +64,6 @@ public final class Decimal128sImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         @HttpRequestInformation(
@@ -84,7 +85,7 @@ public final class Decimal128sImpl {
 
     /**
      * Get call.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -102,7 +103,7 @@ public final class Decimal128sImpl {
 
     /**
      * Put operation.
-     * 
+     *
      * @param body body.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

@@ -16,6 +16,7 @@ import server.path.multiple.implementation.MultipleClientImpl;
  */
 @ServiceClient(builder = MultipleClientBuilder.class)
 public final class MultipleClient {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final MultipleClientImpl serviceClient;
 
@@ -23,7 +24,7 @@ public final class MultipleClient {
 
     /**
      * Initializes an instance of MultipleClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,7 +36,7 @@ public final class MultipleClient {
 
     /**
      * The noOperationParams operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -51,7 +52,7 @@ public final class MultipleClient {
 
     /**
      * The noOperationParams operation.
-     * 
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
@@ -63,7 +64,7 @@ public final class MultipleClient {
 
     /**
      * The withOperationPathParam operation.
-     * 
+     *
      * @param keyword The keyword parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -81,7 +82,7 @@ public final class MultipleClient {
 
     /**
      * The withOperationPathParam operation.
-     * 
+     *
      * @param keyword The keyword parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

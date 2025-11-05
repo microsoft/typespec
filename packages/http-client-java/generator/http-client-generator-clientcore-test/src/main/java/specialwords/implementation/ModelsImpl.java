@@ -53,6 +53,7 @@ import specialwords.models.Yield;
  * An instance of this class provides access to all the operations defined in Models.
  */
 public final class ModelsImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -70,7 +71,7 @@ public final class ModelsImpl {
 
     /**
      * Initializes an instance of ModelsImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     ModelsImpl(SpecialWordsClientImpl client) {
@@ -85,6 +86,7 @@ public final class ModelsImpl {
      */
     @ServiceInterface(name = "SpecialWordsClientModels", host = "{endpoint}")
     public interface ModelsService {
+
         static ModelsService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("specialwords.implementation.ModelsServiceImpl");
@@ -93,7 +95,6 @@ public final class ModelsImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         @HttpRequestInformation(
@@ -379,7 +380,7 @@ public final class ModelsImpl {
 
     /**
      * The withAnd operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -398,7 +399,7 @@ public final class ModelsImpl {
 
     /**
      * The withAs operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -417,7 +418,7 @@ public final class ModelsImpl {
 
     /**
      * The withAssert operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -436,7 +437,7 @@ public final class ModelsImpl {
 
     /**
      * The withAsync operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -455,7 +456,7 @@ public final class ModelsImpl {
 
     /**
      * The withAwait operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -474,7 +475,7 @@ public final class ModelsImpl {
 
     /**
      * The withBreak operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -493,7 +494,7 @@ public final class ModelsImpl {
 
     /**
      * The withClass operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -512,7 +513,7 @@ public final class ModelsImpl {
 
     /**
      * The withConstructor operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -531,7 +532,7 @@ public final class ModelsImpl {
 
     /**
      * The withContinue operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -550,7 +551,7 @@ public final class ModelsImpl {
 
     /**
      * The withDef operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -569,7 +570,7 @@ public final class ModelsImpl {
 
     /**
      * The withDel operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -588,7 +589,7 @@ public final class ModelsImpl {
 
     /**
      * The withElif operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -607,7 +608,7 @@ public final class ModelsImpl {
 
     /**
      * The withElse operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -626,7 +627,7 @@ public final class ModelsImpl {
 
     /**
      * The withExcept operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -645,7 +646,7 @@ public final class ModelsImpl {
 
     /**
      * The withExec operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -664,7 +665,7 @@ public final class ModelsImpl {
 
     /**
      * The withFinally operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -683,7 +684,7 @@ public final class ModelsImpl {
 
     /**
      * The withFor operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -702,7 +703,7 @@ public final class ModelsImpl {
 
     /**
      * The withFrom operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -721,7 +722,7 @@ public final class ModelsImpl {
 
     /**
      * The withGlobal operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -740,7 +741,7 @@ public final class ModelsImpl {
 
     /**
      * The withIf operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -759,7 +760,7 @@ public final class ModelsImpl {
 
     /**
      * The withImport operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -778,7 +779,7 @@ public final class ModelsImpl {
 
     /**
      * The withIn operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -797,7 +798,7 @@ public final class ModelsImpl {
 
     /**
      * The withIs operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -816,7 +817,7 @@ public final class ModelsImpl {
 
     /**
      * The withLambda operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -835,7 +836,7 @@ public final class ModelsImpl {
 
     /**
      * The withNot operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -854,7 +855,7 @@ public final class ModelsImpl {
 
     /**
      * The withOr operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -873,7 +874,7 @@ public final class ModelsImpl {
 
     /**
      * The withPass operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -892,7 +893,7 @@ public final class ModelsImpl {
 
     /**
      * The withRaise operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -911,7 +912,7 @@ public final class ModelsImpl {
 
     /**
      * The withReturn operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -930,7 +931,7 @@ public final class ModelsImpl {
 
     /**
      * The withTry operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -949,7 +950,7 @@ public final class ModelsImpl {
 
     /**
      * The withWhile operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -968,7 +969,7 @@ public final class ModelsImpl {
 
     /**
      * The withWith operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -987,7 +988,7 @@ public final class ModelsImpl {
 
     /**
      * The withYield operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

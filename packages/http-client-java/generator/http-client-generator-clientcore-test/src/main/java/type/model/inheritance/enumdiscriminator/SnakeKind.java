@@ -4,6 +4,7 @@ package type.model.inheritance.enumdiscriminator;
  * fixed enum type for discriminator.
  */
 public enum SnakeKind {
+
     /**
      * Species cobra.
      */
@@ -20,7 +21,7 @@ public enum SnakeKind {
 
     /**
      * Parses a serialized value to a SnakeKind instance.
-     * 
+     *
      * @param value the serialized value to parse.
      * @return the parsed SnakeKind object, or null if unable to parse.
      */

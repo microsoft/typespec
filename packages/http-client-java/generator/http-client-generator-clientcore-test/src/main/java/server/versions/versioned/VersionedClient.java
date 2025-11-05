@@ -16,6 +16,7 @@ import server.versions.versioned.implementation.VersionedClientImpl;
  */
 @ServiceClient(builder = VersionedClientBuilder.class)
 public final class VersionedClient {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final VersionedClientImpl serviceClient;
 
@@ -23,7 +24,7 @@ public final class VersionedClient {
 
     /**
      * Initializes an instance of VersionedClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -35,7 +36,7 @@ public final class VersionedClient {
 
     /**
      * The withoutApiVersion operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -51,7 +52,7 @@ public final class VersionedClient {
 
     /**
      * The withoutApiVersion operation.
-     * 
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
@@ -63,7 +64,7 @@ public final class VersionedClient {
 
     /**
      * The withQueryApiVersion operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -79,7 +80,7 @@ public final class VersionedClient {
 
     /**
      * The withQueryApiVersion operation.
-     * 
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
@@ -91,7 +92,7 @@ public final class VersionedClient {
 
     /**
      * The withPathApiVersion operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -107,7 +108,7 @@ public final class VersionedClient {
 
     /**
      * The withPathApiVersion operation.
-     * 
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
@@ -119,7 +120,7 @@ public final class VersionedClient {
 
     /**
      * The withQueryOldApiVersion operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -135,7 +136,7 @@ public final class VersionedClient {
 
     /**
      * The withQueryOldApiVersion operation.
-     * 
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */

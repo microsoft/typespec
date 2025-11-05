@@ -21,6 +21,7 @@ import type.property.additionalproperties.IsModelAdditionalProperties;
  * An instance of this class provides access to all the operations defined in IsModels.
  */
 public final class IsModelsImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -38,7 +39,7 @@ public final class IsModelsImpl {
 
     /**
      * Initializes an instance of IsModelsImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     IsModelsImpl(AdditionalPropertiesClientImpl client) {
@@ -53,6 +54,7 @@ public final class IsModelsImpl {
      */
     @ServiceInterface(name = "AdditionalPropertiesClientIsModels", host = "{endpoint}")
     public interface IsModelsService {
+
         static IsModelsService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("type.property.additionalproperties.implementation.IsModelsServiceImpl");
@@ -61,7 +63,6 @@ public final class IsModelsImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         @HttpRequestInformation(
@@ -83,7 +84,7 @@ public final class IsModelsImpl {
 
     /**
      * Get call.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -101,7 +102,7 @@ public final class IsModelsImpl {
 
     /**
      * Put operation.
-     * 
+     *
      * @param body body.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

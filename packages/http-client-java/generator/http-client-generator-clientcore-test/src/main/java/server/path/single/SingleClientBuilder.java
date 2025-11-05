@@ -34,6 +34,7 @@ import server.path.single.implementation.SingleClientImpl;
 @ServiceClientBuilder(serviceClients = { SingleClient.class })
 public final class SingleClientBuilder implements HttpTrait<SingleClientBuilder>, ProxyTrait<SingleClientBuilder>,
     ConfigurationTrait<SingleClientBuilder>, EndpointTrait<SingleClientBuilder> {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -179,7 +180,7 @@ public final class SingleClientBuilder implements HttpTrait<SingleClientBuilder>
 
     /**
      * Builds an instance of SingleClientImpl with the provided parameters.
-     * 
+     *
      * @return an instance of SingleClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -224,7 +225,7 @@ public final class SingleClientBuilder implements HttpTrait<SingleClientBuilder>
 
     /**
      * Builds an instance of SingleClient class.
-     * 
+     *
      * @return an instance of SingleClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

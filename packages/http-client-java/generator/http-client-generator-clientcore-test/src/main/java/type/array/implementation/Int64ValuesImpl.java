@@ -21,6 +21,7 @@ import java.util.List;
  * An instance of this class provides access to all the operations defined in Int64Values.
  */
 public final class Int64ValuesImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -38,7 +39,7 @@ public final class Int64ValuesImpl {
 
     /**
      * Initializes an instance of Int64ValuesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     Int64ValuesImpl(ArrayClientImpl client) {
@@ -53,6 +54,7 @@ public final class Int64ValuesImpl {
      */
     @ServiceInterface(name = "ArrayClientInt64Values", host = "{endpoint}")
     public interface Int64ValuesService {
+
         static Int64ValuesService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("type.array.implementation.Int64ValuesServiceImpl");
@@ -62,7 +64,6 @@ public final class Int64ValuesImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         @HttpRequestInformation(method = HttpMethod.GET, path = "/type/array/int64", expectedStatusCodes = { 200 })
@@ -78,7 +79,7 @@ public final class Int64ValuesImpl {
 
     /**
      * The get operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -96,7 +97,7 @@ public final class Int64ValuesImpl {
 
     /**
      * The put operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

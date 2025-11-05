@@ -40,6 +40,7 @@ import payload.multipart.implementation.MultiPartClientImpl;
 public final class MultiPartClientBuilder
     implements HttpTrait<MultiPartClientBuilder>, ProxyTrait<MultiPartClientBuilder>,
     ConfigurationTrait<MultiPartClientBuilder>, EndpointTrait<MultiPartClientBuilder> {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -185,7 +186,7 @@ public final class MultiPartClientBuilder
 
     /**
      * Builds an instance of MultiPartClientImpl with the provided parameters.
-     * 
+     *
      * @return an instance of MultiPartClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -230,7 +231,7 @@ public final class MultiPartClientBuilder
 
     /**
      * Builds an instance of FormDataClient class.
-     * 
+     *
      * @return an instance of FormDataClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -241,7 +242,7 @@ public final class MultiPartClientBuilder
 
     /**
      * Builds an instance of FormDataHttpPartsClient class.
-     * 
+     *
      * @return an instance of FormDataHttpPartsClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -252,7 +253,7 @@ public final class MultiPartClientBuilder
 
     /**
      * Builds an instance of FormDataHttpPartsContentTypeClient class.
-     * 
+     *
      * @return an instance of FormDataHttpPartsContentTypeClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -264,7 +265,7 @@ public final class MultiPartClientBuilder
 
     /**
      * Builds an instance of FormDataHttpPartsNonStringClient class.
-     * 
+     *
      * @return an instance of FormDataHttpPartsNonStringClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

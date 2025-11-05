@@ -21,6 +21,7 @@ import java.util.List;
  * An instance of this class provides access to all the operations defined in NullableInt32Values.
  */
 public final class NullableInt32ValuesImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -38,7 +39,7 @@ public final class NullableInt32ValuesImpl {
 
     /**
      * Initializes an instance of NullableInt32ValuesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     NullableInt32ValuesImpl(ArrayClientImpl client) {
@@ -53,6 +54,7 @@ public final class NullableInt32ValuesImpl {
      */
     @ServiceInterface(name = "ArrayClientNullableInt32Values", host = "{endpoint}")
     public interface NullableInt32ValuesService {
+
         static NullableInt32ValuesService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("type.array.implementation.NullableInt32ValuesServiceImpl");
@@ -62,7 +64,6 @@ public final class NullableInt32ValuesImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         @HttpRequestInformation(
@@ -84,7 +85,7 @@ public final class NullableInt32ValuesImpl {
 
     /**
      * The get operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -102,7 +103,7 @@ public final class NullableInt32ValuesImpl {
 
     /**
      * The put operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

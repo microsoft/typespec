@@ -13,6 +13,7 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class StringLiteralProperty implements JsonSerializable<StringLiteralProperty> {
+
     /*
      * Property
      */
@@ -28,7 +29,7 @@ public final class StringLiteralProperty implements JsonSerializable<StringLiter
 
     /**
      * Get the property property: Property.
-     * 
+     *
      * @return the property value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -49,7 +50,7 @@ public final class StringLiteralProperty implements JsonSerializable<StringLiter
 
     /**
      * Reads an instance of StringLiteralProperty from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of StringLiteralProperty if the JsonReader was pointing to an instance of it, or null if it
      * was pointing to JSON null.
@@ -63,10 +64,8 @@ public final class StringLiteralProperty implements JsonSerializable<StringLiter
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 reader.skipChildren();
             }
-
             return deserializedStringLiteralProperty;
         });
     }

@@ -13,6 +13,7 @@ import java.util.List;
  */
 @Metadata(properties = { MetadataProperties.FLUENT })
 public final class Extension extends Element {
+
     /*
      * The level property.
      */
@@ -21,7 +22,7 @@ public final class Extension extends Element {
 
     /**
      * Creates an instance of Extension class.
-     * 
+     *
      * @param level the level value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -31,7 +32,7 @@ public final class Extension extends Element {
 
     /**
      * Get the level property: The level property.
-     * 
+     *
      * @return the level value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -63,7 +64,7 @@ public final class Extension extends Element {
 
     /**
      * Reads an instance of Extension from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of Extension if the JsonReader was pointing to an instance of it, or null if it was pointing
      * to JSON null.
@@ -78,7 +79,6 @@ public final class Extension extends Element {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("extension".equals(fieldName)) {
                     extension = reader.readArray(reader1 -> Extension.fromJson(reader1));
                 } else if ("level".equals(fieldName)) {
@@ -89,7 +89,6 @@ public final class Extension extends Element {
             }
             Extension deserializedExtension = new Extension(level);
             deserializedExtension.setExtension(extension);
-
             return deserializedExtension;
         });
     }

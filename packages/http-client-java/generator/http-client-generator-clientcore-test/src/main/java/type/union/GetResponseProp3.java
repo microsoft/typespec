@@ -4,16 +4,15 @@ package type.union;
  * Defines values for GetResponseProp3.
  */
 public enum GetResponseProp3 {
+
     /**
      * Enum value 1.1.
      */
     ONE_ONE(1.1),
-
     /**
      * Enum value 2.2.
      */
     TWO_TWO(2.2),
-
     /**
      * Enum value 3.3.
      */
@@ -30,7 +29,7 @@ public enum GetResponseProp3 {
 
     /**
      * Parses a serialized value to a GetResponseProp3 instance.
-     * 
+     *
      * @param value the serialized value to parse.
      * @return the parsed GetResponseProp3 object, or null if unable to parse.
      */
@@ -46,7 +45,7 @@ public enum GetResponseProp3 {
 
     /**
      * De-serializes the instance to double value.
-     * 
+     *
      * @return the double value.
      */
     public double toDouble() {

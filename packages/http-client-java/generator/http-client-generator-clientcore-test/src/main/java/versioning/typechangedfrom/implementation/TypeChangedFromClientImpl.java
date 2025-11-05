@@ -23,6 +23,7 @@ import versioning.typechangedfrom.TypeChangedFromServiceVersion;
  * Initializes a new instance of the TypeChangedFromClient type.
  */
 public final class TypeChangedFromClientImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -35,7 +36,7 @@ public final class TypeChangedFromClientImpl {
 
     /**
      * Gets Need to be set as 'http://localhost:3000' in client.
-     * 
+     *
      * @return the endpoint value.
      */
     public String getEndpoint() {
@@ -49,7 +50,7 @@ public final class TypeChangedFromClientImpl {
 
     /**
      * Gets Service version.
-     * 
+     *
      * @return the serviceVersion value.
      */
     public TypeChangedFromServiceVersion getServiceVersion() {
@@ -63,7 +64,7 @@ public final class TypeChangedFromClientImpl {
 
     /**
      * Gets The HTTP pipeline to send requests through.
-     * 
+     *
      * @return the httpPipeline value.
      */
     public HttpPipeline getHttpPipeline() {
@@ -77,7 +78,7 @@ public final class TypeChangedFromClientImpl {
 
     /**
      * Gets The instance of instrumentation to report telemetry.
-     * 
+     *
      * @return the instrumentation value.
      */
     public Instrumentation getInstrumentation() {
@@ -86,7 +87,7 @@ public final class TypeChangedFromClientImpl {
 
     /**
      * Initializes an instance of TypeChangedFromClient client.
-     * 
+     *
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
@@ -109,6 +110,7 @@ public final class TypeChangedFromClientImpl {
         name = "TypeChangedFromClient",
         host = "{endpoint}/versioning/type-changed-from/api-version:{version}")
     public interface TypeChangedFromClientService {
+
         static TypeChangedFromClientService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz
@@ -119,7 +121,6 @@ public final class TypeChangedFromClientImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         @HttpRequestInformation(method = HttpMethod.POST, path = "/test", expectedStatusCodes = { 200 })
@@ -132,7 +133,7 @@ public final class TypeChangedFromClientImpl {
 
     /**
      * The test operation.
-     * 
+     *
      * @param param The param parameter.
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.

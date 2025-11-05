@@ -14,6 +14,7 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class MixedLiteralsCases implements JsonSerializable<MixedLiteralsCases> {
+
     /*
      * This should be receive/send the "a" variant
      */
@@ -40,7 +41,7 @@ public final class MixedLiteralsCases implements JsonSerializable<MixedLiteralsC
 
     /**
      * Creates an instance of MixedLiteralsCases class.
-     * 
+     *
      * @param stringLiteral the stringLiteral value to set.
      * @param intLiteral the intLiteral value to set.
      * @param floatLiteral the floatLiteral value to set.
@@ -57,7 +58,7 @@ public final class MixedLiteralsCases implements JsonSerializable<MixedLiteralsC
 
     /**
      * Get the stringLiteral property: This should be receive/send the "a" variant.
-     * 
+     *
      * @return the stringLiteral value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -67,7 +68,7 @@ public final class MixedLiteralsCases implements JsonSerializable<MixedLiteralsC
 
     /**
      * Get the intLiteral property: This should be receive/send the 2 variant.
-     * 
+     *
      * @return the intLiteral value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -77,7 +78,7 @@ public final class MixedLiteralsCases implements JsonSerializable<MixedLiteralsC
 
     /**
      * Get the floatLiteral property: This should be receive/send the 3.3 variant.
-     * 
+     *
      * @return the floatLiteral value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -87,7 +88,7 @@ public final class MixedLiteralsCases implements JsonSerializable<MixedLiteralsC
 
     /**
      * Get the booleanLiteral property: This should be receive/send the true variant.
-     * 
+     *
      * @return the booleanLiteral value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -115,7 +116,7 @@ public final class MixedLiteralsCases implements JsonSerializable<MixedLiteralsC
 
     /**
      * Reads an instance of MixedLiteralsCases from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of MixedLiteralsCases if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.
@@ -132,7 +133,6 @@ public final class MixedLiteralsCases implements JsonSerializable<MixedLiteralsC
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("stringLiteral".equals(fieldName)) {
                     stringLiteral
                         = reader.getNullable(nonNullReader -> BinaryData.fromObject(nonNullReader.readUntyped()));

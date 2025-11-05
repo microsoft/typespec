@@ -20,6 +20,7 @@ import java.util.function.Function;
  */
 public final class StringExtensibleNamedUnion
     implements ExpandableEnum<String>, JsonSerializable<StringExtensibleNamedUnion> {
+
     private static final Map<String, StringExtensibleNamedUnion> VALUES = new ConcurrentHashMap<>();
 
     private static final Function<String, StringExtensibleNamedUnion> NEW_INSTANCE = StringExtensibleNamedUnion::new;
@@ -44,7 +45,7 @@ public final class StringExtensibleNamedUnion
 
     /**
      * Creates or finds a StringExtensibleNamedUnion.
-     * 
+     *
      * @param value a value to look for.
      * @return the corresponding StringExtensibleNamedUnion.
      * @throws IllegalArgumentException if value is null.
@@ -59,7 +60,7 @@ public final class StringExtensibleNamedUnion
 
     /**
      * Gets known StringExtensibleNamedUnion values.
-     * 
+     *
      * @return Known StringExtensibleNamedUnion values.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -69,7 +70,7 @@ public final class StringExtensibleNamedUnion
 
     /**
      * Gets the value of the StringExtensibleNamedUnion instance.
-     * 
+     *
      * @return the value of the StringExtensibleNamedUnion instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -89,7 +90,7 @@ public final class StringExtensibleNamedUnion
 
     /**
      * Reads an instance of StringExtensibleNamedUnion from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of StringExtensibleNamedUnion if the JsonReader was pointing to an instance of it, or null if
      * the JsonReader was pointing to JSON null.

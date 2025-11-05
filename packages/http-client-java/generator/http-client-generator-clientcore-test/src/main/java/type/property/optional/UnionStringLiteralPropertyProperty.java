@@ -4,11 +4,11 @@ package type.property.optional;
  * Defines values for UnionStringLiteralPropertyProperty.
  */
 public enum UnionStringLiteralPropertyProperty {
+
     /**
      * Enum value hello.
      */
     HELLO("hello"),
-
     /**
      * Enum value world.
      */
@@ -25,7 +25,7 @@ public enum UnionStringLiteralPropertyProperty {
 
     /**
      * Parses a serialized value to a UnionStringLiteralPropertyProperty instance.
-     * 
+     *
      * @param value the serialized value to parse.
      * @return the parsed UnionStringLiteralPropertyProperty object, or null if unable to parse.
      */

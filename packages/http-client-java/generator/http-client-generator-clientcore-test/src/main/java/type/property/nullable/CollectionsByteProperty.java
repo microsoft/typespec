@@ -17,6 +17,7 @@ import type.property.nullable.implementation.JsonMergePatchHelper;
  */
 @Metadata(properties = { MetadataProperties.FLUENT })
 public final class CollectionsByteProperty implements JsonSerializable<CollectionsByteProperty> {
+
     /*
      * Required property
      */
@@ -46,6 +47,7 @@ public final class CollectionsByteProperty implements JsonSerializable<Collectio
     static {
         JsonMergePatchHelper
             .setCollectionsBytePropertyAccessor(new JsonMergePatchHelper.CollectionsBytePropertyAccessor() {
+
                 @Override
                 public CollectionsByteProperty prepareModelForJsonMergePatch(CollectionsByteProperty model,
                     boolean jsonMergePatchEnabled) {
@@ -69,7 +71,7 @@ public final class CollectionsByteProperty implements JsonSerializable<Collectio
 
     /**
      * Get the requiredProperty property: Required property.
-     * 
+     *
      * @return the requiredProperty value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -80,7 +82,7 @@ public final class CollectionsByteProperty implements JsonSerializable<Collectio
     /**
      * Set the requiredProperty property: Required property.
      * <p>Required when create the resource.</p>
-     * 
+     *
      * @param requiredProperty the requiredProperty value to set.
      * @return the CollectionsByteProperty object itself.
      */
@@ -93,7 +95,7 @@ public final class CollectionsByteProperty implements JsonSerializable<Collectio
 
     /**
      * Get the nullableProperty property: Property.
-     * 
+     *
      * @return the nullableProperty value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -104,7 +106,7 @@ public final class CollectionsByteProperty implements JsonSerializable<Collectio
     /**
      * Set the nullableProperty property: Property.
      * <p>Required when create the resource.</p>
-     * 
+     *
      * @param nullableProperty the nullableProperty value to set.
      * @return the CollectionsByteProperty object itself.
      */
@@ -155,7 +157,7 @@ public final class CollectionsByteProperty implements JsonSerializable<Collectio
 
     /**
      * Reads an instance of CollectionsByteProperty from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of CollectionsByteProperty if the JsonReader was pointing to an instance of it, or null if it
      * was pointing to JSON null.
@@ -168,7 +170,6 @@ public final class CollectionsByteProperty implements JsonSerializable<Collectio
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("requiredProperty".equals(fieldName)) {
                     deserializedCollectionsByteProperty.requiredProperty = reader.getString();
                 } else if ("nullableProperty".equals(fieldName)) {
@@ -178,7 +179,6 @@ public final class CollectionsByteProperty implements JsonSerializable<Collectio
                     reader.skipChildren();
                 }
             }
-
             return deserializedCollectionsByteProperty;
         });
     }

@@ -22,6 +22,7 @@ import java.math.BigDecimal;
  * An instance of this class provides access to all the operations defined in Decimal128Types.
  */
 public final class Decimal128TypesImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -39,7 +40,7 @@ public final class Decimal128TypesImpl {
 
     /**
      * Initializes an instance of Decimal128TypesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     Decimal128TypesImpl(ScalarClientImpl client) {
@@ -54,6 +55,7 @@ public final class Decimal128TypesImpl {
      */
     @ServiceInterface(name = "ScalarClientDecimal128Types", host = "{endpoint}")
     public interface Decimal128TypesService {
+
         static Decimal128TypesService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("type.scalar.implementation.Decimal128TypesServiceImpl");
@@ -63,7 +65,6 @@ public final class Decimal128TypesImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         @HttpRequestInformation(
@@ -94,7 +95,7 @@ public final class Decimal128TypesImpl {
 
     /**
      * The responseBody operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -112,7 +113,7 @@ public final class Decimal128TypesImpl {
 
     /**
      * The requestBody operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -131,7 +132,7 @@ public final class Decimal128TypesImpl {
 
     /**
      * The requestParameter operation.
-     * 
+     *
      * @param value The value parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

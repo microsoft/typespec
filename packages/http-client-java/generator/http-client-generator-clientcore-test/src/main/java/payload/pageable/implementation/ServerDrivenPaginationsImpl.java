@@ -27,6 +27,7 @@ import payload.pageable.serverdrivenpagination.implementation.NestedLinkResponse
  * An instance of this class provides access to all the operations defined in ServerDrivenPaginations.
  */
 public final class ServerDrivenPaginationsImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -44,7 +45,7 @@ public final class ServerDrivenPaginationsImpl {
 
     /**
      * Initializes an instance of ServerDrivenPaginationsImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     ServerDrivenPaginationsImpl(PageableClientImpl client) {
@@ -59,6 +60,7 @@ public final class ServerDrivenPaginationsImpl {
      */
     @ServiceInterface(name = "PageableClientServerDrivenPaginations", host = "{endpoint}")
     public interface ServerDrivenPaginationsService {
+
         static ServerDrivenPaginationsService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("payload.pageable.implementation.ServerDrivenPaginationsServiceImpl");
@@ -68,7 +70,6 @@ public final class ServerDrivenPaginationsImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         @HttpRequestInformation(
@@ -116,7 +117,7 @@ public final class ServerDrivenPaginationsImpl {
 
     /**
      * The link operation.
-     * 
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
@@ -135,7 +136,7 @@ public final class ServerDrivenPaginationsImpl {
 
     /**
      * The link operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -156,7 +157,7 @@ public final class ServerDrivenPaginationsImpl {
 
     /**
      * The link operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -197,7 +198,7 @@ public final class ServerDrivenPaginationsImpl {
 
     /**
      * The linkString operation.
-     * 
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
@@ -217,7 +218,7 @@ public final class ServerDrivenPaginationsImpl {
 
     /**
      * The linkString operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -239,7 +240,7 @@ public final class ServerDrivenPaginationsImpl {
 
     /**
      * The linkString operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -280,7 +281,7 @@ public final class ServerDrivenPaginationsImpl {
 
     /**
      * The nestedLink operation.
-     * 
+     *
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
@@ -303,7 +304,7 @@ public final class ServerDrivenPaginationsImpl {
 
     /**
      * The nestedLink operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -328,7 +329,7 @@ public final class ServerDrivenPaginationsImpl {
 
     /**
      * The nestedLink operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -369,7 +370,7 @@ public final class ServerDrivenPaginationsImpl {
 
     /**
      * Get the next page of items.
-     * 
+     *
      * @param nextLink The URL to get the next list of items.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -391,7 +392,7 @@ public final class ServerDrivenPaginationsImpl {
 
     /**
      * Get the next page of items.
-     * 
+     *
      * @param nextLink The URL to get the next list of items.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -414,7 +415,7 @@ public final class ServerDrivenPaginationsImpl {
 
     /**
      * Get the next page of items.
-     * 
+     *
      * @param nextLink The URL to get the next list of items.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -436,7 +437,7 @@ public final class ServerDrivenPaginationsImpl {
 
     /**
      * Get the next page of items.
-     * 
+     *
      * @param nextLink The URL to get the next list of items.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -459,7 +460,7 @@ public final class ServerDrivenPaginationsImpl {
 
     /**
      * Get the next page of items.
-     * 
+     *
      * @param nextLink The URL to get the next list of items.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -484,7 +485,7 @@ public final class ServerDrivenPaginationsImpl {
 
     /**
      * Get the next page of items.
-     * 
+     *
      * @param nextLink The URL to get the next list of items.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

@@ -21,6 +21,7 @@ import type.property.additionalproperties.ExtendsUnknownAdditionalPropertiesDeri
  * An instance of this class provides access to all the operations defined in ExtendsUnknownDeriveds.
  */
 public final class ExtendsUnknownDerivedsImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -38,7 +39,7 @@ public final class ExtendsUnknownDerivedsImpl {
 
     /**
      * Initializes an instance of ExtendsUnknownDerivedsImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     ExtendsUnknownDerivedsImpl(AdditionalPropertiesClientImpl client) {
@@ -53,6 +54,7 @@ public final class ExtendsUnknownDerivedsImpl {
      */
     @ServiceInterface(name = "AdditionalPropertiesClientExtendsUnknownDeriveds", host = "{endpoint}")
     public interface ExtendsUnknownDerivedsService {
+
         static ExtendsUnknownDerivedsService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class
@@ -63,7 +65,6 @@ public final class ExtendsUnknownDerivedsImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         @HttpRequestInformation(
@@ -86,7 +87,7 @@ public final class ExtendsUnknownDerivedsImpl {
 
     /**
      * Get call.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -104,7 +105,7 @@ public final class ExtendsUnknownDerivedsImpl {
 
     /**
      * Put operation.
-     * 
+     *
      * @param body body.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

@@ -21,6 +21,7 @@ import java.time.OffsetDateTime;
  * Initializes a new instance of the ConditionalRequestClient type.
  */
 public final class ConditionalRequestClientImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -33,7 +34,7 @@ public final class ConditionalRequestClientImpl {
 
     /**
      * Gets Service host.
-     * 
+     *
      * @return the endpoint value.
      */
     public String getEndpoint() {
@@ -47,7 +48,7 @@ public final class ConditionalRequestClientImpl {
 
     /**
      * Gets The HTTP pipeline to send requests through.
-     * 
+     *
      * @return the httpPipeline value.
      */
     public HttpPipeline getHttpPipeline() {
@@ -61,7 +62,7 @@ public final class ConditionalRequestClientImpl {
 
     /**
      * Gets The instance of instrumentation to report telemetry.
-     * 
+     *
      * @return the instrumentation value.
      */
     public Instrumentation getInstrumentation() {
@@ -70,7 +71,7 @@ public final class ConditionalRequestClientImpl {
 
     /**
      * Initializes an instance of ConditionalRequestClient client.
-     * 
+     *
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
@@ -88,6 +89,7 @@ public final class ConditionalRequestClientImpl {
      */
     @ServiceInterface(name = "ConditionalRequestClient", host = "{endpoint}")
     public interface ConditionalRequestClientService {
+
         static ConditionalRequestClientService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class
@@ -98,7 +100,6 @@ public final class ConditionalRequestClientImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         @HttpRequestInformation(
@@ -136,7 +137,7 @@ public final class ConditionalRequestClientImpl {
 
     /**
      * Check when only If-Match in header is defined.
-     * 
+     *
      * @param ifMatch The request should only proceed if an entity matches this string.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -154,7 +155,7 @@ public final class ConditionalRequestClientImpl {
 
     /**
      * Check when only If-None-Match in header is defined.
-     * 
+     *
      * @param ifNoneMatch The request should only proceed if no entity matches this string.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -172,7 +173,7 @@ public final class ConditionalRequestClientImpl {
 
     /**
      * Check when only If-Modified-Since in header is defined.
-     * 
+     *
      * @param ifModifiedSince A timestamp indicating the last modified time of the resource known to the
      * client. The operation will be performed only if the resource on the service has
      * been modified since the specified time.
@@ -195,7 +196,7 @@ public final class ConditionalRequestClientImpl {
 
     /**
      * Check when only If-Unmodified-Since in header is defined.
-     * 
+     *
      * @param ifUnmodifiedSince A timestamp indicating the last modified time of the resource known to the
      * client. The operation will be performed only if the resource on the service has
      * not been modified since the specified time.

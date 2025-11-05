@@ -18,6 +18,7 @@ import payload.jsonmergepatch.implementation.JsonMergePatchHelper;
  */
 @Metadata(properties = { MetadataProperties.FLUENT })
 public final class ResourcePatch implements JsonSerializable<ResourcePatch> {
+
     /*
      * The description property.
      */
@@ -76,6 +77,7 @@ public final class ResourcePatch implements JsonSerializable<ResourcePatch> {
 
     static {
         JsonMergePatchHelper.setResourcePatchAccessor(new JsonMergePatchHelper.ResourcePatchAccessor() {
+
             @Override
             public ResourcePatch prepareModelForJsonMergePatch(ResourcePatch model, boolean jsonMergePatchEnabled) {
                 model.serializeAsJsonMergePatch(jsonMergePatchEnabled);
@@ -98,7 +100,7 @@ public final class ResourcePatch implements JsonSerializable<ResourcePatch> {
 
     /**
      * Get the description property: The description property.
-     * 
+     *
      * @return the description value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -108,7 +110,7 @@ public final class ResourcePatch implements JsonSerializable<ResourcePatch> {
 
     /**
      * Set the description property: The description property.
-     * 
+     *
      * @param description the description value to set.
      * @return the ResourcePatch object itself.
      */
@@ -121,7 +123,7 @@ public final class ResourcePatch implements JsonSerializable<ResourcePatch> {
 
     /**
      * Get the map property: The map property.
-     * 
+     *
      * @return the map value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -131,7 +133,7 @@ public final class ResourcePatch implements JsonSerializable<ResourcePatch> {
 
     /**
      * Set the map property: The map property.
-     * 
+     *
      * @param map the map value to set.
      * @return the ResourcePatch object itself.
      */
@@ -144,7 +146,7 @@ public final class ResourcePatch implements JsonSerializable<ResourcePatch> {
 
     /**
      * Get the array property: The array property.
-     * 
+     *
      * @return the array value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -154,7 +156,7 @@ public final class ResourcePatch implements JsonSerializable<ResourcePatch> {
 
     /**
      * Set the array property: The array property.
-     * 
+     *
      * @param array the array value to set.
      * @return the ResourcePatch object itself.
      */
@@ -167,7 +169,7 @@ public final class ResourcePatch implements JsonSerializable<ResourcePatch> {
 
     /**
      * Get the intValue property: The intValue property.
-     * 
+     *
      * @return the intValue value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -177,7 +179,7 @@ public final class ResourcePatch implements JsonSerializable<ResourcePatch> {
 
     /**
      * Set the intValue property: The intValue property.
-     * 
+     *
      * @param intValue the intValue value to set.
      * @return the ResourcePatch object itself.
      */
@@ -190,7 +192,7 @@ public final class ResourcePatch implements JsonSerializable<ResourcePatch> {
 
     /**
      * Get the floatValue property: The floatValue property.
-     * 
+     *
      * @return the floatValue value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -200,7 +202,7 @@ public final class ResourcePatch implements JsonSerializable<ResourcePatch> {
 
     /**
      * Set the floatValue property: The floatValue property.
-     * 
+     *
      * @param floatValue the floatValue value to set.
      * @return the ResourcePatch object itself.
      */
@@ -213,7 +215,7 @@ public final class ResourcePatch implements JsonSerializable<ResourcePatch> {
 
     /**
      * Get the innerModel property: The innerModel property.
-     * 
+     *
      * @return the innerModel value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -223,7 +225,7 @@ public final class ResourcePatch implements JsonSerializable<ResourcePatch> {
 
     /**
      * Set the innerModel property: The innerModel property.
-     * 
+     *
      * @param innerModel the innerModel value to set.
      * @return the ResourcePatch object itself.
      */
@@ -236,7 +238,7 @@ public final class ResourcePatch implements JsonSerializable<ResourcePatch> {
 
     /**
      * Get the intArray property: The intArray property.
-     * 
+     *
      * @return the intArray value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -246,7 +248,7 @@ public final class ResourcePatch implements JsonSerializable<ResourcePatch> {
 
     /**
      * Set the intArray property: The intArray property.
-     * 
+     *
      * @param intArray the intArray value to set.
      * @return the ResourcePatch object itself.
      */
@@ -345,7 +347,7 @@ public final class ResourcePatch implements JsonSerializable<ResourcePatch> {
 
     /**
      * Reads an instance of ResourcePatch from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of ResourcePatch if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.
@@ -358,7 +360,6 @@ public final class ResourcePatch implements JsonSerializable<ResourcePatch> {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("description".equals(fieldName)) {
                     deserializedResourcePatch.description = reader.getString();
                 } else if ("map".equals(fieldName)) {
@@ -380,7 +381,6 @@ public final class ResourcePatch implements JsonSerializable<ResourcePatch> {
                     reader.skipChildren();
                 }
             }
-
             return deserializedResourcePatch;
         });
     }

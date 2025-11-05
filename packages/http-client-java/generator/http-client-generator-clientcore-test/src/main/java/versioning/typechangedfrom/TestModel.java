@@ -13,6 +13,7 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class TestModel implements JsonSerializable<TestModel> {
+
     /*
      * The prop property.
      */
@@ -27,7 +28,7 @@ public final class TestModel implements JsonSerializable<TestModel> {
 
     /**
      * Creates an instance of TestModel class.
-     * 
+     *
      * @param prop the prop value to set.
      * @param changedProp the changedProp value to set.
      */
@@ -39,7 +40,7 @@ public final class TestModel implements JsonSerializable<TestModel> {
 
     /**
      * Get the prop property: The prop property.
-     * 
+     *
      * @return the prop value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -49,7 +50,7 @@ public final class TestModel implements JsonSerializable<TestModel> {
 
     /**
      * Get the changedProp property: The changedProp property.
-     * 
+     *
      * @return the changedProp value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -71,7 +72,7 @@ public final class TestModel implements JsonSerializable<TestModel> {
 
     /**
      * Reads an instance of TestModel from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of TestModel if the JsonReader was pointing to an instance of it, or null if it was pointing
      * to JSON null.
@@ -86,7 +87,6 @@ public final class TestModel implements JsonSerializable<TestModel> {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("prop".equals(fieldName)) {
                     prop = reader.getString();
                 } else if ("changedProp".equals(fieldName)) {

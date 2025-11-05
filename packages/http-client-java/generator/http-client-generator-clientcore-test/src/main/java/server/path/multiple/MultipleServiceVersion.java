@@ -6,6 +6,7 @@ import io.clientcore.core.http.models.ServiceVersion;
  * Service version of MultipleClient.
  */
 public enum MultipleServiceVersion implements ServiceVersion {
+
     /**
      * Enum value v1.0.
      */
@@ -27,7 +28,7 @@ public enum MultipleServiceVersion implements ServiceVersion {
 
     /**
      * Gets the latest service version supported by this client library.
-     * 
+     *
      * @return The latest {@link MultipleServiceVersion}.
      */
     public static MultipleServiceVersion getLatest() {

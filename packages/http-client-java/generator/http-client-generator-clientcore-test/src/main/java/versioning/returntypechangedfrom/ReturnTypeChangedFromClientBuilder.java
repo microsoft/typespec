@@ -35,6 +35,7 @@ import versioning.returntypechangedfrom.implementation.ReturnTypeChangedFromClie
 public final class ReturnTypeChangedFromClientBuilder
     implements HttpTrait<ReturnTypeChangedFromClientBuilder>, ProxyTrait<ReturnTypeChangedFromClientBuilder>,
     ConfigurationTrait<ReturnTypeChangedFromClientBuilder>, EndpointTrait<ReturnTypeChangedFromClientBuilder> {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -188,7 +189,7 @@ public final class ReturnTypeChangedFromClientBuilder
 
     /**
      * Sets Service version.
-     * 
+     *
      * @param serviceVersion the serviceVersion value.
      * @return the ReturnTypeChangedFromClientBuilder.
      */
@@ -200,7 +201,7 @@ public final class ReturnTypeChangedFromClientBuilder
 
     /**
      * Builds an instance of ReturnTypeChangedFromClientImpl with the provided parameters.
-     * 
+     *
      * @return an instance of ReturnTypeChangedFromClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -248,7 +249,7 @@ public final class ReturnTypeChangedFromClientBuilder
 
     /**
      * Builds an instance of ReturnTypeChangedFromClient class.
-     * 
+     *
      * @return an instance of ReturnTypeChangedFromClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

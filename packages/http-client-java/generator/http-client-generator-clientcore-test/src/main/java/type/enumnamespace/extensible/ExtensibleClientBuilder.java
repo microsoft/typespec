@@ -35,6 +35,7 @@ import type.enumnamespace.extensible.implementation.ExtensibleClientImpl;
 public final class ExtensibleClientBuilder
     implements HttpTrait<ExtensibleClientBuilder>, ProxyTrait<ExtensibleClientBuilder>,
     ConfigurationTrait<ExtensibleClientBuilder>, EndpointTrait<ExtensibleClientBuilder> {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -181,7 +182,7 @@ public final class ExtensibleClientBuilder
 
     /**
      * Builds an instance of ExtensibleClientImpl with the provided parameters.
-     * 
+     *
      * @return an instance of ExtensibleClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -226,7 +227,7 @@ public final class ExtensibleClientBuilder
 
     /**
      * Builds an instance of ExtensibleClient class.
-     * 
+     *
      * @return an instance of ExtensibleClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

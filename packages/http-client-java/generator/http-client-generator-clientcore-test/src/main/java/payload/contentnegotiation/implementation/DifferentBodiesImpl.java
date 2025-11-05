@@ -21,6 +21,7 @@ import payload.contentnegotiation.differentbody.PngImageAsJson;
  * An instance of this class provides access to all the operations defined in DifferentBodies.
  */
 public final class DifferentBodiesImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -38,7 +39,7 @@ public final class DifferentBodiesImpl {
 
     /**
      * Initializes an instance of DifferentBodiesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     DifferentBodiesImpl(ContentNegotiationClientImpl client) {
@@ -53,6 +54,7 @@ public final class DifferentBodiesImpl {
      */
     @ServiceInterface(name = "ContentNegotiationClientDifferentBodies", host = "{endpoint}")
     public interface DifferentBodiesService {
+
         static DifferentBodiesService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("payload.contentnegotiation.implementation.DifferentBodiesServiceImpl");
@@ -62,7 +64,6 @@ public final class DifferentBodiesImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         @HttpRequestInformation(
@@ -84,7 +85,7 @@ public final class DifferentBodiesImpl {
 
     /**
      * The getAvatarAsPng operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -102,7 +103,7 @@ public final class DifferentBodiesImpl {
 
     /**
      * The getAvatarAsJson operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

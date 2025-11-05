@@ -47,6 +47,7 @@ import type.dictionary.implementation.DictionaryClientImpl;
 public final class DictionaryClientBuilder
     implements HttpTrait<DictionaryClientBuilder>, ProxyTrait<DictionaryClientBuilder>,
     ConfigurationTrait<DictionaryClientBuilder>, EndpointTrait<DictionaryClientBuilder> {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -192,7 +193,7 @@ public final class DictionaryClientBuilder
 
     /**
      * Builds an instance of DictionaryClientImpl with the provided parameters.
-     * 
+     *
      * @return an instance of DictionaryClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -237,7 +238,7 @@ public final class DictionaryClientBuilder
 
     /**
      * Builds an instance of Int32ValueClient class.
-     * 
+     *
      * @return an instance of Int32ValueClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -248,7 +249,7 @@ public final class DictionaryClientBuilder
 
     /**
      * Builds an instance of Int64ValueClient class.
-     * 
+     *
      * @return an instance of Int64ValueClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -259,7 +260,7 @@ public final class DictionaryClientBuilder
 
     /**
      * Builds an instance of BooleanValueClient class.
-     * 
+     *
      * @return an instance of BooleanValueClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -270,7 +271,7 @@ public final class DictionaryClientBuilder
 
     /**
      * Builds an instance of StringValueClient class.
-     * 
+     *
      * @return an instance of StringValueClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -281,7 +282,7 @@ public final class DictionaryClientBuilder
 
     /**
      * Builds an instance of Float32ValueClient class.
-     * 
+     *
      * @return an instance of Float32ValueClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -292,7 +293,7 @@ public final class DictionaryClientBuilder
 
     /**
      * Builds an instance of DatetimeValueClient class.
-     * 
+     *
      * @return an instance of DatetimeValueClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -303,7 +304,7 @@ public final class DictionaryClientBuilder
 
     /**
      * Builds an instance of DurationValueClient class.
-     * 
+     *
      * @return an instance of DurationValueClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -314,7 +315,7 @@ public final class DictionaryClientBuilder
 
     /**
      * Builds an instance of UnknownValueClient class.
-     * 
+     *
      * @return an instance of UnknownValueClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -325,7 +326,7 @@ public final class DictionaryClientBuilder
 
     /**
      * Builds an instance of ModelValueClient class.
-     * 
+     *
      * @return an instance of ModelValueClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -336,7 +337,7 @@ public final class DictionaryClientBuilder
 
     /**
      * Builds an instance of RecursiveModelValueClient class.
-     * 
+     *
      * @return an instance of RecursiveModelValueClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -347,7 +348,7 @@ public final class DictionaryClientBuilder
 
     /**
      * Builds an instance of NullableFloatValueClient class.
-     * 
+     *
      * @return an instance of NullableFloatValueClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

@@ -34,6 +34,7 @@ import parameters.path.implementation.PathClientImpl;
 @ServiceClientBuilder(serviceClients = { PathClient.class })
 public final class PathClientBuilder implements HttpTrait<PathClientBuilder>, ProxyTrait<PathClientBuilder>,
     ConfigurationTrait<PathClientBuilder>, EndpointTrait<PathClientBuilder> {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -179,7 +180,7 @@ public final class PathClientBuilder implements HttpTrait<PathClientBuilder>, Pr
 
     /**
      * Builds an instance of PathClientImpl with the provided parameters.
-     * 
+     *
      * @return an instance of PathClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -224,7 +225,7 @@ public final class PathClientBuilder implements HttpTrait<PathClientBuilder>, Pr
 
     /**
      * Builds an instance of PathClient class.
-     * 
+     *
      * @return an instance of PathClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

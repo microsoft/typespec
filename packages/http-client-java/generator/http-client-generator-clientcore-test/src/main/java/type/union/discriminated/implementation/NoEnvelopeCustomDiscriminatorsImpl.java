@@ -22,6 +22,7 @@ import java.lang.reflect.InvocationTargetException;
  * An instance of this class provides access to all the operations defined in NoEnvelopeCustomDiscriminators.
  */
 public final class NoEnvelopeCustomDiscriminatorsImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -39,7 +40,7 @@ public final class NoEnvelopeCustomDiscriminatorsImpl {
 
     /**
      * Initializes an instance of NoEnvelopeCustomDiscriminatorsImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     NoEnvelopeCustomDiscriminatorsImpl(DiscriminatedClientImpl client) {
@@ -54,6 +55,7 @@ public final class NoEnvelopeCustomDiscriminatorsImpl {
      */
     @ServiceInterface(name = "DiscriminatedClientNoEnvelopeCustomDiscriminators", host = "{endpoint}")
     public interface NoEnvelopeCustomDiscriminatorsService {
+
         static NoEnvelopeCustomDiscriminatorsService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class
@@ -64,7 +66,6 @@ public final class NoEnvelopeCustomDiscriminatorsImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         @HttpRequestInformation(
@@ -87,7 +88,7 @@ public final class NoEnvelopeCustomDiscriminatorsImpl {
 
     /**
      * The get operation.
-     * 
+     *
      * @param type The type parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -108,7 +109,7 @@ public final class NoEnvelopeCustomDiscriminatorsImpl {
 
     /**
      * The put operation.
-     * 
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

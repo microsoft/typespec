@@ -13,6 +13,7 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public class Bird implements JsonSerializable<Bird> {
+
     /*
      * The kind property.
      */
@@ -27,7 +28,7 @@ public class Bird implements JsonSerializable<Bird> {
 
     /**
      * Creates an instance of Bird class.
-     * 
+     *
      * @param wingspan the wingspan value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -37,7 +38,7 @@ public class Bird implements JsonSerializable<Bird> {
 
     /**
      * Get the kind property: The kind property.
-     * 
+     *
      * @return the kind value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -47,7 +48,7 @@ public class Bird implements JsonSerializable<Bird> {
 
     /**
      * Get the wingspan property: The wingspan property.
-     * 
+     *
      * @return the wingspan value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -69,7 +70,7 @@ public class Bird implements JsonSerializable<Bird> {
 
     /**
      * Reads an instance of Bird from the JsonReader.
-     * 
+     *
      * @param jsonReader The JsonReader being read.
      * @return An instance of Bird if the JsonReader was pointing to an instance of it, or null if it was pointing to
      * JSON null.
@@ -81,7 +82,8 @@ public class Bird implements JsonSerializable<Bird> {
         return jsonReader.readObject(reader -> {
             String discriminatorValue = null;
             try (JsonReader readerToUse = reader.bufferObject()) {
-                readerToUse.nextToken(); // Prepare for reading
+                // Prepare for reading
+                readerToUse.nextToken();
                 while (readerToUse.nextToken() != JsonToken.END_OBJECT) {
                     String fieldName = readerToUse.getFieldName();
                     readerToUse.nextToken();
@@ -116,7 +118,6 @@ public class Bird implements JsonSerializable<Bird> {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
-
                 if ("wingspan".equals(fieldName)) {
                     wingspan = reader.getInt();
                 } else if ("kind".equals(fieldName)) {
@@ -127,7 +128,6 @@ public class Bird implements JsonSerializable<Bird> {
             }
             Bird deserializedBird = new Bird(wingspan);
             deserializedBird.kind = kind;
-
             return deserializedBird;
         });
     }

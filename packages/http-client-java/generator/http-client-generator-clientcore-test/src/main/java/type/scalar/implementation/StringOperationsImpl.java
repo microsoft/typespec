@@ -20,6 +20,7 @@ import java.lang.reflect.InvocationTargetException;
  * An instance of this class provides access to all the operations defined in StringOperations.
  */
 public final class StringOperationsImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -37,7 +38,7 @@ public final class StringOperationsImpl {
 
     /**
      * Initializes an instance of StringOperationsImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     StringOperationsImpl(ScalarClientImpl client) {
@@ -52,6 +53,7 @@ public final class StringOperationsImpl {
      */
     @ServiceInterface(name = "ScalarClientStringOperations", host = "{endpoint}")
     public interface StringOperationsService {
+
         static StringOperationsService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("type.scalar.implementation.StringOperationsServiceImpl");
@@ -61,7 +63,6 @@ public final class StringOperationsImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         @HttpRequestInformation(method = HttpMethod.GET, path = "/type/scalar/string", expectedStatusCodes = { 200 })
@@ -77,7 +78,7 @@ public final class StringOperationsImpl {
 
     /**
      * get string value.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -94,7 +95,7 @@ public final class StringOperationsImpl {
 
     /**
      * put string value.
-     * 
+     *
      * @param body _.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

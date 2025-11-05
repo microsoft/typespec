@@ -52,6 +52,7 @@ import routes.implementation.RoutesClientImpl;
         InInterfaceClient.class })
 public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>, ProxyTrait<RoutesClientBuilder>,
     ConfigurationTrait<RoutesClientBuilder>, EndpointTrait<RoutesClientBuilder> {
+
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -197,7 +198,7 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
 
     /**
      * Builds an instance of RoutesClientImpl with the provided parameters.
-     * 
+     *
      * @return an instance of RoutesClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -242,7 +243,7 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
 
     /**
      * Builds an instance of RoutesClient class.
-     * 
+     *
      * @return an instance of RoutesClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -253,7 +254,7 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
 
     /**
      * Builds an instance of PathParametersClient class.
-     * 
+     *
      * @return an instance of PathParametersClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -264,7 +265,7 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
 
     /**
      * Builds an instance of PathParametersReservedExpansionClient class.
-     * 
+     *
      * @return an instance of PathParametersReservedExpansionClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -276,7 +277,7 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
 
     /**
      * Builds an instance of PathParametersSimpleExpansionStandardClient class.
-     * 
+     *
      * @return an instance of PathParametersSimpleExpansionStandardClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -288,7 +289,7 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
 
     /**
      * Builds an instance of PathParametersSimpleExpansionExplodeClient class.
-     * 
+     *
      * @return an instance of PathParametersSimpleExpansionExplodeClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -300,7 +301,7 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
 
     /**
      * Builds an instance of PathParametersPathExpansionStandardClient class.
-     * 
+     *
      * @return an instance of PathParametersPathExpansionStandardClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -312,7 +313,7 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
 
     /**
      * Builds an instance of PathParametersPathExpansionExplodeClient class.
-     * 
+     *
      * @return an instance of PathParametersPathExpansionExplodeClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -324,7 +325,7 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
 
     /**
      * Builds an instance of PathParametersLabelExpansionStandardClient class.
-     * 
+     *
      * @return an instance of PathParametersLabelExpansionStandardClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -336,7 +337,7 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
 
     /**
      * Builds an instance of PathParametersLabelExpansionExplodeClient class.
-     * 
+     *
      * @return an instance of PathParametersLabelExpansionExplodeClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -348,7 +349,7 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
 
     /**
      * Builds an instance of PathParametersMatrixExpansionStandardClient class.
-     * 
+     *
      * @return an instance of PathParametersMatrixExpansionStandardClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -360,7 +361,7 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
 
     /**
      * Builds an instance of PathParametersMatrixExpansionExplodeClient class.
-     * 
+     *
      * @return an instance of PathParametersMatrixExpansionExplodeClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -372,7 +373,7 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
 
     /**
      * Builds an instance of QueryParametersClient class.
-     * 
+     *
      * @return an instance of QueryParametersClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -383,7 +384,7 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
 
     /**
      * Builds an instance of QueryParametersQueryExpansionStandardClient class.
-     * 
+     *
      * @return an instance of QueryParametersQueryExpansionStandardClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -395,7 +396,7 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
 
     /**
      * Builds an instance of QueryParametersQueryExpansionExplodeClient class.
-     * 
+     *
      * @return an instance of QueryParametersQueryExpansionExplodeClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -407,7 +408,7 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
 
     /**
      * Builds an instance of QueryParametersQueryContinuationStandardClient class.
-     * 
+     *
      * @return an instance of QueryParametersQueryContinuationStandardClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -419,7 +420,7 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
 
     /**
      * Builds an instance of QueryParametersQueryContinuationExplodeClient class.
-     * 
+     *
      * @return an instance of QueryParametersQueryContinuationExplodeClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -431,7 +432,7 @@ public final class RoutesClientBuilder implements HttpTrait<RoutesClientBuilder>
 
     /**
      * Builds an instance of InInterfaceClient class.
-     * 
+     *
      * @return an instance of InInterfaceClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

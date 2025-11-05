@@ -19,6 +19,7 @@ import java.lang.reflect.InvocationTargetException;
  * Initializes a new instance of the CustomClient type.
  */
 public final class CustomClientImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -31,7 +32,7 @@ public final class CustomClientImpl {
 
     /**
      * Gets Service host.
-     * 
+     *
      * @return the endpoint value.
      */
     public String getEndpoint() {
@@ -45,7 +46,7 @@ public final class CustomClientImpl {
 
     /**
      * Gets The HTTP pipeline to send requests through.
-     * 
+     *
      * @return the httpPipeline value.
      */
     public HttpPipeline getHttpPipeline() {
@@ -59,7 +60,7 @@ public final class CustomClientImpl {
 
     /**
      * Gets The instance of instrumentation to report telemetry.
-     * 
+     *
      * @return the instrumentation value.
      */
     public Instrumentation getInstrumentation() {
@@ -68,7 +69,7 @@ public final class CustomClientImpl {
 
     /**
      * Initializes an instance of CustomClient client.
-     * 
+     *
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
@@ -85,6 +86,7 @@ public final class CustomClientImpl {
      */
     @ServiceInterface(name = "CustomClient", host = "{endpoint}")
     public interface CustomClientService {
+
         static CustomClientService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("authentication.http.custom.implementation.CustomClientServiceImpl");
@@ -94,7 +96,6 @@ public final class CustomClientImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-
         }
 
         @HttpRequestInformation(
@@ -115,7 +116,7 @@ public final class CustomClientImpl {
 
     /**
      * Check whether client is authenticated.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -132,7 +133,7 @@ public final class CustomClientImpl {
 
     /**
      * Check whether client is authenticated.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
