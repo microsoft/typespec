@@ -290,13 +290,13 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             Assert.IsTrue(derivedModel!.Decorators.Any(d => d.Name.Equals("TypeSpec.HttpClient.CSharp.@dynamicModel")));
             Assert.IsTrue(derivedModel.IsDynamicModel);
 
-            // Verify that the base model is marked as dynamic even though it doesn't have the decorator
-            Assert.IsTrue(baseModel.IsDynamicModel);
+            // Verify that the base model is not marked as dynamic
+            Assert.IsFalse(baseModel.IsDynamicModel);
             Assert.AreEqual(baseModel, derivedModel.BaseModel);
         }
 
         [Test]
-        public void LoadsDynamicDerivedModelMarksBaseModelPropertiesAsDynamic()
+        public void LoadsDynamicDiscriminatedModelMarksBaseModelPropertiesAsDynamic()
         {
             var directory = Helpers.GetAssetFileOrDirectoryPath(false);
             // this tspCodeModel.json contains a partial part of the full tspCodeModel.json
@@ -319,17 +319,17 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
 
             Assert.IsNotNull(inputNamespace);
 
-            // Find the base model with model properties
+            // Find the base model with model properties (discriminated model)
             var baseModelWithProperties = inputNamespace!.Models.SingleOrDefault(m => m.Name == "BaseModelWithProperties");
             Assert.IsNotNull(baseModelWithProperties);
-            Assert.IsTrue(baseModelWithProperties!.IsDynamicModel);
+            Assert.IsNotNull(baseModelWithProperties!.DiscriminatorProperty, "Base model should have a discriminator property");
 
             // Find the derived model (should have @dynamicModel decorator)
             var derivedModel = inputNamespace.Models.SingleOrDefault(m => m.Name == "DerivedModelExtendingBase");
             Assert.IsNotNull(derivedModel);
             Assert.IsTrue(derivedModel!.IsDynamicModel);
 
-            // Verify that the base model is marked as dynamic
+            // Verify that the discriminated base model is marked as dynamic because it has a dynamic derived model
             Assert.IsTrue(baseModelWithProperties!.IsDynamicModel);
 
             // Verify that model properties in the base model are also marked as dynamic
@@ -350,7 +350,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
         }
 
         [Test]
-        public void LoadsDynamicDerivedModelWithMultipleLevelsOfInheritance()
+        public void LoadsDynamicDiscriminatedModelWithMultipleLevelsOfInheritance()
         {
             var directory = Helpers.GetAssetFileOrDirectoryPath(false);
             // this tspCodeModel.json contains a partial part of the full tspCodeModel.json
@@ -386,67 +386,20 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             Assert.AreEqual(grandparentModel, parentModel!.BaseModel);
             Assert.AreEqual(parentModel, childModel!.BaseModel);
 
+            // Verify discriminator setup - grandparent is the discriminated base
+            Assert.IsNotNull(grandparentModel!.DiscriminatorProperty, "Grandparent model should have a discriminator property");
+            Assert.IsNotNull(parentModel.DiscriminatorValue, "Parent model should have a discriminator value");
+            Assert.IsNotNull(childModel.DiscriminatorValue, "Child model should have a discriminator value");
+
             // Only the child has the @dynamicModel decorator
             Assert.IsTrue(childModel.Decorators.Any(d => d.Name.Equals("TypeSpec.HttpClient.CSharp.@dynamicModel")));
             Assert.IsFalse(parentModel.Decorators.Any(d => d.Name.Equals("TypeSpec.HttpClient.CSharp.@dynamicModel")));
             Assert.IsFalse(grandparentModel!.Decorators.Any(d => d.Name.Equals("TypeSpec.HttpClient.CSharp.@dynamicModel")));
 
-            // Verify all models in the chain are marked as dynamic
+            // Verify all models in the chain are marked as dynamic due to discriminated inheritance
             Assert.IsTrue(childModel.IsDynamicModel);
             Assert.IsTrue(parentModel.IsDynamicModel);
             Assert.IsTrue(grandparentModel.IsDynamicModel);
-        }
-
-        [Test]
-        public void LoadsBaseModelWithMultipleDynamicDerivedModels()
-        {
-            var directory = Helpers.GetAssetFileOrDirectoryPath(false);
-            // this tspCodeModel.json contains a partial part of the full tspCodeModel.json
-            var content = File.ReadAllText(Path.Combine(directory, "tspCodeModel.json"));
-            var referenceHandler = new TypeSpecReferenceHandler();
-            var options = new JsonSerializerOptions
-            {
-                AllowTrailingCommas = true,
-                Converters =
-                {
-                    new JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
-                    new InputNamespaceConverter(referenceHandler),
-                    new InputTypeConverter(referenceHandler),
-                    new InputDecoratorInfoConverter(),
-                    new InputModelTypeConverter(referenceHandler),
-                    new InputModelPropertyConverter(referenceHandler),
-                },
-            };
-            var inputNamespace = JsonSerializer.Deserialize<InputNamespace>(content, options);
-
-            Assert.IsNotNull(inputNamespace);
-
-            // Find the shared base model
-            var sharedBaseModel = inputNamespace!.Models.SingleOrDefault(m => m.Name == "SharedBaseModel");
-            Assert.IsNotNull(sharedBaseModel);
-            Assert.IsTrue(sharedBaseModel!.IsDynamicModel);
-
-            // Find multiple derived models with @dynamicModel decorator
-            var derivedModel1 = inputNamespace.Models.SingleOrDefault(m => m.Name == "DynamicDerived1");
-            var derivedModel2 = inputNamespace.Models.SingleOrDefault(m => m.Name == "DynamicDerived2");
-
-            Assert.IsNotNull(derivedModel1);
-            Assert.IsNotNull(derivedModel2);
-
-            // Verify both derived models have @dynamicModel decorator
-            Assert.IsTrue(derivedModel1!.Decorators.Any(d => d.Name.Equals("TypeSpec.HttpClient.CSharp.@dynamicModel")));
-            Assert.IsTrue(derivedModel2!.Decorators.Any(d => d.Name.Equals("TypeSpec.HttpClient.CSharp.@dynamicModel")));
-
-            // Verify base model is marked as dynamic
-            Assert.IsTrue(sharedBaseModel!.IsDynamicModel);
-
-            // Verify all derived models are marked as dynamic
-            Assert.IsTrue(derivedModel1.IsDynamicModel);
-            Assert.IsTrue(derivedModel2.IsDynamicModel);
-
-            // Verify inheritance relationships
-            Assert.AreEqual(sharedBaseModel, derivedModel1.BaseModel);
-            Assert.AreEqual(sharedBaseModel, derivedModel2.BaseModel);
         }
     }
 }

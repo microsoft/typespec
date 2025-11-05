@@ -7,12 +7,18 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 
 namespace SampleTypeSpec
 {
     /// <summary> The DynamicModelWithBase. </summary>
-    public partial class DynamicModelWithBase : ImplicitDynamicModel
+    public partial class DynamicModelWithBase : BaseModel
     {
+        [Experimental("SCME0001")]
+        private JsonPatch _patch;
+
         /// <summary> Initializes a new instance of <see cref="DynamicModelWithBase"/>. </summary>
         /// <param name="name"></param>
         /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
@@ -27,11 +33,18 @@ namespace SampleTypeSpec
         /// <param name="patch"></param>
         /// <param name="id"></param>
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        internal DynamicModelWithBase(string name, in JsonPatch patch, string id) : base(name, patch)
+        internal DynamicModelWithBase(string name, in JsonPatch patch, string id) : base(name, default)
         {
             Id = id;
+            _patch = patch;
         }
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+
+        /// <summary> Gets the Patch. </summary>
+        [JsonIgnore]
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Experimental("SCME0001")]
+        public ref JsonPatch Patch => ref _patch;
 
         /// <summary> Gets or sets the Id. </summary>
         public string Id { get; set; }

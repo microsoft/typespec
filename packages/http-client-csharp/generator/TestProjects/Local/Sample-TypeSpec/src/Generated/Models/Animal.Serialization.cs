@@ -13,17 +13,17 @@ using System.Text.Json;
 
 namespace SampleTypeSpec
 {
-    /// <summary> The DynamicModelWithBase. </summary>
-    public partial class DynamicModelWithBase : BaseModel, IJsonModel<DynamicModelWithBase>
+    /// <summary> The Animal. </summary>
+    public partial class Animal : Dog, IJsonModel<Animal>
     {
-        /// <summary> Initializes a new instance of <see cref="DynamicModelWithBase"/> for deserialization. </summary>
-        internal DynamicModelWithBase()
+        /// <summary> Initializes a new instance of <see cref="Animal"/> for deserialization. </summary>
+        internal Animal()
         {
         }
 
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        void IJsonModel<DynamicModelWithBase>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        void IJsonModel<Animal>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
             if (Patch.Contains("$"u8))
@@ -42,22 +42,17 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         protected override void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<DynamicModelWithBase>)this).GetFormatFromOptions(options) : options.Format;
+            string format = options.Format == "W" ? ((IPersistableModel<Animal>)this).GetFormatFromOptions(options) : options.Format;
             if (format != "J")
             {
-                throw new FormatException($"The model {nameof(DynamicModelWithBase)} does not support writing '{format}' format.");
+                throw new FormatException($"The model {nameof(Animal)} does not support writing '{format}' format.");
             }
-            //base.JsonModelWriteCore(writer, options);
+            base.JsonModelWriteCore(writer, options);
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-            if (Optional.IsDefined(Name) && !Patch.Contains("$.name"u8))
+            if (Optional.IsDefined(Breed) && !Patch.Contains("$.breed"u8))
             {
-                writer.WritePropertyName("name"u8);
-                writer.WriteStringValue(Name);
-            }
-            if (Optional.IsDefined(Id) && !Patch.Contains("$.id"u8))
-            {
-                writer.WritePropertyName("id"u8);
-                writer.WriteStringValue(Id);
+                writer.WritePropertyName("breed"u8);
+                writer.WriteStringValue(Breed);
             }
 
             Patch.WriteTo(writer);
@@ -66,109 +61,128 @@ namespace SampleTypeSpec
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        DynamicModelWithBase IJsonModel<DynamicModelWithBase>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => (DynamicModelWithBase)JsonModelCreateCore(ref reader, options);
+        Animal IJsonModel<Animal>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => (Animal)JsonModelCreateCore(ref reader, options);
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected override BaseModel JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+        protected override Pet JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<DynamicModelWithBase>)this).GetFormatFromOptions(options) : options.Format;
+            string format = options.Format == "W" ? ((IPersistableModel<Animal>)this).GetFormatFromOptions(options) : options.Format;
             if (format != "J")
             {
-                throw new FormatException($"The model {nameof(DynamicModelWithBase)} does not support reading '{format}' format.");
+                throw new FormatException($"The model {nameof(Animal)} does not support reading '{format}' format.");
             }
             using JsonDocument document = JsonDocument.ParseValue(ref reader);
-            return DeserializeDynamicModelWithBase(document.RootElement, null, options);
+            return DeserializeAnimal(document.RootElement, null, options);
         }
 
         /// <param name="element"> The JSON element to deserialize. </param>
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        internal static DynamicModelWithBase DeserializeDynamicModelWithBase(JsonElement element, BinaryData data, ModelReaderWriterOptions options)
+        internal static Animal DeserializeAnimal(JsonElement element, BinaryData data, ModelReaderWriterOptions options)
         {
             if (element.ValueKind == JsonValueKind.Null)
             {
                 return null;
             }
+            string kind = default;
             string name = default;
+            float? weight = default;
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
             JsonPatch patch = new JsonPatch(data is null ? ReadOnlyMemory<byte>.Empty : data.ToMemory());
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-            string id = default;
+            string bark = default;
+            string breed = default;
             foreach (var prop in element.EnumerateObject())
             {
+                if (prop.NameEquals("kind"u8))
+                {
+                    kind = prop.Value.GetString();
+                    continue;
+                }
                 if (prop.NameEquals("name"u8))
                 {
                     name = prop.Value.GetString();
                     continue;
                 }
-                if (prop.NameEquals("id"u8))
+                if (prop.NameEquals("weight"u8))
                 {
-                    id = prop.Value.GetString();
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        continue;
+                    }
+                    weight = prop.Value.GetSingle();
+                    continue;
+                }
+                if (prop.NameEquals("bark"u8))
+                {
+                    bark = prop.Value.GetString();
+                    continue;
+                }
+                if (prop.NameEquals("breed"u8))
+                {
+                    breed = prop.Value.GetString();
                     continue;
                 }
                 patch.Set([.. "$."u8, .. Encoding.UTF8.GetBytes(prop.Name)], prop.Value.GetUtf8Bytes());
             }
-            return new DynamicModelWithBase(name, patch, id);
+            return new Animal(
+                kind,
+                name,
+                weight,
+                patch,
+                bark,
+                breed);
         }
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<DynamicModelWithBase>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+        BinaryData IPersistableModel<Animal>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
 
         /// <param name="options"> The client options for reading and writing models. </param>
         protected override BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<DynamicModelWithBase>)this).GetFormatFromOptions(options) : options.Format;
+            string format = options.Format == "W" ? ((IPersistableModel<Animal>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
                     return ModelReaderWriter.Write(this, options, SampleTypeSpecContext.Default);
                 default:
-                    throw new FormatException($"The model {nameof(DynamicModelWithBase)} does not support writing '{options.Format}' format.");
+                    throw new FormatException($"The model {nameof(Animal)} does not support writing '{options.Format}' format.");
             }
         }
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        DynamicModelWithBase IPersistableModel<DynamicModelWithBase>.Create(BinaryData data, ModelReaderWriterOptions options) => (DynamicModelWithBase)PersistableModelCreateCore(data, options);
+        Animal IPersistableModel<Animal>.Create(BinaryData data, ModelReaderWriterOptions options) => (Animal)PersistableModelCreateCore(data, options);
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected override BaseModel PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
+        protected override Pet PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<DynamicModelWithBase>)this).GetFormatFromOptions(options) : options.Format;
+            string format = options.Format == "W" ? ((IPersistableModel<Animal>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
                     using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
                     {
-                        return DeserializeDynamicModelWithBase(document.RootElement, data, options);
+                        return DeserializeAnimal(document.RootElement, data, options);
                     }
                 default:
-                    throw new FormatException($"The model {nameof(DynamicModelWithBase)} does not support reading '{options.Format}' format.");
+                    throw new FormatException($"The model {nameof(Animal)} does not support reading '{options.Format}' format.");
             }
         }
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<DynamicModelWithBase>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+        string IPersistableModel<Animal>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
 
-        /// <param name="dynamicModelWithBase"> The <see cref="DynamicModelWithBase"/> to serialize into <see cref="BinaryContent"/>. </param>
-        public static implicit operator BinaryContent(DynamicModelWithBase dynamicModelWithBase)
+        /// <param name="animal"> The <see cref="Animal"/> to serialize into <see cref="BinaryContent"/>. </param>
+        public static implicit operator BinaryContent(Animal animal)
         {
-            if (dynamicModelWithBase == null)
+            if (animal == null)
             {
                 return null;
             }
-            return BinaryContent.Create(dynamicModelWithBase, ModelSerializationExtensions.WireOptions);
-        }
-
-        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="DynamicModelWithBase"/> from. </param>
-        public static explicit operator DynamicModelWithBase(ClientResult result)
-        {
-            PipelineResponse response = result.GetRawResponse();
-            BinaryData data = response.Content;
-            using JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions);
-            return DeserializeDynamicModelWithBase(document.RootElement, data, ModelSerializationExtensions.WireOptions);
+            return BinaryContent.Create(animal, ModelSerializationExtensions.WireOptions);
         }
     }
 }
