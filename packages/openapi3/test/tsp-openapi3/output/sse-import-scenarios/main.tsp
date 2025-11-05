@@ -30,6 +30,7 @@ union ChannelEventsNoTerminal {
 union ChannelEventsWithTerminal {
   userconnect: UserConnect,
   usermessage: UserMessage,
+
   @TypeSpec.Events.contentType("text/plain")
   @TypeSpec.SSE.terminalEvent
   @extension("x-ms-sse-terminal-event", true)
@@ -42,8 +43,11 @@ union ChannelEventsWithCustomContentType {
   binary: Base64,
 }
 
-@route("/channel/no-terminal") @get op subscribeToChannelNoTerminal(): SSEStream<ChannelEventsNoTerminal>;
+@route("/channel/no-terminal") @get op subscribeToChannelNoTerminal(
+): SSEStream<ChannelEventsNoTerminal>;
 
-@route("/channel/with-terminal") @get op subscribeToChannelWithTerminal(): SSEStream<ChannelEventsWithTerminal>;
+@route("/channel/with-terminal") @get op subscribeToChannelWithTerminal(
+): SSEStream<ChannelEventsWithTerminal>;
 
-@route("/data/custom-content-type") @get op subscribeToDataStream(): SSEStream<ChannelEventsWithCustomContentType>;
+@route("/data/custom-content-type") @get op subscribeToDataStream(
+): SSEStream<ChannelEventsWithCustomContentType>;
