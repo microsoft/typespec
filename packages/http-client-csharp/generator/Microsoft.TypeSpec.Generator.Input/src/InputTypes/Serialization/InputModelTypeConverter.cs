@@ -184,9 +184,18 @@ namespace Microsoft.TypeSpec.Generator.Input
                     }
                 }
 
-                if (modelType.BaseModel != null)
+                var baseModel = modelType.BaseModel;
+                if (baseModel?.DiscriminatorProperty != null || baseModel?.DiscriminatorValue != null)
                 {
-                    MarkModelsAsDynamicRecursive(modelType.BaseModel, visited);
+                    MarkModelsAsDynamicRecursive(baseModel, visited);
+                }
+
+                if (baseModel?.DiscriminatedSubtypes != null)
+                {
+                    foreach (var derivedModel in baseModel.DiscriminatedSubtypes.Values)
+                    {
+                        MarkModelsAsDynamicRecursive(derivedModel, visited);
+                    }
                 }
             }
             else if (inputType is InputUnionType unionType)

@@ -11,7 +11,36 @@
       "usage": "Input,Output,Json",
       "doc": "Grandparent model at the top of inheritance chain",
       "decorators": [],
+      "discriminatorProperty": {
+        "$id": "1a",
+        "kind": "property",
+        "name": "kind",
+        "serializedName": "kind",
+        "doc": "Discriminator property",
+        "type": {
+          "$id": "1b",
+          "kind": "string",
+          "name": "string",
+          "crossLanguageDefinitionId": "TypeSpec.string",
+          "decorators": []
+        },
+        "optional": false,
+        "readOnly": false,
+        "discriminator": true,
+        "flatten": false,
+        "decorators": [],
+        "crossLanguageDefinitionId": "SampleNamespace.GrandparentModel.kind",
+        "serializationOptions": {
+          "json": {
+            "name": "kind"
+          }
+        },
+        "isHttpMetadata": false
+      },
       "properties": [
+        {
+          "$ref": "1a"
+        },
         {
           "$id": "2",
           "kind": "property",
@@ -52,6 +81,7 @@
       "baseModel": {
         "$ref": "1"
       },
+      "discriminatorValue": "parent",
       "properties": [
         {
           "$id": "5",
@@ -98,6 +128,7 @@
       "baseModel": {
         "$ref": "4"
       },
+      "discriminatorValue": "child",
       "properties": [
         {
           "$id": "8",

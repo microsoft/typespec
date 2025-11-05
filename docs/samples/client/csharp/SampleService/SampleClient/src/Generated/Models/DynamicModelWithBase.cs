@@ -8,7 +8,7 @@ using System.Collections.Generic;
 namespace SampleTypeSpec
 {
     /// <summary> The DynamicModelWithBase. </summary>
-    public partial class DynamicModelWithBase : ImplicitDynamicModel
+    public partial class DynamicModelWithBase : BaseModel
     {
         /// <summary> Initializes a new instance of <see cref="DynamicModelWithBase"/>. </summary>
         /// <param name="name"></param>

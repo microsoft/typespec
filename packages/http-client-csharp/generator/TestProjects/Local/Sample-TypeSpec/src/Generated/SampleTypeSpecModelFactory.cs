@@ -240,12 +240,63 @@ namespace SampleTypeSpec
             return new DynamicModelWithBase(name, default, id);
         }
 
-        /// <summary> The ImplicitDynamicModel. </summary>
+        /// <summary> The BaseModel. </summary>
         /// <param name="name"></param>
-        /// <returns> A new <see cref="SampleTypeSpec.ImplicitDynamicModel"/> instance for mocking. </returns>
-        public static ImplicitDynamicModel ImplicitDynamicModel(string name = default)
+        /// <returns> A new <see cref="SampleTypeSpec.BaseModel"/> instance for mocking. </returns>
+        public static BaseModel BaseModel(string name = default)
         {
-            return new ImplicitDynamicModel(name, default);
+            return new BaseModel(name, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The Animal. </summary>
+        /// <param name="kind"> Discriminator property for Pet. </param>
+        /// <param name="name"></param>
+        /// <param name="weight"></param>
+        /// <param name="bark"></param>
+        /// <param name="breed"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.Animal"/> instance for mocking. </returns>
+        public static Animal Animal(string kind = default, string name = default, float? weight = default, string bark = default, string breed = default)
+        {
+            return new Animal(
+                kind,
+                name,
+                weight,
+                default,
+                bark,
+                breed);
+        }
+
+        /// <summary> The Dog. </summary>
+        /// <param name="name"></param>
+        /// <param name="weight"></param>
+        /// <param name="bark"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.Dog"/> instance for mocking. </returns>
+        public static Dog Dog(string name = default, float? weight = default, string bark = default)
+        {
+            return new Dog("dog", name, weight, default, bark);
+        }
+
+        /// <summary>
+        /// The Pet.
+        /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="SampleTypeSpec.Cat"/> and <see cref="SampleTypeSpec.Dog"/>.
+        /// </summary>
+        /// <param name="kind"> Discriminator property for Pet. </param>
+        /// <param name="name"></param>
+        /// <param name="weight"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.Pet"/> instance for mocking. </returns>
+        public static Pet Pet(string kind = default, string name = default, float? weight = default)
+        {
+            return new UnknownPet(kind, name, weight, default);
+        }
+
+        /// <summary> The Cat. </summary>
+        /// <param name="name"></param>
+        /// <param name="weight"></param>
+        /// <param name="meow"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.Cat"/> instance for mocking. </returns>
+        public static Cat Cat(string name = default, float? weight = default, int meow = default)
+        {
+            return new Cat("cat", name, weight, default, meow);
         }
     }
 }

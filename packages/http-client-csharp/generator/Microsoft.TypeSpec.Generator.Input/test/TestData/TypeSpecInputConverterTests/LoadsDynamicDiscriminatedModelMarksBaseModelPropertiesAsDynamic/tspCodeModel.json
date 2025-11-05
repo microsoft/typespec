@@ -87,7 +87,36 @@
       "usage": "Input,Output,Json",
       "doc": "Base model with model properties",
       "decorators": [],
+      "discriminatorProperty": {
+        "$id": "7a",
+        "kind": "property",
+        "name": "kind",
+        "serializedName": "kind",
+        "doc": "Discriminator property",
+        "type": {
+          "$id": "7b",
+          "kind": "string",
+          "name": "string",
+          "crossLanguageDefinitionId": "TypeSpec.string",
+          "decorators": []
+        },
+        "optional": false,
+        "readOnly": false,
+        "discriminator": true,
+        "flatten": false,
+        "decorators": [],
+        "crossLanguageDefinitionId": "SampleNamespace.BaseModelWithProperties.kind",
+        "serializationOptions": {
+          "json": {
+            "name": "kind"
+          }
+        },
+        "isHttpMetadata": false
+      },
       "properties": [
+        {
+          "$ref": "7a"
+        },
         {
           "$id": "8",
           "kind": "property",
@@ -158,6 +187,7 @@
       "baseModel": {
         "$ref": "7"
       },
+      "discriminatorValue": "derived",
       "properties": [
         {
           "$id": "12",

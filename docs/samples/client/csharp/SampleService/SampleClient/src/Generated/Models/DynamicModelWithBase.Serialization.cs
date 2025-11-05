@@ -11,7 +11,7 @@ using System.Text.Json;
 namespace SampleTypeSpec
 {
     /// <summary> The DynamicModelWithBase. </summary>
-    public partial class DynamicModelWithBase : ImplicitDynamicModel, IJsonModel<DynamicModelWithBase>
+    public partial class DynamicModelWithBase : BaseModel, IJsonModel<DynamicModelWithBase>
     {
         /// <summary> Initializes a new instance of <see cref="DynamicModelWithBase"/> for deserialization. </summary>
         internal DynamicModelWithBase()
@@ -50,7 +50,7 @@ namespace SampleTypeSpec
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected override ImplicitDynamicModel JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+        protected override BaseModel JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
             string format = options.Format == "W" ? ((IPersistableModel<DynamicModelWithBase>)this).GetFormatFromOptions(options) : options.Format;
             if (format != "J")
@@ -114,7 +114,7 @@ namespace SampleTypeSpec
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected override ImplicitDynamicModel PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
+        protected override BaseModel PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
         {
             string format = options.Format == "W" ? ((IPersistableModel<DynamicModelWithBase>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
@@ -140,6 +140,14 @@ namespace SampleTypeSpec
                 return null;
             }
             return BinaryContent.Create(dynamicModelWithBase, ModelSerializationExtensions.WireOptions);
+        }
+
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="DynamicModelWithBase"/> from. </param>
+        public static explicit operator DynamicModelWithBase(ClientResult result)
+        {
+            using PipelineResponse response = result.GetRawResponse();
+            using JsonDocument document = JsonDocument.Parse(response.Content);
+            return DeserializeDynamicModelWithBase(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
     }
 }

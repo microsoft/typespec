@@ -20,6 +20,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
     public sealed class ScmModelProvider : ModelProvider
     {
+        private readonly InputModelType _inputModel;
         private const string JsonPatchFieldName = "_patch";
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
         private readonly CSharpType _jsonPatchFieldType = typeof(JsonPatch);
@@ -44,6 +45,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         public ScmModelProvider(InputModelType inputModel) : base(inputModel)
         {
+            _inputModel = inputModel;
             IsDynamicModel = inputModel.IsDynamicModel;
             HasDynamicModelSupport = ComputeHasDynamicModelSupport();
             BaseJsonPatchProperty = new(GetBaseJsonPatchProperty());
@@ -109,18 +111,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     constructor.Update(signature: constructor.Signature);
                     constructor.Update(suppressions: [suppression, .. constructor.Suppressions]);
 
-                    if (RawDataField != null && constructor.BodyStatements != null)
+                    if (constructor.BodyStatements != null)
                     {
                         List<MethodBodyStatement> updatedBody = [];
-                        foreach (var statement in constructor.BodyStatements)
+                        if (RawDataField is null)
                         {
-                            if (statement is ExpressionStatement expressionStatement
-                                && expressionStatement.Expression is AssignmentExpression assignmentExpression
-                                && assignmentExpression.Value == RawDataField.AsParameter == true)
+                            updatedBody.AddRange(constructor.BodyStatements);
+                        }
+                        else
+                        {
+                            foreach (var statement in constructor.BodyStatements)
                             {
-                                continue;
+                                if (statement is ExpressionStatement { Expression: AssignmentExpression assignmentExpression }
+                                    && assignmentExpression.Value.Equals(RawDataField.AsParameter))
+                                {
+                                    continue;
+                                }
+                                updatedBody.Add(statement);
                             }
-                            updatedBody.Add(statement);
                         }
 
                         if (JsonPatchField != null)
@@ -278,6 +286,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     currentProvider = currentProvider.BaseModelProvider;
                 }
 
+                bool isDiscriminatedType = currentProvider is ScmModelProvider { DiscriminatorValue: not null }
+                    || currentProvider is ScmModelProvider { _inputModel.DiscriminatorProperty: not null };
+                bool hasDynamicModelSupport = currentProvider is ScmModelProvider { HasDynamicModelSupport: true };
+
                 if (baseRawDataField != null)
                 {
                     var updatedArguments = new List<ValueExpression>(FullConstructor.Signature.Initializer.Arguments.Count);
@@ -286,7 +298,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         VariableExpression rawDataFieldAsVar = baseRawDataField.AsParameter;
                         if (rawDataFieldAsVar.Equals(argument))
                         {
-                            updatedArguments.Add(jsonPatchParameter);
+                            var replacement = !isDiscriminatedType && !hasDynamicModelSupport
+                               ? Default
+                               : jsonPatchParameter;
+                            updatedArguments.Add(replacement);
                         }
                         else
                         {

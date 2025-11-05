@@ -299,12 +299,31 @@ model AnotherDynamicModel {
 }
 
 @dynamicModel
-model DynamicModelWithBase extends ImplicitDynamicModel {
+model DynamicModelWithBase extends BaseModel {
   id?: string;
 }
 
-model ImplicitDynamicModel {
+model BaseModel {
   name: string;
+}
+
+@discriminator("kind")
+model Pet {
+  name: string;
+  weight?: float32;
+}
+model Cat extends Pet {
+  kind: "cat";
+  meow: int32;
+}
+model Dog extends Pet {
+  kind: "dog";
+  bark: string;
+}
+
+@dynamicModel
+model Animal extends Dog {
+  breed?: string;
 }
 
 union DaysOfWeekExtensibleEnum {
@@ -515,3 +534,8 @@ op DynamicModelOperation(@body body: DynamicModel): void;
 @doc("An operation with a dynamic model that has a base model")
 @post
 op DynamicModelWithBaseOperation(@body body: DynamicModelWithBase): void;
+
+@route("animalModel")
+@doc("An operation with a dynamic model that extends a non-dynamic model")
+@post
+op AnimalModelOperation(@body body: Animal): DynamicModelWithBase;
