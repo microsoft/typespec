@@ -484,15 +484,15 @@ function scopeIsNegationOfMultiple(scope: string): boolean {
 }
 
 /**
- * Gets the name of the type, considering ExternalType "external.identity".
+ * Gets the Java simple class name of the ExternalType type.
  * @param type the type.
- * @returns the name of the type.
+ * @returns the Java simple class name.
  */
-export function getTypeName(type: SdkModelType | SdkEnumType): string {
+export function getExternalJavaClassName(type: SdkModelType | SdkEnumType): string {
   if (type.external) {
     const fullyQualifiedClassName = type.external.identity;
     return fullyQualifiedClassName.substring(fullyQualifiedClassName.lastIndexOf(".") + 1);
   } else {
-    return type.name;
+    throw new Error(`Type ${type.name} is not an ExternalType.`);
   }
 }

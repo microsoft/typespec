@@ -144,9 +144,9 @@ import {
   ProcessingCache,
   getAccess,
   getDurationFormat,
+  getExternalJavaClassName,
   getNonNullSdkType,
   getPropertySerializedName,
-  getTypeName,
   getUnionDescription,
   getUsage,
   getXmlSerializationFormat,
@@ -1870,6 +1870,10 @@ export class CodeModelBuilder {
           }),
         );
 
+        this.trackSchemaUsage(requestConditionsSchema, {
+          usage: [SchemaContext.External],
+        });
+
         // parameter (optional) of the group schema
         const requestConditionsParameter = new Parameter(
           schemaName,
@@ -1882,7 +1886,9 @@ export class CodeModelBuilder {
           },
         );
 
-        this.trackSchemaUsage(requestConditionsSchema, { usage: [SchemaContext.Input] });
+        this.trackSchemaUsage(requestConditionsSchema, {
+          usage: [SchemaContext.Input, SchemaContext.External],
+        });
         if (op.convenienceApi) {
           this.trackSchemaUsage(requestConditionsSchema, {
             usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
@@ -2573,7 +2579,7 @@ export class CodeModelBuilder {
 
     const schemaType = type.isFixed ? SealedChoiceSchema : ChoiceSchema;
 
-    const schema = new schemaType(getTypeName(type) ?? name, type.doc ?? "", {
+    const schema = new schemaType(type.name ?? name, type.doc ?? "", {
       summary: type.summary,
       choiceType: valueType as any,
       choices: choices,
@@ -2586,6 +2592,11 @@ export class CodeModelBuilder {
         },
       },
     });
+    if (type.external) {
+      // java name
+      schema.language.java = schema.language.java ?? new Language();
+      schema.language.java.name = getExternalJavaClassName(type);
+    }
     schema.language.default.crossLanguageDefinitionId = type.crossLanguageDefinitionId;
     return this.codeModel.schemas.add(schema);
   }
@@ -2681,7 +2692,7 @@ export class CodeModelBuilder {
       });
     }
     const namespace = getNamespace(rawModelType);
-    const objectSchema = new ObjectSchema(getTypeName(type) ?? name, type.doc ?? "", {
+    const objectSchema = new ObjectSchema(type.name ?? name, type.doc ?? "", {
       summary: type.summary,
       language: {
         default: {
@@ -2695,6 +2706,11 @@ export class CodeModelBuilder {
     objectSchema.language.default.crossLanguageDefinitionId = type.crossLanguageDefinitionId;
 
     if (type.external) {
+      // java name
+      objectSchema.language.java = objectSchema.language.java ?? new Language();
+      objectSchema.language.java.name = getExternalJavaClassName(type);
+
+      // add external to usage
       this.trackSchemaUsage(objectSchema, {
         usage: [SchemaContext.External],
       });
@@ -3267,13 +3283,16 @@ export class CodeModelBuilder {
 
   private _pollResultSchema?: ObjectSchema;
   get pollResultSchema(): ObjectSchema {
-    return (
-      this._pollResultSchema ??
-      (this._pollResultSchema = createPollOperationDetailsSchema(
+    if (!this._pollResultSchema) {
+      this._pollResultSchema = createPollOperationDetailsSchema(
         this.codeModel.schemas,
         this.stringSchema,
-      ))
-    );
+      );
+      this.trackSchemaUsage(this._pollResultSchema, {
+        usage: [SchemaContext.External],
+      });
+    }
+    return this._pollResultSchema;
   }
 
   private createApiVersionParameter(
