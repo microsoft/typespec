@@ -14,16 +14,16 @@ namespace TestProjects.Local.Tests
             builder.Reset(new Uri("https://example.com"));
             
             // Test path building
-            builder.AppendPath("api", false);
-            builder.AppendPath("v1", false);
-            builder.AppendPath("users", false);
+            builder.AppendPath("/api", false);
+            builder.AppendPath("/v1", false);
+            builder.AppendPath("/users", false);
             
             // Test query building
             builder.AppendQuery("filter", "active", false);
             builder.AppendQuery("limit", "10", false);
             
             var result = builder.ToUri();
-            Assert.AreEqual("https://example.com/apiv1users?filter=active&limit=10", result.ToString());
+            Assert.AreEqual("https://example.com/api/v1/users?filter=active&limit=10", result.ToString());
         }
 
         [Test]
@@ -33,13 +33,13 @@ namespace TestProjects.Local.Tests
             builder.Reset(new Uri("https://example.com"));
             
             // Intermix path and query operations
-            builder.AppendPath("api", false);
+            builder.AppendPath("/api", false);
             builder.AppendQuery("version", "1", false);
-            builder.AppendPath("users", false);
+            builder.AppendPath("/users", false);
             builder.AppendQuery("format", "json", false);
             
             var result = builder.ToUri();
-            Assert.AreEqual("https://example.com/apiusers?version=1&format=json", result.ToString());
+            Assert.AreEqual("https://example.com/api/users?version=1&format=json", result.ToString());
         }
 
         [Test]
