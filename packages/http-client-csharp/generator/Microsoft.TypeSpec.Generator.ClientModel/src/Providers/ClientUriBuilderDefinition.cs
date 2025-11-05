@@ -25,8 +25,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private const string AppendPathMethodName = "AppendPath";
 
         private readonly FieldProvider _uriBuilderField;
-
-        private readonly FieldProvider _pathAndQueryBuilderField;
+        private readonly FieldProvider _pathAndQueryField;
+        private readonly FieldProvider _pathLengthField;
 
         private PropertyProvider? _uriBuilderProperty;
         private PropertyProvider UriBuilderProperty => _uriBuilderProperty ??= new(
@@ -46,19 +46,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ScmCodeModelGenerator.Instance.SerializationFormatDefinition.Type,
             new MemberExpression(ScmCodeModelGenerator.Instance.SerializationFormatDefinition.Type, "Default"));
 
-        private PropertyProvider? _pathAndQueryBuilderProperty;
-        private PropertyProvider PathAndQueryBuilderProperty => _pathAndQueryBuilderProperty ??= new(
+        private PropertyProvider? _pathAndQueryProperty;
+        private PropertyProvider PathAndQueryProperty => _pathAndQueryProperty ??= new(
             modifiers: MethodSignatureModifiers.Private,
-            name: "PathAndQueryBuilder",
+            name: "PathAndQuery",
             type: typeof(StringBuilder),
-            body: new ExpressionPropertyBody(new BinaryOperatorExpression(" ??= ", _pathAndQueryBuilderField, New.Instance(typeof(StringBuilder)))),
+            body: new ExpressionPropertyBody(new BinaryOperatorExpression(" ??= ", _pathAndQueryField, New.Instance(typeof(StringBuilder)))),
             description: null,
             enclosingType: this);
 
         public ClientUriBuilderDefinition()
         {
             _uriBuilderField = new(FieldModifiers.Private, typeof(UriBuilder), "_uriBuilder", this);
-            _pathAndQueryBuilderField = new(FieldModifiers.Private, typeof(StringBuilder), "_pathAndQueryBuilder", this);
+            _pathAndQueryField = new(FieldModifiers.Private, typeof(StringBuilder), "_pathAndQuery", this);
+            _pathLengthField = new(FieldModifiers.Private, typeof(int), "_pathLength", this);
         }
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
@@ -72,12 +73,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override FieldProvider[] BuildFields()
         {
-            return [_uriBuilderField, _pathAndQueryBuilderField];
+            return [_uriBuilderField, _pathAndQueryField, _pathLengthField];
         }
 
         protected override PropertyProvider[] BuildProperties()
         {
-            return [UriBuilderProperty, PathAndQueryBuilderProperty];
+            return [UriBuilderProperty, PathAndQueryProperty];
         }
 
         protected override ConstructorProvider[] BuildConstructors()
@@ -117,10 +118,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ReturnType: null,
                 Description: null, ReturnDescription: null);
 
+            var stringBuilder = PathAndQueryProperty.As<StringBuilder>();
             var body = new MethodBodyStatement[]
             {
                 _uriBuilderField.Assign(New.Instance(_uriBuilderField.Type, uriParameter)).Terminate(),
-                _pathAndQueryBuilderField.Assign(New.Instance(_pathAndQueryBuilderField.Type)).Terminate()
+                stringBuilder.Invoke("Clear").Terminate(),
+                stringBuilder.Append(UriBuilderPath).Terminate(),
+                _pathLengthField.Assign(stringBuilder.Length()).Terminate()
             };
 
             return new(signature, body, this, XmlDocProvider.Empty);
@@ -137,7 +141,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ReturnType: null,
                 Description: null, ReturnDescription: null);
 
-            var stringBuilder = PathAndQueryBuilderProperty.As<StringBuilder>();
+            var stringBuilder = PathAndQueryProperty.As<StringBuilder>();
+            var pathLength = (ValueExpression)_pathLengthField;
+
             MethodBodyStatement body = new MethodBodyStatement[]
             {
                 MethodBodyStatement.Empty,
@@ -146,16 +152,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     valueParameter.Assign(Static<Uri>().Invoke(nameof(Uri.EscapeDataString), [valueParameter])).Terminate()
                 },
                 MethodBodyStatement.Empty,
-                stringBuilder.Invoke(nameof(StringBuilder.Clear)).Terminate(),
-                stringBuilder.Append(UriBuilderPath).Terminate(),
-                MethodBodyStatement.Empty,
-                new IfStatement(stringBuilder.Length().GreaterThan(Int(0)).And(stringBuilder.Index(stringBuilder.Length().Minus(Int(1))).Equal(Literal('/'))).And(valueParameter.As<string>().Index(Int(0)).Equal(Literal('/'))))
+                // Check for double slashes: if path ends with '/' and value starts with '/'
+                new IfStatement(pathLength.GreaterThan(Int(0)).And(stringBuilder.Index(new BinaryOperatorExpression(" - ", pathLength, Int(1))).Equal(Literal('/'))).And(valueParameter.As<string>().Index(Int(0)).Equal(Literal('/'))))
                 {
-                    stringBuilder.Remove(stringBuilder.Length().Minus(Int(1)), Int(1)).Terminate()
+                    stringBuilder.Remove(new BinaryOperatorExpression(" - ", pathLength, Int(1)), Int(1)).Terminate(),
+                    _pathLengthField.Assign(new BinaryOperatorExpression(" - ", pathLength, Int(1))).Terminate()
                 },
                 MethodBodyStatement.Empty,
-                stringBuilder.Append(valueParameter).Terminate(),
-                UriBuilderPath.Assign(stringBuilder.InvokeToString()).Terminate()
+                stringBuilder.Invoke("Insert", [pathLength, valueParameter]).Terminate(),
+                _pathLengthField.Assign(new BinaryOperatorExpression(" + ", pathLength, valueParameter.As<string>().Length())).Terminate()
             };
 
             return
@@ -206,15 +211,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ReturnType: null,
                 Description: null, ReturnDescription: null);
 
-            var stringBuilder = PathAndQueryBuilderProperty.As<StringBuilder>();
+            var stringBuilder = PathAndQueryProperty.As<StringBuilder>();
+            var pathLength = (ValueExpression)_pathLengthField;
+
             var body = new MethodBodyStatement[]
             {
                 MethodBodyStatement.Empty,
-                stringBuilder.Invoke(nameof(StringBuilder.Clear)).Terminate(),
-                stringBuilder.Append(UriBuilderQuery).Terminate(),
-                MethodBodyStatement.Empty,
-                new IfStatement(stringBuilder.Length().GreaterThan(Int(0)))
+                // Check if this is the first query parameter
+                new IfStatement(stringBuilder.Length().Equal(pathLength))
                 {
+                    stringBuilder.Append(Literal('?')).Terminate()
+                },
+                new IfStatement(stringBuilder.Length().GreaterThan(pathLength).And(stringBuilder.Index(new BinaryOperatorExpression(" - ", stringBuilder.Length(), Int(1))).NotEqual(Literal('?'))))
+                {
+                    stringBuilder.Append(Literal('&')).Terminate()
                     stringBuilder.Append(Literal('&')).Terminate()
                 },
                 MethodBodyStatement.Empty,
@@ -225,8 +235,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 MethodBodyStatement.Empty,
                 stringBuilder.Append(nameParameter).Terminate(),
                 stringBuilder.Append(Literal('=')).Terminate(),
-                stringBuilder.Append(valueParameter).Terminate(),
-                UriBuilderQuery.Assign(stringBuilder.InvokeToString()).Terminate()
+                stringBuilder.Append(valueParameter).Terminate()
             };
 
             return
@@ -334,8 +343,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ReturnType: typeof(Uri),
                 Description: null, ReturnDescription: null);
 
+            var stringBuilder = PathAndQueryProperty.As<StringBuilder>();
+            var pathLength = (ValueExpression)_pathLengthField;
+
             var body = new MethodBodyStatement[]
             {
+                // Set the path portion
+                UriBuilderPath.Assign(stringBuilder.Invoke("ToString", [Int(0), pathLength])).Terminate(),
+                MethodBodyStatement.Empty,
+                // Set the query portion if it exists
+                new IfStatement(stringBuilder.Length().GreaterThan(pathLength))
+                {
+                    UriBuilderQuery.Assign(stringBuilder.Invoke("ToString", [new BinaryOperatorExpression(" + ", pathLength, Int(1)), new BinaryOperatorExpression(" - ", new BinaryOperatorExpression(" - ", stringBuilder.Length(), pathLength), Int(1))])).Terminate()
+                },
+                new IfStatement(stringBuilder.Length().Equal(pathLength))
+                {
+                    UriBuilderQuery.Assign(Literal("")).Terminate()
+                },
+                MethodBodyStatement.Empty,
                 Return(new MemberExpression(UriBuilderProperty, nameof(UriBuilder.Uri)))
             };
 

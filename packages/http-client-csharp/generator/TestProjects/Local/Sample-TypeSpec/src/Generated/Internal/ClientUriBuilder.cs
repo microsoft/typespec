@@ -15,7 +15,8 @@ namespace SampleTypeSpec
     internal partial class ClientUriBuilder
     {
         private UriBuilder _uriBuilder;
-        private StringBuilder _pathAndQueryBuilder;
+        private StringBuilder _pathAndQuery;
+        private int _pathLength;
 
         public ClientUriBuilder()
         {
@@ -23,12 +24,14 @@ namespace SampleTypeSpec
 
         private UriBuilder UriBuilder => _uriBuilder  ??=  new UriBuilder();
 
-        private StringBuilder PathAndQueryBuilder => _pathAndQueryBuilder  ??=  new StringBuilder();
+        private StringBuilder PathAndQuery => _pathAndQuery  ??=  new StringBuilder();
 
         public void Reset(Uri uri)
         {
             _uriBuilder = new UriBuilder(uri);
-            _pathAndQueryBuilder = new StringBuilder();
+            PathAndQuery.Clear();
+            PathAndQuery.Append(UriBuilder.Path);
+            _pathLength = PathAndQuery.Length;
         }
 
         public void AppendPath(string value, bool escape)
@@ -37,14 +40,13 @@ namespace SampleTypeSpec
             {
                 value = Uri.EscapeDataString(value);
             }
-            PathAndQueryBuilder.Clear();
-            PathAndQueryBuilder.Append(UriBuilder.Path);
-            if (PathAndQueryBuilder.Length > 0 && PathAndQueryBuilder[PathAndQueryBuilder.Length - 1] == '/' && value[0] == '/')
+            if (_pathLength > 0 && PathAndQuery[_pathLength  -  1] == '/' && value[0] == '/')
             {
-                PathAndQueryBuilder.Remove(PathAndQueryBuilder.Length - 1, 1);
+                PathAndQuery.Remove(_pathLength  -  1, 1);
+                _pathLength = _pathLength  -  1;
             }
-            PathAndQueryBuilder.Append(value);
-            UriBuilder.Path = PathAndQueryBuilder.ToString();
+            PathAndQuery.Insert(_pathLength, value);
+            _pathLength = _pathLength  +  value.Length;
         }
 
         public void AppendPath(bool value, bool escape = false) => AppendPath(TypeFormatters.ConvertToString(value), escape);
@@ -74,20 +76,21 @@ namespace SampleTypeSpec
 
         public void AppendQuery(string name, string value, bool escape)
         {
-            PathAndQueryBuilder.Clear();
-            PathAndQueryBuilder.Append(UriBuilder.Query);
-            if (PathAndQueryBuilder.Length > 0)
+            if (PathAndQuery.Length == _pathLength)
             {
-                PathAndQueryBuilder.Append('&');
+                PathAndQuery.Append('?');
+            }
+            if (PathAndQuery.Length > _pathLength && PathAndQuery[PathAndQuery.Length  -  1] != '?')
+            {
+                PathAndQuery.Append('&');
             }
             if (escape)
             {
                 value = Uri.EscapeDataString(value);
             }
-            PathAndQueryBuilder.Append(name);
-            PathAndQueryBuilder.Append('=');
-            PathAndQueryBuilder.Append(value);
-            UriBuilder.Query = PathAndQueryBuilder.ToString();
+            PathAndQuery.Append(name);
+            PathAndQuery.Append('=');
+            PathAndQuery.Append(value);
         }
 
         public void AppendQuery(string name, bool value, bool escape = false) => AppendQuery(name, TypeFormatters.ConvertToString(value), escape);
@@ -121,6 +124,15 @@ namespace SampleTypeSpec
 
         public Uri ToUri()
         {
+            UriBuilder.Path = PathAndQuery.ToString(0, _pathLength);
+            if (PathAndQuery.Length > _pathLength)
+            {
+                UriBuilder.Query = PathAndQuery.ToString(_pathLength  +  1, PathAndQuery.Length  -  _pathLength  -  1);
+            }
+            if (PathAndQuery.Length == _pathLength)
+            {
+                UriBuilder.Query = "";
+            }
             return UriBuilder.Uri;
         }
     }
