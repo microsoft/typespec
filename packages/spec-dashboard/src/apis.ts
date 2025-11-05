@@ -2,6 +2,7 @@ import {
   CoverageReport,
   GeneratorMetadata,
   ResolvedCoverageReport,
+  ScenarioData,
   ScenarioManifest,
   SpecCoverageClient,
 } from "@typespec/spec-coverage-sdk";
@@ -74,11 +75,11 @@ function splitAzureManifest(manifest: ScenarioManifest): ScenarioManifest[] {
     return [manifest];
   }
 
-  const managementScenarios = manifest.scenarios.filter((s: any) =>
+  const managementScenarios = manifest.scenarios.filter((s: ScenarioData) =>
     isManagementPlaneScenario(s.name),
   );
   const dataScenarios = manifest.scenarios.filter(
-    (s: any) => !isManagementPlaneScenario(s.name),
+    (s: ScenarioData) => !isManagementPlaneScenario(s.name),
   );
 
   const result: ScenarioManifest[] = [];
@@ -135,8 +136,8 @@ export async function getCoverageSummaries(
         });
       } else if (splitManifests.length === 1) {
         // Only one type of scenarios
-        const hasManagement = splitManifests[0].scenarios.some((s: any) =>
-          isManagementPlaneScenario(s.name),
+        const hasManagement = splitManifests[0].scenarios.some(
+          (s: ScenarioData) => isManagementPlaneScenario(s.name),
         );
         allManifests.push({
           manifest: splitManifests[0],
@@ -178,13 +179,14 @@ function getSuiteReportForManifest(
   report: ResolvedCoverageReport,
   manifest: ScenarioManifest,
 ): GeneratorCoverageSuiteReport | undefined {
-  let data: any;
+  let data: CoverageReport | undefined;
   for (const [key, value] of Object.entries(report)) {
     if (key === "generatorMetadata") {
       continue;
     }
-    if ((value as any).scenariosMetadata.packageName === manifest.setName) {
-      data = value;
+    const coverageReport = value as CoverageReport;
+    if (coverageReport.scenariosMetadata.packageName === manifest.setName) {
+      data = coverageReport;
     }
   }
   return data
