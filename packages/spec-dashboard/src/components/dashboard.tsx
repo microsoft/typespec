@@ -8,7 +8,9 @@ export interface DashboardProps {
   coverageSummaries: CoverageSummary[];
 }
 
-export const Dashboard: FunctionComponent<DashboardProps> = ({ coverageSummaries }) => {
+export const Dashboard: FunctionComponent<DashboardProps> = ({
+  coverageSummaries,
+}) => {
   const summaryTables = coverageSummaries.map((coverageSummary, i) => (
     <div key={i} css={{ margin: 5 }}>
       <DashboardTable coverageSummary={coverageSummary} />
@@ -30,15 +32,22 @@ export const Dashboard: FunctionComponent<DashboardProps> = ({ coverageSummaries
   );
 };
 
-const CadlRanchSpecsCard: FunctionComponent<{ coverageSummary: CoverageSummary }> = ({
-  coverageSummary,
-}) => {
+const CadlRanchSpecsCard: FunctionComponent<{
+  coverageSummary: CoverageSummary;
+}> = ({ coverageSummary }) => {
   let commitLink = "",
     heading = "",
     packageName = "";
   if (coverageSummary.manifest.setName === "@azure-tools/azure-http-specs") {
     commitLink = `https://github.com/Azure/typespec-azure/commit/${coverageSummary.manifest.commit}`;
-    heading = `Azure Specs Manifest`;
+    // Update heading based on category
+    if (coverageSummary.category === "azure-data-plane") {
+      heading = `Azure Data Plane Specs Manifest`;
+    } else if (coverageSummary.category === "azure-management-plane") {
+      heading = `Azure Management Plane Specs Manifest`;
+    } else {
+      heading = `Azure Specs Manifest`;
+    }
     packageName = "azure-http-specs";
   } else {
     commitLink = `https://github.com/microsoft/typespec/commit/${coverageSummary.manifest.commit}`;
@@ -53,7 +62,11 @@ const CadlRanchSpecsCard: FunctionComponent<{ coverageSummary: CoverageSummary }
         <InfoEntry
           label="Commit"
           caption="Git Sha of the manifest used to create this report."
-          value={<a href={commitLink}>{coverageSummary.manifest.commit.slice(0, 6)}</a>}
+          value={
+            <a href={commitLink}>
+              {coverageSummary.manifest.commit.slice(0, 6)}
+            </a>
+          }
         />
         <InfoEntry
           label="Version"
