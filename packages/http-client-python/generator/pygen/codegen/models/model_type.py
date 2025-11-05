@@ -390,12 +390,23 @@ class TypedDictModelType(GeneratedModelType):
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = super().imports(**kwargs)
         # TypedDict needs the TypedDict import
-        file_import.add_submodule_import("typing", "TypedDict", ImportType.STDLIB)
+        if kwargs.get("is_operation_file", False):
+            file_import.add_submodule_import("typing", "TypedDict", ImportType.STDLIB)
         if kwargs.get("is_response", False):
             file_import.define_mutable_mapping_type()
         return file_import
 
     def type_annotation(self, **kwargs: Any) -> str:
-      if kwargs.get("is_response", False):
-          return self.type_annotation(**kwargs)
-      return "JSON"
+        if kwargs.get("is_response", False):
+            return "JSON"
+        return super().type_annotation(**kwargs)
+
+    def docstring_text(self, **kwargs):
+        if kwargs.get("is_response", False):
+            return "JSON"
+        return super().docstring_text(**kwargs)
+
+    def docstring_type(self, **kwargs: Any) -> str:
+        if kwargs.get("is_response", False):
+            return "JSON"
+        return super().docstring_type(**kwargs)

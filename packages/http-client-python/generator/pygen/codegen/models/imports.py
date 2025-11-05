@@ -55,14 +55,14 @@ class ImportModel:
         # version_modules: this field is for imports submodule from specified module by python version.
         #                  It's a list of "python version, module_name, comments".
         #                  The python version is in form of (major, minor), for instance (3, 9) stands for py3.9.
-        # When version_modules is "((3, 9), 'collections.abc')", generated sdk code is:
+        # When version_modules is "((3, 9), 'collections.abc', 'hello')", generated sdk code is:
         # ```
         # if sys.version_info >= (3, 9):
-        #     from typing import MutableMapping
+        #     from collections.abc import MutableMapping # hello
         # else:
-        #     from typing_extensions import MutableMapping  # type: ignore
+        #     from typing import MutableMapping  # type: ignore
         # ```
-        
+
         self.version_modules = version_modules
 
     def __eq__(self, other):

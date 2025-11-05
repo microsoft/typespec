@@ -410,32 +410,36 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
         file_import.merge(self.get_request_builder_import(self.request_builder, async_mode, serialize_namespace))
         if self.overloads:
             file_import.add_submodule_import("typing", "overload", ImportType.STDLIB)
-        if self.code_model.options["models-mode"] == "dpg":
+        if self.code_model.options["models-mode"] in ("dpg", "typeddict"):
             relative_path = self.code_model.get_relative_import_path(
                 serialize_namespace, module_name="_utils.model_base"
             )
             body_param = self.parameters.body_parameter if self.parameters.has_body else None
             if body_param and not isinstance(body_param.type, BinaryType):
-                if self.has_form_data_body:
-                    file_import.add_submodule_import(
-                        relative_path,
-                        "Model",
-                        ImportType.LOCAL,
-                        alias="_Model",
-                    )
-                elif xml_serializable(self.parameters.body_parameter.default_content_type):
-                    file_import.add_submodule_import(
-                        relative_path,
-                        "_get_element",
-                        ImportType.LOCAL,
-                    )
-                elif json_serializable(self.parameters.body_parameter.default_content_type):
-                    file_import.add_submodule_import(
-                        relative_path,
-                        "SdkJSONEncoder",
-                        ImportType.LOCAL,
-                    )
-                    file_import.add_import("json", ImportType.STDLIB)
+                if self.code_model.options["models-mode"] == "dpg":
+                    if self.has_form_data_body:
+                        file_import.add_submodule_import(
+                            relative_path,
+                            "Model",
+                            ImportType.LOCAL,
+                            alias="_Model",
+                        )
+                    elif xml_serializable(self.parameters.body_parameter.default_content_type):
+                        file_import.add_submodule_import(
+                            relative_path,
+                            "_get_element",
+                            ImportType.LOCAL,
+                        )
+                    elif json_serializable(self.parameters.body_parameter.default_content_type):
+                        file_import.add_submodule_import(
+                            relative_path,
+                            "SdkJSONEncoder",
+                            ImportType.LOCAL,
+                        )
+                        file_import.add_import("json", ImportType.STDLIB)
+                else:
+                    if json_serializable(self.parameters.body_parameter.default_content_type):
+                        file_import.add_import("json", ImportType.STDLIB)
             if any(xml_serializable(str(r.default_content_type)) for r in self.responses + self.exceptions):
                 file_import.add_submodule_import(relative_path, "_deserialize_xml", ImportType.LOCAL)
             elif self.need_deserialize:

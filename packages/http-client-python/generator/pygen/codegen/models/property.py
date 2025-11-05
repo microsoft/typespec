@@ -157,9 +157,12 @@ class Property(BaseModel):  # pylint: disable=too-many-instance-attributes
         file_import.merge(self.type.imports(**kwargs))
         if (self.optional and self.client_default_value is None) or self.readonly:
             if self.code_model.options["models-mode"] == "typeddict":
-              file_import.add_submodule_import("typing_extensions", "NotRequired", ImportType.STDLIB, version_modules=[((3, 11), "typing")])
-              if self.is_nullable:
-                  file_import.add_submodule_import("typing", "Optional", ImportType.STDLIB)
+                file_import.add_import("sys", ImportType.STDLIB)
+                file_import.add_submodule_import(
+                    "typing_extensions", "NotRequired", ImportType.STDLIB, version_modules=(((3, 11), "typing", ""),)
+                )
+                if self.is_nullable:
+                    file_import.add_submodule_import("typing", "Optional", ImportType.STDLIB)
             else:
                 file_import.add_submodule_import("typing", "Optional", ImportType.STDLIB)
         if self.code_model.options["models-mode"] == "dpg":

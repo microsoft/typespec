@@ -379,13 +379,13 @@ class DpgModelSerializer(_ModelSerializer):
 
 
 class TypedDictModelSerializer(_ModelSerializer):
-    """Serializer for TypedDict-based models (input-only, basic types)."""
+    """Serializer for TypedDict-based models"""
 
     def imports(self) -> FileImport:
         file_import = FileImport(self.code_model)
         # Add TypedDict import
         file_import.add_submodule_import("typing", "TypedDict", ImportType.STDLIB)
-        
+
         for model in self.models:
             if model.base == "json":
                 continue

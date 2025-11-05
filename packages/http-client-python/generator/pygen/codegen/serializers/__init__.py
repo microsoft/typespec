@@ -293,9 +293,9 @@ class JinjaSerializer(ReaderAndWriter):
         if models_mode == "dpg":
             serializer = DpgModelSerializer
         elif models_mode == "typeddict":
-            serializer = TypedDictModelSerializer
+            serializer = TypedDictModelSerializer  # type: ignore
         else:
-            serializer = MsrestModelSerializer
+            serializer = MsrestModelSerializer  # type: ignore
         if self.code_model.has_non_json_models(models):
             self.write_file(
                 models_path / Path(f"{self.code_model.models_filename}.py"),
