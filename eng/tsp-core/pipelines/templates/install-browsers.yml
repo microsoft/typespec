@@ -1,4 +1,7 @@
 # Template installing browsers
 steps:
-  - script: pnpm exec playwright install
+  - script: |
+      sudo dpkg --configure -a
+      npx playwright install --with-deps
     displayName: Install playwright browsers
+    workingDirectory: packages/typespec-azure-playground-website
