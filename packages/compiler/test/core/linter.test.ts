@@ -2,7 +2,12 @@ import { describe, it } from "vitest";
 
 import { createLinterRule, createTypeSpecLibrary } from "../../src/core/library.js";
 import { Linter, createLinter, resolveLinterDefinition } from "../../src/core/linter.js";
-import type { LibraryInstance, LinterDefinition } from "../../src/index.js";
+import type {
+  Interface,
+  LibraryInstance,
+  LinterDefinition,
+  LinterRuleContext,
+} from "../../src/index.js";
 import {
   createTestHost,
   expectDiagnosticEmpty,
@@ -24,6 +29,42 @@ const noModelFoo = createLinterRule({
             target,
           });
         }
+      },
+    };
+  },
+});
+
+const noInterfaceFooAsync = createLinterRule({
+  name: "no-interface-foo2-async",
+  description: "",
+  severity: "warning",
+  messages: {
+    default: "Cannot call interface 'Foo2' (async rule)",
+  },
+  async: true,
+  create(
+    context: LinterRuleContext<{
+      readonly default: "Cannot call interface 'Foo2' (async rule)";
+    }> & { interfaceToCheck?: Interface[] },
+  ) {
+    return {
+      interface: (target) => {
+        if (!context.interfaceToCheck) {
+          context.interfaceToCheck = [];
+        }
+        context.interfaceToCheck.push(target);
+      },
+      exitRoot: async () => {
+        const r = await new Promise<Interface[]>((resolve) => {
+          setTimeout(() => {
+            resolve(context.interfaceToCheck?.filter((t) => t.name === "Foo2") ?? []);
+          }, 50);
+        });
+        r.forEach((target) => {
+          context.reportDiagnostic({
+            target,
+          });
+        });
       },
     };
   },
@@ -83,6 +124,13 @@ describe("compiler: linter", () => {
       rules: [noModelFoo],
     });
     expectDiagnosticEmpty((await linter.lint({ asyncRules: false })).diagnostics);
+  });
+
+  it("registering a rule doesn't enable it: async", async () => {
+    const linter = await createTestLinter(`interface Foo2 {}`, {
+      rules: [noInterfaceFooAsync],
+    });
+    expectDiagnosticEmpty((await linter.lint({ asyncRules: true })).diagnostics);
   });
 
   it("enabling a rule that doesn't exists emit a diagnostic", async () => {
@@ -199,6 +247,22 @@ describe("compiler: linter", () => {
       });
     });
 
+    it("emit a diagnostic if rule report one: async", async () => {
+      const linter = await createTestLinter(`interface Foo2 {}`, {
+        rules: [noInterfaceFooAsync],
+      });
+      expectDiagnosticEmpty(
+        await linter.extendRuleSet({
+          enable: { "@typespec/test-linter/no-interface-foo2-async": true },
+        }),
+      );
+      expectDiagnostics((await linter.lint({ asyncRules: true })).diagnostics, {
+        severity: "warning",
+        code: "@typespec/test-linter/no-interface-foo2-async",
+        message: `Cannot call interface 'Foo2' (async rule)`,
+      });
+    });
+
     it("emit no diagnostic if rules report none", async () => {
       const linter = await createTestLinter(`model Bar {}`, {
         rules: [noModelFoo],
@@ -209,6 +273,18 @@ describe("compiler: linter", () => {
         }),
       );
       expectDiagnosticEmpty((await linter.lint({ asyncRules: false })).diagnostics);
+    });
+
+    it("emit no diagnostic if rule report none: async", async () => {
+      const linter = await createTestLinter(`interface Foo3 {}`, {
+        rules: [noInterfaceFooAsync],
+      });
+      expectDiagnosticEmpty(
+        await linter.extendRuleSet({
+          enable: { "@typespec/test-linter/no-interface-foo2-async": true },
+        }),
+      );
+      expectDiagnosticEmpty((await linter.lint({ asyncRules: true })).diagnostics);
     });
   });
 
@@ -286,6 +362,48 @@ describe("compiler: linter", () => {
       model Foo {}`);
 
       expectDiagnosticEmpty(diagnostics);
+    });
+  });
+
+  describe("async and sync rule together", () => {
+    it("runs both async and sync rules", async () => {
+      const linter = await createTestLinterAndEnableRules(
+        {
+          "main.tsp": `
+        model Foo {}
+        interface Foo2 {}
+      `,
+        },
+        {
+          rules: [noModelFoo, noInterfaceFooAsync],
+        },
+      );
+
+      const resultSync = await linter.lint({ asyncRules: false });
+      expectDiagnostics(
+        resultSync.diagnostics,
+        {
+          severity: "warning",
+          code: "@typespec/test-linter/no-model-foo",
+          message: `Cannot call model 'Foo'`,
+        },
+        {
+          strict: true,
+        },
+      );
+
+      const resultAsync = await linter.lint({ asyncRules: true });
+      expectDiagnostics(
+        resultAsync.diagnostics,
+        {
+          severity: "warning",
+          code: "@typespec/test-linter/no-interface-foo2-async",
+          message: `Cannot call interface 'Foo2' (async rule)`,
+        },
+        {
+          strict: true,
+        },
+      );
     });
   });
 });
