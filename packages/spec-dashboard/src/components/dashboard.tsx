@@ -8,9 +8,7 @@ export interface DashboardProps {
   coverageSummaries: CoverageSummary[];
 }
 
-export const Dashboard: FunctionComponent<DashboardProps> = ({
-  coverageSummaries,
-}) => {
+export const Dashboard: FunctionComponent<DashboardProps> = ({ coverageSummaries }) => {
   const summaryTables = coverageSummaries.map((coverageSummary, i) => (
     <div key={i} css={{ margin: 5 }}>
       <DashboardTable coverageSummary={coverageSummary} />
@@ -46,11 +44,7 @@ const CadlRanchSpecsCard: FunctionComponent<{
         <InfoEntry
           label="Commit"
           caption="Git Sha of the manifest used to create this report."
-          value={
-            <a href={commitLink}>
-              {coverageSummary.manifest.commit.slice(0, 6)}
-            </a>
-          }
+          value={<a href={commitLink}>{coverageSummary.manifest.commit.slice(0, 6)}</a>}
         />
         <InfoEntry
           label="Version"

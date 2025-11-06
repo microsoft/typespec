@@ -73,9 +73,7 @@ function splitManifestByTables(
   const packageName = manifest.packageName ?? "";
 
   // Find table definitions that apply to this manifest
-  const applicableTables = tableDefinitions.filter(
-    (table) => table.packageName === packageName,
-  );
+  const applicableTables = tableDefinitions.filter((table) => table.packageName === packageName);
 
   if (applicableTables.length === 0) {
     // No table definitions for this manifest, return as-is with a default name
@@ -149,8 +147,7 @@ export async function getCoverageSummaries(
   >;
 
   // Split manifests into tables based on configuration
-  const allManifests: Array<{ manifest: ScenarioManifest; tableName: string }> =
-    [];
+  const allManifests: Array<{ manifest: ScenarioManifest; tableName: string }> = [];
 
   for (const manifest of manifests) {
     if (options.tables && options.tables.length > 0) {
@@ -179,13 +176,9 @@ function processReports(
   reports: Record<string, ResolvedCoverageReport | undefined>,
   manifest: ScenarioManifest,
 ) {
-  const generatorReports: Record<
-    string,
-    GeneratorCoverageSuiteReport | undefined
-  > = {};
+  const generatorReports: Record<string, GeneratorCoverageSuiteReport | undefined> = {};
   for (const [emitterName, report] of Object.entries(reports)) {
-    generatorReports[emitterName] =
-      report && getSuiteReportForManifest(report, manifest);
+    generatorReports[emitterName] = report && getSuiteReportForManifest(report, manifest);
   }
   return generatorReports;
 }
@@ -201,8 +194,7 @@ function getSuiteReportForManifest(
     }
     if (
       value.scenariosMetadata.packageName === (manifest.packageName ?? "") ||
-      value.scenariosMetadata.packageName ===
-        (manifest as any).setName /* old name*/
+      value.scenariosMetadata.packageName === (manifest as any).setName /* old name*/
     ) {
       data = value;
     }
@@ -223,22 +215,15 @@ async function loadReports(
 }> {
   const results = await Promise.all(
     (options.modes ?? ["standard"]).map(
-      async (
-        mode,
-      ): Promise<
-        [string, Record<string, ResolvedCoverageReport | undefined>]
-      > => {
+      async (mode): Promise<[string, Record<string, ResolvedCoverageReport | undefined>]> => {
         const items = await Promise.all(
           options.emitterNames.map(
-            async (
-              emitterName,
-            ): Promise<[string, ResolvedCoverageReport | undefined]> => {
+            async (emitterName): Promise<[string, ResolvedCoverageReport | undefined]> => {
               try {
-                const report =
-                  await coverageClient.coverage.getLatestCoverageFor(
-                    emitterName,
-                    mode,
-                  );
+                const report = await coverageClient.coverage.getLatestCoverageFor(
+                  emitterName,
+                  mode,
+                );
                 return [emitterName, report];
               } catch (error) {
                 // eslint-disable-next-line no-console
