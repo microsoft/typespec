@@ -7,7 +7,6 @@ import static com.microsoft.typespec.http.client.generator.core.util.ClientModel
 import static com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil.includePropertyInConstructor;
 
 import com.azure.core.util.CoreUtils;
-import com.azure.xml.XmlSerializable;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.implementation.ClientModelPropertiesManager;
 import com.microsoft.typespec.http.client.generator.core.implementation.ClientModelPropertyWithMetadata;
@@ -110,7 +109,7 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
         }
 
         String interfaceName = (model.getXmlName() != null)
-            ? XmlSerializable.class.getSimpleName()
+            ? ClassType.XML_SERIALIZABLE.getName()
             : ClassType.JSON_SERIALIZABLE.getName();
 
         return classSignature + " implements " + interfaceName + "<" + model.getName() + ">";
