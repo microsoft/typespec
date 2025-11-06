@@ -8,7 +8,9 @@ export interface DashboardProps {
   coverageSummaries: CoverageSummary[];
 }
 
-export const Dashboard: FunctionComponent<DashboardProps> = ({ coverageSummaries }) => {
+export const Dashboard: FunctionComponent<DashboardProps> = ({
+  coverageSummaries,
+}) => {
   const summaryTables = coverageSummaries.map((coverageSummary, i) => (
     <div key={i} css={{ margin: 5 }}>
       <DashboardTable coverageSummary={coverageSummary} />
@@ -33,10 +35,9 @@ export const Dashboard: FunctionComponent<DashboardProps> = ({ coverageSummaries
 const CadlRanchSpecsCard: FunctionComponent<{
   coverageSummary: CoverageSummary;
 }> = ({ coverageSummary }) => {
-  const manifest = coverageSummary.manifest as any; // Type has extended properties not in base interface
-  const commitLink = `${manifest.repo ?? "https://github.com/microsoft/typespec"}/commit/${manifest.commit}`;
-  const heading = manifest.displayName ?? `${coverageSummary.tableName} Specs Manifest`;
-  const packageName = manifest.setName;
+  const commitLink = `${coverageSummary.manifest.repo}/commit/${coverageSummary.manifest.commit}`;
+  const heading = coverageSummary.manifest.displayName;
+  const packageName = coverageSummary.manifest.packageName;
 
   return (
     <Card css={{ width: 500 }}>
@@ -45,7 +46,11 @@ const CadlRanchSpecsCard: FunctionComponent<{
         <InfoEntry
           label="Commit"
           caption="Git Sha of the manifest used to create this report."
-          value={<a href={commitLink}>{coverageSummary.manifest.commit.slice(0, 6)}</a>}
+          value={
+            <a href={commitLink}>
+              {coverageSummary.manifest.commit.slice(0, 6)}
+            </a>
+          }
         />
         <InfoEntry
           label="Version"
