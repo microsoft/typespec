@@ -1,0 +1,11 @@
+{
+  "Name": "TestModel",
+  "Description": "Test model for InputParameter converter tests",
+  "ApiVersions": ["1.0.0"],
+  "Enums": [],
+  "Models": [],
+  "Clients": [],
+  "Auth": {
+    "$kind": "none"
+  }
+}

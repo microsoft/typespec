@@ -256,5 +256,40 @@ namespace Microsoft.TypeSpec.Generator.Input
                     throw new ArgumentOutOfRangeException();
             }
         }
+
+        public static bool TryReadInputMethodParameterArray(this ref Utf8JsonReader reader, string propertyName, JsonSerializerOptions options, ReferenceResolver resolver, ref IReadOnlyList<InputMethodParameter>? value)
+        {
+            if (reader.TokenType != JsonTokenType.PropertyName)
+            {
+                throw new JsonException();
+            }
+
+            if (reader.GetString() != propertyName)
+            {
+                return false;
+            }
+
+            reader.Read();
+            var result = new List<InputMethodParameter>();
+            if (reader.TokenType != JsonTokenType.StartArray)
+            {
+                throw new JsonException();
+            }
+            reader.Read();
+            while (reader.TokenType != JsonTokenType.EndArray)
+            {
+                // Try to read as reference first
+                var methodParam = reader.ReadReferenceAndResolve<InputMethodParameter>(resolver);
+                if (methodParam == null)
+                {
+                    // Not a reference, read as normal object
+                    methodParam = reader.ReadWithConverter<InputMethodParameter>(options);
+                }
+                result.Add(methodParam ?? throw new JsonException());
+            }
+            reader.Read();
+            value = result;
+            return true;
+        }
     }
 }

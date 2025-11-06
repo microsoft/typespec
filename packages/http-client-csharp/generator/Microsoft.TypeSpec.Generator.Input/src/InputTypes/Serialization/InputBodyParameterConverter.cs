@@ -81,7 +81,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadComplexType("contentTypes",options, ref contentTypes)
                     || reader.TryReadComplexType("defaultContentType", options, ref defaultContentType)
                     || reader.TryReadComplexType("decorators", options, ref decorators)
-                    || reader.TryReadComplexType("correspondingMethodParams", options, ref correspondingMethodParams);
+                    || reader.TryReadInputMethodParameterArray("correspondingMethodParams", options, options.ReferenceHandler!.ReferenceResolver!, ref correspondingMethodParams);
 
                 if (!isKnownProperty)
                 {

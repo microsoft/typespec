@@ -84,7 +84,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString("arraySerializationDelimiter", ref arraySerializationDelimiter)
                     || reader.TryReadBoolean("explode", ref explode)
                     || reader.TryReadComplexType("decorators", options, ref decorators)
-                    || reader.TryReadComplexType("correspondingMethodParams", options, ref correspondingMethodParams);
+                    || reader.TryReadInputMethodParameterArray("correspondingMethodParams", options, options.ReferenceHandler!.ReferenceResolver!, ref correspondingMethodParams);
 
                 if (!isKnownProperty)
                 {
