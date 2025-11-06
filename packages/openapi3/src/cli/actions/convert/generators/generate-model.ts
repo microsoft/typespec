@@ -1,5 +1,5 @@
 import { printIdentifier } from "@typespec/compiler";
-import { OpenAPI3Encoding, OpenAPI3Schema, Refable } from "../../../../types.js";
+import { OpenAPI3Encoding, Refable, SupportedOpenAPISchema } from "../../../../types.js";
 import {
   TypeSpecAlias,
   TypeSpecDataTypes,
@@ -96,7 +96,7 @@ function generateUnion(union: TypeSpecUnion, context: Context): string {
 
   const schema = union.schema;
 
-  const getVariantName = (member: Refable<OpenAPI3Schema>) => {
+  const getVariantName = (member: Refable<SupportedOpenAPISchema>) => {
     if (union.schema.discriminator === undefined) {
       return "";
     }
@@ -159,7 +159,7 @@ function generateUnion(union: TypeSpecUnion, context: Context): string {
     }
   }
 
-  if (schema.nullable) {
+  if ("nullable" in schema && schema.nullable) {
     definitions.push("null,");
   }
 

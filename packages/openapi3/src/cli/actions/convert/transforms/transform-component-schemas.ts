@@ -1,5 +1,5 @@
 import { printIdentifier } from "@typespec/compiler";
-import { OpenAPI3Schema, OpenAPISchema3_1, Refable } from "../../../../types.js";
+import { Refable, SupportedOpenAPISchema } from "../../../../types.js";
 import {
   TypeSpecDataTypes,
   TypeSpecDecorator,
@@ -32,7 +32,7 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
     types: TypeSpecDataTypes[],
     name: string,
     context: Context,
-    schema: OpenAPI3Schema,
+    schema: Refable<SupportedOpenAPISchema>,
   ): void {
     const kind = getTypeSpecKind(schema);
     switch (kind) {
@@ -52,7 +52,7 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
   function populateAlias(
     types: TypeSpecDataTypes[],
     rawName: string,
-    schema: Refable<OpenAPI3Schema>,
+    schema: Refable<SupportedOpenAPISchema>,
   ): void {
     if (!("$ref" in schema)) {
       return;
@@ -69,7 +69,12 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
     });
   }
 
-  function populateEnum(types: TypeSpecDataTypes[], name: string, schema: OpenAPI3Schema): void {
+  function populateEnum(
+    types: TypeSpecDataTypes[],
+    name: string,
+    schema: Refable<SupportedOpenAPISchema>,
+  ): void {
+    if ("$ref" in schema) return;
     const tsEnum: TypeSpecEnum = {
       kind: "enum",
       ...getScopeAndName(name),
@@ -85,7 +90,7 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
     types: TypeSpecDataTypes[],
     rawName: string,
     context: Context,
-    schema: OpenAPI3Schema,
+    schema: Refable<SupportedOpenAPISchema>,
   ): void {
     const { name, scope } = getScopeAndName(rawName);
 
@@ -107,25 +112,32 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
       decorators: [...getDecoratorsForSchema(effectiveSchema)],
       doc: effectiveSchema.description || schema.description,
       properties: [
-        ...getModelPropertiesFromObjectSchema(effectiveSchema),
+        ...("$ref" in effectiveSchema ? [] : getModelPropertiesFromObjectSchema(effectiveSchema)),
         ...allOfDetails.properties,
       ],
       additionalProperties:
-        effectiveSchema.additionalProperties === true
-          ? {} // Use empty object to represent Record<unknown>
-          : typeof effectiveSchema.additionalProperties === "object"
-            ? effectiveSchema.additionalProperties
-            : undefined,
+        "additionalProperties" in effectiveSchema
+          ? effectiveSchema.additionalProperties === true
+            ? {} // Use empty object to represent Record<unknown>
+            : typeof effectiveSchema.additionalProperties === "object"
+              ? effectiveSchema.additionalProperties
+              : undefined
+          : undefined,
       extends: allOfDetails.extends,
       is: isParent,
-      type: effectiveSchema.type,
+      type: "type" in effectiveSchema ? effectiveSchema.type : undefined,
       spread: allOfDetails.spread,
       isModelReferencedAsMultipartRequestBody,
       encoding,
     });
   }
 
-  function populateUnion(types: TypeSpecDataTypes[], name: string, schema: OpenAPI3Schema): void {
+  function populateUnion(
+    types: TypeSpecDataTypes[],
+    name: string,
+    schema: Refable<SupportedOpenAPISchema>,
+  ): void {
+    if ("$ref" in schema) return;
     // Extract description and decorators from meaningful union members
     const unionMetadata = extractUnionMetadata(schema);
 
@@ -144,7 +156,7 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
    * Extracts meaningful description and decorators from union members.
    * Handles anyOf/oneOf with null, and type arrays like ["string", "null"].
    */
-  function extractUnionMetadata(schema: OpenAPI3Schema | OpenAPISchema3_1): {
+  function extractUnionMetadata(schema: SupportedOpenAPISchema): {
     description?: string;
     decorators: TypeSpecDecorator[];
   } {
@@ -184,13 +196,17 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
     return { decorators: [] };
   }
 
-  function populateScalar(types: TypeSpecDataTypes[], name: string, schema: OpenAPI3Schema): void {
+  function populateScalar(
+    types: TypeSpecDataTypes[],
+    name: string,
+    schema: Refable<SupportedOpenAPISchema>,
+  ): void {
     types.push({
       kind: "scalar",
       ...getScopeAndName(name),
       decorators: getDecoratorsForSchema(schema),
       doc: schema.description,
-      schema,
+      schema: "$ref" in schema ? {} : schema,
     });
   }
 
@@ -199,13 +215,16 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
     properties: TypeSpecModelProperty[];
     spread: string[];
   }
-  function getAllOfDetails(schema: OpenAPI3Schema, callingScope: string[]): AllOfDetails {
+  function getAllOfDetails(
+    schema: Refable<SupportedOpenAPISchema>,
+    callingScope: string[],
+  ): AllOfDetails {
     const details: AllOfDetails = {
       spread: [],
       properties: [],
     };
 
-    if (!schema.allOf) {
+    if ("$ref" in schema || !schema.allOf) {
       return details;
     }
 
@@ -246,8 +265,11 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
     return details;
   }
 
-  function getModelIs(schema: OpenAPI3Schema, callingScope: string[]): string | undefined {
-    if (schema.type !== "array") {
+  function getModelIs(
+    schema: Refable<SupportedOpenAPISchema>,
+    callingScope: string[],
+  ): string | undefined {
+    if ("$ref" in schema || schema.type !== "array") {
       return;
     }
     return context.generateTypeFromRefableSchema(schema, callingScope);
@@ -260,7 +282,10 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
  * returns that member's schema merged with any properties from the parent schema.
  * Otherwise, returns the original schema.
  */
-function unwrapSingleAnyOfOneOf(schema: OpenAPI3Schema): OpenAPI3Schema {
+function unwrapSingleAnyOfOneOf(
+  schema: Refable<SupportedOpenAPISchema>,
+): Refable<SupportedOpenAPISchema> {
+  if ("$ref" in schema) return schema;
   const unionMembers = schema.anyOf || schema.oneOf;
   if (!unionMembers) {
     return schema;
@@ -284,7 +309,7 @@ function unwrapSingleAnyOfOneOf(schema: OpenAPI3Schema): OpenAPI3Schema {
       // Priority: member properties > parent properties
       // Use member's description if available, otherwise use parent's description
       return {
-        ...schema,
+        ...(schema as object),
         ...member,
         description: member.description || schema.description,
         anyOf: undefined,
@@ -299,7 +324,7 @@ function unwrapSingleAnyOfOneOf(schema: OpenAPI3Schema): OpenAPI3Schema {
 function getModelPropertiesFromObjectSchema({
   properties,
   required = [],
-}: OpenAPI3Schema): TypeSpecModelProperty[] {
+}: SupportedOpenAPISchema): TypeSpecModelProperty[] {
   if (!properties) return [];
 
   const modelProperties: TypeSpecModelProperty[] = [];
@@ -318,18 +343,18 @@ function getModelPropertiesFromObjectSchema({
   return modelProperties;
 }
 
-function getTypeSpecKind(schema: OpenAPI3Schema): TypeSpecDataTypes["kind"] {
+function getTypeSpecKind(schema: Refable<SupportedOpenAPISchema>): TypeSpecDataTypes["kind"] {
   if ("$ref" in schema) {
     return "alias";
   }
 
-  if (schema.enum && schema.type === "string" && !schema.nullable) {
+  if (schema.enum && schema.type === "string" && (!("nullable" in schema) || !schema.nullable)) {
     return "enum";
   } else if (
     schema.anyOf ||
     schema.oneOf ||
     schema.enum ||
-    schema.nullable ||
+    ("nullable" in schema && schema.nullable) ||
     (Array.isArray(schema.type) && schema.type.includes("null"))
   ) {
     // Check if anyOf/oneOf has a single meaningful inline object schema

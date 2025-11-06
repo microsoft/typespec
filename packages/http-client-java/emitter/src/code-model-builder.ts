@@ -39,6 +39,7 @@ import {
   TimeSchema,
   UnixTimeSchema,
   UriSchema,
+  UuidSchema,
   VirtualParameter,
 } from "@autorest/codemodel";
 import { KnownMediaType } from "@azure-tools/codegen";
@@ -196,6 +197,8 @@ export interface EmitterOptionsDev {
   "enable-sync-stack"?: boolean;
   "stream-style-serialization"?: boolean;
   "use-object-for-unknown"?: boolean;
+  "float32-as-double"?: boolean;
+  "uuid-as-string"?: boolean;
   polling?: any;
 
   // versioning
@@ -1229,6 +1232,8 @@ export class CodeModelBuilder {
           )
         : undefined,
       nextLinkReInjectedParameters: nextLinkReInjectedParameters,
+      // change this to "sdkMethod.pagingMetadata.nextLinkVerbType"
+      nextLinkVerb: "GET",
     };
   }
 
@@ -2156,6 +2161,20 @@ export class CodeModelBuilder {
     if (sdkResponse.headers) {
       for (const header of sdkResponse.headers) {
         const schema = this.processSchema(header.type, header.name);
+
+        if (schema instanceof ConstantSchema) {
+          // skip constant header in response
+          if (header.serializedName.toLowerCase() !== "content-type") {
+            // we does not warn on content-type as constant, as this is the most common case
+            reportDiagnostic(this.program, {
+              code: "constant-header-in-response-removed",
+              format: { headerName: header.serializedName },
+              target: header.__raw ?? NoTarget,
+            });
+          }
+          break;
+        }
+
         headers.push(
           new HttpHeader(header.serializedName, schema, {
             language: {
@@ -2378,6 +2397,12 @@ export class CodeModelBuilder {
           return this.processAnySchema();
 
         case "string":
+          if (
+            type.crossLanguageDefinitionId === "Azure.Core.uuid" &&
+            optionBoolean(this.options["uuid-as-string"]) === false
+          ) {
+            return this.processUuidSchema(type, nameHint);
+          }
           return this.processStringSchema(type, nameHint);
 
         case "float":
@@ -2428,6 +2453,14 @@ export class CodeModelBuilder {
     );
   }
 
+  private processUuidSchema(type: SdkBuiltInType, name: string): UuidSchema {
+    return this.codeModel.schemas.add(
+      new UuidSchema(name, type.doc ?? "", {
+        summary: type.summary,
+      }),
+    );
+  }
+
   private processByteArraySchema(type: SdkBuiltInType, name: string): ByteArraySchema {
     const base64Encoded: boolean = type.encode === "base64url";
     return this.codeModel.schemas.add(
@@ -2453,8 +2486,14 @@ export class CodeModelBuilder {
   }
 
   private processNumberSchema(type: SdkBuiltInType, name: string): NumberSchema {
+    const precision =
+      optionBoolean(this.options["float32-as-double"]) === false
+        ? type.kind === "float32"
+          ? 32
+          : 64
+        : 64;
     return this.codeModel.schemas.add(
-      new NumberSchema(name, type.doc ?? "", SchemaType.Number, 64, {
+      new NumberSchema(name, type.doc ?? "", SchemaType.Number, precision, {
         summary: type.summary,
       }),
     );

@@ -96,6 +96,7 @@ public final class BuiltinClient {
      *         unknownDateTimeFormat: String (Optional)
      *         unknownBytes: String (Optional)
      *     }
+     *     uuid: String (Required)
      * }
      * }
      * </pre>
@@ -157,6 +158,7 @@ public final class BuiltinClient {
      *         unknownDateTimeFormat: String (Optional)
      *         unknownBytes: String (Optional)
      *     }
+     *     uuid: String (Required)
      * }
      * }
      * </pre>

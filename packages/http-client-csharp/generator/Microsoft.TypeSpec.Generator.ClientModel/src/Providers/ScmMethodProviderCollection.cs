@@ -27,10 +27,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
     {
         private readonly MethodProvider _createRequestMethod;
         private static readonly ClientPipelineExtensionsDefinition _clientPipelineExtensionsDefinition = new();
-        private IList<ParameterProvider> ProtocolMethodParameters => _protocolMethodParameters ??= RestClientProvider.GetMethodParameters(ServiceMethod, RestClientProvider.MethodType.Protocol);
+        private static readonly CancellationTokenExtensionsDefinition _cancellationTokenExtensionsDefinition = new();
+        private IList<ParameterProvider> ProtocolMethodParameters => _protocolMethodParameters ??= RestClientProvider.GetMethodParameters(ServiceMethod, ScmMethodKind.Protocol);
         private IList<ParameterProvider>? _protocolMethodParameters;
 
-        private IReadOnlyList<ParameterProvider> ConvenienceMethodParameters => _convenienceMethodParameters ??= RestClientProvider.GetMethodParameters(ServiceMethod, RestClientProvider.MethodType.Convenience);
+        private IReadOnlyList<ParameterProvider> ConvenienceMethodParameters => _convenienceMethodParameters ??= RestClientProvider.GetMethodParameters(ServiceMethod, ScmMethodKind.Convenience);
         private IReadOnlyList<ParameterProvider>? _convenienceMethodParameters;
         private readonly InputPagingServiceMethod? _pagingServiceMethod;
         private IReadOnlyList<ScmMethodProvider>? _methods;
@@ -159,7 +160,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ];
             }
 
-            var convenienceMethod = new ScmMethodProvider(methodSignature, methodBody, EnclosingType, collectionDefinition: collection, serviceMethod: ServiceMethod);
+            var convenienceMethod = new ScmMethodProvider(methodSignature, methodBody, EnclosingType, ScmMethodKind.Convenience, collectionDefinition: collection, serviceMethod: ServiceMethod);
 
             if (convenienceMethod.XmlDocs != null)
             {
@@ -533,7 +534,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             // RequestOptions argument
-            conversions.Add(IHttpRequestOptionsApiSnippets.FromCancellationToken(ScmKnownParameters.CancellationToken));
+            var requestOptionsApi = ScmCodeModelGenerator.Instance.TypeFactory.HttpRequestOptionsApi;
+            // Build method name like "ToRequestOptions" or "ToRequestContext" based on the parameter name
+            var toRequestOptionsMethodName = $"ToRequest{char.ToUpper(requestOptionsApi.ParameterName[0])}{requestOptionsApi.ParameterName.Substring(1)}";
+            conversions.Add(ScmKnownParameters.CancellationToken.Invoke(toRequestOptionsMethodName, extensionType: _cancellationTokenExtensionsDefinition.Type));
 
             return conversions;
         }
@@ -649,7 +653,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var protocolMethod =
-                new ScmMethodProvider(methodSignature, methodBody, EnclosingType, collectionDefinition: collection, serviceMethod: ServiceMethod, isProtocolMethod: true);
+                new ScmMethodProvider(methodSignature, methodBody, EnclosingType, ScmMethodKind.Protocol, collectionDefinition: collection, serviceMethod: ServiceMethod);
 
             if (protocolMethod.XmlDocs != null)
             {

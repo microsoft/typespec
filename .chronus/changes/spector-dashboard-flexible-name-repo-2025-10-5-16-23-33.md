@@ -1,8 +1,8 @@
 ---
 # Change versionKind to one of: internal, fix, dependencies, feature, deprecation, breaking
-changeKind: fix
+changeKind: feature
 packages:
-  - typespec-vs
+  - "@typespec/compiler"
 ---
 
-Upgrade VS dependencies to fix vulnerability 
+[API] Add `repository` field to `PackageJson` type

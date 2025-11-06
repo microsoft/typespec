@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Sample.Models;
 
-namespace Sample
+namespace Sample.Namespace
 {
     public static partial class SampleNamespaceModelFactory
     {
