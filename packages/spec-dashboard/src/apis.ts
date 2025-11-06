@@ -70,14 +70,16 @@ function splitManifestByTables(
   manifest: ScenarioManifest,
   tableDefinitions: TableDefinition[],
 ): Array<{ manifest: ScenarioManifest; tableName: string }> {
+  const packageName = manifest.packageName ?? "";
+
   // Find table definitions that apply to this manifest
   const applicableTables = tableDefinitions.filter(
-    (table) => table.packageName === manifest.setName,
+    (table) => table.packageName === packageName,
   );
 
   if (applicableTables.length === 0) {
     // No table definitions for this manifest, return as-is with a default name
-    return [{ manifest, tableName: getDefaultTableName(manifest.setName) }];
+    return [{ manifest, tableName: packageName }];
   }
 
   const result: Array<{ manifest: ScenarioManifest; tableName: string }> = [];
@@ -124,22 +126,11 @@ function splitManifestByTables(
         ...manifest,
         scenarios: unmatchedScenarios,
       },
-      tableName: getDefaultTableName(manifest.setName),
+      tableName: packageName,
     });
   }
 
   return result;
-}
-
-/**
- * Gets a default table name based on the package name
- */
-function getDefaultTableName(packageName: string): string {
-  // Return a generic name based on package
-  if (packageName.includes("azure")) {
-    return "Azure";
-  }
-  return "Standard";
 }
 
 export async function getCoverageSummaries(
@@ -170,7 +161,7 @@ export async function getCoverageSummaries(
       // No table definitions, use default behavior
       allManifests.push({
         manifest,
-        tableName: getDefaultTableName(manifest.setName),
+        tableName: manifest.packageName ?? "",
       });
     }
   }
@@ -209,7 +200,7 @@ function getSuiteReportForManifest(
       continue;
     }
     if (
-      value.scenariosMetadata.packageName === manifest.setName ||
+      value.scenariosMetadata.packageName === (manifest.packageName ?? "") ||
       value.scenariosMetadata.packageName ===
         (manifest as any).setName /* old name*/
     ) {
