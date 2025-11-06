@@ -54,7 +54,7 @@ components:
             data:
               contentMediaType: text/plain
               const: "[done]"
-            x-ms-sse-terminal-event: true
+          x-ms-sse-terminal-event: true
         - properties:
             event:
               const: userconnect
