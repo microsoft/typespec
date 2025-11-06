@@ -1,6 +1,6 @@
 /* eslint-disable vitest/no-identical-title */
 import { deepStrictEqual, strictEqual } from "assert";
-import { describe, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { supportedVersions, worksFor } from "./works-for.js";
 
 describe("numeric constraints", () => {
@@ -210,6 +210,47 @@ describe("string constraints", () => {
       );
 
       assertJsonSchemaStringConstraints(schemas.schemas.Test);
+    });
+  });
+});
+
+describe("datetime constraints", () => {
+  worksFor(["3.0.0", "3.1.0"], ({ oapiForModel }) => {
+    describe("@minValue/@maxValue on datetime types", () => {
+      it(`include min/max value for unixTimeStamp32`, async () => {
+        const schemas = await oapiForModel(
+          "Test",
+          `
+            model Test {
+              @minValue(unixTimestamp32.fromISO("2025-01-01T00:00:00Z"))
+              @maxValue(unixTimestamp32.fromISO("2025-12-31T23:59:59Z")) 
+              prop: unixTimestamp32;
+            }
+          `,
+        );
+
+        const schema = schemas.schemas.Test.properties.prop;
+        expect(schema.minimum).toEqual(1735689600);
+        expect(schema.maximum).toEqual(1767225599);
+      });
+
+      it(`include min/max value for duration encoded as seconds`, async () => {
+        const schemas = await oapiForModel(
+          "Test",
+          `
+            model Test {
+              @minValue(duration.fromISO("PT1H"))
+              @maxValue(duration.fromISO("PT24H"))
+              @encode(DurationKnownEncoding.seconds, int32)
+              prop: duration;
+            }
+          `,
+        );
+
+        const schema = schemas.schemas.Test.properties.prop;
+        expect(schema.minimum).toEqual(3600);
+        expect(schema.maximum).toEqual(86400);
+      });
     });
   });
 });
