@@ -87,7 +87,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadBoolean("explode", ref explode)
                     || reader.TryReadBoolean("skipUrlEncoding", ref skipUrlEncoding)
                     || reader.TryReadComplexType("decorators", options, ref decorators)
-                    || reader.TryReadInputMethodParameterArray("correspondingMethodParams", options, options.ReferenceHandler!.ReferenceResolver!, ref correspondingMethodParams);
+                    || reader.TryReadInputMethodParameterArray("correspondingMethodParams", options, resolver, ref correspondingMethodParams);
 
                 if (!isKnownProperty)
                 {
