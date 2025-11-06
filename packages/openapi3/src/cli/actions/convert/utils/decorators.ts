@@ -29,7 +29,7 @@ export function getExtensions(element: Extensions): TypeSpecDecorator[] {
   return decorators;
 }
 function normalizeObjectValue(source: unknown): string | number | object | TSValue {
-  if (value !== null && typeof source === "object") {
+  if (source !== null && typeof source === "object") {
     const result = createTSValueFromObjectValue(source as object);
     if (result) {
       return result;
