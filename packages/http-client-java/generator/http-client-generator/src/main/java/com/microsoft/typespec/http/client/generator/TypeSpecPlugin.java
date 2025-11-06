@@ -4,8 +4,6 @@
 package com.microsoft.typespec.http.client.generator;
 
 import com.azure.core.util.CoreUtils;
-import com.azure.json.JsonReader;
-import com.azure.json.ReadValueCallback;
 import com.microsoft.typespec.http.client.generator.core.Javagen;
 import com.microsoft.typespec.http.client.generator.core.extension.jsonrpc.Connection;
 import com.microsoft.typespec.http.client.generator.core.extension.model.Message;
@@ -30,6 +28,8 @@ import com.microsoft.typespec.http.client.generator.model.EmitterOptions;
 import com.microsoft.typespec.http.client.generator.util.FileUtil;
 import com.microsoft.typespec.http.client.generator.util.MetadataUtil;
 import com.microsoft.typespec.http.client.generator.util.ModelUtil;
+import io.clientcore.core.serialization.json.JsonReader;
+import io.clientcore.core.utils.IOExceptionCheckedFunction;
 import java.io.OutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -315,13 +315,13 @@ public class TypeSpecPlugin extends Javagen {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T getValue(String key, ReadValueCallback<String, T> converter) {
+    public <T> T getValue(String key, IOExceptionCheckedFunction<String, T> converter) {
         return (T) SETTINGS_MAP.get(key);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T getValueWithJsonReader(String key, ReadValueCallback<JsonReader, T> converter) {
+    public <T> T getValueWithJsonReader(String key, IOExceptionCheckedFunction<JsonReader, T> converter) {
         return (T) SETTINGS_MAP.get(key);
     }
 

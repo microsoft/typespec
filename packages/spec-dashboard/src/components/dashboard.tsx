@@ -33,18 +33,9 @@ export const Dashboard: FunctionComponent<DashboardProps> = ({ coverageSummaries
 const CadlRanchSpecsCard: FunctionComponent<{ coverageSummary: CoverageSummary }> = ({
   coverageSummary,
 }) => {
-  let commitLink = "",
-    heading = "",
-    packageName = "";
-  if (coverageSummary.manifest.setName === "@azure-tools/azure-http-specs") {
-    commitLink = `https://github.com/Azure/typespec-azure/commit/${coverageSummary.manifest.commit}`;
-    heading = `Azure Specs Manifest`;
-    packageName = "azure-http-specs";
-  } else {
-    commitLink = `https://github.com/microsoft/typespec/commit/${coverageSummary.manifest.commit}`;
-    heading = `Typespec Specs Manifest`;
-    packageName = "http-specs";
-  }
+  const commitLink = `${coverageSummary.manifest.repo}/commit/${coverageSummary.manifest.commit}`;
+  const heading = coverageSummary.manifest.displayName;
+  const packageName = coverageSummary.manifest.packageName;
 
   return (
     <Card css={{ width: 500 }}>
