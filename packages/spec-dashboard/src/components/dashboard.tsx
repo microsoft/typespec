@@ -36,24 +36,16 @@ const CadlRanchSpecsCard: FunctionComponent<{
   coverageSummary: CoverageSummary;
 }> = ({ coverageSummary }) => {
   let commitLink = "",
-    heading = "",
     packageName = "";
   if (coverageSummary.manifest.setName === "@azure-tools/azure-http-specs") {
     commitLink = `https://github.com/Azure/typespec-azure/commit/${coverageSummary.manifest.commit}`;
-    // Update heading based on category
-    if (coverageSummary.category === "azure-data-plane") {
-      heading = `Azure Data Plane Specs Manifest`;
-    } else if (coverageSummary.category === "azure-management-plane") {
-      heading = `Azure Management Plane Specs Manifest`;
-    } else {
-      heading = `Azure Specs Manifest`;
-    }
     packageName = "azure-http-specs";
   } else {
     commitLink = `https://github.com/microsoft/typespec/commit/${coverageSummary.manifest.commit}`;
-    heading = `Typespec Specs Manifest`;
     packageName = "http-specs";
   }
+
+  const heading = `${coverageSummary.tableName} Specs Manifest`;
 
   return (
     <Card css={{ width: 500 }}>

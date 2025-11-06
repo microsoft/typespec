@@ -7,6 +7,15 @@ import {
   SpecCoverageClient,
 } from "@typespec/spec-coverage-sdk";
 
+export interface TableDefinition {
+  /** Custom table name */
+  name: string;
+  /** Name of the spec set/package that this should apply to */
+  packageName: string;
+  /** Prefixes to filter the coverage data. Any scenarios starting with this prefix will be included in this table */
+  prefixes?: string[];
+}
+
 export interface CoverageFromAzureStorageOptions {
   readonly storageAccountName: string;
   readonly containerName: string;
@@ -14,21 +23,19 @@ export interface CoverageFromAzureStorageOptions {
   readonly manifestContainerName: string;
   readonly emitterNames: string[];
   readonly modes?: string[];
+  /** Optional table definitions to split scenarios into multiple tables */
+  readonly tables?: TableDefinition[];
 }
 
 export interface GeneratorCoverageSuiteReport extends CoverageReport {
   generatorMetadata: GeneratorMetadata;
 }
 
-export type CoverageSummaryCategory =
-  | "standard"
-  | "azure-data-plane"
-  | "azure-management-plane";
-
 export interface CoverageSummary {
   manifest: ScenarioManifest;
   generatorReports: Record<string, GeneratorCoverageSuiteReport | undefined>;
-  category: CoverageSummaryCategory;
+  /** Display name for the table */
+  tableName: string;
 }
 
 let client: SpecCoverageClient | undefined;
@@ -50,55 +57,88 @@ export function getManifestClient(options: CoverageFromAzureStorageOptions) {
 }
 
 /**
- * Determines if a scenario belongs to Azure management plane based on its name.
- * Management plane scenarios typically include ARM (Azure Resource Manager) operations.
+ * Checks if a scenario name matches any of the given prefixes
  */
-function isManagementPlaneScenario(scenarioName: string): boolean {
-  const lowerName = scenarioName.toLowerCase();
-  // Check for ARM-related patterns in scenario names
-  return (
-    lowerName.includes("azure_arm") ||
-    lowerName.includes("azure-arm") ||
-    lowerName.includes("_arm_") ||
-    lowerName.includes("resource_manager") ||
-    lowerName.includes("resource-manager") ||
-    lowerName.startsWith("arm_") ||
-    lowerName.startsWith("arm-")
-  );
+function matchesPrefixes(scenarioName: string, prefixes: string[]): boolean {
+  return prefixes.some((prefix) => scenarioName.startsWith(prefix));
 }
 
 /**
- * Splits Azure manifests into separate data plane and management plane manifests
+ * Splits a manifest into multiple tables based on prefix filters
  */
-function splitAzureManifest(manifest: ScenarioManifest): ScenarioManifest[] {
-  if (manifest.setName !== "@azure-tools/azure-http-specs") {
-    return [manifest];
+function splitManifestByTables(
+  manifest: ScenarioManifest,
+  tableDefinitions: TableDefinition[],
+): Array<{ manifest: ScenarioManifest; tableName: string }> {
+  // Find table definitions that apply to this manifest
+  const applicableTables = tableDefinitions.filter(
+    (table) => table.packageName === manifest.setName,
+  );
+
+  if (applicableTables.length === 0) {
+    // No table definitions for this manifest, return as-is with a default name
+    return [{ manifest, tableName: getDefaultTableName(manifest.setName) }];
   }
 
-  const managementScenarios = manifest.scenarios.filter((s: ScenarioData) =>
-    isManagementPlaneScenario(s.name),
-  );
-  const dataScenarios = manifest.scenarios.filter(
-    (s: ScenarioData) => !isManagementPlaneScenario(s.name),
-  );
+  const result: Array<{ manifest: ScenarioManifest; tableName: string }> = [];
+  const usedScenarios = new Set<string>();
 
-  const result: ScenarioManifest[] = [];
+  // Process each table definition
+  for (const table of applicableTables) {
+    if (!table.prefixes || table.prefixes.length === 0) {
+      // If no prefixes specified, this table gets all scenarios for this package
+      result.push({ manifest, tableName: table.name });
+      return result; // Don't process other tables if one claims all scenarios
+    }
 
-  if (dataScenarios.length > 0) {
-    result.push({
-      ...manifest,
-      scenarios: dataScenarios,
+    // Filter scenarios by prefixes
+    const filteredScenarios = manifest.scenarios.filter((s: ScenarioData) => {
+      if (usedScenarios.has(s.name)) {
+        return false; // Already assigned to another table
+      }
+      return matchesPrefixes(s.name, table.prefixes!);
     });
+
+    if (filteredScenarios.length > 0) {
+      // Mark these scenarios as used
+      filteredScenarios.forEach((s) => usedScenarios.add(s.name));
+
+      result.push({
+        manifest: {
+          ...manifest,
+          scenarios: filteredScenarios,
+        },
+        tableName: table.name,
+      });
+    }
   }
 
-  if (managementScenarios.length > 0) {
+  // Handle scenarios that didn't match any prefixes
+  const unmatchedScenarios = manifest.scenarios.filter(
+    (s: ScenarioData) => !usedScenarios.has(s.name),
+  );
+
+  if (unmatchedScenarios.length > 0) {
     result.push({
-      ...manifest,
-      scenarios: managementScenarios,
+      manifest: {
+        ...manifest,
+        scenarios: unmatchedScenarios,
+      },
+      tableName: getDefaultTableName(manifest.setName),
     });
   }
 
   return result;
+}
+
+/**
+ * Gets a default table name based on the package name
+ */
+function getDefaultTableName(packageName: string): string {
+  if (packageName === "@azure-tools/azure-http-specs") {
+    return "Azure";
+  }
+  return "Standard";
 }
 
 export async function getCoverageSummaries(
@@ -116,46 +156,29 @@ export async function getCoverageSummaries(
     ResolvedCoverageReport | undefined
   >;
 
-  // Split Azure manifests into data plane and management plane
-  const allManifests: Array<{
-    manifest: ScenarioManifest;
-    category: CoverageSummaryCategory;
-  }> = [];
+  // Split manifests into tables based on configuration
+  const allManifests: Array<{ manifest: ScenarioManifest; tableName: string }> =
+    [];
+
   for (const manifest of manifests) {
-    if (manifest.setName === "@azure-tools/azure-http-specs") {
-      const splitManifests = splitAzureManifest(manifest);
-      if (splitManifests.length > 1) {
-        // We have both data and management plane scenarios
-        allManifests.push({
-          manifest: splitManifests[0],
-          category: "azure-data-plane",
-        });
-        allManifests.push({
-          manifest: splitManifests[1],
-          category: "azure-management-plane",
-        });
-      } else if (splitManifests.length === 1) {
-        // Only one type of scenarios
-        const hasManagement = splitManifests[0].scenarios.some(
-          (s: ScenarioData) => isManagementPlaneScenario(s.name),
-        );
-        allManifests.push({
-          manifest: splitManifests[0],
-          category: hasManagement
-            ? "azure-management-plane"
-            : "azure-data-plane",
-        });
-      }
+    if (options.tables && options.tables.length > 0) {
+      // Use table definitions to split scenarios
+      const splitResults = splitManifestByTables(manifest, options.tables);
+      allManifests.push(...splitResults);
     } else {
-      allManifests.push({ manifest, category: "standard" });
+      // No table definitions, use default behavior
+      allManifests.push({
+        manifest,
+        tableName: getDefaultTableName(manifest.setName),
+      });
     }
   }
 
-  return allManifests.map(({ manifest, category }) => {
+  return allManifests.map(({ manifest, tableName }) => {
     return {
       manifest,
       generatorReports: processReports(reports, manifest),
-      category,
+      tableName,
     };
   });
 }

@@ -204,15 +204,7 @@ const DashboardHeaderRow: FunctionComponent<DashboardHeaderRowProps> = ({
       },
     );
 
-  // Determine table header name based on category
-  let tableHeaderName = "Standard";
-  if (coverageSummary.category === "azure-data-plane") {
-    tableHeaderName = "Azure Data Plane";
-  } else if (coverageSummary.category === "azure-management-plane") {
-    tableHeaderName = "Azure Management Plane";
-  }
-
-  const tableHeader = <th>Scenario name ({tableHeaderName})</th>;
+  const tableHeader = <th>Scenario name ({coverageSummary.tableName})</th>;
   return (
     <tr>
       {tableHeader}
