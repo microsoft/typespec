@@ -323,10 +323,21 @@ async function createProgram(
     return { program, shouldAbort: true };
   }
 
-  // Linter stage
-  const lintResult = linter.lint();
-  runtimeStats.linter = lintResult.stats.runtime;
-  program.reportDiagnostics(lintResult.diagnostics);
+  // Sync linter stage
+  const syncLintResult = await linter.lint({ asyncRules: false });
+  program.reportDiagnostics(syncLintResult.diagnostics);
+
+  // Async linter stage
+  const asyncLintResult = await linter.lint({ asyncRules: true });
+  program.reportDiagnostics(asyncLintResult.diagnostics);
+
+  runtimeStats.linter = {
+    total: syncLintResult.stats.runtime.total + asyncLintResult.stats.runtime.total,
+    rules: {
+      ...syncLintResult.stats.runtime.rules,
+      ...asyncLintResult.stats.runtime.rules,
+    },
+  };
 
   return { program, shouldAbort: false };
 

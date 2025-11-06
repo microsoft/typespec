@@ -2139,6 +2139,7 @@ export type TypeListeners = UnionToIntersection<ListenerForType<Type>>;
 
 export type SemanticNodeListener = {
   root?: (context: Program) => void | undefined;
+  exitRoot?: (context: Program) => void | undefined | Promise<void | undefined>;
 } & TypeListeners;
 
 export type DiagnosticReportWithoutTarget<
@@ -2334,6 +2335,8 @@ export interface LinterRuleDefinition<N extends string, DM extends DiagnosticMes
   url?: string;
   /** Messages that can be reported with the diagnostic. */
   messages: DM;
+  /** Whether this is an async rule. Default is false */
+  async?: boolean;
   /** Creator */
   create(context: LinterRuleContext<DM>): SemanticNodeListener;
 }

@@ -1,3 +1,4 @@
+import { isPromise } from "util/types";
 import { DiagnosticCollector, compilerAssert, createDiagnosticCollector } from "./diagnostics.js";
 import { getLocationContext } from "./helpers/location-context.js";
 import { defineLinter } from "./library.js";
@@ -6,7 +7,7 @@ import { createUnusedUsingLinterRule } from "./linter-rules/unused-using.rule.js
 import { createDiagnostic } from "./messages.js";
 import type { Program } from "./program.js";
 import { EventEmitter, mapEventEmitterToNodeListener, navigateProgram } from "./semantic-walker.js";
-import { startTimer, time } from "./stats.js";
+import { startTimer } from "./stats.js";
 import {
   Diagnostic,
   DiagnosticMessages,
@@ -26,7 +27,12 @@ type LinterLibraryInstance = { linter: LinterResolvedDefinition };
 export interface Linter {
   extendRuleSet(ruleSet: LinterRuleSet): Promise<readonly Diagnostic[]>;
   registerLinterLibrary(name: string, lib?: LinterLibraryInstance): void;
-  lint(): LinterResult;
+  lint(options: LinterOptions): Promise<LinterResult>;
+}
+
+export interface LinterOptions {
+  /** Whether to run async linter rules or sync linter rules */
+  asyncRules: boolean;
 }
 
 export interface LinterStats {
@@ -157,7 +163,7 @@ export function createLinter(
     return diagnostics.diagnostics;
   }
 
-  function lint(): LinterResult {
+  async function lint(options: LinterOptions): Promise<LinterResult> {
     const diagnostics = createDiagnosticCollector();
     const eventEmitter = new EventEmitter<SemanticNodeListener>();
     const stats: LinterStats = {
@@ -173,19 +179,44 @@ export function createLinter(
     );
 
     const timer = startTimer();
+    const allPromises: Promise<any>[] = [];
     for (const rule of enabledRules.values()) {
-      const createTiming = startTimer();
-      const listener = rule.create(createLinterRuleContext(program, rule, diagnostics));
-      stats.runtime.rules[rule.id] = createTiming.end();
-      for (const [name, cb] of Object.entries(listener)) {
-        const timedCb = (...args: any[]) => {
-          const duration = time(() => (cb as any)(...args));
-          stats.runtime.rules[rule.id] += duration;
-        };
-        eventEmitter.on(name as any, timedCb);
+      if ((rule.async ?? false) === options.asyncRules) {
+        const createTiming = startTimer();
+        const listener = rule.create(createLinterRuleContext(program, rule, diagnostics));
+        stats.runtime.rules[rule.id] = createTiming.end();
+        for (const [name, cb] of Object.entries(listener)) {
+          const timedCb = (...args: any[]) => {
+            const timer = startTimer();
+            const result = (cb as any)(...args);
+            if (isPromise(result)) {
+              if (rule.async !== true) {
+                diagnostics.add(
+                  createDiagnostic({
+                    code: "sync-rule-returns-promise",
+                    format: { ruleName: rule.name },
+                    target: NoTarget,
+                  }),
+                );
+              }
+              const rr = result.then(() => {
+                const duration = timer.end();
+                stats.runtime.rules[rule.id] += duration;
+              });
+              allPromises.push(rr);
+            } else {
+              const duration = timer.end();
+              stats.runtime.rules[rule.id] += duration;
+            }
+          };
+          eventEmitter.on(name as any, timedCb);
+        }
       }
     }
     navigateProgram(program, mapEventEmitterToNodeListener(eventEmitter));
+    if (allPromises.length > 0) {
+      await Promise.all(allPromises);
+    }
     stats.runtime.total = timer.end();
     return { diagnostics: diagnostics.diagnostics, stats };
   }
