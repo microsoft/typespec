@@ -194,6 +194,8 @@ export async function packagesInstall(packages: { [x: string]: string }, testTyp
     },
     private: true,
     overrides: {
+      // override to make sure to use local http-client package, otherwise it will be installed from npm registry and may
+      // cause issues from different version (i.e. multiple version alloy libraries being complained)
       "@typespec/http-client": packages["@typespec/http-client"],
     },
   };
