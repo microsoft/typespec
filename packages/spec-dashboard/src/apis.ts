@@ -135,7 +135,8 @@ function splitManifestByTables(
  * Gets a default table name based on the package name
  */
 function getDefaultTableName(packageName: string): string {
-  if (packageName === "@azure-tools/azure-http-specs") {
+  // Return a generic name based on package
+  if (packageName.includes("azure")) {
     return "Azure";
   }
   return "Standard";
@@ -202,14 +203,17 @@ function getSuiteReportForManifest(
   report: ResolvedCoverageReport,
   manifest: ScenarioManifest,
 ): GeneratorCoverageSuiteReport | undefined {
-  let data: CoverageReport | undefined;
+  let data;
   for (const [key, value] of Object.entries(report)) {
     if (key === "generatorMetadata") {
       continue;
     }
-    const coverageReport = value as CoverageReport;
-    if (coverageReport.scenariosMetadata.packageName === manifest.setName) {
-      data = coverageReport;
+    if (
+      value.scenariosMetadata.packageName === manifest.setName ||
+      value.scenariosMetadata.packageName ===
+        (manifest as any).setName /* old name*/
+    ) {
+      data = value;
     }
   }
   return data

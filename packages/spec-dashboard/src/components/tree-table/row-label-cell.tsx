@@ -12,16 +12,20 @@ import {
   ChevronDown20Filled,
   ChevronRight20Filled,
 } from "@fluentui/react-icons";
-import { ScenarioData } from "@typespec/spec-coverage-sdk";
+import { ScenarioData, ScenarioManifest } from "@typespec/spec-coverage-sdk";
 import { FunctionComponent, useMemo } from "react";
 import ReactMarkdown from "react-markdown";
 import { ManifestTreeNode, TreeTableRow } from "./types.js";
 
 export interface RowLabelCellProps {
+  manifest: ScenarioManifest;
   row: TreeTableRow;
 }
 const INDENT_SIZE = 14;
-export const RowLabelCell: FunctionComponent<RowLabelCellProps> = ({ row }) => {
+export const RowLabelCell: FunctionComponent<RowLabelCellProps> = ({
+  row,
+  manifest,
+}) => {
   const caret = row.hasChildren ? (
     row.expanded ? (
       <ChevronDown20Filled />
@@ -59,8 +63,15 @@ export const RowLabelCell: FunctionComponent<RowLabelCellProps> = ({ row }) => {
           {rowLabel}
         </div>
         <div css={{}}>
-          {row.item.scenario && <ScenarioInfoButton scenario={row.item.scenario} />}
-          {row.item.scenario && <GotoSourceButton scenario={row.item.scenario} />}
+          {row.item.scenario && (
+            <ScenarioInfoButton scenario={row.item.scenario} />
+          )}
+          {row.item.scenario && (
+            <GotoSourceButton
+              manifest={manifest}
+              scenario={row.item.scenario}
+            />
+          )}
         </div>
       </div>
     </td>
@@ -71,7 +82,9 @@ type ScenarioInfoButtonProps = {
   scenario: ScenarioData;
 };
 
-const ScenarioInfoButton: FunctionComponent<ScenarioInfoButtonProps> = ({ scenario }) => {
+const ScenarioInfoButton: FunctionComponent<ScenarioInfoButtonProps> = ({
+  scenario,
+}) => {
   return (
     <Popover withArrow>
       <PopoverTrigger disableButtonEnhancement>
@@ -92,10 +105,15 @@ const ScenarioInfoButton: FunctionComponent<ScenarioInfoButtonProps> = ({ scenar
 };
 
 type ShowSourceButtonProps = {
+  manifest: ScenarioManifest;
   scenario: ScenarioData;
 };
-const GotoSourceButton: FunctionComponent<ShowSourceButtonProps> = ({ scenario }) => {
-  const baseUrl = "https://github.com/Microsoft/typespec/tree/main/packages/http-specs/specs/";
+const GotoSourceButton: FunctionComponent<ShowSourceButtonProps> = ({
+  manifest,
+  scenario,
+}) => {
+  const manifestAny = manifest as any; // Type has extended properties not in base interface
+  const baseUrl = `${manifestAny.repo ?? "https://github.com/microsoft/typespec"}/tree/main/packages/http-specs/specs/`;
   const start = getGithubLineNumber(scenario.location.start.line);
   const end = getGithubLineNumber(scenario.location.end.line);
   const url = `${baseUrl}/${scenario.location.path}#${start}-${end}`;
@@ -125,7 +143,10 @@ function getLabelForRow(row: TreeTableRow): string {
         return 1;
       }
 
-      return Object.values(node.children).reduce((acc, child) => acc + countLeafChildren(child), 0);
+      return Object.values(node.children).reduce(
+        (acc, child) => acc + countLeafChildren(child),
+        0,
+      );
     };
 
     const { name } = row.item;

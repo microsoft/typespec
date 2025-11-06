@@ -123,7 +123,7 @@ const DashboardRow: FunctionComponent<DashboardRowProps> = ({
   const scenarioData = row.item.scenario;
   return (
     <tr>
-      <RowLabelCell row={row} />
+      <RowLabelCell manifest={coverageSummary.manifest} row={row} />
       {languages.map((lang) => (
         <td key={lang} css={ScenarioStatusCellStyles}>
           {scenarioData ? (
@@ -203,8 +203,10 @@ const DashboardHeaderRow: FunctionComponent<DashboardHeaderRowProps> = ({
         ];
       },
     );
-
-  const tableHeader = <th>Scenario name ({coverageSummary.tableName})</th>;
+  const manifest = coverageSummary.manifest as any; // Type has extended properties not in base interface
+  const tableHeader = (
+    <th>{manifest.displayName ?? coverageSummary.tableName ?? "Specs"} </th>
+  );
   return (
     <tr>
       {tableHeader}

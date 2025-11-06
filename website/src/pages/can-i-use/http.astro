@@ -16,32 +16,6 @@ const options: CoverageFromAzureStorageOptions = {
     "@typespec/http-client-js",
     "@typespec/http-client-java",
   ],
-  tables: [
-    {
-      name: "Azure Data Plane",
-      packageName: "@azure-tools/azure-http-specs",
-      prefixes: [
-        "azure_core",
-        "azure_client_generator_core",
-        "client",
-        "encode",
-        "parameters",
-        "payload",
-        "resiliency",
-        "routes",
-        "serialization",
-        "server",
-        "special",
-        "type",
-        "versioning",
-      ],
-    },
-    {
-      name: "Azure Management Plane",
-      packageName: "@azure-tools/azure-http-specs",
-      prefixes: ["azure_arm", "arm"],
-    },
-  ],
 };
 ---
 
