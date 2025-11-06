@@ -1,22 +1,27 @@
-import type OpenAPIParser from "@apidevtools/swagger-parser";
-import { OpenAPI3Document, OpenAPI3Encoding, OpenAPI3Schema, Refable } from "../../../../types.js";
+import {
+  OpenAPI3Encoding,
+  OpenAPIDocument3_1,
+  Refable,
+  SupportedOpenAPIDocuments,
+  SupportedOpenAPISchema,
+} from "../../../../types.js";
 import { Logger } from "../../../types.js";
 import { SchemaToExpressionGenerator } from "../generators/generate-types.js";
 import { generateNamespaceName } from "./generate-namespace-name.js";
 
 export interface Context {
-  readonly openApi3Doc: OpenAPI3Document;
+  readonly openApi3Doc: SupportedOpenAPIDocuments;
   readonly rootNamespace: string;
   readonly logger: Logger;
 
   generateTypeFromRefableSchema(
-    schema: Refable<OpenAPI3Schema>,
+    schema: Refable<SupportedOpenAPISchema>,
     callingScope: string[],
     isHttpPart?: boolean,
     encoding?: Record<string, OpenAPI3Encoding>,
   ): string;
   getRefName(ref: string, callingScope: string[]): string;
-  getSchemaByRef(ref: string): OpenAPI3Schema | undefined;
+  getSchemaByRef(ref: string): SupportedOpenAPISchema | undefined;
   getByRef<T>(ref: string): T | undefined;
 
   /**
@@ -47,13 +52,8 @@ export interface Context {
   ): string;
 }
 
-export type Parser = {
-  $refs: OpenAPIParser["$refs"];
-};
-
 export function createContext(
-  parser: Parser,
-  openApi3Doc: OpenAPI3Document,
+  openApi3Doc: SupportedOpenAPIDocuments,
   logger?: Logger,
   namespace?: string,
 ): Context {
@@ -80,7 +80,7 @@ export function createContext(
       return schemaExpressionGenerator.getRefName(ref, callingScope);
     },
     generateTypeFromRefableSchema(
-      schema: Refable<OpenAPI3Schema>,
+      schema: Refable<SupportedOpenAPISchema>,
       callingScope: string[],
       isHttpPart = false,
       encoding?: Record<string, OpenAPI3Encoding>,
@@ -96,8 +96,35 @@ export function createContext(
     getSchemaByRef(ref) {
       return this.getByRef(ref);
     },
-    getByRef(ref) {
-      return parser.$refs.get(ref) as any;
+    getByRef<T>(ref: string): T | undefined {
+      const splitRef = ref.split("/");
+      const componentKind = splitRef[2]; // #/components/schemas/Pet -> components
+      const componentName = splitRef[3]; // #/components/schemas/Pet -> Pet
+      switch (componentKind) {
+        case "schemas":
+          return openApi3Doc.components?.schemas?.[componentName] as T;
+        case "responses":
+          return openApi3Doc.components?.responses?.[componentName] as T;
+        case "parameters":
+          return openApi3Doc.components?.parameters?.[componentName] as T;
+        case "examples":
+          return openApi3Doc.components?.examples?.[componentName] as T;
+        case "requestBodies":
+          return openApi3Doc.components?.requestBodies?.[componentName] as T;
+        case "headers":
+          return openApi3Doc.components?.headers?.[componentName] as T;
+        case "securitySchemes":
+          return openApi3Doc.components?.securitySchemes?.[componentName] as T;
+        case "links":
+          return openApi3Doc.components?.links?.[componentName] as T;
+        case "callbacks":
+          return (openApi3Doc as unknown as OpenAPIDocument3_1).components?.callbacks?.[
+            componentName
+          ] as T;
+        default:
+          this.logger.warn(`Unsupported component kind in $ref: ${ref}`);
+          return undefined;
+      }
     },
     registerMultipartSchema(ref: string, encoding?: Record<string, OpenAPI3Encoding>) {
       multipartSchemas.set(ref, encoding ?? null);

@@ -1,15 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { transformPaths } from "../../src/cli/actions/convert/transforms/transform-paths.js";
-import { createContext, Parser } from "../../src/cli/actions/convert/utils/context.js";
-import { convertOpenAPI3Document } from "../../src/index.js";
+import { createContext } from "../../src/cli/actions/convert/utils/context.js";
+import { convertOpenAPI3Document, JsonSchemaType } from "../../src/index.js";
 
 describe("Convert OpenAPI3 with missing operationId", () => {
-  const mockParser: Parser = {
-    $refs: {
-      get: () => undefined,
-    } as any,
-  };
-
   // Mock logger to capture warnings
   const mockLogger = {
     trace: vi.fn(),
@@ -35,7 +29,10 @@ describe("Convert OpenAPI3 with missing operationId", () => {
                 description: "Success",
                 content: {
                   "application/json": {
-                    schema: { type: "array", items: { type: "string" } },
+                    schema: {
+                      type: "array" as JsonSchemaType,
+                      items: { type: "string" as JsonSchemaType },
+                    },
                   },
                 },
               },
@@ -65,7 +62,7 @@ describe("Convert OpenAPI3 with missing operationId", () => {
       },
     };
 
-    const context = createContext(mockParser, openApiDoc as any, mockLogger);
+    const context = createContext(openApiDoc as any, mockLogger);
     const operations = transformPaths(openApiDoc.paths, context);
 
     // Should have 3 operations
@@ -110,7 +107,7 @@ describe("Convert OpenAPI3 with missing operationId", () => {
       },
     };
 
-    const context = createContext(mockParser, openApiDoc as any, mockLogger);
+    const context = createContext(openApiDoc as any, mockLogger);
     const operations = transformPaths(openApiDoc.paths, context);
 
     // Should have 2 operations

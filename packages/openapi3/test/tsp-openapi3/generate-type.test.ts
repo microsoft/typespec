@@ -1,4 +1,4 @@
-import OpenAPIParser from "@apidevtools/swagger-parser";
+import { dereference } from "@scalar/openapi-parser";
 import { formatTypeSpec } from "@typespec/compiler";
 import { strictEqual } from "node:assert";
 import { beforeAll, describe, it } from "vitest";
@@ -274,18 +274,43 @@ const testScenarios: TestScenario[] = [
     },
     expected: "{missingTypeProp: { foo?: string}}",
   },
+  // OpenAPI 3.1 type arrays
+  { schema: { type: ["integer", "null"] as any, format: "int32" }, expected: "int32 | null" },
+  { schema: { type: ["string", "null"] as any }, expected: "string | null" },
+  { schema: { type: ["boolean", "null"] as any }, expected: "boolean | null" },
+  { schema: { type: ["number", "null"] as any, format: "float" }, expected: "float32 | null" },
+  {
+    schema: { type: ["integer", "null"] as any, format: "int32", minimum: 1, maximum: 20 },
+    expected: "int32 | null",
+  },
+  {
+    schema: { type: ["string", "null"] as any, format: "date-time" },
+    expected: "utcDateTime | null",
+  },
+  // Multiple non-null types in array (edge case - not supported, falls back to unknown)
+  {
+    schema: { type: ["string", "integer"] as any },
+    expected: "unknown",
+  },
+  // Type array with three types including null (edge case - not supported, falls back to unknown)
+  {
+    schema: { type: ["string", "integer", "null"] as any },
+    expected: "unknown",
+  },
 ];
 
 describe("tsp-openapi: generate-type", () => {
   let context: Context;
   beforeAll(async () => {
-    const parser = new OpenAPIParser();
-    const doc = await parser.bundle({
+    const { specification } = await dereference({
       openapi: "3.0.0",
       info: { title: "Test", version: "1.0.0" },
       paths: {},
     });
-    context = createContext(parser, doc as OpenAPI3Document);
+    if (!specification) {
+      throw new Error("Failed to dereference OpenAPI document");
+    }
+    context = createContext(specification as OpenAPI3Document);
   });
   testScenarios.forEach((t) =>
     it(`${generateScenarioName(t)}`, async () => {

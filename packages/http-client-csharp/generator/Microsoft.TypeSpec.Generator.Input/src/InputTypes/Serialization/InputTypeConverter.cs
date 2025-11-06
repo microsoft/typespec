@@ -57,6 +57,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         private const string UtcDateTimeKind = "utcDateTime";
         private const string OffsetDateTimeKind = "offsetDateTime";
         private const string DurationKind = "duration";
+        private const string ExternalKind = "external";
 
         private static InputType CreateDerivedType(ref Utf8JsonReader reader, string? id, string? kind, string? name, JsonSerializerOptions options, ReferenceResolver resolver) => kind switch
         {
@@ -71,6 +72,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             UtcDateTimeKind or OffsetDateTimeKind => InputDateTimeTypeConverter.CreateDateTimeType(ref reader, id, name, options, resolver),
             DurationKind => InputDurationTypeConverter.CreateDurationType(ref reader, id, name, options, resolver),
             NullableKind => TypeSpecInputNullableTypeConverter.CreateNullableType(ref reader, id, name, options, resolver),
+            ExternalKind => InputExternalTypeConverter.CreateInputExternalType(ref reader, id, options, resolver),
             _ => InputPrimitiveTypeConverter.CreatePrimitiveType(ref reader, id, kind, name, options, resolver),
         };
     }
