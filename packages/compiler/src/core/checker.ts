@@ -199,7 +199,7 @@ export interface Checker {
   ): T & TypePrototype;
   finishType<T extends Type>(typeDef: T): T;
   createLiteralType(value: string, node?: StringLiteralNode): StringLiteral;
-  createLiteralType(value: number, node?: NumericLiteralNode): NumericLiteral;
+  createLiteralType(value: number | Numeric, node?: NumericLiteralNode): NumericLiteral;
   createLiteralType(value: boolean, node?: BooleanLiteralNode): BooleanLiteral;
   createLiteralType(
     value: string | number | boolean,
@@ -221,6 +221,20 @@ export interface Checker {
   isTypeAssignableTo(
     source: Entity,
     target: Entity,
+    diagnosticTarget: DiagnosticTarget,
+  ): [boolean, readonly Diagnostic[]];
+
+  /**
+   * Check if the value is assignable to the given type
+   * @param source Source value, should be assignable to the target type.
+   * @param target Target type
+   * @param diagnosticTarget Target for the diagnostic, unless something better can be inferred.
+   * @returns [related, list of diagnostics]
+   * @internal
+   */
+  isValueOfType(
+    source: Value,
+    target: Type,
     diagnosticTarget: DiagnosticTarget,
   ): [boolean, readonly Diagnostic[]];
 
@@ -393,10 +407,12 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     getValueExactType,
     getTemplateParameterUsageMap,
     isTypeAssignableTo: undefined!,
+    isValueOfType: undefined!,
     stats,
   };
   const relation = createTypeRelationChecker(program, checker);
   checker.isTypeAssignableTo = relation.isTypeAssignableTo;
+  checker.isValueOfType = relation.isValueOfType;
 
   return checker;
 
@@ -6152,14 +6168,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       | StringTemplateMiddleNode
       | StringTemplateTailNode,
   ): StringLiteral;
-  function createLiteralType(value: number, node?: NumericLiteralNode): NumericLiteral;
+  function createLiteralType(value: number | Numeric, node?: NumericLiteralNode): NumericLiteral;
   function createLiteralType(value: boolean, node?: BooleanLiteralNode): BooleanLiteral;
   function createLiteralType(
     value: string | number | boolean,
     node?: LiteralNode,
   ): StringLiteral | NumericLiteral | BooleanLiteral;
   function createLiteralType(
-    value: string | number | boolean,
+    value: string | number | boolean | Numeric,
     node?: LiteralNode,
   ): StringLiteral | NumericLiteral | BooleanLiteral {
     if (program.literalTypes.has(value)) {
@@ -6192,6 +6208,13 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           numericValue: Numeric(valueAsString),
         });
         break;
+      default:
+        type = createType({
+          kind: "Number",
+          value: value.asNumber() ?? 0,
+          valueAsString: value.toString(),
+          numericValue: value,
+        });
     }
     program.literalTypes.set(value, type);
     return finishType(type);
