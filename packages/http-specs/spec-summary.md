@@ -1608,6 +1608,64 @@ Expected response body:
 }
 ```
 
+### Payload_MediaType_BinaryBody_getAsCbor
+
+- Endpoint: `get /payload/media-type/binary-body/getAsCbor`
+
+Get binary body with application/cbor content type.
+Expected response body is the bytes representing CBOR-encoded data: {"status": "succeeded"}.
+Expected Content-Type header: application/cbor.
+
+### Payload_MediaType_BinaryBody_getAsCose
+
+- Endpoint: `get /payload/media-type/binary-body/getAsCose`
+
+Get binary body with application/cose content type.
+Expected response body is the bytes representing a COSE Sign1 envelope.
+Expected Content-Type header: application/cose.
+
+### Payload_MediaType_BinaryBody_getErrorAsCbor
+
+- Endpoint: `get /payload/media-type/binary-body/getErrorAsCbor`
+
+Get response with application/concise-problem-details+cbor content type for errors.
+Expected status code: 400.
+Expected Content-Type header: application/concise-problem-details+cbor.
+Expected response body is the bytes representing CBOR-encoded problem details.
+
+### Payload_MediaType_BinaryBody_getPendingWithHeaders
+
+- Endpoint: `get /payload/media-type/binary-body/getPendingWithHeaders`
+
+Get pending response with application/cbor content type, Location and Retry-After headers.
+Expected status code: 202.
+Expected Content-Type header: application/cbor.
+Expected Location header: /operations/67890.
+Expected Retry-After header: 10.
+
+### Payload_MediaType_BinaryBody_getWithLocationHeader
+
+- Endpoint: `get /payload/media-type/binary-body/getWithLocationHeader`
+
+Get binary body with application/cbor content type and Location header.
+Expected response body is the bytes representing CBOR-encoded operation status.
+Expected Content-Type header: application/cbor.
+Expected Location header: /operations/12345.
+
+### Payload_MediaType_BinaryBody_sendAsCbor
+
+- Endpoint: `post /payload/media-type/binary-body/sendAsCbor`
+
+Send binary body with application/cbor content type.
+Expected request body is the bytes representing CBOR-encoded data: {"key": "value"}.
+
+### Payload_MediaType_BinaryBody_sendAsCose
+
+- Endpoint: `post /payload/media-type/binary-body/sendAsCose`
+
+Send binary body with application/cose content type (COSE Sign1 signature).
+Expected request body is the bytes representing a COSE Sign1 envelope.
+
 ### Payload_MediaType_StringBody_getAsJson
 
 - Endpoint: `get /payload/media-type/string-body/getAsJson`
