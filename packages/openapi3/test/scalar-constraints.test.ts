@@ -3,7 +3,6 @@ import { deepStrictEqual, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
 import { supportedVersions, worksFor } from "./works-for.js";
 
-
 describe("numeric constraints", () => {
   const scalarNumberTypes = [
     "int8",
