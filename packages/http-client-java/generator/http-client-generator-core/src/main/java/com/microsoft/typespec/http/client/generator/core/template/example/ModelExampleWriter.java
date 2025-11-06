@@ -3,8 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.template.example;
 
-import com.azure.json.JsonProviders;
-import com.azure.json.JsonWriter;
 import com.microsoft.typespec.http.client.generator.core.Javagen;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
@@ -28,6 +26,7 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaMod
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
+import io.clientcore.core.serialization.json.JsonWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -237,7 +236,7 @@ public class ModelExampleWriter {
                     helperFeatures.add(ExampleHelperFeature.ThrowsIOException);
 
                     try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                        JsonWriter jsonWriter = JsonProviders.createWriter(outputStream)) {
+                        JsonWriter jsonWriter = JsonWriter.toStream(outputStream)) {
                         jsonWriter.writeUntyped(node.getObjectValue()).flush();
 
                         return codeDeserializeJsonString(outputStream.toString(StandardCharsets.UTF_8));

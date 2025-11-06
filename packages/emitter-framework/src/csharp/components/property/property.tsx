@@ -1,15 +1,26 @@
-import { type Children } from "@alloy-js/core";
+import { code, REFKEYABLE, type Children } from "@alloy-js/core";
 import * as cs from "@alloy-js/csharp";
 import { Attribute } from "@alloy-js/csharp";
-import { getProperty, type ModelProperty, resolveEncodedName, type Type } from "@typespec/compiler";
+import { Serialization } from "@alloy-js/csharp/global/System/Text/Json";
+import {
+  getEncode,
+  getProperty,
+  resolveEncodedName,
+  type ModelProperty,
+  type Type,
+} from "@typespec/compiler";
 import { useTsp } from "../../../core/index.js";
+import { useJsonConverterResolver } from "../json-converter/json-converter-resolver.jsx";
 import { TypeExpression } from "../type-expression.jsx";
 import { getDocComments } from "../utils/doc-comments.jsx";
 import { getNullableUnionInnerType } from "../utils/nullable-util.js";
 
 export interface PropertyProps {
   type: ModelProperty;
-  /** If set the property will add the json serialization attributes(using System.Text.Json). */
+  /** If set the property will add the json serialization attributes(using System.Text.Json.Serialization).
+   *  - the JsonPropertyName attribute
+   *  - the JsonConverter attribute if the property has encoding and a JsonConverterResolver context is available
+   * */
   jsonAttributes?: boolean;
 }
 
@@ -17,8 +28,8 @@ export interface PropertyProps {
  * Create a C# property declaration from a TypeSpec property type.
  */
 export function Property(props: PropertyProps): Children {
-  const result = preprocessPropertyType(props.type);
   const { $ } = useTsp();
+  const result = preprocessPropertyType(props.type);
 
   let overrideType: "" | "override" | "new" = "";
   let isVirtual = false;
@@ -49,6 +60,22 @@ export function Property(props: PropertyProps): Children {
       });
     }
   }
+  const attributes = [];
+  if (props.jsonAttributes) {
+    attributes.push(<JsonNameAttribute type={props.type} />);
+    const encodeData = getEncode($.program, props.type);
+    if (encodeData) {
+      const JsonConverterResolver = useJsonConverterResolver();
+      if (JsonConverterResolver) {
+        const converter = JsonConverterResolver.resolveJsonConverter(result.type, encodeData);
+        if (converter) {
+          attributes.push(
+            <JsonConverterAttribute type={<cs.Reference refkey={converter.namekey} />} />,
+          );
+        }
+      }
+    }
+  }
 
   return (
     <cs.Property
@@ -61,7 +88,7 @@ export function Property(props: PropertyProps): Children {
       required={!props.type.optional}
       nullable={result.nullable}
       doc={getDocComments($, props.type)}
-      attributes={props.jsonAttributes ? [<JsonNameAttribute type={props.type} />] : undefined}
+      attributes={attributes}
       get
       set
     />
@@ -75,7 +102,12 @@ export interface JsonNameAttributeProps {
 function JsonNameAttribute(props: JsonNameAttributeProps): Children {
   const { program } = useTsp();
   const jsonName = resolveEncodedName(program, props.type, "application/json");
-  return <Attribute name="System.Text.Json.JsonPropertyName" args={[JSON.stringify(jsonName)]} />;
+  return (
+    <Attribute
+      name={Serialization.JsonPropertyNameAttribute[REFKEYABLE]()}
+      args={[JSON.stringify(jsonName)]}
+    />
+  );
 }
 
 function preprocessPropertyType(prop: ModelProperty): { type: Type; nullable: boolean } {
@@ -91,4 +123,13 @@ function preprocessPropertyType(prop: ModelProperty): { type: Type; nullable: bo
   } else {
     return { type, nullable: prop.optional };
   }
+}
+
+function JsonConverterAttribute(props: { type: Children }): Children {
+  return (
+    <Attribute
+      name={Serialization.JsonConverterAttribute[REFKEYABLE]()}
+      args={[code`typeof(${props.type})`]}
+    />
+  );
 }
