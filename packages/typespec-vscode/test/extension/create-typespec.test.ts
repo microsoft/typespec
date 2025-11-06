@@ -21,6 +21,7 @@ type CreateConfigType = {
   expectedResults: string[];
 };
 
+// Move to the temp directory to execute the test
 const CreateTypespecProjectFolderPath = path.resolve(tempDir, "CreateTypespecProject");
 
 const createCase = "CreateTypespecProject";

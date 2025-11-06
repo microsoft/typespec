@@ -22,7 +22,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         [SetUp]
         public void Setup()
         {
-            _instance = MockHelpers.LoadMockGenerator(inputModelTypes: ModelList).Object;
+            _instance = MockHelpers.LoadMockGenerator(inputNamespaceName: "Sample.Namespace", inputModelTypes: ModelList).Object;
         }
 
         [Test]
@@ -135,6 +135,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         public async Task BackCompatibility_NewModelPropertyAdded()
         {
             _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
                 inputModelTypes: ModelList,
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
 
@@ -165,6 +166,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual("stringProp", parameters[0].Name);
             Assert.AreEqual("modelProp", parameters[1].Name);
             Assert.AreEqual("listProp", parameters[2].Name);
+            foreach (var param in parameters)
+            {
+                Assert.IsNull(param.DefaultValue);
+            }
 
             var currentParameters = currentOverloadMethod!.Signature.Parameters;
             Assert.AreEqual(4, currentParameters.Count);
@@ -172,6 +177,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual("modelProp", currentParameters[1].Name);
             Assert.AreEqual("listProp", currentParameters[2].Name);
             Assert.AreEqual("dictProp", currentParameters[3].Name);
+            foreach (var param in currentParameters)
+            {
+                Assert.IsNotNull(param.DefaultValue);
+            }
 
             Assert.IsTrue(parameters[0].Type.AreNamesEqual(currentParameters[0].Type));
             Assert.IsTrue(parameters[1].Type.AreNamesEqual(currentParameters[1].Type));
@@ -192,6 +201,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         public async Task BackCompatibility_OnlyParamOrderingChanged()
         {
             _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
                 inputModelTypes: ModelList,
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
 
@@ -217,6 +227,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual("stringProp", parameters[1].Name);
             Assert.AreEqual("listProp", parameters[2].Name);
             Assert.AreEqual("dictProp", parameters[3].Name);
+            foreach (var param in parameters)
+            {
+                Assert.IsNotNull(param.DefaultValue);
+            }
 
             var model2BackCompatMethod = factoryMethods
                .First(m => m.Signature.Name == "PublicModel2");
@@ -238,8 +252,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.IsNotNull(body);
             var result = body!.ToDisplayString();
             Assert.AreEqual(
-                "listProp ??= new global::Sample.ChangeTrackingList<string>();\n" +
-                "dictProp ??= new global::Sample.ChangeTrackingDictionary<string, string>();\n\n" +
+                "listProp ??= new global::Sample.Namespace.ChangeTrackingList<string>();\n" +
+                "dictProp ??= new global::Sample.Namespace.ChangeTrackingDictionary<string, string>();\n\n" +
                 "return new global::Sample.Models.PublicModel1(stringProp, modelProp, listProp.ToList(), dictProp, additionalBinaryDataProperties: null);\n",
                 result);
 
@@ -247,8 +261,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.IsNotNull(body);
             result = body!.ToDisplayString();
             Assert.AreEqual(
-                "listProp ??= new global::Sample.ChangeTrackingList<string>();\n" +
-                "dictProp ??= new global::Sample.ChangeTrackingDictionary<string, string>();\n\n" +
+                "listProp ??= new global::Sample.Namespace.ChangeTrackingList<string>();\n" +
+                "dictProp ??= new global::Sample.Namespace.ChangeTrackingDictionary<string, string>();\n\n" +
                 "return new global::Sample.Models.PublicModel2(stringProp, modelProp, listProp.ToList(), dictProp, additionalBinaryDataProperties: null);\n",
                 result);
         }
@@ -257,6 +271,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         public async Task BackCompatibility_NoCurrentOverloadFound()
         {
             _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
                 inputModelTypes: ModelList,
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
 
@@ -278,6 +293,16 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             var parameters = backwardCompatibilityMethod!.Signature.Parameters;
             Assert.AreEqual(1, parameters.Count);
             Assert.AreEqual("stringProp", parameters[0].Name);
+            foreach (var param in parameters)
+            {
+                Assert.IsNull(param.DefaultValue);
+            }
+            var attributes = backwardCompatibilityMethod!.Signature.Attributes;
+            Assert.AreEqual(1, attributes.Count);
+            var printedAttribute = attributes[0].ToDisplayString();
+            Assert.AreEqual(
+                "[global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]\n",
+                printedAttribute);
 
             var currentParameters = currentOverloadMethod!.Signature.Parameters;
             Assert.AreEqual(4, currentParameters.Count);
@@ -285,6 +310,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual("modelProp", currentParameters[1].Name);
             Assert.AreEqual("listProp", currentParameters[2].Name);
             Assert.AreEqual("dictProp", currentParameters[3].Name);
+            foreach (var param in currentParameters)
+            {
+                Assert.IsNotNull(param.DefaultValue);
+            }
 
             Assert.IsTrue(parameters[0].Type.AreNamesEqual(currentParameters[0].Type));
 

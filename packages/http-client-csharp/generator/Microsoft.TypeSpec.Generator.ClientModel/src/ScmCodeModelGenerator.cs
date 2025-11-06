@@ -25,6 +25,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
         internal ModelSerializationExtensionsDefinition ModelSerializationExtensionsDefinition { get; } =
             new ModelSerializationExtensionsDefinition();
 
+        internal SerializationFormatDefinition SerializationFormatDefinition { get; } =
+            new SerializationFormatDefinition();
+
         [ImportingConstructor]
         public ScmCodeModelGenerator(GeneratorContext context)
             : base(context)

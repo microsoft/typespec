@@ -9,7 +9,7 @@ components are set forth below. Microsoft reserves all rights not expressly
 granted herein, whether by implication, estoppel or otherwise.
 
 1. @babel/code-frame version 7.27.1 (https://github.com/babel/babel)
-2. @babel/helper-validator-identifier version 7.27.1 (https://github.com/babel/babel)
+2. @babel/helper-validator-identifier version 7.28.5 (https://github.com/babel/babel)
 3. ajv version 8.17.1 (ajv-validator/ajv)
 4. balanced-match version 1.0.2 (https://github.com/juliangruber/balanced-match)
 5. brace-expansion version 2.0.2 (https://github.com/juliangruber/brace-expansion)
@@ -26,7 +26,7 @@ granted herein, whether by implication, estoppel or otherwise.
 16. mustache version 4.2.0 (https://github.com/janl/mustache.js)
 17. path-key version 3.1.1 (sindresorhus/path-key)
 18. picocolors version 1.1.1 (alexeyraspopov/picocolors)
-19. semver version 7.7.2 (https://github.com/npm/node-semver)
+19. semver version 7.7.3 (https://github.com/npm/node-semver)
 20. shebang-command version 2.0.0 (kevva/shebang-command)
 21. shebang-regex version 3.0.0 (sindresorhus/shebang-regex)
 22. which version 2.0.2 (https://github.com/isaacs/node-which)

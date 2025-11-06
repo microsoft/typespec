@@ -191,6 +191,99 @@ public final class QueryClient {
     }
 
     /**
+     * The int32Milliseconds operation.
+     * 
+     * @param input The input parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> int32MillisecondsWithResponse(int input, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Query.int32Milliseconds", requestContext,
+            updatedContext -> this.serviceClient.int32MillisecondsWithResponse(input, updatedContext));
+    }
+
+    /**
+     * The int32Milliseconds operation.
+     * 
+     * @param input The input parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void int32Milliseconds(int input) {
+        int32MillisecondsWithResponse(input, RequestContext.none());
+    }
+
+    /**
+     * The floatMilliseconds operation.
+     * 
+     * @param input The input parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> floatMillisecondsWithResponse(double input, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Query.floatMilliseconds", requestContext,
+            updatedContext -> this.serviceClient.floatMillisecondsWithResponse(input, updatedContext));
+    }
+
+    /**
+     * The floatMilliseconds operation.
+     * 
+     * @param input The input parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void floatMilliseconds(double input) {
+        floatMillisecondsWithResponse(input, RequestContext.none());
+    }
+
+    /**
+     * The float64Milliseconds operation.
+     * 
+     * @param input The input parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> float64MillisecondsWithResponse(double input, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Query.float64Milliseconds", requestContext,
+            updatedContext -> this.serviceClient.float64MillisecondsWithResponse(input, updatedContext));
+    }
+
+    /**
+     * The float64Milliseconds operation.
+     * 
+     * @param input The input parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void float64Milliseconds(double input) {
+        float64MillisecondsWithResponse(input, RequestContext.none());
+    }
+
+    /**
      * The int32SecondsArray operation.
      * 
      * @param input The input parameter.
@@ -219,5 +312,37 @@ public final class QueryClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void int32SecondsArray(List<Duration> input) {
         int32SecondsArrayWithResponse(input, RequestContext.none());
+    }
+
+    /**
+     * The int32MillisecondsArray operation.
+     * 
+     * @param input The input parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> int32MillisecondsArrayWithResponse(List<Integer> input, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Query.int32MillisecondsArray",
+            requestContext,
+            updatedContext -> this.serviceClient.int32MillisecondsArrayWithResponse(input, updatedContext));
+    }
+
+    /**
+     * The int32MillisecondsArray operation.
+     * 
+     * @param input The input parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void int32MillisecondsArray(List<Integer> input) {
+        int32MillisecondsArrayWithResponse(input, RequestContext.none());
     }
 }

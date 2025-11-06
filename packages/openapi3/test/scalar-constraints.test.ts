@@ -1,7 +1,8 @@
 /* eslint-disable vitest/no-identical-title */
 import { deepStrictEqual, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
-import { worksFor } from "./works-for.js";
+import { supportedVersions, worksFor } from "./works-for.js";
+
 
 describe("numeric constraints", () => {
   const scalarNumberTypes = [
@@ -19,7 +20,7 @@ describe("numeric constraints", () => {
     "safeint",
   ];
 
-  worksFor(["3.0.0", "3.1.0"], ({ oapiForModel }) => {
+  worksFor(supportedVersions, ({ oapiForModel }) => {
     describe("@minValue/@maxValue/@multipleOf", () => {
       for (const numType of scalarNumberTypes) {
         it(numType, async () => {
@@ -148,7 +149,7 @@ describe("string constraints", () => {
     @pattern("a|b")
     @format("ipv4")`;
 
-  worksFor(["3.0.0", "3.1.0"], ({ oapiForModel }) => {
+  worksFor(supportedVersions, ({ oapiForModel }) => {
     it("on scalar declaration", async () => {
       const schemas = await oapiForModel(
         "Test",

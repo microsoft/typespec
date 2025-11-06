@@ -29,26 +29,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _models = models;
         }
 
-        protected override string BuildName()
-        {
-            var span = CodeModelGenerator.Instance.Configuration.PackageName.AsSpan();
-            if (span.IndexOf('.') == -1)
-                return string.Concat(CodeModelGenerator.Instance.Configuration.PackageName, ModelFactorySuffix);
-
-            Span<char> dest = stackalloc char[span.Length + ModelFactorySuffix.Length];
-            int j = 0;
-
-            for (int i = 0; i < span.Length; i++)
-            {
-                if (span[i] != '.')
-                {
-                    dest[j] = span[i];
-                    j++;
-                }
-            }
-            ModelFactorySuffix.AsSpan().CopyTo(dest.Slice(j));
-            return dest.Slice(0, j + ModelFactorySuffix.Length).ToString();
-        }
+        protected override string BuildName() => string.Concat(CodeModelGenerator.Instance.TypeFactory.ServiceName, ModelFactorySuffix);
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
 
@@ -143,7 +124,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     // If the parameter ordering is the only difference, just use the previous method
                     if (ContainsSameParameters(previousMethod.Signature, currentOverload)
-                        && TryBuildCompatibleMethodForPreviousContract(previousMethod, out MethodProvider? replacedMethod))
+                        && TryBuildCompatibleMethodForPreviousContract(previousMethod, currentOverload, false, out MethodProvider? replacedMethod))
                     {
                         factoryMethods.Add(replacedMethod);
 
@@ -158,23 +139,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         break;
                     }
 
-                    if (TryBuildMethodArgumentsForOverload(previousMethod.Signature, currentOverload, out var arguments))
+                    if (TryBuildCompatibleMethodForPreviousContract(previousMethod, currentOverload, true, out replacedMethod))
                     {
-                        var signature = new MethodSignature(
-                            previousMethod.Signature.Name,
-                            previousMethod.Signature.Description,
-                            previousMethod.Signature.Modifiers,
-                            previousMethod.Signature.ReturnType,
-                            previousMethod.Signature.ReturnDescription,
-                            previousMethod.Signature.Parameters,
-                            Attributes: [new AttributeStatement(typeof(EditorBrowsableAttribute), FrameworkEnumValue(EditorBrowsableState.Never))]);
-
-                        var callToOverload = Return(new InvokeMethodExpression(null, currentOverload, arguments));
-                        factoryMethods.Add(new MethodProvider(
-                            signature,
-                            callToOverload,
-                            this,
-                            previousMethod.XmlDocs));
+                        factoryMethods.Add(replacedMethod);
                         foundCompatibleOverload = true;
                         break;
                     }
@@ -186,7 +153,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
 
                 // If no compatible overload found, try to add the previous method by instantiating the model directly.
-                if (TryBuildCompatibleMethodForPreviousContract(previousMethod, out var builtMethod))
+                if (TryBuildCompatibleMethodForPreviousContract(previousMethod, null, true, out var builtMethod))
                 {
                     factoryMethods.Add(builtMethod);
                 }
@@ -201,6 +168,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private bool TryBuildCompatibleMethodForPreviousContract(
             MethodProvider previousMethod,
+            MethodSignature? currentMethodSignature,
+            bool hideMethod,
             [NotNullWhen(true)] out MethodProvider? builtMethod)
         {
             builtMethod = null;
@@ -232,15 +201,51 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return false;
             }
 
+            if (currentMethodSignature != null && TryBuildMethodArgumentsForOverload(previousMethod.Signature, currentMethodSignature, out var arguments))
+            {
+                var callToOverload = Return(new InvokeMethodExpression(null, currentMethodSignature, arguments));
+                builtMethod = new MethodProvider(
+                    BuildBackCompatMethodSignature(previousMethod.Signature),
+                    callToOverload,
+                    this,
+                    previousMethod.XmlDocs);
+
+                return true;
+            }
+
             MethodBodyStatements body = ConstructMethodBody(previousMethod.Signature, modelToInstantiate);
 
             builtMethod = new MethodProvider(
-                previousMethod.Signature,
+                BuildBackCompatMethodSignature(previousMethod.Signature),
                 body,
                 this,
                 previousMethod.XmlDocs);
 
             return true;
+
+            MethodSignature BuildBackCompatMethodSignature(MethodSignature previousMethodSignature)
+            {
+                if (hideMethod)
+                {
+                    // make all parameter required to avoid ambiguous call sites if necessary
+                    foreach (var param in previousMethodSignature.Parameters)
+                    {
+                        param.DefaultValue = null;
+                    }
+                }
+
+                var attributes = hideMethod
+                    ? [.. previousMethodSignature.Attributes, new AttributeStatement(typeof(EditorBrowsableAttribute), FrameworkEnumValue(EditorBrowsableState.Never))]
+                    : previousMethodSignature.Attributes;
+                return new MethodSignature(
+                    previousMethodSignature.Name,
+                    previousMethodSignature.Description,
+                    previousMethodSignature.Modifiers,
+                    previousMethodSignature.ReturnType,
+                    previousMethodSignature.ReturnDescription,
+                    previousMethodSignature.Parameters,
+                    Attributes: attributes);
+            }
         }
 
         private MethodBodyStatements ConstructMethodBody(MethodSignature signature, ModelProvider modelToInstantiate)
@@ -461,7 +466,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                if (param.Property?.IsRequiredNonNullableConstant == true)
+                // Skip required literal and enum parameters as they will have default values assigned in the model constructors
+                if (param.Property?.InputProperty is { IsRequired: true, Type: InputLiteralType or InputEnumTypeValue })
                 {
                     continue;
                 }

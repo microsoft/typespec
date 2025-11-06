@@ -1542,7 +1542,13 @@ function createOAPIEmitter(
   ): OpenAPI3Parameter {
     if (target.schema) {
       const schema = target.schema;
-      if (schema.enum && apply.schema.enum) {
+      if (
+        "enum" in schema &&
+        schema.enum &&
+        apply.schema &&
+        "enum" in apply.schema &&
+        apply.schema.enum
+      ) {
         schema.enum = [...new Set([...schema.enum, ...apply.schema.enum])];
       }
       target.schema = schema;

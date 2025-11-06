@@ -10,7 +10,7 @@ import {
 } from "../index.js";
 import { ENABLE_SERVER_COMPILE_LOGGING } from "./constants.js";
 import { trackActionFunc } from "./server-track-action-task.js";
-import { UpdateManger } from "./update-manager.js";
+import { UpdateManager } from "./update-manager.js";
 
 /**
  * core: linter and emitter will be set to [] when trigger compilation
@@ -40,7 +40,7 @@ export class ServerCompileManager {
   private logDebug: (msg: string) => void;
 
   constructor(
-    private updateManager: UpdateManger,
+    private updateManager: UpdateManager,
     private compilerHost: CompilerHost,
     private log: (log: ServerLog) => void,
   ) {
@@ -251,7 +251,7 @@ export class CompileTracker {
 
   static compile(
     id: number,
-    updateManager: UpdateManger,
+    updateManager: UpdateManager,
     host: CompilerHost,
     mainFile: string,
     options: CompilerOptions = {},
@@ -300,7 +300,7 @@ export class CompileTracker {
 
   private constructor(
     private id: number,
-    private updateManager: UpdateManger,
+    private updateManager: UpdateManager,
     private entrypoint: string,
     private compileResultPromise: Promise<Program>,
     private version: number,

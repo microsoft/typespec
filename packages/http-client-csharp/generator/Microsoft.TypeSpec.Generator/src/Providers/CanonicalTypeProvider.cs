@@ -49,8 +49,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return [.. _generatedTypeProvider.Attributes, .. _generatedTypeProvider.CustomCodeView?.Attributes ?? []];
         }
 
-        private protected override PropertyProvider[] FilterCustomizedProperties(PropertyProvider[] canonicalProperties) => canonicalProperties;
-        private protected override FieldProvider[] FilterCustomizedFields(FieldProvider[] canonicalFields) => canonicalFields;
+        internal override PropertyProvider[] FilterCustomizedProperties(IEnumerable<PropertyProvider> canonicalProperties) => [..canonicalProperties];
+        internal override FieldProvider[] FilterCustomizedFields(IEnumerable<FieldProvider> canonicalFields) => [..canonicalFields];
 
         private protected override CanonicalTypeProvider BuildCanonicalView() => this;
 
@@ -92,6 +92,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     specProperty = candidateSpecProperty;
                     customProperty.WireInfo = new PropertyWireInformation(specProperty);
                     customProperty.IsDiscriminator = customProperty.WireInfo.IsDiscriminator;
+                    customProperty.Update(description: customProperty.WireInfo.Description);
+
                     _propertyProviderMap[specProperty] = customProperty;
                 }
 
@@ -128,6 +130,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
 
                 customProperty.Type = customProperty.Type.ApplyInputSpecProperty(specProperty);
+                customProperty.InputProperty = specProperty;
             }
 
             if (_specProperties.Count > 0)
@@ -208,6 +211,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     specProperty = candidateSpecProperty;
                     customField.WireInfo = new PropertyWireInformation(specProperty);
+                    customField.Update(description: customField.WireInfo.Description);
                 }
 
                 string? serializedName = specProperty?.SerializedName;

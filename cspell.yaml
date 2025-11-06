@@ -6,6 +6,8 @@ dictionaries:
   - typescript
 words:
   - Adoptium
+  - Arize
+  - arizeaiobservabilityeval
   - agentic
   - aiohttp
   - alzimmer
@@ -34,6 +36,7 @@ words:
   - cadleditor
   - cadleng
   - cadlplayground
+  - canonicalizer
   - clsx
   - cobertura
   - codehaus
@@ -117,6 +120,7 @@ words:
   - jdwp
   - jobject
   - Johan
+  - jquery
   - jsyaml
   - keyer
   - killpg
@@ -154,11 +158,13 @@ words:
   - myname
   - mypy
   - nanos
+  - ncpu
   - nexted
   - nihao
   - nint
   - NODEFS
   - noformat
+  - nologo
   - noopener
   - noreferrer
   - nosec
@@ -196,6 +202,7 @@ words:
   - pycache
   - pyexpat
   - pygen
+  - pygments
   - pyimport
   - pylint
   - pylintrc
@@ -261,9 +268,12 @@ words:
   - Uncapitalize
   - uncollapsed
   - undifferentiable
+  - undoc
   - Ungroup
   - uninstantiated
   - unioned
+  - unionified
+  - unionify
   - unparented
   - unprefixed
   - unprojected
@@ -311,6 +321,8 @@ ignorePaths:
   - packages/http-client-java/generator/http-client-generator-clientcore-test/**
   - packages/http-client-js/test/e2e/**
   - packages/http-client-js/sample/**
+  - packages/mutator-framework/**/*.test.ts
+  - packages/typespec-vscode/test/scenarios/**
   - pnpm-lock.yaml
   - "**/*.mp4"
   - "**/*.plist"

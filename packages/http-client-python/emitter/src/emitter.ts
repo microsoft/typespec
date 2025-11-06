@@ -18,6 +18,7 @@ function addDefaultOptions(sdkContext: PythonSdkContext) {
     "package-version": "1.0.0b1",
     "generate-packaging-files": true,
     "validate-versioning": true,
+    "clear-output-folder": false,
   };
   sdkContext.emitContext.options = {
     ...defaultOptions,
@@ -224,10 +225,10 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
       execSync(command);
 
       const blackExcludeDirs = [
-        "__pycache__/*",
-        "node_modules/*",
-        "venv/*",
-        "env/*",
+        "__pycache__/",
+        "node_modules/",
+        "venv/",
+        "env/",
         ".direnv",
         ".eggs",
         ".git",
@@ -243,11 +244,13 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
         "dist",
         ".nox",
         ".svn",
+        "TempTypeSpecFiles/",
       ];
+      const excludePattern = blackExcludeDirs.join("|");
       execSync(
-        `${venvPath} -m black --line-length=120 --quiet --fast ${outputDir} --exclude "${blackExcludeDirs.join("|")}"`,
+        `${venvPath} -m black --line-length=120 --quiet --fast ${outputDir} --exclude "${excludePattern}"`,
       );
-      checkForPylintIssues(outputDir);
+      checkForPylintIssues(outputDir, excludePattern);
     }
   }
 }
@@ -292,7 +295,15 @@ async function setupPyodideCall(root: string) {
   return pyodide;
 }
 
-function checkForPylintIssues(outputDir: string) {
+function checkForPylintIssues(outputDir: string, excludePattern: string) {
+  const excludeRegex = new RegExp(excludePattern);
+
+  const shouldExcludePath = (filePath: string): boolean => {
+    const relativePath = path.relative(outputDir, filePath);
+    const normalizedPath = relativePath.replace(/\\/g, "/");
+    return excludeRegex.test(normalizedPath);
+  };
+
   const processFile = (filePath: string) => {
     let fileContent = "";
     fileContent = fs.readFileSync(filePath, "utf-8");
@@ -317,9 +328,18 @@ function checkForPylintIssues(outputDir: string) {
   };
 
   const walkDir = (dir: string) => {
+    if (shouldExcludePath(dir)) {
+      return;
+    }
+
     const files = fs.readdirSync(dir);
     files.forEach((file) => {
       const filePath = path.join(dir, file);
+
+      if (shouldExcludePath(filePath)) {
+        return;
+      }
+
       if (fs.statSync(filePath).isDirectory()) {
         walkDir(filePath);
       } else if (file.endsWith(".py")) {

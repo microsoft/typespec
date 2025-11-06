@@ -18,7 +18,6 @@ import {
   SdkUnionType,
   UsageFlags,
   getAccessOverride,
-  getUsage,
   isHttpMetadata,
 } from "@azure-tools/typespec-client-generator-core";
 import { Model, NoTarget } from "@typespec/compiler";
@@ -30,6 +29,7 @@ import {
   InputDurationType,
   InputEnumType,
   InputEnumValueType,
+  InputExternalType,
   InputLiteralType,
   InputModelProperty,
   InputModelType,
@@ -78,6 +78,13 @@ export function fromSdkType<T extends SdkType>(
 ): InputReturnType<T> {
   let retVar = sdkContext.__typeCache.types.get(sdkType);
   if (retVar) {
+    return retVar as any;
+  }
+
+  // Check if this type references an external type
+  if ((sdkType as any).external) {
+    retVar = fromSdkExternalType(sdkContext, sdkType);
+    sdkContext.__typeCache.updateSdkTypeReferences(sdkType, retVar);
     return retVar as any;
   }
 
@@ -294,14 +301,17 @@ function createEnumType(
         ? (fromSdkType(sdkContext, sdkType.valueType) as InputPrimitiveType)
         : fromSdkBuiltInType(sdkContext, sdkType.valueType),
     values: values,
-    access: getAccessOverride(sdkContext, sdkType.__raw as any),
+    // constantType.access, TODO - constant type now does not have access. TCGC will add it later
+    access:
+      sdkType.kind === "enum" ? getAccessOverride(sdkContext, sdkType.__raw as any) : undefined,
     namespace: namespace,
     deprecation: sdkType.deprecation,
     summary: sdkType.summary,
     doc: sdkType.doc,
     isFixed: sdkType.kind === "enum" ? sdkType.isFixed : false,
     isFlags: sdkType.kind === "enum" ? sdkType.isFlags : false,
-    usage: getUsage(sdkContext, sdkType.__raw as any),
+    // constantType.usage, TODO - constant type now does not have usage. TCGC will add it later
+    usage: sdkType.kind === "enum" ? sdkType.usage : UsageFlags.None,
     decorators: sdkType.decorators,
   };
 
@@ -309,7 +319,7 @@ function createEnumType(
 
   if (sdkType.kind === "enum") {
     for (const v of sdkType.values) {
-      values.push(fromSdkType(sdkContext, v));
+      values.push(createEnumValueType(sdkContext, v, inputEnumType));
     }
   } else {
     values.push(createEnumValueType(sdkContext, sdkType, inputEnumType));
@@ -458,6 +468,20 @@ function fromSdkEndpointType(): InputPrimitiveType {
     kind: "string",
     name: "string",
     crossLanguageDefinitionId: "TypeSpec.string",
+  };
+}
+
+function fromSdkExternalType(
+  sdkContext: CSharpEmitterContext,
+  sdkType: SdkType,
+): InputExternalType {
+  const external = (sdkType as any).external;
+  return {
+    kind: "external",
+    identity: external.identity,
+    package: external.package,
+    minVersion: external.minVersion,
+    decorators: sdkType.decorators,
   };
 }
 

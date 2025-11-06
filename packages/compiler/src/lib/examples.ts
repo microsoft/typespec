@@ -79,6 +79,13 @@ function resolveUnions(program: Program, value: ObjectValue, type: Type): Type |
         program.checker.isTypeAssignableTo(exactValueType ?? value.type, variant.type, value),
       )
     ) {
+      // If the variant is itself a union, recursively resolve it
+      if (variant.type.kind === "Union") {
+        const resolvedNested = resolveUnions(program, value, variant.type);
+        if (resolvedNested && resolvedNested !== variant.type) {
+          return resolvedNested;
+        }
+      }
       return variant.type;
     }
   }

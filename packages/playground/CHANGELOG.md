@@ -1,5 +1,12 @@
 # Change Log - @typespec/playground
 
+## 0.11.1
+
+### Bump dependencies
+
+- [#8437](https://github.com/microsoft/typespec/pull/8437) Upgrade dependencies
+
+
 ## 0.11.0
 
 ### Features

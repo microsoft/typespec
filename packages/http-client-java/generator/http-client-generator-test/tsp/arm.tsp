@@ -10,7 +10,6 @@ using TypeSpec.Rest;
 using TypeSpec.Versioning;
 using Azure.Core;
 using Azure.ResourceManager;
-using TypeSpec.OpenAPI;
 using Azure.ClientGenerator.Core;
 using Azure.ClientGenerator.Core.Legacy;
 
@@ -78,6 +77,9 @@ model TopLevelArmResourceProperties {
 
   @visibility(Lifecycle.Create, Lifecycle.Read)
   startTimeStamp: utcDateTime; // this should be renamed to startTimestamp
+
+  @visibility(Lifecycle.Read)
+  size?: float32;
 
   @visibility(Lifecycle.Read)
   @doc("The status of the last operation.")
@@ -267,6 +269,8 @@ interface ChildResourcesInterface
     ChildResource,
     Response = ArmResponse<ChildResourceListResult & {
       @header("ETag") eTag: string;
+      @header("content-type") contentType: "application/json";
+      @header("x-ms-constant-header") xMsConstantHeader: "constantValue";
     }>
   >;
   actionWithoutBody is ArmResourceActionAsync<ChildResource, void, void>;
@@ -275,7 +279,6 @@ interface ChildResourcesInterface
 @armResourceOperations
 interface TopLevelArmResourceInterface
   extends TrackedResourceOperations<TopLevelArmResource, TopLevelArmResourceProperties> {
-  @operationId("TopLevelArmResourceInterface_Post")
   action is ArmResourceActionAsync<
     TopLevelArmResource,
     void,
@@ -300,7 +303,6 @@ interface CustomTemplateResourceInterface
   #suppress "@azure-tools/typespec-azure-core/no-operation-id" "Use operationId to keep same name as deprecated update operation"
   @sharedRoute
   @added(Versions.v2023_11_01)
-  @operationId("CustomTemplateResourceInterfaces_Update")
   updateLongRunning is ArmCustomPatchAsync<CustomTemplateResource, CustomTemplateResourcePatch>;
 }
 

@@ -1,9 +1,9 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual } from "assert";
 import { it } from "vitest";
-import { worksFor } from "./works-for.js";
+import { supportedVersions, worksFor } from "./works-for.js";
 
-worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
+worksFor(supportedVersions, ({ diagnoseOpenApiFor, openApiFor }) => {
   async function expectStatusCodes(code: string, statusCodes: string[]) {
     const res = await openApiFor(code);
     deepStrictEqual(Object.keys(res.paths["/"].get.responses), statusCodes);

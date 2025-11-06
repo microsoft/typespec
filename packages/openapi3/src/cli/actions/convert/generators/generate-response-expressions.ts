@@ -359,10 +359,10 @@ function convertHeaderToProperty(
 
   return {
     name: normalizedName,
-    decorators: [headerDecorator, ...getDecoratorsForSchema(header.schema)],
-    doc: props.header.description ?? header.description ?? header.schema.description,
+    decorators: [headerDecorator, ...(header.schema ? getDecoratorsForSchema(header.schema) : [])],
+    doc: props.header.description ?? header.description ?? header.schema?.description,
     isOptional: !header.required,
-    schema: header.schema,
+    schema: header.schema ?? {},
   };
 }
 

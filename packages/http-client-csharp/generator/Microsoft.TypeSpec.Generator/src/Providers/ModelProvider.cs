@@ -37,11 +37,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     if (i == publicDerivedModels.Count - 1)
                     {
-                        derivedClassesDescription += $"{(i > 0 ? "and " : "")}<see cref=\"{publicDerivedModels[i].Name}\"/>.";
+                        derivedClassesDescription += $"{(i > 0 ? "and " : "")}<see cref=\"{publicDerivedModels[i].Type.FullyQualifiedName}\"/>.";
                     }
                     else
                     {
-                        derivedClassesDescription += $"<see cref=\"{publicDerivedModels[i].Name}\"/>{(addComma ? ", " : " ")}";
+                        derivedClassesDescription += $"<see cref=\"{publicDerivedModels[i].Type.FullyQualifiedName}\"/>{(addComma ? ", " : " ")}";
                     }
                 }
 
@@ -840,6 +840,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
             foreach (var field in CanonicalView.Fields)
             {
                 CreatePropertyAssignmentStatement(isPrimaryConstructor, methodBodyStatements, parameterMap, field: field);
+            }
+
+            // If discriminator is defined as optional in the base model, but we have an expression for it, assign it in the
+            // primary constructor body.
+            if (isPrimaryConstructor && DiscriminatorValueExpression != null)
+            {
+                var baseDiscriminatorProperty = BaseModelProvider?.DiscriminatorProperty;
+                if (baseDiscriminatorProperty is { WireInfo.IsRequired: false })
+                {
+                    methodBodyStatements.Add(baseDiscriminatorProperty.Assign(DiscriminatorValueExpression).Terminate());
+                }
             }
 
             // handle additional properties

@@ -5,8 +5,6 @@ package com.microsoft.typespec.http.client.generator;
 
 import com.azure.core.util.Configuration;
 import com.azure.core.util.CoreUtils;
-import com.azure.json.JsonProviders;
-import com.azure.json.JsonReader;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.AnnotatedPropertyUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModelCustomConstructor;
@@ -18,10 +16,12 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaPac
 import com.microsoft.typespec.http.client.generator.core.postprocessor.Postprocessor;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.fluent.TypeSpecFluentPlugin;
+import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentStatic;
 import com.microsoft.typespec.http.client.generator.mgmt.model.javamodel.FluentJavaPackage;
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import com.microsoft.typespec.http.client.generator.model.EmitterOptions;
 import com.microsoft.typespec.http.client.generator.util.FileUtil;
+import io.clientcore.core.serialization.json.JsonReader;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -106,7 +106,8 @@ public class Main {
 
     private static void handleFluent(CodeModel codeModel, EmitterOptions emitterOptions, boolean sdkIntegration) {
         // initialize plugin
-        TypeSpecFluentPlugin fluentPlugin = new TypeSpecFluentPlugin(emitterOptions, sdkIntegration);
+        TypeSpecFluentPlugin fluentPlugin
+            = new TypeSpecFluentPlugin(emitterOptions, sdkIntegration, codeModel.getInfo().getTitle());
 
         codeModel = fluentPlugin.preProcess(codeModel);
 
@@ -117,14 +118,16 @@ public class Main {
         FluentJavaPackage javaPackage = fluentPlugin.processTemplates(codeModel, client);
 
         // delete generated Java files
-        deleteGeneratedJavaFiles(emitterOptions.getOutputDir(), javaPackage.getJavaFiles(), JavaSettings.getInstance());
+        deleteGeneratedJavaFiles(emitterOptions.getOutputDir(), javaPackage.getJavaFiles(), JavaSettings.getInstance(),
+            FluentStatic.getFluentJavaSettings().getMetadataSuffix().orElse(null));
 
         // write java files
-        Postprocessor.writeToFiles(
-            javaPackage.getJavaFiles()
-                .stream()
-                .collect(Collectors.toMap(JavaFile::getFilePath, file -> file.getContents().toString())),
-            fluentPlugin, fluentPlugin.getLogger());
+
+        // handle customization
+        // write output java files
+        new Postprocessor(fluentPlugin).postProcess(javaPackage.getJavaFiles()
+            .stream()
+            .collect(Collectors.toMap(JavaFile::getFilePath, file -> file.getContents().toString())));
 
         // XML include POM
         javaPackage.getXmlFiles()
@@ -160,7 +163,7 @@ public class Main {
         LOGGER.info("Count of text files: {}", javaPackage.getTextFiles().size());
 
         // delete generated Java files
-        deleteGeneratedJavaFiles(outputDir, javaPackage.getJavaFiles(), settings);
+        deleteGeneratedJavaFiles(outputDir, javaPackage.getJavaFiles(), settings, null);
 
         Map<String, String> javaFiles = new ConcurrentHashMap<>();
         javaPackage.getJavaFiles()
@@ -195,16 +198,18 @@ public class Main {
      * @param javaFiles the list of Java files to be generated
      * @param settings the Java settings
      */
-    private static void deleteGeneratedJavaFiles(String outputDir, List<JavaFile> javaFiles, JavaSettings settings) {
+    private static void deleteGeneratedJavaFiles(String outputDir, List<JavaFile> javaFiles, JavaSettings settings,
+        String suffix) {
         Set<String> filesToDelete = new HashSet<>();
 
         // clean up source code, based on metadata
         String metadataFilename = "src/main/resources/META-INF/"
-            + (settings.isFluent() ? FluentUtils.getArtifactId() : ClientModelUtil.getArtifactId()) + "_metadata.json";
+            + (settings.isFluent() ? FluentUtils.getArtifactId() : ClientModelUtil.getArtifactId()) + "_metadata"
+            + (suffix == null ? "" : "_" + suffix) + ".json";
         Path metadataFilePath = Paths.get(outputDir, metadataFilename).toAbsolutePath();
         if (Files.isRegularFile(metadataFilePath) && metadataFilePath.toFile().canRead()) {
             try (BufferedReader reader = Files.newBufferedReader(metadataFilePath, StandardCharsets.UTF_8);
-                JsonReader jsonReader = JsonProviders.createReader(reader)) {
+                JsonReader jsonReader = JsonReader.fromReader(reader)) {
                 TypeSpecMetadata metadata = TypeSpecMetadata.fromJson(jsonReader);
                 if (metadata != null && !CoreUtils.isNullOrEmpty(metadata.getGeneratedFiles())) {
                     filesToDelete.addAll(metadata.getGeneratedFiles()
@@ -246,7 +251,7 @@ public class Main {
         String emitterOptionsJson = Configuration.getGlobalConfiguration().get("emitterOptions");
 
         if (emitterOptionsJson != null) {
-            try (JsonReader jsonReader = JsonProviders.createReader(emitterOptionsJson)) {
+            try (JsonReader jsonReader = JsonReader.fromString(emitterOptionsJson)) {
                 options = EmitterOptions.fromJson(jsonReader);
                 // namespace
                 if (CoreUtils.isNullOrEmpty(options.getNamespace())) {

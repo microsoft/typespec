@@ -1,18 +1,4 @@
-{% macro wrap_string(string, wrapstring, width=95) %}
-{%- set lines = string.split('\n') -%}
-{%- set processed_lines = [] -%}
-{%- for line in lines -%}
-    {%- set stripped = line.strip() -%}
-    {%- if stripped.startswith('* ') -%}
-        {%- set bullet_with_indent = stripped -%}
-        {%- set wrapped = bullet_with_indent | wordwrap(width=width, break_long_words=False, break_on_hyphens=False, wrapstring=wrapstring + '  ') -%}
-        {%- set _ = processed_lines.append(wrapped) -%}
-    {%- elif stripped -%}
-        {%- set wrapped = line | wordwrap(width=width, break_long_words=False, break_on_hyphens=False, wrapstring=wrapstring) -%}
-        {%- set _ = processed_lines.append(wrapped) -%}
-    {%- endif -%}
-{%- endfor -%}
-{{ processed_lines | join('\n') | replace("\\", "\\\\") }}{%- endmacro %}
+{% macro wrap_string(string, wrapstring, width=95) %}{{ string | replace("\\", "\\\\") | wordwrap(width=width, break_long_words=False, break_on_hyphens=False, wrapstring=wrapstring)}}{% endmacro %}
 
 {% macro description(builder, serializer) %}
 {% set example_template = serializer.example_template(builder) %}

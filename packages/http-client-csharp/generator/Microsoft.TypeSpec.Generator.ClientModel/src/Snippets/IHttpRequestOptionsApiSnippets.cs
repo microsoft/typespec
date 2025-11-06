@@ -13,7 +13,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
 {
     internal static class IHttpRequestOptionsApiSnippets
     {
-        public static ScopedApi<IHttpRequestOptionsApi> FromCancellationToken(ValueExpression cancellationToken)
+        public static ScopedApi<IHttpRequestOptionsApi> ToRequestOptions(ValueExpression cancellationToken)
             => new TernaryConditionalExpression(
                 cancellationToken.Property(nameof(CancellationToken.CanBeCanceled)),
                 New.Instance(

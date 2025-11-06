@@ -1,6 +1,7 @@
 {
   "name": "@typespec/http-specs",
-  "version": "0.1.0-alpha.26",
+  "displayName": "Http Specs",
+  "version": "0.1.0-alpha.27",
   "description": "Spec scenarios and mock apis",
   "main": "dist/index.js",
   "type": "module",
@@ -46,7 +47,7 @@
   "devDependencies": {
     "@types/deep-equal": "^1.0.1",
     "@types/multer": "^2.0.0",
-    "@types/node": "~24.3.0",
+    "@types/node": "~24.9.1",
     "@typespec/json-schema": "workspace:^",
     "@typespec/openapi": "workspace:^",
     "@typespec/openapi3": "workspace:^",

@@ -45,6 +45,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             {
                 return new InputLiteralType(name ?? string.Empty, @namespace ?? string.Empty, InputPrimitiveType.Int32, value);
             }
+
+            public static InputLiteralType Bool(bool value, string? name = null, string? @namespace = null)
+            {
+                return new InputLiteralType(name ?? string.Empty, @namespace ?? string.Empty, InputPrimitiveType.Boolean, value);
+            }
         }
 
         public static class Constant
@@ -616,6 +621,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
         public static InputServiceMethodResponse ServiceMethodResponse(InputType? type, IReadOnlyList<string>? resultSegments)
         {
             return new InputServiceMethodResponse(type, resultSegments);
+        }
+
+        public static InputExternalType External(string identity, string? package = null, string? minVersion = null)
+        {
+            return new InputExternalType(identity, package, minVersion);
         }
 
         private static readonly Dictionary<InputClient, IList<InputClient>> _childClientsCache = new();
