@@ -1,5 +1,10 @@
 import { css } from "@emotion/react";
-import { Popover, PopoverSurface, PopoverTrigger, tokens } from "@fluentui/react-components";
+import {
+  Popover,
+  PopoverSurface,
+  PopoverTrigger,
+  tokens,
+} from "@fluentui/react-components";
 import { CodeBlock16Filled, Print16Filled } from "@fluentui/react-icons";
 import { ScenarioData, ScenarioManifest } from "@typespec/spec-coverage-sdk";
 import { FunctionComponent, useCallback, useMemo, useState } from "react";
@@ -26,7 +31,9 @@ function buildTreeRows(
     return [];
   }
   for (const child of Object.values(node.children)) {
-    const hasChildren = Boolean(child.children && Object.keys(child.children).length > 0);
+    const hasChildren = Boolean(
+      child.children && Object.keys(child.children).length > 0,
+    );
     const key = child.fullName;
 
     const expanded = expandedRows[key] ?? false;
@@ -40,7 +47,12 @@ function buildTreeRows(
       toggleExpand: () => toggleExpand(key),
     });
     if (hasChildren && expanded) {
-      for (const row of buildTreeRows(child, expandedRows, toggleExpand, depth + 1)) {
+      for (const row of buildTreeRows(
+        child,
+        expandedRows,
+        toggleExpand,
+        depth + 1,
+      )) {
         rows.push(row);
       }
     }
@@ -52,9 +64,16 @@ function buildTreeRows(
   return rows;
 }
 
-export const DashboardTable: FunctionComponent<DashboardTableProps> = ({ coverageSummary }) => {
-  const languages: string[] = Object.keys(coverageSummary.generatorReports) as any;
-  const tree = useMemo(() => createTree(coverageSummary.manifest), [coverageSummary.manifest]);
+export const DashboardTable: FunctionComponent<DashboardTableProps> = ({
+  coverageSummary,
+}) => {
+  const languages: string[] = Object.keys(
+    coverageSummary.generatorReports,
+  ) as any;
+  const tree = useMemo(
+    () => createTree(coverageSummary.manifest),
+    [coverageSummary.manifest],
+  );
 
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
   const toggleExpand = useCallback(
@@ -71,7 +90,12 @@ export const DashboardTable: FunctionComponent<DashboardTableProps> = ({ coverag
 
   const rows = treeRows.map((x) => {
     return (
-      <DashboardRow key={x.key} coverageSummary={coverageSummary} languages={languages} row={x} />
+      <DashboardRow
+        key={x.key}
+        coverageSummary={coverageSummary}
+        languages={languages}
+        row={x}
+      />
     );
   });
 
@@ -104,7 +128,11 @@ const DashboardRow: FunctionComponent<DashboardRowProps> = ({
         <td key={lang} css={ScenarioStatusCellStyles}>
           {scenarioData ? (
             <ScenarioStatusBox
-              status={coverageSummary.generatorReports[lang]?.results[scenarioData.name]}
+              status={
+                coverageSummary.generatorReports[lang]?.results[
+                  scenarioData.name
+                ]
+              }
             />
           ) : (
             <ScenarioGroupStatusBox
@@ -124,13 +152,13 @@ interface ScenarioGroupStatusBoxProps {
   lang: string;
   group: string;
 }
-const ScenarioGroupStatusBox: FunctionComponent<ScenarioGroupStatusBoxProps> = ({
-  lang,
-  coverageSummary,
-  group,
-}) => {
+const ScenarioGroupStatusBox: FunctionComponent<
+  ScenarioGroupStatusBoxProps
+> = ({ lang, coverageSummary, group }) => {
   const report = coverageSummary.generatorReports[lang];
-  const ratio = report ? getCompletedRatio(coverageSummary.manifest.scenarios, report, group) : 0;
+  const ratio = report
+    ? getCompletedRatio(coverageSummary.manifest.scenarios, report, group)
+    : 0;
   return <ScenarioGroupRatioStatusBox ratio={ratio} />;
 };
 
@@ -143,7 +171,11 @@ function getCompletedRatio(
   let coveredCount = 0;
   for (const scenario of filtered) {
     const status = report.results[scenario.name];
-    if (status === "pass" || status === "not-applicable" || status === "not-supported") {
+    if (
+      status === "pass" ||
+      status === "not-applicable" ||
+      status === "not-supported"
+    ) {
       coveredCount++;
     }
   }
@@ -155,22 +187,35 @@ interface DashboardHeaderRowProps {
   coverageSummary: CoverageSummary;
 }
 
-const DashboardHeaderRow: FunctionComponent<DashboardHeaderRowProps> = ({ coverageSummary }) => {
-  const data: [string, number, GeneratorCoverageSuiteReport | undefined][] = Object.entries(
-    coverageSummary.generatorReports,
-  ).map(([language, report]) => {
-    if (report === undefined) {
-      return [language, 0, undefined];
-    }
-    return [language, getCompletedRatio(coverageSummary.manifest.scenarios, report), report];
-  });
-  const manifest = coverageSummary.manifest as any; // Type has extended properties not in base interface
-  const tableHeader = <th>{manifest.displayName ?? coverageSummary.tableName ?? "Specs"} </th>;
+const DashboardHeaderRow: FunctionComponent<DashboardHeaderRowProps> = ({
+  coverageSummary,
+}) => {
+  const data: [string, number, GeneratorCoverageSuiteReport | undefined][] =
+    Object.entries(coverageSummary.generatorReports).map(
+      ([language, report]) => {
+        if (report === undefined) {
+          return [language, 0, undefined];
+        }
+        return [
+          language,
+          getCompletedRatio(coverageSummary.manifest.scenarios, report),
+          report,
+        ];
+      },
+    );
+  const tableHeader = (
+    <th>{coverageSummary.manifest.displayName ?? "Specs"} </th>
+  );
   return (
     <tr>
       {tableHeader}
       {data.map(([lang, status, report]) => (
-        <GeneratorHeaderCell key={lang} status={status} report={report} language={lang} />
+        <GeneratorHeaderCell
+          key={lang}
+          status={status}
+          report={report}
+          language={lang}
+        />
       ))}
     </tr>
   );
@@ -201,11 +246,9 @@ export interface GeneratorHeaderCellProps {
   language: string;
 }
 
-export const GeneratorHeaderCell: FunctionComponent<GeneratorHeaderCellProps> = ({
-  status,
-  report,
-  language,
-}) => {
+export const GeneratorHeaderCell: FunctionComponent<
+  GeneratorHeaderCellProps
+> = ({ status, report, language }) => {
   return (
     <th css={{ padding: "0 !important" }}>
       <div
@@ -240,7 +283,9 @@ export const GeneratorHeaderCell: FunctionComponent<GeneratorHeaderCellProps> = 
               <div>{report?.generatorMetadata?.name ?? language}</div>
             </PopoverTrigger>
             <PopoverSurface>
-              {report && <GeneratorInformation status={status} report={report} />}
+              {report && (
+                <GeneratorInformation status={status} report={report} />
+              )}
             </PopoverSurface>
           </Popover>
         </div>
@@ -300,7 +345,9 @@ const versionStyles = css({
 function createTree(manifest: ScenarioManifest): ManifestTreeNode {
   const root: ManifestTreeNode = { name: "", fullName: "", children: {} };
 
-  const sortedScenarios = [...manifest.scenarios].sort((a, b) => a.name.localeCompare(b.name));
+  const sortedScenarios = [...manifest.scenarios].sort((a, b) =>
+    a.name.localeCompare(b.name),
+  );
   for (const scenario of sortedScenarios) {
     const segments = scenario.name.split("_");
     let current: ManifestTreeNode = root;
