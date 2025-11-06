@@ -278,67 +278,20 @@ Scenarios.Encode_Bytes_ResponseBody_octetStream = createResponseBodyServerTests(
   "application/octet-stream",
 );
 
-// CBOR test data: Represents {"key": "value"} in CBOR format
-const cborRequestData = Buffer.from([
-  0xa1, 0x63, 0x6b, 0x65, 0x79, 0x65, 0x76, 0x61, 0x6c, 0x75, 0x65,
-]);
-
-// CBOR test data: Represents {"status": "succeeded"} in CBOR format
-const cborResponseData = Buffer.from([
-  0xa1, 0x66, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x69, 0x73, 0x75, 0x63, 0x63, 0x65, 0x65, 0x64,
-  0x65, 0x64,
-]);
-
 // COSE Sign1 test data: Simplified COSE structure with signature
 const coseData = Buffer.from([
   0xd2, 0x84, 0x43, 0xa1, 0x01, 0x26, 0xa0, 0x50, 0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x57, 0x6f,
   0x72, 0x6c, 0x64, 0x21, 0x58, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 ]);
 
-// CBOR operation status: Represents {"EntryID": "12345", "Status": "succeeded"}
-const cborOperationStatus = Buffer.from([
-  0xa2, 0x67, 0x45, 0x6e, 0x74, 0x72, 0x79, 0x49, 0x44, 0x65, 0x31, 0x32, 0x33, 0x34, 0x35, 0x66,
-  0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x69, 0x73, 0x75, 0x63, 0x63, 0x65, 0x65, 0x64, 0x65, 0x64,
-]);
-
-// CBOR pending response: Represents {"OperationID": "67890", "Status": "running"}
-const cborPendingData = Buffer.from([
-  0xa2, 0x6b, 0x4f, 0x70, 0x65, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x49, 0x44, 0x65, 0x36, 0x37,
-  0x38, 0x39, 0x30, 0x66, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x67, 0x72, 0x75, 0x6e, 0x6e, 0x69,
-  0x6e, 0x67,
-]);
-
-// CBOR problem details: Represents {-1: "Validation Error", -2: "Invalid request"}
-const cborProblemDetails = Buffer.from([
-  0xa2, 0x20, 0x70, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x20, 0x45, 0x72,
-  0x72, 0x6f, 0x72, 0x21, 0x6f, 0x49, 0x6e, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x20, 0x72, 0x65, 0x71,
-  0x75, 0x65, 0x73, 0x74,
-]);
-
-Scenarios.Encode_Bytes_RequestBodyContentType_cbor = createRequestBodyServerTests(
-  "/encode/bytes/body/request/cbor",
-  cborRequestData,
-  "application/cbor",
-);
-
 Scenarios.Encode_Bytes_RequestBodyContentType_cose = createRequestBodyServerTests(
-  "/encode/bytes/body/request/cose",
+  "/encode/bytes/body/request/content-type/cose",
   coseData,
   "application/cose",
 );
 
-Scenarios.Encode_Bytes_ResponseBodyContentType_cbor = createResponseBodyServerTests(
-  "/encode/bytes/body/response/cbor",
-  cborResponseData,
-  {
-    "Content-Type": "application/cbor",
-  },
-  cborResponseData,
-  "application/cbor",
-);
-
 Scenarios.Encode_Bytes_ResponseBodyContentType_cose = createResponseBodyServerTests(
-  "/encode/bytes/body/response/cose",
+  "/encode/bytes/body/response/content-type/cose",
   coseData,
   {
     "Content-Type": "application/cose",
@@ -346,63 +299,3 @@ Scenarios.Encode_Bytes_ResponseBodyContentType_cose = createResponseBodyServerTe
   coseData,
   "application/cose",
 );
-
-Scenarios.Encode_Bytes_ResponseBodyContentType_cborWithLocation = passOnSuccess({
-  uri: "/encode/bytes/body/response/cbor-with-location",
-  method: "get",
-  request: {
-    headers: {
-      accept: "application/cbor",
-    },
-  },
-  response: {
-    status: 200,
-    body: { rawContent: cborOperationStatus, contentType: "application/cbor" },
-    headers: {
-      "content-type": "application/cbor",
-      location: "/operations/12345",
-    },
-  },
-  kind: "MockApiDefinition",
-});
-
-Scenarios.Encode_Bytes_ResponseBodyContentType_cborPending = passOnSuccess({
-  uri: "/encode/bytes/body/response/cbor-pending",
-  method: "get",
-  request: {
-    headers: {
-      accept: "application/cbor",
-    },
-  },
-  response: {
-    status: 202,
-    body: { rawContent: cborPendingData, contentType: "application/cbor" },
-    headers: {
-      "content-type": "application/cbor",
-      location: "/operations/67890",
-      "retry-after": "10",
-    },
-  },
-  kind: "MockApiDefinition",
-});
-
-Scenarios.Encode_Bytes_ResponseBodyContentType_cborError = passOnSuccess({
-  uri: "/encode/bytes/body/response/cbor-error",
-  method: "get",
-  request: {
-    headers: {
-      accept: "application/concise-problem-details+cbor",
-    },
-  },
-  response: {
-    status: 400,
-    body: {
-      rawContent: cborProblemDetails,
-      contentType: "application/concise-problem-details+cbor",
-    },
-    headers: {
-      "content-type": "application/concise-problem-details+cbor",
-    },
-  },
-  kind: "MockApiDefinition",
-});

@@ -256,17 +256,9 @@ Stream should match packages/http-specs/assets/image.png file.
 When content type is application/octet-stream and body is `bytes` the payload is a binary stream.
 Stream should match packages/http-specs/assets/image.png file.
 
-### Encode_Bytes_RequestBodyContentType_cbor
-
-- Endpoint: `post /encode/bytes/body/request/cbor`
-
-Test sending bytes body with application/cbor content type.
-Expected request body is the bytes representing CBOR-encoded data: {"key": "value"}.
-Expected Content-Type header: application/cbor.
-
 ### Encode_Bytes_RequestBodyContentType_cose
 
-- Endpoint: `post /encode/bytes/body/request/cose`
+- Endpoint: `post /encode/bytes/body/request/content-type/cose`
 
 Test sending bytes body with application/cose content type (COSE Sign1 signature).
 Expected request body is the bytes representing a COSE Sign1 envelope.
@@ -309,45 +301,9 @@ Stream should match packages/http-specs/assets/image.png file.
 When content type is application/octet-stream and body is `bytes` the payload is a binary stream.
 Stream should match packages/http-specs/assets/image.png file.
 
-### Encode_Bytes_ResponseBodyContentType_cbor
-
-- Endpoint: `get /encode/bytes/body/response/cbor`
-
-Test receiving bytes body with application/cbor content type.
-Expected response body is the bytes representing CBOR-encoded data: {"status": "succeeded"}.
-Expected Content-Type header: application/cbor.
-
-### Encode_Bytes_ResponseBodyContentType_cborError
-
-- Endpoint: `get /encode/bytes/body/response/cbor-error`
-
-Test receiving error response with application/concise-problem-details+cbor content type.
-Expected status code: 400.
-Expected Content-Type header: application/concise-problem-details+cbor.
-Expected response body is the bytes representing CBOR-encoded problem details.
-
-### Encode_Bytes_ResponseBodyContentType_cborPending
-
-- Endpoint: `get /encode/bytes/body/response/cbor-pending`
-
-Test receiving pending response with application/cbor content type, Location and Retry-After headers.
-Expected status code: 202.
-Expected Content-Type header: application/cbor.
-Expected Location header: /operations/67890.
-Expected Retry-After header: 10.
-
-### Encode_Bytes_ResponseBodyContentType_cborWithLocation
-
-- Endpoint: `get /encode/bytes/body/response/cbor-with-location`
-
-Test receiving bytes body with application/cbor content type and Location header.
-Expected response body is the bytes representing CBOR-encoded operation status.
-Expected Content-Type header: application/cbor.
-Expected Location header: /operations/12345.
-
 ### Encode_Bytes_ResponseBodyContentType_cose
 
-- Endpoint: `get /encode/bytes/body/response/cose`
+- Endpoint: `get /encode/bytes/body/response/content-type/cose`
 
 Test receiving bytes body with application/cose content type.
 Expected response body is the bytes representing a COSE Sign1 envelope.

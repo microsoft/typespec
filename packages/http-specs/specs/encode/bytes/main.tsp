@@ -371,24 +371,8 @@ namespace ResponseBody {
   };
 }
 
-@route("/body/request")
+@route("/body/request/content-type")
 namespace RequestBodyContentType {
-  @route("/cbor")
-  @scenario
-  @scenarioDoc("""
-    Test sending bytes body with application/cbor content type.
-    Expected request body is the bytes representing CBOR-encoded data: {"key": "value"}.
-    Expected Content-Type header: application/cbor.
-    """)
-  @post
-  op cbor(
-    @header
-    contentType: "application/cbor",
-
-    @body
-    value: bytes,
-  ): NoContentResponse;
-
   @route("/cose")
   @scenario
   @scenarioDoc("""
@@ -406,23 +390,8 @@ namespace RequestBodyContentType {
   ): NoContentResponse;
 }
 
-@route("/body/response")
+@route("/body/response/content-type")
 namespace ResponseBodyContentType {
-  @route("/cbor")
-  @scenario
-  @scenarioDoc("""
-    Test receiving bytes body with application/cbor content type.
-    Expected response body is the bytes representing CBOR-encoded data: {"status": "succeeded"}.
-    Expected Content-Type header: application/cbor.
-    """)
-  op cbor(): {
-    @header
-    contentType: "application/cbor";
-
-    @body
-    value: bytes;
-  };
-
   @route("/cose")
   @scenario
   @scenarioDoc("""
@@ -436,72 +405,5 @@ namespace ResponseBodyContentType {
 
     @body
     value: bytes;
-  };
-
-  @route("/cbor-with-location")
-  @scenario
-  @scenarioDoc("""
-    Test receiving bytes body with application/cbor content type and Location header.
-    Expected response body is the bytes representing CBOR-encoded operation status.
-    Expected Content-Type header: application/cbor.
-    Expected Location header: /operations/12345.
-    """)
-  op cborWithLocation(): {
-    @statusCode
-    statusCode: 200;
-
-    @header
-    contentType: "application/cbor";
-
-    @header
-    location?: string;
-
-    @body
-    value: bytes;
-  };
-
-  @route("/cbor-pending")
-  @scenario
-  @scenarioDoc("""
-    Test receiving pending response with application/cbor content type, Location and Retry-After headers.
-    Expected status code: 202.
-    Expected Content-Type header: application/cbor.
-    Expected Location header: /operations/67890.
-    Expected Retry-After header: 10.
-    """)
-  op cborPending(): {
-    @statusCode
-    statusCode: 202;
-
-    @header
-    contentType: "application/cbor";
-
-    @header
-    location?: string;
-
-    @header("Retry-After")
-    retryAfter?: int32;
-
-    @body
-    value: bytes;
-  };
-
-  @route("/cbor-error")
-  @scenario
-  @scenarioDoc("""
-    Test receiving error response with application/concise-problem-details+cbor content type.
-    Expected status code: 400.
-    Expected Content-Type header: application/concise-problem-details+cbor.
-    Expected response body is the bytes representing CBOR-encoded problem details.
-    """)
-  op cborError(): {
-    @statusCode
-    statusCode: 400;
-
-    @header
-    contentType: "application/concise-problem-details+cbor";
-
-    @body
-    error: bytes;
   };
 }
