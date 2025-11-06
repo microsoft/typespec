@@ -99,7 +99,7 @@ const DashboardRow: FunctionComponent<DashboardRowProps> = ({
   const scenarioData = row.item.scenario;
   return (
     <tr>
-      <RowLabelCell row={row} />
+      <RowLabelCell manifest={coverageSummary.manifest} row={row} />
       {languages.map((lang) => (
         <td key={lang} css={ScenarioStatusCellStyles}>
           {scenarioData ? (
@@ -164,9 +164,7 @@ const DashboardHeaderRow: FunctionComponent<DashboardHeaderRowProps> = ({ covera
     }
     return [language, getCompletedRatio(coverageSummary.manifest.scenarios, report), report];
   });
-  const tableHeaderName =
-    coverageSummary.manifest.setName === "@azure-tools/azure-http-specs" ? "Azure" : "Standard";
-  const tableHeader = <th>Scenario name ({tableHeaderName})</th>;
+  const tableHeader = <th>{coverageSummary.manifest.displayName ?? "Specs"} </th>;
   return (
     <tr>
       {tableHeader}

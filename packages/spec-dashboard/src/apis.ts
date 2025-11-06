@@ -82,7 +82,10 @@ function getSuiteReportForManifest(
     if (key === "generatorMetadata") {
       continue;
     }
-    if (value.scenariosMetadata.packageName === manifest.setName) {
+    if (
+      value.scenariosMetadata.packageName === manifest.packageName ||
+      value.scenariosMetadata.packageName === (manifest as any).setName /* old name*/
+    ) {
       data = value;
     }
   }
