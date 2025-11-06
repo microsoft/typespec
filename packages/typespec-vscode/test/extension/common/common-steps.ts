@@ -148,8 +148,10 @@ export async function packPackages() {
   const outputFolder = path.join(repoRoot, "/temp/artifacts");
   const files = readdirSync(outputFolder);
 
-  function resolvePackage(start: string) {
-    const pkgName = files.find((x: string) => x.startsWith(start));
+  function resolvePackage(start: string, notStart?: string): string {
+    const pkgName = files.find(
+      (x: string) => x.startsWith(start) && (!notStart || !x.startsWith(notStart)),
+    );
     if (pkgName === undefined) {
       throw new Error(`Cannot resolve package starting with "${start}"`);
     }
@@ -160,6 +162,7 @@ export async function packPackages() {
     "@typespec/compiler": resolvePackage("typespec-compiler-"),
     "@typespec/openapi3": resolvePackage("typespec-openapi3-"),
     "@typespec/http": resolvePackage("typespec-http-"),
+    "@typespec/http-client": resolvePackage("typespec-http-client-", "typespec-http-client-js-"),
     "@typespec/http-client-js": resolvePackage("typespec-http-client-js-"),
   };
 }
@@ -190,6 +193,9 @@ export async function packagesInstall(packages: { [x: string]: string }, testTyp
       "@typespec/http-client-js": packages["@typespec/http-client-js"],
     },
     private: true,
+    overrides: {
+      "@typespec/http-client": packages["@typespec/http-client"],
+    },
   };
   writeFileSync(path.join(testCurrentDir, "package.json"), JSON.stringify(packageJson, null, 2));
 
