@@ -93,7 +93,7 @@ function createTSValueFromObjectValue(value: object): TSValue | undefined {
   return undefined;
 }
 export function normalizeObjectValueToTSValueExpression(value: any): string {
-  if (typeof value === "object" && !Array.isArray(value)) {
+  if (value !== null && typeof value === "object" && !Array.isArray(value)) {
     return `#{${Object.entries(value)
       .map(([key, v]) => {
         return `${printIdentifier(key, "disallow-reserved")}: ${normalizeObjectValueToTSValueExpression(v)}`;
