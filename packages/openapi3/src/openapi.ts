@@ -1189,20 +1189,20 @@ function createOAPIEmitter(
       return { schema: getRawBinarySchema(contentType) } as OpenAPI3MediaType;
     }
 
-    // Check if this is an SSE stream (only for responses)
-    if (contentType === "text/event-stream" && sseModule && isResponseContent) {
+    // Check if this is a stream response (only for responses)
+    if (sseModule && isResponseContent) {
       // Use getStreamMetadata to check if this is a stream response
       const streamMetadata = getStreamMetadata(program, dataOrBody as HttpOperationResponseContent);
       if (streamMetadata) {
         if (specVersion === "3.1.0" || specVersion === "3.0.0") {
-          // Limited SSE support for OpenAPI 3.1.0 - emit warning and continue without itemSchema
+          // Streams with itemSchema are not supported in OpenAPI 3.0/3.1 - emit warning and continue without itemSchema
           reportDiagnostic(program, {
-            code: "sse-not-supported",
+            code: "streams-not-supported",
             target: body.type,
           });
           // Fall through to normal processing without itemSchema
         } else {
-          // Full SSE support for OpenAPI 3.2.0
+          // Full stream support for OpenAPI 3.2.0
           const mediaType: any = {};
           sseModule.attachSSEItemSchema(
             program,

@@ -1,30 +1,18 @@
-import { resolvePath } from "@typespec/compiler";
-import { createTester, expectDiagnostics } from "@typespec/compiler/testing";
+import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok } from "assert";
 import { describe, it } from "vitest";
+import { ApiTester } from "./test-host.js";
 
-// Create a custom tester that includes SSE, Events, and Streams libraries
-const SSETester = createTester(resolvePath(import.meta.dirname, ".."), {
-  libraries: [
-    "@typespec/http",
-    "@typespec/json-schema",
-    "@typespec/rest",
-    "@typespec/openapi",
-    "@typespec/streams",
-    "@typespec/events",
-    "@typespec/sse",
-    "@typespec/openapi3",
-  ],
-})
-  .import(
-    "@typespec/http",
-    "@typespec/rest",
-    "@typespec/openapi",
-    "@typespec/streams",
-    "@typespec/events",
-    "@typespec/sse",
-    "@typespec/openapi3",
-  )
+// Use ApiTester with SSE-specific imports
+const SSETester = ApiTester.import(
+  "@typespec/http",
+  "@typespec/rest",
+  "@typespec/openapi",
+  "@typespec/streams",
+  "@typespec/events",
+  "@typespec/sse",
+  "@typespec/openapi3",
+)
   .using("Http", "Rest", "OpenAPI", "TypeSpec.Streams", "TypeSpec.Events", "SSE")
   .emit("@typespec/openapi3", { "openapi-versions": ["3.2.0"] });
 
@@ -75,11 +63,8 @@ describe("openapi3: SSE (Server-Sent Events)", () => {
           usermessage: UserMessage,
         }
 
-        @service
         @route("/channel")
-        namespace Channel {
-          @get op subscribe(): SSEStream<ChannelEvents>;
-        }
+        @get op subscribe(): SSEStream<ChannelEvents>;
         `,
       );
 
@@ -151,11 +136,8 @@ describe("openapi3: SSE (Server-Sent Events)", () => {
           "[done]",
         }
 
-        @service
         @route("/channel")
-        namespace Channel {
-          @get op subscribe(): SSEStream<ChannelEvents>;
-        }
+        @get op subscribe(): SSEStream<ChannelEvents>;
         `,
       );
 
@@ -197,11 +179,8 @@ describe("openapi3: SSE (Server-Sent Events)", () => {
           "[done]",
         }
 
-        @service
         @route("/channel")
-        namespace Channel {
-          @get op subscribe(): SSEStream<ChannelEvents>;
-        }
+        @get op subscribe(): SSEStream<ChannelEvents>;
         `,
       );
 
@@ -237,11 +216,8 @@ describe("openapi3: SSE (Server-Sent Events)", () => {
           binary: BinaryData,
         }
 
-        @service
         @route("/data")
-        namespace Data {
-          @get op subscribe(): SSEStream<DataEvents>;
-        }
+        @get op subscribe(): SSEStream<DataEvents>;
         `,
       );
 
@@ -276,19 +252,16 @@ describe("openapi3: SSE (Server-Sent Events)", () => {
             usermessage: UserMessage,
           }
 
-          @service
           @route("/channel")
-          namespace Channel {
-            @get op subscribe(): SSEStream<ChannelEvents>;
-          }
+          @get op subscribe(): SSEStream<ChannelEvents>;
           `,
-          "3.1.0",
+          version,
         );
 
         // Verify the warning is emitted
         expectDiagnostics(diagnostics, [
           {
-            code: "@typespec/openapi3/sse-not-supported",
+            code: "@typespec/openapi3/streams-not-supported",
             severity: "warning",
           },
         ]);
