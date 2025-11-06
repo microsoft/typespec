@@ -1,4 +1,4 @@
-import { isPromise } from "util/types";
+import { isPromise } from "../utils/misc.js";
 import { DiagnosticCollector, compilerAssert, createDiagnosticCollector } from "./diagnostics.js";
 import { getLocationContext } from "./helpers/location-context.js";
 import { defineLinter } from "./library.js";
