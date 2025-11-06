@@ -100,7 +100,6 @@ public class ObjectMapper implements IMapper<ObjectSchema, IType>, NeedsPlainObj
             type = SchemaUtil.mapExternalModel(compositeType);
         }
 
-        // external model
         if (type == null
             && compositeType.getUsage() != null
             && compositeType.getUsage().contains(SchemaContext.EXTERNAL)
@@ -109,9 +108,9 @@ public class ObjectMapper implements IMapper<ObjectSchema, IType>, NeedsPlainObj
             && compositeType.getLanguage().getJava().getNamespace() != null
             && compositeType.getLanguage().getJava().getName() != null) {
 
+            // schema is external model
             String namespace = compositeType.getLanguage().getJava().getNamespace();
             String name = compositeType.getLanguage().getJava().getName();
-
             type = new ClassType.Builder().packageName(namespace).name(name).build();
         }
 

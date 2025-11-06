@@ -83,6 +83,16 @@ public class AlternateTypeTests {
         FEATURE.geometry = new GeoPoint(-122.25, 37.87);
     }
 
+    /**
+     * The spector test maps GeoFeature to GeoObject, because azure-core does not have GeoFeature class.
+     * 
+     * Since this 2 classes are not same, in test we cannot directly use GeoObject to pass the test.
+     * Therefore,
+     * 1. We had to write a GeoFeature here.
+     * 2. Invocation in test is not able to de-serialize GeoObject into GeoFeature, as the "fromJson" in GeoObject need
+     * to know all its child classes.
+     */
+
     @SuppressWarnings("unchecked")
     @Test
     public void testProperty() {
