@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Text.Json.Serialization;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
@@ -197,6 +198,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 body: new ExpressionPropertyBody(new VariableExpression(JsonPatchField.Type, JsonPatchField.Declaration, IsRef: isRef)),
                 attributes:
                 [
+                    new AttributeStatement(typeof(JsonIgnoreAttribute)),
                     new AttributeStatement(typeof(EditorBrowsableAttribute), FrameworkEnumValue(EditorBrowsableState.Never)),
                     new AttributeStatement(typeof(ExperimentalAttribute), [Literal(ScmEvaluationTypeDiagnosticId)])
                 ],
