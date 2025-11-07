@@ -59,7 +59,11 @@ function validateSSEStream(program: Program, model: Model) {
 
   // The stream is an SSEStream, validate that streamOf is a union with @events
   if (streamOf.kind !== "Union") {
-    // This should not happen because SSEStream constrains Type to Union
+    // If streamOf is not a union, it's invalid for SSE streams
+    reportDiagnostic(program, {
+      code: "sse-stream-union-not-events",
+      target: model,
+    });
     return;
   }
 

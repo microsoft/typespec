@@ -104,7 +104,7 @@ describe("SSEStream", () => {
     `);
 
     expectDiagnostics(diagnostics, {
-      code: "@typespec/sse/sse-stream-union-not-events",
+      code: "invalid-argument",
       severity: "error",
     });
   });
