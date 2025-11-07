@@ -2,8 +2,11 @@ import {
   OpenAPI3PathItem,
   OpenAPI3RequestBody,
   OpenAPI3Response,
+  OpenAPI3Responses,
   OpenAPIPathItem3_2,
   OpenAPIRequestBody3_2,
+  OpenAPIResponse3_2,
+  OpenAPIResponses3_2,
   Refable,
   SupportedOpenAPIDocuments,
 } from "../../../../types.js";
@@ -117,31 +120,29 @@ function scanPathForSSESchemas(
   path: OpenAPI3PathItem | OpenAPIPathItem3_2,
   context: Context,
 ): void {
-  const methods = ["get", "post", "put", "patch", "delete", "head"] as const;
-
-  for (const method of methods) {
-    const operation = path[method];
-    if (!operation?.responses) continue;
-
-    // Handle responses which could be a reference or actual responses
-    let responses = operation.responses;
-    if ("$ref" in responses) {
-      const ref = responses.$ref;
-      if (typeof ref === "string") {
-        const resolvedResponses = context.getByRef(ref);
-        if (!resolvedResponses) continue;
-        responses = resolvedResponses as any;
-      } else {
-        continue;
-      }
-    }
-
-    scanOperationForSSESchemas(responses as any, context);
+  if (!("get" in path && path.get && path.get.responses)) {
+    // even though text/event-stream can be defined with other methods, it's only usable with GET because of the WHATWG specification
+    return;
   }
+
+  // Handle responses which could be a reference or actual responses
+  let responses = path.get.responses;
+  if ("$ref" in responses) {
+    const ref = responses.$ref;
+    if (typeof ref === "string") {
+      const resolvedResponses = context.getByRef<OpenAPI3Responses | OpenAPIResponses3_2>(ref);
+      if (!resolvedResponses) return;
+      responses = resolvedResponses;
+    } else {
+      return;
+    }
+  }
+
+  scanOperationForSSESchemas(responses, context);
 }
 
 function scanOperationForSSESchemas(
-  responses: Record<string, Refable<OpenAPI3Response>>,
+  responses: OpenAPI3Responses | OpenAPIResponses3_2,
   context: Context,
 ): void {
   for (const response of Object.values(responses)) {
@@ -151,7 +152,7 @@ function scanOperationForSSESchemas(
     if ("$ref" in response) {
       const ref = response.$ref;
       if (typeof ref === "string") {
-        const resolved = context.getByRef<OpenAPI3Response>(ref);
+        const resolved = context.getByRef<OpenAPI3Response | OpenAPIResponse3_2>(ref);
         if (!resolved) continue;
         resolvedResponse = resolved;
       } else {
