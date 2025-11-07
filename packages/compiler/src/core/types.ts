@@ -2139,7 +2139,6 @@ export type TypeListeners = UnionToIntersection<ListenerForType<Type>>;
 
 export type SemanticNodeListener = {
   root?: (context: Program) => void | undefined;
-  exitRoot?: (context: Program) => void | undefined | Promise<void | undefined>;
 } & TypeListeners;
 
 export type DiagnosticReportWithoutTarget<
@@ -2324,7 +2323,7 @@ export interface LinterResolvedDefinition {
   };
 }
 
-export interface LinterRuleDefinition<N extends string, DM extends DiagnosticMessages> {
+interface LinterRuleDefinitionBase<N extends string, DM extends DiagnosticMessages> {
   /** Rule name (without the library name) */
   name: N;
   /** Rule default severity. */
@@ -2335,18 +2334,40 @@ export interface LinterRuleDefinition<N extends string, DM extends DiagnosticMes
   url?: string;
   /** Messages that can be reported with the diagnostic. */
   messages: DM;
-  /** Whether this is an async rule. Default is false */
-  async?: boolean;
-  /** Creator */
-  create(context: LinterRuleContext<DM>): SemanticNodeListener;
 }
 
+interface LinterRuleDefinitionSync<N extends string, DM extends DiagnosticMessages>
+  extends LinterRuleDefinitionBase<N, DM> {
+  /** Whether this is an async rule. Default is false */
+  async?: false;
+  /** Creator */
+  create(
+    context: LinterRuleContext<DM>,
+  ): SemanticNodeListener & { exit?: (context: Program) => void | undefined };
+}
+
+interface LinterRuleDefinitionAsync<N extends string, DM extends DiagnosticMessages>
+  extends LinterRuleDefinitionBase<N, DM> {
+  /** Whether this is an async rule. Default is false */
+  async: true;
+  /** Creator */
+  create(
+    context: LinterRuleContext<DM>,
+  ): SemanticNodeListener & { exit?: (context: Program) => Promise<void | undefined> };
+}
+
+export type LinterRuleDefinition<N extends string, DM extends DiagnosticMessages> =
+  | LinterRuleDefinitionSync<N, DM>
+  | LinterRuleDefinitionAsync<N, DM>;
+
 /** Resolved instance of a linter rule that will run. */
-export interface LinterRule<N extends string, DM extends DiagnosticMessages>
-  extends LinterRuleDefinition<N, DM> {
+export type LinterRule<N extends string, DM extends DiagnosticMessages> = LinterRuleDefinition<
+  N,
+  DM
+> & {
   /** Expanded rule id in format `<library-name>:<rule-name>` */
   id: string;
-}
+};
 
 /** Reference to a rule. In this format `<library name>:<rule/ruleset name>` */
 export type RuleRef = `${string}/${string}`;

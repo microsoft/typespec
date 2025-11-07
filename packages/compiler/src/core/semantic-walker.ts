@@ -61,8 +61,6 @@ export function navigateProgram(
   context.emit("root", program);
 
   navigateNamespaceType(program.getGlobalNamespaceType(), context);
-
-  context.emit("exitRoot", program);
 }
 
 /**
@@ -488,7 +486,6 @@ export class EventEmitter<T extends { [key: string]: (...args: any) => any }> {
 
 const eventNames: Array<keyof SemanticNodeListener> = [
   "root",
-  "exitRoot",
   "templateParameter",
   "exitTemplateParameter",
   "scalar",

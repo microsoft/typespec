@@ -2,11 +2,11 @@ import { describe, it } from "vitest";
 
 import { createLinterRule, createTypeSpecLibrary } from "../../src/core/library.js";
 import { Linter, createLinter, resolveLinterDefinition } from "../../src/core/linter.js";
-import type {
-  Interface,
-  LibraryInstance,
-  LinterDefinition,
-  LinterRuleContext,
+import {
+  type Interface,
+  type LibraryInstance,
+  type LinterDefinition,
+  type LinterRuleContext,
 } from "../../src/index.js";
 import {
   createTestHost,
@@ -34,6 +34,29 @@ const noModelFoo = createLinterRule({
   },
 });
 
+const exitLintRuleSync = createLinterRule({
+  name: "exit-lint-rule-sync",
+  description: "",
+  severity: "warning",
+  messages: {
+    default: "Exit lint rule sync called",
+  },
+  async: false,
+  create(context: any) {
+    return {
+      interface: (target) => {
+        context.lastInterface = target;
+      },
+      exit: () => {
+        context.reportDiagnostic({
+          target: context.lastInterface,
+          messageId: "default",
+        });
+      },
+    };
+  },
+});
+
 const noInterfaceFooAsync = createLinterRule({
   name: "no-interface-foo2-async",
   description: "",
@@ -54,7 +77,7 @@ const noInterfaceFooAsync = createLinterRule({
         }
         context.interfaceToCheck.push(target);
       },
-      exitRoot: async () => {
+      exit: async () => {
         const r = await new Promise<Interface[]>((resolve) => {
           setTimeout(() => {
             resolve(context.interfaceToCheck?.filter((t) => t.name === "Foo2") ?? []);
@@ -375,18 +398,25 @@ describe("compiler: linter", () => {
       `,
         },
         {
-          rules: [noModelFoo, noInterfaceFooAsync],
+          rules: [noModelFoo, noInterfaceFooAsync, exitLintRuleSync],
         },
       );
 
       const resultSync = await linter.lint({ asyncRules: false });
       expectDiagnostics(
         resultSync.diagnostics,
-        {
-          severity: "warning",
-          code: "@typespec/test-linter/no-model-foo",
-          message: `Cannot call model 'Foo'`,
-        },
+        [
+          {
+            severity: "warning",
+            code: "@typespec/test-linter/no-model-foo",
+            message: `Cannot call model 'Foo'`,
+          },
+          {
+            severity: "warning",
+            code: "@typespec/test-linter/exit-lint-rule-sync",
+            message: "Exit lint rule sync called",
+          },
+        ],
         {
           strict: true,
         },
