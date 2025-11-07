@@ -4,4 +4,4 @@ packages:
   - "@typespec/sse"
 ---
 
-SSEStream now validates that the union type parameter has the @events decorator
+Validate SSE streams are defined as events unions
