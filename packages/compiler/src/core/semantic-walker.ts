@@ -1,4 +1,3 @@
-import { isPromise } from "../utils/misc.js";
 import type { Program } from "./program.js";
 import { isTemplateDeclaration } from "./type-utils.js";
 import {
@@ -149,16 +148,7 @@ function createNavigationContext(
 ): NavigationContext {
   return {
     visited: new Set(),
-    emit: (key, ...args) => {
-      const r = (listeners as any)[key]?.(...(args as [any]));
-      if (isPromise(r)) {
-        // We won't await here to keep the API sync which is good enough for some scenarios which don't require await
-        // TODO: consider support await in the future when we have a real scenario for it which worth the API change
-        return undefined;
-      } else {
-        return r;
-      }
-    },
+    emit: (key, ...args) => (listeners as any)[key]?.(...(args as [any])),
     options: computeOptions(options),
   };
 }
