@@ -85,6 +85,135 @@ function generateScalar(scalar: TypeSpecScalar, context: Context): string {
   return definitions.join("\n");
 }
 
+function generateSSEEventVariants(
+  members: Refable<SupportedOpenAPISchema>[],
+  union: TypeSpecUnion,
+  context: Context,
+  getVariantName: (member: Refable<SupportedOpenAPISchema>) => string,
+): string[] {
+  // Generate SSE event variants: eventName: DataType,
+  // Sort so terminal events come last
+  const sortedMembers = [...members].sort((a, b) => {
+    const aSchema = "$ref" in a ? context.getSchemaByRef(a.$ref) : a;
+    const bSchema = "$ref" in b ? context.getSchemaByRef(b.$ref) : b;
+
+    const aIsTerminal = !!aSchema?.[SSE_TERMINAL_EVENT_EXTENSION];
+    const bIsTerminal = !!bSchema?.[SSE_TERMINAL_EVENT_EXTENSION];
+
+    if (aIsTerminal && !bIsTerminal) return 1; // a comes after b
+    if (!aIsTerminal && bIsTerminal) return -1; // a comes before b
+    return 0; // maintain original order for same type
+  });
+
+  return sortedMembers.map((member) => {
+    try {
+      const memberSchema = "$ref" in member ? context.getSchemaByRef(member.$ref) : member;
+      if (!memberSchema || typeof memberSchema !== "object" || !memberSchema.properties) {
+        // Fallback to regular generation if we can't parse the event structure
+        return (
+          getVariantName(member) + context.generateTypeFromRefableSchema(member, union.scope) + ","
+        );
+      }
+
+      // Use any to access properties since the types are complex
+      const props = memberSchema.properties as any;
+
+      // Extract event name from event.const
+      let eventName: string | undefined;
+      if (props.event) {
+        const eventProp = props.event;
+        if (eventProp.const) {
+          eventName = eventProp.const;
+        } else if (eventProp.enum && eventProp.enum[0]) {
+          eventName = eventProp.enum[0];
+        }
+      }
+
+      // Check for terminal events or special cases
+      if (!eventName) {
+        // Check if this is a terminal event (no event name, just data)
+        if (props.data?.const) {
+          const terminalValue = props.data.const;
+          const isTerminal = memberSchema[SSE_TERMINAL_EVENT_EXTENSION];
+          const contentType = props.data?.contentMediaType;
+
+          let decorators = "";
+          if (contentType) {
+            decorators += `\n  @TypeSpec.Events.contentType("${contentType}")`;
+          }
+          if (isTerminal) {
+            decorators += `\n  @TypeSpec.SSE.terminalEvent`;
+            decorators += `\n  @extension("${SSE_TERMINAL_EVENT_EXTENSION}", true)`;
+          }
+
+          return `${decorators}\n  "${terminalValue}",`;
+        }
+        // Fallback to regular generation
+        return (
+          getVariantName(member) + context.generateTypeFromRefableSchema(member, union.scope) + ","
+        );
+      }
+
+      // Extract data type and content type from data.contentSchema
+      let dataType = "unknown";
+      let contentType: string | undefined;
+
+      if (props.data) {
+        const dataProp = props.data;
+
+        // Get content type if specified
+        if (dataProp.contentMediaType) {
+          contentType = dataProp.contentMediaType;
+        }
+
+        // Check for contentSchema (OpenAPI extension)
+        if (dataProp.contentSchema) {
+          const contentSchema = dataProp.contentSchema;
+          // Special handling for byte data which should map to Base64/bytes
+          if (
+            contentSchema &&
+            typeof contentSchema === "object" &&
+            contentSchema.type === "object" &&
+            contentSchema.properties?.data
+          ) {
+            const dataProperty = contentSchema.properties.data as any;
+            if (dataProperty?.type === "string" && dataProperty?.format === "byte") {
+              dataType = "Base64";
+            } else {
+              dataType = context.generateTypeFromRefableSchema(dataProp.contentSchema, union.scope);
+            }
+          } else {
+            dataType = context.generateTypeFromRefableSchema(dataProp.contentSchema, union.scope);
+          }
+        } else if (dataProp.type) {
+          // Simple type like string
+          dataType = dataProp.type;
+        }
+      }
+
+      // Build decorators for this event variant
+      let decorators = "";
+      if (contentType && contentType !== "application/json") {
+        decorators += `\n  @TypeSpec.Events.contentType("${contentType}")`;
+      }
+
+      // Check if this is a terminal event
+      const isTerminal = (memberSchema as any)[SSE_TERMINAL_EVENT_EXTENSION];
+      if (isTerminal) {
+        decorators += `\n  @TypeSpec.SSE.terminalEvent`;
+        decorators += `\n  @extension("${SSE_TERMINAL_EVENT_EXTENSION}", true)`;
+      }
+
+      return `${decorators}\n  ${eventName}: ${dataType},`;
+    } catch (error) {
+      // If any error occurs, fall back to regular generation
+      return (
+        getVariantName(member) + context.generateTypeFromRefableSchema(member, union.scope) + ","
+      );
+    }
+  });
+}
+
 function generateUnion(union: TypeSpecUnion, context: Context): string {
   const definitions: string[] = [];
 
@@ -123,141 +252,7 @@ function generateUnion(union: TypeSpecUnion, context: Context): string {
     );
 
     if (isSSEEventUnion) {
-      // Generate SSE event variants: eventName: DataType,
-      // Sort so terminal events come last
-      const sortedMembers = [...schema.oneOf].sort((a, b) => {
-        const aSchema = "$ref" in a ? context.getSchemaByRef(a.$ref) : a;
-        const bSchema = "$ref" in b ? context.getSchemaByRef(b.$ref) : b;
-
-        const aIsTerminal = !!aSchema?.[SSE_TERMINAL_EVENT_EXTENSION];
-        const bIsTerminal = !!bSchema?.[SSE_TERMINAL_EVENT_EXTENSION];
-
-        if (aIsTerminal && !bIsTerminal) return 1; // a comes after b
-        if (!aIsTerminal && bIsTerminal) return -1; // a comes before b
-        return 0; // maintain original order for same type
-      });
-
-      definitions.push(
-        ...sortedMembers.map((member) => {
-          try {
-            const memberSchema = "$ref" in member ? context.getSchemaByRef(member.$ref) : member;
-            if (!memberSchema || typeof memberSchema !== "object" || !memberSchema.properties) {
-              // Fallback to regular generation if we can't parse the event structure
-              return (
-                getVariantName(member) +
-                context.generateTypeFromRefableSchema(member, union.scope) +
-                ","
-              );
-            }
-
-            // Use any to access properties since the types are complex
-            const props = memberSchema.properties as any;
-
-            // Extract event name from event.const
-            let eventName: string | undefined;
-            if (props.event) {
-              const eventProp = props.event;
-              if (eventProp.const) {
-                eventName = eventProp.const;
-              } else if (eventProp.enum && eventProp.enum[0]) {
-                eventName = eventProp.enum[0];
-              }
-            }
-
-            // Check for terminal events or special cases
-            if (!eventName) {
-              // Check if this is a terminal event (no event name, just data)
-              if (props.data?.const) {
-                const terminalValue = props.data.const;
-                const isTerminal = memberSchema[SSE_TERMINAL_EVENT_EXTENSION];
-                const contentType = props.data?.contentMediaType;
-
-                let decorators = "";
-                if (contentType) {
-                  decorators += `\n  @TypeSpec.Events.contentType("${contentType}")`;
-                }
-                if (isTerminal) {
-                  decorators += `\n  @TypeSpec.SSE.terminalEvent`;
-                  decorators += `\n  @extension("${SSE_TERMINAL_EVENT_EXTENSION}", true)`;
-                }
-
-                return `${decorators}\n  "${terminalValue}",`;
-              }
-              // Fallback to regular generation
-              return (
-                getVariantName(member) +
-                context.generateTypeFromRefableSchema(member, union.scope) +
-                ","
-              );
-            }
-
-            // Extract data type and content type from data.contentSchema
-            let dataType = "unknown";
-            let contentType: string | undefined;
-
-            if (props.data) {
-              const dataProp = props.data;
-
-              // Get content type if specified
-              if (dataProp.contentMediaType) {
-                contentType = dataProp.contentMediaType;
-              }
-
-              // Check for contentSchema (OpenAPI extension)
-              if (dataProp.contentSchema) {
-                const contentSchema = dataProp.contentSchema;
-                // Special handling for byte data which should map to Base64/bytes
-                if (
-                  contentSchema &&
-                  typeof contentSchema === "object" &&
-                  contentSchema.type === "object" &&
-                  contentSchema.properties?.data
-                ) {
-                  const dataProperty = contentSchema.properties.data as any;
-                  if (dataProperty?.type === "string" && dataProperty?.format === "byte") {
-                    dataType = "Base64";
-                  } else {
-                    dataType = context.generateTypeFromRefableSchema(
-                      dataProp.contentSchema,
-                      union.scope,
-                    );
-                  }
-                } else {
-                  dataType = context.generateTypeFromRefableSchema(
-                    dataProp.contentSchema,
-                    union.scope,
-                  );
-                }
-              } else if (dataProp.type) {
-                // Simple type like string
-                dataType = dataProp.type;
-              }
-            }
-
-            // Build decorators for this event variant
-            let decorators = "";
-            if (contentType && contentType !== "application/json") {
-              decorators += `\n  @TypeSpec.Events.contentType("${contentType}")`;
-            }
-
-            // Check if this is a terminal event
-            const isTerminal = (memberSchema as any)[SSE_TERMINAL_EVENT_EXTENSION];
-            if (isTerminal) {
-              decorators += `\n  @TypeSpec.SSE.terminalEvent`;
-              decorators += `\n  @extension("${SSE_TERMINAL_EVENT_EXTENSION}", true)`;
-            }
-
-            return `${decorators}\n  ${eventName}: ${dataType},`;
-          } catch (error) {
-            // If any error occurs, fall back to regular generation
-            return (
-              getVariantName(member) +
-              context.generateTypeFromRefableSchema(member, union.scope) +
-              ","
-            );
-          }
-        }),
-      );
+      definitions.push(...generateSSEEventVariants(schema.oneOf, union, context, getVariantName));
     } else {
       // Regular union generation
       definitions.push(
