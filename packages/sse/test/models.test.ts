@@ -1,4 +1,4 @@
-import { t } from "@typespec/compiler/testing";
+import { expectDiagnostics, t } from "@typespec/compiler/testing";
 import { getContentTypes } from "@typespec/http";
 import { getStreamOf } from "@typespec/streams";
 import { describe, expect, it } from "vitest";
@@ -21,6 +21,61 @@ describe("SSEStream", () => {
     expect(Foo.properties.get("body")!.type).toMatchObject({
       kind: "Scalar",
       name: "string",
+    });
+  });
+
+  it("should fail when union is not decorated with @events", async () => {
+    const diagnostics = await Tester.diagnose(`
+      model UserConnect {
+        name: string;
+      }
+
+      union BasicUnion {
+        userconnect: UserConnect,
+      }
+
+      op subscribe(): SSEStream<BasicUnion>;
+    `);
+
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/sse/sse-stream-union-not-events",
+      severity: "error",
+    });
+  });
+
+  it("should pass when union is decorated with @events", async () => {
+    const diagnostics = await Tester.diagnose(`
+      model UserConnect {
+        name: string;
+      }
+
+      @events
+      union BasicUnion {
+        userconnect: UserConnect,
+      }
+
+      op subscribe(): SSEStream<BasicUnion>;
+    `);
+
+    expectDiagnostics(diagnostics, []);
+  });
+
+  it("should fail when HttpStream with text/event-stream is used without @events", async () => {
+    const diagnostics = await Tester.diagnose(`
+      model UserConnect {
+        name: string;
+      }
+
+      union BasicUnion {
+        userconnect: UserConnect,
+      }
+
+      model MyStream is Http.Streams.HttpStream<BasicUnion, "text/event-stream">;
+    `);
+
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/sse/sse-stream-union-not-events",
+      severity: "error",
     });
   });
 });

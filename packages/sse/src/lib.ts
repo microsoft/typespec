@@ -10,6 +10,13 @@ export const $lib = createTypeSpecLibrary({
           "A field marked as '@terminalEvent' must be a member of a type decorated with '@TpeSpec.Events.events'.",
       },
     },
+    "sse-stream-union-not-events": {
+      severity: "error",
+      messages: {
+        default:
+          "SSEStream type parameter must be a union decorated with '@TypeSpec.Events.events'.",
+      },
+    },
   },
   state: {
     terminalEvent: { description: "State for the @terminalEvent decorator." },
