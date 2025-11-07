@@ -305,14 +305,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private bool BuildHasDynamicProperties()
         {
-            if (Properties.Any(p =>
+            var properties = CanonicalView.Properties;
+            if (properties.Any(p =>
                     ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(p.Type, out var provider) &&
                     provider is ScmModelProvider { IsDynamicModel: true }))
             {
                 return true;
             }
 
-            return Properties
+            return properties
                 .Where(p => p.Type.IsCollection)
                 .Any(p => ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(
                               p.Type.GetNestedElementType(),
