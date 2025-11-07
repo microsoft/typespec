@@ -1,15 +1,24 @@
-import { strictEqual } from "assert";
-import { beforeEach, describe, it } from "vitest";
+import { ok, strictEqual } from "assert";
+import { beforeEach, describe, expect, it } from "vitest";
 import {
   getMaxItems,
   getMaxLength,
   getMaxValue,
+  getMaxValueForScalar,
   getMinItems,
   getMinLength,
   getMinValue,
+  getMinValueForScalar,
 } from "../../src/core/intrinsic-type-state.js";
-import { Model } from "../../src/core/types.js";
-import { BasicTestRunner, createTestRunner, expectDiagnostics } from "../../src/testing/index.js";
+import { Numeric } from "../../src/core/numeric.js";
+import { Model, ScalarValue } from "../../src/core/types.js";
+import {
+  BasicTestRunner,
+  createTestRunner,
+  expectDiagnostics,
+  t,
+} from "../../src/testing/index.js";
+import { Tester } from "../tester.js";
 
 describe("compiler: range limiting decorators", () => {
   let runner: BasicTestRunner;
@@ -84,7 +93,7 @@ describe("compiler: range limiting decorators", () => {
     `);
       expectDiagnostics(diagnostics, {
         code: "decorator-wrong-target",
-        message: "Cannot apply @minValue decorator to type it is not a numeric",
+        message: "Cannot apply @minValue decorator to type it must be a numeric or comparable type",
       });
     });
 
@@ -97,7 +106,7 @@ describe("compiler: range limiting decorators", () => {
     `);
       expectDiagnostics(diagnostics, {
         code: "decorator-wrong-target",
-        message: "Cannot apply @maxValue decorator to type it is not a numeric",
+        message: "Cannot apply @maxValue decorator to type it must be a numeric or comparable type",
       });
     });
 
@@ -112,6 +121,98 @@ describe("compiler: range limiting decorators", () => {
       expectDiagnostics(diagnostics, {
         code: "invalid-range",
         message: `Range "3..2" is invalid.`,
+      });
+    });
+
+    describe("datetime types", () => {
+      function expectScalarValue(
+        value: Numeric | ScalarValue | undefined,
+        scalar: string,
+        constructor: string,
+      ) {
+        ok(value);
+        ok("valueKind" in value);
+
+        expect(value.scalar.name).toEqual(scalar);
+        expect(value.value).toMatchObject({ name: constructor });
+      }
+
+      it("applies @minValue and @maxValue on unixTimestamp32", async () => {
+        const { stamp, program } = await Tester.compile(t.code`
+          model Foo {
+            @minValue(unixTimestamp32.fromISO("2025-01-01T00:00:00Z"))
+            @maxValue(unixTimestamp32.fromISO("2025-12-31T23:59:59Z"))
+            ${t.modelProperty("stamp")}: unixTimestamp32;
+          }
+        `);
+
+        expectScalarValue(getMinValueForScalar(program, stamp), "unixTimestamp32", "fromISO");
+        expectScalarValue(getMaxValueForScalar(program, stamp), "unixTimestamp32", "fromISO");
+      });
+
+      it("applies @minValue and @maxValue on utcDateTime", async () => {
+        const { stamp, program } = await Tester.compile(t.code`
+          model Foo {
+            @minValue(utcDateTime.fromISO("2025-01-01T00:00:00Z"))
+            @maxValue(utcDateTime.fromISO("2025-12-31T23:59:59Z"))
+            ${t.modelProperty("stamp")}: utcDateTime;
+          }
+        `);
+
+        expectScalarValue(getMinValueForScalar(program, stamp), "utcDateTime", "fromISO");
+        expectScalarValue(getMaxValueForScalar(program, stamp), "utcDateTime", "fromISO");
+      });
+
+      it("applies @minValue and @maxValue on offsetDateTime", async () => {
+        const { stamp, program } = await Tester.compile(t.code`
+          model Foo {
+            @minValue(offsetDateTime.fromISO("2025-01-01T00:00:00+00:00"))
+            @maxValue(offsetDateTime.fromISO("2025-12-31T23:59:59+00:00"))
+            ${t.modelProperty("stamp")}: offsetDateTime;
+          }
+        `);
+
+        expectScalarValue(getMinValueForScalar(program, stamp), "offsetDateTime", "fromISO");
+        expectScalarValue(getMaxValueForScalar(program, stamp), "offsetDateTime", "fromISO");
+      });
+
+      it("applies @minValue and @maxValue on plainTime", async () => {
+        const { stamp, program } = await Tester.compile(t.code`
+          model Foo {
+            @minValue(plainTime.fromISO("09:00:00"))
+            @maxValue(plainTime.fromISO("17:00:00"))
+            ${t.modelProperty("stamp")}: plainTime;
+          }
+        `);
+
+        expectScalarValue(getMinValueForScalar(program, stamp), "plainTime", "fromISO");
+        expectScalarValue(getMaxValueForScalar(program, stamp), "plainTime", "fromISO");
+      });
+
+      it("applies @minValue and @maxValue on plainDate", async () => {
+        const { stamp, program } = await Tester.compile(t.code`
+          model Foo {
+            @minValue(plainDate.fromISO("2025-01-01"))
+            @maxValue(plainDate.fromISO("2025-12-31"))
+            ${t.modelProperty("stamp")}: plainDate;
+          }
+        `);
+
+        expectScalarValue(getMinValueForScalar(program, stamp), "plainDate", "fromISO");
+        expectScalarValue(getMaxValueForScalar(program, stamp), "plainDate", "fromISO");
+      });
+
+      it("applies @minValue and @maxValue on duration", async () => {
+        const { stamp, program } = await Tester.compile(t.code`
+          model Foo {
+            @minValue(duration.fromISO("PT1H"))
+            @maxValue(duration.fromISO("PT8H"))
+            ${t.modelProperty("stamp")}: duration;
+          }
+        `);
+
+        expectScalarValue(getMinValueForScalar(program, stamp), "duration", "fromISO");
+        expectScalarValue(getMaxValueForScalar(program, stamp), "duration", "fromISO");
       });
     });
   });
