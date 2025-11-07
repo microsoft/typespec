@@ -1847,9 +1847,9 @@ $(program).value.isArray(type: Entity): type is ArrayValue;
  * @param diagnosticTarget - Target for the diagnostic
  */
 $(program).value
-  .isAssignableTo(source: Value, target: Entity, diagnosticTarget?: Entity | Node): boolean;
+  .isAssignableTo(source: Value, target: Entity, diagnosticTarget?: DiagnosticTarget): boolean;
 $(program).value.isAssignableTo
-  .withDiagnostics(source: Value, target: Entity, diagnosticTarget?: Entity | Node): [boolean, readonly Diagnostic[]];
+  .withDiagnostics(source: Value, target: Entity, diagnosticTarget?: DiagnosticTarget): [boolean, readonly Diagnostic[]];
 ```
 
 ### isBoolean
@@ -1920,9 +1920,9 @@ $(program).value.isObject(type: Entity): type is ObjectValue;
  * @param diagnosticTarget - Target for the diagnostic
  */
 $(program).value
-  .isOfType(source: Value, target: Type, diagnosticTarget?: Entity | Node): boolean;
+  .isOfType(source: Value, target: Type, diagnosticTarget?: DiagnosticTarget): boolean;
 $(program).value.isOfType
-  .withDiagnostics(source: Value, target: Type, diagnosticTarget?: Entity | Node): [boolean, readonly Diagnostic[]];
+  .withDiagnostics(source: Value, target: Type, diagnosticTarget?: DiagnosticTarget): [boolean, readonly Diagnostic[]];
 ```
 
 ### isScalar

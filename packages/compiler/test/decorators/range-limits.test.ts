@@ -124,6 +124,20 @@ describe("compiler: range limiting decorators", () => {
       });
     });
 
+    it("emit diagnostic if not assignable to the numeric type", async () => {
+      const [{ pos }, diagnostics] = await Tester.compileAndDiagnose(`
+      model Foo {
+        @minValue(/*error*/1234)
+        name: int8;
+      }
+    `);
+      expectDiagnostics(diagnostics, {
+        code: "unassignable",
+        message: "Type '1234' is not assignable to type 'int8'",
+        pos: pos.error.pos,
+      });
+    });
+
     describe("datetime types", () => {
       function expectScalarValue(
         value: Numeric | ScalarValue | undefined,
