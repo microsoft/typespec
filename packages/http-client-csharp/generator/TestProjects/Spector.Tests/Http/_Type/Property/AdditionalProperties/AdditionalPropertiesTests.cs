@@ -865,11 +865,13 @@ namespace TestProjects.Spector.Tests.Http._Type.Property.AdditionalProperties
             {
                 AdditionalProperties =
                 {
+                    // Use BinaryData.FromObjectAsJson for the array since arrays don't implement IJsonModel<T>
                     ["prop1"] = BinaryData.FromObjectAsJson(new[]
                     {
                         new WidgetData2("2021-01-01T00:00:00Z"),
                         new WidgetData2("2021-01-01T00:00:00Z")
                     }),
+                    // Use ModelReaderWriter.Write for single model objects
                     ["prop2"] = ModelReaderWriter.Write(new WidgetData1(new DateTimeOffset(2021, 1, 1, 0, 0, 0, TimeSpan.Zero))
                     {
                         End = new DateTimeOffset(2021, 1, 2, 0, 0, 0, TimeSpan.Zero)
