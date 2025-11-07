@@ -1,6 +1,7 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok } from "assert";
 import { describe, it } from "vitest";
+import { OpenAPIDocument3_2 } from "../src/types.js";
 import { ApiTester } from "./test-host.js";
 
 // Use ApiTester with SSE-specific imports
@@ -41,7 +42,7 @@ async function openApiWithDiagnosticsFor(code: string, openAPIVersion = "3.2.0")
     },
   });
 
-  return { openApi: JSON.parse(result.outputs["openapi.json"]), diagnostics };
+  return { openApi: JSON.parse(result.outputs["openapi.json"]) as OpenAPIDocument3_2, diagnostics };
 }
 
 describe("openapi3: SSE (Server-Sent Events)", () => {
@@ -268,19 +269,26 @@ describe("openapi3: SSE (Server-Sent Events)", () => {
 
         // Verify the response structure
         ok(openApi.paths["/channel"], "expected /channel path");
-        const response = (openApi.paths["/channel"] as any).get.responses["200"];
+        const getOperation = openApi.paths["/channel"].get;
+        ok(getOperation, "expected get operation");
+        ok(getOperation.responses, "expected responses");
+        ok("$ref" in getOperation.responses === false, "responses should not be a $ref");
+        const response = getOperation.responses["200"];
         ok(response, "expected 200 response");
+        ok("$ref" in response === false, "response should not be a $ref");
         ok(response.content, "expected content");
 
         ok(response.content["text/event-stream"], "expected text/event-stream content type");
 
         const eventStreamContent = response.content["text/event-stream"];
+        ok("$ref" in eventStreamContent === false, "content should not be a $ref");
 
         // For OpenAPI 3.1.0, itemSchema should NOT be present
         ok(!eventStreamContent.itemSchema, "itemSchema should not be present for OpenAPI 3.1.0");
 
         // Should have basic schema for string type
         ok(eventStreamContent.schema, "expected basic schema");
+        ok("$ref" in eventStreamContent.schema === false, "schema should not be a $ref");
         deepStrictEqual(eventStreamContent.schema.type, "string");
       });
     });
