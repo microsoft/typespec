@@ -16,6 +16,7 @@ namespace SSEImportScenarios;
 model UserConnect {
   username: string;
 }
+
 model UserMessage {
   text: string;
 }
@@ -38,7 +39,7 @@ union ChannelEventsWithTerminal {
 }
 
 @TypeSpec.Events.events
-union ChannelEventsWithCustomContentType {
+union ChannelEventWithCustomContentType {
   @TypeSpec.Events.contentType("application/octet-stream")
   binary: Base64,
 }
@@ -50,4 +51,4 @@ union ChannelEventsWithCustomContentType {
 ): SSEStream<ChannelEventsWithTerminal>;
 
 @route("/data/custom-content-type") @get op subscribeToDataStream(
-): SSEStream<ChannelEventsWithCustomContentType>;
+): SSEStream<ChannelEventWithCustomContentType>;
