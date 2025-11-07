@@ -9,6 +9,7 @@ using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
+using ScmModel = Microsoft.TypeSpec.Generator.ClientModel.Providers.ScmModelProvider;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvider
 {
@@ -386,7 +387,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
             Assert.IsTrue(patchParam!.IsIn);
         }
 
-        private void AssertJsonIgnoreAttributeOnPatchProperty(ClientModel.Providers.ScmModelProvider model)
+        private void AssertJsonIgnoreAttributeOnPatchProperty(ScmModel model)
         {
             var patchProperty = model.JsonPatchProperty;
             
