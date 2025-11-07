@@ -33,7 +33,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
                 ]);
 
             MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
-            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ClientModel.Providers.ScmModelProvider;
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ScmModel;
 
             Assert.IsNotNull(model);
             Assert.IsTrue(model!.IsDynamicModel);
@@ -66,11 +66,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
             MockHelpers.LoadMockGenerator(inputModels: () => [baseModel, catModel]);
             var outputLibrary = ScmCodeModelGenerator.Instance.OutputLibrary;
 
-            var baseModelProvider = outputLibrary.TypeProviders.OfType<ClientModel.Providers.ScmModelProvider>()
+            var baseModelProvider = outputLibrary.TypeProviders.OfType<ScmModel>()
                 .FirstOrDefault(t => t.Name == "Pet");
             Assert.IsNotNull(baseModelProvider);
 
-            var catModelProvider = outputLibrary.TypeProviders.OfType<ClientModel.Providers.ScmModelProvider>()
+            var catModelProvider = outputLibrary.TypeProviders.OfType<ScmModel>()
                 .FirstOrDefault(t => t.Name == "Cat");
             Assert.IsNotNull(catModelProvider);
             var model = validateBase
@@ -127,7 +127,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
             MockHelpers.LoadMockGenerator(inputModels: () => [baseModel, catModel, tigerModel]);
             var outputLibrary = ScmCodeModelGenerator.Instance.OutputLibrary;
 
-            var model = outputLibrary.TypeProviders.OfType<ClientModel.Providers.ScmModelProvider>()
+            var model = outputLibrary.TypeProviders.OfType<ScmModel>()
                 .FirstOrDefault(t => t.Name == "Tiger");
             Assert.IsNotNull(model);
             Assert.AreEqual(discriminatedTypeIsDynamicModel, model!.IsDynamicModel);
@@ -157,7 +157,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
                 ]);
 
             MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
-            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ClientModel.Providers.ScmModelProvider;
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ScmModel;
 
             Assert.IsNotNull(model);
             Assert.IsTrue(model!.IsDynamicModel);
@@ -182,7 +182,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
                 ]);
 
             MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
-            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ClientModel.Providers.ScmModelProvider;
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ScmModel;
 
             Assert.IsNotNull(model);
             Assert.IsTrue(model!.IsDynamicModel);
@@ -213,7 +213,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
                 ]);
 
             MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
-            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ClientModel.Providers.ScmModelProvider;
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ScmModel;
 
             Assert.IsNotNull(model);
             Assert.IsTrue(model!.IsDynamicModel);
@@ -248,7 +248,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
                 discriminatedModels: new Dictionary<string, InputModelType>() { { "cat", catModel }, { "dog", dogModel } });
 
             MockHelpers.LoadMockGenerator(inputModels: () => [baseModel, dogModel, catModel]);
-            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(baseModel) as ClientModel.Providers.ScmModelProvider;
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(baseModel) as ScmModel;
 
             Assert.IsNotNull(model);
             Assert.IsTrue(model!.IsDynamicModel);
@@ -283,7 +283,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
                 discriminatedModels: new Dictionary<string, InputModelType>() { { "cat", catModel }, { "dog", dogModel } });
 
             MockHelpers.LoadMockGenerator(inputModels: () => [baseModel, dogModel, catModel]);
-            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(catModel) as ClientModel.Providers.ScmModelProvider;
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(catModel) as ScmModel;
 
             Assert.IsNotNull(model);
             Assert.IsTrue(model!.HasDynamicModelSupport);
@@ -307,7 +307,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
                 derivedModels: [catModel]);
 
             MockHelpers.LoadMockGenerator(inputModels: () => [baseModel, catModel]);
-            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(catModel) as ClientModel.Providers.ScmModelProvider;
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(catModel) as ScmModel;
 
             Assert.IsNotNull(model);
             Assert.IsTrue(model!.HasDynamicModelSupport);
@@ -327,7 +327,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
             ]);
 
             MockHelpers.LoadMockGenerator(inputModels: () => [catModel]);
-            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(catModel) as ClientModel.Providers.ScmModelProvider;
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(catModel) as ScmModel;
 
             Assert.IsNotNull(model);
             Assert.IsTrue(model!.HasDynamicModelSupport);
@@ -350,7 +350,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
             await MockHelpers.LoadMockGeneratorAsync(
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
                 inputModels: () => [catModel]);
-            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(catModel) as ClientModel.Providers.ScmModelProvider;
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(catModel) as ScmModel;
 
             Assert.IsNotNull(model);
             Assert.IsTrue(model!.HasDynamicModelSupport);
@@ -373,7 +373,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
             await MockHelpers.LoadMockGeneratorAsync(
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
                 inputModels: () => [catModel]);
-            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(catModel) as ClientModel.Providers.ScmModelProvider;
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(catModel) as ScmModel;
 
             Assert.IsNotNull(model);
             Assert.IsTrue(model!.HasDynamicModelSupport);
