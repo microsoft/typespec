@@ -116,7 +116,9 @@ function generateUnion(union: TypeSpecUnion, context: Context): string {
     definitions.push(...schema.enum.map((e) => `${JSON.stringify(e)},`));
   } else if (schema.oneOf) {
     // Check if this is an SSE event union
-    const isSSEEventUnion = union.decorators.some((d) => d.name === "TypeSpec.Events.events");
+    const isSSEEventUnion = union.decorators.some(
+      (d) => d.name === "TypeSpec.Events.events" || d.name === "events",
+    );
 
     if (isSSEEventUnion) {
       // Generate SSE event variants: eventName: DataType,
@@ -125,8 +127,8 @@ function generateUnion(union: TypeSpecUnion, context: Context): string {
         const aSchema = "$ref" in a ? context.getSchemaByRef(a.$ref) : a;
         const bSchema = "$ref" in b ? context.getSchemaByRef(b.$ref) : b;
 
-        const aIsTerminal = !!(aSchema as any)?.["x-ms-sse-terminal-event"];
-        const bIsTerminal = !!(bSchema as any)?.["x-ms-sse-terminal-event"];
+        const aIsTerminal = !!aSchema?.["x-ms-sse-terminal-event"];
+        const bIsTerminal = !!bSchema?.["x-ms-sse-terminal-event"];
 
         if (aIsTerminal && !bIsTerminal) return 1; // a comes after b
         if (!aIsTerminal && bIsTerminal) return -1; // a comes before b
@@ -165,7 +167,7 @@ function generateUnion(union: TypeSpecUnion, context: Context): string {
               // Check if this is a terminal event (no event name, just data)
               if (props.data?.const) {
                 const terminalValue = props.data.const;
-                const isTerminal = (memberSchema as any)["x-ms-sse-terminal-event"];
+                const isTerminal = memberSchema["x-ms-sse-terminal-event"];
                 const contentType = props.data?.contentMediaType;
 
                 let decorators = "";
