@@ -77,6 +77,8 @@ export {
   getMaxValueAsNumeric,
   getMaxValueExclusive,
   getMaxValueExclusiveAsNumeric,
+  getMaxValueExclusiveForScalar,
+  getMaxValueForScalar,
   getMinItems,
   getMinItemsAsNumeric,
   getMinLength,
@@ -85,6 +87,8 @@ export {
   getMinValueAsNumeric,
   getMinValueExclusive,
   getMinValueExclusiveAsNumeric,
+  getMinValueExclusiveForScalar,
+  getMinValueForScalar,
   type Discriminator,
 } from "./core/intrinsic-type-state.js";
 export {

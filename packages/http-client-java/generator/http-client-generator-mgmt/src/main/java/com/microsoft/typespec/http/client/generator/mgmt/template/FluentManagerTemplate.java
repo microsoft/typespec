@@ -19,7 +19,6 @@ import com.azure.core.http.policy.RequestIdPolicy;
 import com.azure.core.http.policy.RetryOptions;
 import com.azure.core.http.policy.RetryPolicy;
 import com.azure.core.http.policy.UserAgentPolicy;
-import com.azure.core.management.profile.AzureProfile;
 import com.azure.core.util.Configuration;
 import com.azure.core.util.logging.ClientLogger;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
@@ -31,6 +30,7 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFil
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import com.microsoft.typespec.http.client.generator.mgmt.FluentGen;
+import com.microsoft.typespec.http.client.generator.mgmt.model.FluentType;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentManager;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.ModelNaming;
 import com.microsoft.typespec.http.client.generator.mgmt.model.projectmodel.FluentProject;
@@ -101,7 +101,7 @@ public class FluentManagerTemplate {
             AddDatePolicy.class.getName(), HttpLoggingPolicy.class.getName(), HttpLogOptions.class.getName(),
             BearerTokenAuthenticationPolicy.class.getName(), UserAgentPolicy.class.getName(),
             // azure-core-management
-            AzureProfile.class.getName()));
+            FluentType.AZURE_PROFILE.getFullName()));
 
         if (requiresSubscriptionIdParameter && subscriptionIdParameterType != null) {
             subscriptionIdParameterType.addImportsTo(imports, false);
@@ -119,14 +119,12 @@ public class FluentManagerTemplate {
 
         javaFile.declareImport(imports);
 
-        javaFile.javadocComment(comment -> {
-            comment.description(manager.getDescription());
-        });
+        javaFile.javadocComment(comment -> comment.description(manager.getDescription()));
 
         javaFile.publicFinalClass(managerName, classBlock -> {
-            manager.getProperties().forEach(property -> {
-                classBlock.privateMemberVariable(property.getFluentType().getName(), property.getName());
-            });
+            manager.getProperties()
+                .forEach(property -> classBlock.privateMemberVariable(property.getFluentType().getName(),
+                    property.getName()));
 
             classBlock.privateFinalMemberVariable(serviceClientTypeName, ModelNaming.MANAGER_PROPERTY_CLIENT);
 
@@ -195,9 +193,8 @@ public class FluentManagerTemplate {
                     managerName));
                 comment.methodReturns("the Configurable instance allowing configurations");
             });
-            classBlock.publicStaticMethod("Configurable configure()", methodBlock -> {
-                methodBlock.methodReturn(String.format("new %1$s.Configurable()", managerName));
-            });
+            classBlock.publicStaticMethod("Configurable configure()",
+                methodBlock -> methodBlock.methodReturn(String.format("new %1$s.Configurable()", managerName)));
 
             // Configurable class
             javaFile.line();
@@ -227,11 +224,10 @@ public class FluentManagerTemplate {
                 classBlock.publicMethod(
                     String.format("%1$s %2$s()", property.getFluentType().getName(), property.getMethodName()),
                     methodBlock -> {
-                        methodBlock.ifBlock(String.format("this.%1$s == null", property.getName()), ifBlock -> {
-                            methodBlock.line(String.format("this.%1$s = new %2$s(%3$s.%4$s(), this);",
+                        methodBlock.ifBlock(String.format("this.%1$s == null", property.getName()),
+                            ifBlock -> methodBlock.line(String.format("this.%1$s = new %2$s(%3$s.%4$s(), this);",
                                 property.getName(), property.getFluentImplementType().getName(),
-                                ModelNaming.MANAGER_PROPERTY_CLIENT, property.getInnerClientGetMethod()));
-                        });
+                                ModelNaming.MANAGER_PROPERTY_CLIENT, property.getInnerClientGetMethod())));
                         methodBlock.methodReturn(property.getName());
                     });
             });
@@ -243,9 +239,9 @@ public class FluentManagerTemplate {
                 comment.methodReturns(String.format("Wrapped service client %1$s.", serviceClientTypeName));
             });
             classBlock.publicMethod(
-                String.format("%1$s %2$s()", serviceClientTypeName, ModelNaming.METHOD_SERVICE_CLIENT), methodBlock -> {
-                    methodBlock.methodReturn(String.format("this.%1$s", ModelNaming.MANAGER_PROPERTY_CLIENT));
-                });
+                String.format("%1$s %2$s()", serviceClientTypeName, ModelNaming.METHOD_SERVICE_CLIENT),
+                methodBlock -> methodBlock
+                    .methodReturn(String.format("this.%1$s", ModelNaming.MANAGER_PROPERTY_CLIENT)));
         });
     }
 }
