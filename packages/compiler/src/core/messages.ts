@@ -760,12 +760,6 @@ const diagnostics = {
       default: paramMessage`Rule "${"ruleName"}" has been enabled and disabled in the same ruleset.`,
     },
   },
-  "sync-rule-returns-promise": {
-    severity: "warning",
-    messages: {
-      default: paramMessage`Synchronous rule "${"ruleName"}" should not return a Promise. Consider marking the rule as asynchronous by setting the "async" property to true in the rule definition.`,
-    },
-  },
 
   /**
    * Formatter
