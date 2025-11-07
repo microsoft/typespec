@@ -53,7 +53,7 @@ export interface Context {
 
   /**
    * Register a schema as representing SSE events.
-   * This allows the schema generator to use @TypeSpec.Events.events instead of @oneOf.
+   * This allows the schema generator to use `@events` instead of @oneOf.
    */
   registerSSEEventSchema(ref: string): void;
 

@@ -21,13 +21,13 @@ model UserMessage {
   text: string;
 }
 
-@TypeSpec.Events.events
+@events
 union ChannelEventsNoTerminal {
   userconnect: UserConnect,
   usermessage: UserMessage,
 }
 
-@TypeSpec.Events.events
+@events
 union ChannelEventsWithTerminal {
   userconnect: UserConnect,
   usermessage: UserMessage,
@@ -38,7 +38,7 @@ union ChannelEventsWithTerminal {
   "[done]",
 }
 
-@TypeSpec.Events.events
+@events
 union ChannelEventWithCustomContentType {
   @TypeSpec.Events.contentType("application/octet-stream")
   binary: Base64,
