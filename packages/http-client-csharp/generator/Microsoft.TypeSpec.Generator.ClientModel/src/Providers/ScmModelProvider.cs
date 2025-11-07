@@ -35,8 +35,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         internal bool HasDynamicModelSupport { get; }
         internal Lazy<PropertyProvider?> BaseJsonPatchProperty { get; }
 
-        internal bool HasDynamicProperties => _hasDynamicProperties ??= BuildHasDynamicProperties();
-        private bool? _hasDynamicProperties;
+        internal bool HasDynamicProperties => BuildHasDynamicProperties();
 
         internal static SuppressionStatement JsonPatchSuppression = new SuppressionStatement(null,
             Literal(ScmEvaluationTypeDiagnosticId),
@@ -303,14 +302,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private bool BuildHasDynamicProperties()
         {
-            if (Properties.Any(p =>
+            var properties = CanonicalView.Properties;
+            if (properties.Any(p =>
                     ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(p.Type, out var provider) &&
                     provider is ScmModelProvider { IsDynamicModel: true }))
             {
                 return true;
             }
 
-            return Properties
+            return properties
                 .Where(p => p.Type.IsCollection)
                 .Any(p => ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(
                               p.Type.GetNestedElementType(),
