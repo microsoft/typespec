@@ -116,15 +116,19 @@ function generateSSEEventVariants(
       }
 
       // Use any to access properties since the types are complex
-      const props = memberSchema.properties as any;
+      const props = memberSchema.properties;
 
       // Extract event name from event.const
       let eventName: string | undefined;
       if (props.event) {
         const eventProp = props.event;
-        if (eventProp.const) {
+        if ("const" in eventProp && eventProp.const && typeof eventProp.const === "string") {
           eventName = eventProp.const;
-        } else if (eventProp.enum && eventProp.enum[0]) {
+        } else if (
+          "enum" in eventProp &&
+          eventProp.enum?.[0] &&
+          typeof eventProp.enum[0] === "string"
+        ) {
           eventName = eventProp.enum[0];
         }
       }
@@ -132,10 +136,10 @@ function generateSSEEventVariants(
       // Check for terminal events or special cases
       if (!eventName) {
         // Check if this is a terminal event (no event name, just data)
-        if (props.data?.const) {
+        if ("const" in props.data && props.data.const) {
           const terminalValue = props.data.const;
           const isTerminal = memberSchema[SSE_TERMINAL_EVENT_EXTENSION];
-          const contentType = props.data?.contentMediaType;
+          const contentType = "contentMediaType" in props.data && props.data.contentMediaType;
 
           let decorators = "";
           if (contentType) {
@@ -162,22 +166,28 @@ function generateSSEEventVariants(
         const dataProp = props.data;
 
         // Get content type if specified
-        if (dataProp.contentMediaType) {
+        if ("contentMediaType" in dataProp && dataProp.contentMediaType) {
           contentType = dataProp.contentMediaType;
         }
 
         // Check for contentSchema (OpenAPI extension)
-        if (dataProp.contentSchema) {
+        if ("contentSchema" in dataProp && dataProp.contentSchema) {
           const contentSchema = dataProp.contentSchema;
           // Special handling for byte data which should map to Base64/bytes
           if (
             contentSchema &&
             typeof contentSchema === "object" &&
+            "type" in contentSchema &&
             contentSchema.type === "object" &&
             contentSchema.properties?.data
           ) {
-            const dataProperty = contentSchema.properties.data as any;
-            if (dataProperty?.type === "string" && dataProperty?.format === "byte") {
+            const dataProperty = contentSchema.properties.data;
+            if (
+              "type" in dataProperty &&
+              dataProperty.type === "string" &&
+              "format" in dataProperty &&
+              dataProperty.format === "byte"
+            ) {
               dataType = "Base64";
             } else {
               dataType = context.generateTypeFromRefableSchema(dataProp.contentSchema, union.scope);
@@ -185,7 +195,7 @@ function generateSSEEventVariants(
           } else {
             dataType = context.generateTypeFromRefableSchema(dataProp.contentSchema, union.scope);
           }
-        } else if (dataProp.type) {
+        } else if ("type" in dataProp && dataProp.type && typeof dataProp.type === "string") {
           // Simple type like string
           dataType = dataProp.type;
         }
@@ -198,7 +208,7 @@ function generateSSEEventVariants(
       }
 
       // Check if this is a terminal event
-      const isTerminal = (memberSchema as any)[SSE_TERMINAL_EVENT_EXTENSION];
+      const isTerminal = memberSchema[SSE_TERMINAL_EVENT_EXTENSION];
       if (isTerminal) {
         decorators += `\n  @TypeSpec.SSE.terminalEvent`;
         decorators += `\n  @extension("${SSE_TERMINAL_EVENT_EXTENSION}", true)`;
@@ -234,13 +244,15 @@ function generateUnion(union: TypeSpecUnion, context: Context): string {
 
     const memberSchema = "$ref" in member ? context.getSchemaByRef(member.$ref)! : member;
 
+    const propertySchema =
+      memberSchema.properties && memberSchema.properties[union.schema.discriminator.propertyName];
     const value =
       (union.schema.discriminator?.mapping && "$ref" in member
         ? Object.entries(union.schema.discriminator.mapping).find((x) => x[1] === member.$ref)?.[0]
         : undefined) ??
-      (memberSchema.properties?.[union.schema.discriminator.propertyName] as any)?.enum?.[0];
+      (propertySchema && "enum" in propertySchema && propertySchema.enum?.[0]);
     // checking whether the value is using an invalid character as an identifier
-    const valueIdentifier = value ? printIdentifier(value, "disallow-reserved") : "";
+    const valueIdentifier = value ? printIdentifier(`${value}`, "disallow-reserved") : "";
     return value ? `${value === valueIdentifier ? value : valueIdentifier}: ` : "";
   };
   if (schema.enum) {
@@ -283,7 +295,7 @@ function generateUnion(union: TypeSpecUnion, context: Context): string {
         definitions.push("null,");
       } else {
         // Create a schema with a single type to reuse existing logic
-        const singleTypeSchema = { ...schema, type: t as any, nullable: undefined };
+        const singleTypeSchema = { ...schema, type: t, nullable: undefined };
         const type = context.generateTypeFromRefableSchema(singleTypeSchema, union.scope);
         definitions.push(`${type},`);
       }
