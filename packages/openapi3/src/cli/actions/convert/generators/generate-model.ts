@@ -20,6 +20,8 @@ import {
   SchemaToExpressionGenerator,
 } from "./generate-types.js";
 
+const SSE_TERMINAL_EVENT_EXTENSION = "x-ms-sse-terminal-event";
+
 export function generateDataType(type: TypeSpecDataTypes, context: Context): string {
   switch (type.kind) {
     case "alias":
@@ -127,8 +129,8 @@ function generateUnion(union: TypeSpecUnion, context: Context): string {
         const aSchema = "$ref" in a ? context.getSchemaByRef(a.$ref) : a;
         const bSchema = "$ref" in b ? context.getSchemaByRef(b.$ref) : b;
 
-        const aIsTerminal = !!aSchema?.["x-ms-sse-terminal-event"];
-        const bIsTerminal = !!bSchema?.["x-ms-sse-terminal-event"];
+        const aIsTerminal = !!aSchema?.[SSE_TERMINAL_EVENT_EXTENSION];
+        const bIsTerminal = !!bSchema?.[SSE_TERMINAL_EVENT_EXTENSION];
 
         if (aIsTerminal && !bIsTerminal) return 1; // a comes after b
         if (!aIsTerminal && bIsTerminal) return -1; // a comes before b
@@ -167,7 +169,7 @@ function generateUnion(union: TypeSpecUnion, context: Context): string {
               // Check if this is a terminal event (no event name, just data)
               if (props.data?.const) {
                 const terminalValue = props.data.const;
-                const isTerminal = memberSchema["x-ms-sse-terminal-event"];
+                const isTerminal = memberSchema[SSE_TERMINAL_EVENT_EXTENSION];
                 const contentType = props.data?.contentMediaType;
 
                 let decorators = "";
@@ -176,7 +178,7 @@ function generateUnion(union: TypeSpecUnion, context: Context): string {
                 }
                 if (isTerminal) {
                   decorators += `\n  @TypeSpec.SSE.terminalEvent`;
-                  decorators += `\n  @extension("x-ms-sse-terminal-event", true)`;
+                  decorators += `\n  @extension("${SSE_TERMINAL_EVENT_EXTENSION}", true)`;
                 }
 
                 return `${decorators}\n  "${terminalValue}",`;
@@ -239,10 +241,10 @@ function generateUnion(union: TypeSpecUnion, context: Context): string {
             }
 
             // Check if this is a terminal event
-            const isTerminal = (memberSchema as any)["x-ms-sse-terminal-event"];
+            const isTerminal = (memberSchema as any)[SSE_TERMINAL_EVENT_EXTENSION];
             if (isTerminal) {
               decorators += `\n  @TypeSpec.SSE.terminalEvent`;
-              decorators += `\n  @extension("x-ms-sse-terminal-event", true)`;
+              decorators += `\n  @extension("${SSE_TERMINAL_EVENT_EXTENSION}", true)`;
             }
 
             return `${decorators}\n  ${eventName}: ${dataType},`;
