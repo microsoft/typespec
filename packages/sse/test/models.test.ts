@@ -78,4 +78,34 @@ describe("SSEStream", () => {
       severity: "error",
     });
   });
+
+  it("should fail when HttpStream with text/event-stream is a model", async () => {
+    const diagnostics = await Tester.diagnose(`
+      model UserConnect {
+        name: string;
+      }
+
+      model MyStream is Http.Streams.HttpStream<UserConnect, "text/event-stream">;
+    `);
+
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/sse/sse-stream-union-not-events",
+      severity: "error",
+    });
+  });
+
+  it("should fail when SSEStream is used with a model", async () => {
+    const diagnostics = await Tester.diagnose(`
+      model UserConnect {
+        name: string;
+      }
+
+      model MyStream is SSEStream<UserConnect>;
+    `);
+
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/sse/sse-stream-union-not-events",
+      severity: "error",
+    });
+  });
 });
