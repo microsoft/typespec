@@ -278,24 +278,18 @@ Scenarios.Encode_Bytes_ResponseBody_octetStream = createResponseBodyServerTests(
   "application/octet-stream",
 );
 
-// COSE Sign1 test data: Simplified COSE structure with signature
-const coseData = Buffer.from([
-  0xd2, 0x84, 0x43, 0xa1, 0x01, 0x26, 0xa0, 0x50, 0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x57, 0x6f,
-  0x72, 0x6c, 0x64, 0x21, 0x58, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-]);
-
 Scenarios.Encode_Bytes_RequestBodyContentType_cose = createRequestBodyServerTests(
   "/encode/bytes/body/request/content-type/cose",
-  coseData,
+  pngFile,
   "application/cose",
 );
 
 Scenarios.Encode_Bytes_ResponseBodyContentType_cose = createResponseBodyServerTests(
   "/encode/bytes/body/response/content-type/cose",
-  coseData,
+  pngFile,
   {
     "Content-Type": "application/cose",
   },
-  coseData,
+  pngFile,
   "application/cose",
 );
