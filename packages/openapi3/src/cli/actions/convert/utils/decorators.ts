@@ -29,8 +29,8 @@ export function getExtensions(element: Extensions): TypeSpecDecorator[] {
   return decorators;
 }
 function normalizeObjectValue(source: unknown): string | number | object | TSValue {
-  if (typeof source === "object") {
-    const result = createTSValueFromObjectValue(source as object);
+  if (source !== null && typeof source === "object") {
+    const result = createTSValueFromObjectValue(source);
     if (result) {
       return result;
     }
@@ -93,7 +93,7 @@ function createTSValueFromObjectValue(value: object): TSValue | undefined {
   return undefined;
 }
 export function normalizeObjectValueToTSValueExpression(value: any): string {
-  if (typeof value === "object" && !Array.isArray(value)) {
+  if (value !== null && typeof value === "object" && !Array.isArray(value)) {
     return `#{${Object.entries(value)
       .map(([key, v]) => {
         return `${printIdentifier(key, "disallow-reserved")}: ${normalizeObjectValueToTSValueExpression(v)}`;
