@@ -4,7 +4,6 @@
 
 package azure.clientgenerator.core.alternatetype;
 
-import azure.clientgenerator.core.alternatetype.externaltype.models.Feature;
 import azure.clientgenerator.core.alternatetype.externaltype.models.ModelWithFeatureProperty;
 import azure.clientgenerator.core.alternatetype.implementation.ExternalTypesImpl;
 import com.azure.core.annotation.Generated;
@@ -17,6 +16,7 @@ import com.azure.core.exception.ResourceModifiedException;
 import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
+import com.azure.core.models.GeoObject;
 import com.azure.core.util.BinaryData;
 import com.azure.core.util.FluxUtil;
 import reactor.core.publisher.Mono;
@@ -199,11 +199,11 @@ public final class AlternateTypeAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Feature> getModel() {
+    public Mono<GeoObject> getModel() {
         // Generated convenience method for getModelWithResponse
         RequestOptions requestOptions = new RequestOptions();
         return getModelWithResponse(requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toObject(Feature.class));
+            .map(protocolMethodData -> protocolMethodData.toObject(GeoObject.class));
     }
 
     /**
@@ -220,7 +220,7 @@ public final class AlternateTypeAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Void> putModel(Feature body) {
+    public Mono<Void> putModel(GeoObject body) {
         // Generated convenience method for putModelWithResponse
         RequestOptions requestOptions = new RequestOptions();
         return putModelWithResponse(BinaryData.fromObject(body), requestOptions).flatMap(FluxUtil::toMono);
