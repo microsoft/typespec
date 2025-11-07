@@ -2,6 +2,8 @@ import {
   OpenAPI3PathItem,
   OpenAPI3RequestBody,
   OpenAPI3Response,
+  OpenAPIPathItem3_2,
+  OpenAPIRequestBody3_2,
   Refable,
   SupportedOpenAPIDocuments,
 } from "../../../../types.js";
@@ -62,7 +64,10 @@ function scanForSSESchemas(openapi: SupportedOpenAPIDocuments, context: Context)
   }
 }
 
-function scanPathForMultipartSchemas(path: OpenAPI3PathItem, context: Context): void {
+function scanPathForMultipartSchemas(
+  path: OpenAPI3PathItem | OpenAPIPathItem3_2,
+  context: Context,
+): void {
   const methods = ["get", "post", "put", "patch", "delete", "head"] as const;
 
   for (const method of methods) {
@@ -71,10 +76,21 @@ function scanPathForMultipartSchemas(path: OpenAPI3PathItem, context: Context): 
 
     scanOperationForMultipartSchemas(operation.requestBody, context);
   }
+  if ("query" in path && path.query && path.query.requestBody) {
+    scanOperationForMultipartSchemas(path.query.requestBody, context);
+  }
+
+  if ("additionalOperations" in path && path.additionalOperations) {
+    for (const additionalOperation of Object.values(path.additionalOperations)) {
+      if (additionalOperation.requestBody) {
+        scanOperationForMultipartSchemas(additionalOperation.requestBody, context);
+      }
+    }
+  }
 }
 
 function scanOperationForMultipartSchemas(
-  requestBodyRef: Refable<OpenAPI3RequestBody>,
+  requestBodyRef: Refable<OpenAPI3RequestBody> | Refable<OpenAPIRequestBody3_2>,
   context: Context,
 ): void {
   let requestBody = requestBodyRef;
@@ -97,7 +113,10 @@ function scanOperationForMultipartSchemas(
   }
 }
 
-function scanPathForSSESchemas(path: OpenAPI3PathItem, context: Context): void {
+function scanPathForSSESchemas(
+  path: OpenAPI3PathItem | OpenAPIPathItem3_2,
+  context: Context,
+): void {
   const methods = ["get", "post", "put", "patch", "delete", "head"] as const;
 
   for (const method of methods) {
