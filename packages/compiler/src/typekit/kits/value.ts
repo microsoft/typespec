@@ -3,9 +3,9 @@ import { isValue } from "../../core/type-utils.js";
 import type {
   ArrayValue,
   BooleanValue,
+  DiagnosticTarget,
   Entity,
   EnumValue,
-  Node,
   NullValue,
   NumericValue,
   ObjectValue,
@@ -113,7 +113,7 @@ export interface ValueKit {
    * @param diagnosticTarget Target for the diagnostic
    */
   isAssignableTo: Diagnosable<
-    (source: Value, target: Entity, diagnosticTarget?: Entity | Node) => boolean
+    (source: Value, target: Entity, diagnosticTarget?: DiagnosticTarget) => boolean
   >;
 
   /**
@@ -122,7 +122,9 @@ export interface ValueKit {
    * @param target Target type
    * @param diagnosticTarget Target for the diagnostic
    */
-  isOfType: Diagnosable<(source: Value, target: Type, diagnosticTarget?: Entity | Node) => boolean>;
+  isOfType: Diagnosable<
+    (source: Value, target: Type, diagnosticTarget?: DiagnosticTarget) => boolean
+  >;
 
   /**
    * Resolve a value reference to a TypeSpec value.

@@ -336,7 +336,7 @@ function validateValueAssignableToTarget(
   const [assignable, diagnostics] = $(context.program).value.isOfType.withDiagnostics(
     value,
     targetType,
-    value,
+    context.getArgumentTarget(0)!,
   );
   if (!assignable) {
     context.program.reportDiagnostics(diagnostics);

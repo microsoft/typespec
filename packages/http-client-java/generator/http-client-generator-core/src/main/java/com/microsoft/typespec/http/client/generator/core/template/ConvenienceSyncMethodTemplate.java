@@ -229,10 +229,6 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
                 } else if (responseBodyType == ClassType.BINARY_DATA) {
                     // BinaryData
                     return invocationExpression;
-                } else if (isModelOrBuiltin(responseBodyType)) {
-                    // class
-                    return String.format("%2$s.toObject(%1$s.class)", responseBodyType.asNullable(),
-                        invocationExpression);
                 } else if (responseBodyType == ArrayType.BYTE_ARRAY) {
                     // byte[]
                     if (rawType == ClassType.BASE_64_URL) {
@@ -243,7 +239,9 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
                         return String.format("%1$s.toObject(byte[].class)", invocationExpression);
                     }
                 } else {
-                    return invocationExpression;
+                    // default, treat as class
+                    return String.format("%2$s.toObject(%1$s.class)", responseBodyType.asNullable(),
+                        invocationExpression);
                 }
         }
     }
