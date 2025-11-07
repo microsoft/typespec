@@ -1,11 +1,9 @@
 import {
   OpenAPI3PathItem,
   OpenAPI3RequestBody,
-  OpenAPI3Response,
   OpenAPI3Responses,
   OpenAPIPathItem3_2,
   OpenAPIRequestBody3_2,
-  OpenAPIResponse3_2,
   OpenAPIResponses3_2,
   Refable,
   SupportedOpenAPIDocuments,
@@ -19,6 +17,23 @@ import { transformPaths } from "./transform-paths.js";
 import { transformServers } from "./transform-servers.js";
 import { transformServiceInfo } from "./transform-service-info.js";
 import { transformTags } from "./transform-tags.js";
+
+/**
+ * Resolves a reference to its actual object, handling both direct objects and $ref references.
+ * @param refableObject - Object that might be a reference or the actual object
+ * @param context - Context containing the getByRef method
+ * @returns The resolved object or undefined if the reference cannot be resolved
+ */
+function resolveReference<T>(refableObject: Refable<T>, context: Context): T | undefined {
+  if (refableObject && typeof refableObject === "object" && "$ref" in refableObject) {
+    const ref = refableObject.$ref;
+    if (typeof ref === "string") {
+      return context.getByRef<T>(ref);
+    }
+    return undefined;
+  }
+  return refableObject as T;
+}
 
 export function transform(context: Context): TypeSpecProgram {
   const openapi = context.openApi3Doc;
@@ -96,12 +111,8 @@ function scanOperationForMultipartSchemas(
   requestBodyRef: Refable<OpenAPI3RequestBody> | Refable<OpenAPIRequestBody3_2>,
   context: Context,
 ): void {
-  let requestBody = requestBodyRef;
-  if ("$ref" in requestBody) {
-    const resolved = context.getByRef<OpenAPI3RequestBody>(requestBody.$ref);
-    if (!resolved) return;
-    requestBody = resolved;
-  }
+  const requestBody = resolveReference(requestBodyRef, context);
+  if (!requestBody) return;
 
   if (!("content" in requestBody) || !requestBody.content) return;
 
@@ -126,17 +137,8 @@ function scanPathForSSESchemas(
   }
 
   // Handle responses which could be a reference or actual responses
-  let responses = path.get.responses;
-  if ("$ref" in responses) {
-    const ref = responses.$ref;
-    if (typeof ref === "string") {
-      const resolvedResponses = context.getByRef<OpenAPI3Responses | OpenAPIResponses3_2>(ref);
-      if (!resolvedResponses) return;
-      responses = resolvedResponses;
-    } else {
-      return;
-    }
-  }
+  const responses = resolveReference(path.get.responses, context);
+  if (!responses) return;
 
   scanOperationForSSESchemas(responses, context);
 }
@@ -148,17 +150,8 @@ function scanOperationForSSESchemas(
   for (const response of Object.values(responses)) {
     if (!response) continue;
 
-    let resolvedResponse = response;
-    if ("$ref" in response) {
-      const ref = response.$ref;
-      if (typeof ref === "string") {
-        const resolved = context.getByRef<OpenAPI3Response | OpenAPIResponse3_2>(ref);
-        if (!resolved) continue;
-        resolvedResponse = resolved;
-      } else {
-        continue;
-      }
-    }
+    const resolvedResponse = resolveReference(response, context);
+    if (!resolvedResponse) continue;
 
     if (!("content" in resolvedResponse) || !resolvedResponse.content) continue;
 
