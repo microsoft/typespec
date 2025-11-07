@@ -218,7 +218,6 @@ export type DocToken =
   | Token.CloseBrace
   | Token.Identifier
   | Token.Hyphen
-  | Token.Dot
   | Token.DocText
   | Token.DocCodeSpan
   | Token.DocCodeFenceDelimiter
@@ -858,12 +857,34 @@ export function createScanner(
           return next(Token.Star);
 
         case CharCode.Backtick:
-          return lookAhead(1) === CharCode.Backtick && lookAhead(2) === CharCode.Backtick
-            ? next(Token.DocCodeFenceDelimiter, 3)
-            : scanDocMemberAccessOrIdentifier();
+          // Check if it is a code fence (three backticks)
+          if (lookAhead(1) === CharCode.Backtick && lookAhead(2) === CharCode.Backtick) {
+            return next(Token.DocCodeFenceDelimiter, 3);
+          }
 
-        case CharCode.Dot:
-          return next(Token.Dot);
+          // Check if possible backtick identifier
+          // Need to look ahead to determine if this is a single backtick or a backtick identifier
+          let nextPos = position + 1;
+          let hasContent = false;
+          while (nextPos < endPosition) {
+            const nextCh = input.charCodeAt(nextPos);
+            if (nextCh === CharCode.Backtick) {
+              // Find the closing backtick, which is a backtick identifier
+              if (hasContent) {
+                return scanBacktickedIdentifier();
+              }
+              break;
+            } else if (nextCh === CharCode.LineFeed || nextCh === CharCode.CarriageReturn) {
+              // Newline encountered, this is not a backtick identifier
+              break;
+            } else if (nextCh !== CharCode.Space && nextCh !== CharCode.Tab) {
+              hasContent = true;
+            }
+            nextPos++;
+          }
+
+          // Handled as code span by default
+          return scanDocCodeSpan();
 
         case CharCode.LessThan:
         case CharCode.GreaterThan:
@@ -877,7 +898,7 @@ export function createScanner(
       }
 
       if (isAsciiIdentifierStart(ch)) {
-        return scanDocIdentifierOrMemberAccess();
+        return scanIdentifier();
       }
 
       if (ch <= CharCode.MaxAscii) {
@@ -886,181 +907,13 @@ export function createScanner(
 
       const cp = input.codePointAt(position)!;
       if (isIdentifierStart(cp)) {
-        return scanDocNonAsciiIdentifierOrMemberAccess(cp);
+        return scanNonAsciiIdentifier(cp);
       }
 
       return scanUnknown(Token.DocText);
     }
 
     return (token = Token.EndOfFile);
-  }
-
-  function scanDocIdentifierOrMemberAccess(): Token.Identifier {
-    if (!scanNormalIdentifierPart()) {
-      return (token = Token.Identifier);
-    }
-
-    return scanMemberAccessContinuation();
-  }
-
-  function scanDocNonAsciiIdentifierOrMemberAccess(startCodePoint: number): Token.Identifier {
-    if (!scanNonAsciiIdentifierPart(startCodePoint)) {
-      return (token = Token.Identifier);
-    }
-
-    return scanMemberAccessContinuation();
-  }
-
-  function scanDocMemberAccessOrIdentifier(): Token.Identifier {
-    if (!scanSingleBacktickedPart()) {
-      return unterminated(Token.Identifier);
-    }
-
-    return scanMemberAccessContinuation();
-  }
-
-  function scanMemberAccessContinuation(): Token.Identifier {
-    while (position < endPosition) {
-      let tempPos = position;
-
-      // Skip whitespace
-      while (tempPos < endPosition && isWhiteSpaceSingleLine(input.charCodeAt(tempPos))) {
-        tempPos++;
-      }
-
-      // Check for .
-      if (tempPos >= endPosition || input.charCodeAt(tempPos) !== CharCode.Dot) {
-        break;
-      }
-      tempPos++; // Skip .
-
-      // Skip whitespace after .
-      while (tempPos < endPosition && isWhiteSpaceSingleLine(input.charCodeAt(tempPos))) {
-        tempPos++;
-      }
-
-      // Check what comes after .
-      if (tempPos >= endPosition) {
-        break;
-      }
-
-      const nextChar = input.charCodeAt(tempPos);
-      position = tempPos;
-
-      if (nextChar === CharCode.Backtick) {
-        // backticked identifier
-        if (!scanSingleBacktickedPart()) {
-          return unterminated(Token.Identifier);
-        }
-      } else if (isAsciiIdentifierStart(nextChar)) {
-        // Ordinary ASCII identifier
-        if (!scanNormalIdentifierPart()) {
-          break;
-        }
-      } else if (nextChar > CharCode.MaxAscii) {
-        // Non-ASCII identifier
-        const cp = input.codePointAt(position)!;
-        if (isIdentifierStart(cp)) {
-          if (!scanNonAsciiIdentifierPart(cp)) {
-            break;
-          }
-        } else {
-          break;
-        }
-      } else {
-        // Not a valid identifier, stop
-        break;
-      }
-    }
-
-    return (token = Token.Identifier);
-  }
-
-  function scanSingleBacktickedPart(): boolean {
-    if (eof() || input.charCodeAt(position) !== CharCode.Backtick) {
-      return false;
-    }
-
-    position++; // Consume `
-    tokenFlags |= TokenFlags.Backticked;
-
-    while (!eof()) {
-      const ch = input.charCodeAt(position);
-      switch (ch) {
-        case CharCode.Backslash:
-          position++;
-          tokenFlags |= TokenFlags.Escaped;
-          if (!eof()) position++; // Consume escaped characters
-          continue;
-        case CharCode.Backtick:
-          position++; // Consume ending `
-          return true;
-        case CharCode.CarriageReturn:
-        case CharCode.LineFeed:
-          return false; // Unterminated
-        default:
-          if (ch > CharCode.MaxAscii) {
-            tokenFlags |= TokenFlags.NonAscii;
-          }
-          position++;
-      }
-    }
-
-    return false; // Unterminated
-  }
-
-  function scanNormalIdentifierPart(): boolean {
-    if (eof()) {
-      return false;
-    }
-
-    const ch = input.charCodeAt(position);
-    if (!isAsciiIdentifierStart(ch)) {
-      return false;
-    }
-
-    // Scan for common identifiers
-    do {
-      position++;
-      if (eof()) {
-        return true;
-      }
-    } while (isAsciiIdentifierContinue(input.charCodeAt(position)));
-
-    // Check if there are non-ascii characters
-    if (!eof()) {
-      const nextChar = input.charCodeAt(position);
-      if (nextChar > CharCode.MaxAscii) {
-        let cp = input.codePointAt(position)!;
-        if (isNonAsciiIdentifierCharacter(cp)) {
-          // Contains non-ASCII identifier characters, continue scanning
-          tokenFlags |= TokenFlags.NonAscii;
-          do {
-            position += utf16CodeUnits(cp);
-            if (eof()) break;
-            cp = input.codePointAt(position)!;
-          } while (isIdentifierContinue(cp));
-        }
-      }
-    }
-
-    return true;
-  }
-
-  function scanNonAsciiIdentifierPart(startCodePoint: number): boolean {
-    if (eof()) {
-      return false;
-    }
-
-    tokenFlags |= TokenFlags.NonAscii;
-    let cp = startCodePoint;
-    do {
-      position += utf16CodeUnits(cp);
-      if (eof()) break;
-      cp = input.codePointAt(position)!;
-    } while (isIdentifierContinue(cp));
-
-    return true;
   }
 
   function reScanStringTemplate(lastTokenFlags: TokenFlags): StringTemplateToken {
@@ -1233,6 +1086,24 @@ export function createScanner(
     return terminated ? token : unterminated(token);
   }
 
+  function scanDocCodeSpan(): Token.DocCodeSpan {
+    position++; // consume '`'
+
+    loop: for (; !eof(); position++) {
+      const ch = input.charCodeAt(position);
+      switch (ch) {
+        case CharCode.Backtick:
+          position++;
+          return (token = Token.DocCodeSpan);
+        case CharCode.CarriageReturn:
+        case CharCode.LineFeed:
+          break loop;
+      }
+    }
+
+    return unterminated(Token.DocCodeSpan);
+  }
+
   function scanString(tokenFlags: TokenFlags): Token.StringLiteral | Token.StringTemplateHead {
     if (tokenFlags & TokenFlags.TripleQuoted) {
       position += 3; // consume '"""'
@@ -1359,17 +1230,11 @@ export function createScanner(
   }
 
   function getIdentifierTokenValue(): string {
-    // Check if it is a pure backticked identifier (the entire token is surrounded by a single backtick pair)
-    const isPureBackticked =
-      tokenFlags & TokenFlags.Backticked &&
-      !(tokenFlags & TokenFlags.Unterminated) &&
-      input.charCodeAt(tokenPosition) === CharCode.Backtick &&
-      input.charCodeAt(position - 1) === CharCode.Backtick &&
-      // Make sure there are no other backticks in the middle (excluding mixed member access)
-      input.substring(tokenPosition + 1, position - 1).indexOf("`") === -1;
-
-    const start = isPureBackticked ? tokenPosition + 1 : tokenPosition;
-    const end = isPureBackticked ? position - 1 : position;
+    const start = tokenFlags & TokenFlags.Backticked ? tokenPosition + 1 : tokenPosition;
+    const end =
+      tokenFlags & TokenFlags.Backticked && !(tokenFlags & TokenFlags.Unterminated)
+        ? position - 1
+        : position;
 
     const text =
       tokenFlags & TokenFlags.Escaped ? unescapeString(start, end) : input.substring(start, end);

@@ -339,7 +339,7 @@ describe("compiler: scanner", () => {
 
       [Token.Identifier, "`1!=2`", { pos: 28, value: "1!=2", line: 2, character: 8 }],
       [Token.Whitespace, " ", { pos: 34, value: " ", line: 2, character: 14 }],
-      [Token.Identifier, "`x\\`x`", { pos: 35, value: "`x`x`", line: 2, character: 15 }],
+      [Token.Identifier, "`x\\`x`", { pos: 35, value: "x`x", line: 2, character: 15 }],
       [Token.Whitespace, " ", { pos: 41, value: " ", line: 2, character: 21 }],
 
       [Token.Identifier, "`\\\\x`", { pos: 42, value: "\\x", line: 2, character: 22 }],
@@ -349,7 +349,7 @@ describe("compiler: scanner", () => {
 
       [Token.Identifier, "`import`", { pos: 55, value: "import", line: 2, character: 35 }],
       [Token.Whitespace, " ", { pos: 63, value: " ", line: 2, character: 43 }],
-      [Token.Identifier, "`a\\n\\t\\`b`", { pos: 64, value: "`a\n\t`b`", line: 2, character: 44 }],
+      [Token.Identifier, "`a\\n\\t\\`b`", { pos: 64, value: "a\n\t`b", line: 2, character: 44 }],
     ]);
   });
 

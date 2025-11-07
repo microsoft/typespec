@@ -50,7 +50,7 @@ export async function getSymbolDetails(
         }
         lines.push(
           //prettier-ignore
-          `_@${tag.tagName.sv}_${"paramName" in tag ? ` \`${tag.paramName.sv}\`` : ("propName" in tag ? ` \`${tag.propName.sv}\`` : "")} —\n${getDocContent(tag.content)}`,
+          `_@${tag.tagName.sv}_${"paramName" in tag ? ` \`${tag.paramName.sv}\`` : ""} —\n${getDocContent(tag.content)}`,
         );
       }
     }
