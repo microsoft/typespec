@@ -41,7 +41,8 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "pnpm gen-version && pnpm gen-extern-signature && tsc -p . && pnpm lint-typespec-library",
+    "build": "pnpm gen-version && pnpm gen-extern-signature && pnpm quickbuild && pnpm lint-typespec-library",
+    "quickbuild": "tsc -p .",
     "watch": "tsc -p . --watch",
     "gen-extern-signature": "tspd --enable-experimental gen-extern-signature .",
     "lint-typespec-library": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",
