@@ -103,4 +103,40 @@ worksFor(supportedVersions, ({ openApiFor }) => {
     strictEqual(res.paths["/"].get.responses["401"].description, "Model B");
     strictEqual(res.paths["/"].get.responses["403"].description, "Model C");
   });
+
+  it("uses union's @doc when specified on the union itself", async () => {
+    const res = await openApiFor(
+      `
+      @doc("Foo model") model Foo { @statusCode _: 409 }
+      @doc("Bar model") model Bar { @statusCode _: 409 }
+      @doc("The resource conflicts with an existing resource")
+      union Conflict { Foo: Foo; Bar: Bar };
+      op read(): { @statusCode _: 200, content: string } | Conflict;
+      `,
+    );
+    strictEqual(res.paths["/"].get.responses["200"].description, "The request has succeeded.");
+    strictEqual(
+      res.paths["/"].get.responses["409"].description,
+      "The resource conflicts with an existing resource",
+    );
+  });
+
+  it("nested union's @doc takes precedence over parent union's @doc", async () => {
+    const res = await openApiFor(
+      `
+      @doc("Model A") model A { @statusCode _: 400 }
+      @doc("Model B") model B { @statusCode _: 401 }
+      @doc("Model C") model C { @statusCode _: 403 }
+      @doc("Inner authentication errors")
+      union Inner { A: A; B: B };
+      @doc("All error responses")
+      union Outer { inner: Inner; C: C };
+      op read(): { @statusCode _: 200, content: string } | Outer;
+      `,
+    );
+    strictEqual(res.paths["/"].get.responses["200"].description, "The request has succeeded.");
+    strictEqual(res.paths["/"].get.responses["400"].description, "Inner authentication errors");
+    strictEqual(res.paths["/"].get.responses["401"].description, "Inner authentication errors");
+    strictEqual(res.paths["/"].get.responses["403"].description, "All error responses");
+  });
 });
