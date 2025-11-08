@@ -3,11 +3,13 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
+using ScmModel = Microsoft.TypeSpec.Generator.ClientModel.Providers.ScmModelProvider;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvider
 {
@@ -31,10 +33,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
                 ]);
 
             MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
-            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ClientModel.Providers.ScmModelProvider;
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ScmModel;
 
             Assert.IsNotNull(model);
             Assert.IsTrue(model!.IsDynamicModel);
+            AssertJsonIgnoreAttributeOnPatchProperty(model);
 
             var writer = new TypeProviderWriter(model);
             var file = writer.Write();
@@ -63,11 +66,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
             MockHelpers.LoadMockGenerator(inputModels: () => [baseModel, catModel]);
             var outputLibrary = ScmCodeModelGenerator.Instance.OutputLibrary;
 
-            var baseModelProvider = outputLibrary.TypeProviders.OfType<ClientModel.Providers.ScmModelProvider>()
+            var baseModelProvider = outputLibrary.TypeProviders.OfType<ScmModel>()
                 .FirstOrDefault(t => t.Name == "Pet");
             Assert.IsNotNull(baseModelProvider);
 
-            var catModelProvider = outputLibrary.TypeProviders.OfType<ClientModel.Providers.ScmModelProvider>()
+            var catModelProvider = outputLibrary.TypeProviders.OfType<ScmModel>()
                 .FirstOrDefault(t => t.Name == "Cat");
             Assert.IsNotNull(catModelProvider);
             var model = validateBase
@@ -78,6 +81,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
 
             var expectedDynamicModel = validateBase;
             Assert.AreEqual(expectedDynamicModel, model!.IsDynamicModel);
+            
+            if (expectedDynamicModel)
+            {
+                AssertJsonIgnoreAttributeOnPatchProperty(model);
+            }
 
             var writer = new TypeProviderWriter(model);
             var file = writer.Write();
@@ -119,10 +127,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
             MockHelpers.LoadMockGenerator(inputModels: () => [baseModel, catModel, tigerModel]);
             var outputLibrary = ScmCodeModelGenerator.Instance.OutputLibrary;
 
-            var model = outputLibrary.TypeProviders.OfType<ClientModel.Providers.ScmModelProvider>()
+            var model = outputLibrary.TypeProviders.OfType<ScmModel>()
                 .FirstOrDefault(t => t.Name == "Tiger");
             Assert.IsNotNull(model);
             Assert.AreEqual(discriminatedTypeIsDynamicModel, model!.IsDynamicModel);
+            
+            if (discriminatedTypeIsDynamicModel)
+            {
+                AssertJsonIgnoreAttributeOnPatchProperty(model);
+            }
 
             var writer = new TypeProviderWriter(model);
             var file = writer.Write();
@@ -144,10 +157,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
                 ]);
 
             MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
-            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ClientModel.Providers.ScmModelProvider;
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ScmModel;
 
             Assert.IsNotNull(model);
             Assert.IsTrue(model!.IsDynamicModel);
+            AssertJsonIgnoreAttributeOnPatchProperty(model);
 
             var writer = new TypeProviderWriter(model);
             var file = writer.Write();
@@ -168,10 +182,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
                 ]);
 
             MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
-            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ClientModel.Providers.ScmModelProvider;
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ScmModel;
 
             Assert.IsNotNull(model);
             Assert.IsTrue(model!.IsDynamicModel);
+            AssertJsonIgnoreAttributeOnPatchProperty(model);
 
             var writer = new TypeProviderWriter(model);
             var file = writer.Write();
@@ -198,10 +213,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
                 ]);
 
             MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
-            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ClientModel.Providers.ScmModelProvider;
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ScmModel;
 
             Assert.IsNotNull(model);
             Assert.IsTrue(model!.IsDynamicModel);
+            AssertJsonIgnoreAttributeOnPatchProperty(model);
 
             var writer = new TypeProviderWriter(model);
             var file = writer.Write();
@@ -232,10 +248,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
                 discriminatedModels: new Dictionary<string, InputModelType>() { { "cat", catModel }, { "dog", dogModel } });
 
             MockHelpers.LoadMockGenerator(inputModels: () => [baseModel, dogModel, catModel]);
-            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(baseModel) as ClientModel.Providers.ScmModelProvider;
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(baseModel) as ScmModel;
 
             Assert.IsNotNull(model);
             Assert.IsTrue(model!.IsDynamicModel);
+            AssertJsonIgnoreAttributeOnPatchProperty(model);
 
             var writer = new TypeProviderWriter(model);
             var file = writer.Write();
@@ -266,7 +283,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
                 discriminatedModels: new Dictionary<string, InputModelType>() { { "cat", catModel }, { "dog", dogModel } });
 
             MockHelpers.LoadMockGenerator(inputModels: () => [baseModel, dogModel, catModel]);
-            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(catModel) as ClientModel.Providers.ScmModelProvider;
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(catModel) as ScmModel;
 
             Assert.IsNotNull(model);
             Assert.IsTrue(model!.HasDynamicModelSupport);
@@ -290,7 +307,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
                 derivedModels: [catModel]);
 
             MockHelpers.LoadMockGenerator(inputModels: () => [baseModel, catModel]);
-            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(catModel) as ClientModel.Providers.ScmModelProvider;
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(catModel) as ScmModel;
 
             Assert.IsNotNull(model);
             Assert.IsTrue(model!.HasDynamicModelSupport);
@@ -310,10 +327,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
             ]);
 
             MockHelpers.LoadMockGenerator(inputModels: () => [catModel]);
-            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(catModel) as ClientModel.Providers.ScmModelProvider;
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(catModel) as ScmModel;
 
             Assert.IsNotNull(model);
             Assert.IsTrue(model!.HasDynamicModelSupport);
+            AssertJsonIgnoreAttributeOnPatchProperty(model);
 
             var writer = new TypeProviderWriter(model);
             var file = writer.Write();
@@ -332,10 +350,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
             await MockHelpers.LoadMockGeneratorAsync(
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
                 inputModels: () => [catModel]);
-            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(catModel) as ClientModel.Providers.ScmModelProvider;
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(catModel) as ScmModel;
 
             Assert.IsNotNull(model);
             Assert.IsTrue(model!.HasDynamicModelSupport);
+            AssertJsonIgnoreAttributeOnPatchProperty(model);
 
             var writer = new TypeProviderWriter(model);
             var file = writer.Write();
@@ -354,10 +373,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
             await MockHelpers.LoadMockGeneratorAsync(
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
                 inputModels: () => [catModel]);
-            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(catModel) as ClientModel.Providers.ScmModelProvider;
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(catModel) as ScmModel;
 
             Assert.IsNotNull(model);
             Assert.IsTrue(model!.HasDynamicModelSupport);
+            AssertJsonIgnoreAttributeOnPatchProperty(model);
 
             var customCtor = model.CustomCodeView?.Constructors.FirstOrDefault(c => c.Signature.Parameters.Count > 0);
             Assert.IsNotNull(customCtor);
@@ -365,6 +385,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
             var patchParam = customCtor!.Signature.Parameters.FirstOrDefault(p => p.Name == "patch");
             Assert.IsNotNull(patchParam);
             Assert.IsTrue(patchParam!.IsIn);
+        }
+
+        private void AssertJsonIgnoreAttributeOnPatchProperty(ScmModel model)
+        {
+            var patchProperty = model.JsonPatchProperty;
+            
+            // JsonPatch property may be null if:
+            // 1. The model only has additional properties without full dynamic model support
+            // 2. The model inherits the property from a base class
+            if (patchProperty == null)
+            {
+                return;
+            }
+            
+            var jsonIgnoreAttribute = patchProperty.Attributes.FirstOrDefault(a => a.Type.Equals(typeof(JsonIgnoreAttribute)));
+            Assert.IsNotNull(jsonIgnoreAttribute, "JsonPatch property should have JsonIgnore attribute");
         }
     }
 }

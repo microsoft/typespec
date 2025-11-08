@@ -41,7 +41,8 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "pnpm gen-version && pnpm gen-extern-signature && tsc -p . && pnpm lint-typespec-library",
+    "build": "pnpm gen-version && pnpm gen-extern-signature && pnpm quickbuild && pnpm lint-typespec-library",
+    "quickbuild": "tsc -p .",
     "watch": "tsc -p . --watch",
     "gen-extern-signature": "tspd --enable-experimental gen-extern-signature .",
     "lint-typespec-library": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",
@@ -73,7 +74,10 @@
     "@typespec/http": "workspace:^",
     "@typespec/json-schema": "workspace:^",
     "@typespec/openapi": "workspace:^",
-    "@typespec/versioning": "workspace:^"
+    "@typespec/versioning": "workspace:^",
+    "@typespec/streams": "workspace:^",
+    "@typespec/events": "workspace:^",
+    "@typespec/sse": "workspace:^"
   },
   "peerDependenciesMeta": {
     "@typespec/json-schema": {
@@ -83,6 +87,15 @@
       "optional": true
     },
     "@typespec/versioning": {
+      "optional": true
+    },
+    "@typespec/streams": {
+      "optional": true
+    },
+    "@typespec/events": {
+      "optional": true
+    },
+    "@typespec/sse": {
       "optional": true
     }
   },
@@ -98,6 +111,9 @@
     "@typespec/tspd": "workspace:^",
     "@typespec/versioning": "workspace:^",
     "@typespec/xml": "workspace:^",
+    "@typespec/streams": "workspace:^",
+    "@typespec/events": "workspace:^",
+    "@typespec/sse": "workspace:^",
     "@vitest/coverage-v8": "^4.0.4",
     "@vitest/ui": "^4.0.4",
     "c8": "^10.1.3",
