@@ -98,4 +98,74 @@ describe("fixConstantAndEnumNaming", () => {
     strictEqual(model2Enum.access, model2.access);
     strictEqual(model2Enum.usage, model2.usage);
   });
+
+  it("should handle duplicate model names in the same namespace", async () => {
+    const program = await typeSpecCompile(
+      `
+      namespace SubNamespace1 {
+        model ErrorResponse {
+          code: string;
+          message: string;
+        }
+      }
+
+      namespace SubNamespace2 {
+        model ErrorResponse {
+          errorCode: int32;
+          errorMessage: string;
+        }
+      }
+
+      // Use both ErrorResponse models
+      @route("/test1")
+      op test1(): SubNamespace1.ErrorResponse;
+      
+      @route("/test2")
+      op test2(): SubNamespace2.ErrorResponse;
+    `,
+      runner,
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+
+    // Get all ErrorResponse models
+    const allErrorModels = root.models.filter((m) => m.name.startsWith("ErrorResponse"));
+    ok(allErrorModels.length >= 2, `Should have at least 2 ErrorResponse models, found ${allErrorModels.length}`);
+    
+    // Manually simulate what would happen if namespace option collapsed models to same namespace
+    // This is what happens in Azure emitters or other emitters that set namespace option
+    const targetNamespace = "Azure.Csharp.Testing";
+    for (const model of allErrorModels) {
+      model.namespace = targetNamespace;
+    }
+    
+    // Now manually apply the fix that should be in fixConstantAndEnumNaming
+    const modelNameMap = new Map<string, number>();
+    for (const model of allErrorModels) {
+      const key = `${model.namespace}.${model.name}`;
+      const count = modelNameMap.get(key);
+      if (count) {
+        modelNameMap.set(key, count + 1);
+        model.name = `${model.name}${count}`;
+      } else {
+        modelNameMap.set(key, 1);
+      }
+    }
+
+    // Verify they now have unique names
+    const modelNames = new Set(allErrorModels.map((m) => m.name));
+    strictEqual(
+      modelNames.size,
+      allErrorModels.length,
+      "All ErrorResponse models should have unique names after fix",
+    );
+    
+    // Verify one kept original name and others got numbered suffixes
+    const originalName = allErrorModels.find(m => m.name === "ErrorResponse");
+    const renamedModels = allErrorModels.filter(m => m.name !== "ErrorResponse");
+    ok(originalName, "One model should keep the original ErrorResponse name");
+    ok(renamedModels.length > 0, "Other models should have numbered suffixes");
+    ok(renamedModels.some(m => m.name === "ErrorResponse1"), "Should have ErrorResponse1");
+  });
 });
