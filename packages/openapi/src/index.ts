@@ -19,6 +19,7 @@ export {
   resolveInfo,
   setExtension,
   setInfo,
+  setOperationId,
 } from "./decorators.js";
 export {
   checkDuplicateTypeName,
