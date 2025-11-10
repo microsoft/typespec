@@ -27,12 +27,7 @@ type LinterLibraryInstance = { linter: LinterResolvedDefinition };
 export interface Linter {
   extendRuleSet(ruleSet: LinterRuleSet): Promise<readonly Diagnostic[]>;
   registerLinterLibrary(name: string, lib?: LinterLibraryInstance): void;
-  lint(options: LintOptions): Promise<LinterResult>;
-}
-
-export interface LintOptions {
-  /** Whether to run async linter rules or sync linter rules */
-  asyncRules: boolean;
+  lint(): Promise<LinterResult>;
 }
 
 export interface LinterStats {
@@ -163,7 +158,25 @@ export function createLinter(
     return diagnostics.diagnostics;
   }
 
-  async function lint(options: LintOptions): Promise<LinterResult> {
+  async function lint(): Promise<LinterResult> {
+    const syncLintResult = await lintInternal(false /* asyncRules */);
+    const asyncLintResult = await lintInternal(true /* asyncRules */);
+
+    return {
+      diagnostics: [...syncLintResult.diagnostics, ...asyncLintResult.diagnostics],
+      stats: {
+        runtime: {
+          total: syncLintResult.stats.runtime.total + asyncLintResult.stats.runtime.total,
+          rules: {
+            ...syncLintResult.stats.runtime.rules,
+            ...asyncLintResult.stats.runtime.rules,
+          },
+        },
+      },
+    };
+  }
+
+  async function lintInternal(asyncRules: boolean): Promise<LinterResult> {
     const diagnostics = createDiagnosticCollector();
     const eventEmitter = new EventEmitter<SemanticNodeListener>();
     const stats: LinterStats = {
@@ -172,47 +185,51 @@ export function createLinter(
         rules: {},
       },
     };
+    const filteredRules = new Map<string, LinterRule<string, any>>();
+    for (const [ruleId, rule] of enabledRules) {
+      if ((rule.async ?? false) === asyncRules) {
+        filteredRules.set(ruleId, rule);
+      }
+    }
     tracer.trace(
       "lint",
-      `Running linter with following rules:\n` +
-        [...enabledRules.keys()].map((x) => ` - ${x}`).join("\n"),
+      `Running ${asyncRules ? "async" : "sync"} linter with following rules:\n` +
+        [...filteredRules.keys()].map((x) => ` - ${x}`).join("\n"),
     );
 
     const timer = startTimer();
     const exitCallbacks = [];
     const allPromises: Promise<any>[] = [];
-    for (const rule of enabledRules.values()) {
-      if ((rule.async ?? false) === options.asyncRules) {
-        const createTiming = startTimer();
-        const listener = rule.create(createLinterRuleContext(program, rule, diagnostics));
-        stats.runtime.rules[rule.id] = createTiming.end();
-        for (const [name, cb] of Object.entries(listener)) {
-          const timedCb = (...args: any[]) => {
-            const timer = startTimer();
-            const result = (cb as any)(...args);
-            if (isPromise(result)) {
-              if (rule.async !== true) {
-                compilerAssert(
-                  false /* throw if this is not true */,
-                  `Linter rule "${rule.id}" is not marked as async but returned a promise from the "${name}" callback.`,
-                );
-              }
-              const rr = result.then(() => {
-                const duration = timer.end();
-                stats.runtime.rules[rule.id] += duration;
-              });
-              allPromises.push(rr);
-            } else {
+    for (const rule of filteredRules.values()) {
+      const createTiming = startTimer();
+      const listener = rule.create(createLinterRuleContext(program, rule, diagnostics));
+      stats.runtime.rules[rule.id] = createTiming.end();
+      for (const [name, cb] of Object.entries(listener)) {
+        const timedCb = (...args: any[]) => {
+          const timer = startTimer();
+          const result = (cb as any)(...args);
+          if (isPromise(result)) {
+            if (rule.async !== true) {
+              compilerAssert(
+                false /* throw if this is not true */,
+                `Linter rule "${rule.id}" is not marked as async but returned a promise from the "${name}" callback.`,
+              );
+            }
+            const rr = result.then(() => {
               const duration = timer.end();
               stats.runtime.rules[rule.id] += duration;
-            }
-          };
-          if (name === "exit") {
-            // we need to trigger 'exit' callbacks explicitly after semantic walker is done
-            exitCallbacks.push(timedCb);
+            });
+            allPromises.push(rr);
           } else {
-            eventEmitter.on(name as any, timedCb);
+            const duration = timer.end();
+            stats.runtime.rules[rule.id] += duration;
           }
+        };
+        if (name === "exit") {
+          // we need to trigger 'exit' callbacks explicitly after semantic walker is done
+          exitCallbacks.push(timedCb);
+        } else {
+          eventEmitter.on(name as any, timedCb);
         }
       }
     }
