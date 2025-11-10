@@ -47,6 +47,13 @@ union ChannelEventWithCustomContentType {
 @route("/channel/no-terminal") @get op subscribeToChannelNoTerminal(
 ): SSEStream<ChannelEventsNoTerminal>;
 
+@route("/channel/no-terminal-post") @post op subscribeToChannelNoTerminal(
+  /** Request body for subscribing to a channel without terminal event. */
+  @body body: {
+    channelId?: string;
+  },
+): SSEStream<ChannelEventsNoTerminal>;
+
 @route("/channel/with-terminal") @get op subscribeToChannelWithTerminal(
 ): SSEStream<ChannelEventsWithTerminal>;
 

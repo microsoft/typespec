@@ -101,6 +101,26 @@ paths:
             text/event-stream:
               itemSchema:
                 $ref: "#/components/schemas/ChannelEventsNoTerminal"
+  /channel/no-terminal-post:
+    post:
+      operationId: subscribeToChannelNoTerminal
+      requestBody:
+        description: Request body for subscribing to a channel without terminal event.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                channelId:
+                  type: string
+      responses:
+        "200":
+          description: A request body to add a stream of typed data.
+          content:
+            text/event-stream:
+              itemSchema:
+                $ref: "#/components/schemas/ChannelEventsNoTerminal"
   /channel/with-terminal:
     get:
       operationId: subscribeToChannelWithTerminal
