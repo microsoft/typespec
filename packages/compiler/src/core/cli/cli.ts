@@ -211,7 +211,8 @@ async function main() {
       (cmd) =>
         cmd
           .positional("templatesUrl", {
-            description: "Url of the initialization template",
+            description:
+              "Url of the initialization template. WARNING: Downloading or using an untrusted template may contain malicious packages that can compromise your system and data. Proceed with caution and verify the source.",
             type: "string",
           })
           .option("template", {
