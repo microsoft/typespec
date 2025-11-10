@@ -381,6 +381,14 @@ try {
     }
     else {
         Write-Host "Mode: Azure SDK" -ForegroundColor Yellow
+        
+        # Parse tsp-location.yaml early to fail fast if unable to parse
+        Write-Host "Validating tsp-location.yaml..." -ForegroundColor Gray
+        $emitterPackage = Get-EmitterFromTspLocation $sdkPath
+        if (-not $emitterPackage) {
+            throw "Could not determine emitter type from tsp-location.yaml in $sdkPath"
+        }
+        Write-Host "  Detected emitter: $emitterPackage" -ForegroundColor Green
     }
     Write-Host ""
     
@@ -455,11 +463,7 @@ try {
     }
     else {
         # Azure SDK workflow
-        
-        $emitterPackage = Get-EmitterFromTspLocation $sdkPath
-        if (-not $emitterPackage) {
-            throw "Could not determine emitter type from tsp-location.yaml in $sdkPath"
-        }
+        # Note: $emitterPackage was already parsed and validated earlier
         
         Write-Host "Detected emitter: $emitterPackage" -ForegroundColor Yellow
         Write-Host ""
