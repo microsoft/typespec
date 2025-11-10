@@ -134,20 +134,14 @@ describe("fixConstantAndEnumNaming", () => {
     `,
       runner,
     );
-    const context = createEmitterContext(program);
-    const sdkContext = await createCSharpSdkContext(context);
     
-    // Simulate what happens when namespace option is set - models from different
-    // source namespaces get remapped to the same target namespace by TCGC
+    // Create emitter context with namespace option set to test the scenario
+    // where models from different source namespaces get remapped to same target namespace
     const targetNamespace = "Azure.Csharp.Testing";
-    for (const model of sdkContext.sdkPackage.models) {
-      if (model.name === "ErrorResponse") {
-        // Override the namespace to simulate namespace option effect
-        (model as any).namespace = targetNamespace;
-      }
-    }
-    
-    // Now call createModel which should fix the duplicate names
+    const context = createEmitterContext(program, {
+      namespace: targetNamespace,
+    } as any);
+    const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
 
     // Get all ErrorResponse models - fixConstantAndEnumNaming should have resolved the conflicts
