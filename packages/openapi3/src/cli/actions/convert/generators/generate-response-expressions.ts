@@ -222,6 +222,8 @@ function generateResponseExpressions({
   return contents.map(([mediaType, content]) => {
     // Special handling for Server-Sent Events
     if (
+      !context.openApi3Doc.openapi.startsWith("3.0") &&
+      !context.openApi3Doc.openapi.startsWith("3.1") &&
       mediaType === "text/event-stream" &&
       "itemSchema" in content &&
       content.itemSchema &&

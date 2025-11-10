@@ -42,7 +42,12 @@ export function transform(context: Context): TypeSpecProgram {
   scanForMultipartSchemas(openapi, context);
 
   // Pre-scan for SSE event schemas before generating models
-  scanForSSESchemas(openapi, context);
+  if (
+    !context.openApi3Doc.openapi.startsWith("3.0") &&
+    !context.openApi3Doc.openapi.startsWith("3.1")
+  ) {
+    scanForSSESchemas(openapi, context);
+  }
 
   const models = collectDataTypes(context);
   const operations = transformPaths(openapi.paths, context);
