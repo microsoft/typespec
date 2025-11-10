@@ -56,6 +56,6 @@
   },
   "typescript.tsdk": "./node_modules/typescript/lib",
   "git.ignoreLimitWarning": true,
-  "vitest.workspaceConfig": "./vitest.config.ts",
+  "vitest.rootConfig": "vitest.config.js",
   "typespec.tsp-server.path": "${workspaceFolder}/packages/compiler"
 }

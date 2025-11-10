@@ -107,22 +107,22 @@ namespace Microsoft.TypeSpec.Generator
             }
         }
 
-        public void AddVisitor(LibraryVisitor visitor)
+        public virtual void AddVisitor(LibraryVisitor visitor)
         {
             _visitors.Add(visitor);
         }
 
-        public void AddRewriter(LibraryRewriter rewriter)
+        public virtual void AddRewriter(LibraryRewriter rewriter)
         {
             _rewriters.Add(rewriter);
         }
 
-        public void AddMetadataReference(MetadataReference reference)
+        public virtual void AddMetadataReference(MetadataReference reference)
         {
             _additionalMetadataReferences.Add(reference);
         }
 
-        public void AddSharedSourceDirectory(string sharedSourceDirectory)
+        public virtual void AddSharedSourceDirectory(string sharedSourceDirectory)
         {
             _sharedSourceDirectories.Add(sharedSourceDirectory);
         }

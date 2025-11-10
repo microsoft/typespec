@@ -10,7 +10,7 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
 {
-    internal static class JsonDocumentSnippets
+    public static class JsonDocumentSnippets
     {
         public static ScopedApi<JsonElement> RootElement(this ScopedApi<JsonDocument> document) => document.Property(nameof(JsonDocument.RootElement)).As<JsonElement>();
 

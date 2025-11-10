@@ -18,7 +18,9 @@ describe("isAssignableTo", () => {
 
     const tk = $(program);
     // Can't actually assign a value to a value.
-    expect(tk.value.isAssignableTo(tk.value.create("foo"), tk.value.create("foo"))).toBe(false);
+    expect(tk.value.isAssignableTo(tk.value.create("foo"), tk.value.create("foo") as any)).toBe(
+      false,
+    );
   });
 
   it("validates against MixedParameterConstraint", async () => {
@@ -59,6 +61,24 @@ describe("isAssignableTo", () => {
     const validTest = tk.value.isAssignableTo.withDiagnostics(tk.value.create("foo"), targetProp);
     expect(validTest[0]).toBe(true);
     expectDiagnosticEmpty(validTest[1]);
+  });
+});
+
+describe("isOfType", () => {
+  it("returns true when value is assignable", async () => {
+    const { program } = await getAssignables({});
+
+    const tk = $(program);
+    // Can't actually assign a value to a type.
+    expect(tk.value.isOfType(tk.value.create("foo"), tk.builtin.string)).toBe(true);
+  });
+
+  it("returns false when value is not assignable", async () => {
+    const { program } = await getAssignables({});
+
+    const tk = $(program);
+    // Can't actually assign a value to a type.
+    expect(tk.value.isOfType(tk.value.create("foo"), tk.builtin.int32)).toBe(false);
   });
 });
 
