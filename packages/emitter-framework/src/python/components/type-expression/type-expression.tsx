@@ -1,9 +1,17 @@
 import { Experimental_OverridableComponent } from "#core/components/index.js";
 import { useTsp } from "#core/context/index.js";
 import { reportPythonDiagnostic } from "#python/lib.js";
-import { For, mapJoin } from "@alloy-js/core";
+import { code, For, mapJoin } from "@alloy-js/core";
 import * as py from "@alloy-js/python";
-import type { IntrinsicType, Model, Scalar, Type } from "@typespec/compiler";
+import {
+  isNeverType,
+  type IntrinsicType,
+  type Model,
+  type Scalar,
+  type TemplatedTypeBase,
+  type Type,
+} from "@typespec/compiler";
+import type { TemplateParameterDeclarationNode } from "@typespec/compiler/ast";
 import type { Typekit } from "@typespec/compiler/typekit";
 import { datetimeModule, decimalModule, typingModule } from "../../builtins.js";
 import { efRefkey } from "../../utils/refkey.js";
@@ -36,6 +44,9 @@ export function TypeExpression(props: TypeExpressionProps) {
   switch (type.kind) {
     case "Scalar": // Custom types based on primitives (Intrinsics)
     case "Intrinsic": // Language primitives like `string`, `number`, etc.
+      if (isNeverType(type)) {
+        return typingModule["."]["Never"];
+      }
       return <>{getScalarIntrinsicExpression($, type)}</>;
     case "Boolean":
     case "Number":
@@ -72,8 +83,35 @@ export function TypeExpression(props: TypeExpressionProps) {
         return <RecordExpression elementType={elementType} />;
       }
 
+      if (isTemplateVar(type)) {
+        // Handles scenarios like Response<string>, rendering Response[str]
+        const args = (type.templateMapper?.args ?? []) as Type[];
+        const typeArgs = args.map((a) => <TypeExpression type={a} />);
+        const baseName = py.usePythonNamePolicy().getName((type as Model).name, "class");
+        return (
+          <>
+            {baseName}[
+            <For each={typeArgs} comma>
+              {(a) => a}
+            </For>
+            ]
+          </>
+        );
+      }
+
+      // Regular named models should be handled as references
+      if (type.name) {
+        return (
+          <Experimental_OverridableComponent reference type={type}>
+            <py.Reference refkey={efRefkey(type)} />
+          </Experimental_OverridableComponent>
+        );
+      }
+
       reportPythonDiagnostic($.program, { code: "python-unsupported-type", target: type });
       break;
+    case "TemplateParameter":
+      return code`${String((type.node as TemplateParameterDeclarationNode).id.sv)}`;
 
     // TODO: Models will be implemented separately
     // return <InterfaceExpression type={type} />;
@@ -118,7 +156,6 @@ export function TypeExpression(props: TypeExpressionProps) {
     }
     default:
       reportPythonDiagnostic($.program, { code: "python-unsupported-type", target: type });
-      return "any";
   }
 }
 
@@ -201,7 +238,12 @@ function getScalarIntrinsicExpression($: Typekit, type: Scalar | IntrinsicType):
   return pythonType;
 }
 
+function isTemplateVar(type: Type): boolean {
+  return (type as TemplatedTypeBase).templateMapper !== undefined;
+}
+
 function isDeclaration($: Typekit, type: Type): boolean {
+  if (isTemplateVar(type)) return false;
   switch (type.kind) {
     case "Namespace":
     case "Interface":

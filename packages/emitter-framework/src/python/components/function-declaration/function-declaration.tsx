@@ -1,9 +1,9 @@
 import { useTsp } from "#core/index.js";
 import { buildParameterDescriptors } from "#python/utils/operation.js";
 import { declarationRefkeys } from "#python/utils/refkey.js";
-import { type Children, List } from "@alloy-js/core";
 import * as py from "@alloy-js/python";
 import type { Model, Operation } from "@typespec/compiler";
+import { createDocElement } from "../../utils/doc.jsx";
 import { TypeExpression } from "../type-expression/type-expression.jsx";
 
 export interface FunctionDeclarationPropsWithType
@@ -17,39 +17,6 @@ export interface FunctionDeclarationPropsWithType
 export type FunctionDeclarationProps =
   | FunctionDeclarationPropsWithType
   | py.FunctionDeclarationProps;
-
-/**
- * Normalize various doc sources into a Python FunctionDoc element.
- *
- * Accepts:
- * - string → split into lines and render as a multi-line docstring
- * - string[] | Children[] → rendered as separate paragraphs
- * - Children (e.g., an explicit <py.FunctionDoc />) → returned as-is
- */
-function createDocElement(
-  $: ReturnType<typeof useTsp>["$"],
-  source?: string | string[] | Children | Children[],
-): Children | undefined {
-  if (!source) return undefined;
-  if (Array.isArray(source)) {
-    return <py.FunctionDoc description={source as Children[]} />;
-  } else if (typeof source === "string") {
-    const lines = source.split(/\r?\n/);
-    return (
-      <py.FunctionDoc
-        description={[
-          <List hardline>
-            {lines.map((line) => (
-              <>{line}</>
-            ))}
-          </List>,
-        ]}
-      />
-    );
-  } else {
-    return source as Children | undefined;
-  }
-}
 
 /**
  * A Python function declaration. Pass the `type` prop to create the
@@ -88,7 +55,7 @@ export function FunctionDeclaration(props: FunctionDeclarationProps) {
     });
   }
   const rawDoc = props.doc ?? $.type.getDoc(props.type);
-  const docElement = createDocElement($, rawDoc);
+  const docElement = createDocElement(rawDoc, py.FunctionDoc);
   const doc = docElement ? (
     <>
       {docElement}

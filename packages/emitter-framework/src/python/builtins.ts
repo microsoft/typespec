@@ -4,6 +4,13 @@ import { createModule } from "@alloy-js/python";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 type dummy = SymbolCreator;
 
+export const abcModule = createModule({
+  name: "abc",
+  descriptor: {
+    ".": ["ABC"],
+  },
+});
+
 export const datetimeModule = createModule({
   name: "datetime",
   descriptor: {
@@ -21,6 +28,17 @@ export const decimalModule = createModule({
 export const typingModule = createModule({
   name: "typing",
   descriptor: {
-    ".": ["Any", "Never", "NoReturn", "TypeAlias", "Tuple", "Callable", "Protocol"],
+    ".": [
+      "Any",
+      "Callable",
+      "Generic",
+      "Literal",
+      "Never",
+      "Optional",
+      "Protocol",
+      "TypeAlias",
+      "TypeVar",
+      "Tuple",
+    ],
   },
 });

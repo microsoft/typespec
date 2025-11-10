@@ -57,9 +57,54 @@ describe("NumericValue", () => {
   });
 
   it("decimals", async () => {
-    const value = $(program).value.createNumeric(42.5);
+    const fractional = $(program).value.createNumeric(42.5);
+    await testValueExpression(fractional, `42.5`);
+  });
 
-    await testValueExpression(value, `42.5`);
+  it("decimals with .0", async () => {
+    // Generic Atom (no hint) normalizes 42.0 to 42 because it uses asNumber()
+    const value = $(program).value.createNumeric(42.0);
+    await testValueExpression(value, `42`);
+  });
+
+  it("decimals with .0 when assumeFloat", async () => {
+    const value = $(program).value.createNumeric(42.0);
+    expect(getOutput(program, [<Atom value={value} assumeFloat />])).toRenderTo(`42.0`);
+  });
+
+  it("negative integers", async () => {
+    const value = $(program).value.createNumeric(-42);
+    await testValueExpression(value, `-42`);
+  });
+
+  it("negative decimals", async () => {
+    const value = $(program).value.createNumeric(-42.5);
+    await testValueExpression(value, `-42.5`);
+  });
+
+  it("zero", async () => {
+    const value = $(program).value.createNumeric(0);
+    await testValueExpression(value, `0`);
+  });
+
+  it("zero with assumeFloat", async () => {
+    const value = $(program).value.createNumeric(0);
+    expect(getOutput(program, [<Atom value={value} assumeFloat />])).toRenderTo(`0.0`);
+  });
+
+  it("exponent that resolves to integer", async () => {
+    const value = $(program).value.createNumeric(1e3);
+    await testValueExpression(value, `1000`);
+  });
+
+  it("exponent that resolves to integer with assumeFloat", async () => {
+    const value = $(program).value.createNumeric(1e3);
+    expect(getOutput(program, [<Atom value={value} assumeFloat />])).toRenderTo(`1000.0`);
+  });
+
+  it("small decimal via exponent", async () => {
+    const value = $(program).value.createNumeric(1e-3);
+    await testValueExpression(value, `0.001`);
   });
 });
 

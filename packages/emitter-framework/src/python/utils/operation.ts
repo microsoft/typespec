@@ -1,11 +1,25 @@
 import { typingModule } from "#python/builtins.js";
 import { refkey, type Children, type Refkey } from "@alloy-js/core";
 import * as py from "@alloy-js/python";
-import type { Model, ModelProperty } from "@typespec/compiler";
+import type { Model, ModelProperty, Operation, Type } from "@typespec/compiler";
 import { useTsp } from "../../core/index.js";
 import { Atom } from "../components/atom/atom.jsx";
 import { TypeExpression } from "../components/type-expression/type-expression.jsx";
 import { efRefkey } from "./refkey.js";
+
+export function getReturnType(
+  type: Operation,
+  options: { skipErrorFiltering: boolean } = { skipErrorFiltering: false },
+): Type {
+  const { $ } = useTsp();
+  let returnType = type.returnType;
+
+  if (!options.skipErrorFiltering && type.returnType.kind === "Union") {
+    returnType = $.union.filter(type.returnType, (variant) => !$.type.isError(variant.type));
+  }
+
+  return returnType;
+}
 
 export interface BuildParameterDescriptorsOptions {
   params?: (py.ParameterDescriptor | string)[];

@@ -10,6 +10,11 @@ interface AtomProps {
    * The TypeSpec value to be converted to a Python expression.
    */
   value: Value;
+  /**
+   * Hint that this numeric value should be emitted as a float (e.g., 42 -> 42.0).
+   * Only affects NumericValue.
+   */
+  assumeFloat?: boolean;
 }
 
 /**
@@ -23,8 +28,12 @@ export function Atom(props: Readonly<AtomProps>): Children {
     case "BooleanValue":
     case "NullValue":
       return <py.Atom jsValue={props.value.value} />;
-    case "NumericValue":
-      return <py.Atom jsValue={props.value.value.asNumber()} />;
+    case "NumericValue": {
+      const num = props.value.value.asNumber();
+      const isNonInteger = num != null && !Number.isInteger(num);
+      const asFloat = isNonInteger || props.assumeFloat === true;
+      return <py.Atom jsValue={num} asFloat={asFloat} />;
+    }
     case "ArrayValue":
       return (
         <py.Atom

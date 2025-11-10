@@ -1,4 +1,5 @@
 import { useTsp } from "#core/context/index.js";
+import { namekey } from "@alloy-js/core";
 import * as py from "@alloy-js/python";
 import type { Type } from "@typespec/compiler";
 import { reportDiagnostic } from "../../../lib.js";
@@ -29,7 +30,14 @@ export function TypeAliasDeclaration(props: TypedAliasDeclarationProps) {
   const doc = props.doc ?? $.type.getDoc(props.type);
   const refkeys = declarationRefkeys(props.refkey, props.type);
 
-  const name = py.usePythonNamePolicy().getName(originalName, "variable");
+  let name: any;
+  if ("templateMapper" in (props.type as any) && (props.type as any).templateMapper) {
+    // Template instance alias: use the alias name (like StringResponse in alias StringResponse = Response<string>)
+    const plausibleName = $.type.getPlausibleName(props.type as any);
+    name = namekey(plausibleName, { ignoreNamePolicy: true });
+  } else {
+    name = py.usePythonNamePolicy().getName(originalName, "variable");
+  }
   // TODO: See how we will handle this kind of scenario:
   // type Foo {
   //   bar(id: String): BarResponse
