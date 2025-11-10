@@ -43,8 +43,8 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
   // TODO -- TCGC now does not have constants field in its sdkPackage, they might add it in the future.
   const constants = Array.from(sdkContext.__typeCache.constants.values());
 
-  // Fix naming conflicts for constants and constant-derived enums
-  fixConstantAndEnumNaming(models, constants);
+  // Fix naming conflicts for constants, enums, and models
+  fixNamingConflicts(models, constants);
 
   const clientModel: CodeModel = {
     // To ensure deterministic library name, customers would need to set the package-name property as the ordering of the namespaces could change
@@ -74,7 +74,7 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
  * @param enums - Array of input enum types
  * @param constants - Array of input literal types (constants)
  */
-function fixConstantAndEnumNaming(models: InputModelType[], constants: InputLiteralType[]): void {
+function fixNamingConflicts(models: InputModelType[], constants: InputLiteralType[]): void {
   // First, fix names for constants and constant-derived enums in model properties
   for (const model of models) {
     for (const property of model.properties) {

@@ -12,7 +12,7 @@ import {
   typeSpecCompile,
 } from "./utils/test-util.js";
 
-describe("fixConstantAndEnumNaming", () => {
+describe("fixNamingConflicts", () => {
   let runner: TestHost;
 
   beforeEach(async () => {
@@ -144,11 +144,11 @@ describe("fixConstantAndEnumNaming", () => {
     const sdkContext = await createCSharpSdkContext(context);
     const root = createModel(sdkContext);
 
-    // Get all ErrorResponse models - fixConstantAndEnumNaming should have resolved the conflicts
+    // Get all ErrorResponse models - fixNamingConflicts should have resolved the conflicts
     const errorModels = root.models.filter((m) => m.name.startsWith("ErrorResponse") && m.namespace === targetNamespace);
     ok(errorModels.length >= 3, `Should have at least 3 ErrorResponse models, found ${errorModels.length}`);
 
-    // Verify they have unique names after fixConstantAndEnumNaming runs automatically
+    // Verify they have unique names after fixNamingConflicts runs automatically
     const modelNames = new Set(errorModels.map((m) => m.name));
     strictEqual(
       modelNames.size,
