@@ -5,17 +5,18 @@
     Script to add launch settings profile for easy debugging of TypeSpec generation
 
 .DESCRIPTION
-    This script:
-    1. Installs tsp-client if not already installed (for Azure SDK scenarios)
-    2. Runs tsp-client sync in the target SDK directory (for Azure SDK scenarios)
-    3. Runs tsp-client generate --save-inputs to create tspCodeModel.json (for Azure SDK scenarios)
-    4. Reads the emitter configuration from tsp-location.yaml to determine the generator
-    5. Adds a new debug profile to launchSettings.json that targets the DLL
+    This script creates a debug profile for Visual Studio that uses locally built emitters.
+    It follows the same workflow as RegenPreview.ps1 to ensure local changes are reflected:
+    
+    1. Builds local unbranded emitter (@typespec/http-client-csharp)
+    2. Builds local Azure/Mgmt emitters as needed
+    3. Updates azure-sdk-for-net artifacts to reference local builds
+    4. Runs code generation with local builds to create tspCodeModel.json
+    5. Adds a new debug profile to launchSettings.json
+    6. Restores all modified artifacts using git restore
     
     The script automatically detects which emitter/generator to use by:
-    - First checking tsp-location.yaml for the configured emitter package
-    - Falling back to auto-detection based on SDK path if tsp-location.yaml is not found
-      (e.g., paths containing "ResourceManager" use ManagementClientGenerator)
+    - Checking tsp-location.yaml for the configured emitter package
     - Detecting OpenAI plugin by checking if the path contains "openai-dotnet"
 
 .PARAMETER SdkDirectory
@@ -36,55 +37,16 @@ param(
     [string]$SdkDirectory
 )
 
-Import-Module "$PSScriptRoot\Generation.psm1" -DisableNameChecking -Force;
+$ErrorActionPreference = 'Stop'
+Set-StrictMode -Version 3.0
 
-# Helper function to run commands and get output
-function Invoke-Command-Safe {
-    param(
-        [string]$Command,
-        [string]$WorkingDirectory = $null
-    )
-    
-    try {
-        $originalLocation = Get-Location
-        if ($WorkingDirectory) {
-            Set-Location $WorkingDirectory
-        }
-        
-        $result = Invoke-Expression $Command 2>&1
-        if ($LASTEXITCODE -ne 0) {
-            throw "Command failed with exit code $LASTEXITCODE : $result"
-        }
-        return $result
-    }
-    catch {
-        throw "Command failed: $Command `n$($_.Exception.Message)"
-    }
-    finally {
-        if ($WorkingDirectory) {
-            Set-Location $originalLocation
-        }
-    }
-}
-
-# Helper function to check if a command exists
-function Test-CommandExists {
-    param([string]$Command)
-    
-    try {
-        Get-Command $Command -ErrorAction Stop | Out-Null
-        return $true
-    }
-    catch {
-        return $false
-    }
-}
+Import-Module "$PSScriptRoot\Generation.psm1" -DisableNameChecking -Force
+Import-Module "$PSScriptRoot\RegenPreview.psm1" -DisableNameChecking -Force
 
 # Check if the SDK directory is an OpenAI plugin repository
 function Test-IsOpenAIPlugin {
     param([string]$SdkPath)
     
-    # Check if the path contains "openai-dotnet"
     if ($SdkPath -match 'openai-dotnet') {
         return $true
     }
@@ -92,110 +54,12 @@ function Test-IsOpenAIPlugin {
     return $false
 }
 
-# Check if tsp-client is installed
-function Test-TspClientInstalled {
-    try {
-        Invoke-Command-Safe "tsp-client --version" | Out-Null
-        return $true
-    }
-    catch {
-        return $false
-    }
-}
-
-# Install tsp-client globally
-function Install-TspClient {
-    Write-Host "Installing @azure-tools/typespec-client-generator-cli..." -ForegroundColor Yellow
-    Invoke-Command-Safe "npm install -g @azure-tools/typespec-client-generator-cli"
-    Write-Host "tsp-client installed successfully." -ForegroundColor Green
-}
-
-# Run tsp-client commands in the target directory (for Azure SDK scenarios)
-function Invoke-TspClientCommands {
-    param([string]$SdkPath)
-    
-    Write-Host "Running tsp-client commands in $SdkPath..." -ForegroundColor Cyan
-    
-    try {
-        Write-Host "Running tsp-client sync..." -ForegroundColor Yellow
-        try {
-            Invoke-Command-Safe "tsp-client sync" -WorkingDirectory $SdkPath
-        }
-        catch {
-            Write-Warning "tsp-client sync failed. This might be expected if the directory is not a proper TypeSpec SDK directory."
-            Write-Warning "Error: $($_.Exception.Message)"
-        }
-        
-        Write-Host "Running tsp-client generate --save-inputs..." -ForegroundColor Yellow
-        try {
-            Invoke-Command-Safe "tsp-client generate --save-inputs" -WorkingDirectory $SdkPath
-        }
-        catch {
-            Write-Warning "tsp-client generate failed. This might be expected if the directory is not a proper TypeSpec SDK directory."
-            Write-Warning "Error: $($_.Exception.Message)"
-        }
-        
-        Write-Host "tsp-client commands completed." -ForegroundColor Green
-    }
-    catch {
-        Write-Error "Failed to run tsp-client commands: $($_.Exception.Message)"
-        throw
-    }
-}
-
-# Build OpenAI plugin codegen package
-function Build-OpenAICodegen {
-    param([string]$OpenAIRepoPath)
-    
-    $codegenPath = Join-Path $OpenAIRepoPath "codegen"
-    
-    if (-not (Test-Path $codegenPath)) {
-        throw "Codegen directory not found at: $codegenPath. Please ensure you're pointing to the OpenAI repository root."
-    }
-    
-    Write-Host "Building OpenAI codegen package..." -ForegroundColor Cyan
-    
-    try {
-        # Install dependencies in the repo root
-        Write-Host "Installing dependencies in OpenAI repo root..." -ForegroundColor Yellow
-        Invoke-Command-Safe "npm ci" -WorkingDirectory $OpenAIRepoPath
-        
-        # Clean the cache before building
-        Write-Host "Cleaning codegen cache..." -ForegroundColor Yellow
-        Invoke-Command-Safe "npm run clean" -WorkingDirectory $codegenPath
-        
-        # Build the codegen package
-        Write-Host "Building codegen package..." -ForegroundColor Yellow
-        Invoke-Command-Safe "npm run build" -WorkingDirectory $codegenPath
-        
-        Write-Host "OpenAI codegen build completed." -ForegroundColor Green
-    }
-    catch {
-        Write-Error "Failed to build OpenAI codegen: $($_.Exception.Message)"
-        throw
-    }
-}
-
-# Get the path to launchSettings.json
-function Get-LaunchSettingsPath {
+# Generate version string with timestamp and hash (reused from RegenPreview)
+function Get-LocalPackageVersion {
     $packageRoot = Resolve-Path (Join-Path $PSScriptRoot '..' '..')
-    return Join-Path $packageRoot 'generator' 'Microsoft.TypeSpec.Generator' 'src' 'Properties' 'launchSettings.json'
-}
-
-# Read and parse launchSettings.json
-function Get-LaunchSettings {
-    $launchSettingsPath = Get-LaunchSettingsPath
-    $content = Get-Content $launchSettingsPath -Raw
-    return $content | ConvertFrom-Json
-}
-
-# Generate a profile name from the SDK directory
-function Get-ProfileName {
-    param([string]$SdkPath)
-    
-    $dirName = Split-Path $SdkPath -Leaf
-    # Replace invalid characters and make it a valid profile name
-    return $dirName -replace '[^a-zA-Z0-9\-_.]', '-'
+    $timestamp = Get-Date -Format "yyyyMMdd"
+    $hash = (git -C $packageRoot rev-parse --short HEAD 2>$null) ?? "local"
+    return "1.0.0-alpha.$timestamp.$hash"
 }
 
 # Read and parse tsp-location.yaml to get emitter configuration
@@ -210,12 +74,8 @@ function Get-EmitterFromTspLocation {
     }
     
     try {
-        # Read the YAML file
         $content = Get-Content $tspLocationPath -Raw
         
-        # Parse emitterPackageJsonPath field to determine emitter type
-        # Format: emitterPackageJsonPath: "eng/azure-typespec-http-client-csharp-mgmt-emitter-package.json"
-        # or: emitterPackageJsonPath: eng/http-client-csharp-emitter-package.json
         if ($content -match 'emitterPackageJsonPath:\s*["'']?[^"''\n]*azure-typespec-http-client-csharp-mgmt[^"''\n]*["'']?') {
             return "@azure-typespec/http-client-csharp-mgmt"
         }
@@ -238,16 +98,12 @@ function Get-EmitterFromTspLocation {
 
 # Map emitter package name to generator name and package name
 function Get-GeneratorConfig {
-    param(
-        [string]$EmitterPackage
-    )
+    param([string]$EmitterPackage)
     
-    # EmitterPackage must be set
     if (-not $EmitterPackage) {
         throw "EmitterPackage must be specified. Could not find emitter configuration in tsp-location.yaml"
     }
     
-    # Map emitter package to generator configuration
     switch ($EmitterPackage) {
         "@azure-typespec/http-client-csharp-mgmt" {
             return @{
@@ -273,95 +129,199 @@ function Get-GeneratorConfig {
     }
 }
 
-# Rebuild the local generator solution to ensure fresh DLLs
-function Build-LocalGeneratorSolution {
-    param([string]$PackageRoot)
+# Build local unbranded emitter and package it
+function Build-LocalUnbrandedEmitter {
+    param(
+        [string]$PackageRoot,
+        [string]$DebugFolder,
+        [string]$LocalVersion
+    )
     
-    $solutionPath = Join-Path $PackageRoot "generator/Microsoft.TypeSpec.Generator.sln"
+    Write-Host "Building local unbranded emitter..." -ForegroundColor Cyan
     
-    if (-not (Test-Path $solutionPath)) {
-        Write-Warning "Solution file not found at: $solutionPath"
-        return $false
+    Push-Location $PackageRoot
+    try {
+        Write-Host "Installing dependencies..." -ForegroundColor Gray
+        Invoke "npm ci" $PackageRoot
+        if ($LASTEXITCODE -ne 0) {
+            throw "Failed to install dependencies"
+        }
+        
+        Write-Host "Cleaning build artifacts..." -ForegroundColor Gray
+        Invoke "npm run clean" $PackageRoot
+        if ($LASTEXITCODE -ne 0) {
+            throw "Failed to clean"
+        }
+        
+        Write-Host "Building emitter..." -ForegroundColor Gray
+        Invoke "npm run build" $PackageRoot
+        if ($LASTEXITCODE -ne 0) {
+            throw "Failed to build"
+        }
+        
+        Write-Host "  Build completed" -ForegroundColor Green
+    }
+    finally {
+        Pop-Location
     }
     
-    Write-Host "Rebuilding local generator solution to ensure fresh DLLs..." -ForegroundColor Yellow
+    # Package the emitter
+    Write-Host "Packaging unbranded emitter..." -ForegroundColor Gray
+    $packageJsonPath = Join-Path $PackageRoot "package.json"
+    $originalPackageJson = Get-Content $packageJsonPath -Raw
     
     try {
-        $result = & dotnet build $solutionPath --configuration Release 2>&1
-        if ($LASTEXITCODE -ne 0) {
-            Write-Warning "Build failed with exit code $LASTEXITCODE : $result"
-            return $false
+        $packageJson = $originalPackageJson | ConvertFrom-Json -AsHashtable
+        $packageJson.version = $LocalVersion
+        $packageJson | ConvertTo-Json -Depth 100 | Set-Content $packageJsonPath -Encoding utf8 -NoNewline
+        
+        Push-Location $PackageRoot
+        try {
+            $output = & npm pack 2>&1
+            if ($LASTEXITCODE -ne 0) {
+                throw "npm pack failed"
+            }
+            
+            $packageLine = ($output | Where-Object { $_ -match '\.tgz$' } | Select-Object -First 1).ToString().Trim()
+            if ($packageLine -match 'filename:\s*(.+\.tgz)') {
+                $packageFile = $Matches[1].Trim()
+            } else {
+                $packageFile = $packageLine
+            }
+            
+            $packagePath = Join-Path $PackageRoot $packageFile
+            $debugPackagePath = Join-Path $DebugFolder $packageFile
+            Move-Item $packagePath $debugPackagePath -Force
+            
+            Write-Host "  Created: $packageFile" -ForegroundColor Green
+            return $debugPackagePath
         }
-        Write-Host "Build completed successfully." -ForegroundColor Green
-        return $true
+        finally {
+            Pop-Location
+        }
     }
-    catch {
-        Write-Warning "Build failed: $($_.Exception.Message)"
-        return $false
+    finally {
+        Set-Content $packageJsonPath $originalPackageJson -Encoding utf8 -NoNewline
     }
 }
 
-# Copy local generator DLLs to the SDK's node_modules location or OpenAI codegen dist
-function Copy-LocalGeneratorDlls {
+# Build local NuGet generator packages
+function Build-LocalNuGetPackages {
     param(
-        [string]$SdkPath,
-        [string]$PackageName,
-        [string]$ScopeName,
-        [bool]$IsOpenAI = $false
+        [string]$PackageRoot,
+        [string]$DebugFolder,
+        [string]$LocalVersion
     )
     
-    $scriptDir = Split-Path $MyInvocation.PSCommandPath -Parent
-    $packageRoot = Split-Path (Split-Path $scriptDir -Parent) -Parent
-    $sourceDir = Join-Path $packageRoot "dist/generator"
+    Write-Host "Building NuGet generator packages..." -ForegroundColor Gray
     
-    if ($IsOpenAI) {
-        # For OpenAI, copy to codegen/dist/generator
-        $targetDir = Join-Path $SdkPath "codegen/dist/generator"
-    }
-    else {
-        # For Azure SDK, copy to node_modules
-        $targetDir = Join-Path $SdkPath "TempTypeSpecFiles/node_modules/$ScopeName/$PackageName/dist/generator"
-    }
-    
-    # Rebuild the solution first to ensure fresh DLLs
-    $buildSuccess = Build-LocalGeneratorSolution $packageRoot
-    if (-not $buildSuccess) {
-        Write-Warning "Build failed, but continuing with existing DLLs..."
-    }
-    
-    # Ensure target directory exists
-    if (-not (Test-Path $targetDir)) {
-        New-Item -Path $targetDir -ItemType Directory -Force | Out-Null
-    }
-    
-    # List of DLLs to copy
-    $dllsToCopy = @(
-        "Microsoft.TypeSpec.Generator.dll",
-        "Microsoft.TypeSpec.Generator.ClientModel.dll", 
-        "Microsoft.TypeSpec.Generator.Input.dll"
+    $generatorRoot = Join-Path $PackageRoot "generator"
+    $nugetProjects = @(
+        "Microsoft.TypeSpec.Generator\src\Microsoft.TypeSpec.Generator.csproj",
+        "Microsoft.TypeSpec.Generator.Input\src\Microsoft.TypeSpec.Generator.Input.csproj",
+        "Microsoft.TypeSpec.Generator.ClientModel\src\Microsoft.TypeSpec.Generator.ClientModel.csproj"
     )
     
-    Write-Host "Copying local generator DLLs to $targetDir..." -ForegroundColor Yellow
-    
-    foreach ($dll in $dllsToCopy) {
-        $sourcePath = Join-Path $sourceDir $dll
-        $targetPath = Join-Path $targetDir $dll
+    foreach ($project in $nugetProjects) {
+        $projectPath = Join-Path $generatorRoot $project
+        if (-not (Test-Path $projectPath)) {
+            throw "NuGet project not found: $projectPath"
+        }
         
-        if (Test-Path $sourcePath) {
-            Copy-Item $sourcePath $targetPath -Force
-            Write-Host "  Copied: $dll" -ForegroundColor Green
-        } else {
-            Write-Warning "Source DLL not found: $sourcePath"
+        Write-Host "Packing: $(Split-Path $projectPath -Leaf)" -ForegroundColor Gray
+        $packCmd = "dotnet pack `"$projectPath`" /p:Version=$LocalVersion /p:PackageVersion=$LocalVersion /p:PackageOutputPath=`"$DebugFolder`" --configuration Debug --no-build --nologo -v:quiet"
+        Invoke $packCmd $generatorRoot
+        if ($LASTEXITCODE -ne 0) {
+            throw "Failed to pack $(Split-Path $projectPath -Leaf)"
         }
     }
     
-    Write-Host "DLL copying completed." -ForegroundColor Green
+    Write-Host "  NuGet packages created" -ForegroundColor Green
+}
+
+# Run code generation to create tspCodeModel
+function Invoke-CodeGeneration {
+    param(
+        [string]$SdkPath,
+        [bool]$IsOpenAI = $false
+    )
+    
+    Write-Host "Running code generation to create tspCodeModel..." -ForegroundColor Cyan
+    
+    if ($IsOpenAI) {
+        $codeGenScript = Join-Path $SdkPath "scripts" "Invoke-CodeGen.ps1"
+        if (-not (Test-Path $codeGenScript)) {
+            throw "Invoke-CodeGen.ps1 not found: $codeGenScript"
+        }
+        
+        Push-Location $SdkPath
+        try {
+            $output = & $codeGenScript -Clean 2>&1
+            if ($LASTEXITCODE -ne 0) {
+                Write-Warning "Code generation completed with warnings"
+            }
+            Write-Host "  Code generation completed" -ForegroundColor Green
+        }
+        finally {
+            Pop-Location
+        }
+    }
+    else {
+        # Determine build path (check for src subdirectory)
+        $srcPath = Join-Path $SdkPath "src"
+        $buildPath = if ((Test-Path $srcPath) -and (Get-ChildItem -Path $srcPath -Filter "*.csproj" -ErrorAction SilentlyContinue)) {
+            $srcPath
+        } else {
+            $SdkPath
+        }
+        
+        Push-Location $buildPath
+        try {
+            $output = & dotnet build /t:GenerateCode 2>&1
+            if ($LASTEXITCODE -ne 0) {
+                Write-Warning "Code generation completed with warnings"
+            }
+            Write-Host "  Code generation completed" -ForegroundColor Green
+        }
+        finally {
+            Pop-Location
+        }
+    }
+}
+
+# Get the path to launchSettings.json
+function Get-LaunchSettingsPath {
+    $packageRoot = Resolve-Path (Join-Path $PSScriptRoot '..' '..')
+    return Join-Path $packageRoot 'generator' 'Microsoft.TypeSpec.Generator' 'src' 'Properties' 'launchSettings.json'
+}
+
+# Read and parse launchSettings.json
+function Get-LaunchSettings {
+    $launchSettingsPath = Get-LaunchSettingsPath
+    $content = Get-Content $launchSettingsPath -Raw
+    return $content | ConvertFrom-Json
+}
+
+# Set launchSettings.json
+function Set-LaunchSettings {
+    param($launchSettings)
+    $launchSettingsPath = Get-LaunchSettingsPath
+    $launchSettings | ConvertTo-Json -Depth 100 | Set-Content $launchSettingsPath -Encoding utf8
+}
+
+# Generate a profile name from the SDK directory
+function Get-ProfileName {
+    param([string]$SdkPath)
+    
+    $dirName = Split-Path $SdkPath -Leaf
+    return $dirName -replace '[^a-zA-Z0-9\-_.]', '-'
 }
 
 # Add or update a debug profile in launchSettings.json
 function Add-DebugProfile {
     param(
         [string]$SdkPath,
+        [string]$EmitterPackage,
         [bool]$IsOpenAI = $false
     )
     
@@ -370,43 +330,24 @@ function Add-DebugProfile {
     $resolvedSdkPath = Resolve-Path $SdkPath
     
     if ($IsOpenAI) {
-        # For OpenAI plugin
         $generatorName = "OpenAILibraryGenerator"
-        $packageName = "openai-codegen"
-        $scopeName = $null
-        
-        # Copy local DLLs to the OpenAI codegen dist directory
-        Copy-LocalGeneratorDlls $resolvedSdkPath $packageName $scopeName -IsOpenAI $true
-        
-        # Use the OpenAI codegen DLL path
         $dllPath = "`"$resolvedSdkPath/codegen/dist/generator/Microsoft.TypeSpec.Generator.dll`""
     }
     else {
-        # For Azure SDK
-        # Try to read emitter configuration from tsp-location.yaml
-        $emitterPackage = Get-EmitterFromTspLocation $SdkPath
-        
-        # Get generator configuration based on emitter package
-        $generatorConfig = Get-GeneratorConfig $emitterPackage
+        $generatorConfig = Get-GeneratorConfig $EmitterPackage
         $packageName = $generatorConfig.PackageName
         $generatorName = $generatorConfig.GeneratorName
         $scopeName = $generatorConfig.ScopeName
         
-        # Copy local DLLs to the node_modules location
-        Copy-LocalGeneratorDlls $resolvedSdkPath $packageName $scopeName -IsOpenAI $false
-        
-        # Use the node_modules DLL path
         $dllPath = "`"$resolvedSdkPath/TempTypeSpecFiles/node_modules/$scopeName/$packageName/dist/generator/Microsoft.TypeSpec.Generator.dll`""
     }
     
-    # Create the new profile
     $newProfile = @{
         commandLineArgs = "$dllPath `"$resolvedSdkPath`" -g $generatorName"
         commandName = "Executable"
         executablePath = "dotnet"
     }
     
-    # Add or update the profile
     $launchSettings.profiles | Add-Member -Name $profileName -Value $newProfile -MemberType NoteProperty -Force
     
     Set-LaunchSettings $launchSettings
@@ -418,7 +359,7 @@ function Add-DebugProfile {
     Write-Host "  - Generator: $generatorName" -ForegroundColor White
     if (-not $IsOpenAI) {
         Write-Host "  - Package: $packageName" -ForegroundColor White
-        Write-Host "  - Emitter: $emitterPackage (from tsp-location.yaml)" -ForegroundColor White
+        Write-Host "  - Emitter: $EmitterPackage (from tsp-location.yaml)" -ForegroundColor White
     }
     else {
         Write-Host "  - Mode: OpenAI Plugin" -ForegroundColor White
@@ -429,58 +370,258 @@ function Add-DebugProfile {
 
 # Main execution
 try {
-    # Check if SDK directory exists
+    Write-Host "==================== ADD DEBUG PROFILE ====================" -ForegroundColor Cyan
+    Write-Host ""
+    
     $sdkPath = Resolve-Path $SdkDirectory -ErrorAction Stop
-    
-    # Check if npm is available
-    if (-not (Test-CommandExists "npm")) {
-        throw "npm is not installed or not in PATH"
-    }
-    
-    # Auto-detect if this is an OpenAI plugin repository
     $isOpenAI = Test-IsOpenAIPlugin $sdkPath
     
     if ($isOpenAI) {
-        # OpenAI plugin workflow
-        Write-Host "Detected OpenAI plugin repository. Setting up debug profile..." -ForegroundColor Cyan
+        Write-Host "Mode: OpenAI Plugin" -ForegroundColor Yellow
+    }
+    else {
+        Write-Host "Mode: Azure SDK" -ForegroundColor Yellow
+    }
+    Write-Host ""
+    
+    $packageRoot = Resolve-Path (Join-Path $PSScriptRoot '..' '..')
+    $timestamp = Get-Date -Format "yyyyMMdd"
+    $debugFolder = Join-Path $packageRoot "debug" $timestamp
+    if (-not (Test-Path $debugFolder)) {
+        New-Item -ItemType Directory -Path $debugFolder -Force | Out-Null
+    }
+    
+    Write-Host "Debug folder: $debugFolder" -ForegroundColor Gray
+    Write-Host ""
+    
+    $localVersion = Get-LocalPackageVersion
+    Write-Host "Local package version: $localVersion" -ForegroundColor Yellow
+    Write-Host ""
+    
+    # Step 1: Build local unbranded emitter
+    Write-Host "[1/5] Building local unbranded emitter..." -ForegroundColor Cyan
+    $unbrandedPackagePath = Build-LocalUnbrandedEmitter -PackageRoot $packageRoot -DebugFolder $debugFolder -LocalVersion $localVersion
+    
+    # Step 2: Build NuGet packages
+    Write-Host "`n[2/5] Building NuGet generator packages..." -ForegroundColor Cyan
+    Build-LocalNuGetPackages -PackageRoot $packageRoot -DebugFolder $debugFolder -LocalVersion $localVersion
+    
+    if ($isOpenAI) {
+        # OpenAI workflow
+        Write-Host "`n[3/5] Updating OpenAI generator..." -ForegroundColor Cyan
         
-        # Build OpenAI codegen
-        Build-OpenAICodegen $sdkPath
+        try {
+            Update-OpenAIGenerator `
+                -OpenAIRepoPath $sdkPath `
+                -UnbrandedPackagePath $unbrandedPackagePath `
+                -LocalVersion $localVersion `
+                -DebugFolder $debugFolder
+            
+            Write-Host "  OpenAI generator updated" -ForegroundColor Green
+        }
+        catch {
+            Write-Error "Failed to update OpenAI generator: $($_.Exception.Message)"
+            throw
+        }
         
-        # Add debug profile
-        $profileName = Add-DebugProfile $sdkPath -IsOpenAI $true
+        # Step 4: Run code generation
+        Write-Host "`n[4/5] Running code generation..." -ForegroundColor Cyan
+        Invoke-CodeGeneration -SdkPath $sdkPath -IsOpenAI $true
+        
+        # Step 5: Add debug profile
+        Write-Host "`n[5/5] Adding debug profile..." -ForegroundColor Cyan
+        $profileName = Add-DebugProfile -SdkPath $sdkPath -EmitterPackage $null -IsOpenAI $true
+        
+        # Restore artifacts
+        Write-Host "`nRestoring modified artifacts..." -ForegroundColor Cyan
+        Push-Location $sdkPath
+        try {
+            $filesToRestore = @(
+                "codegen/package.json"
+                "codegen/package-lock.json"
+                "nuget.config"
+                "codegen/generator/src/OpenAI.Library.Plugin.csproj"
+            )
+            $restoreCmd = "git restore $($filesToRestore -join ' ')"
+            Invoke $restoreCmd $sdkPath
+            Write-Host "  All artifacts restored" -ForegroundColor Green
+        }
+        catch {
+            Write-Warning "Failed to restore some artifacts: $_"
+        }
+        finally {
+            Pop-Location
+        }
     }
     else {
         # Azure SDK workflow
-        Write-Host "Setting up debug profile for Azure SDK..." -ForegroundColor Cyan
         
-        # Install tsp-client if not installed
-        if (-not (Test-TspClientInstalled)) {
-            Write-Host "tsp-client is not installed. Installing now..." -ForegroundColor Yellow
+        $emitterPackage = Get-EmitterFromTspLocation $sdkPath
+        if (-not $emitterPackage) {
+            throw "Could not determine emitter type from tsp-location.yaml in $sdkPath"
+        }
+        
+        Write-Host "Detected emitter: $emitterPackage" -ForegroundColor Yellow
+        Write-Host ""
+        
+        $needsAzure = $emitterPackage -in @("@azure-typespec/http-client-csharp", "@azure-typespec/http-client-csharp-mgmt")
+        $needsMgmt = $emitterPackage -eq "@azure-typespec/http-client-csharp-mgmt"
+        
+        # Find azure-sdk-for-net root
+        $sdkRepoPath = $sdkPath
+        while ($sdkRepoPath -and -not (Test-Path (Join-Path $sdkRepoPath "eng" "Packages.Data.props"))) {
+            $parent = Split-Path $sdkRepoPath -Parent
+            if ($parent -eq $sdkRepoPath) {
+                throw "Could not find azure-sdk-for-net repository root from $sdkPath"
+            }
+            $sdkRepoPath = $parent
+        }
+        
+        Write-Host "Found azure-sdk-for-net root: $sdkRepoPath" -ForegroundColor Gray
+        Write-Host ""
+        
+        # Step 3: Update artifacts and build required generators
+        Write-Host "`n[3/5] Updating artifacts and building generators..." -ForegroundColor Cyan
+        
+        $packagesDataPropsPath = Join-Path $sdkRepoPath "eng" "Packages.Data.props"
+        $propsContent = Get-Content $packagesDataPropsPath -Raw
+        $pattern = '(<UnbrandedGeneratorVersion>)([^<]+)(</UnbrandedGeneratorVersion>)'
+        
+        if ($propsContent -match $pattern) {
+            $oldVersion = $Matches[2]
+            $newContent = $propsContent -replace $pattern, "<UnbrandedGeneratorVersion>$localVersion</UnbrandedGeneratorVersion>"
+            Set-Content $packagesDataPropsPath -Value $newContent -Encoding utf8 -NoNewline
+            Write-Host "  Updated UnbrandedGeneratorVersion to $localVersion" -ForegroundColor Green
+        }
+        
+        $nugetConfigPath = Join-Path $sdkRepoPath "NuGet.Config"
+        Add-LocalNuGetSource -NuGetConfigPath $nugetConfigPath -SourcePath $debugFolder
+        
+        $engFolder = Join-Path $sdkRepoPath "eng"
+        $tempDir = Join-Path $engFolder "temp-package-update"
+        New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
+        
+        try {
+            $emitterJson = Join-Path $engFolder "http-client-csharp-emitter-package.json"
+            $tempPackageJson = Join-Path $tempDir "package.json"
+            
+            Copy-Item $emitterJson $tempPackageJson -Force
+            
+            Push-Location $tempDir
             try {
-                Install-TspClient
+                Invoke "npm install `"`"file:$unbrandedPackagePath`"`" --package-lock-only" $tempDir
+                
+                Copy-Item $tempPackageJson $emitterJson -Force
+                $lockFile = Join-Path $tempDir "package-lock.json"
+                if (Test-Path $lockFile) {
+                    Copy-Item $lockFile (Join-Path $engFolder "http-client-csharp-emitter-package-lock.json") -Force
+                }
             }
-            catch {
-                Write-Warning "Failed to install tsp-client. You may need to install it manually with:"
-                Write-Warning "npm install -g @azure-tools/typespec-client-generator-cli"
-                Write-Warning "Error: $($_.Exception.Message)"
+            finally {
+                Pop-Location
             }
         }
-        else {
-            Write-Host "tsp-client is already installed." -ForegroundColor Green
+        finally {
+            Remove-Item $tempDir -Recurse -Force -ErrorAction SilentlyContinue
         }
         
-        # Run tsp-client commands
-        Invoke-TspClientCommands $sdkPath
+        if ($needsAzure) {
+            Write-Host "Building Azure generator..." -ForegroundColor Gray
+            
+            $azureGeneratorPath = Join-Path $sdkRepoPath "eng" "packages" "http-client-csharp"
+            
+            $azurePackagePath = Update-AzureGenerator `
+                -AzureGeneratorPath $azureGeneratorPath `
+                -UnbrandedPackagePath $unbrandedPackagePath `
+                -DebugFolder $debugFolder `
+                -PackagesDataPropsPath $packagesDataPropsPath `
+                -LocalVersion $localVersion
+            
+            $tempDir = Join-Path $engFolder "temp-azure-update"
+            New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
+            
+            try {
+                $emitterJson = Join-Path $engFolder "azure-typespec-http-client-csharp-emitter-package.json"
+                $tempPackageJson = Join-Path $tempDir "package.json"
+                
+                Copy-Item $emitterJson $tempPackageJson -Force
+                
+                Push-Location $tempDir
+                try {
+                    Invoke "npm install `"`"file:$azurePackagePath`"`" --package-lock-only" $tempDir
+                    
+                    Copy-Item $tempPackageJson $emitterJson -Force
+                    $lockFile = Join-Path $tempDir "package-lock.json"
+                    if (Test-Path $lockFile) {
+                        Copy-Item $lockFile (Join-Path $engFolder "azure-typespec-http-client-csharp-emitter-package-lock.json") -Force
+                    }
+                }
+                finally {
+                    Pop-Location
+                }
+            }
+            finally {
+                Remove-Item $tempDir -Recurse -Force -ErrorAction SilentlyContinue
+            }
+            
+            Write-Host "  Azure generator completed" -ForegroundColor Green
+        }
         
-        # Add debug profile
-        $profileName = Add-DebugProfile $sdkPath -IsOpenAI $false
+        if ($needsMgmt) {
+            Write-Host "Building management plane generator..." -ForegroundColor Gray
+            
+            Update-MgmtGenerator `
+                -EngFolder $engFolder `
+                -DebugFolder $debugFolder `
+                -LocalVersion $localVersion
+            
+            Write-Host "  Management plane generator completed" -ForegroundColor Green
+        }
+        
+        # Step 4: Run code generation
+        Write-Host "`n[4/5] Running code generation..." -ForegroundColor Cyan
+        Invoke-CodeGeneration -SdkPath $sdkPath -IsOpenAI $false
+        
+        # Step 5: Add debug profile
+        Write-Host "`n[5/5] Adding debug profile..." -ForegroundColor Cyan
+        $profileName = Add-DebugProfile -SdkPath $sdkPath -EmitterPackage $emitterPackage -IsOpenAI $false
+        
+        # Restore artifacts
+        Write-Host "`nRestoring modified artifacts..." -ForegroundColor Cyan
+        Push-Location $sdkRepoPath
+        try {
+            $filesToRestore = @(
+                "eng/azure-typespec-http-client-csharp-emitter-package.json"
+                "eng/azure-typespec-http-client-csharp-emitter-package-lock.json"
+                "eng/http-client-csharp-emitter-package.json"
+                "eng/http-client-csharp-emitter-package-lock.json"
+                "eng/azure-typespec-http-client-csharp-mgmt-emitter-package.json"
+                "eng/azure-typespec-http-client-csharp-mgmt-emitter-package-lock.json"
+                "eng/packages/http-client-csharp/package-lock.json"
+                "eng/packages/http-client-csharp-mgmt/package.json"
+                "eng/packages/http-client-csharp-mgmt/package-lock.json"
+                "eng/Packages.Data.props"
+                "NuGet.Config"
+            )
+            $restoreCmd = "git restore $($filesToRestore -join ' ')"
+            Invoke $restoreCmd $sdkRepoPath
+            Write-Host "  All artifacts restored" -ForegroundColor Green
+        }
+        catch {
+            Write-Warning "Failed to restore some artifacts: $_"
+        }
+        finally {
+            Pop-Location
+        }
     }
     
-    Write-Host "`nSetup completed successfully!" -ForegroundColor Green
+    Write-Host "`n=============================================================" -ForegroundColor Cyan
+    Write-Host "Setup completed successfully!" -ForegroundColor Green
     Write-Host "You can now debug the '$profileName' profile in Visual Studio or VS Code." -ForegroundColor Cyan
+    Write-Host ""
 }
 catch {
     Write-Error "Error: $($_.Exception.Message)"
+    Write-Host $_.ScriptStackTrace -ForegroundColor DarkGray
     exit 1
 }
