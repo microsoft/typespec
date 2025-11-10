@@ -116,56 +116,58 @@ describe("fixConstantAndEnumNaming", () => {
         }
       }
 
-      // Use both ErrorResponse models
+      namespace SubNamespace3 {
+        model ErrorResponse {
+          error: string;
+        }
+      }
+
+      // Use all three ErrorResponse models
       @route("/test1")
       op test1(): SubNamespace1.ErrorResponse;
       
       @route("/test2")
       op test2(): SubNamespace2.ErrorResponse;
+
+      @route("/test3")
+      op test3(): SubNamespace3.ErrorResponse;
     `,
       runner,
     );
     const context = createEmitterContext(program);
     const sdkContext = await createCSharpSdkContext(context);
-    const root = createModel(sdkContext);
-
-    // Get all ErrorResponse models
-    const allErrorModels = root.models.filter((m) => m.name.startsWith("ErrorResponse"));
-    ok(allErrorModels.length >= 2, `Should have at least 2 ErrorResponse models, found ${allErrorModels.length}`);
     
-    // Manually simulate what would happen if namespace option collapsed models to same namespace
-    // This is what happens in Azure emitters or other emitters that set namespace option
+    // Simulate what happens when namespace option is set - models from different
+    // source namespaces get remapped to the same target namespace by TCGC
     const targetNamespace = "Azure.Csharp.Testing";
-    for (const model of allErrorModels) {
-      model.namespace = targetNamespace;
-    }
-    
-    // Now manually apply the fix that should be in fixConstantAndEnumNaming
-    const modelNameMap = new Map<string, number>();
-    for (const model of allErrorModels) {
-      const key = `${model.namespace}.${model.name}`;
-      const count = modelNameMap.get(key);
-      if (count) {
-        modelNameMap.set(key, count + 1);
-        model.name = `${model.name}${count}`;
-      } else {
-        modelNameMap.set(key, 1);
+    for (const model of sdkContext.sdkPackage.models) {
+      if (model.name === "ErrorResponse") {
+        // Override the namespace to simulate namespace option effect
+        (model as any).namespace = targetNamespace;
       }
     }
+    
+    // Now call createModel which should fix the duplicate names
+    const root = createModel(sdkContext);
 
-    // Verify they now have unique names
-    const modelNames = new Set(allErrorModels.map((m) => m.name));
+    // Get all ErrorResponse models - fixConstantAndEnumNaming should have resolved the conflicts
+    const errorModels = root.models.filter((m) => m.name.startsWith("ErrorResponse") && m.namespace === targetNamespace);
+    ok(errorModels.length >= 3, `Should have at least 3 ErrorResponse models, found ${errorModels.length}`);
+
+    // Verify they have unique names after fixConstantAndEnumNaming runs automatically
+    const modelNames = new Set(errorModels.map((m) => m.name));
     strictEqual(
       modelNames.size,
-      allErrorModels.length,
-      "All ErrorResponse models should have unique names after fix",
+      errorModels.length,
+      "All ErrorResponse models should have unique names",
     );
     
     // Verify one kept original name and others got numbered suffixes
-    const originalName = allErrorModels.find(m => m.name === "ErrorResponse");
-    const renamedModels = allErrorModels.filter(m => m.name !== "ErrorResponse");
+    const originalName = errorModels.find(m => m.name === "ErrorResponse");
+    const renamedModels = errorModels.filter(m => m.name !== "ErrorResponse");
     ok(originalName, "One model should keep the original ErrorResponse name");
-    ok(renamedModels.length > 0, "Other models should have numbered suffixes");
+    ok(renamedModels.length >= 2, "Other models should have numbered suffixes");
     ok(renamedModels.some(m => m.name === "ErrorResponse1"), "Should have ErrorResponse1");
+    ok(renamedModels.some(m => m.name === "ErrorResponse2"), "Should have ErrorResponse2");
   });
 });
