@@ -271,7 +271,11 @@ export const GeneratorHeaderCell: FunctionComponent<GeneratorHeaderCellProps> = 
         </div>
         <div
           title="Coverage stats"
-          css={{ gridArea: "status", borderTop: `1px solid ${Colors.borderDefault}`, height: 32 }}
+          css={{
+            gridArea: "status",
+            borderTop: `1px solid ${Colors.borderDefault}`,
+            height: 32,
+          }}
         >
           <ScenarioGroupRatioStatusBox ratio={status} />
         </div>
