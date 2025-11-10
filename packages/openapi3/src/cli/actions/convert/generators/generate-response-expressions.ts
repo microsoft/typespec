@@ -221,25 +221,20 @@ function generateResponseExpressions({
 
   return contents.map(([mediaType, content]) => {
     // Special handling for Server-Sent Events
-    if (mediaType === "text/event-stream") {
-      context.markSSEUsage();
-
+    if (
+      mediaType === "text/event-stream" &&
+      "itemSchema" in content &&
+      content.itemSchema &&
+      typeof content.itemSchema === "object" &&
+      "$ref" in content.itemSchema
+    ) {
       // Check for itemSchema (OpenAPI 3.2 extension)
-      if ("itemSchema" in content && content.itemSchema) {
-        const itemSchema = content.itemSchema;
-        if (itemSchema && typeof itemSchema === "object" && "$ref" in itemSchema) {
-          const eventUnionType = context.generateTypeFromRefableSchema(itemSchema, operationScope);
-          return `SSEStream<${eventUnionType}>`;
-        }
-      } else if (content.schema && "$ref" in content.schema) {
-        // Fallback: use schema directly if no itemSchema
-        const eventUnionType = context.generateTypeFromRefableSchema(
-          content.schema,
-          operationScope,
-        );
-        return `SSEStream<${eventUnionType}>`;
-      }
-
+      const eventUnionType = context.generateTypeFromRefableSchema(
+        content.itemSchema,
+        operationScope,
+      );
+      context.markSSEUsage();
+      return `SSEStream<${eventUnionType}>`;
       // If no proper schema reference, fall through to regular handling
     }
 
