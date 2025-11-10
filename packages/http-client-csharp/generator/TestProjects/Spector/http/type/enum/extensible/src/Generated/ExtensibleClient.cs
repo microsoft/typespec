@@ -4,17 +4,42 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Threading;
 
 namespace _Type._Enum.Extensible
 {
+    /// <summary> The ExtensibleClient. </summary>
     public partial class ExtensibleClient
     {
-        public ExtensibleClient() : this(new Uri("http://localhost:3000"), new ExtensibleClientOptions()) => throw null;
+        private readonly Uri _endpoint;
+        private String _cachedString;
 
-        public ExtensibleClient(Uri endpoint, ExtensibleClientOptions options) => throw null;
+        /// <summary> Initializes a new instance of ExtensibleClient. </summary>
+        public ExtensibleClient() : this(new Uri("http://localhost:3000"), new ExtensibleClientOptions())
+        {
+        }
 
-        public ClientPipeline Pipeline => throw null;
+        /// <summary> Initializes a new instance of ExtensibleClient. </summary>
+        /// <param name="endpoint"> Service endpoint. </param>
+        /// <param name="options"> The options for configuring the client. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> is null. </exception>
+        public ExtensibleClient(Uri endpoint, ExtensibleClientOptions options)
+        {
+            Argument.AssertNotNull(endpoint, nameof(endpoint));
 
-        public virtual String GetStringClient() => throw null;
+            options ??= new ExtensibleClientOptions();
+
+            _endpoint = endpoint;
+            Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>());
+        }
+
+        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
+        public ClientPipeline Pipeline { get; }
+
+        /// <summary> Initializes a new instance of String. </summary>
+        public virtual String GetStringClient()
+        {
+            return Volatile.Read(ref _cachedString) ?? Interlocked.CompareExchange(ref _cachedString, new String(Pipeline, _endpoint), null) ?? _cachedString;
+        }
     }
 }

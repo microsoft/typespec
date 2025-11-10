@@ -1313,7 +1313,26 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.Nullable.String.getNonNull.accept"
+                    "crossLanguageDefinitionId": "Type.Property.Nullable.String.getNonNull.accept",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "142",
+                        "kind": "method",
+                        "name": "accept",
+                        "serializedName": "Accept",
+                        "type": {
+                          "$ref": "1"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.Nullable.String.getNonNull.accept",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -1342,21 +1361,7 @@
               },
               "parameters": [
                 {
-                  "$id": "142",
-                  "kind": "method",
-                  "name": "accept",
-                  "serializedName": "Accept",
-                  "type": {
-                    "$ref": "1"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.Nullable.String.getNonNull.accept",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "142"
                 }
               ],
               "response": {
@@ -1397,7 +1402,26 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.Nullable.String.getNull.accept"
+                    "crossLanguageDefinitionId": "Type.Property.Nullable.String.getNull.accept",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "146",
+                        "kind": "method",
+                        "name": "accept",
+                        "serializedName": "Accept",
+                        "type": {
+                          "$ref": "3"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.Nullable.String.getNull.accept",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -1426,21 +1450,7 @@
               },
               "parameters": [
                 {
-                  "$id": "146",
-                  "kind": "method",
-                  "name": "accept",
-                  "serializedName": "Accept",
-                  "type": {
-                    "$ref": "3"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.Nullable.String.getNull.accept",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "146"
                 }
               ],
               "response": {
@@ -1482,10 +1492,30 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.Nullable.String.patchNonNull.contentType"
+                    "crossLanguageDefinitionId": "Type.Property.Nullable.String.patchNonNull.contentType",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "150",
+                        "kind": "method",
+                        "name": "contentType",
+                        "serializedName": "Content-Type",
+                        "doc": "content-type is application/merge-patch+json",
+                        "type": {
+                          "$ref": "7"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.Nullable.String.patchNonNull.contentType",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   },
                   {
-                    "$id": "150",
+                    "$id": "151",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -1501,7 +1531,26 @@
                     "scope": "Method",
                     "decorators": [],
                     "readOnly": false,
-                    "crossLanguageDefinitionId": "Type.Property.Nullable.String.patchNonNull.body"
+                    "crossLanguageDefinitionId": "Type.Property.Nullable.String.patchNonNull.body",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "152",
+                        "kind": "method",
+                        "name": "body",
+                        "serializedName": "body",
+                        "type": {
+                          "$ref": "85"
+                        },
+                        "location": "Body",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Method",
+                        "crossLanguageDefinitionId": "Type.Property.Nullable.String.patchNonNull.body",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -1527,39 +1576,10 @@
               },
               "parameters": [
                 {
-                  "$id": "151",
-                  "kind": "method",
-                  "name": "contentType",
-                  "serializedName": "Content-Type",
-                  "doc": "content-type is application/merge-patch+json",
-                  "type": {
-                    "$ref": "7"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.Nullable.String.patchNonNull.contentType",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "150"
                 },
                 {
-                  "$id": "152",
-                  "kind": "method",
-                  "name": "body",
-                  "serializedName": "body",
-                  "type": {
-                    "$ref": "85"
-                  },
-                  "location": "Body",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Method",
-                  "crossLanguageDefinitionId": "Type.Property.Nullable.String.patchNonNull.body",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "152"
                 }
               ],
               "response": {},
@@ -1597,10 +1617,30 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.Nullable.String.patchNull.contentType"
+                    "crossLanguageDefinitionId": "Type.Property.Nullable.String.patchNull.contentType",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "156",
+                        "kind": "method",
+                        "name": "contentType",
+                        "serializedName": "Content-Type",
+                        "doc": "content-type is application/merge-patch+json",
+                        "type": {
+                          "$ref": "11"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.Nullable.String.patchNull.contentType",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   },
                   {
-                    "$id": "156",
+                    "$id": "157",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -1616,7 +1656,26 @@
                     "scope": "Method",
                     "decorators": [],
                     "readOnly": false,
-                    "crossLanguageDefinitionId": "Type.Property.Nullable.String.patchNull.body"
+                    "crossLanguageDefinitionId": "Type.Property.Nullable.String.patchNull.body",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "158",
+                        "kind": "method",
+                        "name": "body",
+                        "serializedName": "body",
+                        "type": {
+                          "$ref": "85"
+                        },
+                        "location": "Body",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Method",
+                        "crossLanguageDefinitionId": "Type.Property.Nullable.String.patchNull.body",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -1642,39 +1701,10 @@
               },
               "parameters": [
                 {
-                  "$id": "157",
-                  "kind": "method",
-                  "name": "contentType",
-                  "serializedName": "Content-Type",
-                  "doc": "content-type is application/merge-patch+json",
-                  "type": {
-                    "$ref": "11"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.Nullable.String.patchNull.contentType",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "156"
                 },
                 {
-                  "$id": "158",
-                  "kind": "method",
-                  "name": "body",
-                  "serializedName": "body",
-                  "type": {
-                    "$ref": "85"
-                  },
-                  "location": "Body",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Method",
-                  "crossLanguageDefinitionId": "Type.Property.Nullable.String.patchNull.body",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "158"
                 }
               ],
               "response": {},
@@ -1758,7 +1788,26 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.Nullable.Bytes.getNonNull.accept"
+                    "crossLanguageDefinitionId": "Type.Property.Nullable.Bytes.getNonNull.accept",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "166",
+                        "kind": "method",
+                        "name": "accept",
+                        "serializedName": "Accept",
+                        "type": {
+                          "$ref": "13"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.Nullable.Bytes.getNonNull.accept",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -1787,21 +1836,7 @@
               },
               "parameters": [
                 {
-                  "$id": "166",
-                  "kind": "method",
-                  "name": "accept",
-                  "serializedName": "Accept",
-                  "type": {
-                    "$ref": "13"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.Nullable.Bytes.getNonNull.accept",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "166"
                 }
               ],
               "response": {
@@ -1842,7 +1877,26 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.Nullable.Bytes.getNull.accept"
+                    "crossLanguageDefinitionId": "Type.Property.Nullable.Bytes.getNull.accept",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "170",
+                        "kind": "method",
+                        "name": "accept",
+                        "serializedName": "Accept",
+                        "type": {
+                          "$ref": "15"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.Nullable.Bytes.getNull.accept",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -1871,21 +1925,7 @@
               },
               "parameters": [
                 {
-                  "$id": "170",
-                  "kind": "method",
-                  "name": "accept",
-                  "serializedName": "Accept",
-                  "type": {
-                    "$ref": "15"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.Nullable.Bytes.getNull.accept",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "170"
                 }
               ],
               "response": {
@@ -1927,10 +1967,30 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.Nullable.Bytes.patchNonNull.contentType"
+                    "crossLanguageDefinitionId": "Type.Property.Nullable.Bytes.patchNonNull.contentType",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "174",
+                        "kind": "method",
+                        "name": "contentType",
+                        "serializedName": "Content-Type",
+                        "doc": "content-type is application/merge-patch+json",
+                        "type": {
+                          "$ref": "19"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.Nullable.Bytes.patchNonNull.contentType",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   },
                   {
-                    "$id": "174",
+                    "$id": "175",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -1946,7 +2006,26 @@
                     "scope": "Method",
                     "decorators": [],
                     "readOnly": false,
-                    "crossLanguageDefinitionId": "Type.Property.Nullable.Bytes.patchNonNull.body"
+                    "crossLanguageDefinitionId": "Type.Property.Nullable.Bytes.patchNonNull.body",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "176",
+                        "kind": "method",
+                        "name": "body",
+                        "serializedName": "body",
+                        "type": {
+                          "$ref": "91"
+                        },
+                        "location": "Body",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Method",
+                        "crossLanguageDefinitionId": "Type.Property.Nullable.Bytes.patchNonNull.body",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -1972,39 +2051,10 @@
               },
               "parameters": [
                 {
-                  "$id": "175",
-                  "kind": "method",
-                  "name": "contentType",
-                  "serializedName": "Content-Type",
-                  "doc": "content-type is application/merge-patch+json",
-                  "type": {
-                    "$ref": "19"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.Nullable.Bytes.patchNonNull.contentType",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "174"
                 },
                 {
-                  "$id": "176",
-                  "kind": "method",
-                  "name": "body",
-                  "serializedName": "body",
-                  "type": {
-                    "$ref": "91"
-                  },
-                  "location": "Body",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Method",
-                  "crossLanguageDefinitionId": "Type.Property.Nullable.Bytes.patchNonNull.body",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "176"
                 }
               ],
               "response": {},
@@ -2042,10 +2092,30 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.Nullable.Bytes.patchNull.contentType"
+                    "crossLanguageDefinitionId": "Type.Property.Nullable.Bytes.patchNull.contentType",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "180",
+                        "kind": "method",
+                        "name": "contentType",
+                        "serializedName": "Content-Type",
+                        "doc": "content-type is application/merge-patch+json",
+                        "type": {
+                          "$ref": "23"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.Nullable.Bytes.patchNull.contentType",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   },
                   {
-                    "$id": "180",
+                    "$id": "181",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -2061,7 +2131,26 @@
                     "scope": "Method",
                     "decorators": [],
                     "readOnly": false,
-                    "crossLanguageDefinitionId": "Type.Property.Nullable.Bytes.patchNull.body"
+                    "crossLanguageDefinitionId": "Type.Property.Nullable.Bytes.patchNull.body",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "182",
+                        "kind": "method",
+                        "name": "body",
+                        "serializedName": "body",
+                        "type": {
+                          "$ref": "91"
+                        },
+                        "location": "Body",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Method",
+                        "crossLanguageDefinitionId": "Type.Property.Nullable.Bytes.patchNull.body",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -2087,39 +2176,10 @@
               },
               "parameters": [
                 {
-                  "$id": "181",
-                  "kind": "method",
-                  "name": "contentType",
-                  "serializedName": "Content-Type",
-                  "doc": "content-type is application/merge-patch+json",
-                  "type": {
-                    "$ref": "23"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.Nullable.Bytes.patchNull.contentType",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "180"
                 },
                 {
-                  "$id": "182",
-                  "kind": "method",
-                  "name": "body",
-                  "serializedName": "body",
-                  "type": {
-                    "$ref": "91"
-                  },
-                  "location": "Body",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Method",
-                  "crossLanguageDefinitionId": "Type.Property.Nullable.Bytes.patchNull.body",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "182"
                 }
               ],
               "response": {},
@@ -2203,7 +2263,26 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.Nullable.Datetime.getNonNull.accept"
+                    "crossLanguageDefinitionId": "Type.Property.Nullable.Datetime.getNonNull.accept",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "190",
+                        "kind": "method",
+                        "name": "accept",
+                        "serializedName": "Accept",
+                        "type": {
+                          "$ref": "25"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.Nullable.Datetime.getNonNull.accept",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -2232,21 +2311,7 @@
               },
               "parameters": [
                 {
-                  "$id": "190",
-                  "kind": "method",
-                  "name": "accept",
-                  "serializedName": "Accept",
-                  "type": {
-                    "$ref": "25"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.Nullable.Datetime.getNonNull.accept",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "190"
                 }
               ],
               "response": {
@@ -2287,7 +2352,26 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.Nullable.Datetime.getNull.accept"
+                    "crossLanguageDefinitionId": "Type.Property.Nullable.Datetime.getNull.accept",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "194",
+                        "kind": "method",
+                        "name": "accept",
+                        "serializedName": "Accept",
+                        "type": {
+                          "$ref": "27"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.Nullable.Datetime.getNull.accept",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -2316,21 +2400,7 @@
               },
               "parameters": [
                 {
-                  "$id": "194",
-                  "kind": "method",
-                  "name": "accept",
-                  "serializedName": "Accept",
-                  "type": {
-                    "$ref": "27"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.Nullable.Datetime.getNull.accept",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "194"
                 }
               ],
               "response": {
@@ -2372,10 +2442,30 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.Nullable.Datetime.patchNonNull.contentType"
+                    "crossLanguageDefinitionId": "Type.Property.Nullable.Datetime.patchNonNull.contentType",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "198",
+                        "kind": "method",
+                        "name": "contentType",
+                        "serializedName": "Content-Type",
+                        "doc": "content-type is application/merge-patch+json",
+                        "type": {
+                          "$ref": "31"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.Nullable.Datetime.patchNonNull.contentType",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   },
                   {
-                    "$id": "198",
+                    "$id": "199",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -2391,7 +2481,26 @@
                     "scope": "Method",
                     "decorators": [],
                     "readOnly": false,
-                    "crossLanguageDefinitionId": "Type.Property.Nullable.Datetime.patchNonNull.body"
+                    "crossLanguageDefinitionId": "Type.Property.Nullable.Datetime.patchNonNull.body",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "200",
+                        "kind": "method",
+                        "name": "body",
+                        "serializedName": "body",
+                        "type": {
+                          "$ref": "97"
+                        },
+                        "location": "Body",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Method",
+                        "crossLanguageDefinitionId": "Type.Property.Nullable.Datetime.patchNonNull.body",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -2417,39 +2526,10 @@
               },
               "parameters": [
                 {
-                  "$id": "199",
-                  "kind": "method",
-                  "name": "contentType",
-                  "serializedName": "Content-Type",
-                  "doc": "content-type is application/merge-patch+json",
-                  "type": {
-                    "$ref": "31"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.Nullable.Datetime.patchNonNull.contentType",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "198"
                 },
                 {
-                  "$id": "200",
-                  "kind": "method",
-                  "name": "body",
-                  "serializedName": "body",
-                  "type": {
-                    "$ref": "97"
-                  },
-                  "location": "Body",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Method",
-                  "crossLanguageDefinitionId": "Type.Property.Nullable.Datetime.patchNonNull.body",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "200"
                 }
               ],
               "response": {},
@@ -2487,10 +2567,30 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.Nullable.Datetime.patchNull.contentType"
+                    "crossLanguageDefinitionId": "Type.Property.Nullable.Datetime.patchNull.contentType",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "204",
+                        "kind": "method",
+                        "name": "contentType",
+                        "serializedName": "Content-Type",
+                        "doc": "content-type is application/merge-patch+json",
+                        "type": {
+                          "$ref": "35"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.Nullable.Datetime.patchNull.contentType",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   },
                   {
-                    "$id": "204",
+                    "$id": "205",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -2506,7 +2606,26 @@
                     "scope": "Method",
                     "decorators": [],
                     "readOnly": false,
-                    "crossLanguageDefinitionId": "Type.Property.Nullable.Datetime.patchNull.body"
+                    "crossLanguageDefinitionId": "Type.Property.Nullable.Datetime.patchNull.body",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "206",
+                        "kind": "method",
+                        "name": "body",
+                        "serializedName": "body",
+                        "type": {
+                          "$ref": "97"
+                        },
+                        "location": "Body",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Method",
+                        "crossLanguageDefinitionId": "Type.Property.Nullable.Datetime.patchNull.body",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -2532,39 +2651,10 @@
               },
               "parameters": [
                 {
-                  "$id": "205",
-                  "kind": "method",
-                  "name": "contentType",
-                  "serializedName": "Content-Type",
-                  "doc": "content-type is application/merge-patch+json",
-                  "type": {
-                    "$ref": "35"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.Nullable.Datetime.patchNull.contentType",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "204"
                 },
                 {
-                  "$id": "206",
-                  "kind": "method",
-                  "name": "body",
-                  "serializedName": "body",
-                  "type": {
-                    "$ref": "97"
-                  },
-                  "location": "Body",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Method",
-                  "crossLanguageDefinitionId": "Type.Property.Nullable.Datetime.patchNull.body",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "206"
                 }
               ],
               "response": {},
@@ -2648,7 +2738,26 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.Nullable.Duration.getNonNull.accept"
+                    "crossLanguageDefinitionId": "Type.Property.Nullable.Duration.getNonNull.accept",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "214",
+                        "kind": "method",
+                        "name": "accept",
+                        "serializedName": "Accept",
+                        "type": {
+                          "$ref": "37"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.Nullable.Duration.getNonNull.accept",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -2677,21 +2786,7 @@
               },
               "parameters": [
                 {
-                  "$id": "214",
-                  "kind": "method",
-                  "name": "accept",
-                  "serializedName": "Accept",
-                  "type": {
-                    "$ref": "37"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.Nullable.Duration.getNonNull.accept",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "214"
                 }
               ],
               "response": {
@@ -2732,7 +2827,26 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.Nullable.Duration.getNull.accept"
+                    "crossLanguageDefinitionId": "Type.Property.Nullable.Duration.getNull.accept",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "218",
+                        "kind": "method",
+                        "name": "accept",
+                        "serializedName": "Accept",
+                        "type": {
+                          "$ref": "39"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.Nullable.Duration.getNull.accept",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -2761,21 +2875,7 @@
               },
               "parameters": [
                 {
-                  "$id": "218",
-                  "kind": "method",
-                  "name": "accept",
-                  "serializedName": "Accept",
-                  "type": {
-                    "$ref": "39"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.Nullable.Duration.getNull.accept",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "218"
                 }
               ],
               "response": {
@@ -2817,10 +2917,30 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.Nullable.Duration.patchNonNull.contentType"
+                    "crossLanguageDefinitionId": "Type.Property.Nullable.Duration.patchNonNull.contentType",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "222",
+                        "kind": "method",
+                        "name": "contentType",
+                        "serializedName": "Content-Type",
+                        "doc": "content-type is application/merge-patch+json",
+                        "type": {
+                          "$ref": "43"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.Nullable.Duration.patchNonNull.contentType",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   },
                   {
-                    "$id": "222",
+                    "$id": "223",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -2836,7 +2956,26 @@
                     "scope": "Method",
                     "decorators": [],
                     "readOnly": false,
-                    "crossLanguageDefinitionId": "Type.Property.Nullable.Duration.patchNonNull.body"
+                    "crossLanguageDefinitionId": "Type.Property.Nullable.Duration.patchNonNull.body",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "224",
+                        "kind": "method",
+                        "name": "body",
+                        "serializedName": "body",
+                        "type": {
+                          "$ref": "104"
+                        },
+                        "location": "Body",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Method",
+                        "crossLanguageDefinitionId": "Type.Property.Nullable.Duration.patchNonNull.body",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -2862,39 +3001,10 @@
               },
               "parameters": [
                 {
-                  "$id": "223",
-                  "kind": "method",
-                  "name": "contentType",
-                  "serializedName": "Content-Type",
-                  "doc": "content-type is application/merge-patch+json",
-                  "type": {
-                    "$ref": "43"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.Nullable.Duration.patchNonNull.contentType",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "222"
                 },
                 {
-                  "$id": "224",
-                  "kind": "method",
-                  "name": "body",
-                  "serializedName": "body",
-                  "type": {
-                    "$ref": "104"
-                  },
-                  "location": "Body",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Method",
-                  "crossLanguageDefinitionId": "Type.Property.Nullable.Duration.patchNonNull.body",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "224"
                 }
               ],
               "response": {},
@@ -2932,10 +3042,30 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.Nullable.Duration.patchNull.contentType"
+                    "crossLanguageDefinitionId": "Type.Property.Nullable.Duration.patchNull.contentType",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "228",
+                        "kind": "method",
+                        "name": "contentType",
+                        "serializedName": "Content-Type",
+                        "doc": "content-type is application/merge-patch+json",
+                        "type": {
+                          "$ref": "47"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.Nullable.Duration.patchNull.contentType",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   },
                   {
-                    "$id": "228",
+                    "$id": "229",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -2951,7 +3081,26 @@
                     "scope": "Method",
                     "decorators": [],
                     "readOnly": false,
-                    "crossLanguageDefinitionId": "Type.Property.Nullable.Duration.patchNull.body"
+                    "crossLanguageDefinitionId": "Type.Property.Nullable.Duration.patchNull.body",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "230",
+                        "kind": "method",
+                        "name": "body",
+                        "serializedName": "body",
+                        "type": {
+                          "$ref": "104"
+                        },
+                        "location": "Body",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Method",
+                        "crossLanguageDefinitionId": "Type.Property.Nullable.Duration.patchNull.body",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -2977,39 +3126,10 @@
               },
               "parameters": [
                 {
-                  "$id": "229",
-                  "kind": "method",
-                  "name": "contentType",
-                  "serializedName": "Content-Type",
-                  "doc": "content-type is application/merge-patch+json",
-                  "type": {
-                    "$ref": "47"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.Nullable.Duration.patchNull.contentType",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "228"
                 },
                 {
-                  "$id": "230",
-                  "kind": "method",
-                  "name": "body",
-                  "serializedName": "body",
-                  "type": {
-                    "$ref": "104"
-                  },
-                  "location": "Body",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Method",
-                  "crossLanguageDefinitionId": "Type.Property.Nullable.Duration.patchNull.body",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "230"
                 }
               ],
               "response": {},
@@ -3093,7 +3213,26 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsByte.getNonNull.accept"
+                    "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsByte.getNonNull.accept",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "238",
+                        "kind": "method",
+                        "name": "accept",
+                        "serializedName": "Accept",
+                        "type": {
+                          "$ref": "49"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsByte.getNonNull.accept",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -3122,21 +3261,7 @@
               },
               "parameters": [
                 {
-                  "$id": "238",
-                  "kind": "method",
-                  "name": "accept",
-                  "serializedName": "Accept",
-                  "type": {
-                    "$ref": "49"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsByte.getNonNull.accept",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "238"
                 }
               ],
               "response": {
@@ -3177,7 +3302,26 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsByte.getNull.accept"
+                    "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsByte.getNull.accept",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "242",
+                        "kind": "method",
+                        "name": "accept",
+                        "serializedName": "Accept",
+                        "type": {
+                          "$ref": "51"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsByte.getNull.accept",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -3206,21 +3350,7 @@
               },
               "parameters": [
                 {
-                  "$id": "242",
-                  "kind": "method",
-                  "name": "accept",
-                  "serializedName": "Accept",
-                  "type": {
-                    "$ref": "51"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsByte.getNull.accept",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "242"
                 }
               ],
               "response": {
@@ -3262,10 +3392,30 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsByte.patchNonNull.contentType"
+                    "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsByte.patchNonNull.contentType",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "246",
+                        "kind": "method",
+                        "name": "contentType",
+                        "serializedName": "Content-Type",
+                        "doc": "content-type is application/merge-patch+json",
+                        "type": {
+                          "$ref": "55"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsByte.patchNonNull.contentType",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   },
                   {
-                    "$id": "246",
+                    "$id": "247",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -3281,7 +3431,26 @@
                     "scope": "Method",
                     "decorators": [],
                     "readOnly": false,
-                    "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsByte.patchNonNull.body"
+                    "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsByte.patchNonNull.body",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "248",
+                        "kind": "method",
+                        "name": "body",
+                        "serializedName": "body",
+                        "type": {
+                          "$ref": "111"
+                        },
+                        "location": "Body",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Method",
+                        "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsByte.patchNonNull.body",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -3307,39 +3476,10 @@
               },
               "parameters": [
                 {
-                  "$id": "247",
-                  "kind": "method",
-                  "name": "contentType",
-                  "serializedName": "Content-Type",
-                  "doc": "content-type is application/merge-patch+json",
-                  "type": {
-                    "$ref": "55"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsByte.patchNonNull.contentType",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "246"
                 },
                 {
-                  "$id": "248",
-                  "kind": "method",
-                  "name": "body",
-                  "serializedName": "body",
-                  "type": {
-                    "$ref": "111"
-                  },
-                  "location": "Body",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Method",
-                  "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsByte.patchNonNull.body",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "248"
                 }
               ],
               "response": {},
@@ -3377,10 +3517,30 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsByte.patchNull.contentType"
+                    "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsByte.patchNull.contentType",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "252",
+                        "kind": "method",
+                        "name": "contentType",
+                        "serializedName": "Content-Type",
+                        "doc": "content-type is application/merge-patch+json",
+                        "type": {
+                          "$ref": "59"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsByte.patchNull.contentType",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   },
                   {
-                    "$id": "252",
+                    "$id": "253",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -3396,7 +3556,26 @@
                     "scope": "Method",
                     "decorators": [],
                     "readOnly": false,
-                    "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsByte.patchNull.body"
+                    "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsByte.patchNull.body",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "254",
+                        "kind": "method",
+                        "name": "body",
+                        "serializedName": "body",
+                        "type": {
+                          "$ref": "111"
+                        },
+                        "location": "Body",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Method",
+                        "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsByte.patchNull.body",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -3422,39 +3601,10 @@
               },
               "parameters": [
                 {
-                  "$id": "253",
-                  "kind": "method",
-                  "name": "contentType",
-                  "serializedName": "Content-Type",
-                  "doc": "content-type is application/merge-patch+json",
-                  "type": {
-                    "$ref": "59"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsByte.patchNull.contentType",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "252"
                 },
                 {
-                  "$id": "254",
-                  "kind": "method",
-                  "name": "body",
-                  "serializedName": "body",
-                  "type": {
-                    "$ref": "111"
-                  },
-                  "location": "Body",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Method",
-                  "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsByte.patchNull.body",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "254"
                 }
               ],
               "response": {},
@@ -3538,7 +3688,26 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsModel.getNonNull.accept"
+                    "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsModel.getNonNull.accept",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "262",
+                        "kind": "method",
+                        "name": "accept",
+                        "serializedName": "Accept",
+                        "type": {
+                          "$ref": "61"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsModel.getNonNull.accept",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -3567,21 +3736,7 @@
               },
               "parameters": [
                 {
-                  "$id": "262",
-                  "kind": "method",
-                  "name": "accept",
-                  "serializedName": "Accept",
-                  "type": {
-                    "$ref": "61"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsModel.getNonNull.accept",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "262"
                 }
               ],
               "response": {
@@ -3622,7 +3777,26 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsModel.getNull.accept"
+                    "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsModel.getNull.accept",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "266",
+                        "kind": "method",
+                        "name": "accept",
+                        "serializedName": "Accept",
+                        "type": {
+                          "$ref": "63"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsModel.getNull.accept",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -3651,21 +3825,7 @@
               },
               "parameters": [
                 {
-                  "$id": "266",
-                  "kind": "method",
-                  "name": "accept",
-                  "serializedName": "Accept",
-                  "type": {
-                    "$ref": "63"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsModel.getNull.accept",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "266"
                 }
               ],
               "response": {
@@ -3707,10 +3867,30 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsModel.patchNonNull.contentType"
+                    "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsModel.patchNonNull.contentType",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "270",
+                        "kind": "method",
+                        "name": "contentType",
+                        "serializedName": "Content-Type",
+                        "doc": "content-type is application/merge-patch+json",
+                        "type": {
+                          "$ref": "67"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsModel.patchNonNull.contentType",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   },
                   {
-                    "$id": "270",
+                    "$id": "271",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -3726,7 +3906,26 @@
                     "scope": "Method",
                     "decorators": [],
                     "readOnly": false,
-                    "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsModel.patchNonNull.body"
+                    "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsModel.patchNonNull.body",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "272",
+                        "kind": "method",
+                        "name": "body",
+                        "serializedName": "body",
+                        "type": {
+                          "$ref": "118"
+                        },
+                        "location": "Body",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Method",
+                        "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsModel.patchNonNull.body",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -3752,39 +3951,10 @@
               },
               "parameters": [
                 {
-                  "$id": "271",
-                  "kind": "method",
-                  "name": "contentType",
-                  "serializedName": "Content-Type",
-                  "doc": "content-type is application/merge-patch+json",
-                  "type": {
-                    "$ref": "67"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsModel.patchNonNull.contentType",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "270"
                 },
                 {
-                  "$id": "272",
-                  "kind": "method",
-                  "name": "body",
-                  "serializedName": "body",
-                  "type": {
-                    "$ref": "118"
-                  },
-                  "location": "Body",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Method",
-                  "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsModel.patchNonNull.body",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "272"
                 }
               ],
               "response": {},
@@ -3822,10 +3992,30 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsModel.patchNull.contentType"
+                    "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsModel.patchNull.contentType",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "276",
+                        "kind": "method",
+                        "name": "contentType",
+                        "serializedName": "Content-Type",
+                        "doc": "content-type is application/merge-patch+json",
+                        "type": {
+                          "$ref": "71"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsModel.patchNull.contentType",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   },
                   {
-                    "$id": "276",
+                    "$id": "277",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -3841,7 +4031,26 @@
                     "scope": "Method",
                     "decorators": [],
                     "readOnly": false,
-                    "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsModel.patchNull.body"
+                    "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsModel.patchNull.body",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "278",
+                        "kind": "method",
+                        "name": "body",
+                        "serializedName": "body",
+                        "type": {
+                          "$ref": "118"
+                        },
+                        "location": "Body",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Method",
+                        "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsModel.patchNull.body",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -3867,39 +4076,10 @@
               },
               "parameters": [
                 {
-                  "$id": "277",
-                  "kind": "method",
-                  "name": "contentType",
-                  "serializedName": "Content-Type",
-                  "doc": "content-type is application/merge-patch+json",
-                  "type": {
-                    "$ref": "71"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsModel.patchNull.contentType",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "276"
                 },
                 {
-                  "$id": "278",
-                  "kind": "method",
-                  "name": "body",
-                  "serializedName": "body",
-                  "type": {
-                    "$ref": "118"
-                  },
-                  "location": "Body",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Method",
-                  "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsModel.patchNull.body",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "278"
                 }
               ],
               "response": {},
@@ -3983,7 +4163,26 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsString.getNonNull.accept"
+                    "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsString.getNonNull.accept",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "286",
+                        "kind": "method",
+                        "name": "accept",
+                        "serializedName": "Accept",
+                        "type": {
+                          "$ref": "73"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsString.getNonNull.accept",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -4012,21 +4211,7 @@
               },
               "parameters": [
                 {
-                  "$id": "286",
-                  "kind": "method",
-                  "name": "accept",
-                  "serializedName": "Accept",
-                  "type": {
-                    "$ref": "73"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsString.getNonNull.accept",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "286"
                 }
               ],
               "response": {
@@ -4067,7 +4252,26 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsString.getNull.accept"
+                    "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsString.getNull.accept",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "290",
+                        "kind": "method",
+                        "name": "accept",
+                        "serializedName": "Accept",
+                        "type": {
+                          "$ref": "75"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsString.getNull.accept",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -4096,21 +4300,7 @@
               },
               "parameters": [
                 {
-                  "$id": "290",
-                  "kind": "method",
-                  "name": "accept",
-                  "serializedName": "Accept",
-                  "type": {
-                    "$ref": "75"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsString.getNull.accept",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "290"
                 }
               ],
               "response": {
@@ -4152,10 +4342,30 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsString.patchNonNull.contentType"
+                    "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsString.patchNonNull.contentType",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "294",
+                        "kind": "method",
+                        "name": "contentType",
+                        "serializedName": "Content-Type",
+                        "doc": "content-type is application/merge-patch+json",
+                        "type": {
+                          "$ref": "79"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsString.patchNonNull.contentType",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   },
                   {
-                    "$id": "294",
+                    "$id": "295",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -4171,7 +4381,26 @@
                     "scope": "Method",
                     "decorators": [],
                     "readOnly": false,
-                    "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsString.patchNonNull.body"
+                    "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsString.patchNonNull.body",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "296",
+                        "kind": "method",
+                        "name": "body",
+                        "serializedName": "body",
+                        "type": {
+                          "$ref": "127"
+                        },
+                        "location": "Body",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Method",
+                        "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsString.patchNonNull.body",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -4197,39 +4426,10 @@
               },
               "parameters": [
                 {
-                  "$id": "295",
-                  "kind": "method",
-                  "name": "contentType",
-                  "serializedName": "Content-Type",
-                  "doc": "content-type is application/merge-patch+json",
-                  "type": {
-                    "$ref": "79"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsString.patchNonNull.contentType",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "294"
                 },
                 {
-                  "$id": "296",
-                  "kind": "method",
-                  "name": "body",
-                  "serializedName": "body",
-                  "type": {
-                    "$ref": "127"
-                  },
-                  "location": "Body",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Method",
-                  "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsString.patchNonNull.body",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "296"
                 }
               ],
               "response": {},
@@ -4267,10 +4467,30 @@
                     "scope": "Constant",
                     "readOnly": false,
                     "decorators": [],
-                    "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsString.patchNull.contentType"
+                    "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsString.patchNull.contentType",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "300",
+                        "kind": "method",
+                        "name": "contentType",
+                        "serializedName": "Content-Type",
+                        "doc": "content-type is application/merge-patch+json",
+                        "type": {
+                          "$ref": "83"
+                        },
+                        "location": "Header",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Constant",
+                        "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsString.patchNull.contentType",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   },
                   {
-                    "$id": "300",
+                    "$id": "301",
                     "kind": "body",
                     "name": "body",
                     "serializedName": "body",
@@ -4286,7 +4506,26 @@
                     "scope": "Method",
                     "decorators": [],
                     "readOnly": false,
-                    "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsString.patchNull.body"
+                    "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsString.patchNull.body",
+                    "correspondingMethodParams": [
+                      {
+                        "$id": "302",
+                        "kind": "method",
+                        "name": "body",
+                        "serializedName": "body",
+                        "type": {
+                          "$ref": "127"
+                        },
+                        "location": "Body",
+                        "isApiVersion": false,
+                        "optional": false,
+                        "scope": "Method",
+                        "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsString.patchNull.body",
+                        "readOnly": false,
+                        "access": "public",
+                        "decorators": []
+                      }
+                    ]
                   }
                 ],
                 "responses": [
@@ -4312,39 +4551,10 @@
               },
               "parameters": [
                 {
-                  "$id": "301",
-                  "kind": "method",
-                  "name": "contentType",
-                  "serializedName": "Content-Type",
-                  "doc": "content-type is application/merge-patch+json",
-                  "type": {
-                    "$ref": "83"
-                  },
-                  "location": "Header",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Constant",
-                  "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsString.patchNull.contentType",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "300"
                 },
                 {
-                  "$id": "302",
-                  "kind": "method",
-                  "name": "body",
-                  "serializedName": "body",
-                  "type": {
-                    "$ref": "127"
-                  },
-                  "location": "Body",
-                  "isApiVersion": false,
-                  "optional": false,
-                  "scope": "Method",
-                  "crossLanguageDefinitionId": "Type.Property.Nullable.CollectionsString.patchNull.body",
-                  "readOnly": false,
-                  "access": "public",
-                  "decorators": []
+                  "$ref": "302"
                 }
               ],
               "response": {},

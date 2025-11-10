@@ -1097,5 +1097,309 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var createRequestMethod = (ScmMethodProvider)client!.RestClient.GetCreateRequestMethod(inputOperation);
             Assert.AreEqual(ScmMethodKind.CreateRequest, createRequestMethod.Kind);
         }
+
+        [Test]
+        public void CorrespondingMethodParamsMapParametersCorrectly()
+        {
+            // Create method parameters that will be used in correspondingMethodParams
+            var nameMethodParam = InputFactory.MethodParameter("name", InputPrimitiveType.String, isRequired: true);
+            var ageMethodParam = InputFactory.MethodParameter("age", InputPrimitiveType.Int32, isRequired: true);
+
+            // Create protocol parameters with correspondingMethodParams set
+            var nameQueryParam = InputFactory.QueryParameter(
+                "queryName",
+                InputPrimitiveType.String,
+                isRequired: true,
+                serializedName: "queryName",
+                correspondingMethodParams: [nameMethodParam]);
+
+            var ageHeaderParam = InputFactory.HeaderParameter(
+                "x-age",
+                InputPrimitiveType.Int32,
+                isRequired: true,
+                serializedName: "x-age",
+                correspondingMethodParams: [ageMethodParam]);
+
+            var inputOperation = InputFactory.Operation(
+                "TestOperation",
+                parameters: [nameQueryParam, ageHeaderParam],
+                responses: [InputFactory.OperationResponse([200])]);
+
+            var inputServiceMethod = InputFactory.BasicServiceMethod(
+                "TestOperation",
+                inputOperation,
+                parameters: [nameMethodParam, ageMethodParam]);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator();
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+            Assert.IsNotNull(methodCollection);
+
+            var convenienceMethod = methodCollection.FirstOrDefault(m
+                => !m.Signature.Parameters.Any(p => p.Name == "options")
+                    && m.Signature.Name == $"{inputOperation.Name.ToIdentifierName()}");
+            Assert.IsNotNull(convenienceMethod);
+
+            // Verify the body contains calls with the correct parameter mapping
+            var bodyString = convenienceMethod!.BodyStatements!.ToDisplayString();
+            Assert.IsTrue(bodyString.Contains("name"), "Body should contain 'name' parameter");
+            Assert.IsTrue(bodyString.Contains("age"), "Body should contain 'age' parameter");
+        }
+
+        [Test]
+        public void CorrespondingMethodParamsFallbackToNameMatching()
+        {
+            // Create parameters without correspondingMethodParams to test fallback
+            var nameMethodParam = InputFactory.MethodParameter("name", InputPrimitiveType.String, isRequired: true);
+
+            var nameQueryParam = InputFactory.QueryParameter("name", InputPrimitiveType.String, isRequired: true);
+            // Note: CorrespondingMethodParams is intentionally not set to test fallback
+
+            var inputOperation = InputFactory.Operation(
+                "TestOperation",
+                parameters: [nameQueryParam],
+                responses: [InputFactory.OperationResponse([200])]);
+
+            var inputServiceMethod = InputFactory.BasicServiceMethod(
+                "TestOperation",
+                inputOperation,
+                parameters: [nameMethodParam]);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator();
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+            Assert.IsNotNull(methodCollection);
+
+            var convenienceMethod = methodCollection.FirstOrDefault(m
+                => !m.Signature.Parameters.Any(p => p.Name == "options")
+                    && m.Signature.Name == $"{inputOperation.Name.ToIdentifierName()}");
+            Assert.IsNotNull(convenienceMethod);
+
+            // Verify the parameter is still correctly mapped via name matching
+            var bodyString = convenienceMethod!.BodyStatements!.ToDisplayString();
+            Assert.IsTrue(bodyString.Contains("name"), "Body should contain 'name' parameter via fallback name matching");
+        }
+
+        [Test]
+        public void CorrespondingMethodParamsWithBodyParameter()
+        {
+            // Test that correspondingMethodParams works with body parameters
+            var valueMethodParam = InputFactory.MethodParameter("value", InputPrimitiveType.String, isRequired: true);
+
+            var bodyParam = InputFactory.BodyParameter(
+                "body",
+                InputPrimitiveType.String,
+                isRequired: true,
+                serializedName: "body",
+                correspondingMethodParams: [valueMethodParam]);
+
+            var inputOperation = InputFactory.Operation(
+                "TestOperation",
+                parameters: [bodyParam],
+                responses: [InputFactory.OperationResponse([200])]);
+
+            var inputServiceMethod = InputFactory.BasicServiceMethod(
+                "TestOperation",
+                inputOperation,
+                parameters: [valueMethodParam]);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator();
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+            Assert.IsNotNull(methodCollection);
+
+            var convenienceMethod = methodCollection.FirstOrDefault(m
+                => !m.Signature.Parameters.Any(p => p.Name == "options")
+                    && m.Signature.Name == $"{inputOperation.Name.ToIdentifierName()}");
+            Assert.IsNotNull(convenienceMethod);
+
+            // Verify body parameter mapping works correctly
+            var bodyString = convenienceMethod!.BodyStatements!.ToDisplayString();
+            Assert.IsTrue(bodyString.Contains("content") || bodyString.Contains("value"),
+                "Body should contain content conversion or value parameter");
+        }
+
+        [Test]
+        public void CorrespondingMethodParamsWithMultipleParameterTypes()
+        {
+            // Test complex scenario with query, path, header, and body parameters
+            var nameMethodParam = InputFactory.MethodParameter("name", InputPrimitiveType.String, isRequired: true);
+            var idMethodParam = InputFactory.MethodParameter("id", InputPrimitiveType.Int32, isRequired: true);
+            var tokenMethodParam = InputFactory.MethodParameter("token", InputPrimitiveType.String, isRequired: true);
+            var dataMethodParam = InputFactory.MethodParameter("data", InputPrimitiveType.String, isRequired: true);
+
+            var queryParam = InputFactory.QueryParameter(
+                "q",
+                InputPrimitiveType.String,
+                isRequired: true,
+                serializedName: "q",
+                correspondingMethodParams: [nameMethodParam]);
+
+            var pathParam = InputFactory.PathParameter(
+                "id",
+                InputPrimitiveType.Int32,
+                isRequired: true,
+                serializedName: "id",
+                correspondingMethodParams: [idMethodParam]);
+
+            var headerParam = InputFactory.HeaderParameter(
+                "x-token",
+                InputPrimitiveType.String,
+                isRequired: true,
+                serializedName: "x-token",
+                correspondingMethodParams: [tokenMethodParam]);
+
+            var bodyParam = InputFactory.BodyParameter(
+                "body",
+                InputPrimitiveType.String,
+                isRequired: true,
+                serializedName: "body",
+                correspondingMethodParams: [dataMethodParam]);
+
+            var inputOperation = InputFactory.Operation(
+                "ComplexOperation",
+                parameters: [pathParam, queryParam, headerParam, bodyParam],
+                responses: [InputFactory.OperationResponse([200])]);
+
+            var inputServiceMethod = InputFactory.BasicServiceMethod(
+                "ComplexOperation",
+                inputOperation,
+                parameters: [idMethodParam, nameMethodParam, tokenMethodParam, dataMethodParam]);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator();
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+            Assert.IsNotNull(methodCollection);
+            Assert.AreEqual(4, methodCollection.Count); // 2 protocol + 2 convenience methods
+
+            var convenienceMethod = methodCollection.FirstOrDefault(m
+                => !m.Signature.Parameters.Any(p => p.Name == "options")
+                    && m.Signature.Name == $"{inputOperation.Name.ToIdentifierName()}");
+            Assert.IsNotNull(convenienceMethod);
+
+            // Verify all parameters are present
+            var convenienceParams = convenienceMethod!.Signature.Parameters;
+            Assert.AreEqual(5, convenienceParams.Count); // 4 params + cancellation token
+            Assert.IsTrue(convenienceParams.Any(p => p.Name == "id"));
+            Assert.IsTrue(convenienceParams.Any(p => p.Name == "name"));
+            Assert.IsTrue(convenienceParams.Any(p => p.Name == "token"));
+            Assert.IsTrue(convenienceParams.Any(p => p.Name == "data"));
+        }
+
+        [Test]
+        public void CorrespondingMethodParamsWithModelTypeParameter()
+        {
+            // Create a model with properties that include HTTP metadata (header, query) and body
+            var headerProperty = InputFactory.Property(
+                "apiKey",
+                InputPrimitiveType.String,
+                isRequired: true,
+                isReadOnly: false,
+                isHttpMetadata: true,
+                serializedName: "x-api-key");
+
+            var queryProperty = InputFactory.Property(
+                "filter",
+                InputPrimitiveType.String,
+                isRequired: true,
+                isReadOnly: false,
+                isHttpMetadata: true,
+                serializedName: "filter");
+
+            var bodyProperty = InputFactory.Property(
+                "data",
+                InputPrimitiveType.String,
+                isRequired: true,
+                isReadOnly: false,
+                serializedName: "data");
+
+            var requestModel = InputFactory.Model(
+                "RequestModel",
+                properties: [headerProperty, queryProperty, bodyProperty]);
+
+            // Create method parameter with the model type
+            var requestMethodParam = InputFactory.MethodParameter(
+                "request",
+                requestModel,
+                isRequired: true);
+
+            // Create protocol parameters that map to model properties
+            var headerParam = InputFactory.HeaderParameter(
+                "x-api-key",
+                InputPrimitiveType.String,
+                isRequired: true,
+                serializedName: "x-api-key",
+                correspondingMethodParams: [requestMethodParam]);
+
+            var queryParam = InputFactory.QueryParameter(
+                "filter",
+                InputPrimitiveType.String,
+                isRequired: true,
+                serializedName: "filter",
+                correspondingMethodParams: [requestMethodParam]);
+
+            var bodyParam = InputFactory.BodyParameter(
+                "body",
+                requestModel,
+                isRequired: true,
+                serializedName: "body",
+                correspondingMethodParams: [requestMethodParam]);
+
+            var inputOperation = InputFactory.Operation(
+                "ModelParamOperation",
+                parameters: [headerParam, queryParam, bodyParam],
+                responses: [InputFactory.OperationResponse([200])]);
+
+            var inputServiceMethod = InputFactory.BasicServiceMethod(
+                "ModelParamOperation",
+                inputOperation,
+                parameters: [requestMethodParam]);
+
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator();
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+            Assert.IsNotNull(methodCollection);
+
+            var convenienceMethod = methodCollection.FirstOrDefault(m
+                => !m.Signature.Parameters.Any(p => p.Name == "options")
+                    && m.Signature.Name == $"{inputOperation.Name.ToIdentifierName()}");
+            Assert.IsNotNull(convenienceMethod);
+
+            // Verify the convenience method has the model parameter
+            var convenienceParams = convenienceMethod!.Signature.Parameters;
+            Assert.AreEqual(2, convenienceParams.Count); // request + cancellation token
+            Assert.IsTrue(convenienceParams.Any(p => p.Name == "request"));
+
+            // Verify the body accesses model properties when calling the protocol method
+            var bodyString = convenienceMethod.BodyStatements!.ToDisplayString();
+            Assert.IsTrue(bodyString.Contains("request"), "Body should reference the 'request' parameter");
+
+            // Verify that the convenience method accesses properties from the model parameter
+            // e.g., request.ApiKey for header, request.Filter for query
+            Assert.IsTrue(bodyString.Contains("request.ApiKey") || bodyString.Contains("request.apiKey"),
+                "Body should access the ApiKey property of the request parameter");
+            Assert.IsTrue(bodyString.Contains("request.Filter") || bodyString.Contains("request.filter"),
+                "Body should access the Filter property of the request parameter");
+        }
     }
 }
