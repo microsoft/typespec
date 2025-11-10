@@ -511,9 +511,14 @@ try {
             
             Copy-Item $emitterJson $tempPackageJson -Force
             
+            # Copy the package file to temp directory to avoid Windows path length issues
+            $packageFileName = Split-Path $unbrandedPackagePath -Leaf
+            $tempPackageFile = Join-Path $tempDir $packageFileName
+            Copy-Item $unbrandedPackagePath $tempPackageFile -Force
+            
             Push-Location $tempDir
             try {
-                Invoke "npm install `"`"file:$unbrandedPackagePath`"`" --package-lock-only" $tempDir
+                Invoke "npm install `"`"file:$packageFileName`"`" --package-lock-only" $tempDir
                 
                 Copy-Item $tempPackageJson $emitterJson -Force
                 $lockFile = Join-Path $tempDir "package-lock.json"
@@ -550,9 +555,14 @@ try {
                 
                 Copy-Item $emitterJson $tempPackageJson -Force
                 
+                # Copy the package file to temp directory to avoid Windows path length issues
+                $azurePackageFileName = Split-Path $azurePackagePath -Leaf
+                $tempAzurePackageFile = Join-Path $tempDir $azurePackageFileName
+                Copy-Item $azurePackagePath $tempAzurePackageFile -Force
+                
                 Push-Location $tempDir
                 try {
-                    Invoke "npm install `"`"file:$azurePackagePath`"`" --package-lock-only" $tempDir
+                    Invoke "npm install `"`"file:$azurePackageFileName`"`" --package-lock-only" $tempDir
                     
                     Copy-Item $tempPackageJson $emitterJson -Force
                     $lockFile = Join-Path $tempDir "package-lock.json"
