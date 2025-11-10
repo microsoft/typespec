@@ -41,7 +41,7 @@ extern dec segmentOf(target: Operation, type: Model);
  * @param seperator Seperator seperating the action segment from the rest of the url
  */
 extern dec actionSeparator(
-  target: Model | ModelProperty | Operation,
+  target: Operation | Interface | Namespace,
   seperator: valueof "/" | ":" | "/:"
 );
 
