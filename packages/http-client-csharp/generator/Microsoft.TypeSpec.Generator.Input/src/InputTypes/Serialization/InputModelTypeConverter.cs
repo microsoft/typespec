@@ -121,6 +121,14 @@ namespace Microsoft.TypeSpec.Generator.Input
             {
                 model.Properties = properties;
             }
+            if (discriminatedSubtypes != null)
+            {
+                model.DiscriminatedSubtypes = discriminatedSubtypes;
+            }
+            else if (model.DiscriminatorProperty != null)
+            {
+                model.DiscriminatedSubtypes = new Dictionary<string, InputModelType>();
+            }
             model.ModelAsStruct = modelAsStruct;
             if (decorators != null)
             {
@@ -130,21 +138,12 @@ namespace Microsoft.TypeSpec.Generator.Input
                     MarkModelsAsDynamicRecursive(model, []);
                 }
             }
-            // Subtype calculation handles setting IsDynamicModel for unknown derived models so it needs to be called after setting the base model.
-            if (discriminatedSubtypes != null)
-            {
-                model.DiscriminatedSubtypes = discriminatedSubtypes;
-            }
-            else if (model.DiscriminatorProperty != null)
-            {
-                model.DiscriminatedSubtypes = new Dictionary<string, InputModelType>();
-            }
+
             // if this model has a base, it means this model is a derived model of the base model, add it into the list.
             if (baseModel != null)
             {
                 baseModel.AddDerivedModel(model);
             }
-
             return model;
         }
 
@@ -159,10 +158,14 @@ namespace Microsoft.TypeSpec.Generator.Input
             {
                 modelType.IsDynamicModel = true;
 
-                // Mark all derived models as dynamic
+                // Mark all derived/discriminated models as dynamic
                 foreach (var derivedModel in modelType.DerivedModels)
                 {
                     MarkModelsAsDynamicRecursive(derivedModel, visited);
+                }
+                foreach (var discriminatedModel in modelType.DiscriminatedSubtypes.Values)
+                {
+                    MarkModelsAsDynamicRecursive(discriminatedModel, visited);
                 }
 
                 foreach (var property in modelType.Properties)

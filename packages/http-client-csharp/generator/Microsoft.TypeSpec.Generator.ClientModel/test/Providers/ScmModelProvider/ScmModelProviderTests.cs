@@ -52,7 +52,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
             InputModelType catModel = InputFactory.Model("cat", discriminatedKind: "cat", properties:
             [
                 InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
-            ]);
+            ],
+                isDynamicModel: true);
             var baseModel = InputFactory.Model(
                 "pet",
                 isDynamicModel: true,
@@ -79,13 +80,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
 
             Assert.IsNotNull(model);
 
-            var expectedDynamicModel = validateBase;
-            Assert.AreEqual(expectedDynamicModel, model!.IsDynamicModel);
+            Assert.IsTrue(model!.IsDynamicModel);
 
-            if (expectedDynamicModel)
-            {
-                AssertJsonIgnoreAttributeOnPatchProperty(model);
-            }
+            AssertJsonIgnoreAttributeOnPatchProperty(model);
 
             var writer = new TypeProviderWriter(model);
             var file = writer.Write();
