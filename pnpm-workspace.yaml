@@ -2,13 +2,13 @@ packages:
   - packages/*
   - e2e
   - website
-  - '!packages/http-client-csharp/**'
-  - '!packages/http-client-java/**'
-  - '!packages/http-client-python/**'
+  - "!packages/http-client-csharp/**"
+  - "!packages/http-client-java/**"
+  - "!packages/http-client-python/**"
 
 onlyBuiltDependencies:
-  - '@playwright/browser-chromium'
-  - '@vscode/vsce-sign'
+  - "@playwright/browser-chromium"
+  - "@vscode/vsce-sign"
   - esbuild
   - sharp
 
