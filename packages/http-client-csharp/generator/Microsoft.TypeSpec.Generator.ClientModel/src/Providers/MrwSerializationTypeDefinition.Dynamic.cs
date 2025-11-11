@@ -329,10 +329,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 // Add dynamic collection properties
                 var dynamicCollectionProperties = properties
-                    .Where(p => p.Type.IsCollection && p.WireInfo?.SerializedName != null)
-                    .Where(p => ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(
-                        p.Type.GetNestedElementType(),
-                        out var provider) &&
+                    .Where(p => p.Type.IsCollection &&
+                        p.WireInfo?.SerializedName != null &&
+                        ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(
+                            p.Type.GetNestedElementType(),
+                            out var provider) &&
                         provider is ScmModelProvider { JsonPatchProperty: not null });
                 allDynamicCollectionProperties.AddRange(dynamicCollectionProperties);
 
