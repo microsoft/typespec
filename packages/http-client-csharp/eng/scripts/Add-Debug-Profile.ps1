@@ -142,19 +142,19 @@ function Build-LocalUnbrandedEmitter {
     Push-Location $PackageRoot
     try {
         Write-Host "Installing dependencies..." -ForegroundColor Gray
-        Invoke "npm ci" $PackageRoot
+        Invoke "npm ci" $PackageRoot | Out-Host
         if ($LASTEXITCODE -ne 0) {
             throw "Failed to install dependencies"
         }
         
         Write-Host "Cleaning build artifacts..." -ForegroundColor Gray
-        Invoke "npm run clean" $PackageRoot
+        Invoke "npm run clean" $PackageRoot | Out-Host
         if ($LASTEXITCODE -ne 0) {
             throw "Failed to clean"
         }
         
         Write-Host "Building emitter..." -ForegroundColor Gray
-        Invoke "npm run build" $PackageRoot
+        Invoke "npm run build" $PackageRoot | Out-Host
         if ($LASTEXITCODE -ne 0) {
             throw "Failed to build"
         }
@@ -242,7 +242,7 @@ function Build-LocalNuGetPackages {
         
         Write-Host "Packing: $(Split-Path $projectPath -Leaf)" -ForegroundColor Gray
         $packCmd = "dotnet pack `"$projectPath`" /p:Version=$LocalVersion /p:PackageVersion=$LocalVersion /p:PackageOutputPath=`"$DebugFolder`" --configuration Debug --no-build --nologo -v:quiet"
-        Invoke $packCmd $generatorRoot
+        Invoke $packCmd $generatorRoot | Out-Host
         if ($LASTEXITCODE -ne 0) {
             throw "Failed to pack $(Split-Path $projectPath -Leaf)"
         }
