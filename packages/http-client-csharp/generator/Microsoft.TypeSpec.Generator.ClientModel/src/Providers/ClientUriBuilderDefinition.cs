@@ -33,7 +33,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             modifiers: MethodSignatureModifiers.Private,
             name: "UriBuilder",
             type: typeof(UriBuilder),
-            body: new ExpressionPropertyBody(new BinaryOperatorExpression(" ??= ", _uriBuilderField, New.Instance(typeof(UriBuilder)))),
+            body: new ExpressionPropertyBody(new BinaryOperatorExpression("??=", _uriBuilderField, New.Instance(typeof(UriBuilder)))),
             description: null,
             enclosingType: this);
 
@@ -51,7 +51,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             modifiers: MethodSignatureModifiers.Private,
             name: "PathAndQuery",
             type: typeof(StringBuilder),
-            body: new ExpressionPropertyBody(new BinaryOperatorExpression(" ??= ", _pathAndQueryField, New.Instance(typeof(StringBuilder)))),
+            body: new ExpressionPropertyBody(new BinaryOperatorExpression("??=", _pathAndQueryField, New.Instance(typeof(StringBuilder)))),
             description: null,
             enclosingType: this);
 
@@ -153,14 +153,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 },
                 MethodBodyStatement.Empty,
                 // Check for double slashes: if path ends with '/' and value starts with '/'
-                new IfStatement(pathLength.GreaterThan(Int(0)).And(stringBuilder.Index(new BinaryOperatorExpression(" - ", pathLength, Int(1))).Equal(Literal('/'))).And(valueParameter.As<string>().Index(Int(0)).Equal(Literal('/'))))
+                new IfStatement(pathLength.GreaterThan(Int(0)).And(stringBuilder.Index(new BinaryOperatorExpression("-", pathLength, Int(1))).Equal(Literal('/'))).And(valueParameter.As<string>().Index(Int(0)).Equal(Literal('/'))))
                 {
-                    stringBuilder.Remove(new BinaryOperatorExpression(" - ", pathLength, Int(1)), Int(1)).Terminate(),
-                    _pathLengthField.Assign(new BinaryOperatorExpression(" - ", pathLength, Int(1))).Terminate()
+                    stringBuilder.Remove(new BinaryOperatorExpression("-", pathLength, Int(1)), Int(1)).Terminate(),
+                    _pathLengthField.Assign(new BinaryOperatorExpression("-", pathLength, Int(1))).Terminate()
                 },
                 MethodBodyStatement.Empty,
                 stringBuilder.Invoke("Insert", [pathLength, valueParameter]).Terminate(),
-                _pathLengthField.Assign(new BinaryOperatorExpression(" + ", pathLength, valueParameter.As<string>().Length())).Terminate()
+                _pathLengthField.Assign(new BinaryOperatorExpression("+", pathLength, valueParameter.As<string>().Length())).Terminate()
             };
 
             return
@@ -222,7 +222,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     stringBuilder.Append(Literal('?')).Terminate()
                 },
-                new IfStatement(stringBuilder.Length().GreaterThan(pathLength).And(stringBuilder.Index(new BinaryOperatorExpression(" - ", stringBuilder.Length(), Int(1))).NotEqual(Literal('?'))))
+                new IfStatement(stringBuilder.Length().GreaterThan(pathLength).And(stringBuilder.Index(new BinaryOperatorExpression("-", stringBuilder.Length(), Int(1))).NotEqual(Literal('?'))))
                 {
                     stringBuilder.Append(Literal('&')).Terminate()
                 },
@@ -353,7 +353,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // Set the query portion if it exists
                 new IfStatement(stringBuilder.Length().GreaterThan(pathLength))
                 {
-                    UriBuilderQuery.Assign(stringBuilder.Invoke("ToString", [new BinaryOperatorExpression(" + ", pathLength, Int(1)), new BinaryOperatorExpression(" - ", new BinaryOperatorExpression(" - ", stringBuilder.Length(), pathLength), Int(1))])).Terminate()
+                    UriBuilderQuery.Assign(stringBuilder.Invoke("ToString", [new BinaryOperatorExpression("+", pathLength, Int(1)), new BinaryOperatorExpression("-", new BinaryOperatorExpression("-", stringBuilder.Length(), pathLength), Int(1))])).Terminate()
                 },
                 new IfStatement(stringBuilder.Length().Equal(pathLength))
                 {
