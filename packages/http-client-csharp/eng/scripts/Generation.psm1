@@ -7,22 +7,11 @@ function Invoke($command, $executePath=$packageRoot)
     try {
         if ($IsLinux -or $IsMacOs)
         {
-            $output = sh -c "$command 2>&1"
+            sh -c "$command 2>&1"
         }
         else
         {
-            $output = cmd /c "$command 2>&1"
-        }
-        
-        # Write output line by line to preserve formatting
-        # Use @() to ensure $output is always treated as an array
-        $outputArray = @($output)
-        if ($outputArray -and $outputArray.Length -gt 0) {
-            foreach ($line in $outputArray) {
-                if ($null -ne $line) {
-                    Write-Host $line
-                }
-            }
+            cmd /c "$command 2>&1"
         }
     }
     finally {
