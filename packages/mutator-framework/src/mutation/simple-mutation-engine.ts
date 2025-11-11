@@ -64,23 +64,15 @@ export interface SimpleMutationOptionsInit {
 }
 
 export class SimpleMutationOptions extends MutationOptions {
-  #referenceEdge: HalfEdge<any, any> | undefined;
-  get referenceEdge() {
-    return this.#referenceEdge;
-  }
-
   constructor(init?: SimpleMutationOptionsInit) {
     super();
-    this.#referenceEdge = init?.referenceEdge;
-  }
-
-  with(options: SimpleMutationOptionsInit) {
-    return new SimpleMutationOptions({
-      referenceEdge: options.referenceEdge ?? this.#referenceEdge,
-    });
   }
 }
 
+/**
+ * The simple mutation engine and it's associated mutation classes allow for
+ * creating a mutated node for types in the type graph.
+ */
 export class SimpleMutationEngine<
   TCustomMutations extends CustomMutationClasses,
 > extends MutationEngine<TCustomMutations> {
@@ -140,9 +132,6 @@ export class SimpleModelMutation<TOptions extends SimpleMutationOptions>
   ) {
     super(engine, sourceType, referenceTypes, options, info);
     this.#mutationNode = this.engine.getMutationNode(this.sourceType, info.mutationKey);
-    if (options.referenceEdge) {
-      options.referenceEdge.setTail(this.#mutationNode);
-    }
   }
 
   startBaseEdge() {
@@ -202,9 +191,6 @@ export class SimpleModelPropertyMutation<TOptions extends SimpleMutationOptions>
   ) {
     super(engine, sourceType, referenceTypes, options, info);
     this.#mutationNode = this.engine.getMutationNode(this.sourceType, info.mutationKey);
-    if (options.referenceEdge) {
-      options.referenceEdge.setTail(this.#mutationNode);
-    }
   }
 
   startTypeEdge(): MutationHalfEdge {
@@ -240,28 +226,12 @@ export class SimpleUnionMutation<TOptions extends SimpleMutationOptions>
   ) {
     super(engine, sourceType, referenceTypes, options, info);
     this.#mutationNode = this.engine.getMutationNode(this.sourceType, info.mutationKey);
-    if (options.referenceEdge) {
-      options.referenceEdge.setTail(this.#mutationNode);
-    }
   }
 
   protected startVariantEdge(): MutationHalfEdge {
     return new MutationHalfEdge(this, (tail) => {
       this.#mutationNode.connectVariant(tail.mutationNode as UnionVariantMutationNode);
     });
-  }
-
-  mutate(newOptions: SimpleMutationOptions = this.options) {
-    // Call the base mutateVariants but with custom options handling
-    this.variants = new Map(
-      [...this.sourceType.variants].map(([name, variant]) => [
-        name,
-        this.engine.mutate(
-          variant,
-          newOptions.with({ referenceEdge: this.#mutationNode.startVariantEdge() }),
-        ),
-      ]),
-    );
   }
 
   #mutationNode: UnionMutationNode;
@@ -291,22 +261,12 @@ export class SimpleUnionVariantMutation<TOptions extends SimpleMutationOptions>
   ) {
     super(engine, sourceType, referenceTypes, options, info);
     this.#mutationNode = this.engine.getMutationNode(this.sourceType, info.mutationKey);
-    if (options.referenceEdge) {
-      options.referenceEdge.setTail(this.#mutationNode);
-    }
   }
 
   protected startTypeEdge(): MutationHalfEdge {
     return new MutationHalfEdge(this, (tail) => {
       this.#mutationNode.connectType(tail.mutationNode as MutationNodeForType<Type>);
     });
-  }
-
-  mutate(newOptions: SimpleMutationOptions = this.options) {
-    this.type = this.engine.mutate(
-      this.sourceType.type,
-      newOptions.with({ referenceEdge: this.#mutationNode.startTypeEdge() }),
-    );
   }
 
   #mutationNode: UnionVariantMutationNode;
@@ -336,9 +296,6 @@ export class SimpleOperationMutation<TOptions extends SimpleMutationOptions>
   ) {
     super(engine, sourceType, referenceTypes, options, info);
     this.#mutationNode = this.engine.getMutationNode(this.sourceType, info.mutationKey);
-    if (options.referenceEdge) {
-      options.referenceEdge.setTail(this.#mutationNode);
-    }
   }
 
   protected startParametersEdge(): MutationHalfEdge {
@@ -351,17 +308,6 @@ export class SimpleOperationMutation<TOptions extends SimpleMutationOptions>
     return new MutationHalfEdge(this, (tail) => {
       this.#mutationNode.connectReturnType(tail.mutationNode as MutationNodeForType<Type>);
     });
-  }
-
-  mutate(newOptions: SimpleMutationOptions = this.options) {
-    this.parameters = this.engine.mutate(
-      this.sourceType.parameters,
-      newOptions.with({ referenceEdge: this.#mutationNode.startParametersEdge() }),
-    );
-    this.returnType = this.engine.mutate(
-      this.sourceType.returnType,
-      newOptions.with({ referenceEdge: this.#mutationNode.startReturnTypeEdge() }),
-    );
   }
 
   #mutationNode: OperationMutationNode;
@@ -387,27 +333,12 @@ export class SimpleInterfaceMutation<TOptions extends SimpleMutationOptions>
   ) {
     super(engine, sourceType, referenceTypes, options, info);
     this.#mutationNode = this.engine.getMutationNode(this.sourceType, info.mutationKey);
-    if (options.referenceEdge) {
-      options.referenceEdge.setTail(this.#mutationNode);
-    }
   }
 
   protected startOperationEdge(): MutationHalfEdge {
     return new MutationHalfEdge(this, (tail) => {
       this.#mutationNode.connectOperation(tail.mutationNode as OperationMutationNode);
     });
-  }
-
-  mutate(newOptions: SimpleMutationOptions = this.options) {
-    this.operations = new Map(
-      [...this.sourceType.operations].map(([name, op]) => [
-        name,
-        this.engine.mutate(
-          op,
-          newOptions.with({ referenceEdge: this.#mutationNode.startOperationEdge() }),
-        ),
-      ]),
-    );
   }
 
   #mutationNode: InterfaceMutationNode;
@@ -437,24 +368,12 @@ export class SimpleScalarMutation<TOptions extends SimpleMutationOptions>
   ) {
     super(engine, sourceType, referenceTypes, options, info);
     this.#mutationNode = this.engine.getMutationNode(this.sourceType, info.mutationKey);
-    if (options.referenceEdge) {
-      options.referenceEdge.setTail(this.#mutationNode);
-    }
   }
 
   protected startBaseScalarEdge(): MutationHalfEdge {
     return new MutationHalfEdge(this, (tail) => {
       this.#mutationNode.connectBaseScalar(tail.mutationNode as ScalarMutationNode);
     });
-  }
-
-  mutate(newOptions: SimpleMutationOptions = this.options) {
-    if (this.sourceType.baseScalar) {
-      this.baseScalar = this.engine.mutate(
-        this.sourceType.baseScalar,
-        newOptions.with({ referenceEdge: this.#mutationNode.startBaseScalarEdge() }),
-      );
-    }
   }
 
   #mutationNode: ScalarMutationNode;
@@ -484,9 +403,6 @@ export class SimpleLiteralMutation<TOptions extends SimpleMutationOptions>
   ) {
     super(engine, sourceType, referenceTypes, options, info);
     this.#mutationNode = this.engine.getMutationNode(this.sourceType, info.mutationKey);
-    if (options.referenceEdge) {
-      options.referenceEdge.setTail(this.#mutationNode);
-    }
   }
 
   #mutationNode: LiteralMutationNode;
@@ -516,9 +432,6 @@ export class SimpleIntrinsicMutation<TOptions extends SimpleMutationOptions>
   ) {
     super(engine, sourceType, referenceTypes, options, info);
     this.#mutationNode = this.engine.getMutationNode(this.sourceType, info.mutationKey);
-    if (options.referenceEdge) {
-      options.referenceEdge.setTail(this.#mutationNode);
-    }
   }
 
   #mutationNode: IntrinsicMutationNode;

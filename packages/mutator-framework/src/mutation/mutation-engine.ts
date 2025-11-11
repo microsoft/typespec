@@ -71,7 +71,11 @@ export interface MutationContext<
 > extends InitialMutationContext<TSourceType, TCustomMutations, TOptions, TEngine>,
     CreateMutationContext {}
 
+/**
+ * Orchestrates type mutations using custom and default mutation classes.
+ */
 export class MutationEngine<TCustomMutations extends CustomMutationClasses> {
+  /** TypeSpec type utilities. */
   $: Typekit;
 
   // Map of Type -> (Map of options.cacheKey() -> Mutation)
@@ -79,6 +83,11 @@ export class MutationEngine<TCustomMutations extends CustomMutationClasses> {
   #seenMutationNodes = new WeakMap<Type, Map<string, MutationNode<Type>>>();
   #mutatorClasses: ConstructorsFor<MutationRegistry>;
 
+  /**
+   * Creates a mutation engine with optional custom mutation classes.
+   * @param $ - TypeSpec type utilities
+   * @param mutatorClasses - Custom mutation class constructors
+   */
   constructor($: Typekit, mutatorClasses: ConstructorsFor<TCustomMutations>) {
     this.$ = $;
     this.#mutatorClasses = {
@@ -96,17 +105,12 @@ export class MutationEngine<TCustomMutations extends CustomMutationClasses> {
     } as any;
   }
 
-  getSeenMutation<T extends Type>(
-    type: T,
-    mutationKey: string,
-  ): MutationFor<TCustomMutations, T["kind"]> | undefined {
-    const byType = this.#mutationCache.get(type);
-    if (byType) {
-      return byType.get(mutationKey) as MutationFor<TCustomMutations, T["kind"]> | undefined;
-    }
-    return undefined;
-  }
-
+  /**
+   * Gets or creates a mutation node for the given type and key.
+   * @param type - Source type
+   * @param mutationKey - Cache key for the node
+   * @returns Mutation node for the type
+   */
   getMutationNode<T extends Type>(type: T, mutationKey: string = ""): MutationNodeForType<T> {
     let keyMap = this.#seenMutationNodes.get(type);
 
@@ -125,6 +129,11 @@ export class MutationEngine<TCustomMutations extends CustomMutationClasses> {
     return node;
   }
 
+  /**
+   * Replaces one mutation node with another in the cache.
+   * @param oldNode - Node to remove
+   * @param newNode - Node to add
+   */
   replaceMutationNode(oldNode: MutationNode<Type>, newNode: MutationNode<Type>) {
     const oldKeyMap = this.#seenMutationNodes.get(oldNode.sourceType);
     if (oldKeyMap) {
@@ -139,15 +148,27 @@ export class MutationEngine<TCustomMutations extends CustomMutationClasses> {
     newKeyMap.set(newNode.mutationKey, newNode);
   }
 
+  /**
+   * Replaces a reference with a new type and mutates it.
+   * @param reference - Original reference to replace
+   * @param newType - New type to use
+   * @param options - Mutation options
+   * @param halfEdge - Optional half edge for tracking
+   * @returns Mutation for the new type
+   */
   replaceAndMutateReference<TType extends Type>(
     reference: MemberType,
     newType: TType,
     options: MutationOptions = new MutationOptions(),
+    halfEdge?: MutationHalfEdge,
   ) {
     const { references } = resolveReference(reference);
-    return this.mutateWorker(newType, references, options);
+    return this.mutateWorker(newType, references, options, halfEdge);
   }
 
+  /**
+   * Internal worker that creates or retrieves mutations with caching.
+   */
   protected mutateWorker<TType extends Type>(
     type: TType,
     references: MemberType[],
@@ -188,6 +209,13 @@ export class MutationEngine<TCustomMutations extends CustomMutationClasses> {
     return mutation;
   }
 
+  /**
+   * Mutates a type using registered mutation classes.
+   * @param type - Type to mutate
+   * @param options - Mutation options
+   * @param halfEdge - Optional half edge for linking mutations to parent mutations
+   * @returns Mutation for the type
+   */
   mutate<TType extends Type>(
     type: TType,
     options: MutationOptions = new MutationOptions(),
@@ -196,6 +224,13 @@ export class MutationEngine<TCustomMutations extends CustomMutationClasses> {
     return this.mutateWorker(type, [], options, halfEdge);
   }
 
+  /**
+   * Mutates a type through a reference chain (e.g., ModelProperty or UnionVariant).
+   * @param reference - Reference to mutate
+   * @param options - Mutation options
+   * @param halfEdge - Optional half edge for tracking
+   * @returns Mutation for the referenced type
+   */
   mutateReference(
     reference: MemberType,
     options: MutationOptions = new MutationOptions(),
@@ -226,6 +261,11 @@ export class MutationOptions {
   }
 }
 
+/**
+ * Half-edge used to link mutations together. This represents the head-end of a
+ * mutation. When the tail is created, it is set on the half-edge and allows the
+ * head mutation to connect its nodes to the tail mutation.
+ */
 export class MutationHalfEdge<
   THead extends Mutation<any, any> = any,
   TTail extends Mutation<any, any> = any,

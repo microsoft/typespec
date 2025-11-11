@@ -33,7 +33,6 @@ class RenameMutationOptions extends SimpleMutationOptions {
   with(options: Partial<RenameMutationOptionsInit>) {
     return new RenameMutationOptions({
       suffix: options.suffix ?? this.suffix,
-      referenceEdge: options.referenceEdge ?? this.referenceEdge,
     });
   }
 }
@@ -182,9 +181,8 @@ class UnionifyProperty extends SimpleModelPropertyMutation<SimpleMutationOptions
       this.type = this.engine.replaceAndMutateReference(
         this.sourceType,
         newUnionType,
-        this.options.with({
-          referenceEdge: this.mutationNode.startTypeEdge(),
-        }),
+        this.options,
+        this.startTypeEdge(),
       );
     } else {
       super.mutate();

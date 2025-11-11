@@ -17,73 +17,10 @@ import { traceNode } from "./tracer.js";
  * mutated, which will cause their mutated types to reference the mutated type
  * of this node.
  *
- * Each node belongs to a mutation subgraph. Within a mutation subgraph, each
- * (source type, mutationKey) pair has exactly one mutation node. This allows
- * for the same type to have multiple mutation nodes with different mutation keys,
- * enabling fine-grained control over how types are mutated in different contexts.
- *
- * For example, given a graph for the TypeSpec code:
- *
- * ```tsp
- * scalar s extends string;
- * model A { aProp: s }
- * model B { bProp: s }
- * ```
- *
- * If you want to mutate the scalar `s` differently in the context of `A.aProp`
- * versus `B.bProp`, you would create two mutation nodes for the scalar with
- * different mutation keys:
- *
- * - `subgraph.getNode(s, "A.aProp")` - for the scalar in the context of A.aProp
- * - `subgraph.getNode(s, "B.bProp")` - for the scalar in the context of B.bProp
- * - `subgraph.getNode(s)` - for the scalar itself with the default mutation key
- *
- * Users are responsible for explicitly creating and connecting mutation nodes via
- * the `connect*` methods on each mutation node type. The mutation graph is no longer
- * automatically constructed through traversal.
- *
- * For example:
- *
- * ```ts
- * const modelNode = subgraph.getNode(myModel);
- * const propNode = subgraph.getNode(myModel.properties.get("myProp"));
- * const typeNode = subgraph.getNode(myPropType, "myModel.myProp");
- *
- * // Explicitly connect the nodes
- * modelNode.connectProperty(propNode, "myProp");
- * propNode.connectType(typeNode);
- * propNode.connectModel(modelNode);
- * ```
- */
-/**
- * Types which are logically contained within another type (e.g. model
- * properties in models, union variants in unions, etc.) can have mutation nodes
- * that use different mutation keys to represent different mutation contexts.
- *
- * For example, given the following typespec code:
- *
- * ```tsp
- * model A { propA: B }
- * model B { propB: C }
- * model C { }
- * ```
- *
- * The mutation nodes can be structured like this:
- *
- * ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐  ┌──────────────────────┐
- * │ Model A      ├──► Prop A       ├──► Model B (key: "...")├──► Prop B (key: "...")│
- * └──────────────┘  └───────┬──────┘  └──────────────────────┘  └──────┬───────────────┘
- *        ┌──────────────────┘                                           │
- * ┌──────▼───────┐  ┌──────────────┐  ┌──────────────────────┐         │
- * │ Model B      ├──► Prop B       ├──► Model C (key: "...")│         │
- * └──────────────┘  └───────┬──────┘  └──────────────────────┘         │
- *        ┌──────────────────┘                                           │
- * ┌──────▼───────┐                                                      │
- * │ Model C      ◄──────────────────────────────────────────────────────┘
- * └──────────────┘
- *
- * Where each Model B and Model C node can have different mutation keys to represent
- * different contexts in which they are referenced.
+ * Each node is unique based on the source type and an optional mutation key.
+ * The mutation key allows for multiple mutation nodes to exist for the same
+ * source type, which is useful when a type's mutation depends on its context
+ * such as how it is referenced.
  */
 
 let nextId = 0;
