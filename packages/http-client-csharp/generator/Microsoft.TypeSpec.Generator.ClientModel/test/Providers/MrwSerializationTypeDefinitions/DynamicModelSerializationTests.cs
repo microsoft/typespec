@@ -859,12 +859,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         [Test]
         public void WriteDiscriminatedDerivedModel()
         {
-            var catModel = InputFactory.Model("cat", discriminatedKind: "cat", properties:
+            var catModel = InputFactory.Model("cat", isDynamicModel: true, discriminatedKind: "cat", properties:
             [
                 InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
                 InputFactory.Property("meows", InputPrimitiveType.Boolean, isRequired: true)
             ]);
-            var dogModel = InputFactory.Model("dog", discriminatedKind: "dog", properties:
+            var dogModel = InputFactory.Model("dog", isDynamicModel: true, discriminatedKind: "dog", properties:
             [
                 InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
                 InputFactory.Property("barks", InputPrimitiveType.Boolean, isRequired: true)
@@ -883,7 +883,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(catModel) as ClientModel.Providers.ScmModelProvider;
 
             Assert.IsNotNull(model);
-            Assert.IsTrue(model!.HasDynamicModelSupport);
+            Assert.IsTrue(model!.IsDynamicModel);
             var serialization = model.SerializationProviders.SingleOrDefault();
             Assert.IsNotNull(serialization);
 
@@ -930,7 +930,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         [Test]
         public void WriteDerivedModel()
         {
-            var catModel = InputFactory.Model("cat", properties:
+            var catModel = InputFactory.Model("cat", isDynamicModel: true, properties:
             [
                 InputFactory.Property("meows", InputPrimitiveType.Boolean, isRequired: true)
             ]);
@@ -947,7 +947,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(catModel) as ClientModel.Providers.ScmModelProvider;
 
             Assert.IsNotNull(model);
-            Assert.IsTrue(model!.HasDynamicModelSupport);
+            Assert.IsTrue(model!.IsDynamicModel);
             var serialization = model.SerializationProviders.SingleOrDefault();
             Assert.IsNotNull(serialization);
 

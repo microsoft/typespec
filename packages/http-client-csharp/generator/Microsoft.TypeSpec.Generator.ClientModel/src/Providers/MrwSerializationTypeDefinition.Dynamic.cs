@@ -520,7 +520,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ValueExpression? optionsVariable = null)
         {
             optionsVariable ??= ModelSerializationExtensionsSnippets.Wire;
-            return model is ScmModelProvider { HasDynamicModelSupport: true }
+            return model is ScmModelProvider { IsDynamicModel: true }
                 ? model.Type.Deserialize(jsonElementVariable, dataVariable, optionsVariable)
                 : model.Type.Deserialize(jsonElementVariable, null, optionsVariable);
         }

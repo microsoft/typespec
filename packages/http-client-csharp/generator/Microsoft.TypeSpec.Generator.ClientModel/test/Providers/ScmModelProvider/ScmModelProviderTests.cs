@@ -286,7 +286,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
             var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(catModel) as ScmModel;
 
             Assert.IsNotNull(model);
-            Assert.IsTrue(model!.HasDynamicModelSupport);
+            Assert.IsTrue(model!.IsDynamicModel);
 
             var writer = new TypeProviderWriter(model);
             var file = writer.Write();
@@ -310,7 +310,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
             var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(catModel) as ScmModel;
 
             Assert.IsNotNull(model);
-            Assert.IsTrue(model!.HasDynamicModelSupport);
+            Assert.IsTrue(model!.IsDynamicModel);
 
             var writer = new TypeProviderWriter(model);
             var file = writer.Write();
@@ -330,7 +330,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
             var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(catModel) as ScmModel;
 
             Assert.IsNotNull(model);
-            Assert.IsTrue(model!.HasDynamicModelSupport);
+            Assert.IsTrue(model!.IsDynamicModel);
             AssertJsonIgnoreAttributeOnPatchProperty(model);
 
             var writer = new TypeProviderWriter(model);
@@ -353,7 +353,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
             var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(catModel) as ScmModel;
 
             Assert.IsNotNull(model);
-            Assert.IsTrue(model!.HasDynamicModelSupport);
+            Assert.IsTrue(model!.IsDynamicModel);
             AssertJsonIgnoreAttributeOnPatchProperty(model);
 
             var writer = new TypeProviderWriter(model);
@@ -376,7 +376,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
             var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(catModel) as ScmModel;
 
             Assert.IsNotNull(model);
-            Assert.IsTrue(model!.HasDynamicModelSupport);
+            Assert.IsTrue(model!.IsDynamicModel);
             AssertJsonIgnoreAttributeOnPatchProperty(model);
 
             var customCtor = model.CustomCodeView?.Constructors.FirstOrDefault(c => c.Signature.Parameters.Count > 0);

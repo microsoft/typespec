@@ -239,7 +239,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             MethodBodyStatement[] methodBody;
 
-            if (_model is ScmModelProvider { HasDynamicModelSupport: true })
+            if (_model is ScmModelProvider { IsDynamicModel: true })
             {
                 methodBody =
                 [
@@ -509,7 +509,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var methodName = $"Deserialize{_model.Name}";
             var signatureModifiers = MethodSignatureModifiers.Internal | MethodSignatureModifiers.Static;
-            List<ParameterProvider> parameters = _model is ScmModelProvider { HasDynamicModelSupport: true }
+            List<ParameterProvider> parameters = _model is ScmModelProvider { IsDynamicModel: true }
                 ? [_jsonElementDeserializationParam, _dataParameter, _serializationOptionsParameter]
                 : [_jsonElementDeserializationParam, _serializationOptionsParameter];
 
@@ -766,7 +766,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         propertyDeclarationStatements.Add(Declare(variableRef, new DictionaryExpression(property.Type, New.Instance(property.Type.PropertyInitializationType))));
                     }
                     else if (property.Name.Equals(ScmModelProvider.JsonPatchPropertyName) &&
-                        _model is ScmModelProvider { HasDynamicModelSupport: true })
+                        _model is ScmModelProvider { IsDynamicModel: true })
                     {
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
                         var patchAssignment = New.Instance<JsonPatch>(

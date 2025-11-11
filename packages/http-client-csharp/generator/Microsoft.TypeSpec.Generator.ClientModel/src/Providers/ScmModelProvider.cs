@@ -33,7 +33,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         internal const string JsonPatchPropertyName = "Patch";
         internal bool IsDynamicModel { get; }
-        internal bool HasDynamicModelSupport { get; }
         internal Lazy<PropertyProvider?> BaseJsonPatchProperty { get; }
 
         internal bool HasDynamicProperties => _hasDynamicProperties ??= BuildHasDynamicProperties();
@@ -46,7 +45,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         public ScmModelProvider(InputModelType inputModel) : base(inputModel)
         {
             IsDynamicModel = inputModel.IsDynamicModel;
-            HasDynamicModelSupport = ComputeHasDynamicModelSupport();
             BaseJsonPatchProperty = new(GetBaseJsonPatchProperty());
         }
 
@@ -216,26 +214,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 BackingField = JsonPatchField
             };
-        }
-
-        private bool ComputeHasDynamicModelSupport()
-        {
-            if (IsDynamicModel)
-            {
-                return true;
-            }
-
-            var baseModelProvider = BaseModelProvider;
-            while (baseModelProvider != null)
-            {
-                if (baseModelProvider is ScmModelProvider { IsDynamicModel: true })
-                {
-                    return true;
-                }
-                baseModelProvider = baseModelProvider.BaseModelProvider;
-            }
-
-            return false;
         }
 
         private bool ShouldUpdateFullConstructor()
