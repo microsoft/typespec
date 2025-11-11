@@ -701,8 +701,20 @@ function Add-LocalNuGetSource {
 
     $ErrorActionPreference = 'Stop'
 
+    if ([string]::IsNullOrWhiteSpace($NuGetConfigPath)) {
+        throw "NuGetConfigPath parameter is null or empty"
+    }
+
+    if ([string]::IsNullOrWhiteSpace($SourcePath)) {
+        throw "SourcePath parameter is null or empty"
+    }
+
     if (-not (Test-Path $NuGetConfigPath)) {
         throw "NuGet.Config not found at: $NuGetConfigPath"
+    }
+
+    if (-not (Test-Path $SourcePath)) {
+        throw "Source path not found at: $SourcePath"
     }
 
     Write-Host "Adding local NuGet package source to NuGet.Config..." -ForegroundColor Gray
@@ -775,6 +787,11 @@ function Add-LocalNuGetSource {
             $localPackageSource.AppendChild($packageElement) | Out-Null
             Write-Host "    Added pattern: $pattern" -ForegroundColor Green
         }
+    }
+    
+    # Final validation before saving
+    if ([string]::IsNullOrWhiteSpace($NuGetConfigPath)) {
+        throw "NuGetConfigPath became null or empty before saving"
     }
     
     $nugetConfig.Save($NuGetConfigPath)
