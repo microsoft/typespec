@@ -186,27 +186,6 @@ The script adds/updates a profile in `launchSettings.json` that you can select i
 }
 ```
 
-## Comparison with Previous Version
-
-### Before (using tsp-client)
-
-The previous version of `Add-Debug-Profile.ps1`:
-- ✗ Used `tsp-client` which referenced published emitter versions from `tsp-location.yaml`
-- ✗ Local changes to emitters were **not** reflected in tspCodeModel
-- ✗ Required manual cleanup of artifacts
-- ✗ Installed `tsp-client` globally
-- ✓ Simple and fast
-
-### After (using local builds)
-
-The updated version:
-- ✓ Builds local emitters, ensuring **all local changes** are reflected
-- ✓ Uses same approach as `RegenPreview.ps1` for consistency
-- ✓ Automatically restores artifacts after completion
-- ✓ No global tool installations required
-- ✓ Supports all emitter types (unbranded, Azure, Management)
-- ✗ Slower due to full build process
-
 ## Debugging with Visual Studio
 
 After running the script:
