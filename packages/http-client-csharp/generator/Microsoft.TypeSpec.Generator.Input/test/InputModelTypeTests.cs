@@ -1,6 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.IO;
+using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
@@ -36,19 +40,33 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
         [Test]
         public void IsDynamicModelPropagatesFromBaseToDevived()
         {
-            // Create a base model that is dynamic
-            var baseModel = InputFactory.Model("baseModel", isDynamicModel: true, properties: [
-                InputFactory.Property("baseProp", InputPrimitiveType.String, isRequired: true)
-            ]);
+            var directory = Helpers.GetAssetFileOrDirectoryPath(false);
+            var content = File.ReadAllText(Path.Combine(directory, "tspCodeModel.json"));
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true,
+                Converters =
+                {
+                    new JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
+                    new InputNamespaceConverter(referenceHandler),
+                    new InputTypeConverter(referenceHandler),
+                    new InputDecoratorInfoConverter(),
+                    new InputModelTypeConverter(referenceHandler),
+                    new InputModelPropertyConverter(referenceHandler),
+                },
+            };
+            var inputNamespace = JsonSerializer.Deserialize<InputNamespace>(content, options);
 
-            // Create a derived model that is NOT marked as dynamic
-            var derivedModel = InputFactory.Model("derivedModel", isDynamicModel: false, baseModel: baseModel, properties: [
-                InputFactory.Property("derivedProp", InputPrimitiveType.String, isRequired: true)
-            ]);
+            Assert.IsNotNull(inputNamespace);
 
-            // The derived model should be marked as dynamic because it inherits from a dynamic base
-            Assert.IsTrue(derivedModel.IsDynamicModel, "Derived model should be marked as dynamic when inheriting from a dynamic base");
-            Assert.IsTrue(baseModel.IsDynamicModel, "Base model should remain marked as dynamic");
+            var baseModel = inputNamespace!.Models.SingleOrDefault(m => m.Name == "BaseModel");
+            Assert.IsNotNull(baseModel);
+            Assert.IsTrue(baseModel!.IsDynamicModel, "Base model should be marked as dynamic");
+
+            var derivedModel = inputNamespace!.Models.SingleOrDefault(m => m.Name == "DerivedModel");
+            Assert.IsNotNull(derivedModel);
+            Assert.IsTrue(derivedModel!.IsDynamicModel, "Derived model should be marked as dynamic when inheriting from a dynamic base");
         }
     }
 }
