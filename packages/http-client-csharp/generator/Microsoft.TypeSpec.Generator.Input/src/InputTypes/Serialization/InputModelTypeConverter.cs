@@ -144,6 +144,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             {
                 baseModel.AddDerivedModel(model);
             }
+
             return model;
         }
 
