@@ -91,6 +91,7 @@ namespace Lists {
     }
     ```
     """)
+  @post
   @route("/bullet-points/model")
   op bulletPointsModel(input: BulletPointsModel): NoContentResponse;
 
