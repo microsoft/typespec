@@ -114,6 +114,10 @@ export function reportIfNoRoutes(program: Program, routes: HttpOperation[]) {
   if (services.length === 0) {
     navigateProgram(program, {
       namespace: (namespace) => {
+        // Skip the global namespace (it has an empty name)
+        if (namespace.name === "") {
+          return;
+        }
         // Only warn on user namespaces with operations, not library namespaces
         if (namespace.operations.size > 0 && !isLibraryNamespace(namespace)) {
           reportDiagnostic(program, {
