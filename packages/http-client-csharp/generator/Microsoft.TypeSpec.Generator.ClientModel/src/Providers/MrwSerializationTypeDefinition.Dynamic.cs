@@ -310,14 +310,39 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ParameterProvider valueParameter,
             bool propagateGet)
         {
-            var properties = _model.CanonicalView.Properties;
-            var dynamicProperties = properties.Where(p =>
-                p.WireInfo?.SerializedName != null &&
-                ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(p.Type, out var provider) &&
-                provider is ScmModelProvider { JsonPatchProperty: not null });
+            // Collect dynamic properties from current model AND all base models
+            var allDynamicProperties = new List<PropertyProvider>();
+            var allDynamicCollectionProperties = new List<PropertyProvider>();
+
+            // Traverse the inheritance hierarchy to collect all dynamic properties
+            var currentModel = _model;
+            while (currentModel != null)
+            {
+                var properties = currentModel.CanonicalView.Properties;
+
+                // Add direct dynamic properties
+                var dynamicProperties = properties.Where(p =>
+                    p.WireInfo?.SerializedName != null &&
+                    ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(p.Type, out var provider) &&
+                    provider is ScmModelProvider { JsonPatchProperty: not null });
+                allDynamicProperties.AddRange(dynamicProperties);
+
+                // Add dynamic collection properties
+                var dynamicCollectionProperties = properties
+                    .Where(p => p.Type.IsCollection && p.WireInfo?.SerializedName != null)
+                    .Where(p => ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(
+                        p.Type.GetNestedElementType(),
+                        out var provider) &&
+                        provider is ScmModelProvider { JsonPatchProperty: not null });
+                allDynamicCollectionProperties.AddRange(dynamicCollectionProperties);
+
+                // Move to base model
+                currentModel = currentModel.BaseModelProvider as ScmModelProvider;
+            }
+
             var statements = new List<MethodBodyStatement>();
 
-            foreach (var property in dynamicProperties)
+            foreach (var property in allDynamicProperties)
             {
                 var patchProperty = ((MemberExpression)property).Property("Patch").As<JsonPatch>();
                 statements.Add(
@@ -345,14 +370,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     });
             }
 
-            var dynamicCollectionProperties = properties
-                .Where(p => p.Type.IsCollection && p.WireInfo?.SerializedName != null)
-                .Where(p => ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(
-                    p.Type.GetNestedElementType(),
-                    out var provider) &&
-                    provider is ScmModelProvider { JsonPatchProperty: not null });
-
-            foreach (var property in dynamicCollectionProperties)
+            foreach (var property in allDynamicCollectionProperties)
             {
                 var indexableProperty = new IndexableExpression(property);
                 statements.Add(
