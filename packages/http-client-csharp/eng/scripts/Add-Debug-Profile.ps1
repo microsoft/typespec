@@ -182,14 +182,26 @@ function Build-LocalUnbrandedEmitter {
                 throw "npm pack failed"
             }
             
-            $packageLine = ($output | Where-Object { $_ -match '\.tgz$' } | Select-Object -First 1).ToString().Trim()
-            if ($packageLine -match 'filename:\s*(.+\.tgz)') {
-                $packageFile = $Matches[1].Trim()
+            $packageLine = ($output | Where-Object { $_ -match '\.tgz$' } | Select-Object -First 1)
+            if ($packageLine) {
+                $packageLine = $packageLine.ToString().Trim()
+                if ($packageLine -match 'filename:\s*(.+\.tgz)') {
+                    $packageFile = $Matches[1].Trim()
+                } else {
+                    $packageFile = $packageLine
+                }
             } else {
-                $packageFile = $packageLine
+                # If we can't find .tgz in output, try to construct the filename
+                $packageJson = Get-Content $packageJsonPath -Raw | ConvertFrom-Json
+                $packageFile = "$($packageJson.name.Replace('@', '').Replace('/', '-'))-$LocalVersion.tgz"
+                Write-Host "  Could not parse package filename from npm output, using: $packageFile" -ForegroundColor Yellow
             }
             
             $packagePath = Join-Path $PackageRoot $packageFile
+            if (-not (Test-Path $packagePath)) {
+                throw "Package file not found at: $packagePath"
+            }
+            
             $debugPackagePath = Join-Path $DebugFolder $packageFile
             Move-Item $packagePath $debugPackagePath -Force
             
@@ -409,6 +421,16 @@ try {
     # Step 1: Build local unbranded emitter
     Write-Host "[1/5] Building local unbranded emitter..." -ForegroundColor Cyan
     $unbrandedPackagePath = Build-LocalUnbrandedEmitter -PackageRoot $packageRoot -DebugFolder $debugFolder -LocalVersion $localVersion
+    
+    if ([string]::IsNullOrWhiteSpace($unbrandedPackagePath)) {
+        throw "Build-LocalUnbrandedEmitter did not return a valid package path"
+    }
+    
+    if (-not (Test-Path $unbrandedPackagePath)) {
+        throw "Unbranded package file not found at: $unbrandedPackagePath"
+    }
+    
+    Write-Host "  Package path: $unbrandedPackagePath" -ForegroundColor Gray
     
     # Step 2: Build NuGet packages
     Write-Host "`n[2/5] Building NuGet generator packages..." -ForegroundColor Cyan
