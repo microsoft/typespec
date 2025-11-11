@@ -310,7 +310,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ParameterProvider valueParameter,
             bool propagateGet)
         {
-            var dynamicProperties = _model.Properties.Where(p =>
+            var properties = _model.CanonicalView.Properties;
+            var dynamicProperties = properties.Where(p =>
+                p.WireInfo?.SerializedName != null &&
                 ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(p.Type, out var provider) &&
                 provider is ScmModelProvider { JsonPatchProperty: not null });
             var statements = new List<MethodBodyStatement>();
@@ -343,8 +345,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     });
             }
 
-            var dynamicCollectionProperties = _model.Properties
-                .Where(p => p.Type.IsCollection)
+            var dynamicCollectionProperties = properties
+                .Where(p => p.Type.IsCollection && p.WireInfo?.SerializedName != null)
                 .Where(p => ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(
                     p.Type.GetNestedElementType(),
                     out var provider) &&

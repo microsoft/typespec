@@ -41,6 +41,11 @@ public enum SchemaContext {
     INTERNAL("internal"),
 
     /**
+     * The schema is from external library.
+     */
+    EXTERNAL("external"),
+
+    /**
      * The schema is used as a JSON merge patch.
      */
     JSON_MERGE_PATCH("json-merge-patch"),

@@ -20,8 +20,6 @@
     "azure.clientgenerator.core.alternatetype.AlternateTypeClient.putProperty": "_Specs_.Azure.ClientGenerator.Core.AlternateType.ExternalType.putProperty",
     "azure.clientgenerator.core.alternatetype.AlternateTypeClient.putPropertyWithResponse": "_Specs_.Azure.ClientGenerator.Core.AlternateType.ExternalType.putProperty",
     "azure.clientgenerator.core.alternatetype.AlternateTypeClientBuilder": "_Specs_.Azure.ClientGenerator.Core.AlternateType",
-    "azure.clientgenerator.core.alternatetype.externaltype.models.Feature": "_Specs_.Azure.ClientGenerator.Core.AlternateType.ExternalType.Feature",
-    "azure.clientgenerator.core.alternatetype.externaltype.models.Geometry": "_Specs_.Azure.ClientGenerator.Core.AlternateType.ExternalType.Geometry",
     "azure.clientgenerator.core.alternatetype.externaltype.models.ModelWithFeatureProperty": "_Specs_.Azure.ClientGenerator.Core.AlternateType.ExternalType.ModelWithFeatureProperty"
   }
 }

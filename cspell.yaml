@@ -6,13 +6,13 @@ dictionaries:
   - typescript
 words:
   - Adoptium
-  - Arize
-  - arizeaiobservabilityeval
   - agentic
   - aiohttp
   - alzimmer
   - amqp
   - AQID
+  - Arize
+  - arizeaiobservabilityeval
   - arraya
   - astimezone
   - astro
@@ -230,8 +230,8 @@ words:
   - rtype
   - rushx
   - safeint
-  - sdkcore
   - SCME
+  - sdkcore
   - segmentof
   - serde
   - setuppy
@@ -293,6 +293,7 @@ words:
   - wday
   - weidxu
   - westus
+  - WHATWG
   - WINDOWSARMVMIMAGE
   - WINDOWSVMIMAGE
   - xiangyan

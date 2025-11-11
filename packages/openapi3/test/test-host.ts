@@ -17,6 +17,9 @@ export const ApiTester = createTester(resolvePath(import.meta.dirname, ".."), {
     "@typespec/versioning",
     "@typespec/openapi",
     "@typespec/xml",
+    "@typespec/streams",
+    "@typespec/events",
+    "@typespec/sse",
     "@typespec/openapi3",
   ],
 });

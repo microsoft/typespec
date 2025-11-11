@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Text.Json.Serialization;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
@@ -197,6 +198,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 body: new ExpressionPropertyBody(new VariableExpression(JsonPatchField.Type, JsonPatchField.Declaration, IsRef: isRef)),
                 attributes:
                 [
+                    new AttributeStatement(typeof(JsonIgnoreAttribute)),
                     new AttributeStatement(typeof(EditorBrowsableAttribute), FrameworkEnumValue(EditorBrowsableState.Never)),
                     new AttributeStatement(typeof(ExperimentalAttribute), [Literal(ScmEvaluationTypeDiagnosticId)])
                 ],
@@ -303,15 +305,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private bool BuildHasDynamicProperties()
         {
-            if (Properties.Any(p =>
+            var propertiesWithWireInfo = CanonicalView.Properties;
+            if (propertiesWithWireInfo.Any(p =>
+                    p.WireInfo?.SerializedName != null &&
                     ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(p.Type, out var provider) &&
                     provider is ScmModelProvider { IsDynamicModel: true }))
             {
                 return true;
             }
 
-            return Properties
-                .Where(p => p.Type.IsCollection)
+            return propertiesWithWireInfo
+                .Where(p => p.Type.IsCollection && p.WireInfo?.SerializedName != null)
                 .Any(p => ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(
                               p.Type.GetNestedElementType(),
                               out var provider) &&

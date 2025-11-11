@@ -144,6 +144,7 @@ import {
   ProcessingCache,
   getAccess,
   getDurationFormat,
+  getExternalJavaClassName,
   getNonNullSdkType,
   getPropertySerializedName,
   getUnionDescription,
@@ -1232,6 +1233,8 @@ export class CodeModelBuilder {
           )
         : undefined,
       nextLinkReInjectedParameters: nextLinkReInjectedParameters,
+      // change this to "sdkMethod.pagingMetadata.nextLinkVerbType"
+      nextLinkVerb: "GET",
     };
   }
 
@@ -1867,6 +1870,10 @@ export class CodeModelBuilder {
           }),
         );
 
+        this.trackSchemaUsage(requestConditionsSchema, {
+          usage: [SchemaContext.External],
+        });
+
         // parameter (optional) of the group schema
         const requestConditionsParameter = new Parameter(
           schemaName,
@@ -1879,7 +1886,9 @@ export class CodeModelBuilder {
           },
         );
 
-        this.trackSchemaUsage(requestConditionsSchema, { usage: [SchemaContext.Input] });
+        this.trackSchemaUsage(requestConditionsSchema, {
+          usage: [SchemaContext.Input, SchemaContext.External],
+        });
         if (op.convenienceApi) {
           this.trackSchemaUsage(requestConditionsSchema, {
             usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
@@ -2583,6 +2592,11 @@ export class CodeModelBuilder {
         },
       },
     });
+    if (type.external) {
+      // java name
+      schema.language.java = schema.language.java ?? new Language();
+      schema.language.java.name = getExternalJavaClassName(type);
+    }
     schema.language.default.crossLanguageDefinitionId = type.crossLanguageDefinitionId;
     return this.codeModel.schemas.add(schema);
   }
@@ -2690,6 +2704,18 @@ export class CodeModelBuilder {
       },
     });
     objectSchema.language.default.crossLanguageDefinitionId = type.crossLanguageDefinitionId;
+
+    if (type.external) {
+      // java name
+      objectSchema.language.java = objectSchema.language.java ?? new Language();
+      objectSchema.language.java.name = getExternalJavaClassName(type);
+
+      // add external to usage
+      this.trackSchemaUsage(objectSchema, {
+        usage: [SchemaContext.External],
+      });
+    }
+
     this.codeModel.schemas.add(objectSchema);
 
     // cache this now before we accidentally recurse on this type.
@@ -3126,7 +3152,16 @@ export class CodeModelBuilder {
     // we still keep the mapping of models from TypeSpec namespace and Azure namespace to "baseJavaNamespace"
     if (type) {
       const crossLanguageDefinitionId = type.crossLanguageDefinitionId;
-      if (this.isBranded()) {
+
+      if (type.kind !== "client" && type.external) {
+        // external model, Java namespace is on "external.identity"
+        const fullyQualifiedClassName = type.external.identity;
+        const javaNamespace = fullyQualifiedClassName.substring(
+          0,
+          fullyQualifiedClassName.lastIndexOf("."),
+        );
+        return this.escapeJavaNamespace(javaNamespace);
+      } else if (this.isBranded()) {
         // special handling for namespace of model that cannot be mapped to azure-core
         if (crossLanguageDefinitionId === "TypeSpec.Http.File") {
           // TypeSpec.Http.File
@@ -3248,13 +3283,16 @@ export class CodeModelBuilder {
 
   private _pollResultSchema?: ObjectSchema;
   get pollResultSchema(): ObjectSchema {
-    return (
-      this._pollResultSchema ??
-      (this._pollResultSchema = createPollOperationDetailsSchema(
+    if (!this._pollResultSchema) {
+      this._pollResultSchema = createPollOperationDetailsSchema(
         this.codeModel.schemas,
         this.stringSchema,
-      ))
-    );
+      );
+      this.trackSchemaUsage(this._pollResultSchema, {
+        usage: [SchemaContext.External],
+      });
+    }
+    return this._pollResultSchema;
   }
 
   private createApiVersionParameter(
