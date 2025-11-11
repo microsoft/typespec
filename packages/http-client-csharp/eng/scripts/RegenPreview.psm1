@@ -142,11 +142,19 @@ function Update-GeneratorPackage {
             }
             
             # Get the package filename
-            $packageLine = ($packOutput | Where-Object { $_ -match '\.tgz$' } | Select-Object -First 1).ToString().Trim()
-            if ($packageLine -match 'filename:\s*(.+\.tgz)') {
-                $packageFile = $Matches[1].Trim()
+            $packageLine = ($packOutput | Where-Object { $_ -match '\.tgz$' } | Select-Object -First 1)
+            if ($packageLine) {
+                $packageLine = $packageLine.ToString().Trim()
+                if ($packageLine -match 'filename:\s*(.+\.tgz)') {
+                    $packageFile = $Matches[1].Trim()
+                } else {
+                    $packageFile = $packageLine
+                }
             } else {
-                $packageFile = $packageLine
+                # If we can't find .tgz in output, try to construct the filename
+                $packageJson = Get-Content $packageJsonPath -Raw | ConvertFrom-Json
+                $packageFile = "$($packageJson.name.Replace('@', '').Replace('/', '-'))-$LocalVersion.tgz"
+                Write-Host "  Could not parse package filename from npm output, using: $packageFile" -ForegroundColor Yellow
             }
             
             # Move to debug folder
