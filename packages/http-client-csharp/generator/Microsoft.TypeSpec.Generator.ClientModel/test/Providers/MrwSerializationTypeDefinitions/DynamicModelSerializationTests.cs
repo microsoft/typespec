@@ -1332,5 +1332,71 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 StringAssert.DoesNotContain("SetPropagators", derivedConstructor.BodyStatements!.ToDisplayString(), "Derived model constructor should not call SetPropagators when no dynamic properties exist");
             }
         }
+
+        [Test]
+        public void DerivedModelWithoutDynamicPropertiesButBaseHasDynamicProperties()
+        {
+            // Base model with dynamic properties
+            var baseDynamicModel = InputFactory.Model(
+                "baseDynamic",
+                isDynamicModel: true,
+                properties:
+                [
+                    InputFactory.Property("baseValue", InputPrimitiveType.String, isRequired: true)
+                ]);
+
+            var baseModel = InputFactory.Model(
+                "baseModel",
+                isDynamicModel: true,
+                properties:
+                [
+                    InputFactory.Property("baseProp", baseDynamicModel, isRequired: true)
+                ]);
+
+            // Derived model with NO dynamic properties - only regular properties
+            var derivedModel = InputFactory.Model(
+                "derivedModel",
+                isDynamicModel: true,  // Marked as dynamic because base is dynamic
+                baseModel: baseModel,
+                properties:
+                [
+                    InputFactory.Property("derivedProp", InputPrimitiveType.String, isRequired: true)
+                ]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [baseModel, derivedModel, baseDynamicModel]);
+            
+            // Validate base model has dynamic properties and propagators
+            var baseModelProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(baseModel) as ClientModel.Providers.ScmModelProvider;
+            Assert.IsNotNull(baseModelProvider);
+            Assert.IsTrue(baseModelProvider!.HasDynamicProperties, "Base model should have dynamic properties");
+            
+            var baseSerialization = baseModelProvider.SerializationProviders.SingleOrDefault();
+            Assert.IsNotNull(baseSerialization);
+            var baseMethods = baseSerialization!.Methods;
+            Assert.IsTrue(baseMethods.Any(m => m.Signature.Name == "PropagateGet"), "Base model should have PropagateGet method");
+            Assert.IsTrue(baseMethods.Any(m => m.Signature.Name == "PropagateSet"), "Base model should have PropagateSet method");
+
+            // Validate derived model does NOT have dynamic properties or propagators
+            var derivedModelProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(derivedModel) as ClientModel.Providers.ScmModelProvider;
+            Assert.IsNotNull(derivedModelProvider);
+            Assert.IsTrue(derivedModelProvider!.IsDynamicModel, "Derived model should be marked as dynamic because base is dynamic");
+            Assert.IsFalse(derivedModelProvider.HasDynamicProperties, "Derived model should not have dynamic properties when it has no dynamic property types of its own");
+            
+            var derivedSerialization = derivedModelProvider.SerializationProviders.SingleOrDefault();
+            Assert.IsNotNull(derivedSerialization);
+
+            // The derived model should NOT have PropagateGet/PropagateSet methods since it has no dynamic properties of its own
+            var derivedMethods = derivedSerialization!.Methods;
+            Assert.IsFalse(derivedMethods.Any(m => m.Signature.Name == "PropagateGet"), "Derived model should not have PropagateGet method when it has no dynamic properties");
+            Assert.IsFalse(derivedMethods.Any(m => m.Signature.Name == "PropagateSet"), "Derived model should not have PropagateSet method when it has no dynamic properties");
+
+            // The derived model constructor should NOT call SetPropagators
+            var derivedConstructor =
+                derivedModelProvider.Constructors.FirstOrDefault(c => c.Signature.Parameters.Any(p => p.Name == "patch"));
+            if (derivedConstructor != null)
+            {
+                StringAssert.DoesNotContain("SetPropagators", derivedConstructor.BodyStatements!.ToDisplayString(), "Derived model constructor should not call SetPropagators when it has no dynamic properties");
+            }
+        }
     }
 }
