@@ -38,7 +38,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
         }
 
         [Test]
-        public void IsDynamicModelPropagatesFromBaseToDevived()
+        public void IsDynamicModelPropagatesFromBaseToDerived()
         {
             var directory = Helpers.GetAssetFileOrDirectoryPath(false);
             var content = File.ReadAllText(Path.Combine(directory, "tspCodeModel.json"));
