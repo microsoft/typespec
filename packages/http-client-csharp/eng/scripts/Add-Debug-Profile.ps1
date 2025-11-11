@@ -590,6 +590,20 @@ try {
             Write-Host "Building Azure generator..." -ForegroundColor Gray
             
             $azureGeneratorPath = Join-Path $sdkRepoPath "eng" "packages" "http-client-csharp"
+            $azureGeneratorSln = Join-Path $azureGeneratorPath "generator" "Azure.Generator.sln"
+            
+            # Pre-restore the Azure generator solution to ensure NuGet packages are discovered
+            if (Test-Path $azureGeneratorSln) {
+                Write-Host "  Pre-restoring Azure generator solution..." -ForegroundColor Gray
+                $restoreCmd = "dotnet restore `"$azureGeneratorSln`" --force --no-cache --configfile `"$nugetConfigPath`""
+                Invoke $restoreCmd $azureGeneratorPath | Out-Host
+                if ($LASTEXITCODE -ne 0) {
+                    Write-Warning "Pre-restore had issues, but continuing..."
+                }
+                else {
+                    Write-Host "  Pre-restore completed" -ForegroundColor Green
+                }
+            }
             
             $azurePackagePath = Update-AzureGenerator `
                 -AzureGeneratorPath $azureGeneratorPath `
@@ -635,6 +649,22 @@ try {
         
         if ($needsMgmt) {
             Write-Host "Building management plane generator..." -ForegroundColor Gray
+            
+            $mgmtGeneratorPath = Join-Path $sdkRepoPath "eng" "packages" "http-client-csharp-mgmt"
+            $mgmtGeneratorSln = Join-Path $mgmtGeneratorPath "generator" "Azure.Generator.Mgmt.sln"
+            
+            # Pre-restore the Mgmt generator solution to ensure NuGet packages are discovered
+            if (Test-Path $mgmtGeneratorSln) {
+                Write-Host "  Pre-restoring Mgmt generator solution..." -ForegroundColor Gray
+                $restoreCmd = "dotnet restore `"$mgmtGeneratorSln`" --force --no-cache --configfile `"$nugetConfigPath`""
+                Invoke $restoreCmd $mgmtGeneratorPath | Out-Host
+                if ($LASTEXITCODE -ne 0) {
+                    Write-Warning "Pre-restore had issues, but continuing..."
+                }
+                else {
+                    Write-Host "  Pre-restore completed" -ForegroundColor Green
+                }
+            }
             
             Update-MgmtGenerator `
                 -EngFolder $engFolder `
