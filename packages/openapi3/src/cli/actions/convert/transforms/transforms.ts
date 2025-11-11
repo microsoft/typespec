@@ -42,7 +42,12 @@ export function transform(context: Context): TypeSpecProgram {
   scanForMultipartSchemas(openapi, context);
 
   // Pre-scan for SSE event schemas before generating models
-  scanForSSESchemas(openapi, context);
+  if (
+    !context.openApi3Doc.openapi.startsWith("3.0") &&
+    !context.openApi3Doc.openapi.startsWith("3.1")
+  ) {
+    scanForSSESchemas(openapi, context);
+  }
 
   const models = collectDataTypes(context);
   const operations = transformPaths(openapi.paths, context);
@@ -81,13 +86,12 @@ function scanForSSESchemas(openapi: SupportedOpenAPIDocuments, context: Context)
     scanPathForSSESchemas(path, context);
   }
 }
+const methods = ["get", "post", "put", "patch", "delete", "head"] as const;
 
 function scanPathForMultipartSchemas(
   path: OpenAPI3PathItem | OpenAPIPathItem3_2,
   context: Context,
 ): void {
-  const methods = ["get", "post", "put", "patch", "delete", "head"] as const;
-
   for (const method of methods) {
     const operation = path[method];
     if (!operation?.requestBody) continue;
@@ -131,16 +135,35 @@ function scanPathForSSESchemas(
   path: OpenAPI3PathItem | OpenAPIPathItem3_2,
   context: Context,
 ): void {
-  if (!("get" in path && path.get && path.get.responses)) {
-    // even though text/event-stream can be defined with other methods, it's only usable with GET because of the WHATWG specification
-    return;
+  for (const method of methods) {
+    const operation = path[method];
+    if (!operation?.responses) continue;
+
+    // Handle responses which could be a reference or actual responses
+    const responses = resolveReference(operation.responses, context);
+    if (!responses) return;
+
+    scanOperationForSSESchemas(responses, context);
+  }
+  if ("query" in path && path.query && path.query.responses) {
+    // Handle responses which could be a reference or actual responses
+    const responses = resolveReference(path.query.responses, context);
+    if (!responses) return;
+
+    scanOperationForSSESchemas(responses, context);
   }
 
-  // Handle responses which could be a reference or actual responses
-  const responses = resolveReference(path.get.responses, context);
-  if (!responses) return;
+  if ("additionalOperations" in path && path.additionalOperations) {
+    for (const additionalOperation of Object.values(path.additionalOperations)) {
+      if (additionalOperation.responses) {
+        // Handle responses which could be a reference or actual responses
+        const responses = resolveReference(additionalOperation.responses, context);
+        if (!responses) return;
 
-  scanOperationForSSESchemas(responses, context);
+        scanOperationForSSESchemas(responses, context);
+      }
+    }
+  }
 }
 
 function scanOperationForSSESchemas(
