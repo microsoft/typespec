@@ -2,8 +2,10 @@ import {
   createDiagnosticCollector,
   Diagnostic,
   DiagnosticCollector,
+  getNamespaceFullName,
   getOverloadedOperation,
   getOverloads,
+  isStdNamespace,
   listOperationsIn,
   listServices,
   Namespace,
@@ -107,10 +109,13 @@ export function getHttpService(
 }
 
 export function reportIfNoRoutes(program: Program, routes: HttpOperation[]) {
-  if (routes.length === 0) {
+  const services = listServices(program);
+  // Only warn if there are no services defined anywhere in the program
+  if (services.length === 0) {
     navigateProgram(program, {
       namespace: (namespace) => {
-        if (namespace.operations.size > 0) {
+        // Only warn on user namespaces with operations, not library namespaces
+        if (namespace.operations.size > 0 && !isLibraryNamespace(namespace)) {
           reportDiagnostic(program, {
             code: "no-service-found",
             format: {
@@ -122,6 +127,25 @@ export function reportIfNoRoutes(program: Program, routes: HttpOperation[]) {
       },
     });
   }
+}
+
+/**
+ * Check if a namespace is a library namespace (e.g., TypeSpec.*, Azure.*, etc.)
+ * Library namespaces should not trigger the no-service-found warning.
+ */
+function isLibraryNamespace(namespace: Namespace): boolean {
+  // Skip the TypeSpec standard library namespace
+  if (isStdNamespace(namespace)) {
+    return true;
+  }
+
+  // Get the full namespace name
+  const fullName = getNamespaceFullName(namespace);
+
+  // Common library namespace prefixes
+  const libraryPrefixes = ["TypeSpec", "Azure", "OpenAPI"];
+
+  return libraryPrefixes.some((prefix) => fullName === prefix || fullName.startsWith(prefix + "."));
 }
 
 export function validateRouteUnique(
