@@ -118,7 +118,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     null,
                     false,
                     SerializationOptions,
-                    false)
+                    IsDynamicModel)
                 );
             }
         }

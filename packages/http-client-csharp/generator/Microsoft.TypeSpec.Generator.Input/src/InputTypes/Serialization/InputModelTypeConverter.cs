@@ -121,14 +121,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             {
                 model.Properties = properties;
             }
-            if (discriminatedSubtypes != null)
-            {
-                model.DiscriminatedSubtypes = discriminatedSubtypes;
-            }
-            else if (model.DiscriminatorProperty != null)
-            {
-                model.DiscriminatedSubtypes = new Dictionary<string, InputModelType>();
-            }
             model.ModelAsStruct = modelAsStruct;
             if (decorators != null)
             {
@@ -138,7 +130,15 @@ namespace Microsoft.TypeSpec.Generator.Input
                     MarkModelsAsDynamicRecursive(model, []);
                 }
             }
-
+            // Subtype calculation handles setting IsDynamicModel for unknown derived models so it needs to be called after setting the base model.
+            if (discriminatedSubtypes != null)
+            {
+                model.DiscriminatedSubtypes = discriminatedSubtypes;
+            }
+            else if (model.DiscriminatorProperty != null)
+            {
+                model.DiscriminatedSubtypes = new Dictionary<string, InputModelType>();
+            }
             // if this model has a base, it means this model is a derived model of the base model, add it into the list.
             if (baseModel != null)
             {

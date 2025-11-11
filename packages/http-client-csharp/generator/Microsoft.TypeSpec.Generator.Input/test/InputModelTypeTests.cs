@@ -68,5 +68,15 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             Assert.IsNotNull(derivedModel);
             Assert.IsTrue(derivedModel!.IsDynamicModel, "Derived model should be marked as dynamic when inheriting from a dynamic base");
         }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void UnknownDiscriminatorTypeDynamicMatchesBase(bool isDynamic)
+        {
+            var baseModel = InputFactory.Model("BaseModel", "internal", usage: InputModelTypeUsage.Input, isDynamicModel: isDynamic);
+            var derivedModel = InputFactory.Model("DerivedModel", "internal", usage: InputModelTypeUsage.Input, baseModel: baseModel);
+
+            Assert.AreEqual(isDynamic, derivedModel.IsDynamicModel, $"Derived model should have IsDynamicModel={isDynamic} when base has IsDynamicModel={isDynamic}");
+        }
     }
 }
