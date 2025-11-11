@@ -132,6 +132,36 @@ Example:
 
 The general guideline is to use a decorator when the customization is intrinsic to the API itself. In other words, when all uses of the TypeSpec program would use the same configuration. This is not the case for `outputFilename` because different users of the API might want to emit the files in different locations depending on how their code generation pipeline is set up.
 
+#### Plugins vs. config options
+
+When adding configurability to an emitter, you should consider whether to use plugins or configuration options:
+
+**Plugins** are composable sets of visitors or components that are targeted towards a specific scenario. Use plugins when:
+
+- You have a cohesive set of transformations or behaviors that work together to achieve a particular goal
+- The functionality represents a distinct use case or workflow (e.g., client generation, server generation, documentation generation)
+- Users would typically enable or disable the entire feature set as a unit
+- The plugin encapsulates a set of related behaviors that may need to be shared or reused across different emitters
+
+**Configuration options** are flags that can be mixed and matched independently. Use config options when:
+
+- You have individual features that users may want to enable or disable independently
+- The option controls a specific behavior or output characteristic (e.g., file format, naming conventions, feature flags)
+- Users might want different combinations of these flags for different scenarios
+- The option is a simple toggle or value that doesn't require complex logic
+
+**Best practice:** Whenever possible, enable features by default without requiring configuration. Only add configuration when:
+
+- Different users have genuinely different needs or preferences
+- The feature has trade-offs that different users might evaluate differently
+- Backward compatibility requires making a change opt-in
+
+For example, if you're adding support for generating additional utility functions, consider whether this should be:
+
+- A plugin (if it's a comprehensive feature set for a specific scenario like "client utilities")
+- A config option (if it's a simple toggle like `generate-utility-functions: true`)
+- Always enabled (if it's a clear improvement with no downsides)
+
 ## Emitting TypeSpec types to assets on disk
 
 One of the main tasks of an emitter is to identify types to emit. There are three primary methods:
