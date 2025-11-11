@@ -227,6 +227,14 @@ function Build-LocalNuGetPackages {
     
     Write-Host "Building NuGet generator packages..." -ForegroundColor Gray
     
+    # Clean old packages from debug folder to avoid version conflicts
+    Write-Host "  Cleaning old NuGet packages from debug folder..." -ForegroundColor Gray
+    $oldPackages = Get-ChildItem -Path $DebugFolder -Filter "Microsoft.TypeSpec.Generator*.nupkg" -ErrorAction SilentlyContinue
+    foreach ($pkg in $oldPackages) {
+        Remove-Item $pkg.FullName -Force
+        Write-Host "    Removed: $($pkg.Name)" -ForegroundColor Gray
+    }
+    
     $generatorRoot = Join-Path $PackageRoot "generator"
     $nugetProjects = @(
         "Microsoft.TypeSpec.Generator\src\Microsoft.TypeSpec.Generator.csproj",
@@ -240,7 +248,7 @@ function Build-LocalNuGetPackages {
             throw "NuGet project not found: $projectPath"
         }
         
-        Write-Host "Packing: $(Split-Path $projectPath -Leaf)" -ForegroundColor Gray
+        Write-Host "  Packing: $(Split-Path $projectPath -Leaf)" -ForegroundColor Gray
         $packCmd = "dotnet pack `"$projectPath`" /p:Version=$LocalVersion /p:PackageVersion=$LocalVersion /p:PackageOutputPath=`"$DebugFolder`" --configuration Debug --no-build --nologo -v:quiet"
         Invoke $packCmd $generatorRoot | Out-Host
         if ($LASTEXITCODE -ne 0) {
@@ -248,7 +256,23 @@ function Build-LocalNuGetPackages {
         }
     }
     
-    Write-Host "  NuGet packages created" -ForegroundColor Green
+    # Verify packages were created
+    Write-Host "  Verifying NuGet packages..." -ForegroundColor Gray
+    $expectedPackages = @(
+        "Microsoft.TypeSpec.Generator.$LocalVersion.nupkg",
+        "Microsoft.TypeSpec.Generator.Input.$LocalVersion.nupkg",
+        "Microsoft.TypeSpec.Generator.ClientModel.$LocalVersion.nupkg"
+    )
+    
+    foreach ($expectedPkg in $expectedPackages) {
+        $pkgPath = Join-Path $DebugFolder $expectedPkg
+        if (-not (Test-Path $pkgPath)) {
+            throw "Expected NuGet package not found: $expectedPkg"
+        }
+        Write-Host "    Verified: $expectedPkg" -ForegroundColor Gray
+    }
+    
+    Write-Host "  NuGet packages created and verified" -ForegroundColor Green
 }
 
 # Run code generation to create tspCodeModel
@@ -522,6 +546,12 @@ try {
         
         $nugetConfigPath = Join-Path $sdkRepoPath "NuGet.Config"
         Add-LocalNuGetSource -NuGetConfigPath $nugetConfigPath -SourcePath $debugFolder
+        
+        # Clear NuGet cache to ensure fresh package discovery
+        Write-Host "Clearing NuGet HTTP cache..." -ForegroundColor Gray
+        $clearCacheCmd = "dotnet nuget locals http-cache --clear"
+        Invoke $clearCacheCmd $sdkRepoPath | Out-Host
+        Write-Host "  NuGet cache cleared" -ForegroundColor Green
         
         $engFolder = Join-Path $sdkRepoPath "eng"
         $tempDir = Join-Path $engFolder "temp-package-update"
