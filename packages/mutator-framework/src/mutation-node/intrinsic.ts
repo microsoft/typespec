@@ -4,5 +4,8 @@ import { MutationNode } from "./mutation-node.js";
 export class IntrinsicMutationNode extends MutationNode<IntrinsicType> {
   readonly kind = "Intrinsic";
 
-  traverse() {}
+  connect() {
+    if (this.connected) return;
+    this.connected = true;
+  }
 }

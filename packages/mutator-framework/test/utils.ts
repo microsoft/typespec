@@ -1,9 +1,8 @@
 import type { Program } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
-import { MutationEngine, MutationSubgraph } from "../src/index.js";
+import { MutationEngine } from "../src/index.js";
 
-export function getSubgraph(program: Program) {
+export function getEngine(program: Program) {
   const tk = $(program);
-  const engine = new MutationEngine(tk, {});
-  return new MutationSubgraph(engine);
+  return new MutationEngine(tk, {});
 }

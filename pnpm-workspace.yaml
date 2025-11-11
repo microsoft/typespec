@@ -1,11 +1,17 @@
 packages:
-  - "packages/*"
-  - "e2e"
-  - "website"
-  - "!packages/http-client-csharp/**"
-  - "!packages/http-client-java/**"
-  - "!packages/http-client-python/**"
+  - packages/*
+  - e2e
+  - website
+  - '!packages/http-client-csharp/**'
+  - '!packages/http-client-java/**'
+  - '!packages/http-client-python/**'
+
+onlyBuiltDependencies:
+  - '@playwright/browser-chromium'
+  - '@vscode/vsce-sign'
+  - esbuild
+  - sharp
 
 overrides:
-  "cross-spawn@>=7.0.0 <7.0.5": "^7.0.5"
-  rollup: 4.49.0 # Regression in 4.50.0 https://github.com/rollup/rollup/issues/6099
+  cross-spawn@>=7.0.0 <7.0.5: ^7.0.5
+  rollup: 4.49.0

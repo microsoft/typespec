@@ -6,5 +6,8 @@ export class LiteralMutationNode extends MutationNode<
 > {
   readonly kind = "Literal";
 
-  traverse() {}
+  connect() {
+    if (this.connected) return;
+    this.connected = true;
+  }
 }

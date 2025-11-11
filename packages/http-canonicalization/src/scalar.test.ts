@@ -39,17 +39,17 @@ it("canonicalizes an int32 scalar", async () => {
   const tk = $(program);
   const engine = new HttpCanonicalizer(tk);
 
-  const canonicalMyString = engine.canonicalize(myNumber, {
+  const canonicalMyNumber = engine.canonicalize(myNumber, {
     visibility: Visibility.Read,
   });
 
   // We leave the language type the same
-  expect(canonicalMyString.sourceType === canonicalMyString.languageType).toBe(true);
+  expect(canonicalMyNumber.sourceType === canonicalMyNumber.languageType).toBe(true);
 
   // but the wire type is a float64
-  expect(canonicalMyString.sourceType === canonicalMyString.wireType).toBe(false);
-  expect(canonicalMyString.wireType === tk.builtin.float64).toBe(true);
-  expect(canonicalMyString.codec.id).toBe("coerce-to-float64");
+  expect(canonicalMyNumber.sourceType === canonicalMyNumber.wireType).toBe(false);
+  expect(canonicalMyNumber.wireType === tk.builtin.float64).toBe(true);
+  expect(canonicalMyNumber.codec.id).toBe("coerce-to-float64");
 });
 
 it("canonicalizes a utcDateTime scalar", async () => {

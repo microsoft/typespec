@@ -1,6 +1,7 @@
 import type { Type } from "@typespec/compiler";
 import type { Typekit } from "@typespec/compiler/typekit";
-import { MutationEngine, MutationSubgraph } from "@typespec/mutator-framework";
+import { MutationEngine, MutationHalfEdge, type MutationInfo } from "@typespec/mutator-framework";
+import type { Codec } from "./codecs.js";
 import {
   CANONICALIZATION_CLASSES,
   type HttpCanonicalizationMutations,
@@ -21,19 +22,23 @@ export const TSLanguageMapper: LanguageMapper = {
 export class HttpCanonicalizer extends MutationEngine<HttpCanonicalizationMutations> {
   constructor($: Typekit) {
     super($, CANONICALIZATION_CLASSES);
-    this.registerSubgraph("language");
-    this.registerSubgraph("wire");
   }
 
-  getLanguageSubgraph(options: HttpCanonicalizationOptions): MutationSubgraph {
-    return this.getMutationSubgraph(options, "language");
+  canonicalize<T extends Type>(
+    type: T,
+    options?: HttpCanonicalizationOptionsInit | HttpCanonicalizationOptions,
+    edge?: MutationHalfEdge,
+  ) {
+    return this.mutate(
+      type,
+      options instanceof HttpCanonicalizationOptions
+        ? options
+        : new HttpCanonicalizationOptions(options),
+      edge,
+    );
   }
+}
 
-  getWireSubgraph(options: HttpCanonicalizationOptions): MutationSubgraph {
-    return this.getMutationSubgraph(options, "wire");
-  }
-
-  canonicalize<T extends Type>(type: T, options?: HttpCanonicalizationOptionsInit) {
-    return this.mutate(type, new HttpCanonicalizationOptions(options));
-  }
+export interface HttpCanonicalizationInfo extends MutationInfo {
+  codec: Codec;
 }

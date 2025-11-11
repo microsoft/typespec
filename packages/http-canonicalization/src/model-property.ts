@@ -1,20 +1,21 @@
 import type { MemberType, ModelProperty } from "@typespec/compiler";
-import { getHeaderFieldOptions, getQueryParamOptions, isVisible } from "@typespec/http";
-import { ModelPropertyMutation } from "@typespec/mutator-framework";
-import { Codec, getJsonEncoderRegistry } from "./codecs.js";
-import type {
-  HttpCanonicalization,
-  HttpCanonicalizationMutations,
-} from "./http-canonicalization-classes.js";
-import type { HttpCanonicalizer } from "./http-canonicalization.js";
+import { getHeaderFieldOptions, getQueryParamOptions, isMetadata, isVisible } from "@typespec/http";
+import {
+  ModelPropertyMutation,
+  MutationHalfEdge,
+  type MutationNodeForType,
+} from "@typespec/mutator-framework";
+import { Codec } from "./codecs.js";
+import type { HttpCanonicalizationMutations } from "./http-canonicalization-classes.js";
+import type { HttpCanonicalizationInfo, HttpCanonicalizer } from "./http-canonicalization.js";
 import { HttpCanonicalizationOptions } from "./options.js";
 
 /**
  * Canonicalizes model properties, tracking request/response metadata and visibility.
  */
 export class ModelPropertyHttpCanonicalization extends ModelPropertyMutation<
-  HttpCanonicalizationOptions,
   HttpCanonicalizationMutations,
+  HttpCanonicalizationOptions,
   HttpCanonicalizer
 > {
   /**
@@ -31,7 +32,7 @@ export class ModelPropertyHttpCanonicalization extends ModelPropertyMutation<
   /**
    * Codec used to transform the property's type between language and wire views.
    */
-  codec: Codec;
+  codec: Codec | null = null;
 
   /**
    * True when the property is a query parameter.
@@ -68,32 +69,47 @@ export class ModelPropertyHttpCanonicalization extends ModelPropertyMutation<
    */
   explode: boolean = false;
 
-  /**
-   * Mutation subgraph for language types.
-   */
-  get #languageSubgraph() {
-    return this.engine.getLanguageSubgraph(this.options);
+  #languageMutationNode: MutationNodeForType<ModelProperty>;
+  get languageMutationNode() {
+    return this.#languageMutationNode;
   }
 
-  /**
-   * Mutation subgraph for wire types.
-   */
-  get #wireSubgraph() {
-    return this.engine.getWireSubgraph(this.options);
+  #wireMutationNode: MutationNodeForType<ModelProperty>;
+  get wireMutationNode() {
+    return this.#wireMutationNode;
   }
 
   /**
    * The possibly mutated language type for this property.
    */
   get languageType() {
-    return this.getMutatedType(this.#languageSubgraph);
+    return this.#languageMutationNode.mutatedType;
   }
 
   /**
    * The possibly mutated wire type for this property.
    */
   get wireType() {
-    return this.getMutatedType(this.#wireSubgraph);
+    return this.#wireMutationNode.mutatedType;
+  }
+
+  protected startTypeEdge() {
+    return new MutationHalfEdge(this, (tail) => {
+      this.#languageMutationNode.connectType(tail.languageMutationNode);
+      this.#wireMutationNode.connectType(tail.wireMutationNode);
+    });
+  }
+
+  static mutationInfo(
+    engine: HttpCanonicalizer,
+    sourceType: ModelProperty,
+    referenceTypes: MemberType[],
+    options: HttpCanonicalizationOptions,
+  ): HttpCanonicalizationInfo {
+    return {
+      mutationKey: options.mutationKey,
+      codec: null as any, // Model properties don't need a codec directly
+    };
   }
 
   constructor(
@@ -101,8 +117,18 @@ export class ModelPropertyHttpCanonicalization extends ModelPropertyMutation<
     sourceType: ModelProperty,
     referenceTypes: MemberType[],
     options: HttpCanonicalizationOptions,
+    info: HttpCanonicalizationInfo,
   ) {
-    super(engine, sourceType, referenceTypes, options);
+    super(engine, sourceType, referenceTypes, options, info);
+    this.#languageMutationNode = this.engine.getMutationNode(
+      this.sourceType,
+      info.mutationKey + "-language",
+    );
+    this.#wireMutationNode = this.engine.getMutationNode(
+      this.sourceType,
+      info.mutationKey + "-wire",
+    );
+
     this.isDeclaration = !!this.sourceType.name;
     this.isVisible = isVisible(this.engine.$.program, this.sourceType, this.options.visibility);
     const headerInfo = getHeaderFieldOptions(this.engine.$.program, this.sourceType);
@@ -126,22 +152,20 @@ export class ModelPropertyHttpCanonicalization extends ModelPropertyMutation<
         }
       }
     }
-
-    const registry = getJsonEncoderRegistry(this.engine.$);
-    this.codec = registry.detect(this);
   }
 
   /**
    * Apply HTTP canonicalization.
    */
   mutate() {
-    const languageNode = this.getMutationNode(this.#languageSubgraph);
-    const wireNode = this.getMutationNode(this.#wireSubgraph);
-
     if (!this.isVisible) {
-      languageNode.delete();
-      wireNode.delete();
+      this.#languageMutationNode.delete();
+      this.#wireMutationNode.delete();
       return;
+    }
+
+    if (isMetadata(this.engine.$.program, this.sourceType)) {
+      this.#wireMutationNode.delete();
     }
 
     const newOptions = this.isHeader
@@ -158,6 +182,6 @@ export class ModelPropertyHttpCanonicalization extends ModelPropertyMutation<
             })
           : this.options.with({ location: "body" });
 
-    this.type = this.engine.mutateReference(this.sourceType, newOptions) as HttpCanonicalization;
+    super.mutate(newOptions);
   }
 }

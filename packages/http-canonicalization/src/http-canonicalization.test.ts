@@ -34,7 +34,7 @@ it("canonicalizes models for read visibility", async () => {
   // validate mutation node
   expect(read.properties.size).toBe(2);
   const deletedProperty = read.properties.get("name")! as ModelPropertyHttpCanonicalization;
-  expect(deletedProperty.languageType).toBe(tk.intrinsic.never);
+  expect((deletedProperty.languageType as any) === tk.intrinsic.never).toBe(true);
 
   // validate language type
   expect(read.languageType.name).toBe("Foo");
@@ -96,4 +96,43 @@ it("returns the same canonicalization for the same type", async () => {
   });
 
   expect(read1 === read2).toBe(true);
+});
+
+it("handles referring to the same canonicalization", async () => {
+  const runner = await Tester.createInstance();
+  const { Foo, Bar, Baz, program } = await runner.compile(t.code`
+    model ${t.model("Foo")} {
+      @visibility(Lifecycle.Read) createdAt: utcDateTime;
+      name: string;
+    }  
+
+    model ${t.model("Bar")} {
+      foo: Foo;
+    }
+
+    model ${t.model("Baz")} {
+      foo: Foo;
+    }
+  `);
+
+  const tk = $(program);
+
+  const canonicalizer = new HttpCanonicalizer(tk);
+
+  const createFoo = canonicalizer.canonicalize(Foo, {
+    visibility: Visibility.Create,
+  }) as ModelHttpCanonicalization;
+
+  const createBar = canonicalizer.canonicalize(Bar, {
+    visibility: Visibility.Create,
+  }) as ModelHttpCanonicalization;
+
+  expect(createBar.properties.get("foo")!.type === createFoo).toBe(true);
+  expect(createBar.properties.get("foo")!.languageType.type === createFoo.languageType).toBe(true);
+
+  const createBaz = canonicalizer.canonicalize(Baz, {
+    visibility: Visibility.Create,
+  }) as ModelHttpCanonicalization;
+
+  expect(createBaz.properties.get("foo")!.type === createFoo).toBe(true);
 });

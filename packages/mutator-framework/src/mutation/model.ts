@@ -3,13 +3,14 @@ import type {
   CustomMutationClasses,
   MutationEngine,
   MutationFor,
+  MutationHalfEdge,
   MutationOptions,
 } from "./mutation-engine.js";
-import { Mutation } from "./mutation.js";
+import { Mutation, type MutationInfo } from "./mutation.js";
 
-export class ModelMutation<
-  TOptions extends MutationOptions,
+export abstract class ModelMutation<
   TCustomMutations extends CustomMutationClasses,
+  TOptions extends MutationOptions,
   TEngine extends MutationEngine<TCustomMutations> = MutationEngine<TCustomMutations>,
 > extends Mutation<Model, TCustomMutations, TOptions, TEngine> {
   readonly kind = "Model";
@@ -23,36 +24,57 @@ export class ModelMutation<
   constructor(
     engine: TEngine,
     sourceType: Model,
-    referenceTypes: MemberType[] = [],
+    referenceTypes: MemberType[],
     options: TOptions,
+    info: MutationInfo,
   ) {
-    super(engine, sourceType, referenceTypes, options);
+    super(engine, sourceType, referenceTypes, options, info);
   }
 
-  protected mutateBaseModel() {
+  protected mutateBaseModel(newOptions: MutationOptions = this.options) {
     if (this.sourceType.baseModel) {
-      this.baseModel = this.engine.mutate(this.sourceType.baseModel, this.options);
+      this.baseModel = this.engine.mutate(
+        this.sourceType.baseModel,
+        newOptions,
+        this.startBaseEdge(),
+      );
     }
   }
 
-  protected mutateProperties() {
+  protected mutateProperties(newOptions: MutationOptions = this.options) {
     for (const prop of this.sourceType.properties.values()) {
-      this.properties.set(prop.name, this.engine.mutate(prop, this.options));
+      this.properties.set(
+        prop.name,
+        this.engine.mutate(prop, newOptions, this.startPropertyEdge()),
+      );
     }
   }
 
-  protected mutateIndexer() {
+  protected mutateIndexer(newOptions: MutationOptions = this.options) {
     if (this.sourceType.indexer) {
       this.indexer = {
-        key: this.engine.mutate(this.sourceType.indexer.key, this.options),
-        value: this.engine.mutate(this.sourceType.indexer.value, this.options),
+        key: this.engine.mutate(
+          this.sourceType.indexer.key,
+          newOptions,
+          this.startIndexerKeyEdge(),
+        ),
+        value: this.engine.mutate(
+          this.sourceType.indexer.value,
+          newOptions,
+          this.startIndexerValueEdge(),
+        ),
       };
     }
   }
 
-  mutate() {
-    this.mutateBaseModel();
-    this.mutateProperties();
-    this.mutateIndexer();
+  protected abstract startBaseEdge(): MutationHalfEdge;
+  protected abstract startPropertyEdge(): MutationHalfEdge;
+  protected abstract startIndexerValueEdge(): MutationHalfEdge;
+  protected abstract startIndexerKeyEdge(): MutationHalfEdge;
+
+  mutate(newOptions: MutationOptions = this.options) {
+    this.mutateBaseModel(newOptions);
+    this.mutateProperties(newOptions);
+    this.mutateIndexer(newOptions);
   }
 }

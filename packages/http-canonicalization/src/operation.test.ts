@@ -1,3 +1,4 @@
+import type { Model } from "@typespec/compiler";
 import { t, type TesterInstance } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/typekit";
 import { beforeEach, describe, expect, it } from "vitest";
@@ -83,6 +84,30 @@ describe("Operation parameters", async () => {
     expect(scalarType.wireType === tk.builtin.string).toBe(true);
     expect(scalarType.codec.id).toBe("rfc7231");
     expect(createFooCanonical.requestParameters.properties.length).toBe(2);
+  });
+
+  it("works with merge patch", async () => {
+    const { updateFoo, program } = await runner.compile(t.code`
+      model ${t.model("Foo")} {
+        @visibility(Lifecycle.Read) createdAt: utcDateTime;
+        name: string;
+      }
+
+      @route("/foo")
+      @patch
+      op ${t.op("updateFoo")}(@body body: MergePatchUpdate<Foo>): Foo;
+    `);
+
+    const tk = $(program);
+    const canonicalizer = new HttpCanonicalizer(tk);
+    const updateFooCanonical = canonicalizer.canonicalize(updateFoo);
+    const bodyProp = updateFooCanonical.requestParameters.body!.property!;
+    expect(bodyProp.languageType.name).toBe("body");
+    expect((bodyProp.languageType.type as Model).name).toBe("FooMergePatchUpdate");
+    const body = updateFooCanonical.requestParameters.body!;
+    expect(body.bodyKind).toBe("single");
+    expect(body.type).toBeInstanceOf(ModelHttpCanonicalization);
+    expect((body.type.languageType as Model).name).toBe("FooMergePatchUpdate");
   });
 });
 
