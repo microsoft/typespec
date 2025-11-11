@@ -32,6 +32,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             {
                 AddDerivedModel(model);
             }
+            IsDynamicModel = isDynamicModel;
             if (discriminatedSubtypes is not null)
             {
                 foreach (var model in discriminatedSubtypes.Values)
@@ -47,7 +48,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             IsPropertyBag = false;
             ModelAsStruct = modelAsStruct;
             SerializationOptions = serializationOptions;
-            IsDynamicModel = isDynamicModel;
         }
 
         public string Namespace { get; internal set; }
