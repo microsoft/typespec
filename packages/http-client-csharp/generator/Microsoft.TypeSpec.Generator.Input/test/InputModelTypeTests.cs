@@ -32,5 +32,23 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             var property = InputFactory.Property("prop1", InputPrimitiveType.Any, true, true);
             Assert.AreEqual("prop1", property.SerializedName);
         }
+
+        [Test]
+        public void IsDynamicModelPropagatesFromBaseToDevived()
+        {
+            // Create a base model that is dynamic
+            var baseModel = InputFactory.Model("baseModel", isDynamicModel: true, properties: [
+                InputFactory.Property("baseProp", InputPrimitiveType.String, isRequired: true)
+            ]);
+
+            // Create a derived model that is NOT marked as dynamic
+            var derivedModel = InputFactory.Model("derivedModel", isDynamicModel: false, baseModel: baseModel, properties: [
+                InputFactory.Property("derivedProp", InputPrimitiveType.String, isRequired: true)
+            ]);
+
+            // The derived model should be marked as dynamic because it inherits from a dynamic base
+            Assert.IsTrue(derivedModel.IsDynamicModel, "Derived model should be marked as dynamic when inheriting from a dynamic base");
+            Assert.IsTrue(baseModel.IsDynamicModel, "Base model should remain marked as dynamic");
+        }
     }
 }

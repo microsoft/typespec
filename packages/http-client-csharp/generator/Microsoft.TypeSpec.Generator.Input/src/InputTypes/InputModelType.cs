@@ -79,6 +79,11 @@ namespace Microsoft.TypeSpec.Generator.Input
         {
             model.BaseModel = this;
             _derivedModels.Add(model);
+            // If this base model is dynamic, the derived model should also be dynamic
+            if (IsDynamicModel && !model.IsDynamicModel)
+            {
+                model.IsDynamicModel = true;
+            }
         }
         public string? DiscriminatorValue { get; internal set; }
         public InputModelProperty? DiscriminatorProperty { get; internal set; }

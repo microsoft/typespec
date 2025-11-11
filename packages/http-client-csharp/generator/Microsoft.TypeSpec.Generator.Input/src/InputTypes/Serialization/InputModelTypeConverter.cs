@@ -143,6 +143,11 @@ namespace Microsoft.TypeSpec.Generator.Input
             if (baseModel != null)
             {
                 baseModel.AddDerivedModel(model);
+                // If the base model is dynamic, this derived model should also be dynamic
+                if (baseModel.IsDynamicModel)
+                {
+                    MarkModelsAsDynamicRecursive(model, []);
+                }
             }
 
             return model;
@@ -158,6 +163,13 @@ namespace Microsoft.TypeSpec.Generator.Input
             if (inputType is InputModelType modelType)
             {
                 modelType.IsDynamicModel = true;
+
+                // Mark all derived models as dynamic
+                foreach (var derivedModel in modelType.DerivedModels)
+                {
+                    MarkModelsAsDynamicRecursive(derivedModel, visited);
+                }
+
                 foreach (var property in modelType.Properties)
                 {
                     switch (property.Type)

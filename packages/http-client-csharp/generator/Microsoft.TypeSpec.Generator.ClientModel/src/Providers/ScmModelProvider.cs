@@ -315,21 +315,33 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private bool BuildHasDynamicProperties()
         {
-            var propertiesWithWireInfo = CanonicalView.Properties;
-            if (propertiesWithWireInfo.Any(p =>
-                    p.WireInfo?.SerializedName != null &&
-                    ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(p.Type, out var provider) &&
-                    provider is ScmModelProvider { IsDynamicModel: true }))
+            // Check if this model or any base model has dynamic properties
+            var currentModel = this;
+            while (currentModel != null)
             {
-                return true;
+                var propertiesWithWireInfo = currentModel.CanonicalView.Properties;
+                if (propertiesWithWireInfo.Any(p =>
+                        p.WireInfo?.SerializedName != null &&
+                        ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(p.Type, out var provider) &&
+                        provider is ScmModelProvider { IsDynamicModel: true }))
+                {
+                    return true;
+                }
+
+                if (propertiesWithWireInfo
+                    .Where(p => p.Type.IsCollection && p.WireInfo?.SerializedName != null)
+                    .Any(p => ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(
+                                  p.Type.GetNestedElementType(),
+                                  out var provider) &&
+                              provider is ScmModelProvider { IsDynamicModel: true }))
+                {
+                    return true;
+                }
+
+                currentModel = currentModel.BaseModelProvider as ScmModelProvider;
             }
 
-            return propertiesWithWireInfo
-                .Where(p => p.Type.IsCollection && p.WireInfo?.SerializedName != null)
-                .Any(p => ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(
-                              p.Type.GetNestedElementType(),
-                              out var provider) &&
-                          provider is ScmModelProvider { IsDynamicModel: true });
+            return false;
         }
 
         private PropertyProvider? GetBaseJsonPatchProperty()
