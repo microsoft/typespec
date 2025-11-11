@@ -15,8 +15,10 @@ function Invoke($command, $executePath=$packageRoot)
         }
         
         # Write output line by line to preserve formatting
-        if ($output -and $output.Count -gt 0) {
-            foreach ($line in $output) {
+        # Use @() to ensure $output is always treated as an array
+        $outputArray = @($output)
+        if ($outputArray -and $outputArray.Length -gt 0) {
+            foreach ($line in $outputArray) {
                 if ($null -ne $line) {
                     Write-Host $line
                 }
