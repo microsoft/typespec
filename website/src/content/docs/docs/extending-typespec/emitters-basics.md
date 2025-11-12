@@ -156,12 +156,6 @@ When adding configurability to an emitter, you should consider whether to use pl
 - The feature has trade-offs that different users might evaluate differently
 - Backward compatibility requires making a change opt-in
 
-For example, if you're adding support for generating additional utility functions, consider whether this should be:
-
-- A plugin (if it's a comprehensive feature set for a specific scenario like "client utilities")
-- A config option (if it's a simple toggle like `generate-utility-functions: true`)
-- Always enabled (if it's a clear improvement with no downsides)
-
 ## Emitting TypeSpec types to assets on disk
 
 One of the main tasks of an emitter is to identify types to emit. There are three primary methods:
