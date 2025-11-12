@@ -134,7 +134,7 @@ describe("fixNamingConflicts", () => {
     `,
       runner,
     );
-    
+
     // Create emitter context with namespace option set to test the scenario
     // where models from different source namespaces get remapped to same target namespace
     const targetNamespace = "Azure.Csharp.Testing";
@@ -145,8 +145,13 @@ describe("fixNamingConflicts", () => {
     const root = createModel(sdkContext);
 
     // Get all ErrorResponse models - fixNamingConflicts should have resolved the conflicts
-    const errorModels = root.models.filter((m) => m.name.startsWith("ErrorResponse") && m.namespace === targetNamespace);
-    ok(errorModels.length >= 3, `Should have at least 3 ErrorResponse models, found ${errorModels.length}`);
+    const errorModels = root.models.filter(
+      (m) => m.name.startsWith("ErrorResponse") && m.namespace === targetNamespace,
+    );
+    ok(
+      errorModels.length >= 3,
+      `Should have at least 3 ErrorResponse models, found ${errorModels.length}`,
+    );
 
     // Verify they have unique names after fixNamingConflicts runs automatically
     const modelNames = new Set(errorModels.map((m) => m.name));
@@ -155,13 +160,19 @@ describe("fixNamingConflicts", () => {
       errorModels.length,
       "All ErrorResponse models should have unique names",
     );
-    
+
     // Verify one kept original name and others got numbered suffixes
-    const originalName = errorModels.find(m => m.name === "ErrorResponse");
-    const renamedModels = errorModels.filter(m => m.name !== "ErrorResponse");
+    const originalName = errorModels.find((m) => m.name === "ErrorResponse");
+    const renamedModels = errorModels.filter((m) => m.name !== "ErrorResponse");
     ok(originalName, "One model should keep the original ErrorResponse name");
     ok(renamedModels.length >= 2, "Other models should have numbered suffixes");
-    ok(renamedModels.some(m => m.name === "ErrorResponse1"), "Should have ErrorResponse1");
-    ok(renamedModels.some(m => m.name === "ErrorResponse2"), "Should have ErrorResponse2");
+    ok(
+      renamedModels.some((m) => m.name === "ErrorResponse1"),
+      "Should have ErrorResponse1",
+    );
+    ok(
+      renamedModels.some((m) => m.name === "ErrorResponse2"),
+      "Should have ErrorResponse2",
+    );
   });
 });
