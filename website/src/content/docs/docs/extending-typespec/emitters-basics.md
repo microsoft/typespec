@@ -153,7 +153,6 @@ When adding configurability to an emitter, you should consider whether to use pl
 **Best practice:** Whenever possible, enable features by default without requiring configuration. Only add configuration when:
 
 - Different users have genuinely different needs or preferences
-- The feature has trade-offs that different users might evaluate differently
 - Backward compatibility requires making a change opt-in
 
 ## Emitting TypeSpec types to assets on disk
