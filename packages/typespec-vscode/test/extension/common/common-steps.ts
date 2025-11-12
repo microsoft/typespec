@@ -215,6 +215,11 @@ export async function packagesInstall(packages: { [x: string]: string }, testTyp
   await runTypeSpec(packages["@typespec/http"], ["install"], { cwd: testCurrentDir });
   await runTypeSpec(packages["@typespec/openapi3"], ["install"], { cwd: testCurrentDir });
   await runTypeSpec(packages["@typespec/http-client-js"], ["install"], { cwd: testCurrentDir });
+  await runTypeSpec(packages["@typespec/streams"], ["install"], { cwd: testCurrentDir });
+  await runTypeSpec(packages["@typespec/rest"], ["install"], { cwd: testCurrentDir });
+  await runTypeSpec(packages["@typespec/emitter-framework"], ["install"], { cwd: testCurrentDir });
+  await runTypeSpec(packages["@typespec/openapi"], ["install"], { cwd: testCurrentDir });
+  await runTypeSpec(packages["@typespec/asset-emitter"], ["install"], { cwd: testCurrentDir });
 }
 
 /**
