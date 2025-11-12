@@ -199,6 +199,7 @@ export function createLinter(
 
     const timer = startTimer();
     const exitCallbacks = [];
+    const EXIT_EVENT_NAME = "exit";
     const allPromises: Promise<any>[] = [];
     for (const rule of filteredRules.values()) {
       const createTiming = startTimer();
@@ -208,14 +209,15 @@ export function createLinter(
         const timedCb = (...args: any[]) => {
           const timer = startTimer();
           const result = (cb as any)(...args);
-          if (isPromise(result)) {
+          if (name === EXIT_EVENT_NAME && isPromise(result)) {
             if (rule.async !== true) {
+              // not expected, just in case
               compilerAssert(
                 false /* throw if this is not true */,
                 `Linter rule "${rule.id}" is not marked as async but returned a promise from the "${name}" callback.`,
               );
             }
-            const rr = result.then(() => {
+            const rr = result.finally(() => {
               const duration = timer.end();
               stats.runtime.rules[rule.id] += duration;
             });
@@ -225,7 +227,7 @@ export function createLinter(
             stats.runtime.rules[rule.id] += duration;
           }
         };
-        if (name === "exit") {
+        if (name === EXIT_EVENT_NAME) {
           // we need to trigger 'exit' callbacks explicitly after semantic walker is done
           exitCallbacks.push(timedCb);
         } else {
