@@ -52,7 +52,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
             InputModelType catModel = InputFactory.Model("cat", discriminatedKind: "cat", properties:
             [
                 InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
-            ]);
+            ],
+                isDynamicModel: true);
             var baseModel = InputFactory.Model(
                 "pet",
                 isDynamicModel: true,
@@ -79,13 +80,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
 
             Assert.IsNotNull(model);
 
-            var expectedDynamicModel = validateBase;
-            Assert.AreEqual(expectedDynamicModel, model!.IsDynamicModel);
-            
-            if (expectedDynamicModel)
-            {
-                AssertJsonIgnoreAttributeOnPatchProperty(model);
-            }
+            Assert.IsTrue(model!.IsDynamicModel);
+
+            AssertJsonIgnoreAttributeOnPatchProperty(model);
 
             var writer = new TypeProviderWriter(model);
             var file = writer.Write();
@@ -131,7 +128,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
                 .FirstOrDefault(t => t.Name == "Tiger");
             Assert.IsNotNull(model);
             Assert.AreEqual(discriminatedTypeIsDynamicModel, model!.IsDynamicModel);
-            
+
             if (discriminatedTypeIsDynamicModel)
             {
                 AssertJsonIgnoreAttributeOnPatchProperty(model);
@@ -286,7 +283,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
             var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(catModel) as ScmModel;
 
             Assert.IsNotNull(model);
-            Assert.IsTrue(model!.HasDynamicModelSupport);
+            Assert.IsTrue(model!.IsDynamicModel);
 
             var writer = new TypeProviderWriter(model);
             var file = writer.Write();
@@ -300,7 +297,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
             var catModel = InputFactory.Model("cat", properties:
             [
                 InputFactory.Property("meows", InputPrimitiveType.Boolean, isRequired: true)
-            ]);
+            ], isDynamicModel: true);
             var baseModel = InputFactory.Model(
                 "pet",
                 isDynamicModel: true,
@@ -310,7 +307,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
             var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(catModel) as ScmModel;
 
             Assert.IsNotNull(model);
-            Assert.IsTrue(model!.HasDynamicModelSupport);
+            Assert.IsTrue(model!.IsDynamicModel);
 
             var writer = new TypeProviderWriter(model);
             var file = writer.Write();
@@ -330,7 +327,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
             var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(catModel) as ScmModel;
 
             Assert.IsNotNull(model);
-            Assert.IsTrue(model!.HasDynamicModelSupport);
+            Assert.IsTrue(model!.IsDynamicModel);
             AssertJsonIgnoreAttributeOnPatchProperty(model);
 
             var writer = new TypeProviderWriter(model);
@@ -353,7 +350,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
             var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(catModel) as ScmModel;
 
             Assert.IsNotNull(model);
-            Assert.IsTrue(model!.HasDynamicModelSupport);
+            Assert.IsTrue(model!.IsDynamicModel);
             AssertJsonIgnoreAttributeOnPatchProperty(model);
 
             var writer = new TypeProviderWriter(model);
@@ -376,7 +373,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
             var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(catModel) as ScmModel;
 
             Assert.IsNotNull(model);
-            Assert.IsTrue(model!.HasDynamicModelSupport);
+            Assert.IsTrue(model!.IsDynamicModel);
             AssertJsonIgnoreAttributeOnPatchProperty(model);
 
             var customCtor = model.CustomCodeView?.Constructors.FirstOrDefault(c => c.Signature.Parameters.Count > 0);
@@ -390,7 +387,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
         private void AssertJsonIgnoreAttributeOnPatchProperty(ScmModel model)
         {
             var patchProperty = model.JsonPatchProperty;
-            
+
             // JsonPatch property may be null if:
             // 1. The model only has additional properties without full dynamic model support
             // 2. The model inherits the property from a base class
@@ -398,7 +395,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
             {
                 return;
             }
-            
+
             var jsonIgnoreAttribute = patchProperty.Attributes.FirstOrDefault(a => a.Type.Equals(typeof(JsonIgnoreAttribute)));
             Assert.IsNotNull(jsonIgnoreAttribute, "JsonPatch property should have JsonIgnore attribute");
         }
