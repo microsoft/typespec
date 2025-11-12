@@ -33,6 +33,9 @@
     "type": "git",
     "url": "git+https://github.com/microsoft/typespec.git"
   },
+  "spector": {
+    "sourceUrl": "https://github.com/microsoft/typespec/tree/main/packages/http-specs/specs/{scenarioPath}"
+  },
   "author": "Microsoft",
   "license": "MIT",
   "bugs": {
