@@ -1,3 +1,4 @@
+import { isPromise } from "../utils/misc.js";
 import { DiagnosticCollector, compilerAssert, createDiagnosticCollector } from "./diagnostics.js";
 import { getLocationContext } from "./helpers/location-context.js";
 import { defineLinter } from "./library.js";
@@ -199,7 +200,6 @@ export function createLinter(
     const timer = startTimer();
     const exitCallbacks = [];
     const allPromises: Promise<any>[] = [];
-    const EXIT_EVENT_NAME = "exit";
     for (const rule of filteredRules.values()) {
       const createTiming = startTimer();
       const listener = rule.create(createLinterRuleContext(program, rule, diagnostics));
@@ -208,8 +208,14 @@ export function createLinter(
         const timedCb = (...args: any[]) => {
           const timer = startTimer();
           const result = (cb as any)(...args);
-          if (name === EXIT_EVENT_NAME && rule.async === true) {
-            const rr = result.finally(() => {
+          if (isPromise(result)) {
+            if (rule.async !== true) {
+              compilerAssert(
+                false /* throw if this is not true */,
+                `Linter rule "${rule.id}" is not marked as async but returned a promise from the "${name}" callback.`,
+              );
+            }
+            const rr = result.then(() => {
               const duration = timer.end();
               stats.runtime.rules[rule.id] += duration;
             });
@@ -219,7 +225,7 @@ export function createLinter(
             stats.runtime.rules[rule.id] += duration;
           }
         };
-        if (name === EXIT_EVENT_NAME) {
+        if (name === "exit") {
           // we need to trigger 'exit' callbacks explicitly after semantic walker is done
           exitCallbacks.push(timedCb);
         } else {
