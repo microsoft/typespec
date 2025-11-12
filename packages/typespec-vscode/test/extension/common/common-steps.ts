@@ -165,6 +165,9 @@ export async function packPackages() {
     "@typespec/http-client": resolvePackage("typespec-http-client-", "typespec-http-client-js-"),
     "@typespec/http-client-js": resolvePackage("typespec-http-client-js-"),
     "@typespec/streams": resolvePackage("typespec-streams-"),
+    "@typespec/rest": resolvePackage("typespec-rest-"),
+    "@typespec/emitter-framework": resolvePackage("typespec-emitter-framework-"),
+    "@typespec/openapi": resolvePackage("typespec-openapi-"),
   };
 }
 
@@ -193,6 +196,9 @@ export async function packagesInstall(packages: { [x: string]: string }, testTyp
       "@typespec/openapi3": packages["@typespec/openapi3"],
       "@typespec/http-client-js": packages["@typespec/http-client-js"],
       "@typespec/streams": packages["@typespec/streams"],
+      "@typespec/rest": packages["@typespec/rest"],
+      "@typespec/emitter-framework": packages["@typespec/emitter-framework"],
+      "@typespec/openapi": packages["@typespec/openapi"],
     },
     private: true,
     overrides: {
