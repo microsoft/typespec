@@ -36,6 +36,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         public abstract ValueExpression KeyAuthorizationPolicy(ValueExpression credential, ValueExpression headerName, ValueExpression? keyPrefix = null);
         public abstract ValueExpression TokenAuthorizationPolicy(ValueExpression credential, ValueExpression scopes);
+        public abstract ValueExpression UserAgentPolicy(CSharpType clientType);
         public abstract ClientPipelineApi FromExpression(ValueExpression expression);
         public abstract ClientPipelineApi ToExpression();
     }

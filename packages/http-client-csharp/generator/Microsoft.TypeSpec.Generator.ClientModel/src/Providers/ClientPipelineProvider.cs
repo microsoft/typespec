@@ -58,6 +58,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         public override ValueExpression TokenAuthorizationPolicy(ValueExpression credential, ValueExpression scopes)
             => New.Instance(typeof(BearerTokenPolicy), credential, scopes);
 
+        public override ValueExpression UserAgentPolicy(CSharpType clientType)
+            => New.Instance(typeof(System.ClientModel.Primitives.UserAgentPolicy), [TypeOf(clientType).Property("Assembly"), Null]);
+
         public override ClientPipelineApi ToExpression() => this;
 
         public override MethodBodyStatement[] SendMessage(HttpMessageApi message, HttpRequestOptionsApi options)
