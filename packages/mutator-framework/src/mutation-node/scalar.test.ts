@@ -1,4 +1,4 @@
-import { t, type TesterInstance } from "@typespec/compiler/testing";
+import { expectTypeEquals, t, type TesterInstance } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/typekit";
 import { beforeEach, expect, it } from "vitest";
 import { Tester } from "../../test/test-host.js";
@@ -40,5 +40,5 @@ it("handles replacement of scalars", async () => {
 
   // derived node is updated
   expect(derivedNode.isMutated).toBe(true);
-  expect(derivedNode.mutatedType.baseScalar === replacedNode.sourceType).toBe(true);
+  expectTypeEquals(derivedNode.mutatedType.baseScalar!, replacedNode.sourceType);
 });

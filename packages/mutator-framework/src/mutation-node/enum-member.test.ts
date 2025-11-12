@@ -1,4 +1,4 @@
-import { t, type TesterInstance } from "@typespec/compiler/testing";
+import { expectTypeEquals, t, type TesterInstance } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/typekit";
 import { beforeEach, expect, it } from "vitest";
 import { Tester } from "../../test/test-host.js";
@@ -23,7 +23,7 @@ it("handles mutation of member values", async () => {
   aNode.mutate((clone) => (clone.value = "valueARenamed"));
   expect(aNode.isMutated).toBe(true);
   expect(fooNode.isMutated).toBe(true);
-  expect(fooNode.mutatedType.members.get("a") === aNode.mutatedType).toBe(true);
+  expectTypeEquals(fooNode.mutatedType.members.get("a")!, aNode.mutatedType);
   expect(aNode.mutatedType.value).toBe("valueARenamed");
 });
 

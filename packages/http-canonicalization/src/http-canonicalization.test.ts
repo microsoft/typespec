@@ -1,4 +1,4 @@
-import { t } from "@typespec/compiler/testing";
+import { expectTypeEquals, t } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/typekit";
 import { Visibility } from "@typespec/http";
 import { expect, it } from "vitest";
@@ -34,7 +34,7 @@ it("canonicalizes models for read visibility", async () => {
   // validate mutation node
   expect(read.properties.size).toBe(2);
   const deletedProperty = read.properties.get("name")! as ModelPropertyHttpCanonicalization;
-  expect((deletedProperty.languageType as any) === tk.intrinsic.never).toBe(true);
+  expectTypeEquals(deletedProperty.languageType as any, tk.intrinsic.never);
 
   // validate language type
   expect(read.languageType.name).toBe("Foo");
@@ -128,7 +128,7 @@ it("handles referring to the same canonicalization", async () => {
   }) as ModelHttpCanonicalization;
 
   expect(createBar.properties.get("foo")!.type === createFoo).toBe(true);
-  expect(createBar.properties.get("foo")!.languageType.type === createFoo.languageType).toBe(true);
+  expectTypeEquals(createBar.properties.get("foo")!.languageType.type, createFoo.languageType);
 
   const createBaz = canonicalizer.canonicalize(Baz, {
     visibility: Visibility.Create,

@@ -1,4 +1,4 @@
-import { t, type TesterInstance } from "@typespec/compiler/testing";
+import { expectTypeEquals, t, type TesterInstance } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/typekit";
 import { Visibility } from "@typespec/http";
 import { beforeEach, expect, it } from "vitest";
@@ -32,11 +32,11 @@ it("canonicalizes properties with encoding differently than the referenced type"
   const one = canonicalized.properties.get("one")!;
   const two = canonicalized.properties.get("two")!;
 
-  expect(one.languageType.type === tk.builtin.utcDateTime).toBe(true);
-  expect(one.wireType.type === tk.builtin.string).toBe(true);
+  expectTypeEquals(one.languageType.type, tk.builtin.utcDateTime);
+  expectTypeEquals(one.wireType.type, tk.builtin.string);
 
-  expect(two.languageType.type === tk.builtin.utcDateTime).toBe(true);
-  expect(two.wireType.type === tk.builtin.string).toBe(true);
+  expectTypeEquals(two.languageType.type, tk.builtin.utcDateTime);
+  expectTypeEquals(two.wireType.type, tk.builtin.string);
 
   const oneType = one.type as ScalarHttpCanonicalization;
   const twoType = two.type as ScalarHttpCanonicalization;

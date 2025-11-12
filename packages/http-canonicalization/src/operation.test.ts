@@ -1,5 +1,5 @@
 import type { Model } from "@typespec/compiler";
-import { t, type TesterInstance } from "@typespec/compiler/testing";
+import { expectTypeEquals, t, type TesterInstance } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/typekit";
 import { beforeEach, describe, expect, it } from "vitest";
 import { Tester } from "../test/test-host.js";
@@ -81,7 +81,7 @@ describe("Operation parameters", async () => {
     const dateProp = createFooCanonical.requestParameters.properties[0];
     expect(dateProp.kind).toBe("header");
     const scalarType = dateProp.property.type as ScalarHttpCanonicalization;
-    expect(scalarType.wireType === tk.builtin.string).toBe(true);
+    expectTypeEquals(scalarType.wireType, tk.builtin.string);
     expect(scalarType.codec.id).toBe("rfc7231");
     expect(createFooCanonical.requestParameters.properties.length).toBe(2);
   });
@@ -141,7 +141,7 @@ describe("Operation responses", async () => {
     const etagHeader = content.headers!.etag;
     expect(etagHeader).toBeDefined();
     const etagType = etagHeader!.type as ScalarHttpCanonicalization;
-    expect(etagType.wireType === tk.builtin.string).toBe(true);
+    expectTypeEquals(etagType.wireType, tk.builtin.string);
 
     expect(content.body).toBeDefined();
     const body = content.body!;

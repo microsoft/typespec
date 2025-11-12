@@ -1,5 +1,5 @@
 import type { MemberType, Model } from "@typespec/compiler";
-import { t } from "@typespec/compiler/testing";
+import { expectTypeEquals, t } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/typekit";
 import { expect, it } from "vitest";
 import { Tester } from "../../test/test-host.js";
@@ -97,9 +97,7 @@ it("attaches to existing mutations", async () => {
   const fooMutation = engine.mutate(Foo, new RenameMutationOptions({ suffix: "X" }));
 
   expect(fooMutation.properties.get("prop")!.type === barMutation).toBe(true);
-  expect(fooMutation.properties.get("prop")!.mutatedType.type === barMutation.mutatedType).toBe(
-    true,
-  );
+  expectTypeEquals(fooMutation.properties.get("prop")!.mutatedType.type, barMutation.mutatedType);
 });
 
 class RenameModelBasedOnReferenceMutation extends SimpleModelMutation<SimpleMutationOptions> {
@@ -213,14 +211,14 @@ it("allows replacing types", async () => {
   const variants = [...unionNode.variants.values()];
 
   expect(variants[0].type.kind).toBe("Scalar");
-  expect(
-    (variants[0].type as SimpleScalarMutation<SimpleMutationOptions>).mutatedType ===
-      tk.builtin.int32,
-  ).toBe(true);
+  expectTypeEquals(
+    (variants[0].type as SimpleScalarMutation<SimpleMutationOptions>).mutatedType,
+    tk.builtin.int32,
+  );
 
   expect(variants[1].type.kind).toBe("Scalar");
-  expect(
-    (variants[1].type as SimpleScalarMutation<SimpleMutationOptions>).mutatedType ===
-      tk.builtin.string,
-  ).toBe(true);
+  expectTypeEquals(
+    (variants[1].type as SimpleScalarMutation<SimpleMutationOptions>).mutatedType,
+    tk.builtin.string,
+  );
 });

@@ -1,5 +1,5 @@
 import type { Model, Type } from "@typespec/compiler";
-import { t, type TesterInstance } from "@typespec/compiler/testing";
+import { expectTypeEquals, t, type TesterInstance } from "@typespec/compiler/testing";
 import { beforeEach, expect, it } from "vitest";
 import { Tester } from "../../test/test-host.js";
 import { getEngine } from "../../test/utils.js";
@@ -21,7 +21,7 @@ it("handles mutation of properties", async () => {
   fooNode.connectProperty(propNode);
   propNode.mutate();
   expect(fooNode.isMutated).toBe(true);
-  expect(fooNode.mutatedType.properties.get("prop") === propNode.mutatedType).toBe(true);
+  expectTypeEquals(fooNode.mutatedType.properties.get("prop")!, propNode.mutatedType);
 });
 
 it("handles mutation of properties lazily", async () => {
@@ -38,7 +38,7 @@ it("handles mutation of properties lazily", async () => {
   fooNode.connectProperty(propNode);
   expect(fooNode.isMutated).toBe(true);
   expect(propNode.isMutated).toBe(true);
-  expect(fooNode.mutatedType.properties.get("prop") === propNode.mutatedType).toBe(true);
+  expectTypeEquals(fooNode.mutatedType.properties.get("prop")!, propNode.mutatedType);
 });
 
 it("handles deletion of properties", async () => {
@@ -68,8 +68,8 @@ it("handles mutation of properties with name change", async () => {
   fooNode.connectProperty(propNode);
   propNode.mutate((clone) => (clone.name = "propRenamed"));
   expect(fooNode.isMutated).toBe(true);
-  expect(fooNode.mutatedType.properties.get("prop") === undefined).toBe(true);
-  expect(fooNode.mutatedType.properties.get("propRenamed") === propNode.mutatedType).toBe(true);
+  expect(fooNode.mutatedType.properties.get("prop")).toBeUndefined();
+  expectTypeEquals(fooNode.mutatedType.properties.get("propRenamed")!, propNode.mutatedType);
 });
 
 it("handles mutation of base models", async () => {

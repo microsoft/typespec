@@ -1,4 +1,4 @@
-import { t, type TesterInstance } from "@typespec/compiler/testing";
+import { expectTypeEquals, t, type TesterInstance } from "@typespec/compiler/testing";
 import { beforeEach, expect, it } from "vitest";
 import { Tester } from "../../test/test-host.js";
 import { getEngine } from "../../test/utils.js";
@@ -29,7 +29,7 @@ it("starts with the mutatedType and sourceType being the same", async () => {
   const engine = getEngine(program);
   const fooNode = engine.getMutationNode(Foo);
   expect(fooNode.isMutated).toBe(false);
-  expect(fooNode.sourceType === fooNode.mutatedType).toBe(true);
+  expectTypeEquals(fooNode.sourceType, fooNode.mutatedType);
 });
 
 it("clones the source type when mutating and sets isMutated to true", async () => {
@@ -41,7 +41,7 @@ it("clones the source type when mutating and sets isMutated to true", async () =
   const engine = getEngine(program);
   const fooNode = engine.getMutationNode(Foo);
   expect(fooNode.isMutated).toBe(false);
-  expect(fooNode.sourceType === fooNode.mutatedType).toBe(true);
+  expectTypeEquals(fooNode.sourceType, fooNode.mutatedType);
   fooNode.mutate();
   expect(fooNode.isMutated).toBe(true);
   expect(fooNode.sourceType === fooNode.mutatedType).toBe(false);

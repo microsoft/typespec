@@ -1,4 +1,4 @@
-import { t, type TesterInstance } from "@typespec/compiler/testing";
+import { expectTypeEquals, t, type TesterInstance } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/typekit";
 import { beforeEach, expect, it } from "vitest";
 import { Tester } from "../../test/test-host.js";
@@ -21,7 +21,7 @@ it("handles mutation of property types", async () => {
   propNode.connectType(stringNode);
   stringNode.mutate();
   expect(propNode.isMutated).toBe(true);
-  expect(propNode.mutatedType.type === stringNode.mutatedType).toBe(true);
+  expectTypeEquals(propNode.mutatedType.type, stringNode.mutatedType);
 });
 
 it("updates its model property to the mutated model", async () => {
@@ -37,7 +37,7 @@ it("updates its model property to the mutated model", async () => {
   fooNode.connectProperty(propNode);
   propNode.connectType(stringNode);
   stringNode.mutate();
-  expect(fooNode.mutatedType === propNode.mutatedType.model).toBe(true);
+  expectTypeEquals(fooNode.mutatedType, propNode.mutatedType.model!);
 });
 
 it("is deleted when its container model is deleted", async () => {
@@ -90,7 +90,7 @@ it("can connect to a different mutation key for the type", async () => {
   propNode.connectType(barNodeCustom);
   barNodeCustom.mutate();
   expect(propNode.isMutated).toBe(true);
-  expect(propNode.mutatedType.type === barNodeCustom.mutatedType).toBe(true);
+  expectTypeEquals(propNode.mutatedType.type, barNodeCustom.mutatedType);
 });
 
 it("can connect to an already-mutated node", async () => {
@@ -108,7 +108,7 @@ it("can connect to an already-mutated node", async () => {
   const propNode = engine.getMutationNode(prop);
   propNode.connectType(barNode);
   expect(propNode.isMutated).toBe(true);
-  expect(propNode.mutatedType.type === barNode.mutatedType).toBe(true);
+  expectTypeEquals(propNode.mutatedType.type, barNode.mutatedType);
 });
 
 it("can connect to an already-replaced node", async () => {
@@ -126,5 +126,5 @@ it("can connect to an already-replaced node", async () => {
   const propNode = engine.getMutationNode(prop);
   propNode.connectType(barNode);
   expect(propNode.isMutated).toBe(true);
-  expect(propNode.mutatedType.type === $(program).builtin.int16).toBe(true);
+  expectTypeEquals(propNode.mutatedType.type, $(program).builtin.int16);
 });
