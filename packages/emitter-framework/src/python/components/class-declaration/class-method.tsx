@@ -2,9 +2,9 @@ import { type Children, createContext, splitProps, useContext } from "@alloy-js/
 import * as py from "@alloy-js/python";
 import type { Operation } from "@typespec/compiler";
 import { useTsp } from "../../../core/index.js";
-import { createDocElement } from "../../utils/doc.jsx";
+import { createDocElement } from "../../utils/doc.js";
 import { buildParameterDescriptors, getReturnType } from "../../utils/operation.js";
-import { TypeExpression } from "../type-expression/type-expression.jsx";
+import { TypeExpression } from "../type-expression/type-expression.js";
 
 export const MethodContext = createContext<"method" | "static" | "class" | undefined>(undefined);
 export const MethodProvider = MethodContext.Provider;

@@ -1,6 +1,6 @@
 import { useTsp } from "#core/context/tsp-context.js";
 import { typingModule } from "#python/builtins.js";
-import { TypeExpression } from "#python/components/type-expression/type-expression.jsx";
+import { TypeExpression } from "#python/components/type-expression/type-expression.js";
 import { reportPythonDiagnostic } from "#python/lib.js";
 import { declarationRefkeys } from "#python/utils/refkey.js";
 import { mapJoin } from "@alloy-js/core";

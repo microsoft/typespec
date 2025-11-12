@@ -5,9 +5,9 @@ import { type ModelProperty, type Operation } from "@typespec/compiler";
 import { useTsp } from "../../../core/context/tsp-context.js";
 import { efRefkey } from "../../utils/refkey.js";
 import { areAllLiterals } from "../../utils/type.js";
-import { Atom } from "../atom/atom.jsx";
-import { TypeExpression } from "../type-expression/type-expression.jsx";
-import { Method } from "./class-method.jsx";
+import { Atom } from "../atom/atom.js";
+import { TypeExpression } from "../type-expression/type-expression.js";
+import { Method } from "./class-method.js";
 
 export interface ClassMemberProps {
   type: ModelProperty | Operation;

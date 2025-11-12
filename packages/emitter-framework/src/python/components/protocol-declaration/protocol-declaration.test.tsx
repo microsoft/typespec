@@ -1,9 +1,9 @@
-import { TypeExpression } from "#python/components/type-expression/type-expression.jsx";
+import { TypeExpression } from "#python/components/type-expression/type-expression.js";
 import { Tester } from "#test/test-host.js";
 import { t } from "@typespec/compiler/testing";
 import { describe, expect, it } from "vitest";
 import { getOutput } from "../../test-utils.js";
-import { ProtocolDeclaration } from "./protocol-declaration.jsx";
+import { ProtocolDeclaration } from "./protocol-declaration.js";
 
 describe("Python ProtocolDeclaration", () => {
   it("emits a callback Protocol for an operation", async () => {

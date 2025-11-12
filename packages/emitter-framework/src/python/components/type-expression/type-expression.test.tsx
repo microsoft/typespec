@@ -3,7 +3,7 @@ import { d } from "@alloy-js/core/testing";
 import { t } from "@typespec/compiler/testing";
 import { describe, expect, it } from "vitest";
 import { getOutput } from "../../test-utils.js";
-import { TypeExpression } from "./type-expression.jsx";
+import { TypeExpression } from "./type-expression.js";
 
 describe("map Typespec types to Python built-in types", () => {
   it.each([

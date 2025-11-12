@@ -3,8 +3,8 @@ import { buildParameterDescriptors } from "#python/utils/operation.js";
 import { declarationRefkeys } from "#python/utils/refkey.js";
 import * as py from "@alloy-js/python";
 import type { Model, Operation } from "@typespec/compiler";
-import { createDocElement } from "../../utils/doc.jsx";
-import { TypeExpression } from "../type-expression/type-expression.jsx";
+import { createDocElement } from "../../utils/doc.js";
+import { TypeExpression } from "../type-expression/type-expression.js";
 
 export interface FunctionDeclarationPropsWithType
   extends Omit<py.FunctionDeclarationProps, "name"> {

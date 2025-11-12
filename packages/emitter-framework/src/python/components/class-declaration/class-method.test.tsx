@@ -4,7 +4,7 @@ import { t } from "@typespec/compiler/testing";
 import { describe, expect, it } from "vitest";
 import { ClassDeclaration } from "../../../../src/python/components/class-declaration/class-declaration.js";
 import { Method } from "../../../../src/python/components/class-declaration/class-method.js";
-import { getOutput } from "../../test-utils.jsx";
+import { getOutput } from "../../test-utils.js";
 
 describe("interface methods with a `type` prop", () => {
   it("creates a class method from an interface method", async () => {

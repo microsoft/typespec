@@ -14,11 +14,11 @@ import type { Typekit } from "@typespec/compiler/typekit";
 import { createRekeyableMap } from "@typespec/compiler/utils";
 import { useTsp } from "../../../core/context/tsp-context.js";
 import { reportDiagnostic } from "../../../lib.js";
-import { createDocElement } from "../../utils/doc.jsx";
+import { createDocElement } from "../../utils/doc.js";
 import { declarationRefkeys, efRefkey } from "../../utils/refkey.js";
-import { TypeExpression } from "../type-expression/type-expression.jsx";
-import { ClassMember } from "./class-member.jsx";
-import { MethodProvider } from "./class-method.jsx";
+import { TypeExpression } from "../type-expression/type-expression.js";
+import { ClassMember } from "./class-member.js";
+import { MethodProvider } from "./class-method.js";
 
 export interface ClassDeclarationPropsWithType extends Omit<py.ClassDeclarationProps, "name"> {
   type: Model | Interface;

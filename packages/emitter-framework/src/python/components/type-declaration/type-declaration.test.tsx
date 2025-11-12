@@ -3,7 +3,7 @@ import { d } from "@alloy-js/core/testing";
 import { t } from "@typespec/compiler/testing";
 import { describe, expect, it } from "vitest";
 import { getOutput } from "../../test-utils.js";
-import { TypeDeclaration } from "./type-declaration.jsx";
+import { TypeDeclaration } from "./type-declaration.js";
 
 describe("Python TypeDeclaration dispatcher", () => {
   it("dispatches to EnumDeclaration for enums", async () => {

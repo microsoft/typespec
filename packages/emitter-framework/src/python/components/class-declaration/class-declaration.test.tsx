@@ -6,8 +6,8 @@ import { describe, expect, it } from "vitest";
 import { ClassDeclaration } from "../../../../src/python/components/class-declaration/class-declaration.js";
 import { Method } from "../../../../src/python/components/class-declaration/class-method.js";
 import { EnumDeclaration } from "../../../../src/python/components/enum-declaration/enum-declaration.js";
-import { getOutput } from "../../test-utils.jsx";
-import { TypeAliasDeclaration } from "../type-alias-declaration/type-alias-declaration.jsx";
+import { getOutput } from "../../test-utils.js";
+import { TypeAliasDeclaration } from "../type-alias-declaration/type-alias-declaration.js";
 
 describe("Python Class from model", () => {
   it("creates a class", async () => {

@@ -1,9 +1,9 @@
-import { getOutput } from "#python/test-utils.jsx";
+import { getOutput } from "#python/test-utils.js";
 import { Tester } from "#test/test-host.js";
 import * as py from "@alloy-js/python";
 import { t } from "@typespec/compiler/testing";
 import { describe, expect, it } from "vitest";
-import { FunctionDeclaration } from "./function-declaration.jsx";
+import { FunctionDeclaration } from "./function-declaration.js";
 
 describe("Python Function Declaration", () => {
   it("creates a function", async () => {

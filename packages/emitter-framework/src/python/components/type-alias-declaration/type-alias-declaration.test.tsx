@@ -2,7 +2,7 @@ import { Tester } from "#test/test-host.js";
 import { t } from "@typespec/compiler/testing";
 import { describe, expect, it } from "vitest";
 import { getOutput } from "../../test-utils.js";
-import { TypeAliasDeclaration } from "./type-alias-declaration.jsx";
+import { TypeAliasDeclaration } from "./type-alias-declaration.js";
 
 describe("Python Declaration equivalency to Type Alias", () => {
   describe("Type Alias Declaration bound to Typespec Scalar", () => {
