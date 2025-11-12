@@ -117,6 +117,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Abstractions
             public override ValueExpression TokenAuthorizationPolicy(ValueExpression credential, ValueExpression scopes)
                 => Original.Invoke("GetFakeTokenAuthorizationPolicy", [credential, scopes]);
 
+            public override ValueExpression UserAgentPolicy(CSharpType clientType)
+                => Original.Invoke("GetFakeUserAgentPolicy", [TypeOf(clientType)]);
+
             public override ClientPipelineApi ToExpression() => this;
 
             public override MethodBodyStatement[] SendMessage(HttpMessageApi message, HttpRequestOptionsApi options)
