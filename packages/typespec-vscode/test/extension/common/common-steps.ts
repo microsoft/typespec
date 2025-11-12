@@ -168,6 +168,7 @@ export async function packPackages() {
     "@typespec/rest": resolvePackage("typespec-rest-"),
     "@typespec/emitter-framework": resolvePackage("typespec-emitter-framework-"),
     "@typespec/openapi": resolvePackage("typespec-openapi-"),
+    "@typespec/asset-emitter": resolvePackage("typespec-asset-emitter-"),
   };
 }
 
@@ -199,6 +200,7 @@ export async function packagesInstall(packages: { [x: string]: string }, testTyp
       "@typespec/rest": packages["@typespec/rest"],
       "@typespec/emitter-framework": packages["@typespec/emitter-framework"],
       "@typespec/openapi": packages["@typespec/openapi"],
+      "@typespec/asset-emitter": packages["@typespec/asset-emitter"],
     },
     private: true,
     overrides: {
