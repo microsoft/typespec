@@ -158,6 +158,17 @@ namespace Microsoft.TypeSpec.Generator.Input
             if (inputType is InputModelType modelType)
             {
                 modelType.IsDynamicModel = true;
+
+                // Mark all derived/discriminated models as dynamic
+                foreach (var derivedModel in modelType.DerivedModels)
+                {
+                    MarkModelsAsDynamicRecursive(derivedModel, visited);
+                }
+                foreach (var discriminatedModel in modelType.DiscriminatedSubtypes.Values)
+                {
+                    MarkModelsAsDynamicRecursive(discriminatedModel, visited);
+                }
+
                 foreach (var property in modelType.Properties)
                 {
                     switch (property.Type)

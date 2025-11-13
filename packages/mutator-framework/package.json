@@ -1,6 +1,6 @@
 {
   "name": "@typespec/mutator-framework",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "type": "module",
   "main": "dist/src/index.js",
   "repository": {
