@@ -335,9 +335,12 @@ export function emitCodeModel(sdkContext: PythonSdkContext) {
     }
     getType(sdkContext, sdkEnum);
   }
-
   // clear usage when a model is only used by paging
   for (const type of typesMap.values()) {
+    const usageOverride = (type["usageOverride"] as UsageFlags | undefined) || 0;
+    if ((usageOverride & UsageFlags.Input) > 0 || (usageOverride & UsageFlags.Output) > 0) {
+      continue; // Don't clear usage for types used as Input or Output
+    }
     if (
       type["type"] === "model" &&
       type["referredByOperationType"] === ReferredByOperationTypes.PagingOnly
