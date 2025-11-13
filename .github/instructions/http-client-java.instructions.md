@@ -1,5 +1,5 @@
-> **Scope**: These instructions apply **only** to the `packages/http-client-java` sub-project in this monorepo. Use them whenever Copilot generates code, tests, commit messages, or pull request descriptions for the emitter. If Copilot is used in other sub-projects, these rules do not apply unless stated otherwise.
-
+---
+applyTo: "packages/http-client-java/**/*"
 ---
 
 - The directories mentioned in this instruction are relative to `<repository-root>/packages/http-client-java`. For example, the root is the folder `<repository-root>/packages/http-client-java`; the directory `generator/http-client-generator-test` refers to `<repository-root>/packages/http-client-java/generator/http-client-generator-test`.
