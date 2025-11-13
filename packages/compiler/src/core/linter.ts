@@ -210,11 +210,10 @@ export function createLinter(
           const timer = startTimer();
           const result = (cb as any)(...args);
           if (name === EXIT_EVENT_NAME && isPromise(result)) {
-
-              compilerAssert(
-                rule.async,
-                `Linter rule "${rule.id}" is not marked as async but returned a promise from the "${name}" callback.`,
-              );
+            compilerAssert(
+              rule.async,
+              `Linter rule "${rule.id}" is not marked as async but returned a promise from the "${name}" callback.`,
+            );
             const rr = result.finally(() => {
               const duration = timer.end();
               stats.runtime.rules[rule.id] += duration;
