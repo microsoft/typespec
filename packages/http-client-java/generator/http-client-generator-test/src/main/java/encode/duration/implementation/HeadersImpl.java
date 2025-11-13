@@ -131,6 +131,24 @@ public final class HeadersImpl {
         Response<Void> int32SecondsSync(@HostParam("endpoint") String endpoint, @HeaderParam("duration") long duration,
             RequestOptions requestOptions, Context context);
 
+        @Get("/encode/duration/header/int32-seconds-larger-unit")
+        @ExpectedResponses({ 204 })
+        @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
+        @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
+        @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
+        @UnexpectedResponseExceptionType(HttpResponseException.class)
+        Mono<Response<Void>> int32SecondsLargerUnit(@HostParam("endpoint") String endpoint,
+            @HeaderParam("duration") long duration, RequestOptions requestOptions, Context context);
+
+        @Get("/encode/duration/header/int32-seconds-larger-unit")
+        @ExpectedResponses({ 204 })
+        @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
+        @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
+        @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
+        @UnexpectedResponseExceptionType(HttpResponseException.class)
+        Response<Void> int32SecondsLargerUnitSync(@HostParam("endpoint") String endpoint,
+            @HeaderParam("duration") long duration, RequestOptions requestOptions, Context context);
+
         @Get("/encode/duration/header/float-seconds")
         @ExpectedResponses({ 204 })
         @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
@@ -147,6 +165,24 @@ public final class HeadersImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<Void> floatSecondsSync(@HostParam("endpoint") String endpoint,
+            @HeaderParam("duration") double duration, RequestOptions requestOptions, Context context);
+
+        @Get("/encode/duration/header/float-seconds-larger-unit")
+        @ExpectedResponses({ 204 })
+        @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
+        @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
+        @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
+        @UnexpectedResponseExceptionType(HttpResponseException.class)
+        Mono<Response<Void>> floatSecondsLargerUnit(@HostParam("endpoint") String endpoint,
+            @HeaderParam("duration") double duration, RequestOptions requestOptions, Context context);
+
+        @Get("/encode/duration/header/float-seconds-larger-unit")
+        @ExpectedResponses({ 204 })
+        @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
+        @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
+        @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
+        @UnexpectedResponseExceptionType(HttpResponseException.class)
+        Response<Void> floatSecondsLargerUnitSync(@HostParam("endpoint") String endpoint,
             @HeaderParam("duration") double duration, RequestOptions requestOptions, Context context);
 
         @Get("/encode/duration/header/float64-seconds")
@@ -185,6 +221,24 @@ public final class HeadersImpl {
         Response<Void> int32MillisecondsSync(@HostParam("endpoint") String endpoint,
             @HeaderParam("duration") int duration, RequestOptions requestOptions, Context context);
 
+        @Get("/encode/duration/header/int32-milliseconds-larger-unit")
+        @ExpectedResponses({ 204 })
+        @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
+        @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
+        @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
+        @UnexpectedResponseExceptionType(HttpResponseException.class)
+        Mono<Response<Void>> int32MillisecondsLargerUnit(@HostParam("endpoint") String endpoint,
+            @HeaderParam("duration") int duration, RequestOptions requestOptions, Context context);
+
+        @Get("/encode/duration/header/int32-milliseconds-larger-unit")
+        @ExpectedResponses({ 204 })
+        @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
+        @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
+        @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
+        @UnexpectedResponseExceptionType(HttpResponseException.class)
+        Response<Void> int32MillisecondsLargerUnitSync(@HostParam("endpoint") String endpoint,
+            @HeaderParam("duration") int duration, RequestOptions requestOptions, Context context);
+
         @Get("/encode/duration/header/float-milliseconds")
         @ExpectedResponses({ 204 })
         @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
@@ -201,6 +255,24 @@ public final class HeadersImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<Void> floatMillisecondsSync(@HostParam("endpoint") String endpoint,
+            @HeaderParam("duration") double duration, RequestOptions requestOptions, Context context);
+
+        @Get("/encode/duration/header/float-milliseconds-larger-unit")
+        @ExpectedResponses({ 204 })
+        @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
+        @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
+        @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
+        @UnexpectedResponseExceptionType(HttpResponseException.class)
+        Mono<Response<Void>> floatMillisecondsLargerUnit(@HostParam("endpoint") String endpoint,
+            @HeaderParam("duration") double duration, RequestOptions requestOptions, Context context);
+
+        @Get("/encode/duration/header/float-milliseconds-larger-unit")
+        @ExpectedResponses({ 204 })
+        @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
+        @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
+        @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
+        @UnexpectedResponseExceptionType(HttpResponseException.class)
+        Response<Void> floatMillisecondsLargerUnitSync(@HostParam("endpoint") String endpoint,
             @HeaderParam("duration") double duration, RequestOptions requestOptions, Context context);
 
         @Get("/encode/duration/header/float64-milliseconds")
@@ -379,6 +451,43 @@ public final class HeadersImpl {
     }
 
     /**
+     * The int32SecondsLargerUnit operation.
+     * 
+     * @param duration The duration parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response} on successful completion of {@link Mono}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> int32SecondsLargerUnitWithResponseAsync(Duration duration,
+        RequestOptions requestOptions) {
+        long durationConverted = duration.getSeconds();
+        return FluxUtil.withContext(context -> service.int32SecondsLargerUnit(this.client.getEndpoint(),
+            durationConverted, requestOptions, context));
+    }
+
+    /**
+     * The int32SecondsLargerUnit operation.
+     * 
+     * @param duration The duration parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> int32SecondsLargerUnitWithResponse(Duration duration, RequestOptions requestOptions) {
+        long durationConverted = duration.getSeconds();
+        return service.int32SecondsLargerUnitSync(this.client.getEndpoint(), durationConverted, requestOptions,
+            Context.NONE);
+    }
+
+    /**
      * The floatSeconds operation.
      * 
      * @param duration The duration parameter.
@@ -411,6 +520,43 @@ public final class HeadersImpl {
     public Response<Void> floatSecondsWithResponse(Duration duration, RequestOptions requestOptions) {
         double durationConverted = (double) duration.toNanos() / 1000_000_000L;
         return service.floatSecondsSync(this.client.getEndpoint(), durationConverted, requestOptions, Context.NONE);
+    }
+
+    /**
+     * The floatSecondsLargerUnit operation.
+     * 
+     * @param duration The duration parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response} on successful completion of {@link Mono}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> floatSecondsLargerUnitWithResponseAsync(Duration duration,
+        RequestOptions requestOptions) {
+        double durationConverted = (double) duration.toNanos() / 1000_000_000L;
+        return FluxUtil.withContext(context -> service.floatSecondsLargerUnit(this.client.getEndpoint(),
+            durationConverted, requestOptions, context));
+    }
+
+    /**
+     * The floatSecondsLargerUnit operation.
+     * 
+     * @param duration The duration parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> floatSecondsLargerUnitWithResponse(Duration duration, RequestOptions requestOptions) {
+        double durationConverted = (double) duration.toNanos() / 1000_000_000L;
+        return service.floatSecondsLargerUnitSync(this.client.getEndpoint(), durationConverted, requestOptions,
+            Context.NONE);
     }
 
     /**
@@ -482,6 +628,41 @@ public final class HeadersImpl {
     }
 
     /**
+     * The int32MillisecondsLargerUnit operation.
+     * 
+     * @param duration The duration parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response} on successful completion of {@link Mono}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> int32MillisecondsLargerUnitWithResponseAsync(int duration,
+        RequestOptions requestOptions) {
+        return FluxUtil.withContext(context -> service.int32MillisecondsLargerUnit(this.client.getEndpoint(), duration,
+            requestOptions, context));
+    }
+
+    /**
+     * The int32MillisecondsLargerUnit operation.
+     * 
+     * @param duration The duration parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> int32MillisecondsLargerUnitWithResponse(int duration, RequestOptions requestOptions) {
+        return service.int32MillisecondsLargerUnitSync(this.client.getEndpoint(), duration, requestOptions,
+            Context.NONE);
+    }
+
+    /**
      * The floatMilliseconds operation.
      * 
      * @param duration The duration parameter.
@@ -512,6 +693,41 @@ public final class HeadersImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> floatMillisecondsWithResponse(double duration, RequestOptions requestOptions) {
         return service.floatMillisecondsSync(this.client.getEndpoint(), duration, requestOptions, Context.NONE);
+    }
+
+    /**
+     * The floatMillisecondsLargerUnit operation.
+     * 
+     * @param duration The duration parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response} on successful completion of {@link Mono}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> floatMillisecondsLargerUnitWithResponseAsync(double duration,
+        RequestOptions requestOptions) {
+        return FluxUtil.withContext(context -> service.floatMillisecondsLargerUnit(this.client.getEndpoint(), duration,
+            requestOptions, context));
+    }
+
+    /**
+     * The floatMillisecondsLargerUnit operation.
+     * 
+     * @param duration The duration parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> floatMillisecondsLargerUnitWithResponse(double duration, RequestOptions requestOptions) {
+        return service.floatMillisecondsLargerUnitSync(this.client.getEndpoint(), duration, requestOptions,
+            Context.NONE);
     }
 
     /**
