@@ -25,6 +25,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
     public sealed class ModelSerializationExtensionsDefinition : TypeProvider
     {
+        public const string WireOptionsFieldName = "WireOptions";
+        public const string JsonDocumentOptionsFieldName = "JsonDocumentOptions";
         private const string WriteStringValueMethodName = "WriteStringValue";
         private const string WriteBase64StringValueMethodName = "WriteBase64StringValue";
         private const string WriteNumberValueMethodName = "WriteNumberValue";
@@ -51,14 +53,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             WireOptionsField = new FieldProvider(
                 modifiers: FieldModifiers.Internal | FieldModifiers.Static | FieldModifiers.ReadOnly,
                 type: typeof(ModelReaderWriterOptions),
-                name: _wireOptionsName,
+                name: WireOptionsFieldName,
                 initializationValue: New.Instance(typeof(ModelReaderWriterOptions), Literal("W")),
                 enclosingType: this);
 
             _jsonDocumentOptionsField = new FieldProvider(
                 modifiers: FieldModifiers.Internal | FieldModifiers.Static | FieldModifiers.ReadOnly,
                 type: typeof(JsonDocumentOptions),
-                name: _jsonDocumentOptionsName,
+                name: JsonDocumentOptionsFieldName,
                 initializationValue: New.Instance(typeof(JsonDocumentOptions),
                     new Dictionary<ValueExpression, ValueExpression> { [Identifier("MaxDepth")] = Int(256) }),
                 enclosingType: this);
@@ -69,9 +71,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return TypeSignatureModifiers.Internal | TypeSignatureModifiers.Static;
         }
 
-        private const string _wireOptionsName = "WireOptions";
         internal FieldProvider WireOptionsField { get; }
-        private const string _jsonDocumentOptionsName = "JsonDocumentOptions";
         private readonly FieldProvider _jsonDocumentOptionsField;
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Internal", $"{Name}.cs");

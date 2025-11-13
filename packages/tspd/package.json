@@ -1,6 +1,6 @@
 {
   "name": "@typespec/tspd",
-  "version": "0.73.0",
+  "version": "0.73.1",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for generating TypeSpec docs",
   "homepage": "https://typespec.io",
@@ -55,9 +55,9 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@alloy-js/core": "^0.20.0",
-    "@alloy-js/markdown": "^0.20.0",
-    "@alloy-js/typescript": "^0.20.0",
+    "@alloy-js/core": "^0.21.0",
+    "@alloy-js/markdown": "^0.21.0",
+    "@alloy-js/typescript": "^0.21.0",
     "@microsoft/api-extractor": "^7.52.1",
     "@microsoft/api-extractor-model": "^7.30.6",
     "@microsoft/tsdoc": "^0.15.1",
@@ -71,7 +71,7 @@
     "yargs": "~18.0.0"
   },
   "devDependencies": {
-    "@alloy-js/cli": "^0.20.0",
+    "@alloy-js/cli": "^0.21.0",
     "@alloy-js/rollup-plugin": "^0.1.0",
     "@types/node": "~24.9.1",
     "@types/yargs": "~17.0.33",
