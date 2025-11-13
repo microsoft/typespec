@@ -16,7 +16,7 @@
     "@typespec/spec-api": "0.1.0-alpha.10",
     "@typespec/http-specs": "0.1.0-alpha.28",
     "@typespec/json-schema": "1.6.0",
-  "@typespec/http-client-java": "file:../../typespec-http-client-java-0.5.1.tgz",
+    "@typespec/http-client-java": "file:../../typespec-http-client-java-0.5.1.tgz",
     "@typespec/http-client-java-tests": "file:"
   },
   "overrides": {
