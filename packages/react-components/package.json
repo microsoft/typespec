@@ -44,28 +44,28 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@fluentui/react-components": "~9.72.3",
-    "@fluentui/react-icons": "^2.0.292",
-    "react": "~18.3.1",
-    "react-dom": "~18.3.1"
+    "@fluentui/react-components": "~9.72.7",
+    "@fluentui/react-icons": "^2.0.314",
+    "react": "~19.2.0",
+    "react-dom": "~19.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.26.10",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
-    "@types/node": "~24.9.1",
-    "@types/react": "~19.2.2",
-    "@types/react-dom": "~19.2.2",
-    "@vitejs/plugin-react": "~5.1.0",
-    "@vitest/coverage-v8": "^4.0.4",
-    "@vitest/ui": "^4.0.4",
+    "@types/node": "~24.10.1",
+    "@types/react": "~19.2.4",
+    "@types/react-dom": "~19.2.3",
+    "@vitejs/plugin-react": "~5.1.1",
+    "@vitest/coverage-v8": "^4.0.8",
+    "@vitest/ui": "^4.0.8",
     "c8": "^10.1.3",
-    "rimraf": "~6.0.1",
+    "rimraf": "~6.1.0",
     "typescript": "~5.9.2",
-    "vite": "^7.0.5",
+    "vite": "^7.2.2",
     "vite-plugin-checker": "^0.11.0",
     "vite-plugin-dts": "4.5.4",
-    "vitest": "^4.0.4"
+    "vitest": "^4.0.8"
   }
 }

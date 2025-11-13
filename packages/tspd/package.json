@@ -58,10 +58,10 @@
     "@alloy-js/core": "^0.21.0",
     "@alloy-js/markdown": "^0.21.0",
     "@alloy-js/typescript": "^0.21.0",
-    "@microsoft/api-extractor": "^7.52.1",
-    "@microsoft/api-extractor-model": "^7.30.6",
-    "@microsoft/tsdoc": "^0.15.1",
-    "@microsoft/tsdoc-config": "^0.17.1",
+    "@microsoft/api-extractor": "^7.55.0",
+    "@microsoft/api-extractor-model": "^7.32.0",
+    "@microsoft/tsdoc": "^0.16.0",
+    "@microsoft/tsdoc-config": "^0.18.0",
     "@typespec/compiler": "workspace:^",
     "picocolors": "~1.1.1",
     "prettier": "~3.6.2",
@@ -73,16 +73,16 @@
   "devDependencies": {
     "@alloy-js/cli": "^0.21.0",
     "@alloy-js/rollup-plugin": "^0.1.0",
-    "@types/node": "~24.9.1",
+    "@types/node": "~24.10.1",
     "@types/yargs": "~17.0.33",
     "@typespec/compiler": "workspace:^",
     "@typespec/prettier-plugin-typespec": "workspace:^",
-    "@vitest/coverage-v8": "^4.0.4",
-    "@vitest/ui": "^4.0.4",
+    "@vitest/coverage-v8": "^4.0.8",
+    "@vitest/ui": "^4.0.8",
     "c8": "^10.1.3",
-    "rimraf": "~6.0.1",
+    "rimraf": "~6.1.0",
     "source-map-support": "~0.5.21",
     "typescript": "~5.9.2",
-    "vitest": "^4.0.4"
+    "vitest": "^4.0.8"
   }
 }
