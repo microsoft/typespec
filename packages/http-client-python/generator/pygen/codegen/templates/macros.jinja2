@@ -5,21 +5,28 @@
 {% set enable_custom_handling = "\n* " in doc_string or doc_string.startswith("* ") %}
 {%- if enable_custom_handling -%}
     {%- set lines = doc_string.split('\n') -%}
+    {%- set base_indent = wrap_string.lstrip('\n') -%}
     {%- set result_lines = [] -%}
     {%- for line in lines -%}
         {%- if line.startswith('* ') -%}
             {# Handle bullet points with proper continuation alignment #}
             {%- set bullet_content = line[2:] -%}
-            {%- set base_indent = wrap_string.lstrip('\n') -%}
             {%- set bullet_line = base_indent + ' * ' + bullet_content -%}
             {%- set continuation_spaces = base_indent + '   ' -%}
             {%- set wrapped = bullet_line | wordwrap(width=95, break_long_words=False, break_on_hyphens=False, wrapstring='\n' + continuation_spaces) -%}
             {%- set _ = result_lines.append(wrapped) -%}
         {%- elif line.strip() -%}
-            {%- set wrapped = line.strip() | wordwrap(width=95, break_long_words=False, break_on_hyphens=False, wrapstring=wrap_string) -%}
-            {%- set _ = result_lines.append(wrapped) -%}
+            {%- set line_indent = '' if line.strip().startswith(':') or loop.index == 1 else (base_indent + ' ') -%}
+            {%- set wrapped = (line_indent + line) | wordwrap(width=95, break_long_words=False, break_on_hyphens=False, wrapstring=wrap_string) -%}
+            {%- for line in wrapped.split('\n') -%}
+            {%- set prefix = "" if loop.index == 1 else " " -%}
+            {%- set _ = result_lines.append(prefix + line) -%}
+            {%- endfor -%}
         {%- else -%}
-            {%- set _ = result_lines.append('') -%}
+            {# Do not add continuous blank lines #}
+            {%- if (result_lines and result_lines[-1] != '') or not result_lines -%}
+              {%- set _ = result_lines.append('') -%}
+            {%- endif -%}
         {%- endif -%}
     {%- endfor -%}
     {%- set original_result = result_lines | join('\n') -%}

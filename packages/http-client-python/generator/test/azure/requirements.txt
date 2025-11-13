@@ -41,6 +41,7 @@ azure-mgmt-core==1.6.0
 -e ./generated/client-structure-multiclient
 -e ./generated/client-structure-renamedoperation
 -e ./generated/client-structure-twooperationgroup
+-e ./generated/docstring
 -e ./generated/resiliency-srv-driven1
 -e ./generated/resiliency-srv-driven2
 
