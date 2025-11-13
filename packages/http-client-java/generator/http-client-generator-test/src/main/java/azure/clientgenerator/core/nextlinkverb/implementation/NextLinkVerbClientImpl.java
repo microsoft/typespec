@@ -5,7 +5,6 @@
 package azure.clientgenerator.core.nextlinkverb.implementation;
 
 import com.azure.core.annotation.ExpectedResponses;
-import com.azure.core.annotation.Get;
 import com.azure.core.annotation.HeaderParam;
 import com.azure.core.annotation.Host;
 import com.azure.core.annotation.HostParam;
