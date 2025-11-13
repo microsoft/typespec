@@ -795,6 +795,56 @@ describe("compiler: built-in decorators", () => {
         });
       });
     });
+
+    describe("ArrayEncoding enum", () => {
+      it("can use ArrayEncoding.pipeDelimited", async () => {
+        const { prop } = (await runner.compile(`
+          model Foo {
+            @encode(ArrayEncoding.pipeDelimited)
+            @test
+            prop: string[];
+          }
+        `)) as { prop: ModelProperty };
+
+        strictEqual(getEncode(runner.program, prop)?.encoding, "ArrayEncoding.pipeDelimited");
+      });
+
+      it("can use ArrayEncoding.spaceDelimited", async () => {
+        const { prop } = (await runner.compile(`
+          model Foo {
+            @encode(ArrayEncoding.spaceDelimited)
+            @test
+            prop: string[];
+          }
+        `)) as { prop: ModelProperty };
+
+        strictEqual(getEncode(runner.program, prop)?.encoding, "ArrayEncoding.spaceDelimited");
+      });
+
+      it("can use ArrayEncoding.commaDelimited", async () => {
+        const { prop } = (await runner.compile(`
+          model Foo {
+            @encode(ArrayEncoding.commaDelimited)
+            @test
+            prop: string[];
+          }
+        `)) as { prop: ModelProperty };
+
+        strictEqual(getEncode(runner.program, prop)?.encoding, "ArrayEncoding.commaDelimited");
+      });
+
+      it("can use ArrayEncoding.newlineDelimited", async () => {
+        const { prop } = (await runner.compile(`
+          model Foo {
+            @encode(ArrayEncoding.newlineDelimited)
+            @test
+            prop: string[];
+          }
+        `)) as { prop: ModelProperty };
+
+        strictEqual(getEncode(runner.program, prop)?.encoding, "ArrayEncoding.newlineDelimited");
+      });
+    });
   });
 
   describe("@withoutOmittedProperties", () => {
