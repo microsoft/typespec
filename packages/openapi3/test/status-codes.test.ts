@@ -58,4 +58,53 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, openApiFor }) => {
       },
     ]);
   });
+
+  it("extracts status codes from models in a named union", async () => {
+    await expectStatusCodes(
+      `
+      model A {
+        @statusCode _: 418;
+      }
+
+      model B {
+        @statusCode _: 200;
+      }
+
+      union R {
+        A: A;
+        B: B;
+      };
+
+      op read(): R;
+      `,
+      ["200", "418"],
+    );
+  });
+
+  it("deduplicates status codes when multiple models in union have same code", async () => {
+    await expectStatusCodes(
+      `
+      model A {
+        @statusCode _: 418;
+      }
+
+      model B {
+        @statusCode _: 418;
+      }
+
+      model C {
+        @statusCode _: 200;
+      }
+
+      union R {
+        A: A;
+        B: B;
+        C: C;
+      };
+
+      op read(): R;
+      `,
+      ["200", "418"],
+    );
+  });
 });

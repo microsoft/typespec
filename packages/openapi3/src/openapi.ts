@@ -964,14 +964,35 @@ function createOAPIEmitter(
     responses: HttpOperationResponse[],
     examples: OperationExamples,
   ): Record<string, Refable<OpenAPI3Response>> {
-    const result: Record<string, Refable<OpenAPI3Response>> = {};
+    const responseMap = new Map<string, HttpOperationResponse[]>();
+
+    // Group responses by status code first. When named unions are expanded into individual
+    // response variants, multiple variants may map to the same status code. We need to collect
+    // all variants for each status code before processing to properly merge content types and
+    // select the appropriate description.
     for (const response of responses) {
       for (const statusCode of diagnostics.pipe(
         getOpenAPI3StatusCodes(program, response.statusCodes, response.type),
       )) {
-        result[statusCode] = getResponseForStatusCode(operation, statusCode, [response], examples);
+        if (responseMap.has(statusCode)) {
+          responseMap.get(statusCode)!.push(response);
+        } else {
+          responseMap.set(statusCode, [response]);
+        }
       }
     }
+
+    // Generate OpenAPI response for each status code
+    const result: Record<string, Refable<OpenAPI3Response>> = {};
+    for (const [statusCode, statusCodeResponses] of responseMap) {
+      result[statusCode] = getResponseForStatusCode(
+        operation,
+        statusCode,
+        statusCodeResponses,
+        examples,
+      );
+    }
+
     return result;
   }
 
