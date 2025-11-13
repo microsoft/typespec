@@ -48,7 +48,7 @@
     "deep-equal": "^2.2.0",
     "express": "^5.1.0",
     "globby": "~15.0.0",
-    "js-yaml": "^4.1.0",
+    "js-yaml": "^4.1.1",
     "micromatch": "^4.0.8",
     "morgan": "^1.10.0",
     "multer": "^2.0.1",
@@ -60,15 +60,15 @@
   "devDependencies": {
     "@types/body-parser": "^1.19.2",
     "@types/deep-equal": "^1.0.1",
-    "@types/express": "^5.0.1",
+    "@types/express": "^5.0.5",
     "@types/micromatch": "^4.0.9",
     "@types/morgan": "^1.9.9",
     "@types/multer": "^2.0.0",
-    "@types/node": "~24.9.1",
+    "@types/node": "~24.10.1",
     "@types/xml2js": "^0.4.11",
     "@types/yargs": "~17.0.33",
     "@typespec/tspd": "workspace:^",
-    "rimraf": "~6.0.1",
+    "rimraf": "~6.1.0",
     "typescript": "~5.9.2"
   }
 }

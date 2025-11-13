@@ -19,8 +19,8 @@
   "devDependencies": {
     "@typespec/compiler": "workspace:^",
     "@typespec/internal-build-utils": "workspace:^",
-    "esbuild": "^0.25.1",
-    "vitest": "^4.0.4"
+    "esbuild": "^0.27.0",
+    "vitest": "^4.0.8"
   },
   "files": [
     "dist/**/*",

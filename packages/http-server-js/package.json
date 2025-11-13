@@ -63,9 +63,9 @@
     "yaml": "~2.8.0"
   },
   "devDependencies": {
-    "@types/express": "^5.0.1",
+    "@types/express": "^5.0.5",
     "@types/morgan": "^1.9.9",
-    "@types/node": "~24.9.1",
+    "@types/node": "~24.10.1",
     "@types/swagger-ui-express": "^4.1.8",
     "@typespec/compiler": "workspace:^",
     "@typespec/http": "workspace:^",
@@ -74,13 +74,13 @@
     "@typespec/openapi3": "workspace:^",
     "@typespec/spector": "workspace:^",
     "@typespec/tspd": "workspace:^",
-    "@vitest/coverage-v8": "^4.0.4",
-    "@vitest/ui": "^4.0.4",
+    "@vitest/coverage-v8": "^4.0.8",
+    "@vitest/ui": "^4.0.8",
     "decimal.js": "^10.5.0",
     "express": "^5.1.0",
     "fs-extra": "^11.2.0",
     "globby": "~15.0.0",
-    "inquirer": "^12.5.0",
+    "inquirer": "^12.11.1",
     "morgan": "^1.10.0",
     "ora": "^9.0.0",
     "p-limit": "^7.1.1",
@@ -90,7 +90,7 @@
     "temporal-polyfill": "^0.3.0",
     "tsx": "^4.19.3",
     "typescript": "~5.9.2",
-    "vitest": "^4.0.4",
+    "vitest": "^4.0.8",
     "yargs": "~18.0.0"
   }
 }
