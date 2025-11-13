@@ -8,6 +8,11 @@ interface PendingUpdate {
   latestUpdateTimestamp: number;
 }
 
+interface DelayCandidate {
+  frequencyInWindow: number;
+  delay: number;
+}
+
 export type UpdateType = "opened" | "changed" | "closed" | "renamed";
 
 type UpdateCallback<T> = (
@@ -30,6 +35,7 @@ export class UpdateManager<T = void> {
   #isStarted = false;
 
   private _log: (sl: ServerLog) => void;
+  private getAdaptiveDebounceDelay: () => number;
 
   /**
    *
@@ -39,6 +45,7 @@ export class UpdateManager<T = void> {
   constructor(
     private name: string,
     log: (sl: ServerLog) => void,
+    getDelayCandidates?: () => DelayCandidate[],
   ) {
     this._log =
       typeof process !== "undefined" &&
@@ -47,6 +54,19 @@ export class UpdateManager<T = void> {
             log({ ...sl, message: `#FromUpdateManager(${this.name}): ${sl.message}` });
           }
         : () => {};
+
+    // Use provided getDelayCandidates function or default implementation
+    const delayCandidates = getDelayCandidates?.() ?? this.getDefaultDelayCandidates();
+    this.getAdaptiveDebounceDelay = (): number => {
+      const frequent = this.getWindowedDocChangedTimesteps().length;
+
+      for (const c of delayCandidates) {
+        if (frequent >= c.frequencyInWindow) {
+          return c.delay;
+        }
+      }
+      return 500; // fallback default delay
+    };
 
     this.#scheduleBatchUpdate = debounceThrottle<
       T | undefined,
@@ -61,6 +81,29 @@ export class UpdateManager<T = void> {
       this.getAdaptiveDebounceDelay,
       this._log,
     );
+  }
+
+  private getDefaultDelayCandidates(): DelayCandidate[] {
+    // Provider different debounce delay according to whether usr are actively typing, increase the delay if so to avoid unnecessary invoke
+    // The category below is suggested from AI, may adjust as needed in the future
+    return [
+      // IMPORTANT: sort by frequencyInWindow desc, we will pick the first match
+      {
+        // active typing
+        frequencyInWindow: 20,
+        delay: 1000,
+      },
+      {
+        // moderate typing
+        frequencyInWindow: 10,
+        delay: 800,
+      },
+      {
+        // light typing
+        frequencyInWindow: 0,
+        delay: 500,
+      },
+    ];
   }
 
   /**
@@ -89,27 +132,6 @@ export class UpdateManager<T = void> {
   }
 
   private readonly WINDOW = 5000;
-  private readonly DEFAULT_DELAY = 500;
-  // Provider different debounce delay according to whether usr are actively typing, increase the delay if so to avoid unnecessary invoke
-  // The category below is suggested from AI, may adjust as needed in the future
-  private readonly DELAY_CANDIDATES = [
-    // IMPORTANT: sort by frequencyInWindow desc, we will pick the first match
-    {
-      // active typing
-      frequencyInWindow: 20,
-      delay: 1000,
-    },
-    {
-      // moderate typing
-      frequencyInWindow: 10,
-      delay: 800,
-    },
-    {
-      // light typing
-      frequencyInWindow: 0,
-      delay: this.DEFAULT_DELAY,
-    },
-  ];
 
   private getWindowedDocChangedTimesteps(): number[] {
     const now = Date.now();
@@ -118,17 +140,6 @@ export class UpdateManager<T = void> {
       return age < this.WINDOW;
     });
   }
-
-  private getAdaptiveDebounceDelay = (): number => {
-    const frequent = this.getWindowedDocChangedTimesteps().length;
-
-    for (const c of this.DELAY_CANDIDATES) {
-      if (frequent >= c.frequencyInWindow) {
-        return c.delay;
-      }
-    }
-    return this.DEFAULT_DELAY;
-  };
 
   /**
    * T will be returned if the schedule is triggered eventually, if a newer scheduleUpdate

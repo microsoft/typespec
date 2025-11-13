@@ -165,6 +165,20 @@ export function createServer(
   const signatureHelpUpdateManager = new UpdateManager<CompileResult | undefined>(
     "signature-help",
     log,
+    () => [
+      {
+        frequencyInWindow: 20,
+        delay: 100,
+      },
+      {
+        frequencyInWindow: 10,
+        delay: 80,
+      },
+      {
+        frequencyInWindow: 0,
+        delay: 50,
+      },
+    ],
   );
 
   const compileService = createCompileService({
