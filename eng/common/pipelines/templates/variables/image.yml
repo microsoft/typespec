@@ -23,9 +23,9 @@ variables:
   - name: WINDOWSARMVMIMAGE
     value: windows-2022-arm64-1espt
   - name: MAC_ARM_VM_IMAGE # mac - arm64
-    value: macos-latest
+    value: macos-latest-internal
   - name: MAC_X64_VM_IMAGE # mac - x64
-    value: macos-15-intel
+    value: macos-15
 
   # Values required for pool.os field in 1es pipeline templates. Variable form
   # cannot be used, instead those values must be written directly into pool.os.
