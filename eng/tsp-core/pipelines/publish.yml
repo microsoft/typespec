@@ -6,6 +6,7 @@ trigger:
       - main
       # For patch releases
       - release/*
+      - upgrade/pool-images
   paths:
     exclude:
       - packages/http-client-csharp

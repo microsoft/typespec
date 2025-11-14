@@ -17,15 +17,15 @@ variables:
   - name: LINUXNEXTVMIMAGE
     value: ubuntu-24.04
   - name: LINUXARMVMIMAGE
-    value: azsdk-pool-mms-mariner-2-arm-1espt
+    value: azure-linux-3-arm64
   - name: WINDOWSVMIMAGE
     value: windows-2022
   - name: WINDOWSARMVMIMAGE
     value: windows-2022-arm64-1espt
-  - name: MACVMIMAGE # mac - arm64
+  - name: MAC_ARM_VM_IMAGE # mac - arm64
     value: macos-latest
-  - name: MACVMIMAGE13 # mac - x64
-    value: macos-13
+  - name: MAC_X64_VM_IMAGE # mac - x64
+    value: macos-15-intel
 
   # Values required for pool.os field in 1es pipeline templates. Variable form
   # cannot be used, instead those values must be written directly into pool.os.
