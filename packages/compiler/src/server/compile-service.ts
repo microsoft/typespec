@@ -15,7 +15,9 @@ import { CompilerOptions } from "../core/options.js";
 import { parse } from "../core/parser.js";
 import { getBaseFileName, getDirectoryPath } from "../core/path-utils.js";
 import type { CompilerHost, TypeSpecScriptNode } from "../core/types.js";
-import { distinctArray } from "../utils/misc.js";
+import { deepClone, distinctArray } from "../utils/misc.js";
+import { getLocationInYamlScript } from "../yaml/diagnostics.js";
+import { parseYaml } from "../yaml/parser.js";
 import { ClientConfigProvider } from "./client-config-provider.js";
 import { serverOptions } from "./constants.js";
 import { getDiagnosticRangeInTspConfig } from "./diagnostics.js";
@@ -140,8 +142,10 @@ export function createCompileService({
     const [optionsFromConfig, _] = resolveOptionsFromConfig(config, {
       cwd: getDirectoryPath(path),
     });
+    // we need to keep the optionsFromConfig unchanged which will be returned in CompileResult
+    const clone = deepClone(optionsFromConfig);
     const options: CompilerOptions = {
-      ...optionsFromConfig,
+      ...clone,
       ...serverOptions,
       ...(additionalOptions ?? {}),
     };

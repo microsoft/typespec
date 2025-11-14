@@ -220,6 +220,26 @@ function generateResponseExpressions({
   }
 
   return contents.map(([mediaType, content]) => {
+    // Special handling for Server-Sent Events
+    if (
+      !context.openApi3Doc.openapi.startsWith("3.0") &&
+      !context.openApi3Doc.openapi.startsWith("3.1") &&
+      mediaType === "text/event-stream" &&
+      "itemSchema" in content &&
+      content.itemSchema &&
+      typeof content.itemSchema === "object" &&
+      "$ref" in content.itemSchema
+    ) {
+      // Check for itemSchema (OpenAPI 3.2 extension)
+      const eventUnionType = context.generateTypeFromRefableSchema(
+        content.itemSchema,
+        operationScope,
+      );
+      context.markSSEUsage();
+      return `SSEStream<${eventUnionType}>`;
+      // If no proper schema reference, fall through to regular handling
+    }
+
     // Attempt to emit just the Body or an intersection of Body & MappedResponse
     // if there aren't any custom headers.
     const bodySchema = content.schema;
