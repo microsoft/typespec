@@ -25,6 +25,7 @@ export interface TestServerHost extends ServerHost, TestFileSystem {
 }
 
 export async function createTestServerHost(options?: TestHostOptions & { workspaceDir?: string }) {
+  process.env.UpdateManagerDebounceStrategy = "true";
   const logMessages: string[] = [];
   const documents = createStringMap<TextDocument>(!!options?.caseInsensitiveFileSystem);
   const diagnostics = createStringMap<Diagnostic[]>(!!options?.caseInsensitiveFileSystem);
@@ -117,7 +118,7 @@ export async function createTestServerHost(options?: TestHostOptions & { workspa
   const workspaceDir = options?.workspaceDir ?? "./";
   const rootUri = serverHost.getURL(workspaceDir);
   const clientConfigProvider = createClientConfigProvider();
-  const server = createServer(serverHost, clientConfigProvider, true);
+  const server = createServer(serverHost, clientConfigProvider);
   await server.initialize({
     rootUri: options?.caseInsensitiveFileSystem ? rootUri.toUpperCase() : rootUri,
     capabilities: {},

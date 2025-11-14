@@ -136,11 +136,7 @@ import {
 } from "./types.js";
 import { UpdateManager } from "./update-manager.js";
 
-export function createServer(
-  host: ServerHost,
-  clientConfigsProvider?: ClientConfigProvider,
-  isTest: boolean = false,
-): Server {
+export function createServer(host: ServerHost, clientConfigsProvider?: ClientConfigProvider): Server {
   const fileService = createFileService({ serverHost: host });
 
   // Cache all file I/O. Only open documents are sent over the LSP pipe. When
@@ -166,7 +162,7 @@ export function createServer(
   const signatureHelpUpdateManager = new UpdateManager<CompileResult | undefined>(
     "signature-help",
     log,
-    isTest ? () => 0 : undefined,
+    process.env.UpdateManagerDebounceStrategy === "true" ? () => 0 : undefined,
   );
 
   const compileService = createCompileService({
