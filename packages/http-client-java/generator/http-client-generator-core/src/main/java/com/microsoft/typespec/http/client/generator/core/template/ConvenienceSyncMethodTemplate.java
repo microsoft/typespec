@@ -3,6 +3,14 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
+import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.BOOLEAN;
+import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.BYTE;
+import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.CHAR;
+import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.DOUBLE;
+import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.FLOAT;
+import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.INT;
+import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.LONG;
+
 import com.azure.core.http.rest.PagedIterable;
 import com.azure.core.http.rest.ResponseBase;
 import com.azure.core.util.CoreUtils;
@@ -16,6 +24,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Conve
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import java.util.List;
@@ -209,7 +218,28 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
         // TODO (weidxu): support XML etc.
         switch (mimeType) {
             case TEXT:
-                return String.format("%s.toString()", invocationExpression);
+                String basicText = invocationExpression + ".toString()";
+                if (!rawType.isNullable()) {
+                    // Dealing with a primitive type that needs to be converted.
+                    PrimitiveType primitiveType = (PrimitiveType) rawType;
+                    if (rawType == BOOLEAN) {
+                        return "Boolean.parseBoolean(" + basicText + ")";
+                    } else if (rawType == BYTE) {
+                        return "Byte.parseByte(" + basicText + ")";
+                    } else if (rawType == INT) {
+                        return "Integer.parseInt(" + basicText + ")";
+                    } else if (rawType == LONG) {
+                        return "Long.parseLong(" + basicText + ")";
+                    } else if (rawType == FLOAT) {
+                        return "Float.parseFloat(" + basicText + ")";
+                    } else if (rawType == DOUBLE) {
+                        return "Double.parseDouble(" + basicText + ")";
+                    } else if (rawType == CHAR) {
+                        return basicText + ".charAt(0)";
+                    }
+                    throw new IllegalStateException("Unexpected primitive type " + primitiveType);
+                }
+                return basicText;
 
             case BINARY:
                 return invocationExpression;
