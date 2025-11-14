@@ -383,6 +383,168 @@ public final class ResponseAsyncClient {
     }
 
     /**
+     * The getTextBoolean operation.
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * boolean
+     * }
+     * </pre>
+     * 
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return boolean with `true` and `false` values along with {@link Response} on successful completion of
+     * {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<BinaryData>> getTextBooleanWithResponse(RequestOptions requestOptions) {
+        return this.serviceClient.getTextBooleanWithResponseAsync(requestOptions);
+    }
+
+    /**
+     * The getTextByte operation.
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * int
+     * }
+     * </pre>
+     * 
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return a 8-bit integer along with {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<BinaryData>> getTextByteWithResponse(RequestOptions requestOptions) {
+        return this.serviceClient.getTextByteWithResponseAsync(requestOptions);
+    }
+
+    /**
+     * The getTextInt32 operation.
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * int
+     * }
+     * </pre>
+     * 
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return a 32-bit integer along with {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<BinaryData>> getTextInt32WithResponse(RequestOptions requestOptions) {
+        return this.serviceClient.getTextInt32WithResponseAsync(requestOptions);
+    }
+
+    /**
+     * The getTextInt64 operation.
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * long
+     * }
+     * </pre>
+     * 
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return a 64-bit integer along with {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<BinaryData>> getTextInt64WithResponse(RequestOptions requestOptions) {
+        return this.serviceClient.getTextInt64WithResponseAsync(requestOptions);
+    }
+
+    /**
+     * The getTextFloat32 operation.
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * double
+     * }
+     * </pre>
+     * 
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return a 32 bit floating point number along with {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<BinaryData>> getTextFloat32WithResponse(RequestOptions requestOptions) {
+        return this.serviceClient.getTextFloat32WithResponseAsync(requestOptions);
+    }
+
+    /**
+     * The getTextFloat64 operation.
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * double
+     * }
+     * </pre>
+     * 
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return a 64 bit floating point number along with {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<BinaryData>> getTextFloat64WithResponse(RequestOptions requestOptions) {
+        return this.serviceClient.getTextFloat64WithResponseAsync(requestOptions);
+    }
+
+    /**
+     * The getTextChar operation.
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * int
+     * }
+     * </pre>
+     * 
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return a 16-bit integer along with {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<BinaryData>> getTextCharWithResponse(RequestOptions requestOptions) {
+        return this.serviceClient.getTextCharWithResponseAsync(requestOptions);
+    }
+
+    /**
      * The getBinary operation.
      * 
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -648,6 +810,139 @@ public final class ResponseAsyncClient {
         // Generated convenience method for getUnionResponseWithResponse
         RequestOptions requestOptions = new RequestOptions();
         return getUnionResponseWithResponse(accept, requestOptions).flatMap(FluxUtil::toMono);
+    }
+
+    /**
+     * The getTextBoolean operation.
+     * 
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return boolean with `true` and `false` values on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Boolean> getTextBoolean() {
+        // Generated convenience method for getTextBooleanWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return getTextBooleanWithResponse(requestOptions).flatMap(FluxUtil::toMono)
+            .map(protocolMethodData -> Boolean.parseBoolean(protocolMethodData.toString()));
+    }
+
+    /**
+     * The getTextByte operation.
+     * 
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a 8-bit integer on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Integer> getTextByte() {
+        // Generated convenience method for getTextByteWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return getTextByteWithResponse(requestOptions).flatMap(FluxUtil::toMono)
+            .map(protocolMethodData -> Integer.parseInt(protocolMethodData.toString()));
+    }
+
+    /**
+     * The getTextInt32 operation.
+     * 
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a 32-bit integer on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Integer> getTextInt32() {
+        // Generated convenience method for getTextInt32WithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return getTextInt32WithResponse(requestOptions).flatMap(FluxUtil::toMono)
+            .map(protocolMethodData -> Integer.parseInt(protocolMethodData.toString()));
+    }
+
+    /**
+     * The getTextInt64 operation.
+     * 
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a 64-bit integer on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Long> getTextInt64() {
+        // Generated convenience method for getTextInt64WithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return getTextInt64WithResponse(requestOptions).flatMap(FluxUtil::toMono)
+            .map(protocolMethodData -> Long.parseLong(protocolMethodData.toString()));
+    }
+
+    /**
+     * The getTextFloat32 operation.
+     * 
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a 32 bit floating point number on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Double> getTextFloat32() {
+        // Generated convenience method for getTextFloat32WithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return getTextFloat32WithResponse(requestOptions).flatMap(FluxUtil::toMono)
+            .map(protocolMethodData -> Double.parseDouble(protocolMethodData.toString()));
+    }
+
+    /**
+     * The getTextFloat64 operation.
+     * 
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a 64 bit floating point number on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Double> getTextFloat64() {
+        // Generated convenience method for getTextFloat64WithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return getTextFloat64WithResponse(requestOptions).flatMap(FluxUtil::toMono)
+            .map(protocolMethodData -> Double.parseDouble(protocolMethodData.toString()));
+    }
+
+    /**
+     * The getTextChar operation.
+     * 
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a 16-bit integer on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Integer> getTextChar() {
+        // Generated convenience method for getTextCharWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return getTextCharWithResponse(requestOptions).flatMap(FluxUtil::toMono)
+            .map(protocolMethodData -> Integer.parseInt(protocolMethodData.toString()));
     }
 
     @Generated
