@@ -25,6 +25,7 @@ export interface TestServerHost extends ServerHost, TestFileSystem {
 }
 
 export async function createTestServerHost(options?: TestHostOptions & { workspaceDir?: string }) {
+  process.env.__TypeSpec__Server__UpdateManager__Debounce__Delay__Override__ = "0";
   const logMessages: string[] = [];
   const documents = createStringMap<TextDocument>(!!options?.caseInsensitiveFileSystem);
   const diagnostics = createStringMap<Diagnostic[]>(!!options?.caseInsensitiveFileSystem);
