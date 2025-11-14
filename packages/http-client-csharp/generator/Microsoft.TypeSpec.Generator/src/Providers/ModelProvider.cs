@@ -562,13 +562,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         /// <summary>
         /// Determines if this model should have a dual constructor pattern.
-        /// This is needed when the model shares the same discriminator property name as its base model,
-        /// indicating it's an intermediate type in a discriminated union hierarchy.
+        /// This is needed when the model shares the same discriminator property name as its base model
+        /// AND has derived models, indicating it's an intermediate type in a discriminated union hierarchy.
         /// </summary>
         private bool ShouldHaveDualConstructorPattern()
         {
             // Only applies to non-abstract models with a base model
             if (_isAbstract || BaseModelProvider == null)
+                return false;
+
+            // Must have derived models to be considered an intermediate type
+            if (_inputModel.DerivedModels.Count == 0)
                 return false;
 
             // Check if this model has a discriminator property in the input
@@ -580,7 +584,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return false;
 
             // If both models have discriminator properties with the same name,
-            // this model needs the dual constructor pattern
+            // and this model has derived models, it needs the dual constructor pattern
             return string.Equals(
                 _inputModel.DiscriminatorProperty.Name,
                 BaseModelProvider._inputModel.DiscriminatorProperty.Name,
@@ -846,21 +850,29 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             // construct the initializer using the parameters from base signature
             ConstructorInitializer? constructorInitializer = null;
-            if (baseParameters.Count > 0)
+            if (BaseModelProvider != null)
             {
-                // Check if base model has dual constructor pattern and we should call private protected constructor
-                if (isPrimaryConstructor && BaseModelProvider != null && BaseModelProvider.ShouldHaveDualConstructorPattern())
+                if (baseParameters.Count > 0)
                 {
-                    // Call base model's private protected constructor with discriminator value
-                    var args = new List<ValueExpression>();
-                    args.Add(Literal(_inputModel.DiscriminatorValue ?? ""));
-                    args.AddRange(baseParameters.Select(p => GetExpressionForCtor(p, overriddenProperties, isPrimaryConstructor)));
-                    constructorInitializer = new ConstructorInitializer(true, args);
+                    // Check if base model has dual constructor pattern and we should call private protected constructor
+                    if (isPrimaryConstructor && BaseModelProvider.ShouldHaveDualConstructorPattern())
+                    {
+                        // Call base model's private protected constructor with discriminator value
+                        var args = new List<ValueExpression>();
+                        args.Add(Literal(_inputModel.DiscriminatorValue ?? ""));
+                        args.AddRange(baseParameters.Select(p => GetExpressionForCtor(p, overriddenProperties, isPrimaryConstructor)));
+                        constructorInitializer = new ConstructorInitializer(true, args);
+                    }
+                    else
+                    {
+                        // Standard base constructor call
+                        constructorInitializer = new ConstructorInitializer(true, [.. baseParameters.Select(p => GetExpressionForCtor(p, overriddenProperties, isPrimaryConstructor))]);
+                    }
                 }
                 else
                 {
-                    // Standard base constructor call
-                    constructorInitializer = new ConstructorInitializer(true, [.. baseParameters.Select(p => GetExpressionForCtor(p, overriddenProperties, isPrimaryConstructor))]);
+                    // Even when no base parameters, we still need a base constructor call if there's a base model
+                    constructorInitializer = new ConstructorInitializer(true, Array.Empty<ValueExpression>());
                 }
             }
 

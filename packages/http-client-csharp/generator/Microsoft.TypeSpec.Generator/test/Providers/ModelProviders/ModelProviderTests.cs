@@ -1289,5 +1289,169 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
+
+        [Test]
+        public void TestMultiLayerDiscriminator_IntermediateWithoutDiscriminator()
+        {
+            // Test hierarchy: Pet (base, no discriminator) → Cat (intermediate, no discriminator) → Tiger (leaf, discriminator: "tiger")
+            // This verifies that intermediate types without discriminators properly pass parameters to base constructors
+            
+            InputModelType tigerModel = InputFactory.Model(
+                "tiger",
+                discriminatedKind: "tiger",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("stripes", InputPrimitiveType.Int32, isRequired: true)
+                ]);
+                
+            InputModelType catModel = InputFactory.Model(
+                "cat",
+                // No discriminatedKind - Cat is an intermediate base type without discriminator value
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("meows", InputPrimitiveType.Boolean, isRequired: true)
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "tiger", tigerModel } });
+                
+            var baseModel = InputFactory.Model(
+                "pet",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true)
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "cat", catModel } });
+
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, catModel, tigerModel]);
+            
+            var tigerProvider = new ModelProvider(tigerModel);
+            
+            // Verify Tiger has correct constructor inheritance
+            var publicConstructor = tigerProvider.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsNotNull(publicConstructor);
+            
+            // Tiger should call base constructor with only base parameters (no discriminator from Cat since Cat doesn't have one)
+            var initializer = publicConstructor!.Signature.Initializer;
+            Assert.IsNotNull(initializer);
+            Assert.IsTrue(initializer!.IsBase);
+            
+            // Should have name and meows parameters from base chain (no discriminator since Cat has no discriminatedKind)
+            Assert.AreEqual(2, initializer.Arguments.Count);
+        }
+
+        [Test] 
+        public void TestMultiLayerDiscriminator_IntermediateWithDiscriminator()
+        {
+            // Test hierarchy: Pet (base, no discriminator) → Cat (intermediate, discriminator: "cat") → DomesticCat (leaf, discriminator: "domestic")  
+            // This verifies that intermediate types WITH discriminators properly handle dual constructor pattern
+            
+            InputModelType domesticCatModel = InputFactory.Model(
+                "domesticCat",
+                discriminatedKind: "domestic", 
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("breed", InputPrimitiveType.String, isRequired: true)
+                ]);
+                
+            InputModelType catModel = InputFactory.Model(
+                "cat",
+                discriminatedKind: "cat", // Cat has discriminator since it's a concrete type that can be instantiated
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("meows", InputPrimitiveType.Boolean, isRequired: true)
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "domestic", domesticCatModel } });
+                
+            var baseModel = InputFactory.Model(
+                "pet",  
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true)
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "cat", catModel } });
+
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseModel, catModel, domesticCatModel]);
+            
+            var domesticCatProvider = new ModelProvider(domesticCatModel);
+            
+            // Verify DomesticCat has correct constructor inheritance 
+            var publicConstructor = domesticCatProvider.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsNotNull(publicConstructor);
+            
+            // DomesticCat should call Cat's dual constructor with discriminator value since Cat has discriminatedKind
+            var initializer = publicConstructor!.Signature.Initializer;
+            Assert.IsNotNull(initializer);
+            Assert.IsTrue(initializer!.IsBase);
+            
+            // Should have discriminator + parameters from Cat's dual constructor pattern
+            Assert.GreaterOrEqual(initializer.Arguments.Count, 2); // At least discriminator + some parameters
+        }
+
+        [Test]
+        public void TestMultiLayerDiscriminator_ThreeLayers()
+        {
+            // Test hierarchy: Animal (base) → Pet (discriminator: "pet") → Cat (discriminator: "cat") → DomesticCat (discriminator: "domestic")
+            // This tests a deep hierarchy with multiple discriminator levels
+            
+            InputModelType domesticCatModel = InputFactory.Model(
+                "domesticCat",
+                discriminatedKind: "domestic",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("breed", InputPrimitiveType.String, isRequired: true)
+                ]);
+                
+            InputModelType catModel = InputFactory.Model(
+                "cat",
+                discriminatedKind: "cat",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("meows", InputPrimitiveType.Boolean, isRequired: true)
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "domestic", domesticCatModel } });
+                
+            InputModelType petModel = InputFactory.Model(
+                "pet",
+                discriminatedKind: "pet",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true)
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "cat", catModel } });
+                
+            var animalModel = InputFactory.Model(
+                "animal",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("species", InputPrimitiveType.String, isRequired: true)
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "pet", petModel } });
+
+            MockHelpers.LoadMockGenerator(inputModelTypes: [animalModel, petModel, catModel, domesticCatModel]);
+            
+            var domesticCatProvider = new ModelProvider(domesticCatModel);
+            
+            // Verify the deep inheritance chain works correctly
+            Assert.IsNotNull(domesticCatProvider.BaseModelProvider);
+            Assert.IsNotNull(domesticCatProvider.BaseModelProvider!.BaseModelProvider);  
+            Assert.IsNotNull(domesticCatProvider.BaseModelProvider!.BaseModelProvider!.BaseModelProvider);
+            
+            // Verify constructor initialization works through the chain
+            var publicConstructor = domesticCatProvider.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsNotNull(publicConstructor);
+            
+            var initializer = publicConstructor!.Signature.Initializer;
+            Assert.IsNotNull(initializer);
+            Assert.IsTrue(initializer!.IsBase);
+        }
     }
 }
