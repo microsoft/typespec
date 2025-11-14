@@ -1,33 +1,21 @@
-import { createAssetEmitter } from "@typespec/asset-emitter";
-import type { Diagnostic } from "@typespec/compiler";
-import { createTestHost, expectDiagnosticEmpty } from "@typespec/compiler/testing";
+import { resolvePath, type Diagnostic } from "@typespec/compiler";
+import { createTester, expectDiagnosticEmpty, mockFile } from "@typespec/compiler/testing";
 import { parse } from "yaml";
-import { JsonSchemaEmitter } from "../src/json-schema-emitter.js";
 import type { JSONSchemaEmitterOptions } from "../src/lib.js";
-import { JsonSchemaTestLibrary } from "../src/testing/index.js";
 
-export async function getHostForTspFile(contents: string, decorators?: Record<string, any>) {
-  const host = await createTestHost({
-    libraries: [JsonSchemaTestLibrary],
-  });
-  if (decorators) {
-    host.addJsFile("dec.js", decorators);
-    contents = `import "./dec.js";\n` + contents;
-  }
-  host.addTypeSpecFile("main.tsp", contents);
-  await host.compileAndDiagnose("main.tsp", {
-    noEmit: false,
-    outputDir: "tsp-output",
-  });
-  return host;
-}
+export const ApiTester = createTester(resolvePath(import.meta.dirname, ".."), {
+  libraries: ["@typespec/json-schema"],
+})
+  .import("@typespec/json-schema")
+  .using("JsonSchema");
+
+export const Tester = ApiTester.emit("@typespec/json-schema");
 
 export async function emitSchemaWithDiagnostics(
   code: string,
   options: JSONSchemaEmitterOptions = {},
   testOptions: {
     emitNamespace?: boolean;
-    emitTypes?: string[];
     decorators?: Record<string, any>;
   } = { emitNamespace: true },
 ): Promise<[Record<string, any>, readonly Diagnostic[]]> {
@@ -35,42 +23,29 @@ export async function emitSchemaWithDiagnostics(
     options["file-type"] = "json";
   }
 
-  code = testOptions.emitNamespace
-    ? `import "@typespec/json-schema"; using JsonSchema; @jsonSchema namespace test; ${code}`
-    : `import "@typespec/json-schema"; using JsonSchema; ${code}`;
-  const host = await getHostForTspFile(code, testOptions.decorators);
-  const emitter = createAssetEmitter(
-    host.program,
-    JsonSchemaEmitter as any,
-    {
-      emitterOutputDir: "tsp-output",
-      options,
-    } as any,
-  );
-  if (options.emitAllModels) {
-    emitter.emitProgram({ emitTypeSpecNamespace: false });
-  } else if (testOptions.emitTypes === undefined) {
-    emitter.emitType(host.program.resolveTypeReference("test")[0]!);
-  } else {
-    for (const name of testOptions.emitTypes) {
-      emitter.emitType(host.program.resolveTypeReference(name)[0]!);
-    }
-  }
+  code = testOptions.emitNamespace ? `@jsonSchema namespace test; ${code}` : code;
+  const tester = testOptions.decorators
+    ? Tester.import("./dec.js").files({
+        "dec.js": mockFile.js(testOptions.decorators),
+      })
+    : Tester;
 
-  await emitter.writeOutput();
+  const [{ outputs }, diagnostics] = await tester.compileAndDiagnose(code, {
+    compilerOptions: {
+      options: { "@typespec/json-schema": options as any },
+    },
+  });
   const schemas: Record<string, any> = {};
-  const files = await emitter.getProgram().host.readDir("./tsp-output");
 
-  for (const file of files) {
-    const sf = await emitter.getProgram().host.readFile(`./tsp-output/${file}`);
+  for (const [file, content] of Object.entries(outputs)) {
     if (options?.["file-type"] === "yaml") {
-      schemas[file] = parse(sf.text);
+      schemas[file] = parse(content);
     } else {
-      schemas[file] = JSON.parse(sf.text);
+      schemas[file] = JSON.parse(content);
     }
   }
 
-  return [schemas, host.program.diagnostics];
+  return [schemas, diagnostics];
 }
 
 export async function emitSchema(
@@ -78,7 +53,6 @@ export async function emitSchema(
   options: JSONSchemaEmitterOptions = {},
   testOptions: {
     emitNamespace?: boolean;
-    emitTypes?: string[];
     decorators?: Record<string, any>;
   } = { emitNamespace: true },
 ) {

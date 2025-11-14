@@ -10,8 +10,17 @@ export const StandardTestLibrary: TypeSpecTestLibrary = {
   name: "@typespec/compiler",
   packageRoot: CompilerPackageRoot,
   files: [
-    { virtualPath: "./.tsp/dist/src/lib", realDir: "./dist/src/lib", pattern: "**" },
-    { virtualPath: "./.tsp/lib", realDir: "./lib", pattern: "**" },
+    {
+      virtualPath: "./node_modules/@typespec/compiler/dist/src",
+      realDir: "./dist/src",
+      pattern: "index.js",
+    },
+    {
+      virtualPath: "./node_modules/@typespec/compiler/dist/src/lib",
+      realDir: "./dist/src/lib",
+      pattern: "**",
+    },
+    { virtualPath: "./node_modules/@typespec/compiler/lib", realDir: "./lib", pattern: "**" },
   ],
 };
 
@@ -26,9 +35,9 @@ export function createTestCompilerHost(
   jsImports: Map<string, Record<string, any>>,
   options?: TestHostOptions,
 ): CompilerHost {
-  const libDirs = [resolveVirtualPath(".tsp/lib/std")];
+  const libDirs = [resolveVirtualPath("./node_modules/@typespec/compiler/lib/std")];
   if (!options?.excludeTestLib) {
-    libDirs.push(resolveVirtualPath(".tsp/test-lib"));
+    libDirs.push(resolveVirtualPath("./node_modules/@typespec/compiler/test-lib"));
   }
 
   return {
@@ -84,7 +93,7 @@ export function createTestCompilerHost(
     },
 
     getExecutionRoot() {
-      return resolveVirtualPath(".tsp");
+      return resolveVirtualPath("./node_modules/@typespec/compiler");
     },
 
     async getJsImport(path) {
@@ -146,8 +155,8 @@ export function createTestCompilerHost(
 export function addTestLib(fs: TestFileSystem): Record<string, Type> {
   const testTypes: Record<string, Type> = {};
   // add test decorators
-  fs.add(".tsp/test-lib/main.tsp", 'import "./test.js";');
-  fs.addJsFile(".tsp/test-lib/test.js", {
+  fs.add("./node_modules/@typespec/compiler/test-lib/main.tsp", 'import "./test.js";');
+  fs.addJsFile("./node_modules/@typespec/compiler/test-lib/test.js", {
     namespace: "TypeSpec",
     $test(_: any, target: Type, nameLiteral?: StringLiteral) {
       let name = nameLiteral?.value;

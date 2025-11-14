@@ -1,9 +1,9 @@
 import { deepStrictEqual } from "assert";
 import { describe, expect, it } from "vitest";
 import { OpenAPI3Encoding, OpenAPI3Schema, OpenAPISchema3_1 } from "../src/types.js";
-import { worksFor } from "./works-for.js";
+import { supportedVersions, worksFor } from "./works-for.js";
 
-worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
+worksFor(supportedVersions, ({ openApiFor }) => {
   it("create dedicated model for multipart", async () => {
     const res = await openApiFor(
       `

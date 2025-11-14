@@ -143,6 +143,22 @@ namespace Microsoft.TypeSpec.Generator.Tests.Snippets
             Assert.AreEqual("new global::Microsoft.TypeSpec.Generator.Tests.Snippets.SnippetTests.TestClass(20)", writer.ToString(false));
         }
 
+        [Test]
+        public void ValidateStaticTypesDoNotIncludeNullForgivingOperator()
+        {
+            using CodeWriter writer = new CodeWriter();
+            Static(new CSharpType(typeof(int), isNullable: true)).Write(writer);
+            Assert.AreEqual("int", writer.ToString(false));
+        }
+
+        [Test]
+        public void ValidateStaticTypesDoNotIncludeNullForgivingOperatorUsingTypeOverload()
+        {
+            using CodeWriter writer = new CodeWriter();
+            Static(typeof(int?)).Write(writer);
+            Assert.AreEqual("int", writer.ToString(false));
+        }
+
         private class TestClass
         {
             public TestClass()

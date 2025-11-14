@@ -1,5 +1,7 @@
 import { getSymNode } from "../core/binder.js";
 import { compilerAssert } from "../core/diagnostics.js";
+import { printTypeSpecNode } from "../core/formatter.js";
+import { getRawTextWithCache } from "../core/helpers/raw-text-cache.js";
 import { printIdentifier } from "../core/helpers/syntax-utils.js";
 import { getEntityName, getTypeName, isStdNamespace } from "../core/helpers/type-name-utils.js";
 import type { Program } from "../core/program.js";
@@ -30,17 +32,17 @@ interface GetSymbolSignatureOptions {
 }
 
 /** @internal */
-export function getSymbolSignature(
+export async function getSymbolSignature(
   program: Program,
   sym: Sym,
   options: GetSymbolSignatureOptions = {
     includeBody: false,
   },
-): string {
+): Promise<string> {
   const decl = getSymNode(sym);
   switch (decl?.kind) {
     case SyntaxKind.AliasStatement:
-      return fence(`alias ${getAliasSignature(decl)}`);
+      return fence(`alias ${await getAliasSignature(decl)}`);
   }
   const entity = sym.type ?? program.checker.getTypeOrValueForNode(decl);
   return getEntitySignature(sym, entity, options);
@@ -125,7 +127,7 @@ function getOperationSignature(type: Operation, includeQualifier: boolean = true
   })}(${parameters.join(", ")}): ${getPrintableTypeName(type.returnType)}`;
 }
 
-function getInterfaceSignature(type: Interface, includeBody: boolean) {
+function getInterfaceSignature(type: Interface, includeBody: boolean): string {
   if (includeBody) {
     const INDENT = "  ";
     const opDesc = Array.from(type.operations).map(
@@ -133,14 +135,26 @@ function getInterfaceSignature(type: Interface, includeBody: boolean) {
     );
     return `${type.kind.toLowerCase()} ${getPrintableTypeName(type)} {\n${opDesc.join("\n")}\n}`;
   } else {
-    return `${type.kind.toLowerCase()} ${getPrintableTypeName(type)}`;
+    if (
+      type.node &&
+      type.node.kind === SyntaxKind.InterfaceStatement &&
+      type.node.templateParameters
+    ) {
+      type.node.templateParameters.forEach((t) => {
+        if (t.default) {
+          getRawTextWithCache(t);
+        }
+      });
+    }
   }
+
+  return `${type.kind.toLowerCase()} ${getPrintableTypeName(type)}`;
 }
 
 /**
  * All properties from 'extends' and 'is' will be included if includeBody is true.
  */
-function getModelSignature(type: Model, includeBody: boolean) {
+function getModelSignature(type: Model, includeBody: boolean): string {
   if (includeBody) {
     const propDesc = [];
     const INDENT = "  ";
@@ -149,8 +163,16 @@ function getModelSignature(type: Model, includeBody: boolean) {
     }
     return `${type.kind.toLowerCase()} ${getPrintableTypeName(type)}{\n${propDesc.map((d) => `${d};`).join("\n")}\n}`;
   } else {
-    return `${type.kind.toLowerCase()} ${getPrintableTypeName(type)}`;
+    if (type.node && type.node.kind === SyntaxKind.ModelStatement && type.node.templateParameters) {
+      type.node.templateParameters.forEach((t) => {
+        if (t.default) {
+          getRawTextWithCache(t);
+        }
+      });
+    }
   }
+
+  return `${type.kind.toLowerCase()} ${getPrintableTypeName(type)}`;
 }
 
 function getFunctionParameterSignature(parameter: FunctionParameter) {
@@ -192,9 +214,17 @@ function getEnumMemberSignature(member: EnumMember) {
     : `${ns}${printIdentifier(member.name, "allow-reserved")}: ${value}`;
 }
 
-function getAliasSignature(alias: AliasStatementNode) {
+async function getAliasSignature(alias: AliasStatementNode): Promise<string> {
   const fullName = getFullyQualifiedSymbolName(alias.symbol);
-  const args = alias.templateParameters.map((t) => t.id.sv);
+  const args = await Promise.all(
+    alias.templateParameters.map(async (t, index) => {
+      if (t.default) {
+        getRawTextWithCache(t.default);
+      }
+      return await printTypeSpecNode(t);
+    }),
+  );
+
   return args.length === 0 ? fullName : `${fullName}<${args.join(", ")}>`;
 }
 
@@ -215,7 +245,7 @@ function getQualifier(parent: (Type & { name?: string | symbol }) | undefined) {
   return parentName + ".";
 }
 
-function getPrintableTypeName(type: Type) {
+function getPrintableTypeName(type: Type): string {
   return getTypeName(type, {
     printable: true,
   });

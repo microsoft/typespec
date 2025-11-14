@@ -93,7 +93,9 @@ public final class EnvelopeObjectCustomPropertiesImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return test discriminated union with custom property names.
+     * The discriminated union should serialize with custom discriminator
+     * and envelope property names.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> getWithResponse(String petType, RequestContext requestContext) {
@@ -112,7 +114,9 @@ public final class EnvelopeObjectCustomPropertiesImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return test discriminated union with custom property names.
+     * The discriminated union should serialize with custom discriminator
+     * and envelope property names.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> putWithResponse(BinaryData input, RequestContext requestContext) {

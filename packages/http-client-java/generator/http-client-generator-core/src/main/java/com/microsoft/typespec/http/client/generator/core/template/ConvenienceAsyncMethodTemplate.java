@@ -175,10 +175,6 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
                 } else if (responseBodyType == ClassType.BINARY_DATA) {
                     // BinaryData, no need to do the map in expressionConvertFromBinaryData
                     mapExpression = null;
-                } else if (isModelOrBuiltin(responseBodyType)) {
-                    // class
-                    mapExpression = String.format("protocolMethodData -> protocolMethodData.toObject(%1$s.class)",
-                        responseBodyType.asNullable());
                 } else if (responseBodyType == ArrayType.BYTE_ARRAY) {
                     // byte[]
                     if (rawType == ClassType.BASE_64_URL) {
@@ -187,6 +183,10 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
                     } else {
                         return "protocolMethodData -> protocolMethodData.toObject(byte[].class)";
                     }
+                } else {
+                    // default, treat as class
+                    mapExpression = String.format("protocolMethodData -> protocolMethodData.toObject(%1$s.class)",
+                        responseBodyType.asNullable());
                 }
                 break;
         }

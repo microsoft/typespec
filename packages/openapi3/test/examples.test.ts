@@ -1,7 +1,8 @@
+import { ok } from "assert/strict";
 import { describe, expect, it } from "vitest";
 import { OpenAPI3Document, OpenAPI3Parameter, OpenAPI3RequestBody } from "../src/types.js";
 import { openApiFor } from "./test-host.js";
-import { worksFor } from "./works-for.js";
+import { supportedVersions, worksFor } from "./works-for.js";
 
 describe("schema examples", () => {
   it("apply example on model", async () => {
@@ -53,7 +54,7 @@ describe("schema examples", () => {
   });
 });
 
-worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
+worksFor(supportedVersions, ({ openApiFor }) => {
   it("set example on the request body", async () => {
     const res: OpenAPI3Document = await openApiFor(
       `
@@ -115,7 +116,12 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
       op getPet(): {name: string, age: int32};
       `,
     );
-    expect(res.paths["/"].get?.responses[200].content["application/json"].example).toEqual({
+    ok(res.paths["/"].get);
+    ok(res.paths["/"].get.responses);
+    ok("200" in res.paths["/"].get.responses);
+    ok("content" in res.paths["/"].get.responses["200"]);
+    ok(res.paths["/"].get.responses["200"].content);
+    expect(res.paths["/"].get?.responses["200"].content["application/json"].example).toEqual({
       name: "Fluffy",
       age: 2,
     });
@@ -141,13 +147,21 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
         };
         `,
       );
-      expect(res.paths["/"].get?.responses[200].content["application/json"].examples).toEqual({
+      ok(res.paths["/"].get);
+      ok(res.paths["/"].get.responses);
+      ok("200" in res.paths["/"].get.responses);
+      ok("content" in res.paths["/"].get.responses["200"]);
+      ok(res.paths["/"].get.responses["200"].content);
+      expect(res.paths["/"].get?.responses["200"].content["application/json"].examples).toEqual({
         Ok: {
           summary: "Ok",
           value: { name: "Fluffy", age: 2 },
         },
       });
-      expect(res.paths["/"].get?.responses[404].content["application/json"].examples).toEqual({
+      ok("404" in res.paths["/"].get.responses);
+      ok("content" in res.paths["/"].get.responses["404"]);
+      ok(res.paths["/"].get.responses["404"].content);
+      expect(res.paths["/"].get?.responses["404"].content["application/json"].examples).toEqual({
         "Not found": {
           summary: "Not found",
           value: {
@@ -178,12 +192,20 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
 
         `,
       );
-      expect(res.paths["/"].get?.responses[200].content["application/json"].examples).toEqual({
+      ok(res.paths["/"].get);
+      ok(res.paths["/"].get.responses);
+      ok("200" in res.paths["/"].get.responses);
+      ok("content" in res.paths["/"].get.responses["200"]);
+      ok(res.paths["/"].get.responses["200"].content);
+      expect(res.paths["/"].get?.responses["200"].content["application/json"].examples).toEqual({
         Ok: {
           summary: "Ok",
           value: { data: "Ok" },
         },
       });
+      ok("4XX" in res.paths["/"].get.responses);
+      ok("content" in res.paths["/"].get.responses["4XX"]);
+      ok(res.paths["/"].get.responses["4XX"].content);
       expect(res.paths["/"].get?.responses["4XX"].content["application/json"].examples).toEqual({
         "Not found": {
           summary: "Not found",
@@ -209,7 +231,12 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
       op getPet(): {@body pet: {name: string, age: int32}};
       `,
     );
-    expect(res.paths["/"].get?.responses[200].content["application/json"].example).toEqual({
+    ok(res.paths["/"].get);
+    ok(res.paths["/"].get.responses);
+    ok("200" in res.paths["/"].get.responses);
+    ok("content" in res.paths["/"].get.responses["200"]);
+    ok(res.paths["/"].get.responses["200"].content);
+    expect(res.paths["/"].get?.responses["200"].content["application/json"].example).toEqual({
       name: "Fluffy",
       age: 2,
     });
@@ -229,7 +256,12 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
       op getPet(): {@bodyRoot pet: {name: string, age: int32}};
       `,
     );
-    expect(res.paths["/"].get?.responses[200].content["application/json"].example).toEqual({
+    ok(res.paths["/"].get);
+    ok(res.paths["/"].get.responses);
+    ok("200" in res.paths["/"].get.responses);
+    ok("content" in res.paths["/"].get.responses["200"]);
+    ok(res.paths["/"].get.responses["200"].content);
+    expect(res.paths["/"].get?.responses["200"].content["application/json"].example).toEqual({
       name: "Fluffy",
       age: 2,
     });

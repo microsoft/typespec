@@ -4,7 +4,6 @@ import { defineLinter } from "./library.js";
 import { createUnusedTemplateParameterLinterRule } from "./linter-rules/unused-template-parameter.rule.js";
 import { createUnusedUsingLinterRule } from "./linter-rules/unused-using.rule.js";
 import { createDiagnostic } from "./messages.js";
-import { NameResolver } from "./name-resolver.js";
 import type { Program } from "./program.js";
 import { EventEmitter, mapEventEmitterToNodeListener, navigateProgram } from "./semantic-walker.js";
 import { startTimer, time } from "./stats.js";
@@ -291,16 +290,15 @@ export function createLinterRuleContext<N extends string, DM extends DiagnosticM
 }
 
 export const builtInLinterLibraryName = `@typespec/compiler`;
-export function createBuiltInLinterLibrary(nameResolver: NameResolver): LinterLibraryInstance {
+export function createBuiltInLinterLibrary(): LinterLibraryInstance {
   const builtInLinter: LinterResolvedDefinition = resolveLinterDefinition(
     builtInLinterLibraryName,
-    createBuiltInLinter(nameResolver),
+    createBuiltInLinter(),
   );
   return { linter: builtInLinter };
 }
-function createBuiltInLinter(nameResolver: NameResolver): LinterDefinition {
-  const unusedUsingLinterRule = createUnusedUsingLinterRule(nameResolver);
-
+function createBuiltInLinter(): LinterDefinition {
+  const unusedUsingLinterRule = createUnusedUsingLinterRule();
   const unusedTemplateParameterLinterRule = createUnusedTemplateParameterLinterRule();
 
   return defineLinter({

@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.Expressions;
@@ -13,24 +12,24 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.Providers
 {
-    internal class FixedEnumProvider : EnumProvider
+    public class FixedEnumProvider : EnumProvider
     {
         private readonly TypeSignatureModifiers _modifiers;
-        private readonly InputEnumType _inputType;
+        private readonly InputEnumType? _inputType;
 
-        internal FixedEnumProvider(InputEnumType input, TypeProvider? declaringType) : base(input)
+        public FixedEnumProvider(InputEnumType? input, TypeProvider? declaringType) : base(input)
         {
             _inputType = input;
             // fixed enums are implemented by enum in C#
             _modifiers = TypeSignatureModifiers.Enum;
 
-            if (input.Access == "internal")
+            if (input?.Access == "internal")
             {
                 _modifiers |= TypeSignatureModifiers.Internal;
             }
 
             _declaringTypeProvider = declaringType;
-            AllowedValues = input.Values;
+            AllowedValues = input?.Values ?? [];
         }
 
         internal IReadOnlyList<InputEnumTypeValue> AllowedValues { get; }
@@ -39,7 +38,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override TypeProvider[] BuildSerializationProviders()
         {
-            return [.. CodeModelGenerator.Instance.TypeFactory.CreateSerializations(_inputType, this)];
+            return [.. CodeModelGenerator.Instance.TypeFactory.CreateSerializations(_inputType!, this)];
         }
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers() => _modifiers;

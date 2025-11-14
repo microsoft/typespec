@@ -67,6 +67,9 @@ try {
     Invoke-LoggedCommand "npm pack"
     Copy-Item "typespec-http-client-python-$emitterVersion.tgz" -Destination "$outputPath/packages"
 
+    # install packed emitter to check dependencies
+    Invoke-LoggedCommand "npm install typespec-http-client-python-$emitterVersion.tgz" -GroupOutput
+
     Write-PackageInfo -packageName "typespec-http-client-python" -directoryPath "packages/http-client-python/emitter/src" -version $emitterVersion
 }
 finally {

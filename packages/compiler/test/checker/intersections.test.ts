@@ -7,7 +7,9 @@ import {
   createTestWrapper,
   expectDiagnostics,
   extractSquiggles,
+  t,
 } from "../../src/testing/index.js";
+import { Tester } from "../tester.js";
 
 describe("compiler: intersections", () => {
   let runner: BasicTestRunner;
@@ -105,5 +107,39 @@ describe("compiler: intersections", () => {
       pos,
       end,
     });
+  });
+});
+
+// https://github.com/microsoft/typespec/issues/2826
+describe("ensure the target model is completely resolved before intersecting", () => {
+  it("declared before", async () => {
+    const { A } = await Tester.compile(t.code`
+      model ${t.model("A")} { ...Alias }
+
+      model B {
+        b: A;
+        prop: string;
+      }
+
+      alias Alias = B & {};
+
+    `);
+    expect(A.properties.has("b")).toBe(true);
+    expect(A.properties.has("prop")).toBe(true);
+  });
+
+  it("declared after", async () => {
+    const { A } = await Tester.compile(t.code`
+      model B {
+        b: A;
+        prop: string;
+      }
+
+      alias Alias = B & {};
+
+      model ${t.model("A")} { ...Alias }
+    `);
+    expect(A.properties.has("b")).toBe(true);
+    expect(A.properties.has("prop")).toBe(true);
   });
 });

@@ -18,11 +18,11 @@
   "dependencies": {
     "@astrojs/check": "^0.9.4",
     "@astrojs/react": "^4.2.1",
-    "@astrojs/starlight": "^0.35.1",
-    "@docsearch/css": "^3.9.0",
-    "@docsearch/js": "^3.9.0",
+    "@astrojs/starlight": "^0.36.1",
+    "@docsearch/css": "^4.1.0",
+    "@docsearch/js": "^4.1.0",
     "@expressive-code/core": "^0.41.2",
-    "@fluentui/react-components": "~9.67.0",
+    "@fluentui/react-components": "~9.72.3",
     "@fluentui/react-icons": "^2.0.292",
     "@typespec/compiler": "workspace:^",
     "@typespec/playground": "workspace:^",
@@ -36,11 +36,11 @@
     "react": "~18.3.1",
     "react-dom": "~18.3.1",
     "sharp": "^0.34.2",
-    "typescript": "~5.8.2"
+    "typescript": "~5.9.2"
   },
   "devDependencies": {
-    "@types/react": "~18.3.11",
-    "@types/react-dom": "~18.3.0",
+    "@types/react": "~19.2.2",
+    "@types/react-dom": "~19.2.2",
     "@types/remark-heading-id": "^1.0.0",
     "@typespec/astro-utils": "workspace:^",
     "@typespec/compiler": "workspace:^",

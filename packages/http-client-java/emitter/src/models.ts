@@ -1,6 +1,7 @@
 import { ApiVersions, Parameter } from "@autorest/codemodel";
 import { Operation } from "@typespec/compiler";
 import { Version } from "@typespec/versioning";
+import { isVersionEarlierThan, isVersionedByDate } from "./versioning-utils.js";
 
 export class ClientContext {
   baseUri: string;
@@ -33,7 +34,7 @@ export class ClientContext {
     }
   }
 
-  getAddedVersions(versions: Version[]): string[] {
+  getAddedVersions(versions: Version[]): string[] | undefined {
     // currently only allow one added version
     const addedVersions: string[] = [];
     const addedVersion = versions.shift()!.value;
@@ -47,7 +48,29 @@ export class ClientContext {
           addedVersions.push(version);
         }
       }
+
+      if (addedVersions.length === 0 && isVersionedByDate(addedVersion)) {
+        // try again with versioning by YYYY-MM-DD(-preview)
+        let includeVersion = false;
+        for (const version of this.apiVersions) {
+          if (isVersionedByDate(version) && isVersionEarlierThan(addedVersion, version)) {
+            includeVersion = true;
+          }
+          if (includeVersion) {
+            addedVersions.push(version);
+          }
+        }
+      }
     }
-    return addedVersions;
+
+    if (addedVersions.length === 0) {
+      // could not find matching version in client apiVersions
+      return undefined;
+    } else if (addedVersions.length === this.apiVersions?.length) {
+      // it is added in the 1st api-version, this is the default scenario, no need to specify addedVersions
+      return undefined;
+    } else {
+      return addedVersions;
+    }
   }
 }

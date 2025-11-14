@@ -44,10 +44,8 @@ public class FluentExampleTemplate {
         Set<ExampleHelperFeature> helperFeatures
             = exampleMethods.stream().flatMap(em -> em.getHelperFeatures().stream()).collect(Collectors.toSet());
 
-        javaFile.javadocComment(commentBlock -> {
-            commentBlock
-                .description(String.format("Samples for %1$s %2$s", example.getGroupName(), example.getMethodName()));
-        });
+        javaFile.javadocComment(commentBlock -> commentBlock
+            .description(String.format("Samples for %1$s %2$s", example.getGroupName(), example.getMethodName())));
         javaFile.publicFinalClass(className, classBlock -> {
             for (ExampleMethod exampleMethod : exampleMethods) {
                 if (!CoreUtils.isNullOrEmpty(exampleMethod.getExample().getOriginalFileName())) {
@@ -63,9 +61,8 @@ public class FluentExampleTemplate {
                 if (exampleMethod.getHelperFeatures().contains(ExampleHelperFeature.ThrowsIOException)) {
                     methodSignature += " throws IOException";
                 }
-                classBlock.publicStaticMethod(methodSignature, methodBlock -> {
-                    methodBlock.line(exampleMethod.getMethodContent());
-                });
+                classBlock.publicStaticMethod(methodSignature,
+                    methodBlock -> methodBlock.line(exampleMethod.getMethodContent()));
             }
 
             if (helperFeatures.contains(ExampleHelperFeature.MapOfMethod)) {
@@ -107,13 +104,12 @@ public class FluentExampleTemplate {
         String snippet = String.format("%1$s.%2$s.%3$s(%4$s);", managerName, methodExample.getMethodReference(),
             methodExample.getMethodName(), parameterInvocations);
 
-        ExampleMethod exampleMethod = new ExampleMethod().setExample(methodExample)
+        return new ExampleMethod().setExample(methodExample)
             .setImports(visitor.getImports())
             .setMethodSignature(String.format("void %1$s(%2$s %3$s)", methodName,
                 methodExample.getEntryType().getFullName(), managerName))
             .setMethodContent(snippet)
             .setHelperFeatures(visitor.getHelperFeatures());
-        return exampleMethod;
     }
 
     public ExampleMethod generateExampleMethod(FluentResourceCreateExample resourceCreateExample) {
@@ -147,13 +143,12 @@ public class FluentExampleTemplate {
         }
         sb.append(".create();");
 
-        ExampleMethod exampleMethod = new ExampleMethod().setExample(resourceCreateExample)
+        return new ExampleMethod().setExample(resourceCreateExample)
             .setImports(visitor.getImports())
             .setMethodSignature(String.format("void %1$s(%2$s %3$s)", methodName,
                 FluentStatic.getFluentManager().getType().getFullName(), managerName))
             .setMethodContent(sb.toString())
             .setHelperFeatures(visitor.getHelperFeatures());
-        return exampleMethod;
     }
 
     public ExampleMethod generateExampleMethod(FluentResourceUpdateExample resourceUpdateExample) {
@@ -191,21 +186,20 @@ public class FluentExampleTemplate {
             .getInterfaceType()
             .addImportsTo(visitor.getImports(), false);
 
-        ExampleMethod exampleMethod = new ExampleMethod().setExample(resourceUpdateExample)
+        return new ExampleMethod().setExample(resourceUpdateExample)
             .setImports(visitor.getImports())
             .setMethodSignature(String.format("void %1$s(%2$s %3$s)", methodName,
                 FluentStatic.getFluentManager().getType().getFullName(), managerName))
             .setMethodContent(sb.toString())
             .setHelperFeatures(visitor.getHelperFeatures());
-        return exampleMethod;
     }
 
     private static class ExampleNodeVisitor extends ModelExampleWriter.ExampleNodeModelInitializationVisitor {
 
         @Override
         protected String codeDeserializeJsonString(String jsonStr) {
-            imports.add(com.azure.core.management.serializer.SerializerFactory.class.getName());
-            imports.add(com.azure.core.util.serializer.SerializerEncoding.class.getName());
+            imports.add("com.azure.core.management.serializer.SerializerFactory");
+            imports.add("com.azure.core.util.serializer.SerializerEncoding");
             imports.add(java.io.IOException.class.getName());
 
             return String.format(

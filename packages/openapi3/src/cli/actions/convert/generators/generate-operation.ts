@@ -28,6 +28,10 @@ export function generateOperation(operation: TypeSpecOperation, context: Context
 
   const responses = generateOperationReturnType(operation, context);
 
+  if (operation.fixmes?.length) {
+    definitions.push("\n", ...operation.fixmes.map((f) => `// FIXME: ${f}\n`));
+  }
+
   definitions.push(`op ${operation.name}(${parameters.join(", ")}): ${responses};`);
 
   return definitions.join(" ");
@@ -73,12 +77,14 @@ function generateRequestBodyParameters(
     definitions.push(`@header contentType: ${contentTypes.map((c) => `"${c}"`).join(" | ")}`);
   }
 
+  // Check if any content type is multipart
+  const isMultipart = requestBodies.some((r) => r.contentType.startsWith("multipart/"));
   // Get the set of referenced types
   const body = Array.from(
     new Set(
       requestBodies
         .filter((r) => !!r.schema)
-        .map((r) => context.generateTypeFromRefableSchema(r.schema!, [])),
+        .map((r) => context.generateTypeFromRefableSchema(r.schema!, [], isMultipart, r.encoding)),
     ),
   ).join(" | ");
 
@@ -87,7 +93,11 @@ function generateRequestBodyParameters(
     if (requestBodies[0].doc) {
       doc = generateDocs(requestBodies[0].doc);
     }
-    definitions.push(`${doc}@body body: ${body}`);
+    if (isMultipart) {
+      definitions.push(`${doc}@multipartBody body: ${body}`);
+    } else {
+      definitions.push(`${doc}@body body: ${body}`);
+    }
   }
 
   return definitions;

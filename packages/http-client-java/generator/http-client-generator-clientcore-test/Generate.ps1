@@ -30,7 +30,7 @@ $generateScript = {
   $tspOptions = "--option ""@typespec/http-client-java.emitter-output-dir={project-root}/tsp-output/$(Get-Random)"""
 
   $tspTrace = "--trace import-resolution --trace projection --trace http-client-java"
-  $tspCommand = "npx --no-install tsp compile $tspFile $tspOptions $tspTrace"
+  $tspCommand = "npx --no tsp compile $tspFile $tspOptions $tspTrace"
 
   # output of "tsp compile" seems trigger powershell error or exit, hence the "2>&1"
   $timer = [Diagnostics.Stopwatch]::StartNew()
@@ -62,7 +62,7 @@ $generateScript = {
 }
 
 function Generate-Compile ($folder) {
-  npx --no-install tsp compile "smoke/$folder/main.tsp" --option "@typespec/http-client-java.emitter-output-dir={project-root}/$folder"
+  npx --no tsp compile "smoke/$folder/main.tsp" --option "@typespec/http-client-java.emitter-output-dir={project-root}/$folder"
 
   Push-Location $folder
   mvn package

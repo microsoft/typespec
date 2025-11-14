@@ -1,8 +1,8 @@
 import { deepStrictEqual, strictEqual } from "assert";
 import { it } from "vitest";
-import { worksFor } from "./works-for.js";
+import { supportedVersions, worksFor } from "./works-for.js";
 
-worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
+worksFor(supportedVersions, ({ openApiFor }) => {
   it("set the service title with @service", async () => {
     const res = await openApiFor(
       `

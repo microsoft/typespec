@@ -293,7 +293,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.PostProcessing
         {
             private readonly string _rootFile;
 
-            public TestPostProcessor(string rootFile, IEnumerable<string>? nonRootTypes = null) : base([], additionalNonRootTypeFullNames: nonRootTypes)
+            public TestPostProcessor(string rootFile, IEnumerable<string>? nonRootTypes = null) : base([], additionalNonRootTypeNames: nonRootTypes)
             {
                 _rootFile = rootFile;
             }

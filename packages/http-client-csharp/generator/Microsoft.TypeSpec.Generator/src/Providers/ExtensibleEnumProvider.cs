@@ -17,7 +17,7 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.Providers
 {
-    internal sealed class ExtensibleEnumProvider : EnumProvider
+    public class ExtensibleEnumProvider : EnumProvider
     {
         private readonly IReadOnlyList<InputEnumTypeValue> _allowedValues;
         private readonly TypeSignatureModifiers _modifiers;
@@ -107,10 +107,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 Validation = EnumUnderlyingType.IsValueType ? ParameterValidationType.None : ParameterValidationType.AssertNotNull
             };
             var signature = new ConstructorSignature(
-                Type: Type,
-                Description: $"Initializes a new instance of {Type:C}.",
-                Modifiers: MethodSignatureModifiers.Public,
-                Parameters: [valueParameter]);
+                type: Type,
+                description: $"Initializes a new instance of {Type:C}.",
+                modifiers: MethodSignatureModifiers.Public,
+                parameters: [valueParameter]);
 
             var valueField = (ValueExpression)_valueField;
             var body = new MethodBodyStatement[]

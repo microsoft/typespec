@@ -25,7 +25,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             _customCodeView = new(() => BuildCustomCodeView());
             _canonicalView = new(BuildCanonicalView);
-            _lastContractView = new(BuildLastContractView);
+            _lastContractView = new(() => BuildLastContractView());
             _inputType = inputType;
         }
 
@@ -36,15 +36,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
         }
 
-        private protected virtual TypeProvider? BuildCustomCodeView(string? generatedTypeName = null)
+        private protected virtual TypeProvider? BuildCustomCodeView(string? generatedTypeName = null, string? generatedTypeNamespace = null)
             => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCustomization(
-                BuildNamespace(),
+                generatedTypeNamespace ?? BuildNamespace(),
                 generatedTypeName ?? BuildName(),
                 // Use the Type.Name so that any customizations to the declaring type are applied for the lookup.
                 DeclaringTypeProvider?.Type.Name);
 
-        private protected virtual TypeProvider? BuildLastContractView()
-            => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(BuildNamespace(), BuildName(), DeclaringTypeProvider?.BuildName());
+        private protected virtual TypeProvider? BuildLastContractView(string? generatedTypeName = null, string? generatedTypeNamespace = null)
+            => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(
+                generatedTypeNamespace ?? CustomCodeView?.Type.Namespace ?? BuildNamespace(),
+                generatedTypeName ?? CustomCodeView?.Name ?? BuildName(),
+                DeclaringTypeProvider?.Type.Name);
 
         public TypeProvider? CustomCodeView => _customCodeView.Value;
         public TypeProvider? LastContractView => _lastContractView.Value;
@@ -195,7 +198,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected virtual CSharpType? BuildBaseType() => null;
 
-        public CSharpType? BaseType => _baseType ??= BuildBaseType();
+        public CSharpType? BaseType => _baseType ??= BuildBaseType() ?? CustomCodeView?.BaseType;
         private CSharpType? _baseType;
 
         public WhereExpression? WhereClause => _whereClause ??= BuildWhereClause();
@@ -215,11 +218,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public IReadOnlyList<PropertyProvider> Properties => _properties ??= FilterCustomizedProperties(BuildProperties());
 
         private IReadOnlyList<MethodProvider>? _methods;
-        public IReadOnlyList<MethodProvider> Methods => _methods ??= BuildMethodsInternal();
+        public IReadOnlyList<MethodProvider> Methods => _methods ??= FilterCustomizedMethods(BuildMethods());
 
         private IReadOnlyList<ConstructorProvider>? _constructors;
 
-        public IReadOnlyList<ConstructorProvider> Constructors => _constructors ??= BuildConstructorsInternal();
+        public IReadOnlyList<ConstructorProvider> Constructors => _constructors ??= FilterCustomizedConstructors(BuildConstructors());
 
         private IReadOnlyList<FieldProvider>? _fields;
         public IReadOnlyList<FieldProvider> Fields => _fields ??= FilterCustomizedFields(BuildFields());
@@ -231,12 +234,30 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public IReadOnlyList<TypeProvider> SerializationProviders => _serializationProviders ??= BuildSerializationProviders();
 
-        private IReadOnlyList<AttributeStatement>? _attributes;
-        public IReadOnlyList<AttributeStatement> Attributes => _attributes ??= BuildAttributes();
+        private IReadOnlyList<MethodBodyStatement>? _attributes;
+
+        public IReadOnlyList<AttributeStatement> Attributes
+        {
+            get
+            {
+                _attributes ??= BuildAttributes();
+                return [.. _attributes
+                    .Select(a => a switch
+                    {
+                        SuppressionStatement suppression => suppression.AsStatement<AttributeStatement>() ??
+                                                            throw new InvalidOperationException(
+                                                                $"Unexpected suppression statement in {Name}."),
+                        AttributeStatement attribute => attribute,
+                        _ => throw new InvalidOperationException($"Unexpected attribute type {a.GetType()} in {Name}.")
+                    })];
+            }
+        }
+
+        internal IReadOnlyList<MethodBodyStatement> GetAttributes() => _attributes ??= BuildAttributes();
 
         protected virtual CSharpType[] GetTypeArguments() => [];
 
-        private protected virtual PropertyProvider[] FilterCustomizedProperties(PropertyProvider[] specProperties)
+        internal virtual PropertyProvider[] FilterCustomizedProperties(IEnumerable<PropertyProvider> specProperties)
         {
             var properties = new List<PropertyProvider>();
             var customProperties = new HashSet<string>();
@@ -270,7 +291,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return [..properties];
         }
 
-        private protected virtual FieldProvider[] FilterCustomizedFields(FieldProvider[] specFields)
+        internal virtual FieldProvider[] FilterCustomizedFields(IEnumerable<FieldProvider> specFields)
         {
             var fields = new List<FieldProvider>();
             var customFields = new HashSet<string>();
@@ -295,10 +316,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return [.. fields];
         }
 
-        private MethodProvider[] BuildMethodsInternal()
+        internal virtual MethodProvider[] FilterCustomizedMethods(IEnumerable<MethodProvider> specMethods)
         {
             var methods = new List<MethodProvider>();
-            foreach (var method in BuildMethods())
+            foreach (var method in specMethods)
             {
                 if (ShouldGenerate(method))
                 {
@@ -309,10 +330,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return [..methods];
         }
 
-        private ConstructorProvider[] BuildConstructorsInternal()
+        internal virtual ConstructorProvider[] FilterCustomizedConstructors(IEnumerable<ConstructorProvider> specConstructors)
         {
             var constructors = new List<ConstructorProvider>();
-            foreach (var constructor in BuildConstructors())
+            foreach (var constructor in specConstructors)
             {
                 if (ShouldGenerate(constructor))
                 {
@@ -320,7 +341,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
             }
 
-            return constructors.ToArray();
+            return [..constructors];
         }
 
         private TypeProvider[] BuildNestedTypesInternal()
@@ -353,7 +374,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected virtual CSharpType BuildEnumUnderlyingType() => throw new InvalidOperationException("Not an EnumProvider type");
 
-        protected virtual IReadOnlyList<AttributeStatement> BuildAttributes() => [];
+        protected virtual IReadOnlyList<MethodBodyStatement> BuildAttributes() => [];
 
         private CSharpType? _enumUnderlyingType;
 
@@ -373,7 +394,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// Resets the type provider to its initial state, clearing all cached properties and fields.
         /// This allows for the type provider to rebuild its state on subsequent calls to its properties.
         /// </summary>
-        public void Reset()
+        public virtual void Reset()
         {
             _methods = null;
             _properties = null;
@@ -386,7 +407,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _relativeFilePath = null;
             _customCodeView = new(() => BuildCustomCodeView());
             _canonicalView = new(BuildCanonicalView);
-            _lastContractView = new(BuildLastContractView);
+            _lastContractView = new(() => BuildLastContractView());
             _enumValues = null;
             _enumUnderlyingType = null;
             _attributes = null;
@@ -475,14 +496,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (name != null)
             {
                 // Reset the custom code view to reflect the new name
-                _customCodeView = new(BuildCustomCodeView(name));
+                _customCodeView = new(BuildCustomCodeView(name, Type.Namespace));
                 // Give precedence to the custom code view name if it exists
-                Type.Update(_customCodeView.Value?.Name ?? name);
+                _lastContractView = new(BuildLastContractView(
+                    _customCodeView.Value?.Name ?? name,
+                    _customCodeView.Value?.Type.Namespace ?? Type.Namespace));
+                Type.Update(name: _customCodeView.Value?.Name ?? name, @namespace: _customCodeView.Value?.Type.Namespace);
             }
 
             if (@namespace != null)
             {
-                Type.Update(@namespace: @namespace);
+                // Reset the custom code view to reflect the new namespace
+                _customCodeView = new(BuildCustomCodeView(Type.Name, @namespace));
+                _lastContractView = new(BuildLastContractView(Type.Name, @namespace));
+                Type.Update(@namespace: _customCodeView.Value?.Type.Namespace ?? @namespace);
             }
 
             // Rebuild the canonical view
@@ -656,6 +683,40 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (customMethod.Parameters.Count != method.Parameters.Count || GetFullMethodName(customMethod) != GetFullMethodName(method))
             {
                 return false;
+            }
+
+            // For operators, we need to also check the return type and operator type (explicit vs implicit)
+            // since operators can have the same "name" (the target type) but different signatures
+            if (customMethod.Modifiers.HasFlag(MethodSignatureModifiers.Operator))
+            {
+                // Check if both are operators and of the same type (explicit or implicit)
+                if (!method.Modifiers.HasFlag(MethodSignatureModifiers.Operator))
+                {
+                    return false;
+                }
+
+                // Check explicit vs implicit - both flags must match
+                bool customIsExplicit = customMethod.Modifiers.HasFlag(MethodSignatureModifiers.Explicit);
+                bool methodIsExplicit = method.Modifiers.HasFlag(MethodSignatureModifiers.Explicit);
+                bool customIsImplicit = customMethod.Modifiers.HasFlag(MethodSignatureModifiers.Implicit);
+                bool methodIsImplicit = method.Modifiers.HasFlag(MethodSignatureModifiers.Implicit);
+                if (customIsExplicit != methodIsExplicit || customIsImplicit != methodIsImplicit)
+                {
+                    return false;
+                }
+
+                // For operators, the return type is crucial for matching
+                if (customMethod.ReturnType != null && method.ReturnType != null)
+                {
+                    if (!IsNameMatch(customMethod.ReturnType, method.ReturnType))
+                    {
+                        return false;
+                    }
+                }
+                else if (customMethod.ReturnType != method.ReturnType) // One is null, the other is not
+                {
+                    return false;
+                }
             }
 
             for (int i = 0; i < customMethod.Parameters.Count; i++)

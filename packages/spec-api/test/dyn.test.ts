@@ -1,5 +1,5 @@
-import { dyn, dynItem, expandDyns } from "src/response-utils.js";
 import { describe, expect, it } from "vitest";
+import { dyn, dynItem, expandDyns } from "../src/response-utils.js";
 
 it("interpolate basic dyn", () => {
   const result = dyn`Hello ${dynItem("baseUrl")}/bar`({ baseUrl: "http://localhost:3000" });

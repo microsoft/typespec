@@ -92,7 +92,9 @@ public final class NoEnvelopeDefaultsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return test discriminated union with inline discriminator (no envelope).
+     * The discriminated union should serialize with discriminator property
+     * injected directly into the variant object.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> getWithResponse(String kind, RequestContext requestContext) {
@@ -111,7 +113,9 @@ public final class NoEnvelopeDefaultsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return test discriminated union with inline discriminator (no envelope).
+     * The discriminated union should serialize with discriminator property
+     * injected directly into the variant object.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> putWithResponse(BinaryData input, RequestContext requestContext) {

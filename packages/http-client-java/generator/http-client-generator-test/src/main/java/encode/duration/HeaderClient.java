@@ -139,6 +139,74 @@ public final class HeaderClient {
     }
 
     /**
+     * The int32Milliseconds operation.
+     * 
+     * @param duration The duration parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> int32MillisecondsWithResponse(int duration, RequestOptions requestOptions) {
+        return this.serviceClient.int32MillisecondsWithResponse(duration, requestOptions);
+    }
+
+    /**
+     * The floatMilliseconds operation.
+     * 
+     * @param duration The duration parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> floatMillisecondsWithResponse(double duration, RequestOptions requestOptions) {
+        return this.serviceClient.floatMillisecondsWithResponse(duration, requestOptions);
+    }
+
+    /**
+     * The float64Milliseconds operation.
+     * 
+     * @param duration The duration parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> float64MillisecondsWithResponse(double duration, RequestOptions requestOptions) {
+        return this.serviceClient.float64MillisecondsWithResponse(duration, requestOptions);
+    }
+
+    /**
+     * The int32MillisecondsArray operation.
+     * 
+     * @param duration The duration parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> int32MillisecondsArrayWithResponse(List<Integer> duration, RequestOptions requestOptions) {
+        return this.serviceClient.int32MillisecondsArrayWithResponse(duration, requestOptions);
+    }
+
+    /**
      * The defaultMethod operation.
      * 
      * @param duration The duration parameter.
@@ -250,5 +318,81 @@ public final class HeaderClient {
         // Generated convenience method for float64SecondsWithResponse
         RequestOptions requestOptions = new RequestOptions();
         float64SecondsWithResponse(duration, requestOptions).getValue();
+    }
+
+    /**
+     * The int32Milliseconds operation.
+     * 
+     * @param duration The duration parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void int32Milliseconds(int duration) {
+        // Generated convenience method for int32MillisecondsWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        int32MillisecondsWithResponse(duration, requestOptions).getValue();
+    }
+
+    /**
+     * The floatMilliseconds operation.
+     * 
+     * @param duration The duration parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void floatMilliseconds(double duration) {
+        // Generated convenience method for floatMillisecondsWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        floatMillisecondsWithResponse(duration, requestOptions).getValue();
+    }
+
+    /**
+     * The float64Milliseconds operation.
+     * 
+     * @param duration The duration parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void float64Milliseconds(double duration) {
+        // Generated convenience method for float64MillisecondsWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        float64MillisecondsWithResponse(duration, requestOptions).getValue();
+    }
+
+    /**
+     * The int32MillisecondsArray operation.
+     * 
+     * @param duration The duration parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void int32MillisecondsArray(List<Integer> duration) {
+        // Generated convenience method for int32MillisecondsArrayWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        int32MillisecondsArrayWithResponse(duration, requestOptions).getValue();
     }
 }

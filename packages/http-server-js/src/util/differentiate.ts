@@ -17,6 +17,7 @@ import {
   getDiscriminator,
   getMaxValue,
   getMinValue,
+  isArrayModelType,
   isNeverType,
   isUnknownType,
 } from "@typespec/compiler";
@@ -136,6 +137,7 @@ export interface SwitchCase {
 export type Expression =
   | BinaryOp
   | UnaryOp
+  | IsArray
   | TypeOf
   | Literal
   | VerbatimExpression
@@ -190,6 +192,17 @@ export interface UnaryOp {
    * The operand to apply the operator to.
    */
   operand: Expression;
+}
+
+/**
+ * An array test expression.
+ */
+export interface IsArray {
+  kind: "is-array";
+  /**
+   * The expression to test.
+   */
+  expr: Expression;
 }
 
 /**
@@ -660,7 +673,14 @@ export function differentiateModelTypes(
   const propertyRanges = new Map<RenderedPropertyName, Map<IntegerRange, Model>>();
   const uniqueRanges = new Map<Model, Set<RenderedPropertyName>>();
 
+  let arrayVariant: Model | undefined = undefined;
+
   for (const model of models) {
+    if (isArrayModelType(ctx.program, model) && model.properties.size === 0 && !arrayVariant) {
+      arrayVariant = model;
+      continue;
+    }
+
     const props = new Set<string>();
 
     for (const prop of getAllProperties(model).filter(options.filter)) {
@@ -757,6 +777,16 @@ export function differentiateModelTypes(
   const branches: IfBranch[] = [];
 
   let defaultCase: CodeTree | undefined = options.else;
+
+  if (arrayVariant) {
+    branches.push({
+      condition: {
+        kind: "is-array",
+        expr: SUBJECT,
+      },
+      body: { kind: "result", type: arrayVariant },
+    });
+  }
 
   for (const [model, unique] of uniqueProps) {
     const literals = uniqueLiterals.get(model);
@@ -958,6 +988,8 @@ function writeExpression(ctx: JsContext, expression: Expression, options: CodeTr
       )})`;
     case "unary-op":
       return `${expression.operator}(${writeExpression(ctx, expression.operand, options)})`;
+    case "is-array":
+      return `globalThis.Array.isArray(${writeExpression(ctx, expression.expr, options)})`;
     case "typeof":
       return `typeof (${writeExpression(ctx, expression.operand, options)})`;
     case "literal":

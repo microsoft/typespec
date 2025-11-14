@@ -51,6 +51,7 @@ import type {
 import { LoadedCoreTemplates } from "../init/core-templates.js";
 import { EmitterTemplate, InitTemplate, InitTemplateLibrarySpec } from "../init/init-template.js";
 import { ScaffoldingConfig } from "../init/scaffold.js";
+import { CompileTracker, ServerCompileOptions } from "./server-compile-manager.js";
 
 export type ServerLogLevel = "trace" | "debug" | "info" | "warning" | "error";
 export interface ServerLog {
@@ -73,8 +74,9 @@ export interface ServerHost {
 export interface CompileResult {
   readonly program: Program;
   readonly document: TextDocument | undefined;
-  readonly script: TypeSpecScriptNode;
+  readonly script: TypeSpecScriptNode | undefined;
   readonly optionsFromConfig: CompilerOptions;
+  readonly tracker: CompileTracker;
 }
 
 export interface ServerDiagnostic extends Diagnostic {
@@ -91,7 +93,11 @@ export interface InternalCompileResult {
 export interface Server {
   readonly pendingMessages: readonly ServerLog[];
   readonly workspaceFolders: readonly ServerWorkspaceFolder[];
-  compile(document: TextDocument | TextDocumentIdentifier): Promise<CompileResult | undefined>;
+  compile(
+    document: TextDocument | TextDocumentIdentifier,
+    additionalOptions: CompilerOptions | undefined,
+    serverCompileOptions: ServerCompileOptions,
+  ): Promise<CompileResult | undefined>;
   initialize(params: InitializeParams): Promise<InitializeResult>;
   initialized(params: InitializedParams): void;
   workspaceFoldersChanged(e: WorkspaceFoldersChangeEvent): Promise<void>;
@@ -106,14 +112,16 @@ export interface Server {
   renameFiles(params: RenameFilesParams): Promise<void>;
   getSemanticTokens(params: SemanticTokensParams): Promise<SemanticToken[]>;
   buildSemanticTokens(params: SemanticTokensParams): Promise<SemanticTokens>;
-  checkChange(change: TextDocumentChangeEvent<TextDocument>): Promise<void>;
+  checkChange(change: TextDocumentChangeEvent<TextDocument>): void;
   getHover(params: HoverParams): Promise<Hover>;
   getSignatureHelp(params: SignatureHelpParams): Promise<SignatureHelp | undefined>;
   getFoldingRanges(getFoldingRanges: FoldingRangeParams): Promise<FoldingRange[]>;
   getDocumentSymbols(params: DocumentSymbolParams): Promise<DocumentSymbol[]>;
   documentClosed(change: TextDocumentChangeEvent<TextDocument>): void;
+  documentOpened(change: TextDocumentChangeEvent<TextDocument>): void;
   getCodeActions(params: CodeActionParams): Promise<CodeAction[]>;
   executeCommand(params: ExecuteCommandParams): Promise<void>;
+  reportDiagnostics({ program, document, optionsFromConfig }: CompileResult): void;
   log(log: ServerLog): void;
 
   // Following custom capacities are added for supporting tsp init project from IDE (vscode for now) so that IDE can trigger compiler

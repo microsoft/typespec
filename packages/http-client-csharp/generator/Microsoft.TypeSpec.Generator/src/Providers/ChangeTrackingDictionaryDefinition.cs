@@ -258,7 +258,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     value.Assign(Default).Terminate(),
                     Return(False)
                 },
-                Return(EnsureDictionary.Invoke("TryGetValue", key, new KeywordExpression("out", value)))
+                Return(EnsureDictionary.Invoke("TryGetValue", key, value.AsArgument()))
             },
             this);
         }

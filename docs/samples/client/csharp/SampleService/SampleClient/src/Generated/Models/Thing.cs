@@ -46,6 +46,7 @@ namespace SampleTypeSpec
         /// <param name="requiredLiteralFloat"> required literal float. </param>
         /// <param name="requiredLiteralBool"> required literal bool. </param>
         /// <param name="optionalLiteralString"> optional literal string. </param>
+        /// <param name="requiredNullableLiteralString"> required nullable literal string. </param>
         /// <param name="optionalLiteralInt"> optional literal int. </param>
         /// <param name="optionalLiteralFloat"> optional literal float. </param>
         /// <param name="optionalLiteralBool"> optional literal bool. </param>
@@ -53,7 +54,7 @@ namespace SampleTypeSpec
         /// <param name="optionalNullableList"> optional nullable collection. </param>
         /// <param name="requiredNullableList"> required nullable collection. </param>
         /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
-        internal Thing(string name, BinaryData requiredUnion, string requiredLiteralString, string requiredNullableString, string optionalNullableString, int requiredLiteralInt, float requiredLiteralFloat, bool requiredLiteralBool, string optionalLiteralString, int? optionalLiteralInt, float? optionalLiteralFloat, bool? optionalLiteralBool, string requiredBadDescription, IList<int> optionalNullableList, IList<int> requiredNullableList, IDictionary<string, BinaryData> additionalBinaryDataProperties)
+        internal Thing(string name, BinaryData requiredUnion, string requiredLiteralString, string requiredNullableString, string optionalNullableString, int requiredLiteralInt, float requiredLiteralFloat, bool requiredLiteralBool, string optionalLiteralString, string requiredNullableLiteralString, int? optionalLiteralInt, float? optionalLiteralFloat, bool? optionalLiteralBool, string requiredBadDescription, IList<int> optionalNullableList, IList<int> requiredNullableList, IDictionary<string, BinaryData> additionalBinaryDataProperties)
         {
             Name = name;
             RequiredUnion = requiredUnion;
@@ -64,6 +65,7 @@ namespace SampleTypeSpec
             RequiredLiteralFloat = requiredLiteralFloat;
             RequiredLiteralBool = requiredLiteralBool;
             OptionalLiteralString = optionalLiteralString;
+            RequiredNullableLiteralString = requiredNullableLiteralString;
             OptionalLiteralInt = optionalLiteralInt;
             OptionalLiteralFloat = optionalLiteralFloat;
             OptionalLiteralBool = optionalLiteralBool;
@@ -140,6 +142,9 @@ namespace SampleTypeSpec
 
         /// <summary> optional literal string. </summary>
         public string OptionalLiteralString { get; set; }
+
+        /// <summary> required nullable literal string. </summary>
+        public string RequiredNullableLiteralString { get; } = null;
 
         /// <summary> optional literal int. </summary>
         public int? OptionalLiteralInt { get; set; }

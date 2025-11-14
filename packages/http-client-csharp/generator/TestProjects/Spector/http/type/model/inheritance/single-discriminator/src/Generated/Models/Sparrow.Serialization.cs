@@ -8,7 +8,7 @@ using System.Text.Json;
 
 namespace _Type.Model.Inheritance.SingleDiscriminator
 {
-    public partial class Sparrow : IJsonModel<Sparrow>
+    public partial class Sparrow : Bird, IJsonModel<Sparrow>
     {
         internal Sparrow() => throw null;
 

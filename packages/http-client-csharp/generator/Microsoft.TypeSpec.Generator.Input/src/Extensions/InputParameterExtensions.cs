@@ -9,7 +9,14 @@ namespace Microsoft.TypeSpec.Generator.Input.Extensions
     {
         public static bool IsAcceptHeader(this InputParameter parameter)
         {
-            return parameter.Location == InputRequestLocation.Header && parameter.NameInRequest.Equals("Accept", StringComparison.OrdinalIgnoreCase);
+            // Handle service method parameters
+            if (parameter is InputMethodParameter methodParameter)
+            {
+                return methodParameter.Location == InputRequestLocation.Header &&
+                       methodParameter.SerializedName.Equals("Accept", StringComparison.OrdinalIgnoreCase);
+            }
+
+            return parameter is InputHeaderParameter headerParameter && headerParameter.SerializedName.Equals("Accept", StringComparison.OrdinalIgnoreCase);
         }
     }
 }

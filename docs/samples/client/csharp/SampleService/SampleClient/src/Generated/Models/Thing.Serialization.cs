@@ -10,7 +10,7 @@ using System.Text.Json;
 
 namespace SampleTypeSpec
 {
-    /// <summary></summary>
+    /// <summary> A model with a few properties of literal types. </summary>
     public partial class Thing : IJsonModel<Thing>
     {
         /// <summary> Initializes a new instance of <see cref="Thing"/> for deserialization. </summary>
@@ -73,6 +73,15 @@ namespace SampleTypeSpec
             {
                 writer.WritePropertyName("optionalLiteralString"u8);
                 writer.WriteStringValue(OptionalLiteralString);
+            }
+            if (Optional.IsDefined(RequiredNullableLiteralString))
+            {
+                writer.WritePropertyName("requiredNullableLiteralString"u8);
+                writer.WriteStringValue(RequiredNullableLiteralString);
+            }
+            else
+            {
+                writer.WriteNull("requiredNullableLiteralString"u8);
             }
             if (Optional.IsDefined(OptionalLiteralInt))
             {
@@ -166,6 +175,7 @@ namespace SampleTypeSpec
             float requiredLiteralFloat = default;
             bool requiredLiteralBool = default;
             string optionalLiteralString = default;
+            string requiredNullableLiteralString = default;
             int? optionalLiteralInt = default;
             float? optionalLiteralFloat = default;
             bool? optionalLiteralBool = default;
@@ -228,6 +238,16 @@ namespace SampleTypeSpec
                 if (prop.NameEquals("optionalLiteralString"u8))
                 {
                     optionalLiteralString = prop.Value.GetString();
+                    continue;
+                }
+                if (prop.NameEquals("requiredNullableLiteralString"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        requiredNullableLiteralString = null;
+                        continue;
+                    }
+                    requiredNullableLiteralString = prop.Value.GetString();
                     continue;
                 }
                 if (prop.NameEquals("optionalLiteralInt"u8))
@@ -306,6 +326,7 @@ namespace SampleTypeSpec
                 requiredLiteralFloat,
                 requiredLiteralBool,
                 optionalLiteralString,
+                requiredNullableLiteralString,
                 optionalLiteralInt,
                 optionalLiteralFloat,
                 optionalLiteralBool,

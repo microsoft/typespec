@@ -53,6 +53,19 @@ public final class ClientLocationClientImpl {
     }
 
     /**
+     */
+    private final String storageAccount;
+
+    /**
+     * Gets.
+     * 
+     * @return the storageAccount value.
+     */
+    public String getStorageAccount() {
+        return this.storageAccount;
+    }
+
+    /**
      * The HTTP pipeline to send requests through.
      */
     private final HttpPipeline httpPipeline;
@@ -137,6 +150,20 @@ public final class ClientLocationClientImpl {
     }
 
     /**
+     * The MoveMethodParameterToBlobOperationsImpl object to access its operations.
+     */
+    private final MoveMethodParameterToBlobOperationsImpl moveMethodParameterToBlobOperations;
+
+    /**
+     * Gets the MoveMethodParameterToBlobOperationsImpl object to access its operations.
+     * 
+     * @return the MoveMethodParameterToBlobOperationsImpl object.
+     */
+    public MoveMethodParameterToBlobOperationsImpl getMoveMethodParameterToBlobOperations() {
+        return this.moveMethodParameterToBlobOperations;
+    }
+
+    /**
      * The ArchiveOperationsImpl object to access its operations.
      */
     private final ArchiveOperationsImpl archiveOperations;
@@ -154,10 +181,11 @@ public final class ClientLocationClientImpl {
      * Initializes an instance of ClientLocationClient client.
      * 
      * @param endpoint Service host.
+     * @param storageAccount
      */
-    public ClientLocationClientImpl(String endpoint) {
+    public ClientLocationClientImpl(String endpoint, String storageAccount) {
         this(new HttpPipelineBuilder().policies(new UserAgentPolicy(), new RetryPolicy()).build(),
-            JacksonAdapter.createDefaultSerializerAdapter(), endpoint);
+            JacksonAdapter.createDefaultSerializerAdapter(), endpoint, storageAccount);
     }
 
     /**
@@ -165,9 +193,10 @@ public final class ClientLocationClientImpl {
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param endpoint Service host.
+     * @param storageAccount
      */
-    public ClientLocationClientImpl(HttpPipeline httpPipeline, String endpoint) {
-        this(httpPipeline, JacksonAdapter.createDefaultSerializerAdapter(), endpoint);
+    public ClientLocationClientImpl(HttpPipeline httpPipeline, String endpoint, String storageAccount) {
+        this(httpPipeline, JacksonAdapter.createDefaultSerializerAdapter(), endpoint, storageAccount);
     }
 
     /**
@@ -176,15 +205,19 @@ public final class ClientLocationClientImpl {
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param serializerAdapter The serializer to serialize an object into a string.
      * @param endpoint Service host.
+     * @param storageAccount
      */
-    public ClientLocationClientImpl(HttpPipeline httpPipeline, SerializerAdapter serializerAdapter, String endpoint) {
+    public ClientLocationClientImpl(HttpPipeline httpPipeline, SerializerAdapter serializerAdapter, String endpoint,
+        String storageAccount) {
         this.httpPipeline = httpPipeline;
         this.serializerAdapter = serializerAdapter;
         this.endpoint = endpoint;
+        this.storageAccount = storageAccount;
         this.moveToExistingSubAdminOperations = new MoveToExistingSubAdminOperationsImpl(this);
         this.moveToExistingSubUserOperations = new MoveToExistingSubUserOperationsImpl(this);
         this.moveToNewSubProductOperations = new MoveToNewSubProductOperationsImpl(this);
         this.moveToRootResourceOperations = new MoveToRootResourceOperationsImpl(this);
+        this.moveMethodParameterToBlobOperations = new MoveMethodParameterToBlobOperationsImpl(this);
         this.archiveOperations = new ArchiveOperationsImpl(this);
         this.service
             = RestProxy.create(ClientLocationClientService.class, this.httpPipeline, this.getSerializerAdapter());
