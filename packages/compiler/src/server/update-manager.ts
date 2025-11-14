@@ -39,7 +39,6 @@ export class UpdateManager<T = void> {
   constructor(
     private name: string,
     log: (sl: ServerLog) => void,
-    getDebounceDelay?: () => number,
   ) {
     this._log =
       typeof process !== "undefined" &&
@@ -59,10 +58,23 @@ export class UpdateManager<T = void> {
         return await this.#update(Array.from(updates.values()), arg);
       },
       () => (this.#isStarted ? "ready" : "pending"),
-      getDebounceDelay ?? this.getAdaptiveDebounceDelay,
+      this.getDebounceDelayFromEnv() === -1
+        ? this.getAdaptiveDebounceDelay
+        : this.getDebounceDelayFromEnv,
       this._log,
     );
   }
+
+  private getDebounceDelayFromEnv = (): number => {
+    const delayOverride =
+      process.env.__TypeSpec__Server__UpdateManager__Debounce__Delay__Override__;
+    if (delayOverride !== undefined) {
+      const parsedDelay = parseInt(delayOverride, 0);
+      return !isNaN(parsedDelay) ? parsedDelay : -1;
+    }
+
+    return -1;
+  };
 
   /**
    * Callback will only be invoked after start() is called.

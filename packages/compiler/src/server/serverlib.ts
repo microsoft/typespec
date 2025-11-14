@@ -165,7 +165,6 @@ export function createServer(
   const signatureHelpUpdateManager = new UpdateManager<CompileResult | undefined>(
     "signature-help",
     log,
-    process.env.UpdateManagerDebounceStrategy === "true" ? () => 0 : undefined,
   );
 
   const compileService = createCompileService({
