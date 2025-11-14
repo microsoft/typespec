@@ -136,7 +136,10 @@ import {
 } from "./types.js";
 import { UpdateManager } from "./update-manager.js";
 
-export function createServer(host: ServerHost, clientConfigsProvider?: ClientConfigProvider): Server {
+export function createServer(
+  host: ServerHost,
+  clientConfigsProvider?: ClientConfigProvider,
+): Server {
   const fileService = createFileService({ serverHost: host });
 
   // Cache all file I/O. Only open documents are sent over the LSP pipe. When
