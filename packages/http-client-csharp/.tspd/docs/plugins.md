@@ -2,6 +2,8 @@
 
 The C# emitter supports a plugin system that allows you to extend and customize the generated code through transformations. Plugins are .NET libraries that implement the `GeneratorPlugin` base class and are automatically loaded during code generation.
 
+Plugins provide a lighter-weight alternative to defining a new emitter or generator that inherits from `ScmCodeModelGenerator` or `@typespec/http-client-csharp`. Use plugins when you need to apply targeted transformations to the generated code without creating a full custom generator.
+
 ## Adding a Plugin
 
 To use a plugin in your TypeSpec project:
