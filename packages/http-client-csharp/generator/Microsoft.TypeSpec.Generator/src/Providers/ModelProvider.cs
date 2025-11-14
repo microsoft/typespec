@@ -568,19 +568,26 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             // Only applies to non-abstract models with a base model
             if (_isAbstract || BaseModelProvider == null)
+            {
                 return false;
-
+            }
             // Must have derived models to be considered an intermediate type
             if (_inputModel.DerivedModels.Count == 0)
+            {
                 return false;
+            }
 
             // Check if this model has a discriminator property in the input
             if (_inputModel.DiscriminatorProperty == null)
+            {
                 return false;
+            }
 
             // Check if base model has a discriminator property with the same name
             if (BaseModelProvider._inputModel.DiscriminatorProperty == null)
+            {
                 return false;
+            }
 
             // If both models have discriminator properties with the same name,
             // and this model has derived models, it needs the dual constructor pattern
@@ -671,33 +678,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// </summary>
         private (IReadOnlyList<ParameterProvider> Parameters, ConstructorInitializer? Initializer) BuildPrivateProtectedInheritanceParameters()
         {
-            var (standardParams, standardInitializer) = BuildConstructorParameters(true);
-
-            var parameters = PrependDiscriminatorParameter(standardParams);
+            var (parameters, standardInitializer) = BuildConstructorParameters(true, includeDiscriminatorParameter: true);
 
             var initializer = CreateBaseConstructorCallWithDiscriminatorParameter(standardInitializer, parameters.FirstOrDefault());
 
             return (parameters, initializer);
-        }
-
-        /// <summary>
-        /// Prepends the discriminator parameter to the beginning of a parameter list.
-        /// </summary>
-        private IReadOnlyList<ParameterProvider> PrependDiscriminatorParameter(IReadOnlyList<ParameterProvider> parameters)
-        {
-            var result = new List<ParameterProvider>();
-
-            if (_inputModel.DiscriminatorProperty != null)
-            {
-                var discriminatorParam = new ParameterProvider(
-                    DiscriminatorParameterName,
-                    $"{DiscriminatorParameterDescription}",
-                    new CSharpType(typeof(string)));
-                result.Add(discriminatorParam);
-            }
-
-            result.AddRange(parameters);
-            return result;
         }
 
         /// <summary>
@@ -795,7 +780,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private (IReadOnlyList<ParameterProvider> Parameters, ConstructorInitializer? Initializer) BuildConstructorParameters(
-            bool isPrimaryConstructor)
+            bool isPrimaryConstructor, bool includeDiscriminatorParameter = false)
         {
             var baseParameters = new List<ParameterProvider>();
             var constructorParameters = new List<ParameterProvider>();
@@ -868,8 +853,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 ? baseParameters
                 : baseParameters.Where(p =>
                     p.Property is null
-                    || (p.Property.IsDiscriminator && !overriddenProperties.Contains(p.Property) && !isPrimaryConstructor)
+                    || (p.Property.IsDiscriminator && !overriddenProperties.Contains(p.Property) && (!isPrimaryConstructor || includeDiscriminatorParameter))
                     || (!p.Property.IsDiscriminator && !overriddenProperties.Contains(p.Property))));
+
+            if (includeDiscriminatorParameter && _inputModel.DiscriminatorProperty != null)
+            {
+                var discriminatorParam = new ParameterProvider(
+                    DiscriminatorParameterName,
+                    $"{DiscriminatorParameterDescription}",
+                    new CSharpType(typeof(string)));
+                constructorParameters.Insert(0, discriminatorParam);
+            }
 
             if (!isPrimaryConstructor)
             {
