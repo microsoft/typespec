@@ -1,19 +1,22 @@
-import type { MemberType, Model } from "@typespec/compiler";
+import { getFriendlyName, type MemberType, type Model } from "@typespec/compiler";
 import { getVisibilitySuffix, Visibility } from "@typespec/http";
-import { ModelMutation } from "@typespec/mutator-framework";
-import { Codec, getJsonEncoderRegistry } from "./codecs.js";
+import {
+  ModelMutation,
+  MutationHalfEdge,
+  type MutationNodeForType,
+} from "@typespec/mutator-framework";
+import { Codec } from "./codecs.js";
 import type { HttpCanonicalizationMutations } from "./http-canonicalization-classes.js";
-import type { HttpCanonicalizer } from "./http-canonicalization.js";
+import type { HttpCanonicalizationInfo, HttpCanonicalizer } from "./http-canonicalization.js";
 import type { ModelPropertyHttpCanonicalization } from "./model-property.js";
 import { HttpCanonicalizationOptions } from "./options.js";
-import type { ScalarHttpCanonicalization } from "./scalar.js";
 
 /**
  * Canonicalizes models for HTTP.
  */
 export class ModelHttpCanonicalization extends ModelMutation<
-  HttpCanonicalizationOptions,
   HttpCanonicalizationMutations,
+  HttpCanonicalizationOptions,
   HttpCanonicalizer
 > {
   /**
@@ -25,33 +28,46 @@ export class ModelHttpCanonicalization extends ModelMutation<
    * Codec chosen to transform language and wire types for this model.
    */
   codec: Codec;
-
-  /**
-   * Mutation subgraph for language types.
-   */
-  get #languageSubgraph() {
-    return this.engine.getLanguageSubgraph(this.options);
+  #languageMutationNode: MutationNodeForType<Model>;
+  get languageMutationNode() {
+    return this.#languageMutationNode;
   }
 
-  /**
-   * Mutation subgraph for wire types.
-   */
-  get #wireSubgraph() {
-    return this.engine.getWireSubgraph(this.options);
+  #wireMutationNode: MutationNodeForType<Model>;
+  get wireMutationNode() {
+    return this.#wireMutationNode;
   }
 
   /**
    * The possibly mutated language type for this model.
    */
   get languageType() {
-    return this.getMutatedType(this.#languageSubgraph);
+    return this.#languageMutationNode.mutatedType;
   }
 
   /**
    * The possibly mutated wire type for this model.
    */
   get wireType() {
-    return this.getMutatedType(this.#wireSubgraph);
+    return this.#wireMutationNode.mutatedType;
+  }
+
+  static mutationInfo(
+    engine: HttpCanonicalizer,
+    sourceType: Model,
+    referenceTypes: MemberType[],
+    options: HttpCanonicalizationOptions,
+  ): HttpCanonicalizationInfo {
+    const mutationKey = options.mutationKey;
+
+    // Models don't directly detect codecs, they're detected on their properties
+    // For now, just return a null codec
+    const codec = null as any;
+
+    return {
+      mutationKey,
+      codec,
+    };
   }
 
   constructor(
@@ -59,11 +75,20 @@ export class ModelHttpCanonicalization extends ModelMutation<
     sourceType: Model,
     referenceTypes: MemberType[],
     options: HttpCanonicalizationOptions,
+    info: HttpCanonicalizationInfo,
   ) {
-    super(engine, sourceType, referenceTypes, options);
+    super(engine, sourceType, referenceTypes, options, info);
     this.isDeclaration = !!this.sourceType.name;
-    const registry = getJsonEncoderRegistry(this.engine.$);
-    this.codec = registry.detect(this);
+    this.#languageMutationNode = this.engine.getMutationNode(
+      this.sourceType,
+      info.mutationKey + "-language",
+    );
+    this.#wireMutationNode = this.engine.getMutationNode(
+      this.sourceType,
+      info.mutationKey + "-wire",
+    );
+
+    this.codec = info.codec;
   }
 
   /**
@@ -78,48 +103,61 @@ export class ModelHttpCanonicalization extends ModelMutation<
     );
   }
 
-  /**
-   * Applies mutations required to build the language and wire views of the model.
-   */
   mutate() {
-    const languageNode = this.getMutationNode(this.engine.getLanguageSubgraph(this.options));
-    languageNode.whenMutated(this.#renameWhenMutated.bind(this));
+    if (this.sourceType.name === "MergePatchUpdate" && this.sourceType.properties.size > 0) {
+      const firstProp = this.sourceType.properties.values().next().value!;
+      const model = firstProp.model!;
 
-    const wireNode = this.getMutationNode(this.engine.getWireSubgraph(this.options));
-    wireNode.whenMutated(this.#renameWhenMutated.bind(this));
-
-    if (this.engine.$.array.is(this.sourceType) && this.sourceType.name === "Array") {
-      if (this.sourceType.baseModel) {
-        this.baseModel = this.engine.mutate(this.sourceType.baseModel, this.options);
-      }
-
-      for (const prop of this.sourceType.properties.values()) {
-        this.properties.set(prop.name, this.engine.mutate(prop, this.options));
-      }
-
-      const newIndexerOptions: Partial<HttpCanonicalizationOptions> = {
-        visibility: this.options.visibility | Visibility.Item,
-      };
-
-      if (this.options.isJsonMergePatch()) {
-        newIndexerOptions.contentType = "application/json";
-      }
-
-      this.indexer = {
-        key: this.engine.mutate(
-          this.sourceType.indexer.key,
-          this.options,
-        ) as ScalarHttpCanonicalization,
-        value: this.engine.mutate(
-          this.sourceType.indexer.value,
-          this.options.with(newIndexerOptions),
-        ),
-      };
-
-      return;
+      this.#languageMutationNode = this.#languageMutationNode.replace(
+        this.engine.$.type.clone(model),
+      ) as any;
+      this.#wireMutationNode = this.#wireMutationNode.replace(
+        this.engine.$.type.clone(model),
+      ) as any;
     }
 
-    super.mutate();
+    const friendlyName = getFriendlyName(this.engine.$.program, this.sourceType);
+    if (friendlyName) {
+      this.#languageMutationNode.mutate((type) => {
+        type.name = friendlyName;
+      });
+      this.#wireMutationNode.mutate((type) => (type.name = friendlyName));
+    } else {
+      this.#languageMutationNode.whenMutated(this.#renameWhenMutated.bind(this));
+      this.#wireMutationNode.whenMutated(this.#renameWhenMutated.bind(this));
+    }
+
+    super.mutateBaseModel();
+    super.mutateProperties();
+    super.mutateIndexer();
+  }
+
+  protected startBaseEdge(): MutationHalfEdge {
+    return new MutationHalfEdge(this, (tail) => {
+      this.#languageMutationNode.connectBase(tail.languageMutationNode);
+      this.#wireMutationNode.connectBase(tail.wireMutationNode);
+    });
+  }
+
+  protected startPropertyEdge(): MutationHalfEdge {
+    return new MutationHalfEdge(this, (tail) => {
+      this.#languageMutationNode.connectProperty(tail.languageMutationNode);
+      this.#wireMutationNode.connectProperty(tail.wireMutationNode);
+    });
+  }
+
+  protected startIndexerValueEdge(): MutationHalfEdge {
+    return new MutationHalfEdge(this, (tail) => {
+      this.#languageMutationNode.connectIndexerValue(tail.languageMutationNode);
+      this.#wireMutationNode.connectIndexerValue(tail.wireMutationNode);
+    });
+  }
+
+  protected startIndexerKeyEdge(): MutationHalfEdge {
+    return new MutationHalfEdge(this, (tail) => {
+      this.#languageMutationNode.connectIndexerKey(tail.languageMutationNode);
+      this.#wireMutationNode.connectIndexerKey(tail.wireMutationNode);
+    });
   }
 
   /**

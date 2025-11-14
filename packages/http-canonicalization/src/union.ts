@@ -11,12 +11,16 @@ import type {
   UnionVariant,
 } from "@typespec/compiler";
 import { getVisibilitySuffix, Visibility } from "@typespec/http";
-import { UnionMutation } from "@typespec/mutator-framework";
+import {
+  MutationHalfEdge,
+  UnionMutation,
+  type MutationNodeForType,
+} from "@typespec/mutator-framework";
 import type {
   HttpCanonicalization,
   HttpCanonicalizationMutations,
 } from "./http-canonicalization-classes.js";
-import type { HttpCanonicalizer } from "./http-canonicalization.js";
+import type { HttpCanonicalizationInfo, HttpCanonicalizer } from "./http-canonicalization.js";
 import { ModelHttpCanonicalization } from "./model.js";
 import { HttpCanonicalizationOptions } from "./options.js";
 import type { UnionVariantHttpCanonicalization } from "./union-variant.jsx";
@@ -77,10 +81,6 @@ export class UnionHttpCanonicalization extends UnionMutation<
   HttpCanonicalizer
 > {
   /**
-   * Canonicalization options guiding union transformation.
-   */
-  options: HttpCanonicalizationOptions;
-  /**
    * Indicates if this union corresponds to a named declaration.
    */
   isDeclaration: boolean = false;
@@ -128,32 +128,47 @@ export class UnionHttpCanonicalization extends UnionMutation<
    */
   envelopePropertyName: string | null = null;
 
+  #languageMutationNode: MutationNodeForType<Union>;
+  #wireMutationNode: MutationNodeForType<Union>;
+
   /**
-   * Mutation subgraph for language types.
+   * The language mutation node for this union.
    */
-  get #languageSubgraph() {
-    return this.engine.getLanguageSubgraph(this.options);
+  get languageMutationNode() {
+    return this.#languageMutationNode;
   }
 
   /**
-   * Mutation subgraph for wire types.
+   * The wire mutation node for this union.
    */
-  get #wireSubgraph() {
-    return this.engine.getWireSubgraph(this.options);
+  get wireMutationNode() {
+    return this.#wireMutationNode;
   }
 
   /**
    * The potentially mutated language type for this union.
    */
   get languageType() {
-    return this.getMutatedType(this.#languageSubgraph);
+    return this.#languageMutationNode.mutatedType;
   }
 
   /**
    * The potentially mutated wire type for this union.
    */
   get wireType() {
-    return this.getMutatedType(this.#wireSubgraph);
+    return this.#wireMutationNode.mutatedType;
+  }
+
+  static mutationInfo(
+    engine: HttpCanonicalizer,
+    sourceType: Union,
+    referenceTypes: MemberType[],
+    options: HttpCanonicalizationOptions,
+  ): HttpCanonicalizationInfo {
+    return {
+      mutationKey: options.mutationKey,
+      codec: null as any, // Unions don't need a codec
+    };
   }
 
   constructor(
@@ -161,8 +176,18 @@ export class UnionHttpCanonicalization extends UnionMutation<
     sourceType: Union,
     referenceTypes: MemberType[],
     options: HttpCanonicalizationOptions,
+    info: HttpCanonicalizationInfo,
   ) {
-    super(engine, sourceType, referenceTypes, options);
+    super(engine, sourceType, referenceTypes, options, info);
+    this.#languageMutationNode = this.engine.getMutationNode(
+      this.sourceType,
+      info.mutationKey + "-language",
+    );
+    this.#wireMutationNode = this.engine.getMutationNode(
+      this.sourceType,
+      info.mutationKey + "-wire",
+    );
+
     this.options = options;
     this.isDeclaration = !!this.sourceType.name;
     this.#discriminatedUnionInfo = this.engine.$.union.getDiscriminatedUnion(sourceType) ?? null;
@@ -170,6 +195,13 @@ export class UnionHttpCanonicalization extends UnionMutation<
     this.envelopePropertyName = this.#discriminatedUnionInfo?.options.envelopePropertyName ?? null;
     this.discriminatorPropertyName =
       this.#discriminatedUnionInfo?.options.discriminatorPropertyName ?? null;
+  }
+
+  protected startVariantEdge(): MutationHalfEdge {
+    return new MutationHalfEdge(this, (tail) => {
+      this.#languageMutationNode.connectVariant(tail.languageMutationNode);
+      this.#wireMutationNode.connectVariant(tail.wireMutationNode);
+    });
   }
 
   /**
@@ -187,11 +219,8 @@ export class UnionHttpCanonicalization extends UnionMutation<
    * Canonicalize this union for HTTP.
    */
   mutate() {
-    const languageNode = this.getMutationNode(this.#languageSubgraph);
-    languageNode.whenMutated(this.#renameWhenMutated.bind(this));
-
-    const wireNode = this.getMutationNode(this.#wireSubgraph);
-    wireNode.whenMutated(this.#renameWhenMutated.bind(this));
+    this.#languageMutationNode.whenMutated(this.#renameWhenMutated.bind(this));
+    this.#wireMutationNode.whenMutated(this.#renameWhenMutated.bind(this));
 
     super.mutate();
 
@@ -204,8 +233,9 @@ export class UnionHttpCanonicalization extends UnionMutation<
           throw new Error("symbolic variant names are not supported");
         }
 
+        const canonicalizedVariant = variant as UnionVariantHttpCanonicalization;
         const descriptor: VariantDescriptor = {
-          variant,
+          variant: canonicalizedVariant,
           envelopeType: this.engine.canonicalize(
             this.engine.$.model.create({
               name: "",
@@ -216,7 +246,7 @@ export class UnionHttpCanonicalization extends UnionMutation<
                 }),
                 [envelopeProp]: this.engine.$.modelProperty.create({
                   name: envelopeProp,
-                  type: variant.languageType.type,
+                  type: canonicalizedVariant.languageType.type,
                 }),
               },
             }),

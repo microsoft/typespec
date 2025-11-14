@@ -27,7 +27,7 @@ export class HttpCanonicalizationOptions extends MutationOptions {
     this.contentType = options.contentType ?? "none";
   }
 
-  cacheKey(): string {
+  get mutationKey(): string {
     return `visibility:${this.visibility}|location:${this.location}|contentType:${this.contentType}`;
   }
 
@@ -37,9 +37,5 @@ export class HttpCanonicalizationOptions extends MutationOptions {
       location: newOptions.location ?? this.location,
       contentType: newOptions.contentType ?? this.contentType,
     });
-  }
-
-  isJsonMergePatch(): boolean {
-    return this.contentType === "application/merge-patch+json";
   }
 }

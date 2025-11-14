@@ -1,7 +1,7 @@
 import { t, type TesterInstance } from "@typespec/compiler/testing";
 import { beforeEach, expect, it } from "vitest";
 import { Tester } from "../../test/test-host.js";
-import { getSubgraph } from "../../test/utils.js";
+import { getEngine } from "../../test/utils.js";
 let runner: TesterInstance;
 beforeEach(async () => {
   runner = await Tester.createInstance();
@@ -15,9 +15,10 @@ it("handles mutation of members", async () => {
       }
     `);
 
-  const subgraph = getSubgraph(program);
-  const fooNode = subgraph.getNode(Foo);
-  const aNode = subgraph.getNode(a);
+  const engine = getEngine(program);
+  const fooNode = engine.getMutationNode(Foo);
+  const aNode = engine.getMutationNode(a);
+  fooNode.connectMember(aNode);
   aNode.mutate((clone) => (clone.name = "aRenamed"));
   expect(aNode.isMutated).toBe(true);
   expect(fooNode.isMutated).toBe(true);
