@@ -117,7 +117,7 @@ export async function createTestServerHost(options?: TestHostOptions & { workspa
   const workspaceDir = options?.workspaceDir ?? "./";
   const rootUri = serverHost.getURL(workspaceDir);
   const clientConfigProvider = createClientConfigProvider();
-  const server = createServer(serverHost, clientConfigProvider);
+  const server = createServer(serverHost, clientConfigProvider, true);
   await server.initialize({
     rootUri: options?.caseInsensitiveFileSystem ? rootUri.toUpperCase() : rootUri,
     capabilities: {},

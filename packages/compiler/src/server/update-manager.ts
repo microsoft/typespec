@@ -39,7 +39,7 @@ export class UpdateManager<T = void> {
   constructor(
     private name: string,
     log: (sl: ServerLog) => void,
-    getDelayCandidates?: () => number,
+    getDebounceDelay?: () => number,
   ) {
     this._log =
       typeof process !== "undefined" &&
@@ -59,7 +59,7 @@ export class UpdateManager<T = void> {
         return await this.#update(Array.from(updates.values()), arg);
       },
       () => (this.#isStarted ? "ready" : "pending"),
-      getDelayCandidates ?? this.getAdaptiveDebounceDelay,
+      getDebounceDelay ?? this.getAdaptiveDebounceDelay,
       this._log,
     );
   }

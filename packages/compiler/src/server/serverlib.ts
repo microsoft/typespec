@@ -139,6 +139,7 @@ import { UpdateManager } from "./update-manager.js";
 export function createServer(
   host: ServerHost,
   clientConfigsProvider?: ClientConfigProvider,
+  isTest: boolean = false,
 ): Server {
   const fileService = createFileService({ serverHost: host });
 
@@ -165,7 +166,7 @@ export function createServer(
   const signatureHelpUpdateManager = new UpdateManager<CompileResult | undefined>(
     "signature-help",
     log,
-    () => 0,
+    isTest ? () => 0 : undefined,
   );
 
   const compileService = createCompileService({
