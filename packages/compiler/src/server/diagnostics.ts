@@ -208,7 +208,7 @@ async function getDiagnosticInTspConfig(
   fileService: FileService,
   configFilePath: string | undefined,
   readFile: ((path: string) => Promise<SourceFile>) | undefined,
-  emitterName: string ,
+  emitterName: string,
 ): Promise<VSLocation | typeof NoTarget> {
   if (configFilePath && readFile && emitterName.length > 0) {
     const docTspConfig = fileService.getOpenDocument(configFilePath);
