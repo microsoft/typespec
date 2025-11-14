@@ -3,6 +3,7 @@ import type {
   Range,
   Diagnostic as VSDiagnostic,
 } from "vscode-languageserver";
+import { Range as VSRange } from "vscode-languageserver";
 import type { TextDocument } from "vscode-languageserver-textdocument";
 import { DiagnosticSeverity } from "vscode-languageserver/node.js";
 import {
@@ -11,24 +12,51 @@ import {
 } from "../core/diagnostics.js";
 import { getTypeName } from "../core/helpers/type-name-utils.js";
 import type { Program } from "../core/program.js";
-import type { Node, SourceLocation } from "../core/types.js";
-import { Diagnostic } from "../core/types.js";
+import type { Node, SourceFile, SourceLocation } from "../core/types.js";
+import { Diagnostic, NoTarget } from "../core/types.js";
 import { isDefined } from "../utils/misc.js";
+import { getLocationInYamlScript } from "../yaml/diagnostics.js";
+import { parseYaml } from "../yaml/parser.js";
+import { Config } from "./client-config-provider.js";
 import type { FileService } from "./file-service.js";
 import type { ServerSourceFile } from "./types.js";
 
 /** Convert TypeSpec Diagnostic to Lsp diagnostic. Each TypeSpec diagnostic could produce multiple lsp ones when it involve multiple locations. */
-export function convertDiagnosticToLsp(
+export async function convertDiagnosticToLsp(
   fileService: FileService,
   program: Program,
   document: TextDocument,
   diagnostic: Diagnostic,
-): [VSDiagnostic, TextDocument][] {
-  const root = getVSLocation(
+  clientConfig?: Config | undefined,
+  readFile: ((path: string) => Promise<SourceFile>) | undefined = undefined,
+): Promise<[VSDiagnostic, TextDocument][]> {
+  let root = getVSLocation(
     fileService,
     getSourceLocation(diagnostic.target, { locateId: true }),
     document,
   );
+
+  if (root === undefined) {
+    const emitterName = program.compilerOptions.emit?.find((emitName) =>
+      diagnostic.message.includes(emitName),
+    );
+    if (emitterName === undefined) {
+      return [];
+    }
+
+    const result = await getDiagnosticInTspConfig(
+      fileService,
+      program.compilerOptions.config,
+      readFile,
+      emitterName,
+    );
+    if (result === NoTarget) {
+      return getDiagnosticInSettings(diagnostic, document, emitterName, clientConfig);
+    } else {
+      root = result;
+    }
+  }
+
   if (root === undefined || !fileService.upToDate(root.document)) return [];
 
   const instantiationNodes = getDiagnosticTemplateInstantitationTrace(diagnostic.target);
@@ -174,4 +202,74 @@ function convertSeverity(severity: "warning" | "error"): DiagnosticSeverity {
     case "error":
       return DiagnosticSeverity.Error;
   }
+}
+
+async function getDiagnosticInTspConfig(
+  fileService: FileService,
+  configFilePath: string | undefined,
+  readFile: ((path: string) => Promise<SourceFile>) | undefined,
+  emitterName: string,
+): Promise<VSLocation | typeof NoTarget> {
+  if (configFilePath && readFile && emitterName.length > 0) {
+    const docTspConfig = fileService.getOpenDocument(configFilePath);
+    if (!docTspConfig) {
+      return NoTarget;
+    }
+
+    const range = await getDiagnosticRangeInTspConfig(configFilePath, readFile, emitterName);
+    if (range === undefined) {
+      return NoTarget;
+    }
+    return {
+      range,
+      document: docTspConfig,
+    };
+  }
+  return NoTarget;
+}
+
+export async function getDiagnosticRangeInTspConfig(
+  configFilePath: string,
+  readFile: (path: string) => Promise<SourceFile>,
+  emitterName: string,
+): Promise<Range | undefined> {
+  const [yamlScript] = parseYaml(await readFile(configFilePath));
+  const target = getLocationInYamlScript(yamlScript, ["emit", emitterName], "key");
+  if (target.pos === 0) {
+    return undefined;
+  }
+
+  const lineAndChar = target.file.getLineAndCharacterOfPosition(target.pos);
+  return VSRange.create(
+    lineAndChar.line,
+    lineAndChar.character,
+    lineAndChar.line,
+    lineAndChar.character + emitterName.length,
+  );
+}
+
+function getDiagnosticInSettings(
+  diagnostic: Diagnostic,
+  document: TextDocument,
+  emitterName: string,
+  clientConfig?: Config | undefined,
+): [VSDiagnostic, TextDocument][] {
+  let customMsg = "";
+  if (clientConfig?.lsp?.emit && clientConfig.lsp.emit.includes(emitterName)) {
+    customMsg = " [In IDE settings]";
+  }
+
+  const relatedInformation: DiagnosticRelatedInformation[] = [];
+  return [
+    [
+      createLspDiagnostic({
+        range: VSRange.create(0, 0, 0, 0),
+        message: diagnostic.message + customMsg,
+        severity: convertSeverity(diagnostic.severity),
+        code: diagnostic.code,
+        relatedInformation,
+      }),
+      document,
+    ],
+  ];
 }

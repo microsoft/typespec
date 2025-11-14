@@ -739,8 +739,21 @@ export function createServer(
       }
     }
 
+    // Add a diagnostic slot to tspconfig.yaml
+    const configDocument = fileService.getOpenDocument(program.compilerOptions.config ?? "");
+    if (configDocument && !diagnosticMap.has(configDocument)) {
+      diagnosticMap.set(configDocument, []);
+    }
+
     for (const each of program.diagnostics) {
-      const results = convertDiagnosticToLsp(fileService, program, document, each);
+      const results = await convertDiagnosticToLsp(
+        fileService,
+        program,
+        document,
+        each,
+        clientConfigsProvider?.config,
+        compilerHost.readFile,
+      );
       for (const result of results) {
         const [diagnostic, diagDocument] = result;
         if (each.url) {
