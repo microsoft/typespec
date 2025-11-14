@@ -10,9 +10,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
     {
         /// <summary>Standard public/internal constructor</summary>
         Standard,
-        /// <summary>Public constructor for direct instantiation (dual pattern)</summary>
+        /// <summary>Public constructor for direct instantiation</summary>
         PublicForInstantiation,
-        /// <summary>Private protected constructor for inheritance (dual pattern)</summary>
+        /// <summary>Private protected constructor for inheritance</summary>
         PrivateProtectedForInheritance,
         /// <summary>Internal constructor for serialization</summary>
         InternalForSerialization

@@ -644,8 +644,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 ConstructorType.PublicForInstantiation => BuildPublicInstantiationParameters(),
                 ConstructorType.PrivateProtectedForInheritance => BuildPrivateProtectedInheritanceParameters(),
-                ConstructorType.InternalForSerialization => BuildConstructorParameters(false), // Use existing logic
-                ConstructorType.Standard => BuildConstructorParameters(true), // Use existing logic
+                ConstructorType.InternalForSerialization => BuildConstructorParameters(false),
+                ConstructorType.Standard => BuildConstructorParameters(true),
                 _ => throw new ArgumentOutOfRangeException(nameof(constructorType))
             };
         }

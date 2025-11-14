@@ -1294,7 +1294,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         public void TestMultiLayerDiscriminator_IntermediateWithoutDiscriminator()
         {
             // Test hierarchy: Pet (base, no discriminator) → Cat (intermediate, no discriminator) → Tiger (leaf, discriminator: "tiger")
-            // This verifies that intermediate types without discriminators properly pass parameters to base constructors
             
             InputModelType tigerModel = InputFactory.Model(
                 "tiger",
@@ -1307,7 +1306,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 
             InputModelType catModel = InputFactory.Model(
                 "cat",
-                // No discriminatedKind - Cat is an intermediate base type without discriminator value
                 properties:
                 [
                     InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
@@ -1328,16 +1326,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             
             var tigerProvider = new ModelProvider(tigerModel);
             
-            // Verify Tiger has correct constructor inheritance
             var publicConstructor = tigerProvider.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
             Assert.IsNotNull(publicConstructor);
             
-            // Tiger should call base constructor with only base parameters (no discriminator from Cat since Cat doesn't have one)
             var initializer = publicConstructor!.Signature.Initializer;
             Assert.IsNotNull(initializer);
             Assert.IsTrue(initializer!.IsBase);
             
-            // Should have name and meows parameters from base chain (no discriminator since Cat has no discriminatedKind)
             Assert.AreEqual(2, initializer.Arguments.Count);
         }
 
@@ -1345,7 +1340,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         public void TestMultiLayerDiscriminator_IntermediateWithDiscriminator()
         {
             // Test hierarchy: Pet (base, no discriminator) → Cat (intermediate, discriminator: "cat") → DomesticCat (leaf, discriminator: "domestic")  
-            // This verifies that intermediate types WITH discriminators properly handle dual constructor pattern
             
             InputModelType domesticCatModel = InputFactory.Model(
                 "domesticCat",
@@ -1358,7 +1352,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 
             InputModelType catModel = InputFactory.Model(
                 "cat",
-                discriminatedKind: "cat", // Cat has discriminator since it's a concrete type that can be instantiated
+                discriminatedKind: "cat",
                 properties:
                 [
                     InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
@@ -1379,24 +1373,20 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             
             var domesticCatProvider = new ModelProvider(domesticCatModel);
             
-            // Verify DomesticCat has correct constructor inheritance 
             var publicConstructor = domesticCatProvider.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
             Assert.IsNotNull(publicConstructor);
             
-            // DomesticCat should call Cat's dual constructor with discriminator value since Cat has discriminatedKind
             var initializer = publicConstructor!.Signature.Initializer;
             Assert.IsNotNull(initializer);
             Assert.IsTrue(initializer!.IsBase);
             
-            // Should have discriminator + parameters from Cat's dual constructor pattern
-            Assert.GreaterOrEqual(initializer.Arguments.Count, 2); // At least discriminator + some parameters
+            Assert.GreaterOrEqual(initializer.Arguments.Count, 2);
         }
 
         [Test]
         public void TestMultiLayerDiscriminator_ThreeLayers()
         {
             // Test hierarchy: Animal (base) → Pet (discriminator: "pet") → Cat (discriminator: "cat") → DomesticCat (discriminator: "domestic")
-            // This tests a deep hierarchy with multiple discriminator levels
             
             InputModelType domesticCatModel = InputFactory.Model(
                 "domesticCat",
@@ -1440,12 +1430,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             
             var domesticCatProvider = new ModelProvider(domesticCatModel);
             
-            // Verify the deep inheritance chain works correctly
             Assert.IsNotNull(domesticCatProvider.BaseModelProvider);
             Assert.IsNotNull(domesticCatProvider.BaseModelProvider!.BaseModelProvider);  
             Assert.IsNotNull(domesticCatProvider.BaseModelProvider!.BaseModelProvider!.BaseModelProvider);
             
-            // Verify constructor initialization works through the chain
             var publicConstructor = domesticCatProvider.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
             Assert.IsNotNull(publicConstructor);
             
