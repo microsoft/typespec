@@ -29,7 +29,6 @@ No changes, version bump only.
 
 - [#8474](https://github.com/microsoft/typespec/pull/8474) Remove development exports from published package
 
-
 ## 0.11.0
 
 ### Features

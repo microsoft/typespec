@@ -1049,7 +1049,7 @@ describe("Python Class overrides", () => {
       from typing import TypeAlias
       from typing import TypeVar
 
-      t = TypeVar("T")
+      T = TypeVar("T")
 
       @dataclass(kw_only=True)
       class Response(Generic[T]):
@@ -1074,8 +1074,8 @@ describe("Python Class overrides", () => {
       from typing import Generic
       from typing import TypeVar
 
-      t = TypeVar("T")
-      e = TypeVar("E")
+      T = TypeVar("T")
+      E = TypeVar("E")
 
       @dataclass(kw_only=True)
       class Result(Generic[T, E]):
@@ -1097,7 +1097,7 @@ describe("Python Class overrides", () => {
       from typing import Generic
       from typing import TypeVar
 
-      t = TypeVar("T", bound=str)
+      T = TypeVar("T", bound=str)
 
       @dataclass(kw_only=True)
       class Container(Generic[T]):
@@ -1119,8 +1119,8 @@ describe("Python Class overrides", () => {
       from typing import Generic
       from typing import TypeVar
 
-      t = TypeVar("T", bound=str)
-      e = TypeVar("E")
+      T = TypeVar("T", bound=str)
+      E = TypeVar("E")
 
       @dataclass(kw_only=True)
       class Result(Generic[T, E]):
@@ -1152,7 +1152,7 @@ describe("Python Class overrides", () => {
       from typing import Generic
       from typing import TypeVar
 
-      t = TypeVar("T")
+      T = TypeVar("T")
 
       @dataclass(kw_only=True)
       class Response(Generic[T]):
@@ -1182,7 +1182,7 @@ describe("Python Class overrides", () => {
       from typing import Generic
       from typing import TypeVar
 
-      t = TypeVar("T")
+      T = TypeVar("T")
 
       @dataclass(kw_only=True)
       class Repository(Generic[T], ABC):
@@ -1222,7 +1222,7 @@ describe("Python Class overrides", () => {
       from typing import Generic
       from typing import TypeVar
 
-      t = TypeVar("T")
+      T = TypeVar("T")
 
       @dataclass(kw_only=True)
       class Repository(Generic[T], ABC):
@@ -1250,6 +1250,84 @@ describe("Python Class overrides", () => {
         def find_by_prefix(self, prefix: str) -> list[str]:
           pass
 
+
+      `);
+  });
+
+  it("Handles generic model instantiated with never using 'is'", async () => {
+    const { program, Address, CanadaAddress } = await Tester.compile(t.code`
+    model ${t.model("Address")}<TState> {
+      state: TState;
+      city: string;
+      street: string;
+    }
+
+    model ${t.model("CanadaAddress")} is Address<never>;
+    `);
+
+    expect(
+      getOutput(program, [
+        <ClassDeclaration type={Address} />,
+        <ClassDeclaration type={CanadaAddress} />,
+      ]),
+    ).toRenderTo(`
+      from dataclasses import dataclass
+      from typing import Generic
+      from typing import Never
+      from typing import TypeVar
+
+      TState = TypeVar("TState")
+
+      @dataclass(kw_only=True)
+      class Address(Generic[TState]):
+        state: TState
+        city: str
+        street: str
+
+
+      @dataclass(kw_only=True)
+      class CanadaAddress:
+        state: Never
+        city: str
+        street: str
+
+      `);
+  });
+
+  it("Handles generic model instantiated with never using 'extends'", async () => {
+    const { program, Address, CanadaAddress } = await Tester.compile(t.code`
+    model ${t.model("Address")}<TState> {
+      state: TState;
+      city: string;
+    }
+
+    model ${t.model("CanadaAddress")} extends Address<never> {
+      street: string;
+    }
+    `);
+
+    expect(
+      getOutput(program, [
+        <ClassDeclaration type={Address} />,
+        <ClassDeclaration type={CanadaAddress} />,
+      ]),
+    ).toRenderTo(`
+      from dataclasses import dataclass
+      from typing import Generic
+      from typing import Never
+      from typing import TypeVar
+
+      TState = TypeVar("TState")
+
+      @dataclass(kw_only=True)
+      class Address(Generic[TState]):
+        state: TState
+        city: str
+
+
+      @dataclass(kw_only=True)
+      class CanadaAddress(Address[Never]):
+        street: str
 
       `);
   });

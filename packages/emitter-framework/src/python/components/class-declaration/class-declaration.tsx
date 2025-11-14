@@ -1,5 +1,13 @@
 import { abcModule, typingModule } from "#python/builtins.js";
-import { code, createContentSlot, For, mapJoin, Show, type Children } from "@alloy-js/core";
+import {
+  code,
+  createContentSlot,
+  For,
+  mapJoin,
+  namekey,
+  Show,
+  type Children,
+} from "@alloy-js/core";
 import * as py from "@alloy-js/python";
 import {
   isTemplateDeclaration,
@@ -220,7 +228,12 @@ function buildTypeVarsAndGenericBase(
           const typeVar = (
             <py.FunctionCallExpression target={typingModule["."].TypeVar} args={typeVarArgs} />
           );
-          return <py.VariableDeclaration name={node.id.sv} initializer={typeVar} />;
+          return (
+            <py.VariableDeclaration
+              name={namekey(node.id.sv, { ignoreNamePolicy: true })}
+              initializer={typeVar}
+            />
+          );
         }}
       </For>
     </>

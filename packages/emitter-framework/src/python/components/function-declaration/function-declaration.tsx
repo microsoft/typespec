@@ -38,7 +38,7 @@ export function FunctionDeclaration(props: FunctionDeclarationProps) {
 
   const refkeys = declarationRefkeys(props.refkey, props.type);
 
-  let name = props.name
+  const name = props.name
     ? props.name
     : py.usePythonNamePolicy().getName(props.type.name, "function");
 
