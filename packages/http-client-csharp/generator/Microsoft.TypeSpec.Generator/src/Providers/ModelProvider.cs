@@ -600,7 +600,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private ConstructorProvider[] BuildDualConstructorPattern()
         {
             // Build public constructor (without discriminator parameter)
-            var (publicParams, publicInitializer) = BuildConstructorParametersByType(ConstructorType.PublicForInstantiation);
+            var (publicParams, publicInitializer) = BuildPublicInstantiationParameters();
             var publicConstructor = new ConstructorProvider(
                 signature: new ConstructorSignature(
                     Type,
@@ -615,7 +615,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 this);
 
             // Build private protected constructor (with discriminator parameter)
-            var (protectedParams, protectedInitializer) = BuildConstructorParametersByType(ConstructorType.PrivateProtectedForInheritance);
+            var (protectedParams, protectedInitializer) = BuildPrivateProtectedInheritanceParameters();
             var protectedConstructor = new ConstructorProvider(
                 signature: new ConstructorSignature(
                     Type,
@@ -631,22 +631,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             // Internal constructor is the full constructor
             return [publicConstructor, protectedConstructor, FullConstructor];
-        }
-
-        /// <summary>
-        /// Builds constructor parameters based on the constructor type using a strategy pattern.
-        /// </summary>
-        private (IReadOnlyList<ParameterProvider> Parameters, ConstructorInitializer? Initializer) BuildConstructorParametersByType(
-            ConstructorType constructorType)
-        {
-            return constructorType switch
-            {
-                ConstructorType.PublicForInstantiation => BuildPublicInstantiationParameters(),
-                ConstructorType.PrivateProtectedForInheritance => BuildPrivateProtectedInheritanceParameters(),
-                ConstructorType.InternalForSerialization => BuildConstructorParameters(false),
-                ConstructorType.Standard => BuildConstructorParameters(true),
-                _ => throw new ArgumentOutOfRangeException(nameof(constructorType))
-            };
         }
 
         /// <summary>
@@ -746,7 +730,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private ConstructorProvider BuildFullConstructor()
         {
             var (ctorParameters, ctorInitializer) = BuildConstructorParameters(false);
-
             return new ConstructorProvider(
                 signature: new ConstructorSignature(
                     Type,
