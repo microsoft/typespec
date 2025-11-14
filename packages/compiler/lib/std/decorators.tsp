@@ -531,11 +531,37 @@ enum BytesKnownEncoding {
  * Encoding for serializing arrays
  */
 enum ArrayEncoding {
-  /** Each values of the array is separated by a | */
+  /**
+   * Each value of the array is separated by a pipe character (|).
+   * Values can only contain | if the underlying protocol supports encoding them.
+   * - json -> error
+   * - http -> %7C
+   */
   pipeDelimited,
 
-  /** Each values of the array is separated by a <space> */
+  /**
+   * Each value of the array is separated by a space character.
+   * Values can only contain spaces if the underlying protocol supports encoding them.
+   * - json -> error
+   * - http -> %20
+   */
   spaceDelimited,
+
+  /**
+   * Each value of the array is separated by a comma (,).
+   * Values can only contain commas if the underlying protocol supports encoding them.
+   * - json -> error
+   * - http -> %2C
+   */
+  commaDelimited,
+
+  /**
+   * Each value of the array is separated by a newline character (\n).
+   * Values can only contain newlines if the underlying protocol supports encoding them.
+   * - json -> error
+   * - http -> %0A
+   */
+  newlineDelimited,
 }
 
 /**
