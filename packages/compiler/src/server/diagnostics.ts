@@ -40,6 +40,10 @@ export async function convertDiagnosticToLsp(
     const emitterName = program.compilerOptions.emit?.find((emitName) =>
       diagnostic.message.includes(emitName),
     );
+    if (emitterName === undefined) {
+      return [];
+    }
+
     const result = await getDiagnosticInTspConfig(
       fileService,
       program.compilerOptions.config,
@@ -47,11 +51,9 @@ export async function convertDiagnosticToLsp(
       emitterName,
     );
     if (result === NoTarget) {
-      return getDiagnosticInVsCodeSettings(diagnostic, document, clientConfig, emitterName);
-    } else if (result !== undefined) {
-      root = result;
+      return getDiagnosticInSettings(diagnostic, document, emitterName, clientConfig);
     } else {
-      return [];
+      root = result;
     }
   }
 
@@ -206,9 +208,9 @@ async function getDiagnosticInTspConfig(
   fileService: FileService,
   configFilePath: string | undefined,
   readFile: ((path: string) => Promise<SourceFile>) | undefined,
-  emitterName: string | undefined,
-): Promise<VSLocation | typeof NoTarget | undefined> {
-  if (configFilePath && readFile && emitterName && emitterName.length > 0) {
+  emitterName: string ,
+): Promise<VSLocation | typeof NoTarget> {
+  if (configFilePath && readFile && emitterName.length > 0) {
     const docTspConfig = fileService.getOpenDocument(configFilePath);
     if (!docTspConfig) {
       return NoTarget;
@@ -223,7 +225,7 @@ async function getDiagnosticInTspConfig(
       document: docTspConfig,
     };
   }
-  return undefined;
+  return NoTarget;
 }
 
 export async function getDiagnosticRangeInTspConfig(
@@ -246,17 +248,15 @@ export async function getDiagnosticRangeInTspConfig(
   );
 }
 
-function getDiagnosticInVsCodeSettings(
+function getDiagnosticInSettings(
   diagnostic: Diagnostic,
   document: TextDocument,
+  emitterName: string,
   clientConfig?: Config | undefined,
-  emitterName?: string | undefined,
 ): [VSDiagnostic, TextDocument][] {
   let customMsg = "";
-  if (clientConfig?.lsp?.emit && clientConfig.lsp.emit.includes(emitterName || "")) {
-    customMsg = " [It's configured in vscode settings]";
-  } else {
-    customMsg = " [No target source location reported for this Error/Warning]";
+  if (clientConfig?.lsp?.emit && clientConfig.lsp.emit.includes(emitterName)) {
+    customMsg = " [In IDE settings]";
   }
 
   const relatedInformation: DiagnosticRelatedInformation[] = [];
