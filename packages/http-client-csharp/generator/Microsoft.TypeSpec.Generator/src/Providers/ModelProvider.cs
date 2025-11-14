@@ -21,7 +21,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private const string AdditionalBinaryDataPropsFieldDescription = "Keeps track of any properties unknown to the library.";
         private const string DiscriminatorParameterName = "discriminatorValue";
         private const string DiscriminatorParameterDescription = "The discriminator property.";
-
         private readonly InputModelType _inputModel;
         // Note the description cannot be built from the constructor as it would lead to a circular dependency between the base
         // and derived models resulting in a stack overflow.
@@ -601,7 +600,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private ConstructorProvider[] BuildDualConstructorPattern()
         {
             // Build public constructor (without discriminator parameter)
-            var (publicParams, publicInitializer) = BuildConstructorParameters(ConstructorType.PublicForInstantiation);
+            var (publicParams, publicInitializer) = BuildConstructorParametersByType(ConstructorType.PublicForInstantiation);
             var publicConstructor = new ConstructorProvider(
                 signature: new ConstructorSignature(
                     Type,
@@ -616,7 +615,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 this);
 
             // Build private protected constructor (with discriminator parameter)
-            var (protectedParams, protectedInitializer) = BuildConstructorParameters(ConstructorType.PrivateProtectedForInheritance);
+            var (protectedParams, protectedInitializer) = BuildConstructorParametersByType(ConstructorType.PrivateProtectedForInheritance);
             var protectedConstructor = new ConstructorProvider(
                 signature: new ConstructorSignature(
                     Type,
@@ -637,7 +636,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// <summary>
         /// Builds constructor parameters based on the constructor type using a strategy pattern.
         /// </summary>
-        private (IReadOnlyList<ParameterProvider> Parameters, ConstructorInitializer? Initializer) BuildConstructorParameters(
+        private (IReadOnlyList<ParameterProvider> Parameters, ConstructorInitializer? Initializer) BuildConstructorParametersByType(
             ConstructorType constructorType)
         {
             return constructorType switch
@@ -657,13 +656,30 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             var (standardParams, _) = BuildConstructorParameters(true);
 
-            // Filter out discriminator parameter
             var parameters = standardParams.Where(p => p.Property == null || !p.Property.IsDiscriminator).ToList();
 
-            // Create initializer that calls the private protected constructor
             var initializer = CreatePrivateProtectedConstructorCall(parameters);
 
             return (parameters, initializer);
+        }
+
+        /// <summary>
+        /// Creates a constructor initializer that calls the private protected constructor with discriminator value.
+        /// </summary>
+        private ConstructorInitializer CreatePrivateProtectedConstructorCall(IReadOnlyList<ParameterProvider> parameters)
+        {
+            var discriminatorValue = EnsureDiscriminatorValueExpression();
+            var args = new List<ValueExpression>();
+
+            if (discriminatorValue != null)
+            {
+                args.Add(discriminatorValue);
+            }
+
+            var overriddenProperties = CanonicalView.Properties.Where(p => p.BaseProperty is not null).Select(p => p.BaseProperty!).ToHashSet();
+            args.AddRange(parameters.Select(p => GetExpressionForCtor(p, overriddenProperties, true)));
+
+            return new ConstructorInitializer(false, args.ToArray());
         }
 
         /// <summary>
@@ -673,10 +689,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             var (standardParams, standardInitializer) = BuildConstructorParameters(true);
 
-            // Add discriminator parameter at the beginning
             var parameters = PrependDiscriminatorParameter(standardParams);
 
-            // Create initializer that passes discriminator parameter to base
             var initializer = CreateBaseConstructorCallWithDiscriminatorParameter(standardInitializer, parameters.FirstOrDefault());
 
             return (parameters, initializer);
@@ -703,25 +717,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         /// <summary>
-        /// Creates a constructor initializer that calls the private protected constructor with discriminator value.
-        /// </summary>
-        private ConstructorInitializer CreatePrivateProtectedConstructorCall(IReadOnlyList<ParameterProvider> parameters)
-        {
-            var discriminatorValue = EnsureDiscriminatorValueExpression();
-            var args = new List<ValueExpression>();
-
-            if (discriminatorValue != null)
-            {
-                args.Add(discriminatorValue);
-            }
-
-            var overriddenProperties = CanonicalView.Properties.Where(p => p.BaseProperty is not null).Select(p => p.BaseProperty!).ToHashSet();
-            args.AddRange(parameters.Select(p => GetExpressionForCtor(p, overriddenProperties, true)));
-
-            return new ConstructorInitializer(false, args.ToArray()); // this(...) call
-        }
-
-        /// <summary>
         /// Creates a base constructor call that uses the discriminator parameter.
         /// </summary>
         private ConstructorInitializer? CreateBaseConstructorCallWithDiscriminatorParameter(
@@ -737,9 +732,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             var newArgs = new List<ValueExpression>
             {
-                discriminatorParam.AsVariable() // Use parameter instead of hardcoded value
+                discriminatorParam.AsVariable()
             };
-            newArgs.AddRange(originalArgs.Skip(1)); // Skip original discriminator value
+            newArgs.AddRange(originalArgs.Skip(1));
 
             return new ConstructorInitializer(standardInitializer.IsBase, newArgs);
         }
