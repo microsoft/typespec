@@ -3,13 +3,13 @@ import * as ts from "@alloy-js/typescript";
 
 export interface DecoratorSignatureTests {
   namespaceName: string;
-  dollarDecoratorRefKey: Refkey;
+  refKeys: Refkey[];
   dollarDecoratorsTypeRefKey: Refkey;
 }
 
 export function DecoratorSignatureTests({
   namespaceName,
-  dollarDecoratorRefKey,
+  refKeys,
   dollarDecoratorsTypeRefKey,
 }: Readonly<DecoratorSignatureTests>) {
   return (
@@ -21,7 +21,7 @@ export function DecoratorSignatureTests({
         type={dollarDecoratorsTypeRefKey}
         doc="An error here would mean that the exported decorator is not using the same signature. Make sure to have export const $decName: DecNameDecorator = (...) => ..."
       >
-        {dollarDecoratorRefKey}
+        {refKeys}
         {`["${namespaceName}"]`}
       </ts.VarDeclaration>
     </>
