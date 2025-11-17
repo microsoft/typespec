@@ -570,7 +570,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             // handle pipeline property
-            var userAgentPolicy = New.Instance(typeof(System.ClientModel.Primitives.UserAgentPolicy), [TypeOf(Type).Property(nameof(System.Type.Assembly)), Null]);
+            var userAgentPolicy = New.Instance(typeof(System.ClientModel.Primitives.UserAgentPolicy), [TypeOf(Type).Property(nameof(System.Type.Assembly))]);
             ValueExpression perRetryPolicies;
             switch (authFields)
             {
