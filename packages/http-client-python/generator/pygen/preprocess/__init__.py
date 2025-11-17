@@ -252,7 +252,7 @@ class PreProcessPlugin(YamlUpdatePlugin):
         if name.lower() in reserved_words[pad_type]:
             if self.is_tsp and name.lower() in TSP_RESERVED_WORDS.get(pad_type, []):
                 # to maintain backcompat for cases where we pad in tsp but not in autorest,
-                # if we have a tsp reserved word, we also want to keep track of the original name for backcompat purposes
+                # if we have a tsp reserved word, we also want to keep track of the original name for backcompat
                 yaml_type["originalTspName"] = name_prefix + name
             return name_prefix + name + pad_type
         return name_prefix + name
@@ -261,7 +261,9 @@ class PreProcessPlugin(YamlUpdatePlugin):
         for type in yaml_data:
             for property in type.get("properties", []):
                 property["description"] = update_description(property.get("description", ""))
-                property["clientName"] = self.pad_reserved_words(property["clientName"].lower(), PadType.PROPERTY, property)
+                property["clientName"] = self.pad_reserved_words(
+                    property["clientName"].lower(), PadType.PROPERTY, property
+                )
                 add_redefined_builtin_info(property["clientName"], property)
             if type.get("name"):
                 pad_type = PadType.MODEL if type["type"] == "model" else PadType.ENUM_CLASS
@@ -368,7 +370,9 @@ class PreProcessPlugin(YamlUpdatePlugin):
     def update_parameter(self, yaml_data: dict[str, Any]) -> None:
         yaml_data["description"] = update_description(yaml_data.get("description", ""))
         if not (yaml_data["location"] == "header" and yaml_data["clientName"] in ("content_type", "accept")):
-            yaml_data["clientName"] = self.pad_reserved_words(yaml_data["clientName"].lower(), PadType.PARAMETER, yaml_data)
+            yaml_data["clientName"] = self.pad_reserved_words(
+                yaml_data["clientName"].lower(), PadType.PARAMETER, yaml_data
+            )
         if yaml_data.get("propertyToParameterName"):
             # need to create a new one with padded keys and values
             yaml_data["propertyToParameterName"] = {
@@ -399,7 +403,9 @@ class PreProcessPlugin(YamlUpdatePlugin):
         yaml_data["name"] = yaml_data["name"].lower()
         if yaml_data.get("isLroInitialOperation") is True:
             yaml_data["name"] = (
-                "_" + self.pad_reserved_words(extract_original_name(yaml_data["name"]), PadType.METHOD, yaml_data) + "_initial"
+                "_"
+                + self.pad_reserved_words(extract_original_name(yaml_data["name"]), PadType.METHOD, yaml_data)
+                + "_initial"
             )
         else:
             yaml_data["name"] = self.pad_reserved_words(yaml_data["name"], PadType.METHOD, yaml_data)
