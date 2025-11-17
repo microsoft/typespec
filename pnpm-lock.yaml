@@ -2010,9 +2010,6 @@ importers:
       '@azure/identity':
         specifier: ~4.13.0
         version: 4.13.0
-      '@types/js-yaml':
-        specifier: ^4.0.5
-        version: 4.0.9
       '@typespec/compiler':
         specifier: workspace:^
         version: link:../compiler
@@ -2046,9 +2043,6 @@ importers:
       globby:
         specifier: ~15.0.0
         version: 15.0.0
-      js-yaml:
-        specifier: ^4.1.0
-        version: 4.1.0
       micromatch:
         specifier: ^4.0.8
         version: 4.0.8

@@ -36,7 +36,6 @@
   "homepage": "https://github.com/microsoft/typespec#readme",
   "dependencies": {
     "@azure/identity": "~4.13.0",
-    "@types/js-yaml": "^4.0.5",
     "@typespec/compiler": "workspace:^",
     "@typespec/http": "workspace:^",
     "@typespec/rest": "workspace:^",
@@ -48,7 +47,6 @@
     "deep-equal": "^2.2.0",
     "express": "^5.1.0",
     "globby": "~15.0.0",
-    "js-yaml": "^4.1.0",
     "micromatch": "^4.0.8",
     "morgan": "^1.10.0",
     "multer": "^2.0.1",
