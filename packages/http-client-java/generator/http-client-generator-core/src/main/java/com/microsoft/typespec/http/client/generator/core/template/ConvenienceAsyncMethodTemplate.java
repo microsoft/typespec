@@ -3,14 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
-import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.BOOLEAN;
-import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.BYTE;
-import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.CHAR;
-import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.DOUBLE;
-import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.FLOAT;
-import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.INT;
-import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.LONG;
-
 import com.azure.core.http.rest.PagedResponse;
 import com.azure.core.http.rest.PagedResponseBase;
 import com.azure.core.util.CoreUtils;
@@ -26,9 +18,10 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
+import reactor.core.publisher.Flux;
+
 import java.util.List;
 import java.util.Set;
-import reactor.core.publisher.Flux;
 
 public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBase {
 
@@ -157,55 +150,35 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
 
     private String expressionMapFromBinaryData(IType responseBodyType, IType rawType, Set<String> mediaTypes,
         Set<GenericType> typeReferenceStaticClasses) {
-        String mapExpression = null;
         SupportedMimeType mimeType = SupportedMimeType.getResponseKnownMimeType(mediaTypes);
         // TODO (weidxu): support XML etc.
         switch (mimeType) {
             case TEXT:
+                String baseHandling = "protocolMethodData.toString()";
                 if (!rawType.isNullable()) {
                     // Dealing with a primitive type that needs to be converted.
-                    PrimitiveType primitiveType = (PrimitiveType) rawType;
-                    if (rawType == BOOLEAN) {
-                        mapExpression = "protocolMethodData -> Boolean.parseBoolean(protocolMethodData.toString())";
-                    } else if (rawType == BYTE) {
-                        mapExpression = "protocolMethodData -> Byte.parseByte(protocolMethodData.toString())";
-                    } else if (rawType == INT) {
-                        mapExpression = "protocolMethodData -> Integer.parseInt(protocolMethodData.toString())";
-                    } else if (rawType == LONG) {
-                        mapExpression = "protocolMethodData -> Long.parseLong(protocolMethodData.toString())";
-                    } else if (rawType == FLOAT) {
-                        mapExpression = "protocolMethodData -> Float.parseFloat(protocolMethodData.toString())";
-                    } else if (rawType == DOUBLE) {
-                        mapExpression = "protocolMethodData -> Double.parseDouble(protocolMethodData.toString())";
-                    } else if (rawType == CHAR) {
-                        mapExpression = "protocolMethodData -> protocolMethodData.toString().charAt(0)";
-                    } else {
-                        throw new IllegalStateException("Unexpected primitive type " + primitiveType);
-                    }
+                    return "protocolMethodData -> " + wrapPrimitiveMimeTypeText(baseHandling, (PrimitiveType) rawType);
                 } else {
-                    mapExpression = "protocolMethodData -> protocolMethodData.toString()";
+                    return "protocolMethodData -> " + baseHandling;
                 }
-                break;
 
             case BINARY:
-                mapExpression = null;
-                break;
+                return null;
 
             default:
                 // JSON etc.
                 if (responseBodyType instanceof EnumType) {
                     // enum
-                    mapExpression
-                        = String.format("protocolMethodData -> %1$s.from%2$s(protocolMethodData.toObject(%2$s.class))",
-                            responseBodyType, ((EnumType) responseBodyType).getElementType());
+                    return String.format("protocolMethodData -> %1$s.from%2$s(protocolMethodData.toObject(%2$s.class))",
+                        responseBodyType, ((EnumType) responseBodyType).getElementType());
                 } else if (responseBodyType instanceof GenericType) {
                     // generic, e.g. list, map
                     typeReferenceStaticClasses.add((GenericType) responseBodyType);
-                    mapExpression = String.format("protocolMethodData -> protocolMethodData.toObject(%1$s)",
+                    return String.format("protocolMethodData -> protocolMethodData.toObject(%1$s)",
                         TemplateUtil.getTypeReferenceCreation(responseBodyType));
                 } else if (responseBodyType == ClassType.BINARY_DATA) {
                     // BinaryData, no need to do the map in expressionConvertFromBinaryData
-                    mapExpression = null;
+                    return null;
                 } else if (responseBodyType == ArrayType.BYTE_ARRAY) {
                     // byte[]
                     if (rawType == ClassType.BASE_64_URL) {
@@ -216,11 +189,8 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
                     }
                 } else {
                     // default, treat as class
-                    mapExpression = String.format("protocolMethodData -> protocolMethodData.toObject(%1$s.class)",
-                        responseBodyType.asNullable());
+                    return "protocolMethodData -> protocolMethodData.toObject(" + responseBodyType.asNullable() + ".class)";
                 }
-                break;
         }
-        return mapExpression;
     }
 }
