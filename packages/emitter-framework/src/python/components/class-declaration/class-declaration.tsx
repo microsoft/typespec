@@ -325,6 +325,16 @@ export function ClassDeclaration(props: ClassDeclarationProps) {
   const classBody = createClassBody($, props, abstract);
   const ClassComponent = useDataclass ? py.DataclassDeclaration : py.ClassDeclaration;
 
+  // Defensive: Ensure classBody is never undefined
+  if (classBody === undefined || classBody === null) {
+    // Return a minimal valid class instead of crashing
+    return (
+      <ClassComponent name={props.type.name} kwOnly={useDataclass ? true : undefined}>
+        {/* Empty class body */}
+      </ClassComponent>
+    );
+  }
+
   return (
     <>
       <Show when={typeVars !== null}>
@@ -381,13 +391,27 @@ function ClassBody(
     <>
       <ContentSlot>
         <For each={validTypeMembers} line>
-          {(typeMember) => (
-            <ClassMember
-              type={typeMember}
-              abstract={props.abstract}
-              methodType={props.methodType}
-            />
-          )}
+          {(typeMember) => {
+            // Defensive check: ensure typeMember is valid
+            if (!typeMember || !typeMember.kind) {
+              return <></>;
+            }
+
+            const memberComponent = (
+              <ClassMember
+                type={typeMember}
+                abstract={props.abstract}
+                methodType={props.methodType}
+              />
+            );
+
+            // Defensive check: ensure ClassMember returned something valid
+            if (memberComponent === undefined || memberComponent === null) {
+              return <></>;
+            }
+
+            return memberComponent;
+          }}
         </For>
         {props.children ?? null}
       </ContentSlot>

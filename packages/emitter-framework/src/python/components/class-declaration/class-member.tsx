@@ -186,4 +186,7 @@ export function ClassMember(props: ClassMemberProps) {
       <Method type={props.type} doc={doc} methodType={props.methodType} abstract={props.abstract} />
     );
   }
+
+  // If type is neither ModelProperty nor Operation, return empty fragment
+  return <></>;
 }
