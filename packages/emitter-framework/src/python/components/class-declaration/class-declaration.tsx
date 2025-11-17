@@ -291,7 +291,7 @@ export function ClassDeclaration(props: ClassDeclarationProps) {
       <py.ClassDeclaration
         {...props}
         doc={docElement}
-        bases={basesType as Children[] | undefined}
+        {...(basesType ? { bases: basesType as Children[] } : {})}
       />
     );
   }
@@ -334,9 +334,9 @@ export function ClassDeclaration(props: ClassDeclarationProps) {
       </Show>
       <MethodProvider value={props.methodType}>
         <ClassComponent
-          doc={docElement}
+          {...(docElement ? { doc: docElement } : {})}
           name={name}
-          bases={basesType as Children[] | undefined}
+          {...(basesType ? { bases: basesType as Children[] } : {})}
           refkey={refkeys}
           kwOnly={useDataclass ? true : undefined}
         >
@@ -389,7 +389,7 @@ function ClassBody(
             />
           )}
         </For>
-        {props.children}
+        {props.children ?? null}
       </ContentSlot>
       <ContentSlot.WhenEmpty>{undefined}</ContentSlot.WhenEmpty>
     </>

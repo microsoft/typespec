@@ -174,7 +174,7 @@ export function ClassMember(props: ClassMemberProps) {
       doc,
       name,
       optional: isOptional,
-      type: typeNode,
+      ...(typeNode ? { type: typeNode } : {}),
       ...(initializer ? { initializer } : {}),
       omitNone: !isOptional,
     };

@@ -109,7 +109,7 @@ export function TypeExpression(props: TypeExpressionProps) {
       }
 
       reportPythonDiagnostic($.program, { code: "python-unsupported-type", target: type });
-      break;
+      return <></>;
     case "TemplateParameter":
       return code`${String((type.node as TemplateParameterDeclarationNode).id.sv)}`;
 
@@ -156,6 +156,8 @@ export function TypeExpression(props: TypeExpressionProps) {
     }
     default:
       reportPythonDiagnostic($.program, { code: "python-unsupported-type", target: type });
+      // Return empty fragment - the diagnostic has already been reported
+      return <></>;
   }
 }
 
