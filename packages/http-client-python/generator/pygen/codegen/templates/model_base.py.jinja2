@@ -983,6 +983,7 @@ class _RestField:
         format: typing.Optional[str] = None,
         is_multipart_file_input: bool = False,
         xml: typing.Optional[dict[str, typing.Any]] = None,
+        original_tsp_name: typing.Optional[str] = None,
     ):
         self._type = type
         self._rest_name_input = name
@@ -994,6 +995,7 @@ class _RestField:
         self._format = format
         self._is_multipart_file_input = is_multipart_file_input
         self._xml = xml if xml is not None else {}
+        self._original_tsp_name = original_tsp_name
 
     @property
     def _class_type(self) -> typing.Any:
