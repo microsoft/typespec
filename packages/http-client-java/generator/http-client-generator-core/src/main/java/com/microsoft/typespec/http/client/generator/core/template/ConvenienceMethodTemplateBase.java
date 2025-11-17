@@ -3,6 +3,14 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
+import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.BOOLEAN;
+import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.BYTE;
+import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.CHAR;
+import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.DOUBLE;
+import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.FLOAT;
+import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.INT;
+import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.LONG;
+
 import com.azure.core.util.FluxUtil;
 import com.azure.core.util.serializer.CollectionFormat;
 import com.azure.core.util.serializer.JacksonAdapter;
@@ -337,9 +345,7 @@ abstract class ConvenienceMethodTemplateBase {
                 String targetParameterName = targetParameter.getName();
                 String targetParameterObjectName = targetParameterName + "Obj";
                 for (ParameterMapping mapping : transformation.getMappings()) {
-                    String parameterName = mapping.getInParameter().getName();
-
-                    String inputPath = parameterName;
+                    String inputPath = mapping.getInParameter().getName();
                     boolean propertyRequired = mapping.getInParameter().isRequired();
                     if (mapping.getInParameterProperty() != null) {
                         inputPath = String.format("%s.%s()", mapping.getInParameter().getName(),
@@ -922,5 +928,33 @@ abstract class ConvenienceMethodTemplateBase {
                 return name;
             }
         }
+    }
+
+    /**
+     * Helper method to wrap handling of mime type text for primitive types.
+     *
+     * @param baseHandling The base handling for mime type text.
+     * @param type The primitive type.
+     * @return The wrapped handling for primitive type using mime type text.
+     * @throws IllegalStateException If the primitive type doesn't have a conversion.
+     */
+    static String wrapPrimitiveMimeTypeText(String baseHandling, PrimitiveType type) {
+        // Dealing with a primitive type that needs to be converted.
+        if (type == BOOLEAN) {
+            return "Boolean.parseBoolean(" + baseHandling + ")";
+        } else if (type == BYTE) {
+            return "Byte.parseByte(" + baseHandling + ")";
+        } else if (type == INT) {
+            return "Integer.parseInt(" + baseHandling + ")";
+        } else if (type == LONG) {
+            return "Long.parseLong(" + baseHandling + ")";
+        } else if (type == FLOAT) {
+            return "Float.parseFloat(" + baseHandling + ")";
+        } else if (type == DOUBLE) {
+            return "Double.parseDouble(" + baseHandling + ")";
+        } else if (type == CHAR) {
+            return baseHandling + ".charAt(0)";
+        }
+        throw new IllegalStateException("Unexpected primitive type " + type);
     }
 }
