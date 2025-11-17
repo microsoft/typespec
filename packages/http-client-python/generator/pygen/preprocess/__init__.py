@@ -236,7 +236,7 @@ class PreProcessPlugin(YamlUpdatePlugin):
                     body_parameter["type"]["types"].insert(1, any_obj_list_or_dict)
             code_model["types"].append(body_parameter["type"])
 
-    def pad_reserved_words(self, name: str, pad_type: PadType):
+    def pad_reserved_words(self, name: str, pad_type: PadType, yaml_type: dict[str, Any]) -> str:
         # we want to pad hidden variables as well
         if not name:
             # we'll pass in empty operation groups sometime etc.
@@ -250,6 +250,10 @@ class PreProcessPlugin(YamlUpdatePlugin):
         name_prefix = "_" if name[0] == "_" else ""
         name = name[1:] if name[0] == "_" else name
         if name.lower() in reserved_words[pad_type]:
+            if self.is_tsp and name.lower() in TSP_RESERVED_WORDS.get(pad_type, []):
+                # to maintain backcompat for cases where we pad in tsp but not in autorest,
+                # if we have a tsp reserved word, we also want to keep track of the original name for backcompat purposes
+                yaml_type["originalTspName"] = name_prefix + name
             return name_prefix + name + pad_type
         return name_prefix + name
 
