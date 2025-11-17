@@ -92,7 +92,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _inputAuth = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Auth;
             _endpointParameter = BuildClientEndpointParameter();
             _publicCtorDescription = $"Initializes a new instance of {Name}.";
-            ClientOptions = _inputClient.Parent is null ? new ClientOptionsProvider(_inputClient, this) : null;
+            ClientOptions = _inputClient.Parent is null ? ClientOptionsProvider.CreateClientOptionsProvider(_inputClient, this) : null;
             ClientOptionsParameter = ClientOptions != null ? ScmKnownParameters.ClientOptions(ClientOptions.Type) : null;
 
             var apiKey = _inputAuth?.ApiKey;
@@ -705,7 +705,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     Return(
                         Static(typeof(Volatile)).Invoke(nameof(Volatile.Read), cachedClientFieldVar)
                         .NullCoalesce(interlockedCompareExchange.NullCoalesce(subClient._clientCachingField))),
-                    this);
+                    this,
+                    ScmMethodKind.Convenience);
                 methods.Add(factoryMethod);
             }
 

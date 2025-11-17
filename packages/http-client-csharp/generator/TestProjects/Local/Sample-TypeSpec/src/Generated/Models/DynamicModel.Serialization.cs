@@ -733,7 +733,7 @@ namespace SampleTypeSpec
             switch (format)
             {
                 case "J":
-                    using (JsonDocument document = JsonDocument.Parse(data))
+                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
                     {
                         return DeserializeDynamicModel(document.RootElement, data, options);
                     }

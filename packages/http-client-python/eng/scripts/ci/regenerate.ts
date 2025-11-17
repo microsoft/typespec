@@ -167,6 +167,9 @@ const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, st
     "package-mode": "azure-dataplane",
     "package-pprint-name": "ResiliencySrvDriven2",
   },
+  "authentication/api-key": {
+    "clear-output-folder": "true",
+  },
   "authentication/http/custom": {
     "package-name": "authentication-http-custom",
     namespace: "authentication.http.custom",
@@ -447,11 +450,35 @@ async function runTaskPool(tasks: Array<() => Promise<void>>, poolLimit: number)
   await Promise.all(workers);
 }
 
+// create some files before regeneration. After regeneration, these files should be deleted and we will test it
+// in test case
+async function preprocess(flags: RegenerateFlagsInput): Promise<void> {
+  if (flags.flavor === "azure") {
+    // create folder if not exists
+    const folderParts = [
+      "test",
+      "azure",
+      "generated",
+      "authentication-api-key",
+      "authentication",
+      "apikey",
+      "_operations",
+    ];
+    await promises.mkdir(join(GENERATED_FOLDER, ...folderParts), { recursive: true });
+    await promises.writeFile(
+      join(GENERATED_FOLDER, ...folderParts, "to_be_deleted.py"),
+      "# This file is to be deleted after regeneration",
+    );
+  }
+}
+
 async function regenerate(flags: RegenerateFlagsInput): Promise<void> {
   if (flags.flavor === undefined) {
     await regenerate({ flavor: "azure", ...flags });
     await regenerate({ flavor: "unbranded", ...flags });
   } else {
+    await preprocess(flags);
+
     const flagsResolved = { debug: false, flavor: flags.flavor, ...flags };
     const subdirectoriesForAzure = await getSubdirectories(AZURE_HTTP_SPECS, flagsResolved);
     const subdirectoriesForNonAzure = await getSubdirectories(HTTP_SPECS, flagsResolved);

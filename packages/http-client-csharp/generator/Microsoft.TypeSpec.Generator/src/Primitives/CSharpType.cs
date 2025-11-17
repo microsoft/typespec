@@ -165,7 +165,12 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         /// Gets or sets the name of the type.
         /// </summary>
         public string Name { get; private set; }
-        internal string FullyQualifiedName => DeclaringType is null
+
+        /// <summary>
+        /// Gets the fully qualified name of the type, including namespace and any declaring types.
+        /// For nested types, this includes the declaring type name (e.g., "Namespace.DeclaringType.Name").
+        /// </summary>
+        public string FullyQualifiedName => DeclaringType is null
             ? $"{Namespace}.{Name}"
             : $"{Namespace}.{DeclaringType.Name}.{Name}";
         public CSharpType? DeclaringType { get; private init; }

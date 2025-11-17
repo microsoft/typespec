@@ -40,10 +40,8 @@ import {
   getFormat,
   getMaxItems,
   getMaxLength,
-  getMaxValue,
   getMinItems,
   getMinLength,
-  getMinValue,
   getNamespaceFullName,
   getPattern,
   getSummary,
@@ -70,13 +68,10 @@ import { getOneOf, getRef } from "./decorators.js";
 import { JsonSchemaModule } from "./json-schema.js";
 import { OpenAPI3EmitterOptions, reportDiagnostic } from "./lib.js";
 import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
+import { getMaxValueAsJson, getMinValueAsJson } from "./range.js";
+import { SSEModule } from "./sse-module.js";
 import { getSchemaForStdScalars } from "./std-scalar-schemas.js";
-import {
-  CommonOpenAPI3Schema,
-  OpenAPI3Schema,
-  OpenAPI3SchemaProperty,
-  OpenAPISchema3_1,
-} from "./types.js";
+import { CommonOpenAPI3Schema, OpenAPI3Schema, OpenAPISchema3_1, Refable } from "./types.js";
 import {
   ensureValidComponentFixedFieldKey,
   getDefaultValue,
@@ -97,13 +92,18 @@ export class OpenAPI3SchemaEmitterBase<
   protected _options: ResolvedOpenAPI3EmitterOptions;
   protected _jsonSchemaModule: JsonSchemaModule | undefined;
   protected _xmlModule: XmlModule | undefined;
+  protected _sseModule: SSEModule | undefined;
 
   constructor(
     emitter: AssetEmitter<Record<string, any>, OpenAPI3EmitterOptions>,
     metadataInfo: MetadataInfo,
     visibilityUsage: VisibilityUsageTracker,
     options: ResolvedOpenAPI3EmitterOptions,
-    optionalDependencies: { jsonSchemaModule?: JsonSchemaModule; xmlModule?: XmlModule },
+    optionalDependencies: {
+      jsonSchemaModule?: JsonSchemaModule;
+      xmlModule?: XmlModule;
+      sseModule?: SSEModule;
+    },
   ) {
     super(emitter);
     this._metadataInfo = metadataInfo;
@@ -111,6 +111,7 @@ export class OpenAPI3SchemaEmitterBase<
     this._options = options;
     this._jsonSchemaModule = optionalDependencies.jsonSchemaModule;
     this._xmlModule = optionalDependencies.xmlModule;
+    this._sseModule = optionalDependencies.sseModule;
   }
 
   modelDeclarationReferenceContext(model: Model, name: string): Context {
@@ -363,7 +364,7 @@ export class OpenAPI3SchemaEmitterBase<
     return requiredProps.length > 0 ? requiredProps : undefined;
   }
 
-  modelProperties(model: Model): EmitterOutput<Record<string, OpenAPI3SchemaProperty>> {
+  modelProperties(model: Model): EmitterOutput<Record<string, Refable<OpenAPI3Schema>>> {
     const program = this.emitter.getProgram();
     const props = new ObjectBuilder();
     const visibility = this.emitter.getContext().visibility;
@@ -543,8 +544,90 @@ export class OpenAPI3SchemaEmitterBase<
     throw new Error("Method not implemented.");
   }
 
-  discriminatedUnion(union: DiscriminatedUnion): ObjectBuilder<Schema> {
+  /**
+   * Mapping of cached envelope models for union variants.
+   */
+  #unionVariantEnvelopeVisibilityMap: WeakMap<
+    Union,
+    WeakMap<Type, { default: Model; byVisibility: Map<Visibility, Model> }>
+  > = new WeakMap();
+
+  /**
+   * Get or create an envelope model for a given discriminated union variant.
+   *
+   * This method is cached and will return the same model for the same variant according to visibility transforms,
+   * in order to prevent duplicate schema declarations.
+   *
+   * @param union - The discriminated union containing the variant.
+   * @param variantName - The name of the variant.
+   * @param variant - The type of the variant.
+   * @returns The envelope model for the variant.
+   */
+  #getOrCreateVariantEnvelopeModel(
+    union: DiscriminatedUnion,
+    variantName: string,
+    variant: Type,
+  ): Model {
     const tk = $(this.emitter.getProgram());
+
+    const usage = this._visibilityUsage.getUsage(union.type);
+
+    let map = this.#unionVariantEnvelopeVisibilityMap.get(union.type);
+
+    if (!map) {
+      map = new WeakMap();
+      this.#unionVariantEnvelopeVisibilityMap.set(union.type, map);
+    }
+
+    let entry = map.get(variant);
+    if (!entry) {
+      // Initialize entry
+      entry = { default: createEnvelopeModel(), byVisibility: new Map() };
+      map.set(variant, entry);
+
+      // Manually track the model's usage according to the union's usage.
+      if (usage) this._visibilityUsage.manuallyTrack(entry.default, usage);
+    }
+
+    const visibility = this.#getVisibilityContext();
+
+    // We only create envelope models per visibility if the variant type is transformed in that visibility.
+    // Otherwise, we will just use the default envelope model.
+    if (this._metadataInfo.isTransformed(variant, visibility)) {
+      let byVis = entry.byVisibility.get(visibility);
+
+      if (!byVis) {
+        byVis = createEnvelopeModel();
+
+        // Manually track the model's usage according to the union's usage.
+        if (usage) this._visibilityUsage.manuallyTrack(byVis, usage);
+
+        entry.byVisibility.set(visibility, byVis);
+      }
+
+      return byVis;
+    } else {
+      return entry.default;
+    }
+
+    function createEnvelopeModel(): Model {
+      return tk.model.create({
+        name: union.type.name + capitalize(variantName),
+        properties: {
+          [union.options.discriminatorPropertyName]: tk.modelProperty.create({
+            name: union.options.discriminatorPropertyName,
+            type: tk.literal.createString(variantName),
+          }),
+          [union.options.envelopePropertyName]: tk.modelProperty.create({
+            name: union.options.envelopePropertyName,
+            type: variant,
+          }),
+        },
+      });
+    }
+  }
+
+  discriminatedUnion(union: DiscriminatedUnion): ObjectBuilder<Schema> {
     let schema: any;
     if (union.options.envelope === "none") {
       const items = new ArrayBuilder();
@@ -562,22 +645,11 @@ export class OpenAPI3SchemaEmitterBase<
     } else {
       const envelopeVariants = new Map<string, Model>();
 
-      for (const [name, variant] of union.variants) {
-        const envelopeModel = tk.model.create({
-          name: union.type.name + capitalize(name),
-          properties: {
-            [union.options.discriminatorPropertyName]: tk.modelProperty.create({
-              name: union.options.discriminatorPropertyName,
-              type: tk.literal.createString(name),
-            }),
-            [union.options.envelopePropertyName]: tk.modelProperty.create({
-              name: union.options.envelopePropertyName,
-              type: variant,
-            }),
-          },
-        });
-
-        envelopeVariants.set(name, envelopeModel);
+      for (const [variantName, variant] of union.variants) {
+        envelopeVariants.set(
+          variantName,
+          this.#getOrCreateVariantEnvelopeModel(union, variantName, variant),
+        );
       }
 
       const items = new ArrayBuilder();
@@ -731,8 +803,8 @@ export class OpenAPI3SchemaEmitterBase<
 
     applyConstraint(getMinLength, "minLength");
     applyConstraint(getMaxLength, "maxLength");
-    applyConstraint(getMinValue, "minimum");
-    applyConstraint(getMaxValue, "maximum");
+    applyConstraint(getMinValueAsJson, "minimum");
+    applyConstraint(getMaxValueAsJson, "maximum");
     applyConstraint(getPattern, "pattern");
     applyConstraint(getMinItems, "minItems");
     applyConstraint(getMaxItems, "maxItems");

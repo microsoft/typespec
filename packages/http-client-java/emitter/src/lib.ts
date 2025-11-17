@@ -113,6 +113,12 @@ export const $lib = createTypeSpecLibrary({
         default: "Nested pageItems is not supported in Azure V1.",
       },
     },
+    "constant-header-in-response-removed": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`Constant header '${"headerName"}' is removed from response headers.`,
+      },
+    },
   },
   emitter: {
     options: EmitterOptionsSchema,

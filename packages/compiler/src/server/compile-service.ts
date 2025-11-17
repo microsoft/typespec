@@ -15,7 +15,7 @@ import { CompilerOptions } from "../core/options.js";
 import { parse } from "../core/parser.js";
 import { getBaseFileName, getDirectoryPath } from "../core/path-utils.js";
 import type { CompilerHost, TypeSpecScriptNode } from "../core/types.js";
-import { distinctArray } from "../utils/misc.js";
+import { deepClone, distinctArray } from "../utils/misc.js";
 import { getLocationInYamlScript } from "../yaml/diagnostics.js";
 import { parseYaml } from "../yaml/parser.js";
 import { ClientConfigProvider } from "./client-config-provider.js";
@@ -29,7 +29,7 @@ import {
   ServerCompileOptions,
 } from "./server-compile-manager.js";
 import { CompileResult, ServerHost, ServerLog } from "./types.js";
-import { UpdateManger, UpdateType } from "./update-manager.js";
+import { UpdateManager, UpdateType } from "./update-manager.js";
 
 /**
  * Service managing compilation/caching of different TypeSpec projects
@@ -73,7 +73,7 @@ export interface CompileServiceOptions {
   readonly fileService: FileService;
   readonly serverHost: ServerHost;
   readonly compilerHost: CompilerHost;
-  readonly updateManager: UpdateManger;
+  readonly updateManager: UpdateManager;
   readonly log: (log: ServerLog) => void;
   readonly clientConfigsProvider?: ClientConfigProvider;
 }
@@ -105,7 +105,7 @@ export function createCompileService({
   }
 
   function notifyChange(document: TextDocument | TextDocumentIdentifier, updateType: UpdateType) {
-    updateManager.scheduleUpdate(document, updateType);
+    void updateManager.scheduleUpdate(document, updateType);
   }
 
   /**
@@ -141,8 +141,10 @@ export function createCompileService({
     const [optionsFromConfig, _] = resolveOptionsFromConfig(config, {
       cwd: getDirectoryPath(path),
     });
+    // we need to keep the optionsFromConfig unchanged which will be returned in CompileResult
+    const clone = deepClone(optionsFromConfig);
     const options: CompilerOptions = {
-      ...optionsFromConfig,
+      ...clone,
       ...serverOptions,
       ...(additionalOptions ?? {}),
     };

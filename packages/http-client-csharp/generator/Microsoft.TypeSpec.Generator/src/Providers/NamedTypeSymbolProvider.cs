@@ -47,7 +47,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 || _namedTypeSymbol.BaseType.SpecialType == SpecialType.System_Object
                 || _namedTypeSymbol.BaseType.SpecialType == SpecialType.System_ValueType
                 || _namedTypeSymbol.BaseType.SpecialType == SpecialType.System_Array
-                || _namedTypeSymbol.BaseType.SpecialType == SpecialType.System_Enum)
+                || _namedTypeSymbol.BaseType.SpecialType == SpecialType.System_Enum
+                || TypeSymbolExtensions.ContainsTypeAsArgument(_namedTypeSymbol.BaseType, _namedTypeSymbol))
             {
                 return null;
             }
@@ -120,7 +121,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         fieldSymbol.Type.GetCSharpType(),
                         fieldSymbol.Name,
                         this,
-                        GetSymbolXmlDoc(fieldSymbol, "summary"))
+                        GetSymbolXmlDoc(fieldSymbol, "summary"),
+                        initializationValue: GetFieldInitializer(fieldSymbol))
                     {
                         OriginalName = GetOriginalName(fieldSymbol)
                     };
@@ -191,6 +193,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return null;
         }
 
+        private static ValueExpression? GetFieldInitializer(IFieldSymbol fieldSymbol)
+        {
+            if (fieldSymbol.ContainingType?.TypeKind == TypeKind.Enum)
+            {
+                if (fieldSymbol.HasConstantValue && fieldSymbol.ConstantValue != null)
+                {
+                    return Literal(fieldSymbol.ConstantValue);
+                }
+                return null;
+            }
+
+            return null;
+        }
+
         private static string? GetOriginalName(ISymbol symbol)
         {
             var codeGenAttribute = symbol.GetAttributes().SingleOrDefault(
@@ -246,8 +262,21 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                 AddAdditionalModifiers(methodSymbol, ref modifiers);
                 var explicitInterface = methodSymbol.ExplicitInterfaceImplementations.FirstOrDefault();
+
+                // For conversion operators, use the target type name as the method name to match generated code
+                string methodName;
+                if (methodSymbol.MethodKind == MethodKind.Conversion)
+                {
+                    // Use the return type name for conversion operators (explicit/implicit)
+                    methodName = methodSymbol.ReturnType.Name;
+                }
+                else
+                {
+                    methodName = methodSymbol.ToDisplayString(format);
+                }
+
                 var signature = new MethodSignature(
-                    methodSymbol.ToDisplayString(format),
+                    methodName,
                     GetSymbolXmlDoc(methodSymbol, "summary"),
                     // remove private modifier for explicit interface implementations
                     explicitInterface != null ? modifiers & ~MethodSignatureModifiers.Private : modifiers,
@@ -294,6 +323,25 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (methodSymbol.IsStatic)
             {
                 modifiers |= MethodSignatureModifiers.Static;
+            }
+            // Handle conversion operators (explicit and implicit)
+            if (methodSymbol.MethodKind == MethodKind.Conversion)
+            {
+                modifiers |= MethodSignatureModifiers.Operator;
+                // Check if it's explicit or implicit
+                if (methodSymbol.Name == "op_Explicit")
+                {
+                    modifiers |= MethodSignatureModifiers.Explicit;
+                }
+                else if (methodSymbol.Name == "op_Implicit")
+                {
+                    modifiers |= MethodSignatureModifiers.Implicit;
+                }
+            }
+            // Handle user-defined operators
+            else if (methodSymbol.MethodKind == MethodKind.UserDefinedOperator)
+            {
+                modifiers |= MethodSignatureModifiers.Operator;
             }
         }
 
