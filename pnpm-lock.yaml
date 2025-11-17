@@ -2061,6 +2061,9 @@ importers:
       xml2js:
         specifier: ^0.6.2
         version: 0.6.2
+      yaml:
+        specifier: ~2.8.0
+        version: 2.8.1
       yargs:
         specifier: ~18.0.0
         version: 18.0.0
