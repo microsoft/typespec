@@ -82,6 +82,22 @@ function processResponseType(
   responses: ResponseIndex,
   responseType: Type,
 ) {
+  const tk = $(program);
+
+  // If the response type is itself a union (and not discriminated), expand it recursively.
+  // This handles cases where a named union is used as a return type (e.g., `op read(): MyUnion`)
+  // or when unions are nested (e.g., a union variant is itself a union).
+  // Each variant will be processed separately to extract its status codes and responses.
+  if (tk.union.is(responseType) && !tk.union.getDiscriminatedUnion(responseType)) {
+    for (const option of responseType.variants.values()) {
+      if (isNullType(option.type)) {
+        continue;
+      }
+      processResponseType(program, diagnostics, operation, responses, option.type);
+    }
+    return;
+  }
+
   // Get body
   let { body: resolvedBody, metadata } = diagnostics.pipe(
     resolveHttpPayload(program, responseType, Visibility.Read, HttpPayloadDisposition.Response),
