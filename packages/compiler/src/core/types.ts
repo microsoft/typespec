@@ -2139,6 +2139,8 @@ export type TypeListeners = UnionToIntersection<ListenerForType<Type>>;
 
 export type SemanticNodeListener = {
   root?: (context: Program) => void | undefined;
+  /** Final call when the whole navigation is completed */
+  exit?: (context: Program) => void | undefined;
 } & TypeListeners;
 
 export type DiagnosticReportWithoutTarget<

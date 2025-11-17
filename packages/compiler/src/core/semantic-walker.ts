@@ -60,6 +60,7 @@ export function navigateProgram(
   context.emit("root", program);
 
   navigateNamespaceType(program.getGlobalNamespaceType(), context);
+  context.emit("exit", program);
 }
 
 /**
@@ -508,4 +509,5 @@ const eventNames: Array<keyof SemanticNodeListener> = [
   "exitUnionVariant",
   "intrinsic",
   "exitIntrinsic",
+  "exit",
 ];
