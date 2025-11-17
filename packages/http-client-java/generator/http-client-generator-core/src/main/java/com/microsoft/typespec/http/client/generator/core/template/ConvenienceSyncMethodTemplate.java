@@ -19,7 +19,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
-
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -239,7 +238,8 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
                 } else if (responseBodyType == ArrayType.BYTE_ARRAY) {
                     // byte[]
                     if (rawType == ClassType.BASE_64_URL) {
-                        return invocationExpression + ".toObject(" + ClassType.BASE_64_URL.getName() + ".class).decodedBytes()";
+                        return invocationExpression + ".toObject(" + ClassType.BASE_64_URL.getName()
+                            + ".class).decodedBytes()";
                     } else {
                         return invocationExpression + ".toObject(byte[].class)";
                     }

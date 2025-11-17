@@ -3,6 +3,14 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
+import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.BOOLEAN;
+import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.BYTE;
+import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.CHAR;
+import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.DOUBLE;
+import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.FLOAT;
+import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.INT;
+import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.LONG;
+
 import com.azure.core.util.FluxUtil;
 import com.azure.core.util.serializer.CollectionFormat;
 import com.azure.core.util.serializer.JacksonAdapter;
@@ -55,14 +63,6 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.BOOLEAN;
-import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.BYTE;
-import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.CHAR;
-import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.DOUBLE;
-import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.FLOAT;
-import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.INT;
-import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.LONG;
 
 abstract class ConvenienceMethodTemplateBase {
 

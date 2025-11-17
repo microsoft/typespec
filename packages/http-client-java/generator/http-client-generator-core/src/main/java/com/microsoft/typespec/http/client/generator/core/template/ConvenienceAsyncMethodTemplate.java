@@ -18,10 +18,9 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
-import reactor.core.publisher.Flux;
-
 import java.util.List;
 import java.util.Set;
+import reactor.core.publisher.Flux;
 
 public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBase {
 
@@ -189,7 +188,8 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
                     }
                 } else {
                     // default, treat as class
-                    return "protocolMethodData -> protocolMethodData.toObject(" + responseBodyType.asNullable() + ".class)";
+                    return "protocolMethodData -> protocolMethodData.toObject(" + responseBodyType.asNullable()
+                        + ".class)";
                 }
         }
     }
