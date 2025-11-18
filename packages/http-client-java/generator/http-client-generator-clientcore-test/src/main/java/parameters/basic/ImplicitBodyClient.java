@@ -16,7 +16,6 @@ import parameters.basic.implementation.ImplicitBodiesImpl;
  */
 @ServiceClient(builder = BasicClientBuilder.class)
 public final class ImplicitBodyClient {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final ImplicitBodiesImpl serviceClient;
 
@@ -24,7 +23,7 @@ public final class ImplicitBodyClient {
 
     /**
      * Initializes an instance of ImplicitBodyClient class.
-     *
+     * 
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -36,7 +35,7 @@ public final class ImplicitBodyClient {
 
     /**
      * The simple operation.
-     *
+     * 
      * @param name The name parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -53,7 +52,7 @@ public final class ImplicitBodyClient {
 
     /**
      * The simple operation.
-     *
+     * 
      * @param name The name parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

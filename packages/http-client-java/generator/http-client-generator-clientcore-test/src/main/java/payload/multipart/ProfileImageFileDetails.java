@@ -9,7 +9,6 @@ import io.clientcore.core.models.binarydata.BinaryData;
  */
 @Metadata(properties = { MetadataProperties.FLUENT })
 public final class ProfileImageFileDetails {
-
     /*
      * The content of the file.
      */
@@ -30,7 +29,7 @@ public final class ProfileImageFileDetails {
 
     /**
      * Creates an instance of ProfileImageFileDetails class.
-     *
+     * 
      * @param content the content value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -40,7 +39,7 @@ public final class ProfileImageFileDetails {
 
     /**
      * Get the content property: The content of the file.
-     *
+     * 
      * @return the content value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -50,7 +49,7 @@ public final class ProfileImageFileDetails {
 
     /**
      * Get the filename property: The filename of the file.
-     *
+     * 
      * @return the filename value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -60,7 +59,7 @@ public final class ProfileImageFileDetails {
 
     /**
      * Set the filename property: The filename of the file.
-     *
+     * 
      * @param filename the filename value to set.
      * @return the ProfileImageFileDetails object itself.
      */
@@ -72,7 +71,7 @@ public final class ProfileImageFileDetails {
 
     /**
      * Get the contentType property: The content-type of the file.
-     *
+     * 
      * @return the contentType value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -82,7 +81,7 @@ public final class ProfileImageFileDetails {
 
     /**
      * Set the contentType property: The content-type of the file.
-     *
+     * 
      * @param contentType the contentType value to set.
      * @return the ProfileImageFileDetails object itself.
      */

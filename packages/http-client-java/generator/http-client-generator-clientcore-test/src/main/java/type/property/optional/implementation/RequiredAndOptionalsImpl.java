@@ -21,7 +21,6 @@ import type.property.optional.RequiredAndOptionalProperty;
  * An instance of this class provides access to all the operations defined in RequiredAndOptionals.
  */
 public final class RequiredAndOptionalsImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -39,7 +38,7 @@ public final class RequiredAndOptionalsImpl {
 
     /**
      * Initializes an instance of RequiredAndOptionalsImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     RequiredAndOptionalsImpl(OptionalClientImpl client) {
@@ -54,7 +53,6 @@ public final class RequiredAndOptionalsImpl {
      */
     @ServiceInterface(name = "OptionalClientRequiredAndOptionals", host = "{endpoint}")
     public interface RequiredAndOptionalsService {
-
         static RequiredAndOptionalsService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("type.property.optional.implementation.RequiredAndOptionalsServiceImpl");
@@ -64,6 +62,7 @@ public final class RequiredAndOptionalsImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(
@@ -102,7 +101,7 @@ public final class RequiredAndOptionalsImpl {
 
     /**
      * Get models that will return all properties in the model.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -120,7 +119,7 @@ public final class RequiredAndOptionalsImpl {
 
     /**
      * Get models that will return only the required properties.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -138,7 +137,7 @@ public final class RequiredAndOptionalsImpl {
 
     /**
      * Put a body with all properties present.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -157,7 +156,7 @@ public final class RequiredAndOptionalsImpl {
 
     /**
      * Put a body with only required properties.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

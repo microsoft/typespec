@@ -15,7 +15,6 @@ import java.time.format.DateTimeFormatter;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class DefaultDatetimeProperty implements JsonSerializable<DefaultDatetimeProperty> {
-
     /*
      * The value property.
      */
@@ -24,7 +23,7 @@ public final class DefaultDatetimeProperty implements JsonSerializable<DefaultDa
 
     /**
      * Creates an instance of DefaultDatetimeProperty class.
-     *
+     * 
      * @param value the value value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -34,7 +33,7 @@ public final class DefaultDatetimeProperty implements JsonSerializable<DefaultDa
 
     /**
      * Get the value property: The value property.
-     *
+     * 
      * @return the value value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -56,7 +55,7 @@ public final class DefaultDatetimeProperty implements JsonSerializable<DefaultDa
 
     /**
      * Reads an instance of DefaultDatetimeProperty from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of DefaultDatetimeProperty if the JsonReader was pointing to an instance of it, or null if it
      * was pointing to JSON null.
@@ -70,6 +69,7 @@ public final class DefaultDatetimeProperty implements JsonSerializable<DefaultDa
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
+
                 if ("value".equals(fieldName)) {
                     value = reader.getNullable(nonNullReader -> OffsetDateTime.parse(nonNullReader.getString()));
                 } else {

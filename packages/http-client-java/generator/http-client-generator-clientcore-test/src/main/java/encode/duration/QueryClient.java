@@ -18,7 +18,6 @@ import java.util.List;
  */
 @ServiceClient(builder = DurationClientBuilder.class)
 public final class QueryClient {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final QueriesImpl serviceClient;
 
@@ -26,7 +25,7 @@ public final class QueryClient {
 
     /**
      * Initializes an instance of QueryClient class.
-     *
+     * 
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -38,7 +37,7 @@ public final class QueryClient {
 
     /**
      * The defaultMethod operation.
-     *
+     * 
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -55,7 +54,7 @@ public final class QueryClient {
 
     /**
      * The defaultMethod operation.
-     *
+     * 
      * @param input The input parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -69,7 +68,7 @@ public final class QueryClient {
 
     /**
      * The iso8601 operation.
-     *
+     * 
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -86,7 +85,7 @@ public final class QueryClient {
 
     /**
      * The iso8601 operation.
-     *
+     * 
      * @param input The input parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -100,7 +99,7 @@ public final class QueryClient {
 
     /**
      * The int32Seconds operation.
-     *
+     * 
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -117,7 +116,7 @@ public final class QueryClient {
 
     /**
      * The int32Seconds operation.
-     *
+     * 
      * @param input The input parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -163,7 +162,7 @@ public final class QueryClient {
 
     /**
      * The floatSeconds operation.
-     *
+     * 
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -180,7 +179,7 @@ public final class QueryClient {
 
     /**
      * The floatSeconds operation.
-     *
+     * 
      * @param input The input parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -226,7 +225,7 @@ public final class QueryClient {
 
     /**
      * The float64Seconds operation.
-     *
+     * 
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -243,7 +242,7 @@ public final class QueryClient {
 
     /**
      * The float64Seconds operation.
-     *
+     * 
      * @param input The input parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -257,7 +256,7 @@ public final class QueryClient {
 
     /**
      * The int32Milliseconds operation.
-     *
+     * 
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -274,7 +273,7 @@ public final class QueryClient {
 
     /**
      * The int32Milliseconds operation.
-     *
+     * 
      * @param input The input parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -320,7 +319,7 @@ public final class QueryClient {
 
     /**
      * The floatMilliseconds operation.
-     *
+     * 
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -337,7 +336,7 @@ public final class QueryClient {
 
     /**
      * The floatMilliseconds operation.
-     *
+     * 
      * @param input The input parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -383,7 +382,7 @@ public final class QueryClient {
 
     /**
      * The float64Milliseconds operation.
-     *
+     * 
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -400,7 +399,7 @@ public final class QueryClient {
 
     /**
      * The float64Milliseconds operation.
-     *
+     * 
      * @param input The input parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -414,7 +413,7 @@ public final class QueryClient {
 
     /**
      * The int32SecondsArray operation.
-     *
+     * 
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -431,7 +430,7 @@ public final class QueryClient {
 
     /**
      * The int32SecondsArray operation.
-     *
+     * 
      * @param input The input parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -445,7 +444,7 @@ public final class QueryClient {
 
     /**
      * The int32MillisecondsArray operation.
-     *
+     * 
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -463,7 +462,7 @@ public final class QueryClient {
 
     /**
      * The int32MillisecondsArray operation.
-     *
+     * 
      * @param input The input parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

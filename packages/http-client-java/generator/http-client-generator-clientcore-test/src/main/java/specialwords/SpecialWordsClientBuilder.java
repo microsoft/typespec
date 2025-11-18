@@ -40,7 +40,6 @@ import specialwords.implementation.SpecialWordsClientImpl;
 public final class SpecialWordsClientBuilder
     implements HttpTrait<SpecialWordsClientBuilder>, ProxyTrait<SpecialWordsClientBuilder>,
     ConfigurationTrait<SpecialWordsClientBuilder>, EndpointTrait<SpecialWordsClientBuilder> {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -186,7 +185,7 @@ public final class SpecialWordsClientBuilder
 
     /**
      * Builds an instance of SpecialWordsClientImpl with the provided parameters.
-     *
+     * 
      * @return an instance of SpecialWordsClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -232,7 +231,7 @@ public final class SpecialWordsClientBuilder
 
     /**
      * Builds an instance of ModelsClient class.
-     *
+     * 
      * @return an instance of ModelsClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -243,7 +242,7 @@ public final class SpecialWordsClientBuilder
 
     /**
      * Builds an instance of ModelPropertiesClient class.
-     *
+     * 
      * @return an instance of ModelPropertiesClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -254,7 +253,7 @@ public final class SpecialWordsClientBuilder
 
     /**
      * Builds an instance of OperationsClient class.
-     *
+     * 
      * @return an instance of OperationsClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -265,7 +264,7 @@ public final class SpecialWordsClientBuilder
 
     /**
      * Builds an instance of ParametersClient class.
-     *
+     * 
      * @return an instance of ParametersClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

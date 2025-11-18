@@ -12,7 +12,6 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public class Shark extends Fish {
-
     /*
      * Discriminator property for Fish.
      */
@@ -27,7 +26,7 @@ public class Shark extends Fish {
 
     /**
      * Creates an instance of Shark class.
-     *
+     * 
      * @param age the age value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -37,7 +36,7 @@ public class Shark extends Fish {
 
     /**
      * Get the kind property: Discriminator property for Fish.
-     *
+     * 
      * @return the kind value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -48,7 +47,7 @@ public class Shark extends Fish {
 
     /**
      * Get the sharktype property: The sharktype property.
-     *
+     * 
      * @return the sharktype value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -71,7 +70,7 @@ public class Shark extends Fish {
 
     /**
      * Reads an instance of Shark from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of Shark if the JsonReader was pointing to an instance of it, or null if it was pointing to
      * JSON null.
@@ -83,8 +82,7 @@ public class Shark extends Fish {
         return jsonReader.readObject(reader -> {
             String discriminatorValue = null;
             try (JsonReader readerToUse = reader.bufferObject()) {
-                // Prepare for reading
-                readerToUse.nextToken();
+                readerToUse.nextToken(); // Prepare for reading
                 while (readerToUse.nextToken() != JsonToken.END_OBJECT) {
                     String fieldName = readerToUse.getFieldName();
                     readerToUse.nextToken();
@@ -115,6 +113,7 @@ public class Shark extends Fish {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
+
                 if ("age".equals(fieldName)) {
                     age = reader.getInt();
                 } else if ("sharktype".equals(fieldName)) {
@@ -125,6 +124,7 @@ public class Shark extends Fish {
             }
             Shark deserializedShark = new Shark(age);
             deserializedShark.sharktype = sharktype;
+
             return deserializedShark;
         });
     }

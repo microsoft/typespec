@@ -17,7 +17,6 @@ import type.scalar.implementation.DecimalTypesImpl;
  */
 @ServiceClient(builder = ScalarClientBuilder.class)
 public final class DecimalTypeClient {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final DecimalTypesImpl serviceClient;
 
@@ -25,7 +24,7 @@ public final class DecimalTypeClient {
 
     /**
      * Initializes an instance of DecimalTypeClient class.
-     *
+     * 
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -37,7 +36,7 @@ public final class DecimalTypeClient {
 
     /**
      * The responseBody operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -53,7 +52,7 @@ public final class DecimalTypeClient {
 
     /**
      * The responseBody operation.
-     *
+     * 
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return a decimal number with any length and precision.
@@ -66,7 +65,7 @@ public final class DecimalTypeClient {
 
     /**
      * The requestBody operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -83,7 +82,7 @@ public final class DecimalTypeClient {
 
     /**
      * The requestBody operation.
-     *
+     * 
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -97,7 +96,7 @@ public final class DecimalTypeClient {
 
     /**
      * The requestParameter operation.
-     *
+     * 
      * @param value The value parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -114,7 +113,7 @@ public final class DecimalTypeClient {
 
     /**
      * The requestParameter operation.
-     *
+     * 
      * @param value The value parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

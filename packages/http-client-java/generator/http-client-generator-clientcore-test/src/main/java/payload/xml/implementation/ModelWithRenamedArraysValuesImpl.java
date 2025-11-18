@@ -21,7 +21,6 @@ import payload.xml.ModelWithRenamedArrays;
  * An instance of this class provides access to all the operations defined in ModelWithRenamedArraysValues.
  */
 public final class ModelWithRenamedArraysValuesImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -39,7 +38,7 @@ public final class ModelWithRenamedArraysValuesImpl {
 
     /**
      * Initializes an instance of ModelWithRenamedArraysValuesImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     ModelWithRenamedArraysValuesImpl(XmlClientImpl client) {
@@ -54,7 +53,6 @@ public final class ModelWithRenamedArraysValuesImpl {
      */
     @ServiceInterface(name = "XmlClientModelWithRenamedArraysValues", host = "{endpoint}")
     public interface ModelWithRenamedArraysValuesService {
-
         static ModelWithRenamedArraysValuesService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("payload.xml.implementation.ModelWithRenamedArraysValuesServiceImpl");
@@ -64,6 +62,7 @@ public final class ModelWithRenamedArraysValuesImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(
@@ -85,7 +84,7 @@ public final class ModelWithRenamedArraysValuesImpl {
 
     /**
      * The get operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -104,7 +103,7 @@ public final class ModelWithRenamedArraysValuesImpl {
 
     /**
      * The put operation.
-     *
+     * 
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

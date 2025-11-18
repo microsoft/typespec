@@ -4,11 +4,11 @@ package type.property.optional;
  * Defines values for UnionFloatLiteralPropertyProperty.
  */
 public enum UnionFloatLiteralPropertyProperty {
-
     /**
      * Enum value 1.25.
      */
     ONE_TWO_FIVE(1.25),
+
     /**
      * Enum value 2.375.
      */
@@ -25,7 +25,7 @@ public enum UnionFloatLiteralPropertyProperty {
 
     /**
      * Parses a serialized value to a UnionFloatLiteralPropertyProperty instance.
-     *
+     * 
      * @param value the serialized value to parse.
      * @return the parsed UnionFloatLiteralPropertyProperty object, or null if unable to parse.
      */
@@ -41,7 +41,7 @@ public enum UnionFloatLiteralPropertyProperty {
 
     /**
      * De-serializes the instance to double value.
-     *
+     * 
      * @return the double value.
      */
     public double toDouble() {

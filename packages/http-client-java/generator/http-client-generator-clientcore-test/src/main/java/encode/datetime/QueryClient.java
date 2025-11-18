@@ -18,7 +18,6 @@ import java.util.List;
  */
 @ServiceClient(builder = DatetimeClientBuilder.class)
 public final class QueryClient {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final QueriesImpl serviceClient;
 
@@ -26,7 +25,7 @@ public final class QueryClient {
 
     /**
      * Initializes an instance of QueryClient class.
-     *
+     * 
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -38,7 +37,7 @@ public final class QueryClient {
 
     /**
      * The defaultMethod operation.
-     *
+     * 
      * @param value The value parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -55,7 +54,7 @@ public final class QueryClient {
 
     /**
      * The defaultMethod operation.
-     *
+     * 
      * @param value The value parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -69,7 +68,7 @@ public final class QueryClient {
 
     /**
      * The rfc3339 operation.
-     *
+     * 
      * @param value The value parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -86,7 +85,7 @@ public final class QueryClient {
 
     /**
      * The rfc3339 operation.
-     *
+     * 
      * @param value The value parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -100,7 +99,7 @@ public final class QueryClient {
 
     /**
      * The rfc7231 operation.
-     *
+     * 
      * @param value The value parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -117,7 +116,7 @@ public final class QueryClient {
 
     /**
      * The rfc7231 operation.
-     *
+     * 
      * @param value The value parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -131,7 +130,7 @@ public final class QueryClient {
 
     /**
      * The unixTimestamp operation.
-     *
+     * 
      * @param value The value parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -148,7 +147,7 @@ public final class QueryClient {
 
     /**
      * The unixTimestamp operation.
-     *
+     * 
      * @param value The value parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -162,7 +161,7 @@ public final class QueryClient {
 
     /**
      * The unixTimestampArray operation.
-     *
+     * 
      * @param value The value parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -179,7 +178,7 @@ public final class QueryClient {
 
     /**
      * The unixTimestampArray operation.
-     *
+     * 
      * @param value The value parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

@@ -19,7 +19,6 @@ import io.clientcore.core.instrumentation.Instrumentation;
  */
 @ServiceClient(builder = NumericClientBuilder.class)
 public final class NumericClient {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final PropertiesImpl serviceClient;
 
@@ -27,7 +26,7 @@ public final class NumericClient {
 
     /**
      * Initializes an instance of NumericClient class.
-     *
+     * 
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -39,7 +38,7 @@ public final class NumericClient {
 
     /**
      * The safeintAsString operation.
-     *
+     * 
      * @param value The value parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -57,7 +56,7 @@ public final class NumericClient {
 
     /**
      * The safeintAsString operation.
-     *
+     * 
      * @param value The value parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -72,7 +71,7 @@ public final class NumericClient {
 
     /**
      * The uint32AsStringOptional operation.
-     *
+     * 
      * @param value The value parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -91,7 +90,7 @@ public final class NumericClient {
 
     /**
      * The uint32AsStringOptional operation.
-     *
+     * 
      * @param value The value parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -106,7 +105,7 @@ public final class NumericClient {
 
     /**
      * The uint8AsString operation.
-     *
+     * 
      * @param value The value parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -124,7 +123,7 @@ public final class NumericClient {
 
     /**
      * The uint8AsString operation.
-     *
+     * 
      * @param value The value parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

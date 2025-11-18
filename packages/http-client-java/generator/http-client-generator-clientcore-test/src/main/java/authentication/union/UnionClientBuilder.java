@@ -42,7 +42,6 @@ import java.util.Objects;
 public final class UnionClientBuilder implements HttpTrait<UnionClientBuilder>, ProxyTrait<UnionClientBuilder>,
     ConfigurationTrait<UnionClientBuilder>, OAuthTokenCredentialTrait<UnionClientBuilder>,
     KeyCredentialTrait<UnionClientBuilder>, EndpointTrait<UnionClientBuilder> {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -223,7 +222,7 @@ public final class UnionClientBuilder implements HttpTrait<UnionClientBuilder>, 
 
     /**
      * Builds an instance of UnionClientImpl with the provided parameters.
-     *
+     * 
      * @return an instance of UnionClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -276,7 +275,7 @@ public final class UnionClientBuilder implements HttpTrait<UnionClientBuilder>, 
 
     /**
      * Builds an instance of UnionClient class.
-     *
+     * 
      * @return an instance of UnionClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

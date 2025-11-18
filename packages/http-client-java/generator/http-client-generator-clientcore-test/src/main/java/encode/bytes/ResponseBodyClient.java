@@ -17,7 +17,6 @@ import io.clientcore.core.models.binarydata.BinaryData;
  */
 @ServiceClient(builder = BytesClientBuilder.class)
 public final class ResponseBodyClient {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final ResponseBodiesImpl serviceClient;
 
@@ -25,7 +24,7 @@ public final class ResponseBodyClient {
 
     /**
      * Initializes an instance of ResponseBodyClient class.
-     *
+     * 
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -37,7 +36,7 @@ public final class ResponseBodyClient {
 
     /**
      * The defaultMethod operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -53,7 +52,7 @@ public final class ResponseBodyClient {
 
     /**
      * The defaultMethod operation.
-     *
+     * 
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
@@ -66,7 +65,7 @@ public final class ResponseBodyClient {
 
     /**
      * The octetStream operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -82,7 +81,7 @@ public final class ResponseBodyClient {
 
     /**
      * The octetStream operation.
-     *
+     * 
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
@@ -95,7 +94,7 @@ public final class ResponseBodyClient {
 
     /**
      * The customContentType operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -111,7 +110,7 @@ public final class ResponseBodyClient {
 
     /**
      * The customContentType operation.
-     *
+     * 
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
@@ -124,7 +123,7 @@ public final class ResponseBodyClient {
 
     /**
      * The base64 operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -140,7 +139,7 @@ public final class ResponseBodyClient {
 
     /**
      * The base64 operation.
-     *
+     * 
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return represent a byte array.
@@ -153,7 +152,7 @@ public final class ResponseBodyClient {
 
     /**
      * The base64url operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -169,7 +168,7 @@ public final class ResponseBodyClient {
 
     /**
      * The base64url operation.
-     *
+     * 
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.

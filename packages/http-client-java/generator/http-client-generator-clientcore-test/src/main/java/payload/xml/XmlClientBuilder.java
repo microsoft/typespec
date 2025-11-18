@@ -47,7 +47,6 @@ import payload.xml.implementation.XmlClientImpl;
         ModelWithEncodedNamesValueClient.class })
 public final class XmlClientBuilder implements HttpTrait<XmlClientBuilder>, ProxyTrait<XmlClientBuilder>,
     ConfigurationTrait<XmlClientBuilder>, EndpointTrait<XmlClientBuilder> {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -193,7 +192,7 @@ public final class XmlClientBuilder implements HttpTrait<XmlClientBuilder>, Prox
 
     /**
      * Builds an instance of XmlClientImpl with the provided parameters.
-     *
+     * 
      * @return an instance of XmlClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -238,7 +237,7 @@ public final class XmlClientBuilder implements HttpTrait<XmlClientBuilder>, Prox
 
     /**
      * Builds an instance of SimpleModelValueClient class.
-     *
+     * 
      * @return an instance of SimpleModelValueClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -249,7 +248,7 @@ public final class XmlClientBuilder implements HttpTrait<XmlClientBuilder>, Prox
 
     /**
      * Builds an instance of ModelWithSimpleArraysValueClient class.
-     *
+     * 
      * @return an instance of ModelWithSimpleArraysValueClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -261,7 +260,7 @@ public final class XmlClientBuilder implements HttpTrait<XmlClientBuilder>, Prox
 
     /**
      * Builds an instance of ModelWithArrayOfModelValueClient class.
-     *
+     * 
      * @return an instance of ModelWithArrayOfModelValueClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -273,7 +272,7 @@ public final class XmlClientBuilder implements HttpTrait<XmlClientBuilder>, Prox
 
     /**
      * Builds an instance of ModelWithOptionalFieldValueClient class.
-     *
+     * 
      * @return an instance of ModelWithOptionalFieldValueClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -285,7 +284,7 @@ public final class XmlClientBuilder implements HttpTrait<XmlClientBuilder>, Prox
 
     /**
      * Builds an instance of ModelWithAttributesValueClient class.
-     *
+     * 
      * @return an instance of ModelWithAttributesValueClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -297,7 +296,7 @@ public final class XmlClientBuilder implements HttpTrait<XmlClientBuilder>, Prox
 
     /**
      * Builds an instance of ModelWithUnwrappedArrayValueClient class.
-     *
+     * 
      * @return an instance of ModelWithUnwrappedArrayValueClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -309,7 +308,7 @@ public final class XmlClientBuilder implements HttpTrait<XmlClientBuilder>, Prox
 
     /**
      * Builds an instance of ModelWithRenamedArraysValueClient class.
-     *
+     * 
      * @return an instance of ModelWithRenamedArraysValueClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -321,7 +320,7 @@ public final class XmlClientBuilder implements HttpTrait<XmlClientBuilder>, Prox
 
     /**
      * Builds an instance of ModelWithRenamedFieldsValueClient class.
-     *
+     * 
      * @return an instance of ModelWithRenamedFieldsValueClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -333,7 +332,7 @@ public final class XmlClientBuilder implements HttpTrait<XmlClientBuilder>, Prox
 
     /**
      * Builds an instance of ModelWithEmptyArrayValueClient class.
-     *
+     * 
      * @return an instance of ModelWithEmptyArrayValueClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -345,7 +344,7 @@ public final class XmlClientBuilder implements HttpTrait<XmlClientBuilder>, Prox
 
     /**
      * Builds an instance of ModelWithTextValueClient class.
-     *
+     * 
      * @return an instance of ModelWithTextValueClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -356,7 +355,7 @@ public final class XmlClientBuilder implements HttpTrait<XmlClientBuilder>, Prox
 
     /**
      * Builds an instance of ModelWithDictionaryValueClient class.
-     *
+     * 
      * @return an instance of ModelWithDictionaryValueClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -368,7 +367,7 @@ public final class XmlClientBuilder implements HttpTrait<XmlClientBuilder>, Prox
 
     /**
      * Builds an instance of ModelWithEncodedNamesValueClient class.
-     *
+     * 
      * @return an instance of ModelWithEncodedNamesValueClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

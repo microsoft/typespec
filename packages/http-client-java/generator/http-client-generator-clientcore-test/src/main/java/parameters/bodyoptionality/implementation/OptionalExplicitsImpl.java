@@ -20,7 +20,6 @@ import parameters.bodyoptionality.BodyModel;
  * An instance of this class provides access to all the operations defined in OptionalExplicits.
  */
 public final class OptionalExplicitsImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -38,7 +37,7 @@ public final class OptionalExplicitsImpl {
 
     /**
      * Initializes an instance of OptionalExplicitsImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     OptionalExplicitsImpl(BodyOptionalityClientImpl client) {
@@ -53,7 +52,6 @@ public final class OptionalExplicitsImpl {
      */
     @ServiceInterface(name = "BodyOptionalityClientOptionalExplicits", host = "{endpoint}")
     public interface OptionalExplicitsService {
-
         static OptionalExplicitsService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz
@@ -64,6 +62,7 @@ public final class OptionalExplicitsImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(
@@ -85,7 +84,7 @@ public final class OptionalExplicitsImpl {
 
     /**
      * The set operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -103,7 +102,7 @@ public final class OptionalExplicitsImpl {
 
     /**
      * The omit operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

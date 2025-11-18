@@ -13,7 +13,6 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class DefaultError implements JsonSerializable<DefaultError> {
-
     /*
      * The code property.
      */
@@ -22,7 +21,7 @@ public final class DefaultError implements JsonSerializable<DefaultError> {
 
     /**
      * Creates an instance of DefaultError class.
-     *
+     * 
      * @param code the code value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -32,7 +31,7 @@ public final class DefaultError implements JsonSerializable<DefaultError> {
 
     /**
      * Get the code property: The code property.
-     *
+     * 
      * @return the code value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -53,7 +52,7 @@ public final class DefaultError implements JsonSerializable<DefaultError> {
 
     /**
      * Reads an instance of DefaultError from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of DefaultError if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.
@@ -67,6 +66,7 @@ public final class DefaultError implements JsonSerializable<DefaultError> {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
+
                 if ("code".equals(fieldName)) {
                     code = reader.getString();
                 } else {

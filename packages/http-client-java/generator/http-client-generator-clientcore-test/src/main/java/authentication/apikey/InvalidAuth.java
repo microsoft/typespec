@@ -13,7 +13,6 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class InvalidAuth implements JsonSerializable<InvalidAuth> {
-
     /*
      * The error property.
      */
@@ -22,7 +21,7 @@ public final class InvalidAuth implements JsonSerializable<InvalidAuth> {
 
     /**
      * Creates an instance of InvalidAuth class.
-     *
+     * 
      * @param error the error value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -32,7 +31,7 @@ public final class InvalidAuth implements JsonSerializable<InvalidAuth> {
 
     /**
      * Get the error property: The error property.
-     *
+     * 
      * @return the error value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -53,7 +52,7 @@ public final class InvalidAuth implements JsonSerializable<InvalidAuth> {
 
     /**
      * Reads an instance of InvalidAuth from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of InvalidAuth if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.
@@ -67,6 +66,7 @@ public final class InvalidAuth implements JsonSerializable<InvalidAuth> {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
+
                 if ("error".equals(fieldName)) {
                     error = reader.getString();
                 } else {

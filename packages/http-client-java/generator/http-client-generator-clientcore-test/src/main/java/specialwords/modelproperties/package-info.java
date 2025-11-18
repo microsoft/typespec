@@ -1,7 +1,7 @@
 /**
  * Package containing the data models for SpecialWords.
  * Scenarios to verify that reserved words can be used in service and generators will handle it appropriately.
- *
+ * 
  * Current list of special words
  * ```txt
  * and

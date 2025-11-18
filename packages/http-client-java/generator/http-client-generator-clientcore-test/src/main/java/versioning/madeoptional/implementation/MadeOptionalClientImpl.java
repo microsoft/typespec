@@ -23,7 +23,6 @@ import versioning.madeoptional.TestModel;
  * Initializes a new instance of the MadeOptionalClient type.
  */
 public final class MadeOptionalClientImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -36,7 +35,7 @@ public final class MadeOptionalClientImpl {
 
     /**
      * Gets Need to be set as 'http://localhost:3000' in client.
-     *
+     * 
      * @return the endpoint value.
      */
     public String getEndpoint() {
@@ -50,7 +49,7 @@ public final class MadeOptionalClientImpl {
 
     /**
      * Gets Service version.
-     *
+     * 
      * @return the serviceVersion value.
      */
     public MadeOptionalServiceVersion getServiceVersion() {
@@ -64,7 +63,7 @@ public final class MadeOptionalClientImpl {
 
     /**
      * Gets The HTTP pipeline to send requests through.
-     *
+     * 
      * @return the httpPipeline value.
      */
     public HttpPipeline getHttpPipeline() {
@@ -78,7 +77,7 @@ public final class MadeOptionalClientImpl {
 
     /**
      * Gets The instance of instrumentation to report telemetry.
-     *
+     * 
      * @return the instrumentation value.
      */
     public Instrumentation getInstrumentation() {
@@ -87,7 +86,7 @@ public final class MadeOptionalClientImpl {
 
     /**
      * Initializes an instance of MadeOptionalClient client.
-     *
+     * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
@@ -108,7 +107,6 @@ public final class MadeOptionalClientImpl {
      */
     @ServiceInterface(name = "MadeOptionalClient", host = "{endpoint}/versioning/made-optional/api-version:{version}")
     public interface MadeOptionalClientService {
-
         static MadeOptionalClientService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("versioning.madeoptional.implementation.MadeOptionalClientServiceImpl");
@@ -118,6 +116,7 @@ public final class MadeOptionalClientImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(method = HttpMethod.POST, path = "/test", expectedStatusCodes = { 200 })
@@ -130,7 +129,7 @@ public final class MadeOptionalClientImpl {
 
     /**
      * The test operation.
-     *
+     * 
      * @param body The body parameter.
      * @param param The param parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.

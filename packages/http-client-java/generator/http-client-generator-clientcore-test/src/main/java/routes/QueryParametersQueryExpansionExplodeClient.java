@@ -18,7 +18,6 @@ import routes.implementation.QueryParametersQueryExpansionExplodesImpl;
  */
 @ServiceClient(builder = RoutesClientBuilder.class)
 public final class QueryParametersQueryExpansionExplodeClient {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final QueryParametersQueryExpansionExplodesImpl serviceClient;
 
@@ -26,7 +25,7 @@ public final class QueryParametersQueryExpansionExplodeClient {
 
     /**
      * Initializes an instance of QueryParametersQueryExpansionExplodeClient class.
-     *
+     * 
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -39,7 +38,7 @@ public final class QueryParametersQueryExpansionExplodeClient {
 
     /**
      * The primitive operation.
-     *
+     * 
      * @param param The param parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -56,7 +55,7 @@ public final class QueryParametersQueryExpansionExplodeClient {
 
     /**
      * The primitive operation.
-     *
+     * 
      * @param param The param parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -70,7 +69,7 @@ public final class QueryParametersQueryExpansionExplodeClient {
 
     /**
      * The array operation.
-     *
+     * 
      * @param param The param parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -87,7 +86,7 @@ public final class QueryParametersQueryExpansionExplodeClient {
 
     /**
      * The array operation.
-     *
+     * 
      * @param param The param parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -101,7 +100,7 @@ public final class QueryParametersQueryExpansionExplodeClient {
 
     /**
      * The record operation.
-     *
+     * 
      * @param param The param parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -118,7 +117,7 @@ public final class QueryParametersQueryExpansionExplodeClient {
 
     /**
      * The record operation.
-     *
+     * 
      * @param param The param parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

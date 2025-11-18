@@ -7,7 +7,6 @@ import io.clientcore.core.instrumentation.Instrumentation;
  * Initializes a new instance of the DictionaryClient type.
  */
 public final class DictionaryClientImpl {
-
     /**
      * Service host.
      */
@@ -15,7 +14,7 @@ public final class DictionaryClientImpl {
 
     /**
      * Gets Service host.
-     *
+     * 
      * @return the endpoint value.
      */
     public String getEndpoint() {
@@ -29,7 +28,7 @@ public final class DictionaryClientImpl {
 
     /**
      * Gets The HTTP pipeline to send requests through.
-     *
+     * 
      * @return the httpPipeline value.
      */
     public HttpPipeline getHttpPipeline() {
@@ -43,7 +42,7 @@ public final class DictionaryClientImpl {
 
     /**
      * Gets The instance of instrumentation to report telemetry.
-     *
+     * 
      * @return the instrumentation value.
      */
     public Instrumentation getInstrumentation() {
@@ -57,7 +56,7 @@ public final class DictionaryClientImpl {
 
     /**
      * Gets the Int32ValuesImpl object to access its operations.
-     *
+     * 
      * @return the Int32ValuesImpl object.
      */
     public Int32ValuesImpl getInt32Values() {
@@ -71,7 +70,7 @@ public final class DictionaryClientImpl {
 
     /**
      * Gets the Int64ValuesImpl object to access its operations.
-     *
+     * 
      * @return the Int64ValuesImpl object.
      */
     public Int64ValuesImpl getInt64Values() {
@@ -85,7 +84,7 @@ public final class DictionaryClientImpl {
 
     /**
      * Gets the BooleanValuesImpl object to access its operations.
-     *
+     * 
      * @return the BooleanValuesImpl object.
      */
     public BooleanValuesImpl getBooleanValues() {
@@ -99,7 +98,7 @@ public final class DictionaryClientImpl {
 
     /**
      * Gets the StringValuesImpl object to access its operations.
-     *
+     * 
      * @return the StringValuesImpl object.
      */
     public StringValuesImpl getStringValues() {
@@ -113,7 +112,7 @@ public final class DictionaryClientImpl {
 
     /**
      * Gets the Float32ValuesImpl object to access its operations.
-     *
+     * 
      * @return the Float32ValuesImpl object.
      */
     public Float32ValuesImpl getFloat32Values() {
@@ -127,7 +126,7 @@ public final class DictionaryClientImpl {
 
     /**
      * Gets the DatetimeValuesImpl object to access its operations.
-     *
+     * 
      * @return the DatetimeValuesImpl object.
      */
     public DatetimeValuesImpl getDatetimeValues() {
@@ -141,7 +140,7 @@ public final class DictionaryClientImpl {
 
     /**
      * Gets the DurationValuesImpl object to access its operations.
-     *
+     * 
      * @return the DurationValuesImpl object.
      */
     public DurationValuesImpl getDurationValues() {
@@ -155,7 +154,7 @@ public final class DictionaryClientImpl {
 
     /**
      * Gets the UnknownValuesImpl object to access its operations.
-     *
+     * 
      * @return the UnknownValuesImpl object.
      */
     public UnknownValuesImpl getUnknownValues() {
@@ -169,7 +168,7 @@ public final class DictionaryClientImpl {
 
     /**
      * Gets the ModelValuesImpl object to access its operations.
-     *
+     * 
      * @return the ModelValuesImpl object.
      */
     public ModelValuesImpl getModelValues() {
@@ -183,7 +182,7 @@ public final class DictionaryClientImpl {
 
     /**
      * Gets the RecursiveModelValuesImpl object to access its operations.
-     *
+     * 
      * @return the RecursiveModelValuesImpl object.
      */
     public RecursiveModelValuesImpl getRecursiveModelValues() {
@@ -197,7 +196,7 @@ public final class DictionaryClientImpl {
 
     /**
      * Gets the NullableFloatValuesImpl object to access its operations.
-     *
+     * 
      * @return the NullableFloatValuesImpl object.
      */
     public NullableFloatValuesImpl getNullableFloatValues() {
@@ -206,7 +205,7 @@ public final class DictionaryClientImpl {
 
     /**
      * Initializes an instance of DictionaryClient client.
-     *
+     * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.

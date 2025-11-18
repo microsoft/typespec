@@ -14,7 +14,6 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class NewModel implements JsonSerializable<NewModel> {
-
     /*
      * The newProp property.
      */
@@ -35,7 +34,7 @@ public final class NewModel implements JsonSerializable<NewModel> {
 
     /**
      * Creates an instance of NewModel class.
-     *
+     * 
      * @param newProp the newProp value to set.
      * @param enumProp the enumProp value to set.
      * @param unionProp the unionProp value to set.
@@ -49,7 +48,7 @@ public final class NewModel implements JsonSerializable<NewModel> {
 
     /**
      * Get the newProp property: The newProp property.
-     *
+     * 
      * @return the newProp value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -59,7 +58,7 @@ public final class NewModel implements JsonSerializable<NewModel> {
 
     /**
      * Get the enumProp property: The enumProp property.
-     *
+     * 
      * @return the enumProp value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -69,7 +68,7 @@ public final class NewModel implements JsonSerializable<NewModel> {
 
     /**
      * Get the unionProp property: The unionProp property.
-     *
+     * 
      * @return the unionProp value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -93,7 +92,7 @@ public final class NewModel implements JsonSerializable<NewModel> {
 
     /**
      * Reads an instance of NewModel from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of NewModel if the JsonReader was pointing to an instance of it, or null if it was pointing
      * to JSON null.
@@ -109,6 +108,7 @@ public final class NewModel implements JsonSerializable<NewModel> {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
+
                 if ("newProp".equals(fieldName)) {
                     newProp = reader.getString();
                 } else if ("enumProp".equals(fieldName)) {

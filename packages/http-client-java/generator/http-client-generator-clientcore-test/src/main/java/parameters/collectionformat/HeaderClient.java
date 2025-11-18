@@ -17,7 +17,6 @@ import parameters.collectionformat.implementation.HeadersImpl;
  */
 @ServiceClient(builder = CollectionFormatClientBuilder.class)
 public final class HeaderClient {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final HeadersImpl serviceClient;
 
@@ -25,7 +24,7 @@ public final class HeaderClient {
 
     /**
      * Initializes an instance of HeaderClient class.
-     *
+     * 
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -37,7 +36,7 @@ public final class HeaderClient {
 
     /**
      * The csv operation.
-     *
+     * 
      * @param colors Possible values for colors are [blue,red,green].
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -54,7 +53,7 @@ public final class HeaderClient {
 
     /**
      * The csv operation.
-     *
+     * 
      * @param colors Possible values for colors are [blue,red,green].
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

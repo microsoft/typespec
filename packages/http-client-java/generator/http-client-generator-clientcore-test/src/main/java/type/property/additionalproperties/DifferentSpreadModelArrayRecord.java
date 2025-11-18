@@ -16,7 +16,6 @@ import java.util.Map;
  */
 @Metadata(properties = { MetadataProperties.FLUENT })
 public class DifferentSpreadModelArrayRecord implements JsonSerializable<DifferentSpreadModelArrayRecord> {
-
     /*
      * The knownProp property.
      */
@@ -31,7 +30,7 @@ public class DifferentSpreadModelArrayRecord implements JsonSerializable<Differe
 
     /**
      * Creates an instance of DifferentSpreadModelArrayRecord class.
-     *
+     * 
      * @param knownProp the knownProp value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -41,7 +40,7 @@ public class DifferentSpreadModelArrayRecord implements JsonSerializable<Differe
 
     /**
      * Get the knownProp property: The knownProp property.
-     *
+     * 
      * @return the knownProp value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -52,7 +51,7 @@ public class DifferentSpreadModelArrayRecord implements JsonSerializable<Differe
     /**
      * Get the additionalProperties property: The model spread Record&lt;ModelForRecord[]&gt; with the different known
      * property type.
-     *
+     * 
      * @return the additionalProperties value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -63,7 +62,7 @@ public class DifferentSpreadModelArrayRecord implements JsonSerializable<Differe
     /**
      * Set the additionalProperties property: The model spread Record&lt;ModelForRecord[]&gt; with the different known
      * property type.
-     *
+     * 
      * @param additionalProperties the additionalProperties value to set.
      * @return the DifferentSpreadModelArrayRecord object itself.
      */
@@ -92,7 +91,7 @@ public class DifferentSpreadModelArrayRecord implements JsonSerializable<Differe
 
     /**
      * Reads an instance of DifferentSpreadModelArrayRecord from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of DifferentSpreadModelArrayRecord if the JsonReader was pointing to an instance of it, or
      * null if it was pointing to JSON null.
@@ -107,12 +106,14 @@ public class DifferentSpreadModelArrayRecord implements JsonSerializable<Differe
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
+
                 if ("knownProp".equals(fieldName)) {
                     knownProp = reader.getString();
                 } else {
                     if (additionalProperties == null) {
                         additionalProperties = new LinkedHashMap<>();
                     }
+
                     List<ModelForRecord> additionalPropertiesArrayItem
                         = reader.readArray(reader1 -> ModelForRecord.fromJson(reader1));
                     additionalProperties.put(fieldName, additionalPropertiesArrayItem);
@@ -121,6 +122,7 @@ public class DifferentSpreadModelArrayRecord implements JsonSerializable<Differe
             DifferentSpreadModelArrayRecord deserializedDifferentSpreadModelArrayRecord
                 = new DifferentSpreadModelArrayRecord(knownProp);
             deserializedDifferentSpreadModelArrayRecord.additionalProperties = additionalProperties;
+
             return deserializedDifferentSpreadModelArrayRecord;
         });
     }

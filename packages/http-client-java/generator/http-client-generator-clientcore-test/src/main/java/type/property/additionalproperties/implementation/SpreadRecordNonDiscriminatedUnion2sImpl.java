@@ -21,7 +21,6 @@ import type.property.additionalproperties.SpreadRecordForNonDiscriminatedUnion2;
  * An instance of this class provides access to all the operations defined in SpreadRecordNonDiscriminatedUnion2s.
  */
 public final class SpreadRecordNonDiscriminatedUnion2sImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -39,7 +38,7 @@ public final class SpreadRecordNonDiscriminatedUnion2sImpl {
 
     /**
      * Initializes an instance of SpreadRecordNonDiscriminatedUnion2sImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     SpreadRecordNonDiscriminatedUnion2sImpl(AdditionalPropertiesClientImpl client) {
@@ -54,7 +53,6 @@ public final class SpreadRecordNonDiscriminatedUnion2sImpl {
      */
     @ServiceInterface(name = "AdditionalPropertiesClientSpreadRecordNonDiscriminatedUnion2s", host = "{endpoint}")
     public interface SpreadRecordNonDiscriminatedUnion2sService {
-
         static SpreadRecordNonDiscriminatedUnion2sService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName(
@@ -66,6 +64,7 @@ public final class SpreadRecordNonDiscriminatedUnion2sImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(
@@ -87,7 +86,7 @@ public final class SpreadRecordNonDiscriminatedUnion2sImpl {
 
     /**
      * Get call.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -106,7 +105,7 @@ public final class SpreadRecordNonDiscriminatedUnion2sImpl {
 
     /**
      * Put operation.
-     *
+     * 
      * @param body body.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

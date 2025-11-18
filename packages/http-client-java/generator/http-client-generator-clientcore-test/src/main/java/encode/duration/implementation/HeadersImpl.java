@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
  * An instance of this class provides access to all the operations defined in Headers.
  */
 public final class HeadersImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -41,7 +40,7 @@ public final class HeadersImpl {
 
     /**
      * Initializes an instance of HeadersImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     HeadersImpl(DurationClientImpl client) {
@@ -56,7 +55,6 @@ public final class HeadersImpl {
      */
     @ServiceInterface(name = "DurationClientHeaders", host = "{endpoint}")
     public interface HeadersService {
-
         static HeadersService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("encode.duration.implementation.HeadersServiceImpl");
@@ -65,6 +63,7 @@ public final class HeadersImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(
@@ -182,7 +181,7 @@ public final class HeadersImpl {
 
     /**
      * The defaultMethod operation.
-     *
+     * 
      * @param duration The duration parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -200,7 +199,7 @@ public final class HeadersImpl {
 
     /**
      * The iso8601 operation.
-     *
+     * 
      * @param duration The duration parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -218,7 +217,7 @@ public final class HeadersImpl {
 
     /**
      * The iso8601Array operation.
-     *
+     * 
      * @param duration The duration parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -251,6 +250,7 @@ public final class HeadersImpl {
                             if (itemValueString.charAt(endOffset) != '"') {
                                 break;
                             }
+
                             endOffset--;
                         }
                         return itemValueString.substring(startOffset, endOffset + 1);
@@ -262,7 +262,7 @@ public final class HeadersImpl {
 
     /**
      * The int32Seconds operation.
-     *
+     * 
      * @param duration The duration parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -300,7 +300,7 @@ public final class HeadersImpl {
 
     /**
      * The floatSeconds operation.
-     *
+     * 
      * @param duration The duration parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -338,7 +338,7 @@ public final class HeadersImpl {
 
     /**
      * The float64Seconds operation.
-     *
+     * 
      * @param duration The duration parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -357,7 +357,7 @@ public final class HeadersImpl {
 
     /**
      * The int32Milliseconds operation.
-     *
+     * 
      * @param duration The duration parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -393,7 +393,7 @@ public final class HeadersImpl {
 
     /**
      * The floatMilliseconds operation.
-     *
+     * 
      * @param duration The duration parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -429,7 +429,7 @@ public final class HeadersImpl {
 
     /**
      * The float64Milliseconds operation.
-     *
+     * 
      * @param duration The duration parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -447,7 +447,7 @@ public final class HeadersImpl {
 
     /**
      * The int32MillisecondsArray operation.
-     *
+     * 
      * @param duration The duration parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -480,6 +480,7 @@ public final class HeadersImpl {
                             if (itemValueString.charAt(endOffset) != '"') {
                                 break;
                             }
+
                             endOffset--;
                         }
                         return itemValueString.substring(startOffset, endOffset + 1);

@@ -20,7 +20,6 @@ import java.lang.reflect.InvocationTargetException;
  * An instance of this class provides access to all the operations defined in StringBodies.
  */
 public final class StringBodiesImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -38,7 +37,7 @@ public final class StringBodiesImpl {
 
     /**
      * Initializes an instance of StringBodiesImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     StringBodiesImpl(MediaTypeClientImpl client) {
@@ -53,7 +52,6 @@ public final class StringBodiesImpl {
      */
     @ServiceInterface(name = "MediaTypeClientStringBodies", host = "{endpoint}")
     public interface StringBodiesService {
-
         static StringBodiesService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("payload.mediatype.implementation.StringBodiesServiceImpl");
@@ -63,6 +61,7 @@ public final class StringBodiesImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(
@@ -102,7 +101,7 @@ public final class StringBodiesImpl {
 
     /**
      * The sendAsText operation.
-     *
+     * 
      * @param text The text parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -121,7 +120,7 @@ public final class StringBodiesImpl {
 
     /**
      * The getAsText operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -139,7 +138,7 @@ public final class StringBodiesImpl {
 
     /**
      * The sendAsJson operation.
-     *
+     * 
      * @param text The text parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -158,7 +157,7 @@ public final class StringBodiesImpl {
 
     /**
      * The getAsJson operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

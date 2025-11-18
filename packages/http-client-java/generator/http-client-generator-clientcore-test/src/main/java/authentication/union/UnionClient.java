@@ -16,7 +16,6 @@ import io.clientcore.core.instrumentation.Instrumentation;
  */
 @ServiceClient(builder = UnionClientBuilder.class)
 public final class UnionClient {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final UnionClientImpl serviceClient;
 
@@ -24,7 +23,7 @@ public final class UnionClient {
 
     /**
      * Initializes an instance of UnionClient class.
-     *
+     * 
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -36,7 +35,7 @@ public final class UnionClient {
 
     /**
      * Check whether client is authenticated.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -52,7 +51,7 @@ public final class UnionClient {
 
     /**
      * Check whether client is authenticated.
-     *
+     * 
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
@@ -64,7 +63,7 @@ public final class UnionClient {
 
     /**
      * Check whether client is authenticated.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -80,7 +79,7 @@ public final class UnionClient {
 
     /**
      * Check whether client is authenticated.
-     *
+     * 
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */

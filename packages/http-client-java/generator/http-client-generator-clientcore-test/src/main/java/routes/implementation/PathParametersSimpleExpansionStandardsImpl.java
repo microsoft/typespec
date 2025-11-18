@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
  * An instance of this class provides access to all the operations defined in PathParametersSimpleExpansionStandards.
  */
 public final class PathParametersSimpleExpansionStandardsImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -41,7 +40,7 @@ public final class PathParametersSimpleExpansionStandardsImpl {
 
     /**
      * Initializes an instance of PathParametersSimpleExpansionStandardsImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     PathParametersSimpleExpansionStandardsImpl(RoutesClientImpl client) {
@@ -56,7 +55,6 @@ public final class PathParametersSimpleExpansionStandardsImpl {
      */
     @ServiceInterface(name = "RoutesClientPathParametersSimpleExpansionStandards", host = "{endpoint}")
     public interface PathParametersSimpleExpansionStandardsService {
-
         static PathParametersSimpleExpansionStandardsService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz
@@ -68,6 +66,7 @@ public final class PathParametersSimpleExpansionStandardsImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(
@@ -97,7 +96,7 @@ public final class PathParametersSimpleExpansionStandardsImpl {
 
     /**
      * The primitive operation.
-     *
+     * 
      * @param param The param parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -115,7 +114,7 @@ public final class PathParametersSimpleExpansionStandardsImpl {
 
     /**
      * The array operation.
-     *
+     * 
      * @param param The param parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -136,7 +135,7 @@ public final class PathParametersSimpleExpansionStandardsImpl {
 
     /**
      * The record operation.
-     *
+     * 
      * @param param The param parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

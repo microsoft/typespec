@@ -15,7 +15,6 @@ import payload.pageable.Pet;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class LinkResponse implements JsonSerializable<LinkResponse> {
-
     /*
      * The pets property.
      */
@@ -30,7 +29,7 @@ public final class LinkResponse implements JsonSerializable<LinkResponse> {
 
     /**
      * Creates an instance of LinkResponse class.
-     *
+     * 
      * @param pets the pets value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -40,7 +39,7 @@ public final class LinkResponse implements JsonSerializable<LinkResponse> {
 
     /**
      * Get the pets property: The pets property.
-     *
+     * 
      * @return the pets value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -50,7 +49,7 @@ public final class LinkResponse implements JsonSerializable<LinkResponse> {
 
     /**
      * Get the next property: The next property.
-     *
+     * 
      * @return the next value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -72,7 +71,7 @@ public final class LinkResponse implements JsonSerializable<LinkResponse> {
 
     /**
      * Reads an instance of LinkResponse from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of LinkResponse if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.
@@ -87,6 +86,7 @@ public final class LinkResponse implements JsonSerializable<LinkResponse> {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
+
                 if ("pets".equals(fieldName)) {
                     pets = reader.readArray(reader1 -> Pet.fromJson(reader1));
                 } else if ("next".equals(fieldName)) {
@@ -97,6 +97,7 @@ public final class LinkResponse implements JsonSerializable<LinkResponse> {
             }
             LinkResponse deserializedLinkResponse = new LinkResponse(pets);
             deserializedLinkResponse.next = next;
+
             return deserializedLinkResponse;
         });
     }

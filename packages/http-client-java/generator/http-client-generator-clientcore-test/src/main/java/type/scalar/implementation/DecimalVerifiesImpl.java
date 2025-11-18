@@ -22,7 +22,6 @@ import java.util.List;
  * An instance of this class provides access to all the operations defined in DecimalVerifies.
  */
 public final class DecimalVerifiesImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -40,7 +39,7 @@ public final class DecimalVerifiesImpl {
 
     /**
      * Initializes an instance of DecimalVerifiesImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     DecimalVerifiesImpl(ScalarClientImpl client) {
@@ -55,7 +54,6 @@ public final class DecimalVerifiesImpl {
      */
     @ServiceInterface(name = "ScalarClientDecimalVerifies", host = "{endpoint}")
     public interface DecimalVerifiesService {
-
         static DecimalVerifiesService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("type.scalar.implementation.DecimalVerifiesServiceImpl");
@@ -65,6 +63,7 @@ public final class DecimalVerifiesImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(
@@ -86,7 +85,7 @@ public final class DecimalVerifiesImpl {
 
     /**
      * The prepareVerify operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -104,7 +103,7 @@ public final class DecimalVerifiesImpl {
 
     /**
      * The verify operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

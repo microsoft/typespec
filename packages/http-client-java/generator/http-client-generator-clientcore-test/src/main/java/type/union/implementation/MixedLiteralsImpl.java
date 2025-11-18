@@ -22,7 +22,6 @@ import type.union.MixedLiteralsCases;
  * An instance of this class provides access to all the operations defined in MixedLiterals.
  */
 public final class MixedLiteralsImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -40,7 +39,7 @@ public final class MixedLiteralsImpl {
 
     /**
      * Initializes an instance of MixedLiteralsImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     MixedLiteralsImpl(UnionClientImpl client) {
@@ -55,7 +54,6 @@ public final class MixedLiteralsImpl {
      */
     @ServiceInterface(name = "UnionClientMixedLiterals", host = "{endpoint}")
     public interface MixedLiteralsService {
-
         static MixedLiteralsService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("type.union.implementation.MixedLiteralsServiceImpl");
@@ -65,6 +63,7 @@ public final class MixedLiteralsImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(
@@ -86,7 +85,7 @@ public final class MixedLiteralsImpl {
 
     /**
      * The get operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -104,7 +103,7 @@ public final class MixedLiteralsImpl {
 
     /**
      * The send operation.
-     *
+     * 
      * @param prop The prop parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

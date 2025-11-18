@@ -12,7 +12,6 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class Cobra extends Snake {
-
     /*
      * discriminator property
      */
@@ -21,7 +20,7 @@ public final class Cobra extends Snake {
 
     /**
      * Creates an instance of Cobra class.
-     *
+     * 
      * @param length the length value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -31,7 +30,7 @@ public final class Cobra extends Snake {
 
     /**
      * Get the kind property: discriminator property.
-     *
+     * 
      * @return the kind value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -54,7 +53,7 @@ public final class Cobra extends Snake {
 
     /**
      * Reads an instance of Cobra from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of Cobra if the JsonReader was pointing to an instance of it, or null if it was pointing to
      * JSON null.
@@ -69,6 +68,7 @@ public final class Cobra extends Snake {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
+
                 if ("length".equals(fieldName)) {
                     length = reader.getInt();
                 } else if ("kind".equals(fieldName)) {
@@ -79,6 +79,7 @@ public final class Cobra extends Snake {
             }
             Cobra deserializedCobra = new Cobra(length);
             deserializedCobra.kind = kind;
+
             return deserializedCobra;
         });
     }

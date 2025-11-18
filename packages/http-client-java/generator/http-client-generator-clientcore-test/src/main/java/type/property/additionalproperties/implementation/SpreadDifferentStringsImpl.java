@@ -21,7 +21,6 @@ import type.property.additionalproperties.DifferentSpreadStringRecord;
  * An instance of this class provides access to all the operations defined in SpreadDifferentStrings.
  */
 public final class SpreadDifferentStringsImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -39,7 +38,7 @@ public final class SpreadDifferentStringsImpl {
 
     /**
      * Initializes an instance of SpreadDifferentStringsImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     SpreadDifferentStringsImpl(AdditionalPropertiesClientImpl client) {
@@ -54,7 +53,6 @@ public final class SpreadDifferentStringsImpl {
      */
     @ServiceInterface(name = "AdditionalPropertiesClientSpreadDifferentStrings", host = "{endpoint}")
     public interface SpreadDifferentStringsService {
-
         static SpreadDifferentStringsService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class
@@ -65,6 +63,7 @@ public final class SpreadDifferentStringsImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(
@@ -86,7 +85,7 @@ public final class SpreadDifferentStringsImpl {
 
     /**
      * Get call.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -104,7 +103,7 @@ public final class SpreadDifferentStringsImpl {
 
     /**
      * Put operation.
-     *
+     * 
      * @param body body.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

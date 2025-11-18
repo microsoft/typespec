@@ -13,7 +13,6 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class EnumsOnlyCases implements JsonSerializable<EnumsOnlyCases> {
-
     /*
      * This should be receive/send the left variant
      */
@@ -28,7 +27,7 @@ public final class EnumsOnlyCases implements JsonSerializable<EnumsOnlyCases> {
 
     /**
      * Creates an instance of EnumsOnlyCases class.
-     *
+     * 
      * @param lr the lr value to set.
      * @param ud the ud value to set.
      */
@@ -40,7 +39,7 @@ public final class EnumsOnlyCases implements JsonSerializable<EnumsOnlyCases> {
 
     /**
      * Get the lr property: This should be receive/send the left variant.
-     *
+     * 
      * @return the lr value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -50,7 +49,7 @@ public final class EnumsOnlyCases implements JsonSerializable<EnumsOnlyCases> {
 
     /**
      * Get the ud property: This should be receive/send the up variant.
-     *
+     * 
      * @return the ud value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -72,7 +71,7 @@ public final class EnumsOnlyCases implements JsonSerializable<EnumsOnlyCases> {
 
     /**
      * Reads an instance of EnumsOnlyCases from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of EnumsOnlyCases if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.
@@ -87,6 +86,7 @@ public final class EnumsOnlyCases implements JsonSerializable<EnumsOnlyCases> {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
+
                 if ("lr".equals(fieldName)) {
                     lr = EnumsOnlyCasesLr.fromString(reader.getString());
                 } else if ("ud".equals(fieldName)) {

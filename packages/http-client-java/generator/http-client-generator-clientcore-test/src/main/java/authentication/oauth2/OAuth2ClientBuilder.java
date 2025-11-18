@@ -39,7 +39,6 @@ import java.util.Objects;
 public final class OAuth2ClientBuilder
     implements HttpTrait<OAuth2ClientBuilder>, ProxyTrait<OAuth2ClientBuilder>, ConfigurationTrait<OAuth2ClientBuilder>,
     OAuthTokenCredentialTrait<OAuth2ClientBuilder>, EndpointTrait<OAuth2ClientBuilder> {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -204,7 +203,7 @@ public final class OAuth2ClientBuilder
 
     /**
      * Builds an instance of OAuth2ClientImpl with the provided parameters.
-     *
+     * 
      * @return an instance of OAuth2ClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -254,7 +253,7 @@ public final class OAuth2ClientBuilder
 
     /**
      * Builds an instance of OAuth2Client class.
-     *
+     * 
      * @return an instance of OAuth2Client.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

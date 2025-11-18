@@ -16,7 +16,6 @@ import versioning.returntypechangedfrom.implementation.ReturnTypeChangedFromClie
  */
 @ServiceClient(builder = ReturnTypeChangedFromClientBuilder.class)
 public final class ReturnTypeChangedFromClient {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final ReturnTypeChangedFromClientImpl serviceClient;
 
@@ -24,7 +23,7 @@ public final class ReturnTypeChangedFromClient {
 
     /**
      * Initializes an instance of ReturnTypeChangedFromClient class.
-     *
+     * 
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -36,7 +35,7 @@ public final class ReturnTypeChangedFromClient {
 
     /**
      * The test operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -53,7 +52,7 @@ public final class ReturnTypeChangedFromClient {
 
     /**
      * The test operation.
-     *
+     * 
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

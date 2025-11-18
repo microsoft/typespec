@@ -16,7 +16,6 @@ import type.property.additionalproperties.implementation.SpreadDifferentModelsIm
  */
 @ServiceClient(builder = AdditionalPropertiesClientBuilder.class)
 public final class SpreadDifferentModelClient {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final SpreadDifferentModelsImpl serviceClient;
 
@@ -24,7 +23,7 @@ public final class SpreadDifferentModelClient {
 
     /**
      * Initializes an instance of SpreadDifferentModelClient class.
-     *
+     * 
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -36,7 +35,7 @@ public final class SpreadDifferentModelClient {
 
     /**
      * Get call.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -53,7 +52,7 @@ public final class SpreadDifferentModelClient {
 
     /**
      * Get call.
-     *
+     * 
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return call.
@@ -66,7 +65,7 @@ public final class SpreadDifferentModelClient {
 
     /**
      * Put operation.
-     *
+     * 
      * @param body body.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -84,7 +83,7 @@ public final class SpreadDifferentModelClient {
 
     /**
      * Put operation.
-     *
+     * 
      * @param body body.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

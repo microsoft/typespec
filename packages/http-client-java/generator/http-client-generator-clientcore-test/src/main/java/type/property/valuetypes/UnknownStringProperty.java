@@ -14,7 +14,6 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class UnknownStringProperty implements JsonSerializable<UnknownStringProperty> {
-
     /*
      * Property
      */
@@ -23,7 +22,7 @@ public final class UnknownStringProperty implements JsonSerializable<UnknownStri
 
     /**
      * Creates an instance of UnknownStringProperty class.
-     *
+     * 
      * @param property the property value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -33,7 +32,7 @@ public final class UnknownStringProperty implements JsonSerializable<UnknownStri
 
     /**
      * Get the property property: Property.
-     *
+     * 
      * @return the property value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -55,7 +54,7 @@ public final class UnknownStringProperty implements JsonSerializable<UnknownStri
 
     /**
      * Reads an instance of UnknownStringProperty from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of UnknownStringProperty if the JsonReader was pointing to an instance of it, or null if it
      * was pointing to JSON null.
@@ -69,6 +68,7 @@ public final class UnknownStringProperty implements JsonSerializable<UnknownStri
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
+
                 if ("property".equals(fieldName)) {
                     property = reader.getNullable(nonNullReader -> BinaryData.fromObject(nonNullReader.readUntyped()));
                 } else {

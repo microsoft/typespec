@@ -22,7 +22,6 @@ import versioning.renamedfrom.RenamedFromServiceVersion;
  * An instance of this class provides access to all the operations defined in NewInterfaces.
  */
 public final class NewInterfacesImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -40,7 +39,7 @@ public final class NewInterfacesImpl {
 
     /**
      * Initializes an instance of NewInterfacesImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     NewInterfacesImpl(RenamedFromClientImpl client) {
@@ -51,7 +50,7 @@ public final class NewInterfacesImpl {
 
     /**
      * Gets Service version.
-     *
+     * 
      * @return the serviceVersion value.
      */
     public RenamedFromServiceVersion getServiceVersion() {
@@ -66,7 +65,6 @@ public final class NewInterfacesImpl {
         name = "RenamedFromClientNewInterfaces",
         host = "{endpoint}/versioning/renamed-from/api-version:{version}")
     public interface NewInterfacesService {
-
         static NewInterfacesService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("versioning.renamedfrom.implementation.NewInterfacesServiceImpl");
@@ -76,6 +74,7 @@ public final class NewInterfacesImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(method = HttpMethod.POST, path = "/interface/test", expectedStatusCodes = { 200 })
@@ -88,7 +87,7 @@ public final class NewInterfacesImpl {
 
     /**
      * The newOpInNewInterface operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

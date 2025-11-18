@@ -4,15 +4,16 @@ package type.union;
  * Defines values for GetResponseProp.
  */
 public enum GetResponseProp {
-
     /**
      * Enum value a.
      */
     A("a"),
+
     /**
      * Enum value b.
      */
     B("b"),
+
     /**
      * Enum value c.
      */
@@ -29,7 +30,7 @@ public enum GetResponseProp {
 
     /**
      * Parses a serialized value to a GetResponseProp instance.
-     *
+     * 
      * @param value the serialized value to parse.
      * @return the parsed GetResponseProp object, or null if unable to parse.
      */

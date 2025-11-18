@@ -29,7 +29,6 @@ import payload.pageable.serverdrivenpagination.continuationtoken.implementation.
  * An instance of this class provides access to all the operations defined in ServerDrivenPaginationContinuationTokens.
  */
 public final class ServerDrivenPaginationContinuationTokensImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -47,7 +46,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
 
     /**
      * Initializes an instance of ServerDrivenPaginationContinuationTokensImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     ServerDrivenPaginationContinuationTokensImpl(PageableClientImpl client) {
@@ -62,7 +61,6 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      */
     @ServiceInterface(name = "PageableClientServerDrivenPaginationContinuationTokens", host = "{endpoint}")
     public interface ServerDrivenPaginationContinuationTokensService {
-
         static ServerDrivenPaginationContinuationTokensService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class
@@ -74,6 +72,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(
@@ -133,7 +132,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
 
     /**
      * The requestQueryResponseBody operation.
-     *
+     * 
      * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
@@ -159,7 +158,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
 
     /**
      * The requestQueryResponseBody operation.
-     *
+     * 
      * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
@@ -187,7 +186,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
 
     /**
      * The requestQueryResponseBody operation.
-     *
+     * 
      * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
@@ -224,7 +223,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
 
     /**
      * The requestQueryResponseBody operation.
-     *
+     * 
      * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
@@ -262,7 +261,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
 
     /**
      * The requestHeaderResponseBody operation.
-     *
+     * 
      * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
@@ -288,7 +287,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
 
     /**
      * The requestHeaderResponseBody operation.
-     *
+     * 
      * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
@@ -316,7 +315,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
 
     /**
      * The requestHeaderResponseBody operation.
-     *
+     * 
      * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
@@ -353,7 +352,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
 
     /**
      * The requestHeaderResponseBody operation.
-     *
+     * 
      * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
@@ -391,7 +390,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
 
     /**
      * The requestQueryResponseHeader operation.
-     *
+     * 
      * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
@@ -416,7 +415,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
 
     /**
      * The requestQueryResponseHeader operation.
-     *
+     * 
      * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
@@ -443,7 +442,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
 
     /**
      * The requestQueryResponseHeader operation.
-     *
+     * 
      * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
@@ -480,7 +479,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
 
     /**
      * The requestQueryResponseHeader operation.
-     *
+     * 
      * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
@@ -518,7 +517,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
 
     /**
      * The requestHeaderResponseHeader operation.
-     *
+     * 
      * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
@@ -543,7 +542,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
 
     /**
      * The requestHeaderResponseHeader operation.
-     *
+     * 
      * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
@@ -570,7 +569,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
 
     /**
      * The requestHeaderResponseHeader operation.
-     *
+     * 
      * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
@@ -607,7 +606,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
 
     /**
      * The requestHeaderResponseHeader operation.
-     *
+     * 
      * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
@@ -645,7 +644,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
 
     /**
      * The requestQueryNestedResponseBody operation.
-     *
+     * 
      * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
@@ -673,7 +672,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
 
     /**
      * The requestQueryNestedResponseBody operation.
-     *
+     * 
      * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
@@ -703,7 +702,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
 
     /**
      * The requestQueryNestedResponseBody operation.
-     *
+     * 
      * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
@@ -740,7 +739,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
 
     /**
      * The requestQueryNestedResponseBody operation.
-     *
+     * 
      * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
@@ -778,7 +777,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
 
     /**
      * The requestHeaderNestedResponseBody operation.
-     *
+     * 
      * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
@@ -806,7 +805,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
 
     /**
      * The requestHeaderNestedResponseBody operation.
-     *
+     * 
      * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
@@ -836,7 +835,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
 
     /**
      * The requestHeaderNestedResponseBody operation.
-     *
+     * 
      * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
@@ -873,7 +872,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
 
     /**
      * The requestHeaderNestedResponseBody operation.
-     *
+     * 
      * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.

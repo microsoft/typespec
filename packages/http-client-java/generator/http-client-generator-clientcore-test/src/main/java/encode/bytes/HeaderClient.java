@@ -17,7 +17,6 @@ import java.util.List;
  */
 @ServiceClient(builder = BytesClientBuilder.class)
 public final class HeaderClient {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final HeadersImpl serviceClient;
 
@@ -25,7 +24,7 @@ public final class HeaderClient {
 
     /**
      * Initializes an instance of HeaderClient class.
-     *
+     * 
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -37,7 +36,7 @@ public final class HeaderClient {
 
     /**
      * The defaultMethod operation.
-     *
+     * 
      * @param value The value parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -54,7 +53,7 @@ public final class HeaderClient {
 
     /**
      * The defaultMethod operation.
-     *
+     * 
      * @param value The value parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -68,7 +67,7 @@ public final class HeaderClient {
 
     /**
      * The base64 operation.
-     *
+     * 
      * @param value The value parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -85,7 +84,7 @@ public final class HeaderClient {
 
     /**
      * The base64 operation.
-     *
+     * 
      * @param value The value parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -99,7 +98,7 @@ public final class HeaderClient {
 
     /**
      * The base64url operation.
-     *
+     * 
      * @param value The value parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -116,7 +115,7 @@ public final class HeaderClient {
 
     /**
      * The base64url operation.
-     *
+     * 
      * @param value The value parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -130,7 +129,7 @@ public final class HeaderClient {
 
     /**
      * The base64urlArray operation.
-     *
+     * 
      * @param value The value parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -147,7 +146,7 @@ public final class HeaderClient {
 
     /**
      * The base64urlArray operation.
-     *
+     * 
      * @param value The value parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

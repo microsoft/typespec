@@ -16,7 +16,6 @@ import payload.xml.implementation.ModelWithAttributesValuesImpl;
  */
 @ServiceClient(builder = XmlClientBuilder.class)
 public final class ModelWithAttributesValueClient {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final ModelWithAttributesValuesImpl serviceClient;
 
@@ -24,7 +23,7 @@ public final class ModelWithAttributesValueClient {
 
     /**
      * Initializes an instance of ModelWithAttributesValueClient class.
-     *
+     * 
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -36,7 +35,7 @@ public final class ModelWithAttributesValueClient {
 
     /**
      * The get operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -52,7 +51,7 @@ public final class ModelWithAttributesValueClient {
 
     /**
      * The get operation.
-     *
+     * 
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return contains fields that are XML attributes.
@@ -65,7 +64,7 @@ public final class ModelWithAttributesValueClient {
 
     /**
      * The put operation.
-     *
+     * 
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -82,7 +81,7 @@ public final class ModelWithAttributesValueClient {
 
     /**
      * The put operation.
-     *
+     * 
      * @param input The input parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

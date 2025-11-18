@@ -21,7 +21,6 @@ import type.property.valuetypes.IntLiteralProperty;
  * An instance of this class provides access to all the operations defined in IntLiterals.
  */
 public final class IntLiteralsImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -39,7 +38,7 @@ public final class IntLiteralsImpl {
 
     /**
      * Initializes an instance of IntLiteralsImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     IntLiteralsImpl(ValueTypesClientImpl client) {
@@ -54,7 +53,6 @@ public final class IntLiteralsImpl {
      */
     @ServiceInterface(name = "ValueTypesClientIntLiterals", host = "{endpoint}")
     public interface IntLiteralsService {
-
         static IntLiteralsService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("type.property.valuetypes.implementation.IntLiteralsServiceImpl");
@@ -64,6 +62,7 @@ public final class IntLiteralsImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(
@@ -85,7 +84,7 @@ public final class IntLiteralsImpl {
 
     /**
      * Get call.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -103,7 +102,7 @@ public final class IntLiteralsImpl {
 
     /**
      * Put operation.
-     *
+     * 
      * @param body body.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

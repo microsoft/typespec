@@ -19,7 +19,6 @@ import java.util.function.Function;
  * Defines values for GetResponseProp1.
  */
 public final class GetResponseProp1 implements ExpandableEnum<String>, JsonSerializable<GetResponseProp1> {
-
     private static final Map<String, GetResponseProp1> VALUES = new ConcurrentHashMap<>();
 
     private static final Function<String, GetResponseProp1> NEW_INSTANCE = GetResponseProp1::new;
@@ -44,7 +43,7 @@ public final class GetResponseProp1 implements ExpandableEnum<String>, JsonSeria
 
     /**
      * Creates or finds a GetResponseProp1.
-     *
+     * 
      * @param value a value to look for.
      * @return the corresponding GetResponseProp1.
      * @throws IllegalArgumentException if value is null.
@@ -59,7 +58,7 @@ public final class GetResponseProp1 implements ExpandableEnum<String>, JsonSeria
 
     /**
      * Gets known GetResponseProp1 values.
-     *
+     * 
      * @return Known GetResponseProp1 values.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -69,7 +68,7 @@ public final class GetResponseProp1 implements ExpandableEnum<String>, JsonSeria
 
     /**
      * Gets the value of the GetResponseProp1 instance.
-     *
+     * 
      * @return the value of the GetResponseProp1 instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -89,7 +88,7 @@ public final class GetResponseProp1 implements ExpandableEnum<String>, JsonSeria
 
     /**
      * Reads an instance of GetResponseProp1 from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of GetResponseProp1 if the JsonReader was pointing to an instance of it, or null if the
      * JsonReader was pointing to JSON null.

@@ -16,7 +16,6 @@ import io.clientcore.core.instrumentation.Instrumentation;
  */
 @ServiceClient(builder = DatetimeClientBuilder.class)
 public final class ResponseHeaderClient {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final ResponseHeadersImpl serviceClient;
 
@@ -24,7 +23,7 @@ public final class ResponseHeaderClient {
 
     /**
      * Initializes an instance of ResponseHeaderClient class.
-     *
+     * 
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -36,7 +35,7 @@ public final class ResponseHeaderClient {
 
     /**
      * The defaultMethod operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -52,7 +51,7 @@ public final class ResponseHeaderClient {
 
     /**
      * The defaultMethod operation.
-     *
+     * 
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
@@ -64,7 +63,7 @@ public final class ResponseHeaderClient {
 
     /**
      * The rfc3339 operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -80,7 +79,7 @@ public final class ResponseHeaderClient {
 
     /**
      * The rfc3339 operation.
-     *
+     * 
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
@@ -92,7 +91,7 @@ public final class ResponseHeaderClient {
 
     /**
      * The rfc7231 operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -108,7 +107,7 @@ public final class ResponseHeaderClient {
 
     /**
      * The rfc7231 operation.
-     *
+     * 
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
@@ -120,7 +119,7 @@ public final class ResponseHeaderClient {
 
     /**
      * The unixTimestamp operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -136,7 +135,7 @@ public final class ResponseHeaderClient {
 
     /**
      * The unixTimestamp operation.
-     *
+     * 
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */

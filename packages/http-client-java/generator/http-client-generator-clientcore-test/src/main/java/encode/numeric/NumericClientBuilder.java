@@ -34,7 +34,6 @@ import java.util.Objects;
 @ServiceClientBuilder(serviceClients = { NumericClient.class })
 public final class NumericClientBuilder implements HttpTrait<NumericClientBuilder>, ProxyTrait<NumericClientBuilder>,
     ConfigurationTrait<NumericClientBuilder>, EndpointTrait<NumericClientBuilder> {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -180,7 +179,7 @@ public final class NumericClientBuilder implements HttpTrait<NumericClientBuilde
 
     /**
      * Builds an instance of NumericClientImpl with the provided parameters.
-     *
+     * 
      * @return an instance of NumericClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -225,7 +224,7 @@ public final class NumericClientBuilder implements HttpTrait<NumericClientBuilde
 
     /**
      * Builds an instance of NumericClient class.
-     *
+     * 
      * @return an instance of NumericClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

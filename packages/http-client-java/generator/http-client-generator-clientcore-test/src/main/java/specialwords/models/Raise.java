@@ -13,7 +13,6 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class Raise implements JsonSerializable<Raise> {
-
     /*
      * The name property.
      */
@@ -22,7 +21,7 @@ public final class Raise implements JsonSerializable<Raise> {
 
     /**
      * Creates an instance of Raise class.
-     *
+     * 
      * @param name the name value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -32,7 +31,7 @@ public final class Raise implements JsonSerializable<Raise> {
 
     /**
      * Get the name property: The name property.
-     *
+     * 
      * @return the name value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -53,7 +52,7 @@ public final class Raise implements JsonSerializable<Raise> {
 
     /**
      * Reads an instance of Raise from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of Raise if the JsonReader was pointing to an instance of it, or null if it was pointing to
      * JSON null.
@@ -67,6 +66,7 @@ public final class Raise implements JsonSerializable<Raise> {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
+
                 if ("name".equals(fieldName)) {
                     name = reader.getString();
                 } else {

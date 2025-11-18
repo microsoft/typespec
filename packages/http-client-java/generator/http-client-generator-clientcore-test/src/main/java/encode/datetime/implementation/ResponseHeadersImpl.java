@@ -18,7 +18,6 @@ import java.lang.reflect.InvocationTargetException;
  * An instance of this class provides access to all the operations defined in ResponseHeaders.
  */
 public final class ResponseHeadersImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -36,7 +35,7 @@ public final class ResponseHeadersImpl {
 
     /**
      * Initializes an instance of ResponseHeadersImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     ResponseHeadersImpl(DatetimeClientImpl client) {
@@ -51,7 +50,6 @@ public final class ResponseHeadersImpl {
      */
     @ServiceInterface(name = "DatetimeClientResponseHeaders", host = "{endpoint}")
     public interface ResponseHeadersService {
-
         static ResponseHeadersService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("encode.datetime.implementation.ResponseHeadersServiceImpl");
@@ -61,6 +59,7 @@ public final class ResponseHeadersImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(
@@ -94,7 +93,7 @@ public final class ResponseHeadersImpl {
 
     /**
      * The defaultMethod operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -111,7 +110,7 @@ public final class ResponseHeadersImpl {
 
     /**
      * The rfc3339 operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -128,7 +127,7 @@ public final class ResponseHeadersImpl {
 
     /**
      * The rfc7231 operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -145,7 +144,7 @@ public final class ResponseHeadersImpl {
 
     /**
      * The unixTimestamp operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

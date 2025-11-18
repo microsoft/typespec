@@ -21,7 +21,6 @@ import type.enumnamespace.fixed.DaysOfWeekEnum;
  * An instance of this class provides access to all the operations defined in StringOperations.
  */
 public final class StringOperationsImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -39,7 +38,7 @@ public final class StringOperationsImpl {
 
     /**
      * Initializes an instance of StringOperationsImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     StringOperationsImpl(FixedClientImpl client) {
@@ -54,7 +53,6 @@ public final class StringOperationsImpl {
      */
     @ServiceInterface(name = "FixedClientStringOperations", host = "{endpoint}")
     public interface StringOperationsService {
-
         static StringOperationsService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("type.enumnamespace.fixed.implementation.StringOperationsServiceImpl");
@@ -64,6 +62,7 @@ public final class StringOperationsImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(
@@ -95,7 +94,7 @@ public final class StringOperationsImpl {
 
     /**
      * getKnownValue.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -113,7 +112,7 @@ public final class StringOperationsImpl {
 
     /**
      * putKnownValue.
-     *
+     * 
      * @param body _.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -132,7 +131,7 @@ public final class StringOperationsImpl {
 
     /**
      * putUnknownValue.
-     *
+     * 
      * @param body _.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

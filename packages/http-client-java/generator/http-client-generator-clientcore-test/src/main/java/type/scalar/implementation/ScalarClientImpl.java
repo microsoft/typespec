@@ -7,7 +7,6 @@ import io.clientcore.core.instrumentation.Instrumentation;
  * Initializes a new instance of the ScalarClient type.
  */
 public final class ScalarClientImpl {
-
     /**
      * Service host.
      */
@@ -15,7 +14,7 @@ public final class ScalarClientImpl {
 
     /**
      * Gets Service host.
-     *
+     * 
      * @return the endpoint value.
      */
     public String getEndpoint() {
@@ -29,7 +28,7 @@ public final class ScalarClientImpl {
 
     /**
      * Gets The HTTP pipeline to send requests through.
-     *
+     * 
      * @return the httpPipeline value.
      */
     public HttpPipeline getHttpPipeline() {
@@ -43,7 +42,7 @@ public final class ScalarClientImpl {
 
     /**
      * Gets The instance of instrumentation to report telemetry.
-     *
+     * 
      * @return the instrumentation value.
      */
     public Instrumentation getInstrumentation() {
@@ -57,7 +56,7 @@ public final class ScalarClientImpl {
 
     /**
      * Gets the StringOperationsImpl object to access its operations.
-     *
+     * 
      * @return the StringOperationsImpl object.
      */
     public StringOperationsImpl getStringOperations() {
@@ -71,7 +70,7 @@ public final class ScalarClientImpl {
 
     /**
      * Gets the BooleanOperationsImpl object to access its operations.
-     *
+     * 
      * @return the BooleanOperationsImpl object.
      */
     public BooleanOperationsImpl getBooleanOperations() {
@@ -85,7 +84,7 @@ public final class ScalarClientImpl {
 
     /**
      * Gets the UnknownsImpl object to access its operations.
-     *
+     * 
      * @return the UnknownsImpl object.
      */
     public UnknownsImpl getUnknowns() {
@@ -99,7 +98,7 @@ public final class ScalarClientImpl {
 
     /**
      * Gets the DecimalTypesImpl object to access its operations.
-     *
+     * 
      * @return the DecimalTypesImpl object.
      */
     public DecimalTypesImpl getDecimalTypes() {
@@ -113,7 +112,7 @@ public final class ScalarClientImpl {
 
     /**
      * Gets the Decimal128TypesImpl object to access its operations.
-     *
+     * 
      * @return the Decimal128TypesImpl object.
      */
     public Decimal128TypesImpl getDecimal128Types() {
@@ -127,7 +126,7 @@ public final class ScalarClientImpl {
 
     /**
      * Gets the DecimalVerifiesImpl object to access its operations.
-     *
+     * 
      * @return the DecimalVerifiesImpl object.
      */
     public DecimalVerifiesImpl getDecimalVerifies() {
@@ -141,7 +140,7 @@ public final class ScalarClientImpl {
 
     /**
      * Gets the Decimal128VerifiesImpl object to access its operations.
-     *
+     * 
      * @return the Decimal128VerifiesImpl object.
      */
     public Decimal128VerifiesImpl getDecimal128Verifies() {
@@ -150,7 +149,7 @@ public final class ScalarClientImpl {
 
     /**
      * Initializes an instance of ScalarClient client.
-     *
+     * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.

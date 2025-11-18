@@ -17,7 +17,6 @@ import parameters.spread.model.BodyParameter;
  */
 @ServiceClient(builder = SpreadClientBuilder.class)
 public final class ModelClient {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final ModelsImpl serviceClient;
 
@@ -25,7 +24,7 @@ public final class ModelClient {
 
     /**
      * Initializes an instance of ModelClient class.
-     *
+     * 
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -37,7 +36,7 @@ public final class ModelClient {
 
     /**
      * The spreadAsRequestBody operation.
-     *
+     * 
      * @param name The name parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -54,7 +53,7 @@ public final class ModelClient {
 
     /**
      * The spreadAsRequestBody operation.
-     *
+     * 
      * @param name The name parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -68,7 +67,7 @@ public final class ModelClient {
 
     /**
      * The spreadCompositeRequestOnlyWithBody operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -87,7 +86,7 @@ public final class ModelClient {
 
     /**
      * The spreadCompositeRequestOnlyWithBody operation.
-     *
+     * 
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -101,7 +100,7 @@ public final class ModelClient {
 
     /**
      * The spreadCompositeRequestWithoutBody operation.
-     *
+     * 
      * @param name The name parameter.
      * @param testHeader The testHeader parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -121,7 +120,7 @@ public final class ModelClient {
 
     /**
      * The spreadCompositeRequestWithoutBody operation.
-     *
+     * 
      * @param name The name parameter.
      * @param testHeader The testHeader parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -136,7 +135,7 @@ public final class ModelClient {
 
     /**
      * The spreadCompositeRequest operation.
-     *
+     * 
      * @param name The name parameter.
      * @param testHeader The testHeader parameter.
      * @param body The body parameter.
@@ -157,7 +156,7 @@ public final class ModelClient {
 
     /**
      * The spreadCompositeRequest operation.
-     *
+     * 
      * @param name The name parameter.
      * @param testHeader The testHeader parameter.
      * @param body The body parameter.
@@ -173,7 +172,7 @@ public final class ModelClient {
 
     /**
      * The spreadCompositeRequestMix operation.
-     *
+     * 
      * @param name The name parameter.
      * @param testHeader The testHeader parameter.
      * @param prop The prop parameter.
@@ -194,7 +193,7 @@ public final class ModelClient {
 
     /**
      * The spreadCompositeRequestMix operation.
-     *
+     * 
      * @param name The name parameter.
      * @param testHeader The testHeader parameter.
      * @param prop The prop parameter.

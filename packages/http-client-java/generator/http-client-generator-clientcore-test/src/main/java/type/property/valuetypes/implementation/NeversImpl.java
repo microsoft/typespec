@@ -21,7 +21,6 @@ import type.property.valuetypes.NeverProperty;
  * An instance of this class provides access to all the operations defined in Nevers.
  */
 public final class NeversImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -39,7 +38,7 @@ public final class NeversImpl {
 
     /**
      * Initializes an instance of NeversImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     NeversImpl(ValueTypesClientImpl client) {
@@ -54,7 +53,6 @@ public final class NeversImpl {
      */
     @ServiceInterface(name = "ValueTypesClientNevers", host = "{endpoint}")
     public interface NeversService {
-
         static NeversService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("type.property.valuetypes.implementation.NeversServiceImpl");
@@ -63,6 +61,7 @@ public final class NeversImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(
@@ -84,7 +83,7 @@ public final class NeversImpl {
 
     /**
      * Get call.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -102,7 +101,7 @@ public final class NeversImpl {
 
     /**
      * Put operation.
-     *
+     * 
      * @param body body.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

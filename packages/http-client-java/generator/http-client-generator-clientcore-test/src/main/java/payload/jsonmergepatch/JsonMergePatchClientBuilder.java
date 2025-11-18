@@ -35,7 +35,6 @@ import payload.jsonmergepatch.implementation.JsonMergePatchClientImpl;
 public final class JsonMergePatchClientBuilder
     implements HttpTrait<JsonMergePatchClientBuilder>, ProxyTrait<JsonMergePatchClientBuilder>,
     ConfigurationTrait<JsonMergePatchClientBuilder>, EndpointTrait<JsonMergePatchClientBuilder> {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -182,7 +181,7 @@ public final class JsonMergePatchClientBuilder
 
     /**
      * Builds an instance of JsonMergePatchClientImpl with the provided parameters.
-     *
+     * 
      * @return an instance of JsonMergePatchClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -228,7 +227,7 @@ public final class JsonMergePatchClientBuilder
 
     /**
      * Builds an instance of JsonMergePatchClient class.
-     *
+     * 
      * @return an instance of JsonMergePatchClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

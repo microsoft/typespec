@@ -14,7 +14,6 @@ import java.util.Map;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class DifferentSpreadModelDerived extends DifferentSpreadModelRecord {
-
     /*
      * The index property
      */
@@ -23,7 +22,7 @@ public final class DifferentSpreadModelDerived extends DifferentSpreadModelRecor
 
     /**
      * Creates an instance of DifferentSpreadModelDerived class.
-     *
+     * 
      * @param knownProp the knownProp value to set.
      * @param derivedProp the derivedProp value to set.
      */
@@ -35,7 +34,7 @@ public final class DifferentSpreadModelDerived extends DifferentSpreadModelRecor
 
     /**
      * Get the derivedProp property: The index property.
-     *
+     * 
      * @return the derivedProp value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -62,7 +61,7 @@ public final class DifferentSpreadModelDerived extends DifferentSpreadModelRecor
 
     /**
      * Reads an instance of DifferentSpreadModelDerived from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of DifferentSpreadModelDerived if the JsonReader was pointing to an instance of it, or null
      * if it was pointing to JSON null.
@@ -78,6 +77,7 @@ public final class DifferentSpreadModelDerived extends DifferentSpreadModelRecor
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
+
                 if ("knownProp".equals(fieldName)) {
                     knownProp = reader.getString();
                 } else if ("derivedProp".equals(fieldName)) {
@@ -86,12 +86,14 @@ public final class DifferentSpreadModelDerived extends DifferentSpreadModelRecor
                     if (additionalProperties == null) {
                         additionalProperties = new LinkedHashMap<>();
                     }
+
                     additionalProperties.put(fieldName, ModelForRecord.fromJson(reader));
                 }
             }
             DifferentSpreadModelDerived deserializedDifferentSpreadModelDerived
                 = new DifferentSpreadModelDerived(knownProp, derivedProp);
             deserializedDifferentSpreadModelDerived.setAdditionalProperties(additionalProperties);
+
             return deserializedDifferentSpreadModelDerived;
         });
     }

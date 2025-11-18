@@ -35,7 +35,6 @@ import server.endpoint.notdefined.implementation.NotDefinedClientImpl;
 public final class NotDefinedClientBuilder
     implements HttpTrait<NotDefinedClientBuilder>, ProxyTrait<NotDefinedClientBuilder>,
     ConfigurationTrait<NotDefinedClientBuilder>, EndpointTrait<NotDefinedClientBuilder> {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -182,7 +181,7 @@ public final class NotDefinedClientBuilder
 
     /**
      * Builds an instance of NotDefinedClientImpl with the provided parameters.
-     *
+     * 
      * @return an instance of NotDefinedClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -227,7 +226,7 @@ public final class NotDefinedClientBuilder
 
     /**
      * Builds an instance of NotDefinedClient class.
-     *
+     * 
      * @return an instance of NotDefinedClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

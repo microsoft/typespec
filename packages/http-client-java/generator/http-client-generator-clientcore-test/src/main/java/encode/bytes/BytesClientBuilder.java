@@ -40,7 +40,6 @@ import java.util.Objects;
         ResponseBodyClient.class })
 public final class BytesClientBuilder implements HttpTrait<BytesClientBuilder>, ProxyTrait<BytesClientBuilder>,
     ConfigurationTrait<BytesClientBuilder>, EndpointTrait<BytesClientBuilder> {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -186,7 +185,7 @@ public final class BytesClientBuilder implements HttpTrait<BytesClientBuilder>, 
 
     /**
      * Builds an instance of BytesClientImpl with the provided parameters.
-     *
+     * 
      * @return an instance of BytesClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -231,7 +230,7 @@ public final class BytesClientBuilder implements HttpTrait<BytesClientBuilder>, 
 
     /**
      * Builds an instance of QueryClient class.
-     *
+     * 
      * @return an instance of QueryClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -242,7 +241,7 @@ public final class BytesClientBuilder implements HttpTrait<BytesClientBuilder>, 
 
     /**
      * Builds an instance of PropertyClient class.
-     *
+     * 
      * @return an instance of PropertyClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -253,7 +252,7 @@ public final class BytesClientBuilder implements HttpTrait<BytesClientBuilder>, 
 
     /**
      * Builds an instance of HeaderClient class.
-     *
+     * 
      * @return an instance of HeaderClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -264,7 +263,7 @@ public final class BytesClientBuilder implements HttpTrait<BytesClientBuilder>, 
 
     /**
      * Builds an instance of RequestBodyClient class.
-     *
+     * 
      * @return an instance of RequestBodyClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -275,7 +274,7 @@ public final class BytesClientBuilder implements HttpTrait<BytesClientBuilder>, 
 
     /**
      * Builds an instance of ResponseBodyClient class.
-     *
+     * 
      * @return an instance of ResponseBodyClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

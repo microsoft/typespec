@@ -21,7 +21,6 @@ import type.model.inheritance.notdiscriminated.Siamese;
  * Initializes a new instance of the NotDiscriminatedClient type.
  */
 public final class NotDiscriminatedClientImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -34,7 +33,7 @@ public final class NotDiscriminatedClientImpl {
 
     /**
      * Gets Service host.
-     *
+     * 
      * @return the endpoint value.
      */
     public String getEndpoint() {
@@ -48,7 +47,7 @@ public final class NotDiscriminatedClientImpl {
 
     /**
      * Gets The HTTP pipeline to send requests through.
-     *
+     * 
      * @return the httpPipeline value.
      */
     public HttpPipeline getHttpPipeline() {
@@ -62,7 +61,7 @@ public final class NotDiscriminatedClientImpl {
 
     /**
      * Gets The instance of instrumentation to report telemetry.
-     *
+     * 
      * @return the instrumentation value.
      */
     public Instrumentation getInstrumentation() {
@@ -71,7 +70,7 @@ public final class NotDiscriminatedClientImpl {
 
     /**
      * Initializes an instance of NotDiscriminatedClient client.
-     *
+     * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
@@ -89,7 +88,6 @@ public final class NotDiscriminatedClientImpl {
      */
     @ServiceInterface(name = "NotDiscriminatedClient", host = "{endpoint}")
     public interface NotDiscriminatedClientService {
-
         static NotDiscriminatedClientService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName(
@@ -100,6 +98,7 @@ public final class NotDiscriminatedClientImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(
@@ -131,7 +130,7 @@ public final class NotDiscriminatedClientImpl {
 
     /**
      * The postValid operation.
-     *
+     * 
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -150,7 +149,7 @@ public final class NotDiscriminatedClientImpl {
 
     /**
      * The getValid operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -168,7 +167,7 @@ public final class NotDiscriminatedClientImpl {
 
     /**
      * The putValid operation.
-     *
+     * 
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

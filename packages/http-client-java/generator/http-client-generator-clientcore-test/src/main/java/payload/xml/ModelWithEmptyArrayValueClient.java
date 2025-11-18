@@ -16,7 +16,6 @@ import payload.xml.implementation.ModelWithEmptyArrayValuesImpl;
  */
 @ServiceClient(builder = XmlClientBuilder.class)
 public final class ModelWithEmptyArrayValueClient {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final ModelWithEmptyArrayValuesImpl serviceClient;
 
@@ -24,7 +23,7 @@ public final class ModelWithEmptyArrayValueClient {
 
     /**
      * Initializes an instance of ModelWithEmptyArrayValueClient class.
-     *
+     * 
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -36,7 +35,7 @@ public final class ModelWithEmptyArrayValueClient {
 
     /**
      * The get operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -52,7 +51,7 @@ public final class ModelWithEmptyArrayValueClient {
 
     /**
      * The get operation.
-     *
+     * 
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return contains an array of models that's supposed to be sent/received as an empty XML element.
@@ -65,7 +64,7 @@ public final class ModelWithEmptyArrayValueClient {
 
     /**
      * The put operation.
-     *
+     * 
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -82,7 +81,7 @@ public final class ModelWithEmptyArrayValueClient {
 
     /**
      * The put operation.
-     *
+     * 
      * @param input The input parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

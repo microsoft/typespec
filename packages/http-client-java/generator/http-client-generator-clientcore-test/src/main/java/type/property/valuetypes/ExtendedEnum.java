@@ -19,7 +19,6 @@ import java.util.function.Function;
  * Defines values for ExtendedEnum.
  */
 public final class ExtendedEnum implements ExpandableEnum<String>, JsonSerializable<ExtendedEnum> {
-
     private static final Map<String, ExtendedEnum> VALUES = new ConcurrentHashMap<>();
 
     private static final Function<String, ExtendedEnum> NEW_INSTANCE = ExtendedEnum::new;
@@ -38,7 +37,7 @@ public final class ExtendedEnum implements ExpandableEnum<String>, JsonSerializa
 
     /**
      * Creates or finds a ExtendedEnum.
-     *
+     * 
      * @param value a value to look for.
      * @return the corresponding ExtendedEnum.
      * @throws IllegalArgumentException if value is null.
@@ -53,7 +52,7 @@ public final class ExtendedEnum implements ExpandableEnum<String>, JsonSerializa
 
     /**
      * Gets known ExtendedEnum values.
-     *
+     * 
      * @return Known ExtendedEnum values.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -63,7 +62,7 @@ public final class ExtendedEnum implements ExpandableEnum<String>, JsonSerializa
 
     /**
      * Gets the value of the ExtendedEnum instance.
-     *
+     * 
      * @return the value of the ExtendedEnum instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -83,7 +82,7 @@ public final class ExtendedEnum implements ExpandableEnum<String>, JsonSerializa
 
     /**
      * Reads an instance of ExtendedEnum from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of ExtendedEnum if the JsonReader was pointing to an instance of it, or null if the
      * JsonReader was pointing to JSON null.

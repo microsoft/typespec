@@ -21,7 +21,6 @@ import versioning.returntypechangedfrom.ReturnTypeChangedFromServiceVersion;
  * Initializes a new instance of the ReturnTypeChangedFromClient type.
  */
 public final class ReturnTypeChangedFromClientImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -34,7 +33,7 @@ public final class ReturnTypeChangedFromClientImpl {
 
     /**
      * Gets Need to be set as 'http://localhost:3000' in client.
-     *
+     * 
      * @return the endpoint value.
      */
     public String getEndpoint() {
@@ -48,7 +47,7 @@ public final class ReturnTypeChangedFromClientImpl {
 
     /**
      * Gets Service version.
-     *
+     * 
      * @return the serviceVersion value.
      */
     public ReturnTypeChangedFromServiceVersion getServiceVersion() {
@@ -62,7 +61,7 @@ public final class ReturnTypeChangedFromClientImpl {
 
     /**
      * Gets The HTTP pipeline to send requests through.
-     *
+     * 
      * @return the httpPipeline value.
      */
     public HttpPipeline getHttpPipeline() {
@@ -76,7 +75,7 @@ public final class ReturnTypeChangedFromClientImpl {
 
     /**
      * Gets The instance of instrumentation to report telemetry.
-     *
+     * 
      * @return the instrumentation value.
      */
     public Instrumentation getInstrumentation() {
@@ -85,7 +84,7 @@ public final class ReturnTypeChangedFromClientImpl {
 
     /**
      * Initializes an instance of ReturnTypeChangedFromClient client.
-     *
+     * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
@@ -108,7 +107,6 @@ public final class ReturnTypeChangedFromClientImpl {
         name = "ReturnTypeChangedFromClient",
         host = "{endpoint}/versioning/return-type-changed-from/api-version:{version}")
     public interface ReturnTypeChangedFromClientService {
-
         static ReturnTypeChangedFromClientService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class
@@ -119,6 +117,7 @@ public final class ReturnTypeChangedFromClientImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(method = HttpMethod.POST, path = "/test", expectedStatusCodes = { 200 })
@@ -130,7 +129,7 @@ public final class ReturnTypeChangedFromClientImpl {
 
     /**
      * The test operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

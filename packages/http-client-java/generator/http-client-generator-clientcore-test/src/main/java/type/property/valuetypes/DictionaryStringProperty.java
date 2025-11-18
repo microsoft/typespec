@@ -14,7 +14,6 @@ import java.util.Map;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class DictionaryStringProperty implements JsonSerializable<DictionaryStringProperty> {
-
     /*
      * Property
      */
@@ -23,7 +22,7 @@ public final class DictionaryStringProperty implements JsonSerializable<Dictiona
 
     /**
      * Creates an instance of DictionaryStringProperty class.
-     *
+     * 
      * @param property the property value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -33,7 +32,7 @@ public final class DictionaryStringProperty implements JsonSerializable<Dictiona
 
     /**
      * Get the property property: Property.
-     *
+     * 
      * @return the property value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -54,7 +53,7 @@ public final class DictionaryStringProperty implements JsonSerializable<Dictiona
 
     /**
      * Reads an instance of DictionaryStringProperty from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of DictionaryStringProperty if the JsonReader was pointing to an instance of it, or null if
      * it was pointing to JSON null.
@@ -68,6 +67,7 @@ public final class DictionaryStringProperty implements JsonSerializable<Dictiona
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
+
                 if ("property".equals(fieldName)) {
                     property = reader.readMap(reader1 -> reader1.getString());
                 } else {

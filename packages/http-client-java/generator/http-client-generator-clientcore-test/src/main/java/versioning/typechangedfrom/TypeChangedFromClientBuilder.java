@@ -35,7 +35,6 @@ import versioning.typechangedfrom.implementation.TypeChangedFromClientImpl;
 public final class TypeChangedFromClientBuilder
     implements HttpTrait<TypeChangedFromClientBuilder>, ProxyTrait<TypeChangedFromClientBuilder>,
     ConfigurationTrait<TypeChangedFromClientBuilder>, EndpointTrait<TypeChangedFromClientBuilder> {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -189,7 +188,7 @@ public final class TypeChangedFromClientBuilder
 
     /**
      * Sets Service version.
-     *
+     * 
      * @param serviceVersion the serviceVersion value.
      * @return the TypeChangedFromClientBuilder.
      */
@@ -201,7 +200,7 @@ public final class TypeChangedFromClientBuilder
 
     /**
      * Builds an instance of TypeChangedFromClientImpl with the provided parameters.
-     *
+     * 
      * @return an instance of TypeChangedFromClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -249,7 +248,7 @@ public final class TypeChangedFromClientBuilder
 
     /**
      * Builds an instance of TypeChangedFromClient class.
-     *
+     * 
      * @return an instance of TypeChangedFromClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

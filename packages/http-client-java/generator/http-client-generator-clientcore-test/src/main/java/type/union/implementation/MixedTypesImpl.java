@@ -22,7 +22,6 @@ import type.union.MixedTypesCases;
  * An instance of this class provides access to all the operations defined in MixedTypes.
  */
 public final class MixedTypesImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -40,7 +39,7 @@ public final class MixedTypesImpl {
 
     /**
      * Initializes an instance of MixedTypesImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     MixedTypesImpl(UnionClientImpl client) {
@@ -55,7 +54,6 @@ public final class MixedTypesImpl {
      */
     @ServiceInterface(name = "UnionClientMixedTypes", host = "{endpoint}")
     public interface MixedTypesService {
-
         static MixedTypesService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("type.union.implementation.MixedTypesServiceImpl");
@@ -64,6 +62,7 @@ public final class MixedTypesImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(
@@ -85,7 +84,7 @@ public final class MixedTypesImpl {
 
     /**
      * The get operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -103,7 +102,7 @@ public final class MixedTypesImpl {
 
     /**
      * The send operation.
-     *
+     * 
      * @param prop The prop parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

@@ -14,7 +14,6 @@ import java.math.BigDecimal;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class Decimal128Property implements JsonSerializable<Decimal128Property> {
-
     /*
      * Property
      */
@@ -23,7 +22,7 @@ public final class Decimal128Property implements JsonSerializable<Decimal128Prop
 
     /**
      * Creates an instance of Decimal128Property class.
-     *
+     * 
      * @param property the property value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -33,7 +32,7 @@ public final class Decimal128Property implements JsonSerializable<Decimal128Prop
 
     /**
      * Get the property property: Property.
-     *
+     * 
      * @return the property value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -54,7 +53,7 @@ public final class Decimal128Property implements JsonSerializable<Decimal128Prop
 
     /**
      * Reads an instance of Decimal128Property from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of Decimal128Property if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.
@@ -68,6 +67,7 @@ public final class Decimal128Property implements JsonSerializable<Decimal128Prop
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
+
                 if ("property".equals(fieldName)) {
                     property = reader.getNullable(nonNullReader -> new BigDecimal(nonNullReader.getString()));
                 } else {

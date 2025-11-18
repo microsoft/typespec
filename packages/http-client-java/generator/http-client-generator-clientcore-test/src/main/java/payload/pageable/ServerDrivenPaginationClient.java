@@ -16,7 +16,6 @@ import payload.pageable.implementation.ServerDrivenPaginationsImpl;
  */
 @ServiceClient(builder = PageableClientBuilder.class)
 public final class ServerDrivenPaginationClient {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final ServerDrivenPaginationsImpl serviceClient;
 
@@ -24,7 +23,7 @@ public final class ServerDrivenPaginationClient {
 
     /**
      * Initializes an instance of ServerDrivenPaginationClient class.
-     *
+     * 
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -36,7 +35,7 @@ public final class ServerDrivenPaginationClient {
 
     /**
      * The link operation.
-     *
+     * 
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
@@ -49,7 +48,7 @@ public final class ServerDrivenPaginationClient {
 
     /**
      * The link operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -64,7 +63,7 @@ public final class ServerDrivenPaginationClient {
 
     /**
      * The linkString operation.
-     *
+     * 
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
@@ -77,7 +76,7 @@ public final class ServerDrivenPaginationClient {
 
     /**
      * The linkString operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -92,7 +91,7 @@ public final class ServerDrivenPaginationClient {
 
     /**
      * The nestedLink operation.
-     *
+     * 
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
@@ -105,7 +104,7 @@ public final class ServerDrivenPaginationClient {
 
     /**
      * The nestedLink operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

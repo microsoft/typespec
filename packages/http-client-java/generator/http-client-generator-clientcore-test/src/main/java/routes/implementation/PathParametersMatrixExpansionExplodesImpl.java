@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
  * An instance of this class provides access to all the operations defined in PathParametersMatrixExpansionExplodes.
  */
 public final class PathParametersMatrixExpansionExplodesImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -41,7 +40,7 @@ public final class PathParametersMatrixExpansionExplodesImpl {
 
     /**
      * Initializes an instance of PathParametersMatrixExpansionExplodesImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     PathParametersMatrixExpansionExplodesImpl(RoutesClientImpl client) {
@@ -56,7 +55,6 @@ public final class PathParametersMatrixExpansionExplodesImpl {
      */
     @ServiceInterface(name = "RoutesClientPathParametersMatrixExpansionExplodes", host = "{endpoint}")
     public interface PathParametersMatrixExpansionExplodesService {
-
         static PathParametersMatrixExpansionExplodesService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz
@@ -68,6 +66,7 @@ public final class PathParametersMatrixExpansionExplodesImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(
@@ -97,7 +96,7 @@ public final class PathParametersMatrixExpansionExplodesImpl {
 
     /**
      * The primitive operation.
-     *
+     * 
      * @param param The param parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -115,7 +114,7 @@ public final class PathParametersMatrixExpansionExplodesImpl {
 
     /**
      * The array operation.
-     *
+     * 
      * @param param The param parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -136,7 +135,7 @@ public final class PathParametersMatrixExpansionExplodesImpl {
 
     /**
      * The record operation.
-     *
+     * 
      * @param param The param parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

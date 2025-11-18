@@ -4,11 +4,11 @@ package versioning.added;
  * Defines values for EnumV1.
  */
 public enum EnumV1 {
-
     /**
      * Enum value enumMemberV1.
      */
     ENUM_MEMBER_V1("enumMemberV1"),
+
     /**
      * Enum value enumMemberV2.
      */
@@ -25,7 +25,7 @@ public enum EnumV1 {
 
     /**
      * Parses a serialized value to a EnumV1 instance.
-     *
+     * 
      * @param value the serialized value to parse.
      * @return the parsed EnumV1 object, or null if unable to parse.
      */

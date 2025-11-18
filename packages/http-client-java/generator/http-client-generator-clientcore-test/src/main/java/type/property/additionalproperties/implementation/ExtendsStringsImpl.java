@@ -21,7 +21,6 @@ import type.property.additionalproperties.ExtendsStringAdditionalProperties;
  * An instance of this class provides access to all the operations defined in ExtendsStrings.
  */
 public final class ExtendsStringsImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -39,7 +38,7 @@ public final class ExtendsStringsImpl {
 
     /**
      * Initializes an instance of ExtendsStringsImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     ExtendsStringsImpl(AdditionalPropertiesClientImpl client) {
@@ -54,7 +53,6 @@ public final class ExtendsStringsImpl {
      */
     @ServiceInterface(name = "AdditionalPropertiesClientExtendsStrings", host = "{endpoint}")
     public interface ExtendsStringsService {
-
         static ExtendsStringsService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz
@@ -65,6 +63,7 @@ public final class ExtendsStringsImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(
@@ -86,7 +85,7 @@ public final class ExtendsStringsImpl {
 
     /**
      * Get call.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -104,7 +103,7 @@ public final class ExtendsStringsImpl {
 
     /**
      * Put operation.
-     *
+     * 
      * @param body body.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

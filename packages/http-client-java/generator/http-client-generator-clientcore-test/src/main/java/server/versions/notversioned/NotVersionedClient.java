@@ -16,7 +16,6 @@ import server.versions.notversioned.implementation.NotVersionedClientImpl;
  */
 @ServiceClient(builder = NotVersionedClientBuilder.class)
 public final class NotVersionedClient {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final NotVersionedClientImpl serviceClient;
 
@@ -24,7 +23,7 @@ public final class NotVersionedClient {
 
     /**
      * Initializes an instance of NotVersionedClient class.
-     *
+     * 
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -36,7 +35,7 @@ public final class NotVersionedClient {
 
     /**
      * The withoutApiVersion operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -52,7 +51,7 @@ public final class NotVersionedClient {
 
     /**
      * The withoutApiVersion operation.
-     *
+     * 
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
@@ -64,7 +63,7 @@ public final class NotVersionedClient {
 
     /**
      * The withQueryApiVersion operation.
-     *
+     * 
      * @param apiVersion The apiVersion parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -82,7 +81,7 @@ public final class NotVersionedClient {
 
     /**
      * The withQueryApiVersion operation.
-     *
+     * 
      * @param apiVersion The apiVersion parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -96,7 +95,7 @@ public final class NotVersionedClient {
 
     /**
      * The withPathApiVersion operation.
-     *
+     * 
      * @param apiVersion The apiVersion parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -114,7 +113,7 @@ public final class NotVersionedClient {
 
     /**
      * The withPathApiVersion operation.
-     *
+     * 
      * @param apiVersion The apiVersion parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

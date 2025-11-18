@@ -21,7 +21,6 @@ import type.property.additionalproperties.IsFloatAdditionalProperties;
  * An instance of this class provides access to all the operations defined in IsFloats.
  */
 public final class IsFloatsImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -39,7 +38,7 @@ public final class IsFloatsImpl {
 
     /**
      * Initializes an instance of IsFloatsImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     IsFloatsImpl(AdditionalPropertiesClientImpl client) {
@@ -54,7 +53,6 @@ public final class IsFloatsImpl {
      */
     @ServiceInterface(name = "AdditionalPropertiesClientIsFloats", host = "{endpoint}")
     public interface IsFloatsService {
-
         static IsFloatsService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("type.property.additionalproperties.implementation.IsFloatsServiceImpl");
@@ -63,6 +61,7 @@ public final class IsFloatsImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(
@@ -84,7 +83,7 @@ public final class IsFloatsImpl {
 
     /**
      * Get call.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -102,7 +101,7 @@ public final class IsFloatsImpl {
 
     /**
      * Put operation.
-     *
+     * 
      * @param body body.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

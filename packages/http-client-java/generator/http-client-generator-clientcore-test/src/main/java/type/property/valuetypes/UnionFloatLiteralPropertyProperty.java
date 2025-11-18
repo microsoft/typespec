@@ -4,11 +4,11 @@ package type.property.valuetypes;
  * Defines values for UnionFloatLiteralPropertyProperty.
  */
 public enum UnionFloatLiteralPropertyProperty {
-
     /**
      * Enum value 43.125.
      */
     FOUR_THREE_ONE_TWO_FIVE(43.125),
+
     /**
      * Enum value 46.875.
      */
@@ -25,7 +25,7 @@ public enum UnionFloatLiteralPropertyProperty {
 
     /**
      * Parses a serialized value to a UnionFloatLiteralPropertyProperty instance.
-     *
+     * 
      * @param value the serialized value to parse.
      * @return the parsed UnionFloatLiteralPropertyProperty object, or null if unable to parse.
      */
@@ -41,7 +41,7 @@ public enum UnionFloatLiteralPropertyProperty {
 
     /**
      * De-serializes the instance to double value.
-     *
+     * 
      * @return the double value.
      */
     public double toDouble() {

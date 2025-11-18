@@ -16,7 +16,6 @@ import payload.multipart.implementation.FormDataHttpPartsImpl;
  */
 @ServiceClient(builder = MultiPartClientBuilder.class)
 public final class FormDataHttpPartsClient {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final FormDataHttpPartsImpl serviceClient;
 
@@ -24,7 +23,7 @@ public final class FormDataHttpPartsClient {
 
     /**
      * Initializes an instance of FormDataHttpPartsClient class.
-     *
+     * 
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -36,7 +35,7 @@ public final class FormDataHttpPartsClient {
 
     /**
      * Test content-type: multipart/form-data for mixed scenarios.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -57,7 +56,7 @@ public final class FormDataHttpPartsClient {
 
     /**
      * Test content-type: multipart/form-data for mixed scenarios.
-     *
+     * 
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

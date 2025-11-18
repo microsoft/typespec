@@ -14,7 +14,6 @@ import type.union.StringAndArrayCases;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class SendRequest7 implements JsonSerializable<SendRequest7> {
-
     /*
      * The prop property.
      */
@@ -23,7 +22,7 @@ public final class SendRequest7 implements JsonSerializable<SendRequest7> {
 
     /**
      * Creates an instance of SendRequest7 class.
-     *
+     * 
      * @param prop the prop value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -33,7 +32,7 @@ public final class SendRequest7 implements JsonSerializable<SendRequest7> {
 
     /**
      * Get the prop property: The prop property.
-     *
+     * 
      * @return the prop value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -54,7 +53,7 @@ public final class SendRequest7 implements JsonSerializable<SendRequest7> {
 
     /**
      * Reads an instance of SendRequest7 from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of SendRequest7 if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.
@@ -68,6 +67,7 @@ public final class SendRequest7 implements JsonSerializable<SendRequest7> {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
+
                 if ("prop".equals(fieldName)) {
                     prop = StringAndArrayCases.fromJson(reader);
                 } else {

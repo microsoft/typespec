@@ -21,7 +21,6 @@ import java.util.Map;
  * An instance of this class provides access to all the operations defined in Float32Values.
  */
 public final class Float32ValuesImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -39,7 +38,7 @@ public final class Float32ValuesImpl {
 
     /**
      * Initializes an instance of Float32ValuesImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     Float32ValuesImpl(DictionaryClientImpl client) {
@@ -54,7 +53,6 @@ public final class Float32ValuesImpl {
      */
     @ServiceInterface(name = "DictionaryClientFloat32Values", host = "{endpoint}")
     public interface Float32ValuesService {
-
         static Float32ValuesService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("type.dictionary.implementation.Float32ValuesServiceImpl");
@@ -64,6 +62,7 @@ public final class Float32ValuesImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(
@@ -85,7 +84,7 @@ public final class Float32ValuesImpl {
 
     /**
      * The get operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -103,7 +102,7 @@ public final class Float32ValuesImpl {
 
     /**
      * The put operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

@@ -4,15 +4,16 @@ package type.union;
  * Defines values for GetResponseProp2.
  */
 public enum GetResponseProp2 {
-
     /**
      * Enum value 1.
      */
     ONE(1),
+
     /**
      * Enum value 2.
      */
     TWO(2),
+
     /**
      * Enum value 3.
      */
@@ -29,7 +30,7 @@ public enum GetResponseProp2 {
 
     /**
      * Parses a serialized value to a GetResponseProp2 instance.
-     *
+     * 
      * @param value the serialized value to parse.
      * @return the parsed GetResponseProp2 object, or null if unable to parse.
      */
@@ -45,7 +46,7 @@ public enum GetResponseProp2 {
 
     /**
      * De-serializes the instance to int value.
-     *
+     * 
      * @return the int value.
      */
     public int toInt() {

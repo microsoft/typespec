@@ -21,7 +21,6 @@ import type.property.optional.StringLiteralProperty;
  * An instance of this class provides access to all the operations defined in StringLiterals.
  */
 public final class StringLiteralsImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -39,7 +38,7 @@ public final class StringLiteralsImpl {
 
     /**
      * Initializes an instance of StringLiteralsImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     StringLiteralsImpl(OptionalClientImpl client) {
@@ -54,7 +53,6 @@ public final class StringLiteralsImpl {
      */
     @ServiceInterface(name = "OptionalClientStringLiterals", host = "{endpoint}")
     public interface StringLiteralsService {
-
         static StringLiteralsService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("type.property.optional.implementation.StringLiteralsServiceImpl");
@@ -64,6 +62,7 @@ public final class StringLiteralsImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(
@@ -102,7 +101,7 @@ public final class StringLiteralsImpl {
 
     /**
      * Get models that will return all properties in the model.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -120,7 +119,7 @@ public final class StringLiteralsImpl {
 
     /**
      * Get models that will return the default object.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -138,7 +137,7 @@ public final class StringLiteralsImpl {
 
     /**
      * Put a body with all properties present.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -157,7 +156,7 @@ public final class StringLiteralsImpl {
 
     /**
      * Put a body with default properties.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

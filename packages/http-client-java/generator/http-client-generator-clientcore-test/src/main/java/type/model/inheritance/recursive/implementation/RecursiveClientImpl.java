@@ -21,7 +21,6 @@ import type.model.inheritance.recursive.Extension;
  * Initializes a new instance of the RecursiveClient type.
  */
 public final class RecursiveClientImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -34,7 +33,7 @@ public final class RecursiveClientImpl {
 
     /**
      * Gets Service host.
-     *
+     * 
      * @return the endpoint value.
      */
     public String getEndpoint() {
@@ -48,7 +47,7 @@ public final class RecursiveClientImpl {
 
     /**
      * Gets The HTTP pipeline to send requests through.
-     *
+     * 
      * @return the httpPipeline value.
      */
     public HttpPipeline getHttpPipeline() {
@@ -62,7 +61,7 @@ public final class RecursiveClientImpl {
 
     /**
      * Gets The instance of instrumentation to report telemetry.
-     *
+     * 
      * @return the instrumentation value.
      */
     public Instrumentation getInstrumentation() {
@@ -71,7 +70,7 @@ public final class RecursiveClientImpl {
 
     /**
      * Initializes an instance of RecursiveClient client.
-     *
+     * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
@@ -89,7 +88,6 @@ public final class RecursiveClientImpl {
      */
     @ServiceInterface(name = "RecursiveClient", host = "{endpoint}")
     public interface RecursiveClientService {
-
         static RecursiveClientService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz
@@ -100,6 +98,7 @@ public final class RecursiveClientImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(
@@ -121,7 +120,7 @@ public final class RecursiveClientImpl {
 
     /**
      * The put operation.
-     *
+     * 
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -140,7 +139,7 @@ public final class RecursiveClientImpl {
 
     /**
      * The get operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

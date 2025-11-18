@@ -22,7 +22,6 @@ import java.lang.reflect.InvocationTargetException;
  * An instance of this class provides access to all the operations defined in RequestBodies.
  */
 public final class RequestBodiesImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -40,7 +39,7 @@ public final class RequestBodiesImpl {
 
     /**
      * Initializes an instance of RequestBodiesImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     RequestBodiesImpl(BytesClientImpl client) {
@@ -55,7 +54,6 @@ public final class RequestBodiesImpl {
      */
     @ServiceInterface(name = "BytesClientRequestBodies", host = "{endpoint}")
     public interface RequestBodiesService {
-
         static RequestBodiesService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("encode.bytes.implementation.RequestBodiesServiceImpl");
@@ -65,6 +63,7 @@ public final class RequestBodiesImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(
@@ -114,7 +113,7 @@ public final class RequestBodiesImpl {
 
     /**
      * The defaultMethod operation.
-     *
+     * 
      * @param value The value parameter.
      * @param contentLength The Content-Length header for the request.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -136,7 +135,7 @@ public final class RequestBodiesImpl {
 
     /**
      * The octetStream operation.
-     *
+     * 
      * @param value The value parameter.
      * @param contentLength The Content-Length header for the request.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -157,7 +156,7 @@ public final class RequestBodiesImpl {
 
     /**
      * The customContentType operation.
-     *
+     * 
      * @param value The value parameter.
      * @param contentLength The Content-Length header for the request.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -179,7 +178,7 @@ public final class RequestBodiesImpl {
 
     /**
      * The base64 operation.
-     *
+     * 
      * @param value The value parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -198,7 +197,7 @@ public final class RequestBodiesImpl {
 
     /**
      * The base64url operation.
-     *
+     * 
      * @param value The value parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

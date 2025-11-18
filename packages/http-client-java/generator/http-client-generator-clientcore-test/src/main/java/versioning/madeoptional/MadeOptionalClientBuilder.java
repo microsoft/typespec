@@ -35,7 +35,6 @@ import versioning.madeoptional.implementation.MadeOptionalClientImpl;
 public final class MadeOptionalClientBuilder
     implements HttpTrait<MadeOptionalClientBuilder>, ProxyTrait<MadeOptionalClientBuilder>,
     ConfigurationTrait<MadeOptionalClientBuilder>, EndpointTrait<MadeOptionalClientBuilder> {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -187,7 +186,7 @@ public final class MadeOptionalClientBuilder
 
     /**
      * Sets Service version.
-     *
+     * 
      * @param serviceVersion the serviceVersion value.
      * @return the MadeOptionalClientBuilder.
      */
@@ -199,7 +198,7 @@ public final class MadeOptionalClientBuilder
 
     /**
      * Builds an instance of MadeOptionalClientImpl with the provided parameters.
-     *
+     * 
      * @return an instance of MadeOptionalClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -247,7 +246,7 @@ public final class MadeOptionalClientBuilder
 
     /**
      * Builds an instance of MadeOptionalClient class.
-     *
+     * 
      * @return an instance of MadeOptionalClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

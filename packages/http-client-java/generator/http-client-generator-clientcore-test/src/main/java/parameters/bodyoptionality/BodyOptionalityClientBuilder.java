@@ -35,7 +35,6 @@ import parameters.bodyoptionality.implementation.BodyOptionalityClientImpl;
 public final class BodyOptionalityClientBuilder
     implements HttpTrait<BodyOptionalityClientBuilder>, ProxyTrait<BodyOptionalityClientBuilder>,
     ConfigurationTrait<BodyOptionalityClientBuilder>, EndpointTrait<BodyOptionalityClientBuilder> {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -183,7 +182,7 @@ public final class BodyOptionalityClientBuilder
 
     /**
      * Builds an instance of BodyOptionalityClientImpl with the provided parameters.
-     *
+     * 
      * @return an instance of BodyOptionalityClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -229,7 +228,7 @@ public final class BodyOptionalityClientBuilder
 
     /**
      * Builds an instance of BodyOptionalityClient class.
-     *
+     * 
      * @return an instance of BodyOptionalityClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -240,7 +239,7 @@ public final class BodyOptionalityClientBuilder
 
     /**
      * Builds an instance of OptionalExplicitClient class.
-     *
+     * 
      * @return an instance of OptionalExplicitClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

@@ -15,7 +15,6 @@ import java.util.Map;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class ReadOnlyModel implements JsonSerializable<ReadOnlyModel> {
-
     /*
      * Optional readonly nullable int list.
      */
@@ -37,7 +36,7 @@ public final class ReadOnlyModel implements JsonSerializable<ReadOnlyModel> {
 
     /**
      * Get the optionalNullableIntList property: Optional readonly nullable int list.
-     *
+     * 
      * @return the optionalNullableIntList value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -47,7 +46,7 @@ public final class ReadOnlyModel implements JsonSerializable<ReadOnlyModel> {
 
     /**
      * Get the optionalStringRecord property: Optional readonly string dictionary.
-     *
+     * 
      * @return the optionalStringRecord value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -67,7 +66,7 @@ public final class ReadOnlyModel implements JsonSerializable<ReadOnlyModel> {
 
     /**
      * Reads an instance of ReadOnlyModel from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of ReadOnlyModel if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.
@@ -80,6 +79,7 @@ public final class ReadOnlyModel implements JsonSerializable<ReadOnlyModel> {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
+
                 if ("optionalNullableIntList".equals(fieldName)) {
                     List<Integer> optionalNullableIntList = reader.readArray(reader1 -> reader1.getInt());
                     deserializedReadOnlyModel.optionalNullableIntList = optionalNullableIntList;
@@ -90,6 +90,7 @@ public final class ReadOnlyModel implements JsonSerializable<ReadOnlyModel> {
                     reader.skipChildren();
                 }
             }
+
             return deserializedReadOnlyModel;
         });
     }

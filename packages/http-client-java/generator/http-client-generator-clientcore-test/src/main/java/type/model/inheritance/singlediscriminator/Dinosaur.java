@@ -13,7 +13,6 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public class Dinosaur implements JsonSerializable<Dinosaur> {
-
     /*
      * Discriminator property for Dinosaur.
      */
@@ -28,7 +27,7 @@ public class Dinosaur implements JsonSerializable<Dinosaur> {
 
     /**
      * Creates an instance of Dinosaur class.
-     *
+     * 
      * @param size the size value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -38,7 +37,7 @@ public class Dinosaur implements JsonSerializable<Dinosaur> {
 
     /**
      * Get the kind property: Discriminator property for Dinosaur.
-     *
+     * 
      * @return the kind value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -48,7 +47,7 @@ public class Dinosaur implements JsonSerializable<Dinosaur> {
 
     /**
      * Get the size property: The size property.
-     *
+     * 
      * @return the size value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -70,7 +69,7 @@ public class Dinosaur implements JsonSerializable<Dinosaur> {
 
     /**
      * Reads an instance of Dinosaur from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of Dinosaur if the JsonReader was pointing to an instance of it, or null if it was pointing
      * to JSON null.
@@ -82,8 +81,7 @@ public class Dinosaur implements JsonSerializable<Dinosaur> {
         return jsonReader.readObject(reader -> {
             String discriminatorValue = null;
             try (JsonReader readerToUse = reader.bufferObject()) {
-                // Prepare for reading
-                readerToUse.nextToken();
+                readerToUse.nextToken(); // Prepare for reading
                 while (readerToUse.nextToken() != JsonToken.END_OBJECT) {
                     String fieldName = readerToUse.getFieldName();
                     readerToUse.nextToken();
@@ -112,6 +110,7 @@ public class Dinosaur implements JsonSerializable<Dinosaur> {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
+
                 if ("size".equals(fieldName)) {
                     size = reader.getInt();
                 } else if ("kind".equals(fieldName)) {
@@ -122,6 +121,7 @@ public class Dinosaur implements JsonSerializable<Dinosaur> {
             }
             Dinosaur deserializedDinosaur = new Dinosaur(size);
             deserializedDinosaur.kind = kind;
+
             return deserializedDinosaur;
         });
     }

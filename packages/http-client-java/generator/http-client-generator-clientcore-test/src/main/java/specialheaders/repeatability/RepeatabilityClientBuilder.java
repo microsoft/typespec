@@ -35,7 +35,6 @@ import specialheaders.repeatability.implementation.RepeatabilityClientImpl;
 public final class RepeatabilityClientBuilder
     implements HttpTrait<RepeatabilityClientBuilder>, ProxyTrait<RepeatabilityClientBuilder>,
     ConfigurationTrait<RepeatabilityClientBuilder>, EndpointTrait<RepeatabilityClientBuilder> {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -183,7 +182,7 @@ public final class RepeatabilityClientBuilder
 
     /**
      * Builds an instance of RepeatabilityClientImpl with the provided parameters.
-     *
+     * 
      * @return an instance of RepeatabilityClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -229,7 +228,7 @@ public final class RepeatabilityClientBuilder
 
     /**
      * Builds an instance of RepeatabilityClient class.
-     *
+     * 
      * @return an instance of RepeatabilityClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

@@ -16,7 +16,6 @@ import payload.mediatype.implementation.StringBodiesImpl;
  */
 @ServiceClient(builder = MediaTypeClientBuilder.class)
 public final class MediaTypeClient {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final StringBodiesImpl serviceClient;
 
@@ -24,7 +23,7 @@ public final class MediaTypeClient {
 
     /**
      * Initializes an instance of MediaTypeClient class.
-     *
+     * 
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -36,7 +35,7 @@ public final class MediaTypeClient {
 
     /**
      * The sendAsText operation.
-     *
+     * 
      * @param text The text parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -53,7 +52,7 @@ public final class MediaTypeClient {
 
     /**
      * The sendAsText operation.
-     *
+     * 
      * @param text The text parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -67,7 +66,7 @@ public final class MediaTypeClient {
 
     /**
      * The getAsText operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -83,7 +82,7 @@ public final class MediaTypeClient {
 
     /**
      * The getAsText operation.
-     *
+     * 
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return a sequence of textual characters.
@@ -96,7 +95,7 @@ public final class MediaTypeClient {
 
     /**
      * The sendAsJson operation.
-     *
+     * 
      * @param text The text parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -113,7 +112,7 @@ public final class MediaTypeClient {
 
     /**
      * The sendAsJson operation.
-     *
+     * 
      * @param text The text parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -127,7 +126,7 @@ public final class MediaTypeClient {
 
     /**
      * The getAsJson operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -143,7 +142,7 @@ public final class MediaTypeClient {
 
     /**
      * The getAsJson operation.
-     *
+     * 
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return a sequence of textual characters.

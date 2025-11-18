@@ -42,7 +42,6 @@ import type.scalar.implementation.ScalarClientImpl;
         Decimal128VerifyClient.class })
 public final class ScalarClientBuilder implements HttpTrait<ScalarClientBuilder>, ProxyTrait<ScalarClientBuilder>,
     ConfigurationTrait<ScalarClientBuilder>, EndpointTrait<ScalarClientBuilder> {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -188,7 +187,7 @@ public final class ScalarClientBuilder implements HttpTrait<ScalarClientBuilder>
 
     /**
      * Builds an instance of ScalarClientImpl with the provided parameters.
-     *
+     * 
      * @return an instance of ScalarClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -233,7 +232,7 @@ public final class ScalarClientBuilder implements HttpTrait<ScalarClientBuilder>
 
     /**
      * Builds an instance of StringOperationClient class.
-     *
+     * 
      * @return an instance of StringOperationClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -244,7 +243,7 @@ public final class ScalarClientBuilder implements HttpTrait<ScalarClientBuilder>
 
     /**
      * Builds an instance of BooleanOperationClient class.
-     *
+     * 
      * @return an instance of BooleanOperationClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -255,7 +254,7 @@ public final class ScalarClientBuilder implements HttpTrait<ScalarClientBuilder>
 
     /**
      * Builds an instance of UnknownClient class.
-     *
+     * 
      * @return an instance of UnknownClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -266,7 +265,7 @@ public final class ScalarClientBuilder implements HttpTrait<ScalarClientBuilder>
 
     /**
      * Builds an instance of DecimalTypeClient class.
-     *
+     * 
      * @return an instance of DecimalTypeClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -277,7 +276,7 @@ public final class ScalarClientBuilder implements HttpTrait<ScalarClientBuilder>
 
     /**
      * Builds an instance of Decimal128TypeClient class.
-     *
+     * 
      * @return an instance of Decimal128TypeClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -288,7 +287,7 @@ public final class ScalarClientBuilder implements HttpTrait<ScalarClientBuilder>
 
     /**
      * Builds an instance of DecimalVerifyClient class.
-     *
+     * 
      * @return an instance of DecimalVerifyClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -299,7 +298,7 @@ public final class ScalarClientBuilder implements HttpTrait<ScalarClientBuilder>
 
     /**
      * Builds an instance of Decimal128VerifyClient class.
-     *
+     * 
      * @return an instance of Decimal128VerifyClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

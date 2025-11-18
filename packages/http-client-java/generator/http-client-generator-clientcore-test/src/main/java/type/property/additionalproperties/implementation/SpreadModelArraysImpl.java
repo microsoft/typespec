@@ -21,7 +21,6 @@ import type.property.additionalproperties.SpreadModelArrayRecord;
  * An instance of this class provides access to all the operations defined in SpreadModelArrays.
  */
 public final class SpreadModelArraysImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -39,7 +38,7 @@ public final class SpreadModelArraysImpl {
 
     /**
      * Initializes an instance of SpreadModelArraysImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     SpreadModelArraysImpl(AdditionalPropertiesClientImpl client) {
@@ -54,7 +53,6 @@ public final class SpreadModelArraysImpl {
      */
     @ServiceInterface(name = "AdditionalPropertiesClientSpreadModelArrays", host = "{endpoint}")
     public interface SpreadModelArraysService {
-
         static SpreadModelArraysService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz
@@ -65,6 +63,7 @@ public final class SpreadModelArraysImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(
@@ -86,7 +85,7 @@ public final class SpreadModelArraysImpl {
 
     /**
      * Get call.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -104,7 +103,7 @@ public final class SpreadModelArraysImpl {
 
     /**
      * Put operation.
-     *
+     * 
      * @param body body.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

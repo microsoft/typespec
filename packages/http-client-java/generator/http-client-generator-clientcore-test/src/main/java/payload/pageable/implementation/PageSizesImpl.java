@@ -26,7 +26,6 @@ import payload.pageable.pagesize.implementation.ListWithoutContinuationResponse;
  * An instance of this class provides access to all the operations defined in PageSizes.
  */
 public final class PageSizesImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -44,7 +43,7 @@ public final class PageSizesImpl {
 
     /**
      * Initializes an instance of PageSizesImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     PageSizesImpl(PageableClientImpl client) {
@@ -59,7 +58,6 @@ public final class PageSizesImpl {
      */
     @ServiceInterface(name = "PageableClientPageSizes", host = "{endpoint}")
     public interface PageSizesService {
-
         static PageSizesService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("payload.pageable.implementation.PageSizesServiceImpl");
@@ -68,6 +66,7 @@ public final class PageSizesImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(
@@ -90,7 +89,7 @@ public final class PageSizesImpl {
 
     /**
      * The listWithoutContinuation operation.
-     *
+     * 
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
@@ -109,7 +108,7 @@ public final class PageSizesImpl {
 
     /**
      * The listWithoutContinuation operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -130,7 +129,7 @@ public final class PageSizesImpl {
 
     /**
      * The listWithoutContinuation operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -170,7 +169,7 @@ public final class PageSizesImpl {
 
     /**
      * The listWithPageSize operation.
-     *
+     * 
      * @param pageSize The pageSize parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -191,7 +190,7 @@ public final class PageSizesImpl {
 
     /**
      * The listWithPageSize operation.
-     *
+     * 
      * @param pageSize The pageSize parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -213,7 +212,7 @@ public final class PageSizesImpl {
 
     /**
      * The listWithPageSize operation.
-     *
+     * 
      * @param pageSize The pageSize parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -253,7 +252,7 @@ public final class PageSizesImpl {
 
     /**
      * The listWithPageSize operation.
-     *
+     * 
      * @param pageSize The pageSize parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

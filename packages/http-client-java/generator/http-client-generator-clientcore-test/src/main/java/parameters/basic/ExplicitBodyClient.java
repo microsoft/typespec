@@ -17,7 +17,6 @@ import parameters.basic.implementation.ExplicitBodiesImpl;
  */
 @ServiceClient(builder = BasicClientBuilder.class)
 public final class ExplicitBodyClient {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final ExplicitBodiesImpl serviceClient;
 
@@ -25,7 +24,7 @@ public final class ExplicitBodyClient {
 
     /**
      * Initializes an instance of ExplicitBodyClient class.
-     *
+     * 
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -37,7 +36,7 @@ public final class ExplicitBodyClient {
 
     /**
      * The simple operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -54,7 +53,7 @@ public final class ExplicitBodyClient {
 
     /**
      * The simple operation.
-     *
+     * 
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

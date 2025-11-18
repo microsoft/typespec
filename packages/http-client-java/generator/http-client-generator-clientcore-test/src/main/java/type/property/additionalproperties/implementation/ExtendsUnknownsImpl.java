@@ -21,7 +21,6 @@ import type.property.additionalproperties.ExtendsUnknownAdditionalProperties;
  * An instance of this class provides access to all the operations defined in ExtendsUnknowns.
  */
 public final class ExtendsUnknownsImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -39,7 +38,7 @@ public final class ExtendsUnknownsImpl {
 
     /**
      * Initializes an instance of ExtendsUnknownsImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     ExtendsUnknownsImpl(AdditionalPropertiesClientImpl client) {
@@ -54,7 +53,6 @@ public final class ExtendsUnknownsImpl {
      */
     @ServiceInterface(name = "AdditionalPropertiesClientExtendsUnknowns", host = "{endpoint}")
     public interface ExtendsUnknownsService {
-
         static ExtendsUnknownsService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz
@@ -65,6 +63,7 @@ public final class ExtendsUnknownsImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(
@@ -86,7 +85,7 @@ public final class ExtendsUnknownsImpl {
 
     /**
      * Get call.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -104,7 +103,7 @@ public final class ExtendsUnknownsImpl {
 
     /**
      * Put operation.
-     *
+     * 
      * @param body body.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

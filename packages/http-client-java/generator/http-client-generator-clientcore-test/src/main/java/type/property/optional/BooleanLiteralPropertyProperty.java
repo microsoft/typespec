@@ -4,7 +4,6 @@ package type.property.optional;
  * Defines values for BooleanLiteralPropertyProperty.
  */
 public enum BooleanLiteralPropertyProperty {
-
     /**
      * Enum value true.
      */
@@ -21,7 +20,7 @@ public enum BooleanLiteralPropertyProperty {
 
     /**
      * Parses a serialized value to a BooleanLiteralPropertyProperty instance.
-     *
+     * 
      * @param value the serialized value to parse.
      * @return the parsed BooleanLiteralPropertyProperty object, or null if unable to parse.
      */
@@ -37,7 +36,7 @@ public enum BooleanLiteralPropertyProperty {
 
     /**
      * De-serializes the instance to boolean value.
-     *
+     * 
      * @return the boolean value.
      */
     public boolean toBoolean() {

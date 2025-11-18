@@ -25,7 +25,6 @@ import java.lang.reflect.InvocationTargetException;
  * An instance of this class provides access to all the operations defined in Properties.
  */
 public final class PropertiesImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -43,7 +42,7 @@ public final class PropertiesImpl {
 
     /**
      * Initializes an instance of PropertiesImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     PropertiesImpl(DatetimeClientImpl client) {
@@ -58,7 +57,6 @@ public final class PropertiesImpl {
      */
     @ServiceInterface(name = "DatetimeClientProperties", host = "{endpoint}")
     public interface PropertiesService {
-
         static PropertiesService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("encode.datetime.implementation.PropertiesServiceImpl");
@@ -67,6 +65,7 @@ public final class PropertiesImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(
@@ -117,7 +116,7 @@ public final class PropertiesImpl {
 
     /**
      * The defaultMethod operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -138,7 +137,7 @@ public final class PropertiesImpl {
 
     /**
      * The rfc3339 operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -159,7 +158,7 @@ public final class PropertiesImpl {
 
     /**
      * The rfc7231 operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -180,7 +179,7 @@ public final class PropertiesImpl {
 
     /**
      * The unixTimestamp operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -201,7 +200,7 @@ public final class PropertiesImpl {
 
     /**
      * The unixTimestampArray operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

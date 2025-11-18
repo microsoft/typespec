@@ -22,7 +22,6 @@ import payload.jsonmergepatch.ResourcePatch;
  * Initializes a new instance of the JsonMergePatchClient type.
  */
 public final class JsonMergePatchClientImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -35,7 +34,7 @@ public final class JsonMergePatchClientImpl {
 
     /**
      * Gets Service host.
-     *
+     * 
      * @return the endpoint value.
      */
     public String getEndpoint() {
@@ -49,7 +48,7 @@ public final class JsonMergePatchClientImpl {
 
     /**
      * Gets The HTTP pipeline to send requests through.
-     *
+     * 
      * @return the httpPipeline value.
      */
     public HttpPipeline getHttpPipeline() {
@@ -63,7 +62,7 @@ public final class JsonMergePatchClientImpl {
 
     /**
      * Gets The instance of instrumentation to report telemetry.
-     *
+     * 
      * @return the instrumentation value.
      */
     public Instrumentation getInstrumentation() {
@@ -72,7 +71,7 @@ public final class JsonMergePatchClientImpl {
 
     /**
      * Initializes an instance of JsonMergePatchClient client.
-     *
+     * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
@@ -90,7 +89,6 @@ public final class JsonMergePatchClientImpl {
      */
     @ServiceInterface(name = "JsonMergePatchClient", host = "{endpoint}")
     public interface JsonMergePatchClientService {
-
         static JsonMergePatchClientService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("payload.jsonmergepatch.implementation.JsonMergePatchClientServiceImpl");
@@ -100,6 +98,7 @@ public final class JsonMergePatchClientImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(
@@ -132,7 +131,7 @@ public final class JsonMergePatchClientImpl {
 
     /**
      * Test content-type: application/merge-patch+json with required body.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -152,7 +151,7 @@ public final class JsonMergePatchClientImpl {
 
     /**
      * Test content-type: application/merge-patch+json with required body.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -172,7 +171,7 @@ public final class JsonMergePatchClientImpl {
 
     /**
      * Test content-type: application/merge-patch+json with optional body.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

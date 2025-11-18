@@ -13,11 +13,9 @@ import type.property.nullable.StringProperty;
  * This is the Helper class to enable json merge patch serialization for a model.
  */
 public class JsonMergePatchHelper {
-
     private static StringPropertyAccessor stringPropertyAccessor;
 
     public interface StringPropertyAccessor {
-
         StringProperty prepareModelForJsonMergePatch(StringProperty stringProperty, boolean jsonMergePatchEnabled);
 
         boolean isJsonMergePatch(StringProperty stringProperty);
@@ -34,7 +32,6 @@ public class JsonMergePatchHelper {
     private static BytesPropertyAccessor bytesPropertyAccessor;
 
     public interface BytesPropertyAccessor {
-
         BytesProperty prepareModelForJsonMergePatch(BytesProperty bytesProperty, boolean jsonMergePatchEnabled);
 
         boolean isJsonMergePatch(BytesProperty bytesProperty);
@@ -51,7 +48,6 @@ public class JsonMergePatchHelper {
     private static DatetimePropertyAccessor datetimePropertyAccessor;
 
     public interface DatetimePropertyAccessor {
-
         DatetimeProperty prepareModelForJsonMergePatch(DatetimeProperty datetimeProperty,
             boolean jsonMergePatchEnabled);
 
@@ -69,7 +65,6 @@ public class JsonMergePatchHelper {
     private static DurationPropertyAccessor durationPropertyAccessor;
 
     public interface DurationPropertyAccessor {
-
         DurationProperty prepareModelForJsonMergePatch(DurationProperty durationProperty,
             boolean jsonMergePatchEnabled);
 
@@ -87,7 +82,6 @@ public class JsonMergePatchHelper {
     private static CollectionsBytePropertyAccessor collectionsBytePropertyAccessor;
 
     public interface CollectionsBytePropertyAccessor {
-
         CollectionsByteProperty prepareModelForJsonMergePatch(CollectionsByteProperty collectionsByteProperty,
             boolean jsonMergePatchEnabled);
 
@@ -105,7 +99,6 @@ public class JsonMergePatchHelper {
     private static CollectionsModelPropertyAccessor collectionsModelPropertyAccessor;
 
     public interface CollectionsModelPropertyAccessor {
-
         CollectionsModelProperty prepareModelForJsonMergePatch(CollectionsModelProperty collectionsModelProperty,
             boolean jsonMergePatchEnabled);
 
@@ -123,7 +116,6 @@ public class JsonMergePatchHelper {
     private static InnerModelAccessor innerModelAccessor;
 
     public interface InnerModelAccessor {
-
         InnerModel prepareModelForJsonMergePatch(InnerModel innerModel, boolean jsonMergePatchEnabled);
 
         boolean isJsonMergePatch(InnerModel innerModel);
@@ -140,7 +132,6 @@ public class JsonMergePatchHelper {
     private static CollectionsStringPropertyAccessor collectionsStringPropertyAccessor;
 
     public interface CollectionsStringPropertyAccessor {
-
         CollectionsStringProperty prepareModelForJsonMergePatch(CollectionsStringProperty collectionsStringProperty,
             boolean jsonMergePatchEnabled);
 

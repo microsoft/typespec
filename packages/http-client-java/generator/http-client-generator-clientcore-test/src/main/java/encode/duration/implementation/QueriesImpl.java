@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
  * An instance of this class provides access to all the operations defined in Queries.
  */
 public final class QueriesImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -41,7 +40,7 @@ public final class QueriesImpl {
 
     /**
      * Initializes an instance of QueriesImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     QueriesImpl(DurationClientImpl client) {
@@ -56,7 +55,6 @@ public final class QueriesImpl {
      */
     @ServiceInterface(name = "DurationClientQueries", host = "{endpoint}")
     public interface QueriesService {
-
         static QueriesService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("encode.duration.implementation.QueriesServiceImpl");
@@ -65,6 +63,7 @@ public final class QueriesImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(
@@ -182,7 +181,7 @@ public final class QueriesImpl {
 
     /**
      * The defaultMethod operation.
-     *
+     * 
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -200,7 +199,7 @@ public final class QueriesImpl {
 
     /**
      * The iso8601 operation.
-     *
+     * 
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -218,7 +217,7 @@ public final class QueriesImpl {
 
     /**
      * The int32Seconds operation.
-     *
+     * 
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -256,7 +255,7 @@ public final class QueriesImpl {
 
     /**
      * The floatSeconds operation.
-     *
+     * 
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -294,7 +293,7 @@ public final class QueriesImpl {
 
     /**
      * The float64Seconds operation.
-     *
+     * 
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -313,7 +312,7 @@ public final class QueriesImpl {
 
     /**
      * The int32Milliseconds operation.
-     *
+     * 
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -349,7 +348,7 @@ public final class QueriesImpl {
 
     /**
      * The floatMilliseconds operation.
-     *
+     * 
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -385,7 +384,7 @@ public final class QueriesImpl {
 
     /**
      * The float64Milliseconds operation.
-     *
+     * 
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -403,7 +402,7 @@ public final class QueriesImpl {
 
     /**
      * The int32SecondsArray operation.
-     *
+     * 
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -440,6 +439,7 @@ public final class QueriesImpl {
                                 if (itemValueString.charAt(endOffset) != '"') {
                                     break;
                                 }
+
                                 endOffset--;
                             }
                             return itemValueString.substring(startOffset, endOffset + 1);
@@ -452,7 +452,7 @@ public final class QueriesImpl {
 
     /**
      * The int32MillisecondsArray operation.
-     *
+     * 
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -485,6 +485,7 @@ public final class QueriesImpl {
                             if (itemValueString.charAt(endOffset) != '"') {
                                 break;
                             }
+
                             endOffset--;
                         }
                         return itemValueString.substring(startOffset, endOffset + 1);

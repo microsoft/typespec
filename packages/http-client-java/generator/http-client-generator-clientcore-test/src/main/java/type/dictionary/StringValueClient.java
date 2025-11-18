@@ -17,7 +17,6 @@ import type.dictionary.implementation.StringValuesImpl;
  */
 @ServiceClient(builder = DictionaryClientBuilder.class)
 public final class StringValueClient {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final StringValuesImpl serviceClient;
 
@@ -25,7 +24,7 @@ public final class StringValueClient {
 
     /**
      * Initializes an instance of StringValueClient class.
-     *
+     * 
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -37,7 +36,7 @@ public final class StringValueClient {
 
     /**
      * The get operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -53,7 +52,7 @@ public final class StringValueClient {
 
     /**
      * The get operation.
-     *
+     * 
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
@@ -66,7 +65,7 @@ public final class StringValueClient {
 
     /**
      * The put operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -83,7 +82,7 @@ public final class StringValueClient {
 
     /**
      * The put operation.
-     *
+     * 
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

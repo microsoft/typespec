@@ -13,7 +13,6 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.FLUENT })
 public final class UnionStringLiteralProperty implements JsonSerializable<UnionStringLiteralProperty> {
-
     /*
      * Property
      */
@@ -29,7 +28,7 @@ public final class UnionStringLiteralProperty implements JsonSerializable<UnionS
 
     /**
      * Get the property property: Property.
-     *
+     * 
      * @return the property value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -39,7 +38,7 @@ public final class UnionStringLiteralProperty implements JsonSerializable<UnionS
 
     /**
      * Set the property property: Property.
-     *
+     * 
      * @param property the property value to set.
      * @return the UnionStringLiteralProperty object itself.
      */
@@ -62,7 +61,7 @@ public final class UnionStringLiteralProperty implements JsonSerializable<UnionS
 
     /**
      * Reads an instance of UnionStringLiteralProperty from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of UnionStringLiteralProperty if the JsonReader was pointing to an instance of it, or null if
      * it was pointing to JSON null.
@@ -75,6 +74,7 @@ public final class UnionStringLiteralProperty implements JsonSerializable<UnionS
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
+
                 if ("property".equals(fieldName)) {
                     deserializedUnionStringLiteralProperty.property
                         = UnionStringLiteralPropertyProperty.fromString(reader.getString());
@@ -82,6 +82,7 @@ public final class UnionStringLiteralProperty implements JsonSerializable<UnionS
                     reader.skipChildren();
                 }
             }
+
             return deserializedUnionStringLiteralProperty;
         });
     }

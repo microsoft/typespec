@@ -14,7 +14,6 @@ import java.util.Objects;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class Uint8AsStringProperty implements JsonSerializable<Uint8AsStringProperty> {
-
     /*
      * The value property.
      */
@@ -23,7 +22,7 @@ public final class Uint8AsStringProperty implements JsonSerializable<Uint8AsStri
 
     /**
      * Creates an instance of Uint8AsStringProperty class.
-     *
+     * 
      * @param value the value value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -33,7 +32,7 @@ public final class Uint8AsStringProperty implements JsonSerializable<Uint8AsStri
 
     /**
      * Get the value property: The value property.
-     *
+     * 
      * @return the value value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -54,7 +53,7 @@ public final class Uint8AsStringProperty implements JsonSerializable<Uint8AsStri
 
     /**
      * Reads an instance of Uint8AsStringProperty from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of Uint8AsStringProperty if the JsonReader was pointing to an instance of it, or null if it
      * was pointing to JSON null.
@@ -68,6 +67,7 @@ public final class Uint8AsStringProperty implements JsonSerializable<Uint8AsStri
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
+
                 if ("value".equals(fieldName)) {
                     value = reader.getNullable(nonNullReader -> Integer.parseInt(nonNullReader.getString()));
                 } else {

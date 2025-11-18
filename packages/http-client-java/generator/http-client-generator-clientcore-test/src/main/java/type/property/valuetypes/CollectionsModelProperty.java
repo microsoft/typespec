@@ -14,7 +14,6 @@ import java.util.List;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class CollectionsModelProperty implements JsonSerializable<CollectionsModelProperty> {
-
     /*
      * Property
      */
@@ -23,7 +22,7 @@ public final class CollectionsModelProperty implements JsonSerializable<Collecti
 
     /**
      * Creates an instance of CollectionsModelProperty class.
-     *
+     * 
      * @param property the property value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -33,7 +32,7 @@ public final class CollectionsModelProperty implements JsonSerializable<Collecti
 
     /**
      * Get the property property: Property.
-     *
+     * 
      * @return the property value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -54,7 +53,7 @@ public final class CollectionsModelProperty implements JsonSerializable<Collecti
 
     /**
      * Reads an instance of CollectionsModelProperty from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of CollectionsModelProperty if the JsonReader was pointing to an instance of it, or null if
      * it was pointing to JSON null.
@@ -68,6 +67,7 @@ public final class CollectionsModelProperty implements JsonSerializable<Collecti
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
+
                 if ("property".equals(fieldName)) {
                     property = reader.readArray(reader1 -> InnerModel.fromJson(reader1));
                 } else {

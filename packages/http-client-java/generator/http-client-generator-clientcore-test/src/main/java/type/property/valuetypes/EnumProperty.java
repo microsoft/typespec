@@ -13,7 +13,6 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class EnumProperty implements JsonSerializable<EnumProperty> {
-
     /*
      * Property
      */
@@ -22,7 +21,7 @@ public final class EnumProperty implements JsonSerializable<EnumProperty> {
 
     /**
      * Creates an instance of EnumProperty class.
-     *
+     * 
      * @param property the property value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -32,7 +31,7 @@ public final class EnumProperty implements JsonSerializable<EnumProperty> {
 
     /**
      * Get the property property: Property.
-     *
+     * 
      * @return the property value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -53,7 +52,7 @@ public final class EnumProperty implements JsonSerializable<EnumProperty> {
 
     /**
      * Reads an instance of EnumProperty from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of EnumProperty if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.
@@ -67,6 +66,7 @@ public final class EnumProperty implements JsonSerializable<EnumProperty> {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
+
                 if ("property".equals(fieldName)) {
                     property = FixedInnerEnum.fromString(reader.getString());
                 } else {

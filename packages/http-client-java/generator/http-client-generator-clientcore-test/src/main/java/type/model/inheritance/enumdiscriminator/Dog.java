@@ -13,7 +13,6 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public class Dog implements JsonSerializable<Dog> {
-
     /*
      * discriminator property
      */
@@ -28,7 +27,7 @@ public class Dog implements JsonSerializable<Dog> {
 
     /**
      * Creates an instance of Dog class.
-     *
+     * 
      * @param weight the weight value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -38,7 +37,7 @@ public class Dog implements JsonSerializable<Dog> {
 
     /**
      * Get the kind property: discriminator property.
-     *
+     * 
      * @return the kind value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -48,7 +47,7 @@ public class Dog implements JsonSerializable<Dog> {
 
     /**
      * Get the weight property: Weight of the dog.
-     *
+     * 
      * @return the weight value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -70,7 +69,7 @@ public class Dog implements JsonSerializable<Dog> {
 
     /**
      * Reads an instance of Dog from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of Dog if the JsonReader was pointing to an instance of it, or null if it was pointing to
      * JSON null.
@@ -82,8 +81,7 @@ public class Dog implements JsonSerializable<Dog> {
         return jsonReader.readObject(reader -> {
             String discriminatorValue = null;
             try (JsonReader readerToUse = reader.bufferObject()) {
-                // Prepare for reading
-                readerToUse.nextToken();
+                readerToUse.nextToken(); // Prepare for reading
                 while (readerToUse.nextToken() != JsonToken.END_OBJECT) {
                     String fieldName = readerToUse.getFieldName();
                     readerToUse.nextToken();
@@ -112,6 +110,7 @@ public class Dog implements JsonSerializable<Dog> {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
+
                 if ("weight".equals(fieldName)) {
                     weight = reader.getInt();
                 } else if ("kind".equals(fieldName)) {
@@ -122,6 +121,7 @@ public class Dog implements JsonSerializable<Dog> {
             }
             Dog deserializedDog = new Dog(weight);
             deserializedDog.kind = kind;
+
             return deserializedDog;
         });
     }

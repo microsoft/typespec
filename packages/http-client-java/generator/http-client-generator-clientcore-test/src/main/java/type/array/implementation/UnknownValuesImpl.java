@@ -22,7 +22,6 @@ import java.util.List;
  * An instance of this class provides access to all the operations defined in UnknownValues.
  */
 public final class UnknownValuesImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -40,7 +39,7 @@ public final class UnknownValuesImpl {
 
     /**
      * Initializes an instance of UnknownValuesImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     UnknownValuesImpl(ArrayClientImpl client) {
@@ -55,7 +54,6 @@ public final class UnknownValuesImpl {
      */
     @ServiceInterface(name = "ArrayClientUnknownValues", host = "{endpoint}")
     public interface UnknownValuesService {
-
         static UnknownValuesService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("type.array.implementation.UnknownValuesServiceImpl");
@@ -65,6 +63,7 @@ public final class UnknownValuesImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(method = HttpMethod.GET, path = "/type/array/unknown", expectedStatusCodes = { 200 })
@@ -80,7 +79,7 @@ public final class UnknownValuesImpl {
 
     /**
      * The get operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -98,7 +97,7 @@ public final class UnknownValuesImpl {
 
     /**
      * The put operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

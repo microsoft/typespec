@@ -7,7 +7,6 @@ import io.clientcore.core.instrumentation.Instrumentation;
  * Initializes a new instance of the SpecialWordsClient type.
  */
 public final class SpecialWordsClientImpl {
-
     /**
      * Service host.
      */
@@ -15,7 +14,7 @@ public final class SpecialWordsClientImpl {
 
     /**
      * Gets Service host.
-     *
+     * 
      * @return the endpoint value.
      */
     public String getEndpoint() {
@@ -29,7 +28,7 @@ public final class SpecialWordsClientImpl {
 
     /**
      * Gets The HTTP pipeline to send requests through.
-     *
+     * 
      * @return the httpPipeline value.
      */
     public HttpPipeline getHttpPipeline() {
@@ -43,7 +42,7 @@ public final class SpecialWordsClientImpl {
 
     /**
      * Gets The instance of instrumentation to report telemetry.
-     *
+     * 
      * @return the instrumentation value.
      */
     public Instrumentation getInstrumentation() {
@@ -57,7 +56,7 @@ public final class SpecialWordsClientImpl {
 
     /**
      * Gets the ModelsImpl object to access its operations.
-     *
+     * 
      * @return the ModelsImpl object.
      */
     public ModelsImpl getModels() {
@@ -71,7 +70,7 @@ public final class SpecialWordsClientImpl {
 
     /**
      * Gets the ModelPropertiesImpl object to access its operations.
-     *
+     * 
      * @return the ModelPropertiesImpl object.
      */
     public ModelPropertiesImpl getModelProperties() {
@@ -85,7 +84,7 @@ public final class SpecialWordsClientImpl {
 
     /**
      * Gets the OperationsImpl object to access its operations.
-     *
+     * 
      * @return the OperationsImpl object.
      */
     public OperationsImpl getOperations() {
@@ -99,7 +98,7 @@ public final class SpecialWordsClientImpl {
 
     /**
      * Gets the ParametersImpl object to access its operations.
-     *
+     * 
      * @return the ParametersImpl object.
      */
     public ParametersImpl getParameters() {
@@ -108,7 +107,7 @@ public final class SpecialWordsClientImpl {
 
     /**
      * Initializes an instance of SpecialWordsClient client.
-     *
+     * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.

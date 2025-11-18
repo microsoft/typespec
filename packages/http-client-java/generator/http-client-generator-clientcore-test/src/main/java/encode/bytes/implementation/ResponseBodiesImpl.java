@@ -21,7 +21,6 @@ import java.lang.reflect.InvocationTargetException;
  * An instance of this class provides access to all the operations defined in ResponseBodies.
  */
 public final class ResponseBodiesImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -39,7 +38,7 @@ public final class ResponseBodiesImpl {
 
     /**
      * Initializes an instance of ResponseBodiesImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     ResponseBodiesImpl(BytesClientImpl client) {
@@ -54,7 +53,6 @@ public final class ResponseBodiesImpl {
      */
     @ServiceInterface(name = "BytesClientResponseBodies", host = "{endpoint}")
     public interface ResponseBodiesService {
-
         static ResponseBodiesService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("encode.bytes.implementation.ResponseBodiesServiceImpl");
@@ -64,6 +62,7 @@ public final class ResponseBodiesImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(
@@ -110,7 +109,7 @@ public final class ResponseBodiesImpl {
 
     /**
      * The defaultMethod operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -128,7 +127,7 @@ public final class ResponseBodiesImpl {
 
     /**
      * The octetStream operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -146,7 +145,7 @@ public final class ResponseBodiesImpl {
 
     /**
      * The customContentType operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -164,7 +163,7 @@ public final class ResponseBodiesImpl {
 
     /**
      * The base64 operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -182,7 +181,7 @@ public final class ResponseBodiesImpl {
 
     /**
      * The base64url operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

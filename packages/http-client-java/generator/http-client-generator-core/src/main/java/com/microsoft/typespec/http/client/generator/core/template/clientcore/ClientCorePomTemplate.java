@@ -10,7 +10,7 @@ import com.microsoft.typespec.http.client.generator.core.model.xmlmodel.XmlBlock
 import com.microsoft.typespec.http.client.generator.core.model.xmlmodel.XmlFile;
 import com.microsoft.typespec.http.client.generator.core.template.PomTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.TemplateHelper;
-import java.util.Arrays;
+import com.microsoft.typespec.http.client.generator.core.util.Constants;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -31,11 +31,10 @@ public class ClientCorePomTemplate extends PomTemplate {
 
         // copyright
         if (!CoreUtils.isNullOrEmpty(settings.getFileHeaderText())) {
-            xmlFile.blockComment(xmlLineComment -> {
-                xmlLineComment.line(Arrays.stream(settings.getFileHeaderText().split(System.lineSeparator()))
-                    .map(line -> " ~ " + line)
-                    .collect(Collectors.joining(System.lineSeparator())));
-            });
+            xmlFile.blockComment(xmlLineComment -> xmlLineComment.line(settings.getFileHeaderText()
+                .lines()
+                .map(line -> " ~ " + line)
+                .collect(Collectors.joining(Constants.NEW_LINE))));
         }
 
         Map<String, String> projectAnnotations = new HashMap<>();
@@ -74,13 +73,11 @@ public class ClientCorePomTemplate extends PomTemplate {
 
             projectBlock.line();
 
-            projectBlock.block("licenses", licensesBlock -> {
-                licensesBlock.block("license", licenseBlock -> {
-                    licenseBlock.tag("name", "The MIT License (MIT)");
-                    licenseBlock.tag("url", "http://opensource.org/licenses/MIT");
-                    licenseBlock.tag("distribution", "repo");
-                });
-            });
+            projectBlock.block("licenses", licensesBlock -> licensesBlock.block("license", licenseBlock -> {
+                licenseBlock.tag("name", "The MIT License (MIT)");
+                licenseBlock.tag("url", "http://opensource.org/licenses/MIT");
+                licenseBlock.tag("distribution", "repo");
+            }));
 
             projectBlock.line();
 
@@ -91,12 +88,10 @@ public class ClientCorePomTemplate extends PomTemplate {
                 scmBlock.tag("tag", "HEAD");
             });
 
-            projectBlock.block("developers", developersBlock -> {
-                developersBlock.block("developer", developerBlock -> {
-                    developerBlock.tag("id", "microsoft");
-                    developerBlock.tag("name", "Microsoft");
-                });
-            });
+            projectBlock.block("developers", developersBlock -> developersBlock.block("developer", developerBlock -> {
+                developerBlock.tag("id", "microsoft");
+                developerBlock.tag("name", "Microsoft");
+            }));
 
             projectBlock.block("properties", propertiesBlock -> {
                 propertiesBlock.tag("project.build.sourceEncoding", "UTF-8");
@@ -142,24 +137,6 @@ public class ClientCorePomTemplate extends PomTemplate {
     }
 
     /**
-     * Extension for writing jacoco configuration.
-     *
-     * @param propertiesBlock the "properties" xml block.
-     */
-    protected void writeJacoco(XmlBlock propertiesBlock) {
-        // NOOP for data-plane
-    }
-
-    /**
-     * Extension for writing revapi configuration.
-     *
-     * @param propertiesBlock the "properties" xml block.
-     */
-    protected void writeRevapi(XmlBlock propertiesBlock, Pom pom) {
-        // NOOP for data-plane
-    }
-
-    /**
      * Extension for writing Spotless configuration.
      *
      * @param propertiesBlock The {@code <properties></properties>} XML block within the {@code pom.xml}.
@@ -175,11 +152,8 @@ public class ClientCorePomTemplate extends PomTemplate {
      */
     protected void writeBuildBlock(XmlBlock projectBlock, Pom pom) {
         if (pom.isRequireCompilerPlugins()) {
-            projectBlock.block("build", buildBlock -> {
-                buildBlock.block("plugins", pluginsBlock -> {
-                    writePlugins(projectBlock);
-                });
-            });
+            projectBlock.block("build",
+                buildBlock -> buildBlock.block("plugins", pluginsBlock -> writePlugins(projectBlock)));
         }
     }
 
@@ -194,19 +168,15 @@ public class ClientCorePomTemplate extends PomTemplate {
             pluginBlock.tag("groupId", "org.apache.maven.plugins");
             pluginBlock.tag("artifactId", "maven-compiler-plugin");
             pluginBlock.tag("version", "3.13.0");
-            pluginBlock.block("configuration", configurationBlock -> {
-                configurationBlock.tag("release", "11");
-            });
+            pluginBlock.block("configuration", configurationBlock -> configurationBlock.tag("release", "11"));
 
             // Generate annotation processor configuration if not using Rest Proxy
             if (!JavaSettings.getInstance().useRestProxy()) {
-                pluginBlock.block("executions", executionsBlock -> {
-                    executionsBlock.block("execution", executionBlock -> {
+                pluginBlock.block("executions",
+                    executionsBlock -> executionsBlock.block("execution", executionBlock -> {
                         executionBlock.tag("id", "run-annotation-processing");
                         executionBlock.tag("phase", "generate-sources");
-                        executionBlock.block("goals", goalsBlock -> {
-                            goalsBlock.tag("goal", "compile");
-                        });
+                        executionBlock.block("goals", goalsBlock -> goalsBlock.tag("goal", "compile"));
 
                         executionBlock.block("configuration", configurationBlock -> {
                             configurationBlock.tag("source", "1.8");
@@ -215,34 +185,29 @@ public class ClientCorePomTemplate extends PomTemplate {
                             configurationBlock.tag("proc", "only");
                             configurationBlock.tag("generatedSourcesDirectory",
                                 "${project.build.directory}/generated-sources/");
-                            configurationBlock.block("annotationProcessorPaths", annotationProcessorPathsBlock -> {
-                                annotationProcessorPathsBlock.block("annotationProcessorPath", pathBlock -> {
-                                    pathBlock.tag("groupId", "io.clientcore");
-                                    pathBlock.tag("artifactId", "annotation-processor");
-                                    pathBlock.tag("version", "1.0.0-beta.3");
-                                });
-                            });
-                            configurationBlock.block("annotationProcessors", annotationProcessorsBlock -> {
-                                annotationProcessorsBlock.tag("annotationProcessor",
-                                    "io.clientcore.annotation.processor.AnnotationProcessor");
-                            });
-                            configurationBlock.block("compilerArgs", compilerArgsBlock -> {
-                                compilerArgsBlock.tag("arg", "-Xlint:-options");
-                            });
-                            configurationBlock.block("excludes", excludesBlock -> {
-                                excludesBlock.tag("exclude", "module-info.java");
-                            });
+                            configurationBlock.block("annotationProcessorPaths",
+                                annotationProcessorPathsBlock -> annotationProcessorPathsBlock
+                                    .block("annotationProcessorPath", pathBlock -> {
+                                        pathBlock.tag("groupId", "io.clientcore");
+                                        pathBlock.tag("artifactId", "annotation-processor");
+                                        pathBlock.tag("version", "1.0.0-beta.3");
+                                    }));
+                            configurationBlock.block("annotationProcessors",
+                                annotationProcessorsBlock -> annotationProcessorsBlock.tag("annotationProcessor",
+                                    "io.clientcore.annotation.processor.AnnotationProcessor"));
+                            configurationBlock.block("compilerArgs",
+                                compilerArgsBlock -> compilerArgsBlock.tag("arg", "-Xlint:-options"));
+                            configurationBlock.block("excludes",
+                                excludesBlock -> excludesBlock.tag("exclude", "module-info.java"));
                         });
-                    });
-                });
+                    }));
 
-                pluginBlock.block("dependencies", dependenciesBlock -> {
-                    dependenciesBlock.block("dependency", dependencyBlock -> {
+                pluginBlock.block("dependencies",
+                    dependenciesBlock -> dependenciesBlock.block("dependency", dependencyBlock -> {
                         dependencyBlock.tag("groupId", "io.clientcore");
                         dependencyBlock.tag("artifactId", "annotation-processor");
                         dependencyBlock.tag("version", "1.0.0-beta.3");
-                    });
-                });
+                    }));
             }
 
         });

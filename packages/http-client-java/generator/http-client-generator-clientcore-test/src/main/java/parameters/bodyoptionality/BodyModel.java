@@ -13,7 +13,6 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class BodyModel implements JsonSerializable<BodyModel> {
-
     /*
      * The name property.
      */
@@ -22,7 +21,7 @@ public final class BodyModel implements JsonSerializable<BodyModel> {
 
     /**
      * Creates an instance of BodyModel class.
-     *
+     * 
      * @param name the name value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -32,7 +31,7 @@ public final class BodyModel implements JsonSerializable<BodyModel> {
 
     /**
      * Get the name property: The name property.
-     *
+     * 
      * @return the name value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -53,7 +52,7 @@ public final class BodyModel implements JsonSerializable<BodyModel> {
 
     /**
      * Reads an instance of BodyModel from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of BodyModel if the JsonReader was pointing to an instance of it, or null if it was pointing
      * to JSON null.
@@ -67,6 +66,7 @@ public final class BodyModel implements JsonSerializable<BodyModel> {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
+
                 if ("name".equals(fieldName)) {
                     name = reader.getString();
                 } else {

@@ -21,7 +21,6 @@ import type.property.valuetypes.BooleanLiteralProperty;
  * An instance of this class provides access to all the operations defined in BooleanLiterals.
  */
 public final class BooleanLiteralsImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -39,7 +38,7 @@ public final class BooleanLiteralsImpl {
 
     /**
      * Initializes an instance of BooleanLiteralsImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     BooleanLiteralsImpl(ValueTypesClientImpl client) {
@@ -54,7 +53,6 @@ public final class BooleanLiteralsImpl {
      */
     @ServiceInterface(name = "ValueTypesClientBooleanLiterals", host = "{endpoint}")
     public interface BooleanLiteralsService {
-
         static BooleanLiteralsService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("type.property.valuetypes.implementation.BooleanLiteralsServiceImpl");
@@ -64,6 +62,7 @@ public final class BooleanLiteralsImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(
@@ -85,7 +84,7 @@ public final class BooleanLiteralsImpl {
 
     /**
      * Get call.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -103,7 +102,7 @@ public final class BooleanLiteralsImpl {
 
     /**
      * Put operation.
-     *
+     * 
      * @param body body.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

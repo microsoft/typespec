@@ -16,7 +16,6 @@ import type.model.usage.implementation.UsageClientImpl;
  */
 @ServiceClient(builder = UsageClientBuilder.class)
 public final class UsageClient {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final UsageClientImpl serviceClient;
 
@@ -24,7 +23,7 @@ public final class UsageClient {
 
     /**
      * Initializes an instance of UsageClient class.
-     *
+     * 
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -36,7 +35,7 @@ public final class UsageClient {
 
     /**
      * The input operation.
-     *
+     * 
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -53,7 +52,7 @@ public final class UsageClient {
 
     /**
      * The input operation.
-     *
+     * 
      * @param input The input parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -67,7 +66,7 @@ public final class UsageClient {
 
     /**
      * The output operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -83,7 +82,7 @@ public final class UsageClient {
 
     /**
      * The output operation.
-     *
+     * 
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return record used in operation return type.
@@ -96,7 +95,7 @@ public final class UsageClient {
 
     /**
      * The inputAndOutput operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -114,7 +113,7 @@ public final class UsageClient {
 
     /**
      * The inputAndOutput operation.
-     *
+     * 
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

@@ -18,7 +18,6 @@ import routes.implementation.PathParametersSimpleExpansionStandardsImpl;
  */
 @ServiceClient(builder = RoutesClientBuilder.class)
 public final class PathParametersSimpleExpansionStandardClient {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final PathParametersSimpleExpansionStandardsImpl serviceClient;
 
@@ -26,7 +25,7 @@ public final class PathParametersSimpleExpansionStandardClient {
 
     /**
      * Initializes an instance of PathParametersSimpleExpansionStandardClient class.
-     *
+     * 
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -39,7 +38,7 @@ public final class PathParametersSimpleExpansionStandardClient {
 
     /**
      * The primitive operation.
-     *
+     * 
      * @param param The param parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -56,7 +55,7 @@ public final class PathParametersSimpleExpansionStandardClient {
 
     /**
      * The primitive operation.
-     *
+     * 
      * @param param The param parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -70,7 +69,7 @@ public final class PathParametersSimpleExpansionStandardClient {
 
     /**
      * The array operation.
-     *
+     * 
      * @param param The param parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -87,7 +86,7 @@ public final class PathParametersSimpleExpansionStandardClient {
 
     /**
      * The array operation.
-     *
+     * 
      * @param param The param parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -101,7 +100,7 @@ public final class PathParametersSimpleExpansionStandardClient {
 
     /**
      * The record operation.
-     *
+     * 
      * @param param The param parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -118,7 +117,7 @@ public final class PathParametersSimpleExpansionStandardClient {
 
     /**
      * The record operation.
-     *
+     * 
      * @param param The param parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

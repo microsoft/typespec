@@ -21,7 +21,6 @@ import type.property.additionalproperties.DifferentSpreadModelDerived;
  * An instance of this class provides access to all the operations defined in ExtendsDifferentSpreadModels.
  */
 public final class ExtendsDifferentSpreadModelsImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -39,7 +38,7 @@ public final class ExtendsDifferentSpreadModelsImpl {
 
     /**
      * Initializes an instance of ExtendsDifferentSpreadModelsImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     ExtendsDifferentSpreadModelsImpl(AdditionalPropertiesClientImpl client) {
@@ -54,7 +53,6 @@ public final class ExtendsDifferentSpreadModelsImpl {
      */
     @ServiceInterface(name = "AdditionalPropertiesClientExtendsDifferentSpreadModels", host = "{endpoint}")
     public interface ExtendsDifferentSpreadModelsService {
-
         static ExtendsDifferentSpreadModelsService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName(
@@ -65,6 +63,7 @@ public final class ExtendsDifferentSpreadModelsImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(
@@ -86,7 +85,7 @@ public final class ExtendsDifferentSpreadModelsImpl {
 
     /**
      * Get call.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -104,7 +103,7 @@ public final class ExtendsDifferentSpreadModelsImpl {
 
     /**
      * Put operation.
-     *
+     * 
      * @param body body.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

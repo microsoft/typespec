@@ -34,7 +34,6 @@ import java.lang.reflect.InvocationTargetException;
  * An instance of this class provides access to all the operations defined in Properties.
  */
 public final class PropertiesImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -52,7 +51,7 @@ public final class PropertiesImpl {
 
     /**
      * Initializes an instance of PropertiesImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     PropertiesImpl(DurationClientImpl client) {
@@ -67,7 +66,6 @@ public final class PropertiesImpl {
      */
     @ServiceInterface(name = "DurationClientProperties", host = "{endpoint}")
     public interface PropertiesService {
-
         static PropertiesService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("encode.duration.implementation.PropertiesServiceImpl");
@@ -76,6 +74,7 @@ public final class PropertiesImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(
@@ -211,7 +210,7 @@ public final class PropertiesImpl {
 
     /**
      * The defaultMethod operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -232,7 +231,7 @@ public final class PropertiesImpl {
 
     /**
      * The iso8601 operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -253,7 +252,7 @@ public final class PropertiesImpl {
 
     /**
      * The int32Seconds operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -274,7 +273,7 @@ public final class PropertiesImpl {
 
     /**
      * The floatSeconds operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -295,7 +294,7 @@ public final class PropertiesImpl {
 
     /**
      * The float64Seconds operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -316,7 +315,7 @@ public final class PropertiesImpl {
 
     /**
      * The int32Milliseconds operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -337,7 +336,7 @@ public final class PropertiesImpl {
 
     /**
      * The floatMilliseconds operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -358,7 +357,7 @@ public final class PropertiesImpl {
 
     /**
      * The float64Milliseconds operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -380,7 +379,7 @@ public final class PropertiesImpl {
 
     /**
      * The floatSecondsArray operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -401,7 +400,7 @@ public final class PropertiesImpl {
 
     /**
      * The floatMillisecondsArray operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

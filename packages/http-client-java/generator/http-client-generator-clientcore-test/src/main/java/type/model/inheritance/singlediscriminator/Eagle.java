@@ -15,7 +15,6 @@ import java.util.Map;
  */
 @Metadata(properties = { MetadataProperties.FLUENT })
 public final class Eagle extends Bird {
-
     /*
      * The kind property.
      */
@@ -42,7 +41,7 @@ public final class Eagle extends Bird {
 
     /**
      * Creates an instance of Eagle class.
-     *
+     * 
      * @param wingspan the wingspan value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -52,7 +51,7 @@ public final class Eagle extends Bird {
 
     /**
      * Get the kind property: The kind property.
-     *
+     * 
      * @return the kind value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -63,7 +62,7 @@ public final class Eagle extends Bird {
 
     /**
      * Get the friends property: The friends property.
-     *
+     * 
      * @return the friends value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -73,7 +72,7 @@ public final class Eagle extends Bird {
 
     /**
      * Set the friends property: The friends property.
-     *
+     * 
      * @param friends the friends value to set.
      * @return the Eagle object itself.
      */
@@ -85,7 +84,7 @@ public final class Eagle extends Bird {
 
     /**
      * Get the hate property: The hate property.
-     *
+     * 
      * @return the hate value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -95,7 +94,7 @@ public final class Eagle extends Bird {
 
     /**
      * Set the hate property: The hate property.
-     *
+     * 
      * @param hate the hate value to set.
      * @return the Eagle object itself.
      */
@@ -107,7 +106,7 @@ public final class Eagle extends Bird {
 
     /**
      * Get the partner property: The partner property.
-     *
+     * 
      * @return the partner value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -117,7 +116,7 @@ public final class Eagle extends Bird {
 
     /**
      * Set the partner property: The partner property.
-     *
+     * 
      * @param partner the partner value to set.
      * @return the Eagle object itself.
      */
@@ -144,7 +143,7 @@ public final class Eagle extends Bird {
 
     /**
      * Reads an instance of Eagle from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of Eagle if the JsonReader was pointing to an instance of it, or null if it was pointing to
      * JSON null.
@@ -162,6 +161,7 @@ public final class Eagle extends Bird {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
+
                 if ("wingspan".equals(fieldName)) {
                     wingspan = reader.getInt();
                 } else if ("kind".equals(fieldName)) {
@@ -181,6 +181,7 @@ public final class Eagle extends Bird {
             deserializedEagle.friends = friends;
             deserializedEagle.hate = hate;
             deserializedEagle.partner = partner;
+
             return deserializedEagle;
         });
     }

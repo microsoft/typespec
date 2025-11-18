@@ -35,7 +35,6 @@ import type.model.inheritance.singlediscriminator.implementation.SingleDiscrimin
 public final class SingleDiscriminatorClientBuilder
     implements HttpTrait<SingleDiscriminatorClientBuilder>, ProxyTrait<SingleDiscriminatorClientBuilder>,
     ConfigurationTrait<SingleDiscriminatorClientBuilder>, EndpointTrait<SingleDiscriminatorClientBuilder> {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -183,7 +182,7 @@ public final class SingleDiscriminatorClientBuilder
 
     /**
      * Builds an instance of SingleDiscriminatorClientImpl with the provided parameters.
-     *
+     * 
      * @return an instance of SingleDiscriminatorClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -229,7 +228,7 @@ public final class SingleDiscriminatorClientBuilder
 
     /**
      * Builds an instance of SingleDiscriminatorClient class.
-     *
+     * 
      * @return an instance of SingleDiscriminatorClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

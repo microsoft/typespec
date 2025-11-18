@@ -35,7 +35,6 @@ import specialheaders.conditionalrequest.implementation.ConditionalRequestClient
 public final class ConditionalRequestClientBuilder
     implements HttpTrait<ConditionalRequestClientBuilder>, ProxyTrait<ConditionalRequestClientBuilder>,
     ConfigurationTrait<ConditionalRequestClientBuilder>, EndpointTrait<ConditionalRequestClientBuilder> {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -183,7 +182,7 @@ public final class ConditionalRequestClientBuilder
 
     /**
      * Builds an instance of ConditionalRequestClientImpl with the provided parameters.
-     *
+     * 
      * @return an instance of ConditionalRequestClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -229,7 +228,7 @@ public final class ConditionalRequestClientBuilder
 
     /**
      * Builds an instance of ConditionalRequestClient class.
-     *
+     * 
      * @return an instance of ConditionalRequestClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

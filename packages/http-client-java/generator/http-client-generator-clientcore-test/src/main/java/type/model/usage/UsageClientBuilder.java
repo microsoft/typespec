@@ -34,7 +34,6 @@ import type.model.usage.implementation.UsageClientImpl;
 @ServiceClientBuilder(serviceClients = { UsageClient.class })
 public final class UsageClientBuilder implements HttpTrait<UsageClientBuilder>, ProxyTrait<UsageClientBuilder>,
     ConfigurationTrait<UsageClientBuilder>, EndpointTrait<UsageClientBuilder> {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -180,7 +179,7 @@ public final class UsageClientBuilder implements HttpTrait<UsageClientBuilder>, 
 
     /**
      * Builds an instance of UsageClientImpl with the provided parameters.
-     *
+     * 
      * @return an instance of UsageClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -225,7 +224,7 @@ public final class UsageClientBuilder implements HttpTrait<UsageClientBuilder>, 
 
     /**
      * Builds an instance of UsageClient class.
-     *
+     * 
      * @return an instance of UsageClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

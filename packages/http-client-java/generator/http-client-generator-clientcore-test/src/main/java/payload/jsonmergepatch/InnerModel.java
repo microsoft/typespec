@@ -16,7 +16,6 @@ import payload.jsonmergepatch.implementation.JsonMergePatchHelper;
  */
 @Metadata(properties = { MetadataProperties.FLUENT })
 public final class InnerModel implements JsonSerializable<InnerModel> {
-
     /*
      * The name property.
      */
@@ -45,7 +44,6 @@ public final class InnerModel implements JsonSerializable<InnerModel> {
 
     static {
         JsonMergePatchHelper.setInnerModelAccessor(new JsonMergePatchHelper.InnerModelAccessor() {
-
             @Override
             public InnerModel prepareModelForJsonMergePatch(InnerModel model, boolean jsonMergePatchEnabled) {
                 model.serializeAsJsonMergePatch(jsonMergePatchEnabled);
@@ -68,7 +66,7 @@ public final class InnerModel implements JsonSerializable<InnerModel> {
 
     /**
      * Get the name property: The name property.
-     *
+     * 
      * @return the name value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -78,7 +76,7 @@ public final class InnerModel implements JsonSerializable<InnerModel> {
 
     /**
      * Set the name property: The name property.
-     *
+     * 
      * @param name the name value to set.
      * @return the InnerModel object itself.
      */
@@ -91,7 +89,7 @@ public final class InnerModel implements JsonSerializable<InnerModel> {
 
     /**
      * Get the description property: The description property.
-     *
+     * 
      * @return the description value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -101,7 +99,7 @@ public final class InnerModel implements JsonSerializable<InnerModel> {
 
     /**
      * Set the description property: The description property.
-     *
+     * 
      * @param description the description value to set.
      * @return the InnerModel object itself.
      */
@@ -150,7 +148,7 @@ public final class InnerModel implements JsonSerializable<InnerModel> {
 
     /**
      * Reads an instance of InnerModel from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of InnerModel if the JsonReader was pointing to an instance of it, or null if it was pointing
      * to JSON null.
@@ -163,6 +161,7 @@ public final class InnerModel implements JsonSerializable<InnerModel> {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
+
                 if ("name".equals(fieldName)) {
                     deserializedInnerModel.name = reader.getString();
                 } else if ("description".equals(fieldName)) {
@@ -171,6 +170,7 @@ public final class InnerModel implements JsonSerializable<InnerModel> {
                     reader.skipChildren();
                 }
             }
+
             return deserializedInnerModel;
         });
     }

@@ -14,7 +14,6 @@ import javax.xml.stream.XMLStreamException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class SimpleModel implements XmlSerializable<SimpleModel> {
-
     /*
      * The name property.
      */
@@ -29,7 +28,7 @@ public final class SimpleModel implements XmlSerializable<SimpleModel> {
 
     /**
      * Creates an instance of SimpleModel class.
-     *
+     * 
      * @param name the name value to set.
      * @param age the age value to set.
      */
@@ -41,7 +40,7 @@ public final class SimpleModel implements XmlSerializable<SimpleModel> {
 
     /**
      * Get the name property: The name property.
-     *
+     * 
      * @return the name value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -51,7 +50,7 @@ public final class SimpleModel implements XmlSerializable<SimpleModel> {
 
     /**
      * Get the age property: The age property.
-     *
+     * 
      * @return the age value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -77,7 +76,7 @@ public final class SimpleModel implements XmlSerializable<SimpleModel> {
 
     /**
      * Reads an instance of SimpleModel from the XmlReader.
-     *
+     * 
      * @param xmlReader The XmlReader being read.
      * @return An instance of SimpleModel if the XmlReader was pointing to an instance of it, or null if it was pointing
      * to XML null.
@@ -91,7 +90,7 @@ public final class SimpleModel implements XmlSerializable<SimpleModel> {
 
     /**
      * Reads an instance of SimpleModel from the XmlReader.
-     *
+     * 
      * @param xmlReader The XmlReader being read.
      * @param rootElementName Optional root element name to override the default defined by the model. Used to support
      * cases where the model can deserialize from different root element names.
@@ -109,6 +108,7 @@ public final class SimpleModel implements XmlSerializable<SimpleModel> {
             int age = 0;
             while (reader.nextElement() != XmlToken.END_ELEMENT) {
                 QName elementName = reader.getElementName();
+
                 if ("name".equals(elementName.getLocalPart())) {
                     name = reader.getStringElement();
                 } else if ("age".equals(elementName.getLocalPart())) {

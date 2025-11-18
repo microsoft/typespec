@@ -12,7 +12,6 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public class Cat extends Pet {
-
     /*
      * The age property.
      */
@@ -21,7 +20,7 @@ public class Cat extends Pet {
 
     /**
      * Creates an instance of Cat class.
-     *
+     * 
      * @param name the name value to set.
      * @param age the age value to set.
      */
@@ -33,7 +32,7 @@ public class Cat extends Pet {
 
     /**
      * Get the age property: The age property.
-     *
+     * 
      * @return the age value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -55,7 +54,7 @@ public class Cat extends Pet {
 
     /**
      * Reads an instance of Cat from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of Cat if the JsonReader was pointing to an instance of it, or null if it was pointing to
      * JSON null.
@@ -70,6 +69,7 @@ public class Cat extends Pet {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
+
                 if ("name".equals(fieldName)) {
                     name = reader.getString();
                 } else if ("age".equals(fieldName)) {

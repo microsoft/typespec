@@ -15,7 +15,6 @@ import java.time.format.DateTimeFormatter;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class DatetimeProperty implements JsonSerializable<DatetimeProperty> {
-
     /*
      * Property
      */
@@ -24,7 +23,7 @@ public final class DatetimeProperty implements JsonSerializable<DatetimeProperty
 
     /**
      * Creates an instance of DatetimeProperty class.
-     *
+     * 
      * @param property the property value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -34,7 +33,7 @@ public final class DatetimeProperty implements JsonSerializable<DatetimeProperty
 
     /**
      * Get the property property: Property.
-     *
+     * 
      * @return the property value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -56,7 +55,7 @@ public final class DatetimeProperty implements JsonSerializable<DatetimeProperty
 
     /**
      * Reads an instance of DatetimeProperty from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of DatetimeProperty if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.
@@ -70,6 +69,7 @@ public final class DatetimeProperty implements JsonSerializable<DatetimeProperty
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
+
                 if ("property".equals(fieldName)) {
                     property = reader.getNullable(nonNullReader -> OffsetDateTime.parse(nonNullReader.getString()));
                 } else {

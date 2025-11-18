@@ -16,7 +16,6 @@ import type.property.valuetypes.implementation.UnknownStringsImpl;
  */
 @ServiceClient(builder = ValueTypesClientBuilder.class)
 public final class UnknownStringClient {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final UnknownStringsImpl serviceClient;
 
@@ -24,7 +23,7 @@ public final class UnknownStringClient {
 
     /**
      * Initializes an instance of UnknownStringClient class.
-     *
+     * 
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -36,7 +35,7 @@ public final class UnknownStringClient {
 
     /**
      * Get call.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -52,7 +51,7 @@ public final class UnknownStringClient {
 
     /**
      * Get call.
-     *
+     * 
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return call.
@@ -65,7 +64,7 @@ public final class UnknownStringClient {
 
     /**
      * Put operation.
-     *
+     * 
      * @param body body.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -82,7 +81,7 @@ public final class UnknownStringClient {
 
     /**
      * Put operation.
-     *
+     * 
      * @param body body.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

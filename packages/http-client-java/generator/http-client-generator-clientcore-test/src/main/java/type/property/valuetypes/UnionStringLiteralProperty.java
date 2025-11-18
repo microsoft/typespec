@@ -13,7 +13,6 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class UnionStringLiteralProperty implements JsonSerializable<UnionStringLiteralProperty> {
-
     /*
      * Property
      */
@@ -22,7 +21,7 @@ public final class UnionStringLiteralProperty implements JsonSerializable<UnionS
 
     /**
      * Creates an instance of UnionStringLiteralProperty class.
-     *
+     * 
      * @param property the property value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -32,7 +31,7 @@ public final class UnionStringLiteralProperty implements JsonSerializable<UnionS
 
     /**
      * Get the property property: Property.
-     *
+     * 
      * @return the property value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -53,7 +52,7 @@ public final class UnionStringLiteralProperty implements JsonSerializable<UnionS
 
     /**
      * Reads an instance of UnionStringLiteralProperty from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of UnionStringLiteralProperty if the JsonReader was pointing to an instance of it, or null if
      * it was pointing to JSON null.
@@ -67,6 +66,7 @@ public final class UnionStringLiteralProperty implements JsonSerializable<UnionS
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
+
                 if ("property".equals(fieldName)) {
                     property = UnionStringLiteralPropertyProperty.fromString(reader.getString());
                 } else {

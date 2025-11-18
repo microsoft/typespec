@@ -9,7 +9,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Pom;
 import com.microsoft.typespec.http.client.generator.core.model.projectmodel.Project;
 import com.microsoft.typespec.http.client.generator.core.model.xmlmodel.XmlBlock;
 import com.microsoft.typespec.http.client.generator.core.model.xmlmodel.XmlFile;
-import java.util.Arrays;
+import com.microsoft.typespec.http.client.generator.core.util.Constants;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -33,11 +33,10 @@ public class PomTemplate implements IXmlTemplate<Pom, XmlFile> {
 
         // copyright
         if (!CoreUtils.isNullOrEmpty(settings.getFileHeaderText())) {
-            xmlFile.blockComment(xmlLineComment -> {
-                xmlLineComment.line(Arrays.stream(settings.getFileHeaderText().split(System.lineSeparator()))
-                    .map(line -> " ~ " + line)
-                    .collect(Collectors.joining(System.lineSeparator())));
-            });
+            xmlFile.blockComment(xmlLineComment -> xmlLineComment.line(settings.getFileHeaderText()
+                .lines()
+                .map(line -> " ~ " + line)
+                .collect(Collectors.joining(Constants.NEW_LINE))));
         }
 
         Map<String, String> projectAnnotations = new HashMap<>();
@@ -81,13 +80,11 @@ public class PomTemplate implements IXmlTemplate<Pom, XmlFile> {
             projectBlock.line();
 
             if (branded) {
-                projectBlock.block("licenses", licensesBlock -> {
-                    licensesBlock.block("license", licenseBlock -> {
-                        licenseBlock.tag("name", "The MIT License (MIT)");
-                        licenseBlock.tag("url", "http://opensource.org/licenses/MIT");
-                        licenseBlock.tag("distribution", "repo");
-                    });
-                });
+                projectBlock.block("licenses", licensesBlock -> licensesBlock.block("license", licenseBlock -> {
+                    licenseBlock.tag("name", "The MIT License (MIT)");
+                    licenseBlock.tag("url", "http://opensource.org/licenses/MIT");
+                    licenseBlock.tag("distribution", "repo");
+                }));
 
                 projectBlock.line();
 
@@ -98,23 +95,20 @@ public class PomTemplate implements IXmlTemplate<Pom, XmlFile> {
                     scmBlock.tag("tag", "HEAD");
                 });
 
-                projectBlock.block("developers", developersBlock -> {
-                    developersBlock.block("developer", developerBlock -> {
+                projectBlock.block("developers",
+                    developersBlock -> developersBlock.block("developer", developerBlock -> {
                         developerBlock.tag("id", "microsoft");
                         developerBlock.tag("name", "Microsoft");
-                    });
-                });
+                    }));
             } else {
                 if (pom.getLicenseName() != null) {
-                    projectBlock.block("licenses", licensesBlock -> {
-                        licensesBlock.block("license", licenseBlock -> {
-                            licenseBlock.tag("name", pom.getLicenseName());
-                            if (pom.getLicenseUrl() != null) {
-                                licenseBlock.tag("url", pom.getLicenseUrl());
-                            }
-                            licenseBlock.tag("distribution", "repo");
-                        });
-                    });
+                    projectBlock.block("licenses", licensesBlock -> licensesBlock.block("license", licenseBlock -> {
+                        licenseBlock.tag("name", pom.getLicenseName());
+                        if (pom.getLicenseUrl() != null) {
+                            licenseBlock.tag("url", pom.getLicenseUrl());
+                        }
+                        licenseBlock.tag("distribution", "repo");
+                    }));
                 }
             }
 
@@ -201,11 +195,8 @@ public class PomTemplate implements IXmlTemplate<Pom, XmlFile> {
      */
     protected void writeBuildBlock(XmlBlock projectBlock, Pom pom) {
         if (pom.isRequireCompilerPlugins()) {
-            projectBlock.block("build", buildBlock -> {
-                buildBlock.block("plugins", pluginsBlock -> {
-                    writeStandAlonePlugins(projectBlock);
-                });
-            });
+            projectBlock.block("build",
+                buildBlock -> buildBlock.block("plugins", pluginsBlock -> writeStandAlonePlugins(projectBlock)));
         }
     }
 
@@ -220,9 +211,8 @@ public class PomTemplate implements IXmlTemplate<Pom, XmlFile> {
             pluginBlock.tag("groupId", "org.apache.maven.plugins");
             pluginBlock.tag("artifactId", "maven-compiler-plugin");
             pluginBlock.tag("version", "3.13.0");
-            pluginBlock.block("configuration", configurationBlock -> {
-                configurationBlock.tag("release", JavaSettings.getInstance().isAzureV1() ? "11" : "17");
-            });
+            pluginBlock.block("configuration", configurationBlock -> configurationBlock.tag("release",
+                JavaSettings.getInstance().isAzureV1() ? "11" : "17"));
         });
 
         // maven-source-plugin
@@ -230,14 +220,10 @@ public class PomTemplate implements IXmlTemplate<Pom, XmlFile> {
             pluginBlock.tag("groupId", "org.apache.maven.plugins");
             pluginBlock.tag("artifactId", "maven-source-plugin");
             pluginBlock.tag("version", "3.3.1");
-            pluginBlock.block("executions", executionsBlock -> {
-                executionsBlock.block("execution", executionBlock -> {
-                    executionBlock.tag("id", "attach-sources");
-                    executionBlock.block("goals", goalsBlock -> {
-                        goalsBlock.tag("goal", "jar");
-                    });
-                });
-            });
+            pluginBlock.block("executions", executionsBlock -> executionsBlock.block("execution", executionBlock -> {
+                executionBlock.tag("id", "attach-sources");
+                executionBlock.block("goals", goalsBlock -> goalsBlock.tag("goal", "jar"));
+            }));
         });
 
         // build-helper-maven-plugin: allow samples to be compiled
@@ -245,20 +231,13 @@ public class PomTemplate implements IXmlTemplate<Pom, XmlFile> {
             pluginBlock.tag("groupId", "org.codehaus.mojo");
             pluginBlock.tag("artifactId", "build-helper-maven-plugin");
             pluginBlock.tag("version", "3.0.0");
-            pluginBlock.block("executions", executionsBlock -> {
-                executionsBlock.block("execution", executionBlock -> {
-                    executionBlock.tag("id", "add-test-source");
-                    executionBlock.tag("phase", "generate-test-sources");
-                    executionBlock.block("goals", goalsBlock -> {
-                        goalsBlock.tag("goal", "add-test-source");
-                    });
-                    executionBlock.block("configuration", configurationBlock -> {
-                        configurationBlock.block("sources", sourcesBlock -> {
-                            sourcesBlock.tag("source", "${basedir}/src/samples");
-                        });
-                    });
-                });
-            });
+            pluginBlock.block("executions", executionsBlock -> executionsBlock.block("execution", executionBlock -> {
+                executionBlock.tag("id", "add-test-source");
+                executionBlock.tag("phase", "generate-test-sources");
+                executionBlock.block("goals", goalsBlock -> goalsBlock.tag("goal", "add-test-source"));
+                executionBlock.block("configuration", configurationBlock -> configurationBlock.block("sources",
+                    sourcesBlock -> sourcesBlock.tag("source", "${basedir}/src/samples")));
+            }));
         });
     }
 }

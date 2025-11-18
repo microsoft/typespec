@@ -34,7 +34,6 @@ import versioning.added.implementation.AddedClientImpl;
 @ServiceClientBuilder(serviceClients = { AddedClient.class, InterfaceV2Client.class })
 public final class AddedClientBuilder implements HttpTrait<AddedClientBuilder>, ProxyTrait<AddedClientBuilder>,
     ConfigurationTrait<AddedClientBuilder>, EndpointTrait<AddedClientBuilder> {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -186,7 +185,7 @@ public final class AddedClientBuilder implements HttpTrait<AddedClientBuilder>, 
 
     /**
      * Sets Service version.
-     *
+     * 
      * @param serviceVersion the serviceVersion value.
      * @return the AddedClientBuilder.
      */
@@ -198,7 +197,7 @@ public final class AddedClientBuilder implements HttpTrait<AddedClientBuilder>, 
 
     /**
      * Builds an instance of AddedClientImpl with the provided parameters.
-     *
+     * 
      * @return an instance of AddedClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -246,7 +245,7 @@ public final class AddedClientBuilder implements HttpTrait<AddedClientBuilder>, 
 
     /**
      * Builds an instance of AddedClient class.
-     *
+     * 
      * @return an instance of AddedClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -257,7 +256,7 @@ public final class AddedClientBuilder implements HttpTrait<AddedClientBuilder>, 
 
     /**
      * Builds an instance of InterfaceV2Client class.
-     *
+     * 
      * @return an instance of InterfaceV2Client.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

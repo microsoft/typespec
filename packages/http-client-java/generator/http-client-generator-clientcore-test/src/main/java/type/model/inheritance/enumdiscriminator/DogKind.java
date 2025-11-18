@@ -19,7 +19,6 @@ import java.util.function.Function;
  * extensible enum type for discriminator.
  */
 public final class DogKind implements ExpandableEnum<String>, JsonSerializable<DogKind> {
-
     private static final Map<String, DogKind> VALUES = new ConcurrentHashMap<>();
 
     private static final Function<String, DogKind> NEW_INSTANCE = DogKind::new;
@@ -38,7 +37,7 @@ public final class DogKind implements ExpandableEnum<String>, JsonSerializable<D
 
     /**
      * Creates or finds a DogKind.
-     *
+     * 
      * @param value a value to look for.
      * @return the corresponding DogKind.
      * @throws IllegalArgumentException if value is null.
@@ -53,7 +52,7 @@ public final class DogKind implements ExpandableEnum<String>, JsonSerializable<D
 
     /**
      * Gets known DogKind values.
-     *
+     * 
      * @return Known DogKind values.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -63,7 +62,7 @@ public final class DogKind implements ExpandableEnum<String>, JsonSerializable<D
 
     /**
      * Gets the value of the DogKind instance.
-     *
+     * 
      * @return the value of the DogKind instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -83,7 +82,7 @@ public final class DogKind implements ExpandableEnum<String>, JsonSerializable<D
 
     /**
      * Reads an instance of DogKind from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of DogKind if the JsonReader was pointing to an instance of it, or null if the JsonReader was
      * pointing to JSON null.

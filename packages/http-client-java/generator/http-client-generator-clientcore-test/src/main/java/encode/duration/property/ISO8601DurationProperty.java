@@ -15,7 +15,6 @@ import java.util.Objects;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class ISO8601DurationProperty implements JsonSerializable<ISO8601DurationProperty> {
-
     /*
      * The value property.
      */
@@ -24,7 +23,7 @@ public final class ISO8601DurationProperty implements JsonSerializable<ISO8601Du
 
     /**
      * Creates an instance of ISO8601DurationProperty class.
-     *
+     * 
      * @param value the value value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -34,7 +33,7 @@ public final class ISO8601DurationProperty implements JsonSerializable<ISO8601Du
 
     /**
      * Get the value property: The value property.
-     *
+     * 
      * @return the value value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -55,7 +54,7 @@ public final class ISO8601DurationProperty implements JsonSerializable<ISO8601Du
 
     /**
      * Reads an instance of ISO8601DurationProperty from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of ISO8601DurationProperty if the JsonReader was pointing to an instance of it, or null if it
      * was pointing to JSON null.
@@ -69,6 +68,7 @@ public final class ISO8601DurationProperty implements JsonSerializable<ISO8601Du
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
+
                 if ("value".equals(fieldName)) {
                     value = reader.getNullable(nonNullReader -> Duration.parse(nonNullReader.getString()));
                 } else {

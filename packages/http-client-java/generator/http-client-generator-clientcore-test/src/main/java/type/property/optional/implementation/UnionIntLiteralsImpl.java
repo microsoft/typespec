@@ -21,7 +21,6 @@ import type.property.optional.UnionIntLiteralProperty;
  * An instance of this class provides access to all the operations defined in UnionIntLiterals.
  */
 public final class UnionIntLiteralsImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -39,7 +38,7 @@ public final class UnionIntLiteralsImpl {
 
     /**
      * Initializes an instance of UnionIntLiteralsImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     UnionIntLiteralsImpl(OptionalClientImpl client) {
@@ -54,7 +53,6 @@ public final class UnionIntLiteralsImpl {
      */
     @ServiceInterface(name = "OptionalClientUnionIntLiterals", host = "{endpoint}")
     public interface UnionIntLiteralsService {
-
         static UnionIntLiteralsService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("type.property.optional.implementation.UnionIntLiteralsServiceImpl");
@@ -64,6 +62,7 @@ public final class UnionIntLiteralsImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(
@@ -102,7 +101,7 @@ public final class UnionIntLiteralsImpl {
 
     /**
      * Get models that will return all properties in the model.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -120,7 +119,7 @@ public final class UnionIntLiteralsImpl {
 
     /**
      * Get models that will return the default object.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -138,7 +137,7 @@ public final class UnionIntLiteralsImpl {
 
     /**
      * Put a body with all properties present.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -157,7 +156,7 @@ public final class UnionIntLiteralsImpl {
 
     /**
      * Put a body with default properties.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

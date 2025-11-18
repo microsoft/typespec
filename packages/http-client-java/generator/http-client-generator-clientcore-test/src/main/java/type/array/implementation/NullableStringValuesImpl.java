@@ -21,7 +21,6 @@ import java.util.List;
  * An instance of this class provides access to all the operations defined in NullableStringValues.
  */
 public final class NullableStringValuesImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -39,7 +38,7 @@ public final class NullableStringValuesImpl {
 
     /**
      * Initializes an instance of NullableStringValuesImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     NullableStringValuesImpl(ArrayClientImpl client) {
@@ -54,7 +53,6 @@ public final class NullableStringValuesImpl {
      */
     @ServiceInterface(name = "ArrayClientNullableStringValues", host = "{endpoint}")
     public interface NullableStringValuesService {
-
         static NullableStringValuesService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("type.array.implementation.NullableStringValuesServiceImpl");
@@ -64,6 +62,7 @@ public final class NullableStringValuesImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(
@@ -85,7 +84,7 @@ public final class NullableStringValuesImpl {
 
     /**
      * The get operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -103,7 +102,7 @@ public final class NullableStringValuesImpl {
 
     /**
      * The put operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

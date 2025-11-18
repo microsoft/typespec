@@ -8,7 +8,7 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFil
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.template.example.ProtocolTestWriter;
 
-public class ProtocolTestBaseTemplate implements IJavaTemplate<TestContext, JavaFile> {
+public class ProtocolTestBaseTemplate implements IJavaTemplate<TestContext<?>, JavaFile> {
 
     private static final ProtocolTestBaseTemplate INSTANCE = new ProtocolTestBaseTemplate();
 
@@ -20,7 +20,7 @@ public class ProtocolTestBaseTemplate implements IJavaTemplate<TestContext, Java
     }
 
     @Override
-    public void write(TestContext testContext, JavaFile context) {
+    public void write(TestContext<?> testContext, JavaFile context) {
 
         ProtocolTestWriter writer = new ProtocolTestWriter(testContext);
 
@@ -35,7 +35,7 @@ public class ProtocolTestBaseTemplate implements IJavaTemplate<TestContext, Java
         context.declareImport(writer.getImports());
 
         context.classBlock(JavaVisibility.PackagePrivate, null,
-            String.format("%s extends TestProxyTestBase", testContext.getTestBaseClassName()), classBlock -> {
+            testContext.getTestBaseClassName() + " extends TestProxyTestBase", classBlock -> {
 
                 writer.writeClientVariables(classBlock);
 

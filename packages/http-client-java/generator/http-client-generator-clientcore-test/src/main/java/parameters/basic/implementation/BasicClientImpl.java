@@ -7,7 +7,6 @@ import io.clientcore.core.instrumentation.Instrumentation;
  * Initializes a new instance of the BasicClient type.
  */
 public final class BasicClientImpl {
-
     /**
      * Service host.
      */
@@ -15,7 +14,7 @@ public final class BasicClientImpl {
 
     /**
      * Gets Service host.
-     *
+     * 
      * @return the endpoint value.
      */
     public String getEndpoint() {
@@ -29,7 +28,7 @@ public final class BasicClientImpl {
 
     /**
      * Gets The HTTP pipeline to send requests through.
-     *
+     * 
      * @return the httpPipeline value.
      */
     public HttpPipeline getHttpPipeline() {
@@ -43,7 +42,7 @@ public final class BasicClientImpl {
 
     /**
      * Gets The instance of instrumentation to report telemetry.
-     *
+     * 
      * @return the instrumentation value.
      */
     public Instrumentation getInstrumentation() {
@@ -57,7 +56,7 @@ public final class BasicClientImpl {
 
     /**
      * Gets the ExplicitBodiesImpl object to access its operations.
-     *
+     * 
      * @return the ExplicitBodiesImpl object.
      */
     public ExplicitBodiesImpl getExplicitBodies() {
@@ -71,7 +70,7 @@ public final class BasicClientImpl {
 
     /**
      * Gets the ImplicitBodiesImpl object to access its operations.
-     *
+     * 
      * @return the ImplicitBodiesImpl object.
      */
     public ImplicitBodiesImpl getImplicitBodies() {
@@ -80,7 +79,7 @@ public final class BasicClientImpl {
 
     /**
      * Initializes an instance of BasicClient client.
-     *
+     * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.

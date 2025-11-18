@@ -16,7 +16,6 @@ import type.model.inheritance.singlediscriminator.implementation.SingleDiscrimin
  */
 @ServiceClient(builder = SingleDiscriminatorClientBuilder.class)
 public final class SingleDiscriminatorClient {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final SingleDiscriminatorClientImpl serviceClient;
 
@@ -24,7 +23,7 @@ public final class SingleDiscriminatorClient {
 
     /**
      * Initializes an instance of SingleDiscriminatorClient class.
-     *
+     * 
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -36,7 +35,7 @@ public final class SingleDiscriminatorClient {
 
     /**
      * The getModel operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -52,7 +51,7 @@ public final class SingleDiscriminatorClient {
 
     /**
      * The getModel operation.
-     *
+     * 
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return this is base model for polymorphic single level inheritance with a discriminator.
@@ -65,7 +64,7 @@ public final class SingleDiscriminatorClient {
 
     /**
      * The putModel operation.
-     *
+     * 
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -82,7 +81,7 @@ public final class SingleDiscriminatorClient {
 
     /**
      * The putModel operation.
-     *
+     * 
      * @param input The input parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -96,7 +95,7 @@ public final class SingleDiscriminatorClient {
 
     /**
      * The getRecursiveModel operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -113,7 +112,7 @@ public final class SingleDiscriminatorClient {
 
     /**
      * The getRecursiveModel operation.
-     *
+     * 
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return this is base model for polymorphic single level inheritance with a discriminator.
@@ -126,7 +125,7 @@ public final class SingleDiscriminatorClient {
 
     /**
      * The putRecursiveModel operation.
-     *
+     * 
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -144,7 +143,7 @@ public final class SingleDiscriminatorClient {
 
     /**
      * The putRecursiveModel operation.
-     *
+     * 
      * @param input The input parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -158,7 +157,7 @@ public final class SingleDiscriminatorClient {
 
     /**
      * The getMissingDiscriminator operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -175,7 +174,7 @@ public final class SingleDiscriminatorClient {
 
     /**
      * The getMissingDiscriminator operation.
-     *
+     * 
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return this is base model for polymorphic single level inheritance with a discriminator.
@@ -188,7 +187,7 @@ public final class SingleDiscriminatorClient {
 
     /**
      * The getWrongDiscriminator operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -205,7 +204,7 @@ public final class SingleDiscriminatorClient {
 
     /**
      * The getWrongDiscriminator operation.
-     *
+     * 
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return this is base model for polymorphic single level inheritance with a discriminator.
@@ -218,7 +217,7 @@ public final class SingleDiscriminatorClient {
 
     /**
      * The getLegacyModel operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -234,7 +233,7 @@ public final class SingleDiscriminatorClient {
 
     /**
      * The getLegacyModel operation.
-     *
+     * 
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return define a base class in the legacy way.

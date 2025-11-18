@@ -13,7 +13,6 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class UnionEnumValueProperty implements JsonSerializable<UnionEnumValueProperty> {
-
     /*
      * Property
      */
@@ -29,7 +28,7 @@ public final class UnionEnumValueProperty implements JsonSerializable<UnionEnumV
 
     /**
      * Get the property property: Property.
-     *
+     * 
      * @return the property value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -50,7 +49,7 @@ public final class UnionEnumValueProperty implements JsonSerializable<UnionEnumV
 
     /**
      * Reads an instance of UnionEnumValueProperty from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of UnionEnumValueProperty if the JsonReader was pointing to an instance of it, or null if it
      * was pointing to JSON null.
@@ -64,8 +63,10 @@ public final class UnionEnumValueProperty implements JsonSerializable<UnionEnumV
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
+
                 reader.skipChildren();
             }
+
             return deserializedUnionEnumValueProperty;
         });
     }

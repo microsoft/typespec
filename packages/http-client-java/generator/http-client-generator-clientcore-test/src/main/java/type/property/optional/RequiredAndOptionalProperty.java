@@ -13,7 +13,6 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.FLUENT })
 public final class RequiredAndOptionalProperty implements JsonSerializable<RequiredAndOptionalProperty> {
-
     /*
      * optional string property
      */
@@ -28,7 +27,7 @@ public final class RequiredAndOptionalProperty implements JsonSerializable<Requi
 
     /**
      * Creates an instance of RequiredAndOptionalProperty class.
-     *
+     * 
      * @param requiredProperty the requiredProperty value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -38,7 +37,7 @@ public final class RequiredAndOptionalProperty implements JsonSerializable<Requi
 
     /**
      * Get the optionalProperty property: optional string property.
-     *
+     * 
      * @return the optionalProperty value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -48,7 +47,7 @@ public final class RequiredAndOptionalProperty implements JsonSerializable<Requi
 
     /**
      * Set the optionalProperty property: optional string property.
-     *
+     * 
      * @param optionalProperty the optionalProperty value to set.
      * @return the RequiredAndOptionalProperty object itself.
      */
@@ -60,7 +59,7 @@ public final class RequiredAndOptionalProperty implements JsonSerializable<Requi
 
     /**
      * Get the requiredProperty property: required int property.
-     *
+     * 
      * @return the requiredProperty value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -82,7 +81,7 @@ public final class RequiredAndOptionalProperty implements JsonSerializable<Requi
 
     /**
      * Reads an instance of RequiredAndOptionalProperty from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of RequiredAndOptionalProperty if the JsonReader was pointing to an instance of it, or null
      * if it was pointing to JSON null.
@@ -97,6 +96,7 @@ public final class RequiredAndOptionalProperty implements JsonSerializable<Requi
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
+
                 if ("requiredProperty".equals(fieldName)) {
                     requiredProperty = reader.getInt();
                 } else if ("optionalProperty".equals(fieldName)) {
@@ -108,6 +108,7 @@ public final class RequiredAndOptionalProperty implements JsonSerializable<Requi
             RequiredAndOptionalProperty deserializedRequiredAndOptionalProperty
                 = new RequiredAndOptionalProperty(requiredProperty);
             deserializedRequiredAndOptionalProperty.optionalProperty = optionalProperty;
+
             return deserializedRequiredAndOptionalProperty;
         });
     }

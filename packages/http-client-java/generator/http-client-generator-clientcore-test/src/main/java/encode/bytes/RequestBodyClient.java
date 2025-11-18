@@ -17,7 +17,6 @@ import io.clientcore.core.models.binarydata.BinaryData;
  */
 @ServiceClient(builder = BytesClientBuilder.class)
 public final class RequestBodyClient {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final RequestBodiesImpl serviceClient;
 
@@ -25,7 +24,7 @@ public final class RequestBodyClient {
 
     /**
      * Initializes an instance of RequestBodyClient class.
-     *
+     * 
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -37,7 +36,7 @@ public final class RequestBodyClient {
 
     /**
      * The defaultMethod operation.
-     *
+     * 
      * @param value The value parameter.
      * @param contentLength The Content-Length header for the request.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -56,7 +55,7 @@ public final class RequestBodyClient {
 
     /**
      * The defaultMethod operation.
-     *
+     * 
      * @param value The value parameter.
      * @param contentLength The Content-Length header for the request.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -71,7 +70,7 @@ public final class RequestBodyClient {
 
     /**
      * The octetStream operation.
-     *
+     * 
      * @param value The value parameter.
      * @param contentLength The Content-Length header for the request.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -89,7 +88,7 @@ public final class RequestBodyClient {
 
     /**
      * The octetStream operation.
-     *
+     * 
      * @param value The value parameter.
      * @param contentLength The Content-Length header for the request.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -104,7 +103,7 @@ public final class RequestBodyClient {
 
     /**
      * The customContentType operation.
-     *
+     * 
      * @param value The value parameter.
      * @param contentLength The Content-Length header for the request.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -123,7 +122,7 @@ public final class RequestBodyClient {
 
     /**
      * The customContentType operation.
-     *
+     * 
      * @param value The value parameter.
      * @param contentLength The Content-Length header for the request.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -138,7 +137,7 @@ public final class RequestBodyClient {
 
     /**
      * The base64 operation.
-     *
+     * 
      * @param value The value parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -155,7 +154,7 @@ public final class RequestBodyClient {
 
     /**
      * The base64 operation.
-     *
+     * 
      * @param value The value parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -169,7 +168,7 @@ public final class RequestBodyClient {
 
     /**
      * The base64url operation.
-     *
+     * 
      * @param value The value parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -186,7 +185,7 @@ public final class RequestBodyClient {
 
     /**
      * The base64url operation.
-     *
+     * 
      * @param value The value parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

@@ -22,7 +22,6 @@ import java.util.Map;
  * An instance of this class provides access to all the operations defined in DurationValues.
  */
 public final class DurationValuesImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -40,7 +39,7 @@ public final class DurationValuesImpl {
 
     /**
      * Initializes an instance of DurationValuesImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     DurationValuesImpl(DictionaryClientImpl client) {
@@ -55,7 +54,6 @@ public final class DurationValuesImpl {
      */
     @ServiceInterface(name = "DictionaryClientDurationValues", host = "{endpoint}")
     public interface DurationValuesService {
-
         static DurationValuesService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("type.dictionary.implementation.DurationValuesServiceImpl");
@@ -65,6 +63,7 @@ public final class DurationValuesImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(
@@ -86,7 +85,7 @@ public final class DurationValuesImpl {
 
     /**
      * The get operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -104,7 +103,7 @@ public final class DurationValuesImpl {
 
     /**
      * The put operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

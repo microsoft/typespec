@@ -16,7 +16,6 @@ import io.clientcore.core.instrumentation.Instrumentation;
  */
 @ServiceClient(builder = DatetimeClientBuilder.class)
 public final class PropertyClient {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final PropertiesImpl serviceClient;
 
@@ -24,7 +23,7 @@ public final class PropertyClient {
 
     /**
      * Initializes an instance of PropertyClient class.
-     *
+     * 
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -36,7 +35,7 @@ public final class PropertyClient {
 
     /**
      * The defaultMethod operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -54,7 +53,7 @@ public final class PropertyClient {
 
     /**
      * The defaultMethod operation.
-     *
+     * 
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -69,7 +68,7 @@ public final class PropertyClient {
 
     /**
      * The rfc3339 operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -87,7 +86,7 @@ public final class PropertyClient {
 
     /**
      * The rfc3339 operation.
-     *
+     * 
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -102,7 +101,7 @@ public final class PropertyClient {
 
     /**
      * The rfc7231 operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -120,7 +119,7 @@ public final class PropertyClient {
 
     /**
      * The rfc7231 operation.
-     *
+     * 
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -135,7 +134,7 @@ public final class PropertyClient {
 
     /**
      * The unixTimestamp operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -153,7 +152,7 @@ public final class PropertyClient {
 
     /**
      * The unixTimestamp operation.
-     *
+     * 
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -168,7 +167,7 @@ public final class PropertyClient {
 
     /**
      * The unixTimestampArray operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -186,7 +185,7 @@ public final class PropertyClient {
 
     /**
      * The unixTimestampArray operation.
-     *
+     * 
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

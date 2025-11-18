@@ -15,7 +15,6 @@ import payload.pageable.serverdrivenpagination.NestedLinkResponseNestedNext;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class NestedLinkResponse implements JsonSerializable<NestedLinkResponse> {
-
     /*
      * The nestedItems property.
      */
@@ -30,7 +29,7 @@ public final class NestedLinkResponse implements JsonSerializable<NestedLinkResp
 
     /**
      * Creates an instance of NestedLinkResponse class.
-     *
+     * 
      * @param nestedItems the nestedItems value to set.
      * @param nestedNext the nestedNext value to set.
      */
@@ -42,7 +41,7 @@ public final class NestedLinkResponse implements JsonSerializable<NestedLinkResp
 
     /**
      * Get the nestedItems property: The nestedItems property.
-     *
+     * 
      * @return the nestedItems value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -52,7 +51,7 @@ public final class NestedLinkResponse implements JsonSerializable<NestedLinkResp
 
     /**
      * Get the nestedNext property: The nestedNext property.
-     *
+     * 
      * @return the nestedNext value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -74,7 +73,7 @@ public final class NestedLinkResponse implements JsonSerializable<NestedLinkResp
 
     /**
      * Reads an instance of NestedLinkResponse from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of NestedLinkResponse if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.
@@ -89,6 +88,7 @@ public final class NestedLinkResponse implements JsonSerializable<NestedLinkResp
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
+
                 if ("nestedItems".equals(fieldName)) {
                     nestedItems = NestedLinkResponseNestedItems.fromJson(reader);
                 } else if ("nestedNext".equals(fieldName)) {

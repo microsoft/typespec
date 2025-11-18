@@ -21,7 +21,6 @@ import type.property.additionalproperties.IsUnknownAdditionalPropertiesDerived;
  * An instance of this class provides access to all the operations defined in IsUnknownDeriveds.
  */
 public final class IsUnknownDerivedsImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -39,7 +38,7 @@ public final class IsUnknownDerivedsImpl {
 
     /**
      * Initializes an instance of IsUnknownDerivedsImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     IsUnknownDerivedsImpl(AdditionalPropertiesClientImpl client) {
@@ -54,7 +53,6 @@ public final class IsUnknownDerivedsImpl {
      */
     @ServiceInterface(name = "AdditionalPropertiesClientIsUnknownDeriveds", host = "{endpoint}")
     public interface IsUnknownDerivedsService {
-
         static IsUnknownDerivedsService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz
@@ -65,6 +63,7 @@ public final class IsUnknownDerivedsImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(
@@ -86,7 +85,7 @@ public final class IsUnknownDerivedsImpl {
 
     /**
      * Get call.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -104,7 +103,7 @@ public final class IsUnknownDerivedsImpl {
 
     /**
      * Put operation.
-     *
+     * 
      * @param body body.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

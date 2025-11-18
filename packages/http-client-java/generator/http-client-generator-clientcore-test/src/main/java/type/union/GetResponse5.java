@@ -14,7 +14,6 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class GetResponse5 implements JsonSerializable<GetResponse5> {
-
     /*
      * The prop property.
      */
@@ -23,7 +22,7 @@ public final class GetResponse5 implements JsonSerializable<GetResponse5> {
 
     /**
      * Creates an instance of GetResponse5 class.
-     *
+     * 
      * @param prop the prop value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -33,7 +32,7 @@ public final class GetResponse5 implements JsonSerializable<GetResponse5> {
 
     /**
      * Get the prop property: The prop property.
-     *
+     * 
      * @return the prop value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -55,7 +54,7 @@ public final class GetResponse5 implements JsonSerializable<GetResponse5> {
 
     /**
      * Reads an instance of GetResponse5 from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of GetResponse5 if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.
@@ -69,6 +68,7 @@ public final class GetResponse5 implements JsonSerializable<GetResponse5> {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
+
                 if ("prop".equals(fieldName)) {
                     prop = reader.getNullable(nonNullReader -> BinaryData.fromObject(nonNullReader.readUntyped()));
                 } else {

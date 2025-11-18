@@ -35,7 +35,6 @@ import payload.contentnegotiation.implementation.ContentNegotiationClientImpl;
 public final class ContentNegotiationClientBuilder
     implements HttpTrait<ContentNegotiationClientBuilder>, ProxyTrait<ContentNegotiationClientBuilder>,
     ConfigurationTrait<ContentNegotiationClientBuilder>, EndpointTrait<ContentNegotiationClientBuilder> {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -183,7 +182,7 @@ public final class ContentNegotiationClientBuilder
 
     /**
      * Builds an instance of ContentNegotiationClientImpl with the provided parameters.
-     *
+     * 
      * @return an instance of ContentNegotiationClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -229,7 +228,7 @@ public final class ContentNegotiationClientBuilder
 
     /**
      * Builds an instance of SameBodyClient class.
-     *
+     * 
      * @return an instance of SameBodyClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -240,7 +239,7 @@ public final class ContentNegotiationClientBuilder
 
     /**
      * Builds an instance of DifferentBodyClient class.
-     *
+     * 
      * @return an instance of DifferentBodyClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

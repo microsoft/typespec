@@ -34,7 +34,6 @@ import type.model.empty.implementation.EmptyClientImpl;
 @ServiceClientBuilder(serviceClients = { EmptyClient.class })
 public final class EmptyClientBuilder implements HttpTrait<EmptyClientBuilder>, ProxyTrait<EmptyClientBuilder>,
     ConfigurationTrait<EmptyClientBuilder>, EndpointTrait<EmptyClientBuilder> {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -180,7 +179,7 @@ public final class EmptyClientBuilder implements HttpTrait<EmptyClientBuilder>, 
 
     /**
      * Builds an instance of EmptyClientImpl with the provided parameters.
-     *
+     * 
      * @return an instance of EmptyClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -225,7 +224,7 @@ public final class EmptyClientBuilder implements HttpTrait<EmptyClientBuilder>, 
 
     /**
      * Builds an instance of EmptyClient class.
-     *
+     * 
      * @return an instance of EmptyClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

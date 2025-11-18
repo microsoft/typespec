@@ -4,7 +4,6 @@ package versioning.removed;
  * Defines values for EnumV2.
  */
 public enum EnumV2 {
-
     /**
      * Enum value enumMemberV2.
      */
@@ -21,7 +20,7 @@ public enum EnumV2 {
 
     /**
      * Parses a serialized value to a EnumV2 instance.
-     *
+     * 
      * @param value the serialized value to parse.
      * @return the parsed EnumV2 object, or null if unable to parse.
      */

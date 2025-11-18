@@ -20,7 +20,6 @@ import java.util.function.Function;
  */
 public final class DaysOfWeekExtensibleEnum
     implements ExpandableEnum<String>, JsonSerializable<DaysOfWeekExtensibleEnum> {
-
     private static final Map<String, DaysOfWeekExtensibleEnum> VALUES = new ConcurrentHashMap<>();
 
     private static final Function<String, DaysOfWeekExtensibleEnum> NEW_INSTANCE = DaysOfWeekExtensibleEnum::new;
@@ -75,7 +74,7 @@ public final class DaysOfWeekExtensibleEnum
 
     /**
      * Creates or finds a DaysOfWeekExtensibleEnum.
-     *
+     * 
      * @param value a value to look for.
      * @return the corresponding DaysOfWeekExtensibleEnum.
      * @throws IllegalArgumentException if value is null.
@@ -90,7 +89,7 @@ public final class DaysOfWeekExtensibleEnum
 
     /**
      * Gets known DaysOfWeekExtensibleEnum values.
-     *
+     * 
      * @return Known DaysOfWeekExtensibleEnum values.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -100,7 +99,7 @@ public final class DaysOfWeekExtensibleEnum
 
     /**
      * Gets the value of the DaysOfWeekExtensibleEnum instance.
-     *
+     * 
      * @return the value of the DaysOfWeekExtensibleEnum instance.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -120,7 +119,7 @@ public final class DaysOfWeekExtensibleEnum
 
     /**
      * Reads an instance of DaysOfWeekExtensibleEnum from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of DaysOfWeekExtensibleEnum if the JsonReader was pointing to an instance of it, or null if
      * the JsonReader was pointing to JSON null.

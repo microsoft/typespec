@@ -22,7 +22,6 @@ import java.lang.reflect.InvocationTargetException;
  * An instance of this class provides access to all the operations defined in NoEnvelopeDefaults.
  */
 public final class NoEnvelopeDefaultsImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -40,7 +39,7 @@ public final class NoEnvelopeDefaultsImpl {
 
     /**
      * Initializes an instance of NoEnvelopeDefaultsImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     NoEnvelopeDefaultsImpl(DiscriminatedClientImpl client) {
@@ -55,7 +54,6 @@ public final class NoEnvelopeDefaultsImpl {
      */
     @ServiceInterface(name = "DiscriminatedClientNoEnvelopeDefaults", host = "{endpoint}")
     public interface NoEnvelopeDefaultsService {
-
         static NoEnvelopeDefaultsService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("type.union.discriminated.implementation.NoEnvelopeDefaultsServiceImpl");
@@ -65,6 +63,7 @@ public final class NoEnvelopeDefaultsImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(
@@ -87,7 +86,7 @@ public final class NoEnvelopeDefaultsImpl {
 
     /**
      * The get operation.
-     *
+     * 
      * @param kind The kind parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -108,7 +107,7 @@ public final class NoEnvelopeDefaultsImpl {
 
     /**
      * The put operation.
-     *
+     * 
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

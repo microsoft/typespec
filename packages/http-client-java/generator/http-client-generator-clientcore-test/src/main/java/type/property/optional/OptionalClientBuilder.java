@@ -51,7 +51,6 @@ import type.property.optional.implementation.OptionalClientImpl;
         RequiredAndOptionalClient.class })
 public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuilder>, ProxyTrait<OptionalClientBuilder>,
     ConfigurationTrait<OptionalClientBuilder>, EndpointTrait<OptionalClientBuilder> {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -197,7 +196,7 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
 
     /**
      * Builds an instance of OptionalClientImpl with the provided parameters.
-     *
+     * 
      * @return an instance of OptionalClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -242,7 +241,7 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
 
     /**
      * Builds an instance of StringOperationClient class.
-     *
+     * 
      * @return an instance of StringOperationClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -253,7 +252,7 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
 
     /**
      * Builds an instance of BytesClient class.
-     *
+     * 
      * @return an instance of BytesClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -264,7 +263,7 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
 
     /**
      * Builds an instance of DatetimeOperationClient class.
-     *
+     * 
      * @return an instance of DatetimeOperationClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -275,7 +274,7 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
 
     /**
      * Builds an instance of DurationOperationClient class.
-     *
+     * 
      * @return an instance of DurationOperationClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -286,7 +285,7 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
 
     /**
      * Builds an instance of PlainDateClient class.
-     *
+     * 
      * @return an instance of PlainDateClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -297,7 +296,7 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
 
     /**
      * Builds an instance of PlainTimeClient class.
-     *
+     * 
      * @return an instance of PlainTimeClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -308,7 +307,7 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
 
     /**
      * Builds an instance of CollectionsByteClient class.
-     *
+     * 
      * @return an instance of CollectionsByteClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -319,7 +318,7 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
 
     /**
      * Builds an instance of CollectionsModelClient class.
-     *
+     * 
      * @return an instance of CollectionsModelClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -330,7 +329,7 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
 
     /**
      * Builds an instance of StringLiteralClient class.
-     *
+     * 
      * @return an instance of StringLiteralClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -341,7 +340,7 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
 
     /**
      * Builds an instance of IntLiteralClient class.
-     *
+     * 
      * @return an instance of IntLiteralClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -352,7 +351,7 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
 
     /**
      * Builds an instance of FloatLiteralClient class.
-     *
+     * 
      * @return an instance of FloatLiteralClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -363,7 +362,7 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
 
     /**
      * Builds an instance of BooleanLiteralClient class.
-     *
+     * 
      * @return an instance of BooleanLiteralClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -374,7 +373,7 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
 
     /**
      * Builds an instance of UnionStringLiteralClient class.
-     *
+     * 
      * @return an instance of UnionStringLiteralClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -385,7 +384,7 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
 
     /**
      * Builds an instance of UnionIntLiteralClient class.
-     *
+     * 
      * @return an instance of UnionIntLiteralClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -396,7 +395,7 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
 
     /**
      * Builds an instance of UnionFloatLiteralClient class.
-     *
+     * 
      * @return an instance of UnionFloatLiteralClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -407,7 +406,7 @@ public final class OptionalClientBuilder implements HttpTrait<OptionalClientBuil
 
     /**
      * Builds an instance of RequiredAndOptionalClient class.
-     *
+     * 
      * @return an instance of RequiredAndOptionalClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

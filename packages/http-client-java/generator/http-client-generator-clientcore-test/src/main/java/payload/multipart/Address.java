@@ -13,7 +13,6 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class Address implements JsonSerializable<Address> {
-
     /*
      * The city property.
      */
@@ -22,7 +21,7 @@ public final class Address implements JsonSerializable<Address> {
 
     /**
      * Creates an instance of Address class.
-     *
+     * 
      * @param city the city value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -32,7 +31,7 @@ public final class Address implements JsonSerializable<Address> {
 
     /**
      * Get the city property: The city property.
-     *
+     * 
      * @return the city value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -53,7 +52,7 @@ public final class Address implements JsonSerializable<Address> {
 
     /**
      * Reads an instance of Address from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of Address if the JsonReader was pointing to an instance of it, or null if it was pointing to
      * JSON null.
@@ -67,6 +66,7 @@ public final class Address implements JsonSerializable<Address> {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
+
                 if ("city".equals(fieldName)) {
                     city = reader.getString();
                 } else {

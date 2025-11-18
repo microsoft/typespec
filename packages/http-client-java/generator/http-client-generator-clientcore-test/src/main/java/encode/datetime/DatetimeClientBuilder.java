@@ -35,7 +35,6 @@ import java.util.Objects;
     serviceClients = { QueryClient.class, PropertyClient.class, HeaderClient.class, ResponseHeaderClient.class })
 public final class DatetimeClientBuilder implements HttpTrait<DatetimeClientBuilder>, ProxyTrait<DatetimeClientBuilder>,
     ConfigurationTrait<DatetimeClientBuilder>, EndpointTrait<DatetimeClientBuilder> {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -181,7 +180,7 @@ public final class DatetimeClientBuilder implements HttpTrait<DatetimeClientBuil
 
     /**
      * Builds an instance of DatetimeClientImpl with the provided parameters.
-     *
+     * 
      * @return an instance of DatetimeClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -226,7 +225,7 @@ public final class DatetimeClientBuilder implements HttpTrait<DatetimeClientBuil
 
     /**
      * Builds an instance of QueryClient class.
-     *
+     * 
      * @return an instance of QueryClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -237,7 +236,7 @@ public final class DatetimeClientBuilder implements HttpTrait<DatetimeClientBuil
 
     /**
      * Builds an instance of PropertyClient class.
-     *
+     * 
      * @return an instance of PropertyClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -248,7 +247,7 @@ public final class DatetimeClientBuilder implements HttpTrait<DatetimeClientBuil
 
     /**
      * Builds an instance of HeaderClient class.
-     *
+     * 
      * @return an instance of HeaderClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -259,7 +258,7 @@ public final class DatetimeClientBuilder implements HttpTrait<DatetimeClientBuil
 
     /**
      * Builds an instance of ResponseHeaderClient class.
-     *
+     * 
      * @return an instance of ResponseHeaderClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

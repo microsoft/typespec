@@ -45,7 +45,6 @@ import type.union.implementation.UnionClientImpl;
         MixedTypesClient.class })
 public final class UnionClientBuilder implements HttpTrait<UnionClientBuilder>, ProxyTrait<UnionClientBuilder>,
     ConfigurationTrait<UnionClientBuilder>, EndpointTrait<UnionClientBuilder> {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -191,7 +190,7 @@ public final class UnionClientBuilder implements HttpTrait<UnionClientBuilder>, 
 
     /**
      * Builds an instance of UnionClientImpl with the provided parameters.
-     *
+     * 
      * @return an instance of UnionClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -236,7 +235,7 @@ public final class UnionClientBuilder implements HttpTrait<UnionClientBuilder>, 
 
     /**
      * Builds an instance of StringsOnlyClient class.
-     *
+     * 
      * @return an instance of StringsOnlyClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -247,7 +246,7 @@ public final class UnionClientBuilder implements HttpTrait<UnionClientBuilder>, 
 
     /**
      * Builds an instance of StringExtensibleClient class.
-     *
+     * 
      * @return an instance of StringExtensibleClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -258,7 +257,7 @@ public final class UnionClientBuilder implements HttpTrait<UnionClientBuilder>, 
 
     /**
      * Builds an instance of StringExtensibleNamedClient class.
-     *
+     * 
      * @return an instance of StringExtensibleNamedClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -270,7 +269,7 @@ public final class UnionClientBuilder implements HttpTrait<UnionClientBuilder>, 
 
     /**
      * Builds an instance of IntsOnlyClient class.
-     *
+     * 
      * @return an instance of IntsOnlyClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -281,7 +280,7 @@ public final class UnionClientBuilder implements HttpTrait<UnionClientBuilder>, 
 
     /**
      * Builds an instance of FloatsOnlyClient class.
-     *
+     * 
      * @return an instance of FloatsOnlyClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -292,7 +291,7 @@ public final class UnionClientBuilder implements HttpTrait<UnionClientBuilder>, 
 
     /**
      * Builds an instance of ModelsOnlyClient class.
-     *
+     * 
      * @return an instance of ModelsOnlyClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -303,7 +302,7 @@ public final class UnionClientBuilder implements HttpTrait<UnionClientBuilder>, 
 
     /**
      * Builds an instance of EnumsOnlyClient class.
-     *
+     * 
      * @return an instance of EnumsOnlyClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -314,7 +313,7 @@ public final class UnionClientBuilder implements HttpTrait<UnionClientBuilder>, 
 
     /**
      * Builds an instance of StringAndArrayClient class.
-     *
+     * 
      * @return an instance of StringAndArrayClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -325,7 +324,7 @@ public final class UnionClientBuilder implements HttpTrait<UnionClientBuilder>, 
 
     /**
      * Builds an instance of MixedLiteralsClient class.
-     *
+     * 
      * @return an instance of MixedLiteralsClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -336,7 +335,7 @@ public final class UnionClientBuilder implements HttpTrait<UnionClientBuilder>, 
 
     /**
      * Builds an instance of MixedTypesClient class.
-     *
+     * 
      * @return an instance of MixedTypesClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

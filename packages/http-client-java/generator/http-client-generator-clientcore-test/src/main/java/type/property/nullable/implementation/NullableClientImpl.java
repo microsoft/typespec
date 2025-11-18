@@ -7,7 +7,6 @@ import io.clientcore.core.instrumentation.Instrumentation;
  * Initializes a new instance of the NullableClient type.
  */
 public final class NullableClientImpl {
-
     /**
      * Service host.
      */
@@ -15,7 +14,7 @@ public final class NullableClientImpl {
 
     /**
      * Gets Service host.
-     *
+     * 
      * @return the endpoint value.
      */
     public String getEndpoint() {
@@ -29,7 +28,7 @@ public final class NullableClientImpl {
 
     /**
      * Gets The HTTP pipeline to send requests through.
-     *
+     * 
      * @return the httpPipeline value.
      */
     public HttpPipeline getHttpPipeline() {
@@ -43,7 +42,7 @@ public final class NullableClientImpl {
 
     /**
      * Gets The instance of instrumentation to report telemetry.
-     *
+     * 
      * @return the instrumentation value.
      */
     public Instrumentation getInstrumentation() {
@@ -57,7 +56,7 @@ public final class NullableClientImpl {
 
     /**
      * Gets the StringOperationsImpl object to access its operations.
-     *
+     * 
      * @return the StringOperationsImpl object.
      */
     public StringOperationsImpl getStringOperations() {
@@ -71,7 +70,7 @@ public final class NullableClientImpl {
 
     /**
      * Gets the BytesImpl object to access its operations.
-     *
+     * 
      * @return the BytesImpl object.
      */
     public BytesImpl getBytes() {
@@ -85,7 +84,7 @@ public final class NullableClientImpl {
 
     /**
      * Gets the DatetimeOperationsImpl object to access its operations.
-     *
+     * 
      * @return the DatetimeOperationsImpl object.
      */
     public DatetimeOperationsImpl getDatetimeOperations() {
@@ -99,7 +98,7 @@ public final class NullableClientImpl {
 
     /**
      * Gets the DurationOperationsImpl object to access its operations.
-     *
+     * 
      * @return the DurationOperationsImpl object.
      */
     public DurationOperationsImpl getDurationOperations() {
@@ -113,7 +112,7 @@ public final class NullableClientImpl {
 
     /**
      * Gets the CollectionsBytesImpl object to access its operations.
-     *
+     * 
      * @return the CollectionsBytesImpl object.
      */
     public CollectionsBytesImpl getCollectionsBytes() {
@@ -127,7 +126,7 @@ public final class NullableClientImpl {
 
     /**
      * Gets the CollectionsModelsImpl object to access its operations.
-     *
+     * 
      * @return the CollectionsModelsImpl object.
      */
     public CollectionsModelsImpl getCollectionsModels() {
@@ -141,7 +140,7 @@ public final class NullableClientImpl {
 
     /**
      * Gets the CollectionsStringsImpl object to access its operations.
-     *
+     * 
      * @return the CollectionsStringsImpl object.
      */
     public CollectionsStringsImpl getCollectionsStrings() {
@@ -150,7 +149,7 @@ public final class NullableClientImpl {
 
     /**
      * Initializes an instance of NullableClient client.
-     *
+     * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.

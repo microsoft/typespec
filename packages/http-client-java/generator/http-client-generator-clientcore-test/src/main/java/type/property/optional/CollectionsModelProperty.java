@@ -14,7 +14,6 @@ import java.util.List;
  */
 @Metadata(properties = { MetadataProperties.FLUENT })
 public final class CollectionsModelProperty implements JsonSerializable<CollectionsModelProperty> {
-
     /*
      * Property
      */
@@ -30,7 +29,7 @@ public final class CollectionsModelProperty implements JsonSerializable<Collecti
 
     /**
      * Get the property property: Property.
-     *
+     * 
      * @return the property value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -40,7 +39,7 @@ public final class CollectionsModelProperty implements JsonSerializable<Collecti
 
     /**
      * Set the property property: Property.
-     *
+     * 
      * @param property the property value to set.
      * @return the CollectionsModelProperty object itself.
      */
@@ -63,7 +62,7 @@ public final class CollectionsModelProperty implements JsonSerializable<Collecti
 
     /**
      * Reads an instance of CollectionsModelProperty from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of CollectionsModelProperty if the JsonReader was pointing to an instance of it, or null if
      * it was pointing to JSON null.
@@ -76,6 +75,7 @@ public final class CollectionsModelProperty implements JsonSerializable<Collecti
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
+
                 if ("property".equals(fieldName)) {
                     List<StringProperty> property = reader.readArray(reader1 -> StringProperty.fromJson(reader1));
                     deserializedCollectionsModelProperty.property = property;
@@ -83,6 +83,7 @@ public final class CollectionsModelProperty implements JsonSerializable<Collecti
                     reader.skipChildren();
                 }
             }
+
             return deserializedCollectionsModelProperty;
         });
     }

@@ -21,7 +21,6 @@ import type.property.additionalproperties.MultipleSpreadRecord;
  * An instance of this class provides access to all the operations defined in MultipleSpreads.
  */
 public final class MultipleSpreadsImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -39,7 +38,7 @@ public final class MultipleSpreadsImpl {
 
     /**
      * Initializes an instance of MultipleSpreadsImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     MultipleSpreadsImpl(AdditionalPropertiesClientImpl client) {
@@ -54,7 +53,6 @@ public final class MultipleSpreadsImpl {
      */
     @ServiceInterface(name = "AdditionalPropertiesClientMultipleSpreads", host = "{endpoint}")
     public interface MultipleSpreadsService {
-
         static MultipleSpreadsService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz
@@ -65,6 +63,7 @@ public final class MultipleSpreadsImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(
@@ -86,7 +85,7 @@ public final class MultipleSpreadsImpl {
 
     /**
      * Get call.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -104,7 +103,7 @@ public final class MultipleSpreadsImpl {
 
     /**
      * Put operation.
-     *
+     * 
      * @param body body.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

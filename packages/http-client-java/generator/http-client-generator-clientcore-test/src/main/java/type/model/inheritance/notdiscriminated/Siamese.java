@@ -12,7 +12,6 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class Siamese extends Cat {
-
     /*
      * The smart property.
      */
@@ -21,7 +20,7 @@ public final class Siamese extends Cat {
 
     /**
      * Creates an instance of Siamese class.
-     *
+     * 
      * @param name the name value to set.
      * @param age the age value to set.
      * @param smart the smart value to set.
@@ -34,7 +33,7 @@ public final class Siamese extends Cat {
 
     /**
      * Get the smart property: The smart property.
-     *
+     * 
      * @return the smart value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -57,7 +56,7 @@ public final class Siamese extends Cat {
 
     /**
      * Reads an instance of Siamese from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of Siamese if the JsonReader was pointing to an instance of it, or null if it was pointing to
      * JSON null.
@@ -73,6 +72,7 @@ public final class Siamese extends Cat {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
+
                 if ("name".equals(fieldName)) {
                     name = reader.getString();
                 } else if ("age".equals(fieldName)) {

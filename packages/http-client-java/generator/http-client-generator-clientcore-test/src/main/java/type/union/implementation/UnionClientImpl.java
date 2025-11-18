@@ -7,7 +7,6 @@ import io.clientcore.core.instrumentation.Instrumentation;
  * Initializes a new instance of the UnionClient type.
  */
 public final class UnionClientImpl {
-
     /**
      * Service host.
      */
@@ -15,7 +14,7 @@ public final class UnionClientImpl {
 
     /**
      * Gets Service host.
-     *
+     * 
      * @return the endpoint value.
      */
     public String getEndpoint() {
@@ -29,7 +28,7 @@ public final class UnionClientImpl {
 
     /**
      * Gets The HTTP pipeline to send requests through.
-     *
+     * 
      * @return the httpPipeline value.
      */
     public HttpPipeline getHttpPipeline() {
@@ -43,7 +42,7 @@ public final class UnionClientImpl {
 
     /**
      * Gets The instance of instrumentation to report telemetry.
-     *
+     * 
      * @return the instrumentation value.
      */
     public Instrumentation getInstrumentation() {
@@ -57,7 +56,7 @@ public final class UnionClientImpl {
 
     /**
      * Gets the StringsOnliesImpl object to access its operations.
-     *
+     * 
      * @return the StringsOnliesImpl object.
      */
     public StringsOnliesImpl getStringsOnlies() {
@@ -71,7 +70,7 @@ public final class UnionClientImpl {
 
     /**
      * Gets the StringExtensiblesImpl object to access its operations.
-     *
+     * 
      * @return the StringExtensiblesImpl object.
      */
     public StringExtensiblesImpl getStringExtensibles() {
@@ -85,7 +84,7 @@ public final class UnionClientImpl {
 
     /**
      * Gets the StringExtensibleNamedsImpl object to access its operations.
-     *
+     * 
      * @return the StringExtensibleNamedsImpl object.
      */
     public StringExtensibleNamedsImpl getStringExtensibleNameds() {
@@ -99,7 +98,7 @@ public final class UnionClientImpl {
 
     /**
      * Gets the IntsOnliesImpl object to access its operations.
-     *
+     * 
      * @return the IntsOnliesImpl object.
      */
     public IntsOnliesImpl getIntsOnlies() {
@@ -113,7 +112,7 @@ public final class UnionClientImpl {
 
     /**
      * Gets the FloatsOnliesImpl object to access its operations.
-     *
+     * 
      * @return the FloatsOnliesImpl object.
      */
     public FloatsOnliesImpl getFloatsOnlies() {
@@ -127,7 +126,7 @@ public final class UnionClientImpl {
 
     /**
      * Gets the ModelsOnliesImpl object to access its operations.
-     *
+     * 
      * @return the ModelsOnliesImpl object.
      */
     public ModelsOnliesImpl getModelsOnlies() {
@@ -141,7 +140,7 @@ public final class UnionClientImpl {
 
     /**
      * Gets the EnumsOnliesImpl object to access its operations.
-     *
+     * 
      * @return the EnumsOnliesImpl object.
      */
     public EnumsOnliesImpl getEnumsOnlies() {
@@ -155,7 +154,7 @@ public final class UnionClientImpl {
 
     /**
      * Gets the StringAndArraysImpl object to access its operations.
-     *
+     * 
      * @return the StringAndArraysImpl object.
      */
     public StringAndArraysImpl getStringAndArrays() {
@@ -169,7 +168,7 @@ public final class UnionClientImpl {
 
     /**
      * Gets the MixedLiteralsImpl object to access its operations.
-     *
+     * 
      * @return the MixedLiteralsImpl object.
      */
     public MixedLiteralsImpl getMixedLiterals() {
@@ -183,7 +182,7 @@ public final class UnionClientImpl {
 
     /**
      * Gets the MixedTypesImpl object to access its operations.
-     *
+     * 
      * @return the MixedTypesImpl object.
      */
     public MixedTypesImpl getMixedTypes() {
@@ -192,7 +191,7 @@ public final class UnionClientImpl {
 
     /**
      * Initializes an instance of UnionClient client.
-     *
+     * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.

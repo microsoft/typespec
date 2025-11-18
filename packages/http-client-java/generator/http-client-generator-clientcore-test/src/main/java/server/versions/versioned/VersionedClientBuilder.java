@@ -35,7 +35,6 @@ import server.versions.versioned.implementation.VersionedClientImpl;
 public final class VersionedClientBuilder
     implements HttpTrait<VersionedClientBuilder>, ProxyTrait<VersionedClientBuilder>,
     ConfigurationTrait<VersionedClientBuilder>, EndpointTrait<VersionedClientBuilder> {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -188,7 +187,7 @@ public final class VersionedClientBuilder
 
     /**
      * Sets Service version.
-     *
+     * 
      * @param serviceVersion the serviceVersion value.
      * @return the VersionedClientBuilder.
      */
@@ -200,7 +199,7 @@ public final class VersionedClientBuilder
 
     /**
      * Builds an instance of VersionedClientImpl with the provided parameters.
-     *
+     * 
      * @return an instance of VersionedClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -248,7 +247,7 @@ public final class VersionedClientBuilder
 
     /**
      * Builds an instance of VersionedClient class.
-     *
+     * 
      * @return an instance of VersionedClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

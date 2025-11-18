@@ -84,10 +84,12 @@
       <artifactId>google-java-format</artifactId>
       <version>1.24.0</version>
     </dependency>
+    <!-- 3.27.0 aligns with the version used when Spotless uses Eclipse 4.21 / 4.21.0. -->
+    <!-- In the future when this is upgraded it might slightly change code formatting. -->
     <dependency>
       <groupId>org.eclipse.jdt</groupId>
       <artifactId>org.eclipse.jdt.core</artifactId>
-      <version>3.33.0</version>
+      <version>3.27.0</version>
     </dependency>
     <dependency>
       <groupId>org.atteo</groupId>

@@ -16,7 +16,6 @@ import routes.implementation.QueryParametersImpl;
  */
 @ServiceClient(builder = RoutesClientBuilder.class)
 public final class QueryParametersClient {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final QueryParametersImpl serviceClient;
 
@@ -24,7 +23,7 @@ public final class QueryParametersClient {
 
     /**
      * Initializes an instance of QueryParametersClient class.
-     *
+     * 
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -36,7 +35,7 @@ public final class QueryParametersClient {
 
     /**
      * The templateOnly operation.
-     *
+     * 
      * @param param The param parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -53,7 +52,7 @@ public final class QueryParametersClient {
 
     /**
      * The templateOnly operation.
-     *
+     * 
      * @param param The param parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -67,7 +66,7 @@ public final class QueryParametersClient {
 
     /**
      * The explicit operation.
-     *
+     * 
      * @param param The param parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -84,7 +83,7 @@ public final class QueryParametersClient {
 
     /**
      * The explicit operation.
-     *
+     * 
      * @param param The param parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -98,7 +97,7 @@ public final class QueryParametersClient {
 
     /**
      * The annotationOnly operation.
-     *
+     * 
      * @param param The param parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -115,7 +114,7 @@ public final class QueryParametersClient {
 
     /**
      * The annotationOnly operation.
-     *
+     * 
      * @param param The param parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

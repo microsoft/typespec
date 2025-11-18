@@ -14,7 +14,6 @@ import java.util.Map;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class DifferentSpreadStringDerived extends DifferentSpreadStringRecord {
-
     /*
      * The index property
      */
@@ -23,7 +22,7 @@ public final class DifferentSpreadStringDerived extends DifferentSpreadStringRec
 
     /**
      * Creates an instance of DifferentSpreadStringDerived class.
-     *
+     * 
      * @param id the id value to set.
      * @param derivedProp the derivedProp value to set.
      */
@@ -35,7 +34,7 @@ public final class DifferentSpreadStringDerived extends DifferentSpreadStringRec
 
     /**
      * Get the derivedProp property: The index property.
-     *
+     * 
      * @return the derivedProp value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -62,7 +61,7 @@ public final class DifferentSpreadStringDerived extends DifferentSpreadStringRec
 
     /**
      * Reads an instance of DifferentSpreadStringDerived from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of DifferentSpreadStringDerived if the JsonReader was pointing to an instance of it, or null
      * if it was pointing to JSON null.
@@ -78,6 +77,7 @@ public final class DifferentSpreadStringDerived extends DifferentSpreadStringRec
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
+
                 if ("id".equals(fieldName)) {
                     id = reader.getDouble();
                 } else if ("derivedProp".equals(fieldName)) {
@@ -86,12 +86,14 @@ public final class DifferentSpreadStringDerived extends DifferentSpreadStringRec
                     if (additionalProperties == null) {
                         additionalProperties = new LinkedHashMap<>();
                     }
+
                     additionalProperties.put(fieldName, reader.getString());
                 }
             }
             DifferentSpreadStringDerived deserializedDifferentSpreadStringDerived
                 = new DifferentSpreadStringDerived(id, derivedProp);
             deserializedDifferentSpreadStringDerived.setAdditionalProperties(additionalProperties);
+
             return deserializedDifferentSpreadStringDerived;
         });
     }

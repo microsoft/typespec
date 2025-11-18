@@ -13,7 +13,6 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class InputRecord implements JsonSerializable<InputRecord> {
-
     /*
      * The requiredProp property.
      */
@@ -22,7 +21,7 @@ public final class InputRecord implements JsonSerializable<InputRecord> {
 
     /**
      * Creates an instance of InputRecord class.
-     *
+     * 
      * @param requiredProp the requiredProp value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -32,7 +31,7 @@ public final class InputRecord implements JsonSerializable<InputRecord> {
 
     /**
      * Get the requiredProp property: The requiredProp property.
-     *
+     * 
      * @return the requiredProp value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -53,7 +52,7 @@ public final class InputRecord implements JsonSerializable<InputRecord> {
 
     /**
      * Reads an instance of InputRecord from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of InputRecord if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.
@@ -67,6 +66,7 @@ public final class InputRecord implements JsonSerializable<InputRecord> {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
+
                 if ("requiredProp".equals(fieldName)) {
                     requiredProp = reader.getString();
                 } else {

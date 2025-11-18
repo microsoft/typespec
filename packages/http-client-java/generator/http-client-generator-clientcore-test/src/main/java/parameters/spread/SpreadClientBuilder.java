@@ -34,7 +34,6 @@ import parameters.spread.implementation.SpreadClientImpl;
 @ServiceClientBuilder(serviceClients = { ModelClient.class, AliasClient.class })
 public final class SpreadClientBuilder implements HttpTrait<SpreadClientBuilder>, ProxyTrait<SpreadClientBuilder>,
     ConfigurationTrait<SpreadClientBuilder>, EndpointTrait<SpreadClientBuilder> {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -180,7 +179,7 @@ public final class SpreadClientBuilder implements HttpTrait<SpreadClientBuilder>
 
     /**
      * Builds an instance of SpreadClientImpl with the provided parameters.
-     *
+     * 
      * @return an instance of SpreadClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -225,7 +224,7 @@ public final class SpreadClientBuilder implements HttpTrait<SpreadClientBuilder>
 
     /**
      * Builds an instance of ModelClient class.
-     *
+     * 
      * @return an instance of ModelClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -236,7 +235,7 @@ public final class SpreadClientBuilder implements HttpTrait<SpreadClientBuilder>
 
     /**
      * Builds an instance of AliasClient class.
-     *
+     * 
      * @return an instance of AliasClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

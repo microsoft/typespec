@@ -12,7 +12,6 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class Golden extends Dog {
-
     /*
      * discriminator property
      */
@@ -21,7 +20,7 @@ public final class Golden extends Dog {
 
     /**
      * Creates an instance of Golden class.
-     *
+     * 
      * @param weight the weight value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -31,7 +30,7 @@ public final class Golden extends Dog {
 
     /**
      * Get the kind property: discriminator property.
-     *
+     * 
      * @return the kind value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -54,7 +53,7 @@ public final class Golden extends Dog {
 
     /**
      * Reads an instance of Golden from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of Golden if the JsonReader was pointing to an instance of it, or null if it was pointing to
      * JSON null.
@@ -69,6 +68,7 @@ public final class Golden extends Dog {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
+
                 if ("weight".equals(fieldName)) {
                     weight = reader.getInt();
                 } else if ("kind".equals(fieldName)) {
@@ -79,6 +79,7 @@ public final class Golden extends Dog {
             }
             Golden deserializedGolden = new Golden(weight);
             deserializedGolden.kind = kind;
+
             return deserializedGolden;
         });
     }

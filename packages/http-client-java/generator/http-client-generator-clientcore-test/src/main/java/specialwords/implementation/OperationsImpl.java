@@ -18,7 +18,6 @@ import java.lang.reflect.InvocationTargetException;
  * An instance of this class provides access to all the operations defined in Operations.
  */
 public final class OperationsImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -36,7 +35,7 @@ public final class OperationsImpl {
 
     /**
      * Initializes an instance of OperationsImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     OperationsImpl(SpecialWordsClientImpl client) {
@@ -51,7 +50,6 @@ public final class OperationsImpl {
      */
     @ServiceInterface(name = "SpecialWordsClientOperations", host = "{endpoint}")
     public interface OperationsService {
-
         static OperationsService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("specialwords.implementation.OperationsServiceImpl");
@@ -60,6 +58,7 @@ public final class OperationsImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(
@@ -296,7 +295,7 @@ public final class OperationsImpl {
 
     /**
      * The and operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -313,7 +312,7 @@ public final class OperationsImpl {
 
     /**
      * The as operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -330,7 +329,7 @@ public final class OperationsImpl {
 
     /**
      * The assertMethod operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -347,7 +346,7 @@ public final class OperationsImpl {
 
     /**
      * The async operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -364,7 +363,7 @@ public final class OperationsImpl {
 
     /**
      * The await operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -381,7 +380,7 @@ public final class OperationsImpl {
 
     /**
      * The breakMethod operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -398,7 +397,7 @@ public final class OperationsImpl {
 
     /**
      * The classMethod operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -415,7 +414,7 @@ public final class OperationsImpl {
 
     /**
      * The constructor operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -432,7 +431,7 @@ public final class OperationsImpl {
 
     /**
      * The continueMethod operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -449,7 +448,7 @@ public final class OperationsImpl {
 
     /**
      * The def operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -466,7 +465,7 @@ public final class OperationsImpl {
 
     /**
      * The del operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -483,7 +482,7 @@ public final class OperationsImpl {
 
     /**
      * The elif operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -500,7 +499,7 @@ public final class OperationsImpl {
 
     /**
      * The elseMethod operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -517,7 +516,7 @@ public final class OperationsImpl {
 
     /**
      * The except operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -534,7 +533,7 @@ public final class OperationsImpl {
 
     /**
      * The exec operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -551,7 +550,7 @@ public final class OperationsImpl {
 
     /**
      * The finallyMethod operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -568,7 +567,7 @@ public final class OperationsImpl {
 
     /**
      * The forMethod operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -585,7 +584,7 @@ public final class OperationsImpl {
 
     /**
      * The from operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -602,7 +601,7 @@ public final class OperationsImpl {
 
     /**
      * The global operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -619,7 +618,7 @@ public final class OperationsImpl {
 
     /**
      * The ifMethod operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -636,7 +635,7 @@ public final class OperationsImpl {
 
     /**
      * The importMethod operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -653,7 +652,7 @@ public final class OperationsImpl {
 
     /**
      * The in operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -670,7 +669,7 @@ public final class OperationsImpl {
 
     /**
      * The is operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -687,7 +686,7 @@ public final class OperationsImpl {
 
     /**
      * The lambda operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -704,7 +703,7 @@ public final class OperationsImpl {
 
     /**
      * The not operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -721,7 +720,7 @@ public final class OperationsImpl {
 
     /**
      * The or operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -738,7 +737,7 @@ public final class OperationsImpl {
 
     /**
      * The pass operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -755,7 +754,7 @@ public final class OperationsImpl {
 
     /**
      * The raise operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -772,7 +771,7 @@ public final class OperationsImpl {
 
     /**
      * The returnMethod operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -789,7 +788,7 @@ public final class OperationsImpl {
 
     /**
      * The tryMethod operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -806,7 +805,7 @@ public final class OperationsImpl {
 
     /**
      * The whileMethod operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -823,7 +822,7 @@ public final class OperationsImpl {
 
     /**
      * The with operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -840,7 +839,7 @@ public final class OperationsImpl {
 
     /**
      * The yield operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

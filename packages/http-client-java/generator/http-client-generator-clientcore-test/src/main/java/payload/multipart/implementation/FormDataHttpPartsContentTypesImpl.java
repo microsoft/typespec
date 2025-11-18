@@ -23,7 +23,6 @@ import payload.multipart.FileWithHttpPartSpecificContentTypeRequest;
  * An instance of this class provides access to all the operations defined in FormDataHttpPartsContentTypes.
  */
 public final class FormDataHttpPartsContentTypesImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -41,7 +40,7 @@ public final class FormDataHttpPartsContentTypesImpl {
 
     /**
      * Initializes an instance of FormDataHttpPartsContentTypesImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     FormDataHttpPartsContentTypesImpl(MultiPartClientImpl client) {
@@ -56,7 +55,6 @@ public final class FormDataHttpPartsContentTypesImpl {
      */
     @ServiceInterface(name = "MultiPartClientFormDataHttpPartsContentTypes", host = "{endpoint}")
     public interface FormDataHttpPartsContentTypesService {
-
         static FormDataHttpPartsContentTypesService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz
@@ -67,6 +65,7 @@ public final class FormDataHttpPartsContentTypesImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         // @Multipart not supported by RestProxy
@@ -105,7 +104,7 @@ public final class FormDataHttpPartsContentTypesImpl {
 
     /**
      * Test content-type: multipart/form-data.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -125,7 +124,7 @@ public final class FormDataHttpPartsContentTypesImpl {
 
     /**
      * Test content-type: multipart/form-data.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -145,7 +144,7 @@ public final class FormDataHttpPartsContentTypesImpl {
 
     /**
      * Test content-type: multipart/form-data for optional content type.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

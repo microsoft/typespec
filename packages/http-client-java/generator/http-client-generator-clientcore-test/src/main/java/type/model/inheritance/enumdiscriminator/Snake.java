@@ -13,7 +13,6 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public class Snake implements JsonSerializable<Snake> {
-
     /*
      * discriminator property
      */
@@ -28,7 +27,7 @@ public class Snake implements JsonSerializable<Snake> {
 
     /**
      * Creates an instance of Snake class.
-     *
+     * 
      * @param length the length value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -38,7 +37,7 @@ public class Snake implements JsonSerializable<Snake> {
 
     /**
      * Get the kind property: discriminator property.
-     *
+     * 
      * @return the kind value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -48,7 +47,7 @@ public class Snake implements JsonSerializable<Snake> {
 
     /**
      * Get the length property: Length of the snake.
-     *
+     * 
      * @return the length value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -70,7 +69,7 @@ public class Snake implements JsonSerializable<Snake> {
 
     /**
      * Reads an instance of Snake from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of Snake if the JsonReader was pointing to an instance of it, or null if it was pointing to
      * JSON null.
@@ -82,8 +81,7 @@ public class Snake implements JsonSerializable<Snake> {
         return jsonReader.readObject(reader -> {
             String discriminatorValue = null;
             try (JsonReader readerToUse = reader.bufferObject()) {
-                // Prepare for reading
-                readerToUse.nextToken();
+                readerToUse.nextToken(); // Prepare for reading
                 while (readerToUse.nextToken() != JsonToken.END_OBJECT) {
                     String fieldName = readerToUse.getFieldName();
                     readerToUse.nextToken();
@@ -112,6 +110,7 @@ public class Snake implements JsonSerializable<Snake> {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
+
                 if ("length".equals(fieldName)) {
                     length = reader.getInt();
                 } else if ("kind".equals(fieldName)) {
@@ -122,6 +121,7 @@ public class Snake implements JsonSerializable<Snake> {
             }
             Snake deserializedSnake = new Snake(length);
             deserializedSnake.kind = kind;
+
             return deserializedSnake;
         });
     }

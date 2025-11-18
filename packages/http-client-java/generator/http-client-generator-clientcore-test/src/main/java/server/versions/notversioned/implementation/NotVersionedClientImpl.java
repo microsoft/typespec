@@ -20,7 +20,6 @@ import java.lang.reflect.InvocationTargetException;
  * Initializes a new instance of the NotVersionedClient type.
  */
 public final class NotVersionedClientImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -33,7 +32,7 @@ public final class NotVersionedClientImpl {
 
     /**
      * Gets Need to be set as 'http://localhost:3000' in client.
-     *
+     * 
      * @return the endpoint value.
      */
     public String getEndpoint() {
@@ -47,7 +46,7 @@ public final class NotVersionedClientImpl {
 
     /**
      * Gets The HTTP pipeline to send requests through.
-     *
+     * 
      * @return the httpPipeline value.
      */
     public HttpPipeline getHttpPipeline() {
@@ -61,7 +60,7 @@ public final class NotVersionedClientImpl {
 
     /**
      * Gets The instance of instrumentation to report telemetry.
-     *
+     * 
      * @return the instrumentation value.
      */
     public Instrumentation getInstrumentation() {
@@ -70,7 +69,7 @@ public final class NotVersionedClientImpl {
 
     /**
      * Initializes an instance of NotVersionedClient client.
-     *
+     * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
@@ -88,7 +87,6 @@ public final class NotVersionedClientImpl {
      */
     @ServiceInterface(name = "NotVersionedClient", host = "{endpoint}")
     public interface NotVersionedClientService {
-
         static NotVersionedClientService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz
@@ -99,6 +97,7 @@ public final class NotVersionedClientImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(
@@ -127,7 +126,7 @@ public final class NotVersionedClientImpl {
 
     /**
      * The withoutApiVersion operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -144,7 +143,7 @@ public final class NotVersionedClientImpl {
 
     /**
      * The withQueryApiVersion operation.
-     *
+     * 
      * @param apiVersion The apiVersion parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -162,7 +161,7 @@ public final class NotVersionedClientImpl {
 
     /**
      * The withPathApiVersion operation.
-     *
+     * 
      * @param apiVersion The apiVersion parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

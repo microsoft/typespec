@@ -22,7 +22,6 @@ import type.model.inheritance.singlediscriminator.Dinosaur;
  * Initializes a new instance of the SingleDiscriminatorClient type.
  */
 public final class SingleDiscriminatorClientImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -35,7 +34,7 @@ public final class SingleDiscriminatorClientImpl {
 
     /**
      * Gets Service host.
-     *
+     * 
      * @return the endpoint value.
      */
     public String getEndpoint() {
@@ -49,7 +48,7 @@ public final class SingleDiscriminatorClientImpl {
 
     /**
      * Gets The HTTP pipeline to send requests through.
-     *
+     * 
      * @return the httpPipeline value.
      */
     public HttpPipeline getHttpPipeline() {
@@ -63,7 +62,7 @@ public final class SingleDiscriminatorClientImpl {
 
     /**
      * Gets The instance of instrumentation to report telemetry.
-     *
+     * 
      * @return the instrumentation value.
      */
     public Instrumentation getInstrumentation() {
@@ -72,7 +71,7 @@ public final class SingleDiscriminatorClientImpl {
 
     /**
      * Initializes an instance of SingleDiscriminatorClient client.
-     *
+     * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
@@ -90,7 +89,6 @@ public final class SingleDiscriminatorClientImpl {
      */
     @ServiceInterface(name = "SingleDiscriminatorClient", host = "{endpoint}")
     public interface SingleDiscriminatorClientService {
-
         static SingleDiscriminatorClientService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName(
@@ -101,6 +99,7 @@ public final class SingleDiscriminatorClientImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(
@@ -163,7 +162,7 @@ public final class SingleDiscriminatorClientImpl {
 
     /**
      * The getModel operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -181,7 +180,7 @@ public final class SingleDiscriminatorClientImpl {
 
     /**
      * The putModel operation.
-     *
+     * 
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -200,7 +199,7 @@ public final class SingleDiscriminatorClientImpl {
 
     /**
      * The getRecursiveModel operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -218,7 +217,7 @@ public final class SingleDiscriminatorClientImpl {
 
     /**
      * The putRecursiveModel operation.
-     *
+     * 
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -237,7 +236,7 @@ public final class SingleDiscriminatorClientImpl {
 
     /**
      * The getMissingDiscriminator operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -255,7 +254,7 @@ public final class SingleDiscriminatorClientImpl {
 
     /**
      * The getWrongDiscriminator operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -273,7 +272,7 @@ public final class SingleDiscriminatorClientImpl {
 
     /**
      * The getLegacyModel operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

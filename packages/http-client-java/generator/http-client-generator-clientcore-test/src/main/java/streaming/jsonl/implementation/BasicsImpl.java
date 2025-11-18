@@ -21,7 +21,6 @@ import java.lang.reflect.InvocationTargetException;
  * An instance of this class provides access to all the operations defined in Basics.
  */
 public final class BasicsImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -39,7 +38,7 @@ public final class BasicsImpl {
 
     /**
      * Initializes an instance of BasicsImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     BasicsImpl(JsonlClientImpl client) {
@@ -54,7 +53,6 @@ public final class BasicsImpl {
      */
     @ServiceInterface(name = "JsonlClientBasics", host = "{endpoint}")
     public interface BasicsService {
-
         static BasicsService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("streaming.jsonl.implementation.BasicsServiceImpl");
@@ -63,6 +61,7 @@ public final class BasicsImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(
@@ -85,7 +84,7 @@ public final class BasicsImpl {
 
     /**
      * The send operation.
-     *
+     * 
      * @param body The body parameter.
      * @param contentLength The Content-Length header for the request.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -105,7 +104,7 @@ public final class BasicsImpl {
 
     /**
      * The receive operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

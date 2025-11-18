@@ -4,7 +4,6 @@ package type.property.optional;
  * Defines values for FloatLiteralPropertyProperty.
  */
 public enum FloatLiteralPropertyProperty {
-
     /**
      * Enum value 1.25.
      */
@@ -21,7 +20,7 @@ public enum FloatLiteralPropertyProperty {
 
     /**
      * Parses a serialized value to a FloatLiteralPropertyProperty instance.
-     *
+     * 
      * @param value the serialized value to parse.
      * @return the parsed FloatLiteralPropertyProperty object, or null if unable to parse.
      */
@@ -37,7 +36,7 @@ public enum FloatLiteralPropertyProperty {
 
     /**
      * De-serializes the instance to double value.
-     *
+     * 
      * @return the double value.
      */
     public double toDouble() {

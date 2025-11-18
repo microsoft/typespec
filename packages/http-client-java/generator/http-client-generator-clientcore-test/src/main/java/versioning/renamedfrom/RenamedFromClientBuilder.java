@@ -35,7 +35,6 @@ import versioning.renamedfrom.implementation.RenamedFromClientImpl;
 public final class RenamedFromClientBuilder
     implements HttpTrait<RenamedFromClientBuilder>, ProxyTrait<RenamedFromClientBuilder>,
     ConfigurationTrait<RenamedFromClientBuilder>, EndpointTrait<RenamedFromClientBuilder> {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -187,7 +186,7 @@ public final class RenamedFromClientBuilder
 
     /**
      * Sets Service version.
-     *
+     * 
      * @param serviceVersion the serviceVersion value.
      * @return the RenamedFromClientBuilder.
      */
@@ -199,7 +198,7 @@ public final class RenamedFromClientBuilder
 
     /**
      * Builds an instance of RenamedFromClientImpl with the provided parameters.
-     *
+     * 
      * @return an instance of RenamedFromClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -247,7 +246,7 @@ public final class RenamedFromClientBuilder
 
     /**
      * Builds an instance of RenamedFromClient class.
-     *
+     * 
      * @return an instance of RenamedFromClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -258,7 +257,7 @@ public final class RenamedFromClientBuilder
 
     /**
      * Builds an instance of NewInterfaceClient class.
-     *
+     * 
      * @return an instance of NewInterfaceClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

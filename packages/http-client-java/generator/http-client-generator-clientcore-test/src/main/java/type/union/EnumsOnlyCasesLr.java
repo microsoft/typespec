@@ -4,19 +4,21 @@ package type.union;
  * Defines values for EnumsOnlyCasesLr.
  */
 public enum EnumsOnlyCasesLr {
-
     /**
      * Enum value left.
      */
     LEFT("left"),
+
     /**
      * Enum value right.
      */
     RIGHT("right"),
+
     /**
      * Enum value up.
      */
     UP("up"),
+
     /**
      * Enum value down.
      */
@@ -33,7 +35,7 @@ public enum EnumsOnlyCasesLr {
 
     /**
      * Parses a serialized value to a EnumsOnlyCasesLr instance.
-     *
+     * 
      * @param value the serialized value to parse.
      * @return the parsed EnumsOnlyCasesLr object, or null if unable to parse.
      */

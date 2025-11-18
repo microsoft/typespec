@@ -17,7 +17,6 @@ import type.union.implementation.ModelsOnliesImpl;
  */
 @ServiceClient(builder = UnionClientBuilder.class)
 public final class ModelsOnlyClient {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final ModelsOnliesImpl serviceClient;
 
@@ -25,7 +24,7 @@ public final class ModelsOnlyClient {
 
     /**
      * Initializes an instance of ModelsOnlyClient class.
-     *
+     * 
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -37,7 +36,7 @@ public final class ModelsOnlyClient {
 
     /**
      * The get operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -53,7 +52,7 @@ public final class ModelsOnlyClient {
 
     /**
      * The get operation.
-     *
+     * 
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
@@ -66,7 +65,7 @@ public final class ModelsOnlyClient {
 
     /**
      * The send operation.
-     *
+     * 
      * @param prop The prop parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -83,7 +82,7 @@ public final class ModelsOnlyClient {
 
     /**
      * The send operation.
-     *
+     * 
      * @param prop The prop parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

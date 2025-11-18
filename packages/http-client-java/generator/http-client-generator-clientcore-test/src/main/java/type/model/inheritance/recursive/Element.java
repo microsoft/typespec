@@ -14,7 +14,6 @@ import java.util.List;
  */
 @Metadata(properties = { MetadataProperties.FLUENT })
 public class Element implements JsonSerializable<Element> {
-
     /*
      * The extension property.
      */
@@ -30,7 +29,7 @@ public class Element implements JsonSerializable<Element> {
 
     /**
      * Get the extension property: The extension property.
-     *
+     * 
      * @return the extension value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -40,7 +39,7 @@ public class Element implements JsonSerializable<Element> {
 
     /**
      * Set the extension property: The extension property.
-     *
+     * 
      * @param extension the extension value to set.
      * @return the Element object itself.
      */
@@ -63,7 +62,7 @@ public class Element implements JsonSerializable<Element> {
 
     /**
      * Reads an instance of Element from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of Element if the JsonReader was pointing to an instance of it, or null if it was pointing to
      * JSON null.
@@ -76,6 +75,7 @@ public class Element implements JsonSerializable<Element> {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
+
                 if ("extension".equals(fieldName)) {
                     List<Extension> extension = reader.readArray(reader1 -> Extension.fromJson(reader1));
                     deserializedElement.extension = extension;
@@ -83,6 +83,7 @@ public class Element implements JsonSerializable<Element> {
                     reader.skipChildren();
                 }
             }
+
             return deserializedElement;
         });
     }

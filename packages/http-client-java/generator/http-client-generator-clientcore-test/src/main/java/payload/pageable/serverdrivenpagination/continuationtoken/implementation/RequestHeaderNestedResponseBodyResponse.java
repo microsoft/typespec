@@ -16,7 +16,6 @@ import payload.pageable.serverdrivenpagination.continuationtoken.RequestHeaderNe
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class RequestHeaderNestedResponseBodyResponse
     implements JsonSerializable<RequestHeaderNestedResponseBodyResponse> {
-
     /*
      * The nestedItems property.
      */
@@ -31,7 +30,7 @@ public final class RequestHeaderNestedResponseBodyResponse
 
     /**
      * Creates an instance of RequestHeaderNestedResponseBodyResponse class.
-     *
+     * 
      * @param nestedItems the nestedItems value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -41,7 +40,7 @@ public final class RequestHeaderNestedResponseBodyResponse
 
     /**
      * Get the nestedItems property: The nestedItems property.
-     *
+     * 
      * @return the nestedItems value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -51,7 +50,7 @@ public final class RequestHeaderNestedResponseBodyResponse
 
     /**
      * Get the nestedNext property: The nestedNext property.
-     *
+     * 
      * @return the nestedNext value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -73,7 +72,7 @@ public final class RequestHeaderNestedResponseBodyResponse
 
     /**
      * Reads an instance of RequestHeaderNestedResponseBodyResponse from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of RequestHeaderNestedResponseBodyResponse if the JsonReader was pointing to an instance of
      * it, or null if it was pointing to JSON null.
@@ -88,6 +87,7 @@ public final class RequestHeaderNestedResponseBodyResponse
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
+
                 if ("nestedItems".equals(fieldName)) {
                     nestedItems = RequestHeaderNestedResponseBodyResponseNestedItems.fromJson(reader);
                 } else if ("nestedNext".equals(fieldName)) {
@@ -99,6 +99,7 @@ public final class RequestHeaderNestedResponseBodyResponse
             RequestHeaderNestedResponseBodyResponse deserializedRequestHeaderNestedResponseBodyResponse
                 = new RequestHeaderNestedResponseBodyResponse(nestedItems);
             deserializedRequestHeaderNestedResponseBodyResponse.nestedNext = nestedNext;
+
             return deserializedRequestHeaderNestedResponseBodyResponse;
         });
     }

@@ -14,7 +14,6 @@ import javax.xml.stream.XMLStreamException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class ModelWithAttributes implements XmlSerializable<ModelWithAttributes> {
-
     /*
      * The id1 property.
      */
@@ -35,7 +34,7 @@ public final class ModelWithAttributes implements XmlSerializable<ModelWithAttri
 
     /**
      * Creates an instance of ModelWithAttributes class.
-     *
+     * 
      * @param id1 the id1 value to set.
      * @param id2 the id2 value to set.
      * @param enabled the enabled value to set.
@@ -49,7 +48,7 @@ public final class ModelWithAttributes implements XmlSerializable<ModelWithAttri
 
     /**
      * Get the id1 property: The id1 property.
-     *
+     * 
      * @return the id1 value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -59,7 +58,7 @@ public final class ModelWithAttributes implements XmlSerializable<ModelWithAttri
 
     /**
      * Get the id2 property: The id2 property.
-     *
+     * 
      * @return the id2 value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -69,7 +68,7 @@ public final class ModelWithAttributes implements XmlSerializable<ModelWithAttri
 
     /**
      * Get the enabled property: The enabled property.
-     *
+     * 
      * @return the enabled value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -97,7 +96,7 @@ public final class ModelWithAttributes implements XmlSerializable<ModelWithAttri
 
     /**
      * Reads an instance of ModelWithAttributes from the XmlReader.
-     *
+     * 
      * @param xmlReader The XmlReader being read.
      * @return An instance of ModelWithAttributes if the XmlReader was pointing to an instance of it, or null if it was
      * pointing to XML null.
@@ -111,7 +110,7 @@ public final class ModelWithAttributes implements XmlSerializable<ModelWithAttri
 
     /**
      * Reads an instance of ModelWithAttributes from the XmlReader.
-     *
+     * 
      * @param xmlReader The XmlReader being read.
      * @param rootElementName Optional root element name to override the default defined by the model. Used to support
      * cases where the model can deserialize from different root element names.
@@ -130,6 +129,7 @@ public final class ModelWithAttributes implements XmlSerializable<ModelWithAttri
             String id2 = reader.getStringAttribute(null, "id2");
             while (reader.nextElement() != XmlToken.END_ELEMENT) {
                 QName elementName = reader.getElementName();
+
                 if ("enabled".equals(elementName.getLocalPart())) {
                     enabled = reader.getBooleanElement();
                 } else {

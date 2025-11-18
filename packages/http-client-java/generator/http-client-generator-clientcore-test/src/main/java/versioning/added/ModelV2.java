@@ -14,7 +14,6 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class ModelV2 implements JsonSerializable<ModelV2> {
-
     /*
      * The prop property.
      */
@@ -35,7 +34,7 @@ public final class ModelV2 implements JsonSerializable<ModelV2> {
 
     /**
      * Creates an instance of ModelV2 class.
-     *
+     * 
      * @param prop the prop value to set.
      * @param enumProp the enumProp value to set.
      * @param unionProp the unionProp value to set.
@@ -49,7 +48,7 @@ public final class ModelV2 implements JsonSerializable<ModelV2> {
 
     /**
      * Get the prop property: The prop property.
-     *
+     * 
      * @return the prop value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -59,7 +58,7 @@ public final class ModelV2 implements JsonSerializable<ModelV2> {
 
     /**
      * Get the enumProp property: The enumProp property.
-     *
+     * 
      * @return the enumProp value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -69,7 +68,7 @@ public final class ModelV2 implements JsonSerializable<ModelV2> {
 
     /**
      * Get the unionProp property: The unionProp property.
-     *
+     * 
      * @return the unionProp value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -93,7 +92,7 @@ public final class ModelV2 implements JsonSerializable<ModelV2> {
 
     /**
      * Reads an instance of ModelV2 from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of ModelV2 if the JsonReader was pointing to an instance of it, or null if it was pointing to
      * JSON null.
@@ -109,6 +108,7 @@ public final class ModelV2 implements JsonSerializable<ModelV2> {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
+
                 if ("prop".equals(fieldName)) {
                     prop = reader.getString();
                 } else if ("enumProp".equals(fieldName)) {

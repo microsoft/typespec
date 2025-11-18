@@ -12,7 +12,6 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class SawShark extends Shark {
-
     /*
      * Discriminator property for Fish.
      */
@@ -27,7 +26,7 @@ public final class SawShark extends Shark {
 
     /**
      * Creates an instance of SawShark class.
-     *
+     * 
      * @param age the age value to set.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -37,7 +36,7 @@ public final class SawShark extends Shark {
 
     /**
      * Get the kind property: Discriminator property for Fish.
-     *
+     * 
      * @return the kind value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -48,7 +47,7 @@ public final class SawShark extends Shark {
 
     /**
      * Get the sharktype property: The sharktype property.
-     *
+     * 
      * @return the sharktype value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -72,7 +71,7 @@ public final class SawShark extends Shark {
 
     /**
      * Reads an instance of SawShark from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of SawShark if the JsonReader was pointing to an instance of it, or null if it was pointing
      * to JSON null.
@@ -87,6 +86,7 @@ public final class SawShark extends Shark {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
+
                 if ("age".equals(fieldName)) {
                     age = reader.getInt();
                 } else if ("sharktype".equals(fieldName)) {
@@ -97,6 +97,7 @@ public final class SawShark extends Shark {
             }
             SawShark deserializedSawShark = new SawShark(age);
             deserializedSawShark.sharktype = sharktype;
+
             return deserializedSawShark;
         });
     }

@@ -5,23 +5,14 @@ package com.microsoft.typespec.http.client.generator.core.postprocessor.implemen
 
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.printer.configuration.ImportOrderingStrategy;
 import com.github.javaparser.printer.configuration.imports.DefaultImportOrderingStrategy;
 import com.google.googlejavaformat.FormatterDiagnostic;
 import com.google.googlejavaformat.java.FormatterException;
 import com.google.googlejavaformat.java.RemoveUnusedImports;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlugin;
-import org.eclipse.jdt.core.ToolFactory;
-import org.eclipse.jdt.core.formatter.CodeFormatter;
-import org.eclipse.jdt.internal.compiler.env.IModule;
-import org.eclipse.jface.text.Document;
-import org.eclipse.jface.text.IDocument;
-import org.eclipse.text.edits.TextEdit;
-import org.slf4j.Logger;
-import org.w3c.dom.NodeList;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
+import com.microsoft.typespec.http.client.generator.core.util.Constants;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,6 +21,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import org.eclipse.jdt.core.ToolFactory;
+import org.eclipse.jdt.core.formatter.CodeFormatter;
+import org.eclipse.jdt.internal.compiler.env.IModule;
+import org.eclipse.jface.text.Document;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.text.edits.TextEdit;
+import org.slf4j.Logger;
+import org.w3c.dom.NodeList;
 
 /**
  * Utility class that handles code formatting.
@@ -106,10 +107,75 @@ public final class CodeFormatterUtil {
         }
     }
 
+    /**
+     * Reorders the imports in alphabetical ordering.
+     * <p>
+     * This helper method performs many tasks manually to maintain the original formatting of the file as much as
+     * possible. Using {@link CompilationUnit} to manipulate the imports and then printing the entire file back
+     * results in newline removal and trailing space removal which is just noise for us.
+     *
+     * @param file The Java file to reorder imports for.
+     * @param orderingStrategy The import ordering strategy to use.
+     * @return The Java file with reordered imports, or if the file has no imports the file as-is.
+     */
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
     private static String reorderImports(String file, ImportOrderingStrategy orderingStrategy) {
         CompilationUnit compilationUnit = StaticJavaParser.parse(file);
-        compilationUnit.setImports(orderingStrategy.sortImports(compilationUnit.getImports()).get(0));
-        return compilationUnit.toString();
+        com.github.javaparser.ast.NodeList<ImportDeclaration> imports = compilationUnit.getImports();
+        if (imports.isEmpty()) {
+            // File has no imports, nothing to reorder.
+            return file;
+        }
+
+        // Positions of the existing imports in the file.
+        // Position uses 1-based indexing, so when we replace imports later we need to adjust this to 0-based indexing
+        // for Java's List.
+        int importStartLine = imports.stream().mapToInt(i -> i.getBegin().get().line).min().getAsInt();
+        int importEndLine = imports.stream().mapToInt(i -> i.getEnd().get().line).max().getAsInt();
+
+        // Using DefaultImportOrderingStrategy which returns a single NodeList after sorting.
+        // If this strategy is changed, inspect the orderer used for how many NodeLists are returned.
+        // For example, a made up SplitInstanceAndStaticImportOrderingStrategy could return two NodeLists,
+        // one for sorted instance imports and one for sorted static imports.
+        imports = orderingStrategy.sortImports(imports).get(0);
+
+        List<String> lines = file.lines().collect(Collectors.toList());
+
+        int lastLineReplaced = importStartLine - 1;
+        for (ImportDeclaration importDeclaration : imports) {
+            lines.set(lastLineReplaced, importToString(importDeclaration));
+            lastLineReplaced++;
+        }
+
+        // Remove any remaining old import lines if the new import list is shorter.
+        for (int i = lastLineReplaced; i < importEndLine; i++) {
+            lines.remove(i);
+        }
+
+        return String.join("\n", lines);
+    }
+
+    /**
+     * Converts an {@link ImportDeclaration} to its string representation.
+     * <p>
+     * This is done as {@link ImportDeclaration#toString()} uses an internal printer which adds newline characters we
+     * don't want. And instead of configuring our own printer just for this, we manually build the string.
+     *
+     * @param importDeclaration The import declaration.
+     * @return The import statement representation of the import declaration.
+     */
+    private static String importToString(ImportDeclaration importDeclaration) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("import ");
+        if (importDeclaration.isStatic()) {
+            sb.append("static ");
+        }
+        sb.append(importDeclaration.getNameAsString());
+        if (importDeclaration.isAsterisk()) {
+            sb.append(".*");
+        }
+        sb.append(";");
+        return sb.toString();
     }
 
     private static String formatCode(String file, String fileName, CodeFormatter codeFormatter) throws Exception {
@@ -118,7 +184,7 @@ public final class CodeFormatterUtil {
         boolean isModuleInfo = IModule.MODULE_INFO_JAVA.equals(fileName);
         int kind = isModuleInfo ? CodeFormatter.K_MODULE_INFO : CodeFormatter.K_COMPILATION_UNIT;
         kind |= CodeFormatter.F_INCLUDE_COMMENTS;
-        TextEdit edit = codeFormatter.format(kind, file, 0, file.length(), 0, null);
+        TextEdit edit = codeFormatter.format(kind, file, 0, file.length(), 0, Constants.NEW_LINE);
         edit.apply(doc);
 
         return doc.get();

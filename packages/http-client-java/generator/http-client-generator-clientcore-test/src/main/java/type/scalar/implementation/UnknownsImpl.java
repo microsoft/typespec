@@ -21,7 +21,6 @@ import java.lang.reflect.InvocationTargetException;
  * An instance of this class provides access to all the operations defined in Unknowns.
  */
 public final class UnknownsImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -39,7 +38,7 @@ public final class UnknownsImpl {
 
     /**
      * Initializes an instance of UnknownsImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     UnknownsImpl(ScalarClientImpl client) {
@@ -54,7 +53,6 @@ public final class UnknownsImpl {
      */
     @ServiceInterface(name = "ScalarClientUnknowns", host = "{endpoint}")
     public interface UnknownsService {
-
         static UnknownsService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("type.scalar.implementation.UnknownsServiceImpl");
@@ -63,6 +61,7 @@ public final class UnknownsImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(method = HttpMethod.GET, path = "/type/scalar/unknown", expectedStatusCodes = { 200 })
@@ -78,7 +77,7 @@ public final class UnknownsImpl {
 
     /**
      * get unknown value.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -96,7 +95,7 @@ public final class UnknownsImpl {
 
     /**
      * put unknown value.
-     *
+     * 
      * @param body _.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

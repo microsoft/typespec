@@ -35,7 +35,6 @@ import server.versions.notversioned.implementation.NotVersionedClientImpl;
 public final class NotVersionedClientBuilder
     implements HttpTrait<NotVersionedClientBuilder>, ProxyTrait<NotVersionedClientBuilder>,
     ConfigurationTrait<NotVersionedClientBuilder>, EndpointTrait<NotVersionedClientBuilder> {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -182,7 +181,7 @@ public final class NotVersionedClientBuilder
 
     /**
      * Builds an instance of NotVersionedClientImpl with the provided parameters.
-     *
+     * 
      * @return an instance of NotVersionedClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -228,7 +227,7 @@ public final class NotVersionedClientBuilder
 
     /**
      * Builds an instance of NotVersionedClient class.
-     *
+     * 
      * @return an instance of NotVersionedClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

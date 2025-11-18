@@ -23,7 +23,6 @@ import type.model.visibility.VisibilityModel;
  * Initializes a new instance of the VisibilityClient type.
  */
 public final class VisibilityClientImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -36,7 +35,7 @@ public final class VisibilityClientImpl {
 
     /**
      * Gets Service host.
-     *
+     * 
      * @return the endpoint value.
      */
     public String getEndpoint() {
@@ -50,7 +49,7 @@ public final class VisibilityClientImpl {
 
     /**
      * Gets The HTTP pipeline to send requests through.
-     *
+     * 
      * @return the httpPipeline value.
      */
     public HttpPipeline getHttpPipeline() {
@@ -64,7 +63,7 @@ public final class VisibilityClientImpl {
 
     /**
      * Gets The instance of instrumentation to report telemetry.
-     *
+     * 
      * @return the instrumentation value.
      */
     public Instrumentation getInstrumentation() {
@@ -73,7 +72,7 @@ public final class VisibilityClientImpl {
 
     /**
      * Initializes an instance of VisibilityClient client.
-     *
+     * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
@@ -91,7 +90,6 @@ public final class VisibilityClientImpl {
      */
     @ServiceInterface(name = "VisibilityClient", host = "{endpoint}")
     public interface VisibilityClientService {
-
         static VisibilityClientService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("type.model.visibility.implementation.VisibilityClientServiceImpl");
@@ -101,6 +99,7 @@ public final class VisibilityClientImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(method = HttpMethod.GET, path = "/type/model/visibility", expectedStatusCodes = { 200 })
@@ -163,7 +162,7 @@ public final class VisibilityClientImpl {
 
     /**
      * The getModel operation.
-     *
+     * 
      * @param queryProp Required int32, illustrating a query property.
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -185,7 +184,7 @@ public final class VisibilityClientImpl {
 
     /**
      * The headModel operation.
-     *
+     * 
      * @param queryProp Required int32, illustrating a query property.
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -205,7 +204,7 @@ public final class VisibilityClientImpl {
 
     /**
      * The putModel operation.
-     *
+     * 
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -224,7 +223,7 @@ public final class VisibilityClientImpl {
 
     /**
      * The patchModel operation.
-     *
+     * 
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -243,7 +242,7 @@ public final class VisibilityClientImpl {
 
     /**
      * The postModel operation.
-     *
+     * 
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -262,7 +261,7 @@ public final class VisibilityClientImpl {
 
     /**
      * The deleteModel operation.
-     *
+     * 
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -281,7 +280,7 @@ public final class VisibilityClientImpl {
 
     /**
      * The putReadOnlyModel operation.
-     *
+     * 
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

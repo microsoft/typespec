@@ -16,7 +16,6 @@ import payload.xml.implementation.ModelWithRenamedArraysValuesImpl;
  */
 @ServiceClient(builder = XmlClientBuilder.class)
 public final class ModelWithRenamedArraysValueClient {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final ModelWithRenamedArraysValuesImpl serviceClient;
 
@@ -24,7 +23,7 @@ public final class ModelWithRenamedArraysValueClient {
 
     /**
      * Initializes an instance of ModelWithRenamedArraysValueClient class.
-     *
+     * 
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -36,7 +35,7 @@ public final class ModelWithRenamedArraysValueClient {
 
     /**
      * The get operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -53,7 +52,7 @@ public final class ModelWithRenamedArraysValueClient {
 
     /**
      * The get operation.
-     *
+     * 
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return contains fields of wrapped and unwrapped arrays of primitive types that have different XML
@@ -67,7 +66,7 @@ public final class ModelWithRenamedArraysValueClient {
 
     /**
      * The put operation.
-     *
+     * 
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -84,7 +83,7 @@ public final class ModelWithRenamedArraysValueClient {
 
     /**
      * The put operation.
-     *
+     * 
      * @param input The input parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

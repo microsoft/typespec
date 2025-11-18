@@ -13,7 +13,6 @@ import java.io.IOException;
  */
 @Metadata(properties = { MetadataProperties.FLUENT })
 public final class BytesProperty implements JsonSerializable<BytesProperty> {
-
     /*
      * Property
      */
@@ -29,7 +28,7 @@ public final class BytesProperty implements JsonSerializable<BytesProperty> {
 
     /**
      * Get the property property: Property.
-     *
+     * 
      * @return the property value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -39,7 +38,7 @@ public final class BytesProperty implements JsonSerializable<BytesProperty> {
 
     /**
      * Set the property property: Property.
-     *
+     * 
      * @param property the property value to set.
      * @return the BytesProperty object itself.
      */
@@ -62,7 +61,7 @@ public final class BytesProperty implements JsonSerializable<BytesProperty> {
 
     /**
      * Reads an instance of BytesProperty from the JsonReader.
-     *
+     * 
      * @param jsonReader The JsonReader being read.
      * @return An instance of BytesProperty if the JsonReader was pointing to an instance of it, or null if it was
      * pointing to JSON null.
@@ -75,12 +74,14 @@ public final class BytesProperty implements JsonSerializable<BytesProperty> {
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
+
                 if ("property".equals(fieldName)) {
                     deserializedBytesProperty.property = reader.getBinary();
                 } else {
                     reader.skipChildren();
                 }
             }
+
             return deserializedBytesProperty;
         });
     }

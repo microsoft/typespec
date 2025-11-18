@@ -16,7 +16,6 @@ import routes.implementation.PathParametersImpl;
  */
 @ServiceClient(builder = RoutesClientBuilder.class)
 public final class PathParametersClient {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final PathParametersImpl serviceClient;
 
@@ -24,7 +23,7 @@ public final class PathParametersClient {
 
     /**
      * Initializes an instance of PathParametersClient class.
-     *
+     * 
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -36,7 +35,7 @@ public final class PathParametersClient {
 
     /**
      * The templateOnly operation.
-     *
+     * 
      * @param param The param parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -53,7 +52,7 @@ public final class PathParametersClient {
 
     /**
      * The templateOnly operation.
-     *
+     * 
      * @param param The param parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -67,7 +66,7 @@ public final class PathParametersClient {
 
     /**
      * The explicit operation.
-     *
+     * 
      * @param param The param parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -84,7 +83,7 @@ public final class PathParametersClient {
 
     /**
      * The explicit operation.
-     *
+     * 
      * @param param The param parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -98,7 +97,7 @@ public final class PathParametersClient {
 
     /**
      * The annotationOnly operation.
-     *
+     * 
      * @param param The param parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -115,7 +114,7 @@ public final class PathParametersClient {
 
     /**
      * The annotationOnly operation.
-     *
+     * 
      * @param param The param parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

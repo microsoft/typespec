@@ -35,7 +35,6 @@ import type.model.visibility.implementation.VisibilityClientImpl;
 public final class VisibilityClientBuilder
     implements HttpTrait<VisibilityClientBuilder>, ProxyTrait<VisibilityClientBuilder>,
     ConfigurationTrait<VisibilityClientBuilder>, EndpointTrait<VisibilityClientBuilder> {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -181,7 +180,7 @@ public final class VisibilityClientBuilder
 
     /**
      * Builds an instance of VisibilityClientImpl with the provided parameters.
-     *
+     * 
      * @return an instance of VisibilityClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -226,7 +225,7 @@ public final class VisibilityClientBuilder
 
     /**
      * Builds an instance of VisibilityClient class.
-     *
+     * 
      * @return an instance of VisibilityClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

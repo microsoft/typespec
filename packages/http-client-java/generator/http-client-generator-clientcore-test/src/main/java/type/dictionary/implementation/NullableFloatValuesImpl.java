@@ -21,7 +21,6 @@ import java.util.Map;
  * An instance of this class provides access to all the operations defined in NullableFloatValues.
  */
 public final class NullableFloatValuesImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -39,7 +38,7 @@ public final class NullableFloatValuesImpl {
 
     /**
      * Initializes an instance of NullableFloatValuesImpl.
-     *
+     * 
      * @param client the instance of the service client containing this operation class.
      */
     NullableFloatValuesImpl(DictionaryClientImpl client) {
@@ -54,7 +53,6 @@ public final class NullableFloatValuesImpl {
      */
     @ServiceInterface(name = "DictionaryClientNullableFloatValues", host = "{endpoint}")
     public interface NullableFloatValuesService {
-
         static NullableFloatValuesService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("type.dictionary.implementation.NullableFloatValuesServiceImpl");
@@ -64,6 +62,7 @@ public final class NullableFloatValuesImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(
@@ -86,7 +85,7 @@ public final class NullableFloatValuesImpl {
 
     /**
      * The get operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -104,7 +103,7 @@ public final class NullableFloatValuesImpl {
 
     /**
      * The put operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

@@ -7,7 +7,6 @@ import io.clientcore.core.instrumentation.Instrumentation;
  * Initializes a new instance of the PageableClient type.
  */
 public final class PageableClientImpl {
-
     /**
      * Service host.
      */
@@ -15,7 +14,7 @@ public final class PageableClientImpl {
 
     /**
      * Gets Service host.
-     *
+     * 
      * @return the endpoint value.
      */
     public String getEndpoint() {
@@ -29,7 +28,7 @@ public final class PageableClientImpl {
 
     /**
      * Gets The HTTP pipeline to send requests through.
-     *
+     * 
      * @return the httpPipeline value.
      */
     public HttpPipeline getHttpPipeline() {
@@ -43,7 +42,7 @@ public final class PageableClientImpl {
 
     /**
      * Gets The instance of instrumentation to report telemetry.
-     *
+     * 
      * @return the instrumentation value.
      */
     public Instrumentation getInstrumentation() {
@@ -57,7 +56,7 @@ public final class PageableClientImpl {
 
     /**
      * Gets the ServerDrivenPaginationsImpl object to access its operations.
-     *
+     * 
      * @return the ServerDrivenPaginationsImpl object.
      */
     public ServerDrivenPaginationsImpl getServerDrivenPaginations() {
@@ -71,7 +70,7 @@ public final class PageableClientImpl {
 
     /**
      * Gets the ServerDrivenPaginationContinuationTokensImpl object to access its operations.
-     *
+     * 
      * @return the ServerDrivenPaginationContinuationTokensImpl object.
      */
     public ServerDrivenPaginationContinuationTokensImpl getServerDrivenPaginationContinuationTokens() {
@@ -85,7 +84,7 @@ public final class PageableClientImpl {
 
     /**
      * Gets the PageSizesImpl object to access its operations.
-     *
+     * 
      * @return the PageSizesImpl object.
      */
     public PageSizesImpl getPageSizes() {
@@ -94,7 +93,7 @@ public final class PageableClientImpl {
 
     /**
      * Initializes an instance of PageableClient client.
-     *
+     * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.

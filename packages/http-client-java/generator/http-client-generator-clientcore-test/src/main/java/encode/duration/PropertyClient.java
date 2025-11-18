@@ -30,7 +30,6 @@ import io.clientcore.core.instrumentation.Instrumentation;
  */
 @ServiceClient(builder = DurationClientBuilder.class)
 public final class PropertyClient {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final PropertiesImpl serviceClient;
 
@@ -38,7 +37,7 @@ public final class PropertyClient {
 
     /**
      * Initializes an instance of PropertyClient class.
-     *
+     * 
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -50,7 +49,7 @@ public final class PropertyClient {
 
     /**
      * The defaultMethod operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -68,7 +67,7 @@ public final class PropertyClient {
 
     /**
      * The defaultMethod operation.
-     *
+     * 
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -83,7 +82,7 @@ public final class PropertyClient {
 
     /**
      * The iso8601 operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -101,7 +100,7 @@ public final class PropertyClient {
 
     /**
      * The iso8601 operation.
-     *
+     * 
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -116,7 +115,7 @@ public final class PropertyClient {
 
     /**
      * The int32Seconds operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -134,7 +133,7 @@ public final class PropertyClient {
 
     /**
      * The int32Seconds operation.
-     *
+     * 
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -149,7 +148,7 @@ public final class PropertyClient {
 
     /**
      * The floatSeconds operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -167,7 +166,7 @@ public final class PropertyClient {
 
     /**
      * The floatSeconds operation.
-     *
+     * 
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -182,7 +181,7 @@ public final class PropertyClient {
 
     /**
      * The float64Seconds operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -200,7 +199,7 @@ public final class PropertyClient {
 
     /**
      * The float64Seconds operation.
-     *
+     * 
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -215,7 +214,7 @@ public final class PropertyClient {
 
     /**
      * The int32Milliseconds operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -233,7 +232,7 @@ public final class PropertyClient {
 
     /**
      * The int32Milliseconds operation.
-     *
+     * 
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -248,7 +247,7 @@ public final class PropertyClient {
 
     /**
      * The floatMilliseconds operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -266,7 +265,7 @@ public final class PropertyClient {
 
     /**
      * The floatMilliseconds operation.
-     *
+     * 
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -281,7 +280,7 @@ public final class PropertyClient {
 
     /**
      * The float64Milliseconds operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -299,7 +298,7 @@ public final class PropertyClient {
 
     /**
      * The float64Milliseconds operation.
-     *
+     * 
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -314,7 +313,7 @@ public final class PropertyClient {
 
     /**
      * The floatSecondsArray operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -332,7 +331,7 @@ public final class PropertyClient {
 
     /**
      * The floatSecondsArray operation.
-     *
+     * 
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -347,7 +346,7 @@ public final class PropertyClient {
 
     /**
      * The floatMillisecondsArray operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -366,7 +365,7 @@ public final class PropertyClient {
 
     /**
      * The floatMillisecondsArray operation.
-     *
+     * 
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

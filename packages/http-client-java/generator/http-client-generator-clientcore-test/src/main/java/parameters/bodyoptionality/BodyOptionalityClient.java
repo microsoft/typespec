@@ -16,7 +16,6 @@ import parameters.bodyoptionality.implementation.BodyOptionalityClientImpl;
  */
 @ServiceClient(builder = BodyOptionalityClientBuilder.class)
 public final class BodyOptionalityClient {
-
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final BodyOptionalityClientImpl serviceClient;
 
@@ -24,7 +23,7 @@ public final class BodyOptionalityClient {
 
     /**
      * Initializes an instance of BodyOptionalityClient class.
-     *
+     * 
      * @param serviceClient the service client implementation.
      * @param instrumentation the instrumentation instance.
      */
@@ -36,7 +35,7 @@ public final class BodyOptionalityClient {
 
     /**
      * The requiredExplicit operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -53,7 +52,7 @@ public final class BodyOptionalityClient {
 
     /**
      * The requiredExplicit operation.
-     *
+     * 
      * @param body The body parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -67,7 +66,7 @@ public final class BodyOptionalityClient {
 
     /**
      * The requiredImplicit operation.
-     *
+     * 
      * @param name The name parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -84,7 +83,7 @@ public final class BodyOptionalityClient {
 
     /**
      * The requiredImplicit operation.
-     *
+     * 
      * @param name The name parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

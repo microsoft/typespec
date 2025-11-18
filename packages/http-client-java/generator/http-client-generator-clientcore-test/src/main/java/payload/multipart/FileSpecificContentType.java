@@ -9,7 +9,6 @@ import io.clientcore.core.models.binarydata.BinaryData;
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class FileSpecificContentType {
-
     /*
      * The content of the file.
      */
@@ -30,7 +29,7 @@ public final class FileSpecificContentType {
 
     /**
      * Creates an instance of FileSpecificContentType class.
-     *
+     * 
      * @param content the content value to set.
      * @param filename the filename value to set.
      */
@@ -42,7 +41,7 @@ public final class FileSpecificContentType {
 
     /**
      * Get the content property: The content of the file.
-     *
+     * 
      * @return the content value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -52,7 +51,7 @@ public final class FileSpecificContentType {
 
     /**
      * Get the filename property: The filename of the file.
-     *
+     * 
      * @return the filename value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -62,7 +61,7 @@ public final class FileSpecificContentType {
 
     /**
      * Get the contentType property: The content-type of the file.
-     *
+     * 
      * @return the contentType value.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })

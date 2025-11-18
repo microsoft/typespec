@@ -23,7 +23,6 @@ import versioning.added.ModelV2;
  * Initializes a new instance of the AddedClient type.
  */
 public final class AddedClientImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -36,7 +35,7 @@ public final class AddedClientImpl {
 
     /**
      * Gets Need to be set as 'http://localhost:3000' in client.
-     *
+     * 
      * @return the endpoint value.
      */
     public String getEndpoint() {
@@ -50,7 +49,7 @@ public final class AddedClientImpl {
 
     /**
      * Gets Service version.
-     *
+     * 
      * @return the serviceVersion value.
      */
     public AddedServiceVersion getServiceVersion() {
@@ -64,7 +63,7 @@ public final class AddedClientImpl {
 
     /**
      * Gets The HTTP pipeline to send requests through.
-     *
+     * 
      * @return the httpPipeline value.
      */
     public HttpPipeline getHttpPipeline() {
@@ -78,7 +77,7 @@ public final class AddedClientImpl {
 
     /**
      * Gets The instance of instrumentation to report telemetry.
-     *
+     * 
      * @return the instrumentation value.
      */
     public Instrumentation getInstrumentation() {
@@ -92,7 +91,7 @@ public final class AddedClientImpl {
 
     /**
      * Gets the InterfaceV2sImpl object to access its operations.
-     *
+     * 
      * @return the InterfaceV2sImpl object.
      */
     public InterfaceV2sImpl getInterfaceV2s() {
@@ -101,7 +100,7 @@ public final class AddedClientImpl {
 
     /**
      * Initializes an instance of AddedClient client.
-     *
+     * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Need to be set as 'http://localhost:3000' in client.
@@ -122,7 +121,6 @@ public final class AddedClientImpl {
      */
     @ServiceInterface(name = "AddedClient", host = "{endpoint}/versioning/added/api-version:{version}")
     public interface AddedClientService {
-
         static AddedClientService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("versioning.added.implementation.AddedClientServiceImpl");
@@ -132,6 +130,7 @@ public final class AddedClientImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(method = HttpMethod.POST, path = "/v1", expectedStatusCodes = { 200 })
@@ -150,7 +149,7 @@ public final class AddedClientImpl {
 
     /**
      * The v1 operation.
-     *
+     * 
      * @param headerV2 The headerV2 parameter.
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -171,7 +170,7 @@ public final class AddedClientImpl {
 
     /**
      * The v2 operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

@@ -18,7 +18,6 @@ import java.lang.reflect.InvocationTargetException;
  * Initializes a new instance of the RoutesClient type.
  */
 public final class RoutesClientImpl {
-
     /**
      * The proxy service used to perform REST calls.
      */
@@ -31,7 +30,7 @@ public final class RoutesClientImpl {
 
     /**
      * Gets Service host.
-     *
+     * 
      * @return the endpoint value.
      */
     public String getEndpoint() {
@@ -45,7 +44,7 @@ public final class RoutesClientImpl {
 
     /**
      * Gets The HTTP pipeline to send requests through.
-     *
+     * 
      * @return the httpPipeline value.
      */
     public HttpPipeline getHttpPipeline() {
@@ -59,7 +58,7 @@ public final class RoutesClientImpl {
 
     /**
      * Gets The instance of instrumentation to report telemetry.
-     *
+     * 
      * @return the instrumentation value.
      */
     public Instrumentation getInstrumentation() {
@@ -73,7 +72,7 @@ public final class RoutesClientImpl {
 
     /**
      * Gets the PathParametersImpl object to access its operations.
-     *
+     * 
      * @return the PathParametersImpl object.
      */
     public PathParametersImpl getPathParameters() {
@@ -87,7 +86,7 @@ public final class RoutesClientImpl {
 
     /**
      * Gets the PathParametersReservedExpansionsImpl object to access its operations.
-     *
+     * 
      * @return the PathParametersReservedExpansionsImpl object.
      */
     public PathParametersReservedExpansionsImpl getPathParametersReservedExpansions() {
@@ -101,7 +100,7 @@ public final class RoutesClientImpl {
 
     /**
      * Gets the PathParametersSimpleExpansionStandardsImpl object to access its operations.
-     *
+     * 
      * @return the PathParametersSimpleExpansionStandardsImpl object.
      */
     public PathParametersSimpleExpansionStandardsImpl getPathParametersSimpleExpansionStandards() {
@@ -115,7 +114,7 @@ public final class RoutesClientImpl {
 
     /**
      * Gets the PathParametersSimpleExpansionExplodesImpl object to access its operations.
-     *
+     * 
      * @return the PathParametersSimpleExpansionExplodesImpl object.
      */
     public PathParametersSimpleExpansionExplodesImpl getPathParametersSimpleExpansionExplodes() {
@@ -129,7 +128,7 @@ public final class RoutesClientImpl {
 
     /**
      * Gets the PathParametersPathExpansionStandardsImpl object to access its operations.
-     *
+     * 
      * @return the PathParametersPathExpansionStandardsImpl object.
      */
     public PathParametersPathExpansionStandardsImpl getPathParametersPathExpansionStandards() {
@@ -143,7 +142,7 @@ public final class RoutesClientImpl {
 
     /**
      * Gets the PathParametersPathExpansionExplodesImpl object to access its operations.
-     *
+     * 
      * @return the PathParametersPathExpansionExplodesImpl object.
      */
     public PathParametersPathExpansionExplodesImpl getPathParametersPathExpansionExplodes() {
@@ -157,7 +156,7 @@ public final class RoutesClientImpl {
 
     /**
      * Gets the PathParametersLabelExpansionStandardsImpl object to access its operations.
-     *
+     * 
      * @return the PathParametersLabelExpansionStandardsImpl object.
      */
     public PathParametersLabelExpansionStandardsImpl getPathParametersLabelExpansionStandards() {
@@ -171,7 +170,7 @@ public final class RoutesClientImpl {
 
     /**
      * Gets the PathParametersLabelExpansionExplodesImpl object to access its operations.
-     *
+     * 
      * @return the PathParametersLabelExpansionExplodesImpl object.
      */
     public PathParametersLabelExpansionExplodesImpl getPathParametersLabelExpansionExplodes() {
@@ -185,7 +184,7 @@ public final class RoutesClientImpl {
 
     /**
      * Gets the PathParametersMatrixExpansionStandardsImpl object to access its operations.
-     *
+     * 
      * @return the PathParametersMatrixExpansionStandardsImpl object.
      */
     public PathParametersMatrixExpansionStandardsImpl getPathParametersMatrixExpansionStandards() {
@@ -199,7 +198,7 @@ public final class RoutesClientImpl {
 
     /**
      * Gets the PathParametersMatrixExpansionExplodesImpl object to access its operations.
-     *
+     * 
      * @return the PathParametersMatrixExpansionExplodesImpl object.
      */
     public PathParametersMatrixExpansionExplodesImpl getPathParametersMatrixExpansionExplodes() {
@@ -213,7 +212,7 @@ public final class RoutesClientImpl {
 
     /**
      * Gets the QueryParametersImpl object to access its operations.
-     *
+     * 
      * @return the QueryParametersImpl object.
      */
     public QueryParametersImpl getQueryParameters() {
@@ -227,7 +226,7 @@ public final class RoutesClientImpl {
 
     /**
      * Gets the QueryParametersQueryExpansionStandardsImpl object to access its operations.
-     *
+     * 
      * @return the QueryParametersQueryExpansionStandardsImpl object.
      */
     public QueryParametersQueryExpansionStandardsImpl getQueryParametersQueryExpansionStandards() {
@@ -241,7 +240,7 @@ public final class RoutesClientImpl {
 
     /**
      * Gets the QueryParametersQueryExpansionExplodesImpl object to access its operations.
-     *
+     * 
      * @return the QueryParametersQueryExpansionExplodesImpl object.
      */
     public QueryParametersQueryExpansionExplodesImpl getQueryParametersQueryExpansionExplodes() {
@@ -255,7 +254,7 @@ public final class RoutesClientImpl {
 
     /**
      * Gets the QueryParametersQueryContinuationStandardsImpl object to access its operations.
-     *
+     * 
      * @return the QueryParametersQueryContinuationStandardsImpl object.
      */
     public QueryParametersQueryContinuationStandardsImpl getQueryParametersQueryContinuationStandards() {
@@ -269,7 +268,7 @@ public final class RoutesClientImpl {
 
     /**
      * Gets the QueryParametersQueryContinuationExplodesImpl object to access its operations.
-     *
+     * 
      * @return the QueryParametersQueryContinuationExplodesImpl object.
      */
     public QueryParametersQueryContinuationExplodesImpl getQueryParametersQueryContinuationExplodes() {
@@ -283,7 +282,7 @@ public final class RoutesClientImpl {
 
     /**
      * Gets the InInterfacesImpl object to access its operations.
-     *
+     * 
      * @return the InInterfacesImpl object.
      */
     public InInterfacesImpl getInInterfaces() {
@@ -292,7 +291,7 @@ public final class RoutesClientImpl {
 
     /**
      * Initializes an instance of RoutesClient client.
-     *
+     * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
@@ -325,7 +324,6 @@ public final class RoutesClientImpl {
      */
     @ServiceInterface(name = "RoutesClient", host = "{endpoint}")
     public interface RoutesClientService {
-
         static RoutesClientService getNewInstance(HttpPipeline pipeline) {
             try {
                 Class<?> clazz = Class.forName("routes.implementation.RoutesClientServiceImpl");
@@ -335,6 +333,7 @@ public final class RoutesClientImpl {
                 | InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+
         }
 
         @HttpRequestInformation(method = HttpMethod.GET, path = "/routes/fixed", expectedStatusCodes = { 204 })
@@ -344,7 +343,7 @@ public final class RoutesClientImpl {
 
     /**
      * The fixed operation.
-     *
+     * 
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
