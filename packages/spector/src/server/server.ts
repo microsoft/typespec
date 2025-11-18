@@ -70,7 +70,7 @@ export class MockApiServer {
     this.app.use(bodyParser.text({ type: "text/plain" }));
     this.app.use(
       bodyParser.raw({
-        type: ["application/octet-stream", "image/png", "application/jsonl"],
+        type: ["application/octet-stream", "image/png", "application/jsonl", "application/cose"],
         limit: "10mb",
         verify: rawBinaryBodySaver,
       }),
