@@ -1,7 +1,7 @@
 import { deepStrictEqual, match, ok, strictEqual } from "assert";
 import { beforeEach, describe, expect, it } from "vitest";
 import { isTemplateDeclaration } from "../../src/core/type-utils.js";
-import { Model, ModelProperty, Type } from "../../src/core/types.js";
+import { Model, ModelProperty, SyntaxKind, Type } from "../../src/core/types.js";
 import {
   Numeric,
   Operation,
@@ -785,17 +785,15 @@ describe("compiler: models", () => {
     });
 
     it("keeps reference to source model in sourceModels", async () => {
-      testHost.addTypeSpecFile(
-        "main.tsp",
-        `
-        @test model A { }
-        @test model B is A { };
-        `,
-      );
-      const { A, B } = (await testHost.compile("main.tsp")) as { A: Model; B: Model };
+      const { A, B, pos } = await Tester.compile(t.code`
+        model ${t.model("A")} {}
+        model ${t.model("B")} is /*ASource*/A;
+      `);
       expect(B.sourceModels).toHaveLength(1);
       strictEqual(B.sourceModels[0].model, A);
       strictEqual(B.sourceModels[0].usage, "is");
+      strictEqual(B.sourceModels[0].node?.kind, SyntaxKind.TypeReference);
+      strictEqual(B.sourceModels[0].node.pos, pos.ASource.pos);
     });
 
     it("copies decorators", async () => {
@@ -1100,20 +1098,20 @@ describe("compiler: models", () => {
     });
 
     it("keeps reference to source model in sourceModels", async () => {
-      testHost.addTypeSpecFile(
-        "main.tsp",
-        `
-        @test model A { one: string }
-        @test model B { two: string }
-        @test model C {...A, ...B}
-        `,
-      );
-      const { A, B, C } = (await testHost.compile("main.tsp")) as { A: Model; B: Model; C: Model };
+      const { A, B, C, pos } = await Tester.compile(t.code`
+        model ${t.model("A")} { one: string }
+        model ${t.model("B")} { two: string }
+        model ${t.model("C")} {.../*ASpread*/A, .../*BSpread*/B}
+        `);
       expect(C.sourceModels).toHaveLength(2);
       strictEqual(C.sourceModels[0].model, A);
       strictEqual(C.sourceModels[0].usage, "spread");
+      strictEqual(C.sourceModels[0].node?.kind, SyntaxKind.TypeReference);
+      strictEqual(C.sourceModels[0].node.pos, pos.ASpread.pos);
       strictEqual(C.sourceModels[1].model, B);
       strictEqual(C.sourceModels[1].usage, "spread");
+      strictEqual(C.sourceModels[1].node?.kind, SyntaxKind.TypeReference);
+      strictEqual(C.sourceModels[1].node.pos, pos.BSpread.pos);
     });
 
     it("can spread a Record<T>", async () => {
