@@ -562,17 +562,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // For dual constructor pattern, the public constructor should not have discriminator parameters
                 // and should call the private protected constructor
                 var (publicParams, publicInitializer) = BuildPublicInstantiationParameters();
-                var dualPublicConstructor = CreateConstructor(
-                    MethodSignatureModifiers.Public,
-                    publicParams,
-                    publicInitializer);
+                var dualPublicConstructor = CreateConstructor(MethodSignatureModifiers.Public, publicParams, publicInitializer);
 
                 // Build private protected constructor (with discriminator parameter)
                 var (protectedParams, protectedInitializer) = BuildPrivateProtectedInheritanceParameters();
-                var protectedConstructor = CreateConstructor(
-                    MethodSignatureModifiers.Private | MethodSignatureModifiers.Protected,
-                    protectedParams,
-                    protectedInitializer);
+                var protectedConstructor = CreateConstructor(MethodSignatureModifiers.Private | MethodSignatureModifiers.Protected, protectedParams,protectedInitializer);
 
                 constructors[0] = dualPublicConstructor;
                 constructors.Add(protectedConstructor);
@@ -695,11 +689,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private ConstructorProvider BuildFullConstructor()
         {
             var (ctorParameters, ctorInitializer) = BuildConstructorParameters(false);
-            return CreateConstructor(
-                MethodSignatureModifiers.Internal,
-                ctorParameters,
-                ctorInitializer,
-                isPrimaryConstructor: false);
+            return CreateConstructor(MethodSignatureModifiers.Internal, ctorParameters, ctorInitializer, isPrimaryConstructor: false);
         }
 
         private IEnumerable<PropertyProvider> GetAllBasePropertiesForConstructorInitialization()
