@@ -142,7 +142,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return property!.Type;
         }
 
-        protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
+        protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "CollectionResults", $"{Name}.cs");
 
         protected override string BuildNamespace() => Client.Type.Namespace;
 

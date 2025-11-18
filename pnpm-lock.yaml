@@ -412,21 +412,21 @@ importers:
   packages/emitter-framework:
     dependencies:
       '@alloy-js/csharp':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: ^0.21.0
+        version: 0.21.0
     devDependencies:
       '@alloy-js/cli':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: ^0.21.0
+        version: 0.21.0
       '@alloy-js/core':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: ^0.21.0
+        version: 0.21.0
       '@alloy-js/rollup-plugin':
         specifier: ^0.1.0
         version: 0.1.0(@babel/core@7.28.5)(@types/babel__core@7.20.5)(rollup@4.49.0)
       '@alloy-js/typescript':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: ^0.21.0
+        version: 0.21.0
       '@typespec/compiler':
         specifier: workspace:^
         version: link:../compiler
@@ -680,17 +680,17 @@ importers:
   packages/http-client:
     devDependencies:
       '@alloy-js/cli':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: ^0.21.0
+        version: 0.21.0
       '@alloy-js/core':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: ^0.21.0
+        version: 0.21.0
       '@alloy-js/rollup-plugin':
         specifier: ^0.1.0
         version: 0.1.0(@babel/core@7.28.5)(@types/babel__core@7.20.5)(rollup@4.49.0)
       '@alloy-js/typescript':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: ^0.21.0
+        version: 0.21.0
       '@types/node':
         specifier: ~24.9.1
         version: 24.9.1
@@ -725,11 +725,11 @@ importers:
   packages/http-client-js:
     dependencies:
       '@alloy-js/core':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: ^0.21.0
+        version: 0.21.0
       '@alloy-js/typescript':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: ^0.21.0
+        version: 0.21.0
       '@typespec/compiler':
         specifier: workspace:^
         version: link:../compiler
@@ -747,8 +747,8 @@ importers:
         version: 3.6.2
     devDependencies:
       '@alloy-js/cli':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: ^0.21.0
+        version: 0.21.0
       '@alloy-js/rollup-plugin':
         specifier: ^0.1.0
         version: 0.1.0(@babel/core@7.28.5)(@types/babel__core@7.20.5)(rollup@4.49.0)
@@ -1308,6 +1308,9 @@ importers:
       '@typespec/compiler':
         specifier: workspace:^
         version: link:../compiler
+      '@typespec/events':
+        specifier: workspace:^
+        version: link:../events
       '@typespec/http':
         specifier: workspace:^
         version: link:../http
@@ -1323,6 +1326,12 @@ importers:
       '@typespec/rest':
         specifier: workspace:^
         version: link:../rest
+      '@typespec/sse':
+        specifier: workspace:^
+        version: link:../sse
+      '@typespec/streams':
+        specifier: workspace:^
+        version: link:../streams
       '@typespec/tspd':
         specifier: workspace:^
         version: link:../tspd
@@ -2001,9 +2010,6 @@ importers:
       '@azure/identity':
         specifier: ~4.13.0
         version: 4.13.0
-      '@types/js-yaml':
-        specifier: ^4.0.5
-        version: 4.0.9
       '@typespec/compiler':
         specifier: workspace:^
         version: link:../compiler
@@ -2037,9 +2043,6 @@ importers:
       globby:
         specifier: ~15.0.0
         version: 15.0.0
-      js-yaml:
-        specifier: ^4.1.0
-        version: 4.1.0
       micromatch:
         specifier: ^4.0.8
         version: 4.0.8
@@ -2058,6 +2061,9 @@ importers:
       xml2js:
         specifier: ^0.6.2
         version: 0.6.2
+      yaml:
+        specifier: ~2.8.0
+        version: 2.8.1
       yargs:
         specifier: ~18.0.0
         version: 18.0.0
@@ -2254,14 +2260,14 @@ importers:
   packages/tspd:
     dependencies:
       '@alloy-js/core':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: ^0.21.0
+        version: 0.21.0
       '@alloy-js/markdown':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: ^0.21.0
+        version: 0.21.0
       '@alloy-js/typescript':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: ^0.21.0
+        version: 0.21.0
       '@microsoft/api-extractor':
         specifier: ^7.52.1
         version: 7.53.3(@types/node@24.9.1)
@@ -2297,8 +2303,8 @@ importers:
         version: 18.0.0
     devDependencies:
       '@alloy-js/cli':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: ^0.21.0
+        version: 0.21.0
       '@alloy-js/rollup-plugin':
         specifier: ^0.1.0
         version: 0.1.0(@babel/core@7.28.5)(@types/babel__core@7.20.5)(rollup@4.49.0)
@@ -2706,26 +2712,29 @@ packages:
   '@alloy-js/babel-preset@0.2.1':
     resolution: {integrity: sha512-vz9kvQwx5qBzHIw4ryqUaQqpgNOMBmkdDcV3e2zZfMq8Pp16ePFtvviHh6RwyLcvXQQClex3ZZy8ON9TifMnxw==}
 
-  '@alloy-js/cli@0.20.0':
-    resolution: {integrity: sha512-iDiJAs2yjP5G8lMmry+4usM33tL9G1u8IKp+beh0jx5RqfLsZsXOu78S4ZIZLqskAMkCLuRJogsh8fPREg2CzQ==}
+  '@alloy-js/cli@0.21.0':
+    resolution: {integrity: sha512-k1Rf6kbYPdMKYJ1pFmhbk0NpW7p/aL/HbmxpJxmF/tbXAhZmNO62f9JM4qF64jNnq9byq31PMBSOIAIZFLqa1A==}
     engines: {node: '>=18.0.0'}
     hasBin: true
 
-  '@alloy-js/core@0.20.0':
-    resolution: {integrity: sha512-ylPf+ayI9MsqUPrNVzND3Oh9rVrfOOcMkyVwtXXaxaobWPkcRq2I4rX09FkG0i/9DoaLE6ZCvUfdgJsM29MYBA==}
+  '@alloy-js/core@0.21.0':
+    resolution: {integrity: sha512-eIBllm+Lgk/AcV6QdipZAVlYPIp6RHmgz046GXBQeXZnTZXmPHURVFI18/FVuaK7K+uUt0eriPXIYXs4/Ja5rQ==}
 
-  '@alloy-js/csharp@0.20.0':
-    resolution: {integrity: sha512-Yn8oua43tVWYGN9Gt5DDtGUdLIB9io6/nL8dK4qDvL019w9uK7f3wosr+/JtSm14PuToN4jM1s7HNVzqh41KUA==}
+  '@alloy-js/csharp@0.21.0':
+    resolution: {integrity: sha512-Tw3AQaHjwRTZB6L6QPoXFJOmjDQyyGb2gwwAKGnea7q/J6BmwNkBHvCSuVe21Nkhgb4/upivWFyP8zbtdVAE5A==}
 
-  '@alloy-js/markdown@0.20.0':
-    resolution: {integrity: sha512-c1Q4dzUvWC4Bdoi6dRT9yAYVoCiqz3ZMClV8CHzEsgZYjjdS0S2ZWWmgxzS87rSDHSjmQIXJ4BcUZfKyfnMrFA==}
+  '@alloy-js/markdown@0.21.0':
+    resolution: {integrity: sha512-Er2aqWdolajWUrHxeqZoiK/Grdet2zaEr8ZtIbvv/M0sMz975p0ltijZNF3OnMde0wFlk1Jg14hkiitI9wFVgQ==}
+
+  '@alloy-js/msbuild@0.21.0':
+    resolution: {integrity: sha512-QmMwF7eoYMdR5mX+8cIKb5F3Mgi3uQlFYrGYq92ht6BOc/XKyBXIwCXq6zqPMAT7nd2BHDD2hvgbL6nLS4QcGg==}
 
   '@alloy-js/rollup-plugin@0.1.0':
     resolution: {integrity: sha512-MXR8mBdSh/pxMP8kIXAcMYKsm5yOWZ+igxcaRX1vBXFiHU4eK7gE/5q6Fk8Vdydh+MItWtgekwIhUWvcszdNFQ==}
     engines: {node: '>=18.0.0'}
 
-  '@alloy-js/typescript@0.20.0':
-    resolution: {integrity: sha512-F1y5QjneE8GVxIq6oYsebu+Fccrn72qFHelNX5GSLfs4Ps2fxpk2+70rsGznZyHe9LIt70StaAciTjH6cxH4bQ==}
+  '@alloy-js/typescript@0.21.0':
+    resolution: {integrity: sha512-SsxdYkXhrP8jjO2gENav9bHPHaonNrreW469RaOot3cRqhsHPA1RmBrzNPJov37YknzTg4Wlk0JsEFT4Qibgfg==}
 
   '@antfu/install-pkg@1.1.0':
     resolution: {integrity: sha512-MGQsmw10ZyI+EJo45CdSER4zEb+p31LpDAFp2Z3gkSd1yqVZGi0Ebx++YTEMonJy4oChEMLsxZ64j8FH6sSqtQ==}
@@ -13475,7 +13484,7 @@ snapshots:
       - '@babel/core'
       - supports-color
 
-  '@alloy-js/cli@0.20.0':
+  '@alloy-js/cli@0.21.0':
     dependencies:
       '@alloy-js/babel-preset': 0.2.1(@babel/core@7.28.5)
       '@babel/core': 7.28.5
@@ -13485,7 +13494,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@alloy-js/core@0.20.0':
+  '@alloy-js/core@0.21.0':
     dependencies:
       '@vue/reactivity': 3.5.22
       cli-table3: 0.6.5
@@ -13493,17 +13502,25 @@ snapshots:
       picocolors: 1.1.1
       prettier: 3.6.2
 
-  '@alloy-js/csharp@0.20.0':
+  '@alloy-js/csharp@0.21.0':
     dependencies:
-      '@alloy-js/core': 0.20.0
+      '@alloy-js/core': 0.21.0
+      '@alloy-js/msbuild': 0.21.0
       change-case: 5.4.4
       marked: 16.4.1
       pathe: 2.0.3
 
-  '@alloy-js/markdown@0.20.0':
+  '@alloy-js/markdown@0.21.0':
     dependencies:
-      '@alloy-js/core': 0.20.0
+      '@alloy-js/core': 0.21.0
       yaml: 2.8.1
+
+  '@alloy-js/msbuild@0.21.0':
+    dependencies:
+      '@alloy-js/core': 0.21.0
+      change-case: 5.4.4
+      marked: 16.4.1
+      pathe: 2.0.3
 
   '@alloy-js/rollup-plugin@0.1.0(@babel/core@7.28.5)(@types/babel__core@7.20.5)(rollup@4.49.0)':
     dependencies:
@@ -13516,9 +13533,9 @@ snapshots:
       - rollup
       - supports-color
 
-  '@alloy-js/typescript@0.20.0':
+  '@alloy-js/typescript@0.21.0':
     dependencies:
-      '@alloy-js/core': 0.20.0
+      '@alloy-js/core': 0.21.0
       change-case: 5.4.4
       pathe: 2.0.3
 

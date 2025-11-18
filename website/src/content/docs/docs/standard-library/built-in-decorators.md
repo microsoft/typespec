@@ -609,17 +609,17 @@ scalar Username extends string;
 
 Specify the maximum value this numeric type should be.
 ```typespec
-@maxValue(value: valueof numeric)
+@maxValue(value: valueof numeric | utcDateTime | offsetDateTime | plainDate | plainTime | duration)
 ```
 
 #### Target
 
-`numeric | ModelProperty`
+`numeric | utcDateTime | offsetDateTime | plainDate | plainTime | duration | ModelProperty`
 
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | [valueof `numeric`](#numeric) | Maximum value |
+| value | `valueof numeric \| utcDateTime \| offsetDateTime \| plainDate \| plainTime \| duration` | Maximum value |
 
 #### Examples
 
@@ -634,17 +634,17 @@ scalar Age is int32;
 Specify the maximum value this numeric type should be, exclusive of the given
 value.
 ```typespec
-@maxValueExclusive(value: valueof numeric)
+@maxValueExclusive(value: valueof numeric | utcDateTime | offsetDateTime | plainDate | plainTime | duration)
 ```
 
 #### Target
 
-`numeric | ModelProperty`
+`numeric | utcDateTime | offsetDateTime | plainDate | plainTime | duration | ModelProperty`
 
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | [valueof `numeric`](#numeric) | Maximum value |
+| value | `valueof numeric \| utcDateTime \| offsetDateTime \| plainDate \| plainTime \| duration` | Maximum value |
 
 #### Examples
 
@@ -746,17 +746,17 @@ scalar Username extends string;
 
 Specify the minimum value this numeric type should be.
 ```typespec
-@minValue(value: valueof numeric)
+@minValue(value: valueof numeric | utcDateTime | offsetDateTime | plainDate | plainTime | duration)
 ```
 
 #### Target
 
-`numeric | ModelProperty`
+`numeric | utcDateTime | offsetDateTime | plainDate | plainTime | duration | ModelProperty`
 
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | [valueof `numeric`](#numeric) | Minimum value |
+| value | `valueof numeric \| utcDateTime \| offsetDateTime \| plainDate \| plainTime \| duration` | Minimum value |
 
 #### Examples
 
@@ -771,17 +771,17 @@ scalar Age is int32;
 Specify the minimum value this numeric type should be, exclusive of the given
 value.
 ```typespec
-@minValueExclusive(value: valueof numeric)
+@minValueExclusive(value: valueof numeric | utcDateTime | offsetDateTime | plainDate | plainTime | duration)
 ```
 
 #### Target
 
-`numeric | ModelProperty`
+`numeric | utcDateTime | offsetDateTime | plainDate | plainTime | duration | ModelProperty`
 
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | [valueof `numeric`](#numeric) | Minimum value |
+| value | `valueof numeric \| utcDateTime \| offsetDateTime \| plainDate \| plainTime \| duration` | Minimum value |
 
 #### Examples
 

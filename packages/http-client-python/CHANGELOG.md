@@ -1,5 +1,16 @@
 # Change Log - @typespec/http-client-python
 
+## 0.20.3
+
+### Bump dependencies
+
+- [#8992](https://github.com/microsoft/typespec/pull/8992) Bump typespec dependency
+
+### Bug Fixes
+
+- [#8948](https://github.com/microsoft/typespec/pull/8948) Fix subscriptionId missing for override
+
+
 ## 0.20.2
 
 ### Bug Fixes

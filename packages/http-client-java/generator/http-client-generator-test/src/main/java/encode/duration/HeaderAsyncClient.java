@@ -107,6 +107,23 @@ public final class HeaderAsyncClient {
     }
 
     /**
+     * The int32SecondsLargerUnit operation.
+     * 
+     * @param duration The duration parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> int32SecondsLargerUnitWithResponse(Duration duration, RequestOptions requestOptions) {
+        return this.serviceClient.int32SecondsLargerUnitWithResponseAsync(duration, requestOptions);
+    }
+
+    /**
      * The floatSeconds operation.
      * 
      * @param duration The duration parameter.
@@ -121,6 +138,23 @@ public final class HeaderAsyncClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> floatSecondsWithResponse(Duration duration, RequestOptions requestOptions) {
         return this.serviceClient.floatSecondsWithResponseAsync(duration, requestOptions);
+    }
+
+    /**
+     * The floatSecondsLargerUnit operation.
+     * 
+     * @param duration The duration parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> floatSecondsLargerUnitWithResponse(Duration duration, RequestOptions requestOptions) {
+        return this.serviceClient.floatSecondsLargerUnitWithResponseAsync(duration, requestOptions);
     }
 
     /**
@@ -158,6 +192,23 @@ public final class HeaderAsyncClient {
     }
 
     /**
+     * The int32MillisecondsLargerUnit operation.
+     * 
+     * @param duration The duration parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> int32MillisecondsLargerUnitWithResponse(int duration, RequestOptions requestOptions) {
+        return this.serviceClient.int32MillisecondsLargerUnitWithResponseAsync(duration, requestOptions);
+    }
+
+    /**
      * The floatMilliseconds operation.
      * 
      * @param duration The duration parameter.
@@ -172,6 +223,24 @@ public final class HeaderAsyncClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> floatMillisecondsWithResponse(double duration, RequestOptions requestOptions) {
         return this.serviceClient.floatMillisecondsWithResponseAsync(duration, requestOptions);
+    }
+
+    /**
+     * The floatMillisecondsLargerUnit operation.
+     * 
+     * @param duration The duration parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> floatMillisecondsLargerUnitWithResponse(double duration,
+        RequestOptions requestOptions) {
+        return this.serviceClient.floatMillisecondsLargerUnitWithResponseAsync(duration, requestOptions);
     }
 
     /**
@@ -290,6 +359,26 @@ public final class HeaderAsyncClient {
     }
 
     /**
+     * The int32SecondsLargerUnit operation.
+     * 
+     * @param duration The duration parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return A {@link Mono} that completes when a successful response is received.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> int32SecondsLargerUnit(Duration duration) {
+        // Generated convenience method for int32SecondsLargerUnitWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return int32SecondsLargerUnitWithResponse(duration, requestOptions).flatMap(FluxUtil::toMono);
+    }
+
+    /**
      * The floatSeconds operation.
      * 
      * @param duration The duration parameter.
@@ -307,6 +396,26 @@ public final class HeaderAsyncClient {
         // Generated convenience method for floatSecondsWithResponse
         RequestOptions requestOptions = new RequestOptions();
         return floatSecondsWithResponse(duration, requestOptions).flatMap(FluxUtil::toMono);
+    }
+
+    /**
+     * The floatSecondsLargerUnit operation.
+     * 
+     * @param duration The duration parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return A {@link Mono} that completes when a successful response is received.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> floatSecondsLargerUnit(Duration duration) {
+        // Generated convenience method for floatSecondsLargerUnitWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return floatSecondsLargerUnitWithResponse(duration, requestOptions).flatMap(FluxUtil::toMono);
     }
 
     /**
@@ -350,6 +459,26 @@ public final class HeaderAsyncClient {
     }
 
     /**
+     * The int32MillisecondsLargerUnit operation.
+     * 
+     * @param duration The duration parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return A {@link Mono} that completes when a successful response is received.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> int32MillisecondsLargerUnit(int duration) {
+        // Generated convenience method for int32MillisecondsLargerUnitWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return int32MillisecondsLargerUnitWithResponse(duration, requestOptions).flatMap(FluxUtil::toMono);
+    }
+
+    /**
      * The floatMilliseconds operation.
      * 
      * @param duration The duration parameter.
@@ -367,6 +496,26 @@ public final class HeaderAsyncClient {
         // Generated convenience method for floatMillisecondsWithResponse
         RequestOptions requestOptions = new RequestOptions();
         return floatMillisecondsWithResponse(duration, requestOptions).flatMap(FluxUtil::toMono);
+    }
+
+    /**
+     * The floatMillisecondsLargerUnit operation.
+     * 
+     * @param duration The duration parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return A {@link Mono} that completes when a successful response is received.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> floatMillisecondsLargerUnit(double duration) {
+        // Generated convenience method for floatMillisecondsLargerUnitWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return floatMillisecondsLargerUnitWithResponse(duration, requestOptions).flatMap(FluxUtil::toMono);
     }
 
     /**

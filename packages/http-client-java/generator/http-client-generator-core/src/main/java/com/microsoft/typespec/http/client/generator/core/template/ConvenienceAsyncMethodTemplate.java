@@ -15,6 +15,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Conve
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import java.util.List;
@@ -148,37 +149,35 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
 
     private String expressionMapFromBinaryData(IType responseBodyType, IType rawType, Set<String> mediaTypes,
         Set<GenericType> typeReferenceStaticClasses) {
-        String mapExpression = null;
         SupportedMimeType mimeType = SupportedMimeType.getResponseKnownMimeType(mediaTypes);
         // TODO (weidxu): support XML etc.
         switch (mimeType) {
             case TEXT:
-                mapExpression = "protocolMethodData -> protocolMethodData.toString()";
-                break;
+                String baseHandling = "protocolMethodData.toString()";
+                if (!rawType.isNullable()) {
+                    // Dealing with a primitive type that needs to be converted.
+                    return "protocolMethodData -> " + wrapPrimitiveMimeTypeText(baseHandling, (PrimitiveType) rawType);
+                } else {
+                    return "protocolMethodData -> " + baseHandling;
+                }
 
             case BINARY:
-                mapExpression = null;
-                break;
+                return null;
 
             default:
                 // JSON etc.
                 if (responseBodyType instanceof EnumType) {
                     // enum
-                    mapExpression
-                        = String.format("protocolMethodData -> %1$s.from%2$s(protocolMethodData.toObject(%2$s.class))",
-                            responseBodyType, ((EnumType) responseBodyType).getElementType());
+                    return String.format("protocolMethodData -> %1$s.from%2$s(protocolMethodData.toObject(%2$s.class))",
+                        responseBodyType, ((EnumType) responseBodyType).getElementType());
                 } else if (responseBodyType instanceof GenericType) {
                     // generic, e.g. list, map
                     typeReferenceStaticClasses.add((GenericType) responseBodyType);
-                    mapExpression = String.format("protocolMethodData -> protocolMethodData.toObject(%1$s)",
+                    return String.format("protocolMethodData -> protocolMethodData.toObject(%1$s)",
                         TemplateUtil.getTypeReferenceCreation(responseBodyType));
                 } else if (responseBodyType == ClassType.BINARY_DATA) {
                     // BinaryData, no need to do the map in expressionConvertFromBinaryData
-                    mapExpression = null;
-                } else if (isModelOrBuiltin(responseBodyType)) {
-                    // class
-                    mapExpression = String.format("protocolMethodData -> protocolMethodData.toObject(%1$s.class)",
-                        responseBodyType.asNullable());
+                    return null;
                 } else if (responseBodyType == ArrayType.BYTE_ARRAY) {
                     // byte[]
                     if (rawType == ClassType.BASE_64_URL) {
@@ -187,9 +186,11 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
                     } else {
                         return "protocolMethodData -> protocolMethodData.toObject(byte[].class)";
                     }
+                } else {
+                    // default, treat as class
+                    return "protocolMethodData -> protocolMethodData.toObject(" + responseBodyType.asNullable()
+                        + ".class)";
                 }
-                break;
         }
-        return mapExpression;
     }
 }

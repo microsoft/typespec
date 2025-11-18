@@ -54,5 +54,81 @@ namespace Microsoft.TypeSpec.Generator.Input
             get => _key ?? Name;
             init => _key = value;
         }
+
+        /// <summary>
+        /// Updates the properties of the input client.
+        /// </summary>
+        /// <param name="name">The new name for the client.</param>
+        /// <param name="namespace">The new namespace for the client.</param>
+        /// <param name="crossLanguageDefinitionId">The new cross-language definition ID for the client.</param>
+        /// <param name="summary">The new summary for the client.</param>
+        /// <param name="doc">The new documentation for the client.</param>
+        /// <param name="methods">The new methods for the client.</param>
+        /// <param name="parameters">The new parameters for the client.</param>
+        /// <param name="parent">The new parent client.</param>
+        /// <param name="children">The new children clients.</param>
+        /// <param name="apiVersions">The new API versions for the client.</param>
+        public void Update(
+            string? name = null,
+            string? @namespace = null,
+            string? crossLanguageDefinitionId = null,
+            string? summary = null,
+            string? doc = null,
+            IEnumerable<InputServiceMethod>? methods = null,
+            IEnumerable<InputParameter>? parameters = null,
+            InputClient? parent = null,
+            IEnumerable<InputClient>? children = null,
+            IEnumerable<string>? apiVersions = null)
+        {
+            if (name != null)
+            {
+                Name = name;
+            }
+
+            if (@namespace != null)
+            {
+                Namespace = @namespace;
+            }
+
+            if (crossLanguageDefinitionId != null)
+            {
+                CrossLanguageDefinitionId = crossLanguageDefinitionId;
+            }
+
+            if (summary != null)
+            {
+                Summary = summary;
+            }
+
+            if (doc != null)
+            {
+                Doc = doc;
+            }
+
+            if (methods != null)
+            {
+                Methods = [.. methods];
+            }
+
+            if (parameters != null)
+            {
+                Parameters = [.. parameters];
+            }
+
+            if (parent != null)
+            {
+                Parent = parent;
+            }
+
+            if (children != null)
+            {
+                Children = [.. children];
+            }
+
+            if (apiVersions != null)
+            {
+                ApiVersions = [.. apiVersions];
+            }
+        }
     }
 }
