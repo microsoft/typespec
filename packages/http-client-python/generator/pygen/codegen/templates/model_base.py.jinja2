@@ -989,6 +989,9 @@ def _failsafe_deserialize_xml(
       return None
 
 
+{% if code_model.has_padded_model_property %}
+# pylint: disable=too-many-instance-attributes
+{% endif %}
 class _RestField:
     def __init__(
         self,
