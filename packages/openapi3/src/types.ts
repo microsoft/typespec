@@ -1,9 +1,11 @@
 import { Diagnostic, Service } from "@typespec/compiler";
 import { Contact, ExtensionKey, License } from "@typespec/openapi";
 
-export type CommonOpenAPI3Schema = OpenAPI3Schema & OpenAPISchema3_1;
+export type CommonOpenAPI3Schema = OpenAPI3Schema & OpenAPISchema3_1 & OpenAPISchema3_2;
 
-export type SupportedOpenAPIDocuments = OpenAPI3Document | OpenAPIDocument3_1;
+export type SupportedOpenAPISchema = OpenAPI3Schema | OpenAPISchema3_1 | OpenAPISchema3_2;
+
+export type SupportedOpenAPIDocuments = OpenAPI3Document | OpenAPIDocument3_1 | OpenAPIDocument3_2;
 
 export type Extensions = {
   [key in ExtensionKey]?: any;
@@ -128,15 +130,27 @@ export interface OpenAPI3Tag extends Extensions {
   externalDocs?: OpenAPI3ExternalDocs;
 }
 
-export type HttpMethod = "get" | "put" | "post" | "delete" | "options" | "head" | "patch" | "trace";
+export type OpenAPI3HttpMethod =
+  | "get"
+  | "put"
+  | "post"
+  | "delete"
+  | "options"
+  | "head"
+  | "patch"
+  | "trace";
+
+export type OpenAPIHttpMethod3_2 = OpenAPI3HttpMethod | "query";
+
+export type HttpMethod = OpenAPI3HttpMethod | OpenAPIHttpMethod3_2;
 
 /**
  * Describes the operations available on a single path. A Path Item may be empty, due to ACL constraints. The path itself is still exposed to the documentation viewer but they will not know which operations and parameters are available.
  *
- * @see https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#pathItemObject
+ * @see https://spec.openapis.org/oas/v3.0.4.html#fixed-fields-6
  */
 export type OpenAPI3PathItem = {
-  [method in HttpMethod]?: OpenAPI3Operation;
+  [method in OpenAPI3HttpMethod]?: OpenAPI3Operation;
 } & { parameters?: OpenAPI3Parameter[] } & Extensions;
 
 export interface OpenAPI3Components extends Extensions {
@@ -173,7 +187,7 @@ export type OpenAPI3Response = Extensions & {
 /**
  * Each Media Type Object provides schema and examples for the media type identified by its key.
  *
- * @see https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#mediaTypeObject
+ * @see https://spec.openapis.org/oas/v3.0.4.html#media-type-object
  */
 export type OpenAPI3MediaType = Extensions & {
   /** The schema defining the content of the request, response, or parameter. */
@@ -192,7 +206,7 @@ export type OpenAPI3MediaType = Extensions & {
 /**
  * A single encoding definition applied to a single schema property.
  *
- * see https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#encodingObject
+ * @see https://spec.openapis.org/oas/v3.0.4.html#encoding-object
  */
 export type OpenAPI3Encoding = Extensions & {
   /** the Content-Type for encoding a specific property. Default value depends on the property type: for string with format being binary – application/octet-stream; for other primitive types – text/plain; for object - application/json; for array – the default is defined based on the inner type. The value can be a specific media type (e.g. application/json), a wildcard media type (e.g. image/*), or a comma-separated list of the two types. */
@@ -214,7 +228,7 @@ export type OpenAPI3Encoding = Extensions & {
 /**
  * Describes a single request body.
  *
- * @see https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#request-body-object
+ * @see https://spec.openapis.org/oas/v3.0.4.html#request-body-object
  */
 export type OpenAPI3RequestBody = Extensions & {
   /** A brief description of the request body. This could contain examples of use. CommonMark syntax MAY be used for rich text representation. */
@@ -236,7 +250,7 @@ export type OpenAPI3SecurityScheme =
 /**
  * defines a security scheme that can be used by the operations. Supported schemes are HTTP authentication, an API key (either as a header, a cookie parameter or as a query parameter), OAuth2's common flows (implicit, password, application and access code) as defined in RFC6749, and OpenID Connect Discovery.
  *
- * @see https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#security-scheme-object
+ * @see https://spec.openapis.org/oas/v3.0.4.html#security-scheme-object
  */
 export interface OpenAPI3SecuritySchemeBase extends Extensions {
   /** A short description for security scheme. CommonMark syntax MAY be used for rich text representation. */
@@ -285,7 +299,7 @@ export interface OpenAPI3OAuth2SecurityScheme extends OpenAPI3SecuritySchemeBase
 /**
  * Allows configuration of the supported OAuth Flows.
  *
- * @see https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#oauthFlowsObject
+ * @see https://spec.openapis.org/oas/v3.0.4.html#oauth-flows-object
  */
 export interface OpenAPI3OAuthFlows extends Extensions {
   /** Configuration for the OAuth Implicit flow */
@@ -359,7 +373,7 @@ export type OpenAPI3Link =
 /**
  *  Allows sharing examples for operation responses.
  *
- * @see https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#exampleObject
+ * @see https://spec.openapis.org/oas/v2.0.html#example-object
  */
 export interface OpenAPI3Example {
   summary?: string;
@@ -373,12 +387,15 @@ export interface OpenAPI3Discriminator extends Extensions {
   mapping?: Record<string, string>;
 }
 
-export type JsonType = "array" | "boolean" | "integer" | "number" | "object" | "string";
+export interface OpenAPIDiscriminator3_2 extends OpenAPI3Discriminator {
+  /**
+   * The default mapping value to be used when no other mapping matches.
+   * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-21
+   */
+  defaultMapping?: string;
+}
 
-/**
- * Autorest allows a few properties to be next to $ref of a property.
- */
-export type OpenAPI3SchemaProperty = Ref<OpenAPI3Schema> | OpenAPI3Schema;
+export type JsonType = "array" | "boolean" | "integer" | "number" | "object" | "string";
 
 export type OpenAPI3XmlSchema = Extensions & {
   name?: string;
@@ -575,7 +592,7 @@ export type OpenAPI3Schema = Extensions & {
    * order of the instance properties MAY be in any order.
    *
    */
-  properties?: Record<string, OpenAPI3SchemaProperty>;
+  properties?: Record<string, Refable<OpenAPI3Schema>>;
 
   /** indicates that additional unlisted properties can exist in this schema */
   additionalProperties?: boolean | Refable<OpenAPI3Schema>;
@@ -625,12 +642,14 @@ export type OpenAPI3ParameterBase = Extensions & {
   /** When this is true, parameter values of type array or object generate separate parameters for each value of the array or key-value pair of the map. For other types of parameters this property has no effect. When style is form, the default value is true. For all other styles, the default value is false.  */
   explode?: boolean;
 
-  schema: OpenAPI3Schema;
+  schema?: Refable<OpenAPI3Schema>;
 
   /** A free-form property to include an example of an instance for this schema. To represent examples that cannot be naturally represented in JSON or YAML, a string value can be used to contain the example with escaping where necessary. */
   example?: any;
 
   examples?: Record<string, Refable<OpenAPI3Example>>;
+  /** A map containing the representations for the parameter. The key is the media type and the value describes it. The map MUST only contain one entry. */
+  content?: Record<string, OpenAPI3MediaType>;
 };
 
 export type OpenAPI3QueryParameter = OpenAPI3ParameterBase & {
@@ -641,7 +660,7 @@ export type OpenAPI3QueryParameter = OpenAPI3ParameterBase & {
    * Describes how the parameter value will be serialized depending on the type of the parameter value.
    *
    * Default value for query parameters is form.
-   * @see https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.2.md#style-values
+   * @see https://spec.openapis.org/oas/v3.0.4.html#style-values
    */
   style?: "form" | "spaceDelimited" | "pipeDelimited" | "deepObject";
 };
@@ -653,7 +672,7 @@ export type OpenAPI3PathParameter = OpenAPI3ParameterBase & {
    * Describes how the parameter value will be serialized depending on the type of the parameter value.
    *
    * Default value for path parameters is simple.
-   * @see https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.2.md#style-values
+   * @see https://spec.openapis.org/oas/v3.0.4.html#style-values
    */
   style?: "simple" | "label" | "matrix";
 };
@@ -665,14 +684,27 @@ export type OpenAPI3HeaderParameter = OpenAPI3ParameterBase & {
    * Describes how the parameter value will be serialized depending on the type of the parameter value.
    *
    * Default value for header parameters is simple.
-   * @see https://github.com/OAI/OpenAPI-Specification/blob/3.0.3/versions/3.0.2.md#style-values
+   * @see https://spec.openapis.org/oas/v3.0.4.html#style-values
    */
   style?: "simple";
+};
+export type OpenAPI3CookieParameter = OpenAPI3ParameterBase & {
+  /** Name of the parameter. */
+  name: string;
+  in: "cookie";
+  /**
+   * Describes how the parameter value will be serialized depending on the type of the parameter value.
+   *
+   * Default value for header parameters is simple.
+   * @see https://spec.openapis.org/oas/v3.0.4.html#style-values
+   */
+  style?: "form";
 };
 export type OpenAPI3Parameter =
   | OpenAPI3HeaderParameter
   | OpenAPI3QueryParameter
-  | OpenAPI3PathParameter;
+  | OpenAPI3PathParameter
+  | OpenAPI3CookieParameter;
 export type OpenAPI3ParameterType = OpenAPI3Parameter["in"];
 
 /**
@@ -682,7 +714,7 @@ export type OpenAPI3ParameterType = OpenAPI3Parameter["in"];
  * in MUST NOT be specified, it is implicitly in header.
  * All traits that are affected by the location MUST be applicable to a location of header (for example, style).
  *
- * @see https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#header-object
+ * @see https://spec.openapis.org/oas/v3.0.4.html#header-object
  */
 export type OpenAPI3Header = OpenAPI3ParameterBase & {
   /** Describes how the parameter value will be serialized depending on the type of the parameter value
@@ -695,7 +727,7 @@ export type OpenAPI3Header = OpenAPI3ParameterBase & {
 export type OpenAPI3Operation = Extensions & {
   description?: string;
   summary?: string;
-  responses?: any;
+  responses?: Refable<OpenAPI3Responses>;
   tags?: string[];
   operationId?: string;
   requestBody?: Refable<OpenAPI3RequestBody>;
@@ -1135,4 +1167,368 @@ export interface OpenAPIComponents3_1 extends Extensions {
   links?: Record<string, Refable<OpenAPI3Link>>;
   callbacks?: Record<string, Record<string, OpenAPI3PathItem>>;
   pathItems?: Record<string, OpenAPI3PathItem>;
+}
+
+export interface OpenAPIDocument3_2
+  extends Omit<
+    OpenAPIDocument3_1,
+    "openapi" | "servers" | "components" | "webhooks" | "paths" | "tags"
+  > {
+  openapi: "3.2.0";
+  /**
+   * This string MUST be in the form of a URI reference as defined.
+   * The $self field provides the self-assigned URI of this document, which also serves as its base URI.
+   * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields
+   */
+  $self?: string;
+  /** The available paths and operations for the API */
+  paths: Record<string, OpenAPIPathItem3_2>;
+
+  /**
+   * The incoming webhooks that may be received as part of this API.
+   * The key name is a unique string to refer to each webhook.
+   */
+  webhooks?: Record<string, OpenAPIPathItem3_2>;
+  /**
+   * An array of Server Objects, which provide connectivity information to a target server.
+   * If the servers property is not provided, or is an empty array, the default value would be a Server Object with a url value of /.
+   */
+  servers?: OpenAPIServer3_2[];
+  /**
+   * A list of tags used by the specification with additional metadata.
+   * The order of the tags can be used to reflect on their order by the parsing tools.
+   * Not all tags that are used by the Operation Object must be declared.
+   * The tags that are not declared MAY be organized randomly or based on the tools' logic. Each tag name in the list MUST be unique.
+   */
+  tags?: OpenAPITag3_2[];
+  /** An element to hold various schemas for the specification. */
+  components?: OpenAPIComponents3_2;
+}
+
+export interface OpenAPIServer3_2 extends OpenAPI3Server {
+  /**
+   * An optional unique string to refer to the host designated by the URL.
+   * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-3
+   */
+  name?: string;
+}
+
+export interface OpenAPIEncoding3_2 extends OpenAPI3Encoding {
+  /**
+   * Applies nested Encoding Objects in the same manner as the {@link OpenAPIMediaType3_2.encoding} field
+   * @see https://spec.openapis.org/oas/v3.2.0#common-fixed-fields-0
+   */
+  encoding?: Record<string, OpenAPIEncoding3_2>;
+  /**
+   * Applies nested Encoding Objects in the same manner as the {@link OpenAPIMediaType3_2.prefixEncoding} field
+   * @see https://spec.openapis.org/oas/v3.2.0#common-fixed-fields-0
+   */
+  prefixEncoding?: OpenAPIEncoding3_2[];
+  /**
+   * Applies nested Encoding Objects in the same manner as the {@link OpenAPIMediaType3_2.itemEncoding} field
+   * @see https://spec.openapis.org/oas/v3.2.0#common-fixed-fields-0
+   */
+  itemEncoding?: OpenAPIEncoding3_2;
+}
+
+export interface OpenAPIMediaType3_2 extends Omit<OpenAPI3MediaType, "examples" | "schema"> {
+  /** The schema defining the content of the request, response, or parameter. */
+  schema?: Refable<OpenAPISchema3_2>;
+  /**
+   * The schema defining the structure of each item in a stream.
+   * Used for streaming content types like text/event-stream.
+   * @see https://spec.openapis.org/oas/v3.2.0.html#server-sent-event-streams
+   */
+  itemSchema?: Refable<OpenAPISchema3_2>;
+  /**
+   * A map between a property name and its encoding information
+   * @see https://spec.openapis.org/oas/v3.2.0#fixed-fields-11
+   */
+  encoding?: Record<string, OpenAPIEncoding3_2>;
+  /**
+   * An array of positional encoding information
+   * @see https://spec.openapis.org/oas/v3.2.0#fixed-fields-11
+   */
+  prefixEncoding?: OpenAPIEncoding3_2[];
+  /**
+   * A single Encoding Object that provides encoding information for multiple array items
+   * @see https://spec.openapis.org/oas/v3.2.0#fixed-fields-11
+   */
+  itemEncoding?: OpenAPIEncoding3_2;
+
+  /** Examples with title  */
+  examples?: Record<string, Refable<OpenAPIExample3_2>>;
+}
+
+export interface OpenAPIComponents3_2
+  extends Omit<
+    OpenAPIComponents3_1,
+    | "responses"
+    | "securitySchemes"
+    | "examples"
+    | "schemas"
+    | "callbacks"
+    | "pathItems"
+    | "parameters"
+    | "requestBodies"
+  > {
+  /**
+   * An object to hold reusable {@link OpenAPIMediaType3_2} objects
+   * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-5
+   */
+  mediaTypes?: Record<string, Refable<OpenAPIMediaType3_2>>;
+  /**
+   * An object to hold reusable {@link OpenAPIResponse3_2} objects
+   * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-5
+   */
+  responses?: Record<string, Refable<OpenAPIResponse3_2>>;
+  /**
+   * An object to hold reusable {@link OpenAPISecurityScheme3_2} objects
+   * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-5
+   */
+  securitySchemes?: Record<string, Refable<OpenAPISecurityScheme3_2>>;
+  /**
+   * An object to hold reusable {@link OpenAPIRequestBody3_2} objects
+   * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-5
+   */
+  requestBodies?: Record<string, Refable<OpenAPIRequestBody3_2>>;
+  /**
+   * An object to hold reusable {@link OpenAPIExample3_2} objects
+   * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-5
+   */
+  examples?: Record<string, Refable<OpenAPIExample3_2>>;
+  /**
+   * An object to hold reusable {@link OpenAPISchema3_2} objects
+   * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-5
+   */
+  schemas?: Record<string, Refable<OpenAPISchema3_2>>;
+  /**
+   * An object to hold reusable {@link OpenAPIPathItem3_2} objects
+   * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-5
+   */
+  callbacks?: Record<string, Record<string, Refable<OpenAPIPathItem3_2>>>;
+  /**
+   * An object to hold reusable {@link OpenAPIPathItem3_2} objects
+   * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-5
+   */
+  pathItems?: Record<string, Refable<OpenAPIPathItem3_2>>;
+  /**
+   * An object to hold reusable {@link OpenAPIParameter3_2} objects
+   * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-5
+   */
+  parameters?: Record<string, Refable<OpenAPIParameter3_2>>;
+}
+
+export type OpenAPIResponses3_2 = {
+  [status: OpenAPI3StatusCode]: Refable<OpenAPIResponse3_2>;
+} & Extensions;
+
+export interface OpenAPIResponse3_2 extends Omit<OpenAPI3Response, "content"> {
+  /** A map containing descriptions of potential response payloads. The key is a media type or media type range and the value describes it. For responses that match multiple keys, only the most specific key is applicable. e.g. text/plain overrides text/* */
+  content?: Record<string, Refable<OpenAPIMediaType3_2>>;
+  /**
+   * A short summary of the meaning of the response.
+   * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-14
+   */
+  summary?: string;
+}
+
+export interface OpenAPISecuritySchemeBase3_2 extends OpenAPI3SecuritySchemeBase {
+  /**
+   * Specifies that a security scheme is deprecated and SHOULD be transitioned out of usage.
+   *
+   * @see https://spec.openapis.org/oas/v3.2.0.html#security-scheme-object
+   */
+  deprecated?: boolean;
+}
+
+export interface OpenAPIApiKeySecurityScheme3_2
+  extends OpenAPISecuritySchemeBase3_2,
+    OpenAPI3ApiKeySecurityScheme {}
+
+export interface OpenAPIOAuth2SecurityScheme3_2
+  extends OpenAPISecuritySchemeBase3_2,
+    Omit<OpenAPI3OAuth2SecurityScheme, "flows"> {
+  /** An object containing configuration information for the flow types supported. */
+  flows: OpenAPIOAuthFlows3_2;
+}
+
+export interface OpenAPIOpenIdConnectSecurityScheme3_2
+  extends OpenAPISecuritySchemeBase3_2,
+    OpenAPI3OpenIdConnectSecurityScheme {}
+
+export interface OpenAPIHttpSecurityScheme3_2
+  extends OpenAPISecuritySchemeBase3_2,
+    OpenAPI3HttpSecurityScheme {}
+
+export type OpenAPISecurityScheme3_2 =
+  | OpenAPIApiKeySecurityScheme3_2
+  | OpenAPIOAuth2SecurityScheme3_2
+  | OpenAPIOpenIdConnectSecurityScheme3_2
+  | OpenAPIHttpSecurityScheme3_2;
+
+/** Configuration for the OAuth Client Credentials flow. Previously called application in OpenAPI 2.0. */
+export interface OpenAPIDeviceAuthorizationFlow3_2 extends OpenAPI3OAuth2Flow {
+  /** The token URL to be used for this flow. This MUST be in the form of a URL. */
+  tokenUrl: string;
+  /**
+   * The device authorization URL to be used for this flow. This MUST be in the form of a URL.
+   * @see https://spec.openapis.org/oas/v3.2.0.html#oauth-flow-object
+   */
+  deviceAuthorizationUrl: string;
+}
+/**
+ * Allows configuration of the supported OAuth Flows.
+ *
+ * @see https://spec.openapis.org/oas/v3.2.0.html#oauthFlowsObject
+ */
+export interface OpenAPIOAuthFlows3_2 extends OpenAPI3OAuthFlows {
+  /**
+   * Configuration for the OAuth 2.0 Device Authorization Grant flow.
+   * @see https://spec.openapis.org/oas/v3.2.0.html#oauth-flows-object
+   */
+  deviceAuthorization?: OpenAPIDeviceAuthorizationFlow3_2;
+}
+
+/**
+ *  Allows sharing examples for operation responses.
+ *
+ * @see https://spec.openapis.org/oas/v3.2.0.html#example-object
+ */
+export interface OpenAPIExample3_2 extends OpenAPI3Example {
+  /**
+   * An example of the data structure that MUST be valid according to the relevant schema.
+   * @see https://spec.openapis.org/oas/v3.2.0.html#example-object
+   */
+  dataValue?: unknown;
+  /**
+   * An example of the serialized form of the value, including encoding and escaping
+   * @see https://spec.openapis.org/oas/v3.2.0.html#example-object
+   */
+  serializedValue?: string;
+}
+
+export type OpenAPISchema3_2 = JsonSchema<
+  {
+    /**
+     * Adds additional metadata to describe the XML representation of this property.
+     * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-20
+     */
+    xml?: OpenAPIXmlSchema3_2;
+    /**
+     *
+     * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-20
+     */
+    discriminator?: OpenAPIDiscriminator3_2;
+    /**
+     * Additional external documentation for this schema.
+     *
+     * @see https://spec.openapis.org/oas/v3.1.1.html#external-documentation-object
+     */
+    externalDocs?: OpenAPI3ExternalDocs;
+  } & Extensions
+>;
+
+export interface OpenAPIXmlSchema3_2 extends Omit<OpenAPI3XmlSchema, "attribute" | "wrapped"> {
+  /**
+   * @deprecated This property is deprecated and SHOULD be replaced by the {@link nodeType} property.
+   */
+  attribute?: boolean;
+  /**
+   * @deprecated This property is deprecated and SHOULD be replaced by the {@link nodeType} property.
+   */
+  wrapped?: boolean;
+  /**
+   * The type of the XML DOM node.
+   * @see https://spec.openapis.org/oas/v3.2.0.html#xml-node-types
+   * @default "none"
+   */
+  nodeType?: "element" | "attribute" | "text" | "cdata" | "comment" | "none";
+}
+
+export type OpenAPIOperation3_2 = Omit<
+  OpenAPI3Operation,
+  "responses" | "parameters" | "requestBody"
+> & {
+  responses?: Refable<OpenAPIResponses3_2>;
+  parameters?: Refable<OpenAPIParameter3_2>[];
+  requestBody?: Refable<OpenAPIRequestBody3_2>;
+};
+
+/**
+ * Describes the operations available on a single path. A Path Item may be empty, due to ACL constraints. The path itself is still exposed to the documentation viewer but they will not know which operations and parameters are available.
+ *
+ * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-6
+ */
+export type OpenAPIPathItem3_2 = Omit<OpenAPI3PathItem, OpenAPI3HttpMethod | "parameters"> & {
+  [method in OpenAPIHttpMethod3_2]?: OpenAPIOperation3_2;
+} & {
+  additionalOperations?: Record<string, OpenAPIOperation3_2>;
+  parameters?: Refable<OpenAPIParameter3_2>[];
+};
+export type OpenAPIParameterBase3_2 = Omit<
+  OpenAPI3ParameterBase,
+  "content" | "examples" | "schema"
+> & {
+  /** A map containing the representations for the parameter. The key is the media type and the value describes it. The map MUST only contain one entry. */
+  content?: Record<string, Refable<OpenAPIMediaType3_2>>;
+  examples?: Record<string, Refable<OpenAPIExample3_2>>;
+  schema?: Refable<OpenAPISchema3_2>;
+};
+export type OpenAPIQueryStringParameter3_2 = Omit<
+  OpenAPIParameterBase3_2,
+  "style" | "explode" | "allowReserved" | "schema"
+> & {
+  /** Name of the parameter. */
+  name: string;
+  in: "querystring";
+};
+export type OpenAPICookieParameter3_2 = Omit<
+  OpenAPI3CookieParameter,
+  "content" | "examples" | "style"
+> &
+  OpenAPIParameterBase3_2 & {
+    /**
+     * Describes how the parameter value will be serialized depending on the type of the parameter value.
+     *
+     * Default value for header parameters is simple.
+     * @see https://spec.openapis.org/oas/latest#fixed-fields-9
+     */
+    style?: "form" | "cookie";
+  };
+export type OpenAPIHeaderParameter3_2 = Omit<OpenAPI3HeaderParameter, "content" | "examples"> &
+  OpenAPIParameterBase3_2;
+export type OpenAPIPathParameter3_2 = Omit<OpenAPI3PathParameter, "content" | "examples"> &
+  OpenAPIParameterBase3_2;
+export type OpenAPIQueryParameter3_2 = Omit<OpenAPI3QueryParameter, "content" | "examples"> &
+  OpenAPIParameterBase3_2;
+export type OpenAPIParameter3_2 =
+  | OpenAPIHeaderParameter3_2
+  | OpenAPIQueryParameter3_2
+  | OpenAPIQueryStringParameter3_2
+  | OpenAPIPathParameter3_2
+  | OpenAPICookieParameter3_2;
+export type OpenAPIParameterType3_2 = OpenAPIParameter3_2["in"];
+
+export interface OpenAPITag3_2 extends OpenAPI3Tag {
+  /**
+   * A short summary of the tag, used for display purposes.
+   * @see https://spec.openapis.org/oas/latest#fixed-fields-18
+   */
+  summary?: string;
+  /**
+   * The name of a tag that this tag is nested under. The named tag MUST exist in the API description, and circular references between parent and child tags MUST NOT be used.
+   * @see https://spec.openapis.org/oas/latest#fixed-fields-18
+   */
+  parent?: string;
+  /**
+   * A machine-readable string to categorize what sort of tag it is
+   * @see https://spec.openapis.org/oas/latest#fixed-fields-18
+   */
+  kind?: string;
+}
+
+export interface OpenAPIRequestBody3_2 extends Omit<OpenAPI3RequestBody, "content"> {
+  /** A map containing descriptions of potential request payloads. The key is a media type or media type range and the value describes it. For requests that match multiple keys, only the most specific key is applicable. e.g. text/plain overrides text/* */
+  content: Record<string, Refable<OpenAPIMediaType3_2>>;
 }

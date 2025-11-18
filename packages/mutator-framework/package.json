@@ -1,0 +1,42 @@
+{
+  "name": "@typespec/mutator-framework",
+  "version": "0.13.0",
+  "type": "module",
+  "main": "dist/src/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/microsoft/typespec.git"
+  },
+  "scripts": {
+    "build": "tsc -p .",
+    "clean": "rimraf ./dist",
+    "format": "prettier . --write",
+    "watch": "tsc -p . --watch",
+    "test": "vitest run",
+    "test:ui": "vitest --ui",
+    "test:watch": "vitest -w",
+    "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
+    "prepack": "tsx ../../eng/tsp-core/scripts/strip-dev-import-exports.ts",
+    "postpack": "tsx ../../eng/tsp-core/scripts/strip-dev-import-exports.ts --restore",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/src/index.js"
+    }
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "description": "",
+  "peerDependencies": {
+    "@typespec/compiler": "workspace:^"
+  },
+  "devDependencies": {
+    "@types/node": "~24.9.1",
+    "@typespec/compiler": "workspace:^",
+    "concurrently": "^9.1.2",
+    "prettier": "~3.6.2"
+  }
+}

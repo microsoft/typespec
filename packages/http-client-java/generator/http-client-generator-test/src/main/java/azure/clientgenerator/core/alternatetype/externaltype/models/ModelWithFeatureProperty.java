@@ -6,6 +6,7 @@ package azure.clientgenerator.core.alternatetype.externaltype.models;
 
 import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.Immutable;
+import com.azure.core.models.GeoObject;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
@@ -21,7 +22,7 @@ public final class ModelWithFeatureProperty implements JsonSerializable<ModelWit
      * The feature property.
      */
     @Generated
-    private final Feature feature;
+    private final GeoObject feature;
 
     /*
      * The additionalProperty property.
@@ -36,7 +37,7 @@ public final class ModelWithFeatureProperty implements JsonSerializable<ModelWit
      * @param additionalProperty the additionalProperty value to set.
      */
     @Generated
-    public ModelWithFeatureProperty(Feature feature, String additionalProperty) {
+    public ModelWithFeatureProperty(GeoObject feature, String additionalProperty) {
         this.feature = feature;
         this.additionalProperty = additionalProperty;
     }
@@ -47,7 +48,7 @@ public final class ModelWithFeatureProperty implements JsonSerializable<ModelWit
      * @return the feature value.
      */
     @Generated
-    public Feature getFeature() {
+    public GeoObject getFeature() {
         return this.feature;
     }
 
@@ -85,14 +86,14 @@ public final class ModelWithFeatureProperty implements JsonSerializable<ModelWit
     @Generated
     public static ModelWithFeatureProperty fromJson(JsonReader jsonReader) throws IOException {
         return jsonReader.readObject(reader -> {
-            Feature feature = null;
+            GeoObject feature = null;
             String additionalProperty = null;
             while (reader.nextToken() != JsonToken.END_OBJECT) {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
 
                 if ("feature".equals(fieldName)) {
-                    feature = Feature.fromJson(reader);
+                    feature = GeoObject.fromJson(reader);
                 } else if ("additionalProperty".equals(fieldName)) {
                     additionalProperty = reader.getString();
                 } else {

@@ -36,7 +36,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.EnumProviders
             Assert.IsNotNull(provider);
             Assert.That(provider.Name, Is.EqualTo("ServiceVersion"));
             Assert.That(provider.EnumValues.Count, Is.EqualTo(3));
-            Assert.IsTrue(provider.EnumValues.Select(v => v.Name).SequenceEqual(["V1_0_0", "V2023_10_01_Beta", "V2023_11_01_Beta"]));
+            Assert.IsTrue(provider.EnumValues.Select(v => v.Name).SequenceEqual(["V2023_10_01_Beta", "V2023_11_01_Beta", "V1_0_0"]));
         }
 
         [Test]
@@ -60,13 +60,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.EnumProviders
             Assert.IsNotNull(provider);
             Assert.That(provider.Name, Is.EqualTo("ServiceVersion"));
             Assert.That(provider.EnumValues.Count, Is.EqualTo(6));
-            Assert.IsTrue(provider.EnumValues.Select(v => v.Name).SequenceEqual(["V1_0_0", "V2023_10_01_Beta_1", "V2023_10_01_Beta_2", "V2023_11_01", "V2024_01_01_Beta", "V2024_01_01"]));
+            Assert.IsTrue(provider.EnumValues.Select(v => v.Name).SequenceEqual(["V2023_10_01_Beta_1", "V2023_10_01_Beta_2", "V2023_11_01", "V2024_01_01_Beta", "V2024_01_01", "V1_0_0"]));
         }
 
         [Test]
         public async Task BackCompat_PreviewAndGAApiVersionsAdded()
         {
-            string[] apiVersions = ["1.0.0", "V2023_10_01_Preview_2"];
+            string[] apiVersions = ["1.0.0", "V2025_01_01_Preview"];
             var input = InputFactory.Int32Enum(
                 "mockInputEnum",
                 apiVersions.Select((a, index) => (a, index)),
@@ -84,7 +84,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.EnumProviders
             Assert.IsNotNull(provider);
             Assert.That(provider.Name, Is.EqualTo("ServiceVersion"));
             Assert.That(provider.EnumValues.Count, Is.EqualTo(6));
-            Assert.IsTrue(provider.EnumValues.Select(v => v.Name).SequenceEqual(["V1_0_0", "V2023_10_01_Preview_1", "V2023_10_01_Preview_2", "V2023_11_01", "V2024_01_01_Preview", "V2024_01_01"]));
+            Assert.IsTrue(provider.EnumValues.Select(v => v.Name).SequenceEqual(["V2023_10_01_Preview_1", "V2023_11_01", "V2024_01_01_Preview", "V2024_01_01", "V1_0_0", "V2025_01_01_Preview"]));
         }
 
         [Test]
@@ -114,10 +114,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.EnumProviders
         [Test]
         public async Task CustomEnumMembers()
         {
-            string[] apiVersions = ["2.0.0", "3.0.0"];
-            var input = InputFactory.Int32Enum(
+            string[] apiVersions = ["2023-10-01-preview-1", "2023-11-01", "2024-01-01"];
+            var enumValues = apiVersions.Select((a, index) => (a, a));
+            var input = InputFactory.StringEnum(
                 "mockInputEnum",
-                apiVersions.Select((a, index) => (a, index)),
+                enumValues,
                 usage: InputModelTypeUsage.ApiVersionEnum,
                 clientNamespace: "SampleNamespace");
             await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
@@ -133,11 +134,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.EnumProviders
             Assert.That(provider.Name, Is.EqualTo("ServiceVersion"));
             Assert.That(provider.EnumValues.Count, Is.EqualTo(3));
             Assert.AreEqual("V2023_10_01_Preview_1", provider.EnumValues[0].Name);
-            Assert.AreEqual(new LiteralExpression(0), provider.EnumValues[0].Value);
+            Assert.AreEqual(apiVersions[0], provider.EnumValues[0].Value);
+            Assert.AreEqual(new LiteralExpression(0), provider.EnumValues[0].Field.InitializationValue);
             Assert.AreEqual("V2023_11_01", provider.EnumValues[1].Name);
-            Assert.AreEqual(new LiteralExpression(1), provider.EnumValues[1].Value);
+            Assert.AreEqual(new LiteralExpression(1), provider.EnumValues[1].Field.InitializationValue);
+            Assert.AreEqual(apiVersions[1], provider.EnumValues[1].Value);
             Assert.AreEqual("V2024_01_01", provider.EnumValues[2].Name);
-            Assert.AreEqual(new LiteralExpression(2), provider.EnumValues[2].Value);
+            Assert.AreEqual(new LiteralExpression(2), provider.EnumValues[2].Field.InitializationValue);
+            Assert.AreEqual(apiVersions[2], provider.EnumValues[2].Value);
         }
     }
 }

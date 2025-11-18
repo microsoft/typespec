@@ -4,13 +4,13 @@
 package com.microsoft.typespec.http.client.generator.model;
 
 import com.azure.core.util.CoreUtils;
-import com.azure.json.JsonReader;
-import com.azure.json.JsonSerializable;
-import com.azure.json.JsonToken;
-import com.azure.json.JsonWriter;
 import com.microsoft.typespec.http.client.generator.core.extension.base.util.JsonUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PollingSettings;
 import com.microsoft.typespec.http.client.generator.mgmt.model.ResourceCollectionAssociation;
+import io.clientcore.core.serialization.json.JsonReader;
+import io.clientcore.core.serialization.json.JsonSerializable;
+import io.clientcore.core.serialization.json.JsonToken;
+import io.clientcore.core.serialization.json.JsonWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,6 +40,7 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
     private Boolean useRestProxy;
     private Boolean useDefaultHttpStatusCodeToExceptionTypeMapping = true;
     private Boolean clientSideValidations = false;
+    private Boolean uuidAsString = true;
     private DevOptions devOptions;
 
     // mgmt
@@ -102,6 +103,10 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
 
     public Boolean getUseObjectForUnknown() {
         return useObjectForUnknown;
+    }
+
+    public Boolean getUuidAsString() {
+        return uuidAsString;
     }
 
     public List<String> getServiceVersions() {
@@ -278,6 +283,8 @@ public class EmitterOptions implements JsonSerializable<EmitterOptions> {
                 options.premium = reader.getNullable(EmitterOptions::getBoolean);
             } else if ("client-side-validations".equals(fieldName)) {
                 options.clientSideValidations = reader.getNullable(EmitterOptions::getBoolean);
+            } else if ("uuid-as-string".equals(fieldName)) {
+                options.uuidAsString = reader.getNullable(EmitterOptions::getBoolean);
             } else if ("metadata-suffix".equals(fieldName)) {
                 options.metadataSuffix = emptyToNull(reader.getString());
             } else {

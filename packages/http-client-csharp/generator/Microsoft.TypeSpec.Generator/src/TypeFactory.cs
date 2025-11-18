@@ -125,6 +125,9 @@ namespace Microsoft.TypeSpec.Generator
                 case InputNullableType nullableType:
                     type = CreateCSharpType(nullableType.Type)?.WithNullable(true);
                     break;
+                case InputExternalType externalType:
+                    type = CreateExternalType(externalType);
+                    break;
                 default:
                     type = CreatePrimitiveCSharpTypeCore(inputType);
                     break;
@@ -228,6 +231,29 @@ namespace Microsoft.TypeSpec.Generator
 
         protected virtual EnumProvider? CreateEnumCore(InputEnumType enumType, TypeProvider? declaringType)
             => EnumProvider.Create(enumType, declaringType);
+
+        /// <summary>
+        /// Factory method for creating a <see cref="CSharpType"/> based on an external type reference <paramref name="externalType"/>.
+        /// </summary>
+        /// <param name="externalType">The <see cref="InputExternalType"/> to convert.</param>
+        /// <returns>A <see cref="CSharpType"/> representing the external type, or null if the type cannot be resolved.</returns>
+        private CSharpType? CreateExternalType(InputExternalType externalType)
+        {
+            // Try to create a framework type from the fully qualified name
+            var frameworkType = CreateFrameworkType(externalType.Identity);
+            if (frameworkType != null)
+            {
+                return new CSharpType(frameworkType);
+            }
+
+            // External types that cannot be resolved as framework types are not supported
+            // Report a diagnostic to inform the user
+            CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                "unsupported-external-type",
+                $"External type '{externalType.Identity}' is not currently supported.");
+
+            return null;
+        }
 
         /// <summary>
         /// Factory method for creating a <see cref="ParameterProvider"/> based on an input parameter <paramref name="parameter"/>.
@@ -380,6 +406,35 @@ namespace Microsoft.TypeSpec.Generator
         private string? _primaryNamespace;
         public string PrimaryNamespace => _primaryNamespace ??= GetCleanNameSpace(CodeModelGenerator.Instance.InputLibrary.InputNamespace.Name);
 
+        public string ServiceName => _serviceName ??= BuildServiceName();
+        private string? _serviceName;
+
+        /// <summary>
+        /// Builds the service name which is used as the base name for various types.
+        /// </summary>
+        protected virtual string BuildServiceName()
+        {
+            var span = CodeModelGenerator.Instance.InputLibrary.InputNamespace.Name;
+            if (span.IndexOf('.') == -1)
+            {
+                return CodeModelGenerator.Instance.InputLibrary.InputNamespace.Name;
+            }
+
+            Span<char> dest = stackalloc char[span.Length];
+            int j = 0;
+
+            for (int i = 0; i < span.Length; i++)
+            {
+                if (span[i] != '.')
+                {
+                    dest[j] = span[i];
+                    j++;
+                }
+            }
+
+            return dest[..j].ToString();
+        }
+
         public string GetCleanNameSpace(string clientNamespace)
         {
             Span<char> dest = stackalloc char[clientNamespace.Length + GetSegmentCount(clientNamespace)];
@@ -389,25 +444,27 @@ namespace Microsoft.TypeSpec.Generator
             while (nextDot != -1)
             {
                 var segment = source.Slice(0, nextDot);
-                if (IsSpecialSegment(segment))
+                var segmentStr = segment.ToString();
+                var cleanedSegment = segmentStr.ToIdentifierName();
+                if (IsSpecialSegment(cleanedSegment))
                 {
-                    dest[destIndex] = '_';
-                    destIndex++;
+                    cleanedSegment = "_" + cleanedSegment;
                 }
-                segment.CopyTo(dest.Slice(destIndex));
-                destIndex += segment.Length;
+                cleanedSegment.AsSpan().CopyTo(dest.Slice(destIndex));
+                destIndex += cleanedSegment.Length;
                 dest[destIndex] = '.';
                 destIndex++;
                 source = source.Slice(nextDot + 1);
                 nextDot = source.IndexOf('.');
             }
-            if (IsSpecialSegment(source))
+            var lastSegmentStr = source.ToString();
+            var cleanedLastSegment = lastSegmentStr.ToIdentifierName();
+            if (IsSpecialSegment(cleanedLastSegment))
             {
-                dest[destIndex] = '_';
-                destIndex++;
+                cleanedLastSegment = "_" + cleanedLastSegment;
             }
-            source.CopyTo(dest.Slice(destIndex));
-            destIndex += source.Length;
+            cleanedLastSegment.AsSpan().CopyTo(dest.Slice(destIndex));
+            destIndex += cleanedLastSegment.Length;
             return dest.Slice(0, destIndex).ToString();
         }
 
@@ -423,6 +480,8 @@ namespace Microsoft.TypeSpec.Generator
             }
             return false;
         }
+
+        private bool IsSpecialSegment(string segment) => IsSpecialSegment(segment.AsSpan());
 
         private static int GetSegmentCount(string clientNamespace)
         {

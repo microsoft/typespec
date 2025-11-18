@@ -1,22 +1,27 @@
-import type OpenAPIParser from "@apidevtools/swagger-parser";
-import { OpenAPI3Document, OpenAPI3Encoding, OpenAPI3Schema, Refable } from "../../../../types.js";
+import {
+  OpenAPI3Encoding,
+  OpenAPIDocument3_1,
+  Refable,
+  SupportedOpenAPIDocuments,
+  SupportedOpenAPISchema,
+} from "../../../../types.js";
 import { Logger } from "../../../types.js";
 import { SchemaToExpressionGenerator } from "../generators/generate-types.js";
 import { generateNamespaceName } from "./generate-namespace-name.js";
 
 export interface Context {
-  readonly openApi3Doc: OpenAPI3Document;
+  readonly openApi3Doc: SupportedOpenAPIDocuments;
   readonly rootNamespace: string;
   readonly logger: Logger;
 
   generateTypeFromRefableSchema(
-    schema: Refable<OpenAPI3Schema>,
+    schema: Refable<SupportedOpenAPISchema>,
     callingScope: string[],
     isHttpPart?: boolean,
     encoding?: Record<string, OpenAPI3Encoding>,
   ): string;
   getRefName(ref: string, callingScope: string[]): string;
-  getSchemaByRef(ref: string): OpenAPI3Schema | undefined;
+  getSchemaByRef(ref: string): SupportedOpenAPISchema | undefined;
   getByRef<T>(ref: string): T | undefined;
 
   /**
@@ -45,15 +50,31 @@ export interface Context {
     isEnumType: boolean,
     isUnionType: boolean,
   ): string;
+
+  /**
+   * Register a schema as representing SSE events.
+   * This allows the schema generator to use `@events` instead of @oneOf.
+   */
+  registerSSEEventSchema(ref: string): void;
+
+  /**
+   * Checks whether a schema is registered as an SSE event schema.
+   */
+  isSSEEventSchema(ref: string): boolean;
+
+  /**
+   * Mark that SSE features are being used, which will trigger including SSE-related imports.
+   */
+  markSSEUsage(): void;
+
+  /**
+   * Check if SSE features are being used.
+   */
+  isSSEUsed(): boolean;
 }
 
-export type Parser = {
-  $refs: OpenAPIParser["$refs"];
-};
-
 export function createContext(
-  parser: Parser,
-  openApi3Doc: OpenAPI3Document,
+  openApi3Doc: SupportedOpenAPIDocuments,
   logger?: Logger,
   namespace?: string,
 ): Context {
@@ -64,6 +85,12 @@ export function createContext(
 
   // Track schemas that are used in multipart forms with their encoding information
   const multipartSchemas = new Map<string, Record<string, OpenAPI3Encoding> | null>();
+
+  // Track schemas that represent SSE events
+  const sseEventSchemas = new Set<string>();
+
+  // Track if SSE features are used
+  let sseUsed = false;
 
   // Create a default no-op logger if none provided
   const defaultLogger: Logger = {
@@ -80,7 +107,7 @@ export function createContext(
       return schemaExpressionGenerator.getRefName(ref, callingScope);
     },
     generateTypeFromRefableSchema(
-      schema: Refable<OpenAPI3Schema>,
+      schema: Refable<SupportedOpenAPISchema>,
       callingScope: string[],
       isHttpPart = false,
       encoding?: Record<string, OpenAPI3Encoding>,
@@ -96,8 +123,35 @@ export function createContext(
     getSchemaByRef(ref) {
       return this.getByRef(ref);
     },
-    getByRef(ref) {
-      return parser.$refs.get(ref) as any;
+    getByRef<T>(ref: string): T | undefined {
+      const splitRef = ref.split("/");
+      const componentKind = splitRef[2]; // #/components/schemas/Pet -> components
+      const componentName = splitRef[3]; // #/components/schemas/Pet -> Pet
+      switch (componentKind) {
+        case "schemas":
+          return openApi3Doc.components?.schemas?.[componentName] as T;
+        case "responses":
+          return openApi3Doc.components?.responses?.[componentName] as T;
+        case "parameters":
+          return openApi3Doc.components?.parameters?.[componentName] as T;
+        case "examples":
+          return openApi3Doc.components?.examples?.[componentName] as T;
+        case "requestBodies":
+          return openApi3Doc.components?.requestBodies?.[componentName] as T;
+        case "headers":
+          return openApi3Doc.components?.headers?.[componentName] as T;
+        case "securitySchemes":
+          return openApi3Doc.components?.securitySchemes?.[componentName] as T;
+        case "links":
+          return openApi3Doc.components?.links?.[componentName] as T;
+        case "callbacks":
+          return (openApi3Doc as unknown as OpenAPIDocument3_1).components?.callbacks?.[
+            componentName
+          ] as T;
+        default:
+          this.logger.warn(`Unsupported component kind in $ref: ${ref}`);
+          return undefined;
+      }
     },
     registerMultipartSchema(ref: string, encoding?: Record<string, OpenAPI3Encoding>) {
       multipartSchemas.set(ref, encoding ?? null);
@@ -125,6 +179,18 @@ export function createContext(
         isEnumType,
         isUnionType,
       );
+    },
+    registerSSEEventSchema(ref: string) {
+      sseEventSchemas.add(ref);
+    },
+    isSSEEventSchema(ref: string): boolean {
+      return sseEventSchemas.has(ref);
+    },
+    markSSEUsage() {
+      sseUsed = true;
+    },
+    isSSEUsed(): boolean {
+      return sseUsed;
     },
   };
 

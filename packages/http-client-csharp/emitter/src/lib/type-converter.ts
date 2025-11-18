@@ -29,6 +29,7 @@ import {
   InputDurationType,
   InputEnumType,
   InputEnumValueType,
+  InputExternalType,
   InputLiteralType,
   InputModelProperty,
   InputModelType,
@@ -77,6 +78,13 @@ export function fromSdkType<T extends SdkType>(
 ): InputReturnType<T> {
   let retVar = sdkContext.__typeCache.types.get(sdkType);
   if (retVar) {
+    return retVar as any;
+  }
+
+  // Check if this type references an external type
+  if ((sdkType as any).external) {
+    retVar = fromSdkExternalType(sdkContext, sdkType);
+    sdkContext.__typeCache.updateSdkTypeReferences(sdkType, retVar);
     return retVar as any;
   }
 
@@ -460,6 +468,20 @@ function fromSdkEndpointType(): InputPrimitiveType {
     kind: "string",
     name: "string",
     crossLanguageDefinitionId: "TypeSpec.string",
+  };
+}
+
+function fromSdkExternalType(
+  sdkContext: CSharpEmitterContext,
+  sdkType: SdkType,
+): InputExternalType {
+  const external = (sdkType as any).external;
+  return {
+    kind: "external",
+    identity: external.identity,
+    package: external.package,
+    minVersion: external.minVersion,
+    decorators: sdkType.decorators,
   };
 }
 

@@ -4,8 +4,6 @@
 package com.microsoft.typespec.http.client.generator.fluent;
 
 import com.azure.core.util.CoreUtils;
-import com.azure.json.JsonReader;
-import com.azure.json.ReadValueCallback;
 import com.microsoft.typespec.http.client.generator.JavaSettingsAccessor;
 import com.microsoft.typespec.http.client.generator.TypeSpecPlugin;
 import com.microsoft.typespec.http.client.generator.core.extension.model.Message;
@@ -25,6 +23,8 @@ import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import com.microsoft.typespec.http.client.generator.model.EmitterOptions;
 import com.microsoft.typespec.http.client.generator.util.FileUtil;
 import com.microsoft.typespec.http.client.generator.util.MetadataUtil;
+import io.clientcore.core.serialization.json.JsonReader;
+import io.clientcore.core.utils.IOExceptionCheckedFunction;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -74,8 +74,8 @@ public class TypeSpecFluentPlugin extends FluentGen {
         }
         SETTINGS_MAP.put("sdk-integration", sdkIntegration);
         SETTINGS_MAP.put("output-model-immutable", true);
-        SETTINGS_MAP.put("uuid-as-string", true);
         SETTINGS_MAP.put("stream-style-serialization", options.getStreamStyleSerialization());
+        SETTINGS_MAP.put("uuid-as-string", options.getUuidAsString());
         SETTINGS_MAP.put("use-object-for-unknown", options.getUseObjectForUnknown());
         if (options.getRenameModel() != null) {
             SETTINGS_MAP.put("rename-model", options.getRenameModel());
@@ -182,13 +182,13 @@ public class TypeSpecFluentPlugin extends FluentGen {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T getValue(String key, ReadValueCallback<String, T> converter) {
+    public <T> T getValue(String key, IOExceptionCheckedFunction<String, T> converter) {
         return (T) SETTINGS_MAP.get(key);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T getValueWithJsonReader(String key, ReadValueCallback<JsonReader, T> converter) {
+    public <T> T getValueWithJsonReader(String key, IOExceptionCheckedFunction<JsonReader, T> converter) {
         return (T) SETTINGS_MAP.get(key);
     }
 

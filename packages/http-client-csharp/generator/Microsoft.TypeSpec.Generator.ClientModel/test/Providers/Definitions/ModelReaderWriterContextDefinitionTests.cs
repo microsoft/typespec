@@ -619,12 +619,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             // Should include both the collection model and the framework type it contains
             var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute)).ToList();
             Assert.AreEqual(2, buildableAttributes.Count());
-            Assert.AreEqual(
-                "typeof(global::Sample.Models.CollectionModel)",
-                buildableAttributes[0].Arguments.First().ToDisplayString());
-            Assert.AreEqual(
-                "typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.FrameworkModelWithMRW)",
-                buildableAttributes[1].Arguments.First().ToDisplayString());
+            
+            var attributeStrings = buildableAttributes.Select(a => a.Arguments.First().ToDisplayString()).ToList();
+            Assert.IsTrue(attributeStrings.Contains("typeof(global::Sample.Models.CollectionModel)"),
+                "Should include CollectionModel");
+            Assert.IsTrue(attributeStrings.Contains("typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.FrameworkModelWithMRW)"),
+                "Should include FrameworkModelWithMRW");
         }
 
         [Test]
@@ -660,12 +660,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             // Should include both the collection model and the framework type it contains
             var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute)).ToList();
             Assert.AreEqual(2, buildableAttributes.Count());
-            Assert.AreEqual(
-                "typeof(global::Sample.Models.CollectionModel)",
-                buildableAttributes[0].Arguments.First().ToDisplayString());
-            Assert.AreEqual(
-                "typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.FrameworkModelWithMRW)",
-                buildableAttributes[1].Arguments.First().ToDisplayString());
+            
+            var attributeStrings = buildableAttributes.Select(a => a.Arguments.First().ToDisplayString()).ToList();
+            Assert.IsTrue(attributeStrings.Contains("typeof(global::Sample.Models.CollectionModel)"),
+                "Should include CollectionModel");
+            Assert.IsTrue(attributeStrings.Contains("typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.FrameworkModelWithMRW)"),
+                "Should include FrameworkModelWithMRW");
         }
 
         [Test]
@@ -693,21 +693,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             Assert.IsNotNull(attributes);
             Assert.AreEqual(expectedCount, attributes.Count);
 
-            // Should include both the collection model and the framework type it contains
+            // Should include all expected types
             var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType && a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute)).ToList();
             Assert.AreEqual(expectedCount, buildableAttributes.Count());
-            Assert.AreEqual(
+            
+            var attributeStrings = buildableAttributes.Select(a => a.Arguments.First().ToDisplayString()).ToList();
+            var expectedTypes = new[]
+            {
                 "typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.ComplexFrameworkType)",
-                buildableAttributes[0].Arguments.First().ToDisplayString());
-            Assert.AreEqual(
                 "typeof(global::Sample.Models.ComplexModel)",
-                buildableAttributes[1].Arguments.First().ToDisplayString());
-            Assert.AreEqual(
                 "typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.FrameworkModelWithMRW)",
-                buildableAttributes[2].Arguments.First().ToDisplayString());
-            Assert.AreEqual(
-                "typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.NestedFrameworkType)",
-                buildableAttributes[3].Arguments.First().ToDisplayString());
+                "typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.NestedFrameworkType)"
+            };
+            
+            foreach (var expectedType in expectedTypes)
+            {
+                Assert.IsTrue(attributeStrings.Contains(expectedType), $"Should include {expectedType}");
+            }
         }
 
         // This test validates that the correct attributes are generated for a complex scenario
@@ -1259,6 +1261,102 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
                     .. base.BuildAttributes()
                 ];
             }
+        }
+
+        [Test]
+        public void ValidateDuplicateModelNamesInDifferentNamespaces()
+        {
+            // Create two models with the same name but different namespaces by setting the namespace in the InputModelType
+            var model1 = InputFactory.Model("DuplicateModel", 
+                @namespace: "Sample.Namespace1",
+                properties:
+                [
+                    InputFactory.Property("Property1", InputPrimitiveType.String)
+                ]);
+
+            var model2 = InputFactory.Model("DuplicateModel",
+                @namespace: "Sample.Namespace2",
+                properties:
+                [
+                    InputFactory.Property("Property2", InputPrimitiveType.Int32)
+                ]);
+
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [model1, model2]);
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var attributes = contextDefinition.Attributes;
+
+            Assert.IsNotNull(attributes);
+            Assert.IsTrue(attributes.Count > 0);
+
+            // Check that both models are included despite having the same name
+            var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType &&
+                a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute)).ToList();
+            Assert.AreEqual(2, buildableAttributes.Count(),
+                "Both models should be included even though they have the same name but different namespaces");
+
+            // Verify both namespaces are represented
+            var attributeStrings = buildableAttributes.Select(a => a.Arguments.First().ToDisplayString()).ToList();
+            Assert.IsTrue(attributeStrings.Any(s => s.Contains("Namespace1")),
+                "Should include model from Namespace1");
+            Assert.IsTrue(attributeStrings.Any(s => s.Contains("Namespace2")),
+                "Should include model from Namespace2");
+        }
+
+        [Test]
+        public void ValidateAttributeSortingByTypeName()
+        {
+            // Create models with different namespaces to test that sorting is by type name, not fully qualified name
+            var modelA = InputFactory.Model("AModel",
+                @namespace: "Sample.Namespace2",
+                properties:
+                [
+                    InputFactory.Property("Property1", InputPrimitiveType.String)
+                ]);
+
+            var modelB = InputFactory.Model("BModel",
+                @namespace: "Sample.Namespace1",
+                properties:
+                [
+                    InputFactory.Property("Property2", InputPrimitiveType.Int32)
+                ]);
+
+            var modelC = InputFactory.Model("CModel",
+                @namespace: "Sample.Namespace2",
+                properties:
+                [
+                    InputFactory.Property("Property3", InputPrimitiveType.Boolean)
+                ]);
+
+            var mockGenerator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [modelB, modelC, modelA]); // Add in non-alphabetical order
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var attributes = contextDefinition.Attributes;
+
+            Assert.IsNotNull(attributes);
+            Assert.AreEqual(3, attributes.Count);
+
+            // Verify attributes are sorted by type name (A, B, C) not by fully qualified name
+            var buildableAttributes = attributes.Where(a => a.Type.IsFrameworkType &&
+                a.Type.FrameworkType == typeof(ModelReaderWriterBuildableAttribute)).ToList();
+            Assert.AreEqual(3, buildableAttributes.Count);
+
+            var attributeStrings = buildableAttributes.Select(a => a.Arguments.First().ToDisplayString()).ToList();
+
+            // Extract simple type names from the typeof expressions
+            // Pattern matches: typeof(global::Sample.NamespaceX.XModel) and extracts "XModel"
+            var typeNameRegex = new System.Text.RegularExpressions.Regex(@"\.([A-Z]\w+)\)$");
+            var typeNames = attributeStrings.Select(s =>
+            {
+                var match = typeNameRegex.Match(s);
+                return match.Success ? match.Groups[1].Value : "";
+            }).ToList();
+
+            Assert.AreEqual("AModel", typeNames[0], "First attribute should be AModel");
+            Assert.AreEqual("BModel", typeNames[1], "Second attribute should be BModel");
+            Assert.AreEqual("CModel", typeNames[2], "Third attribute should be CModel");
         }
     }
 }

@@ -16,6 +16,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Conve
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import java.util.List;
@@ -209,7 +210,12 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
         // TODO (weidxu): support XML etc.
         switch (mimeType) {
             case TEXT:
-                return String.format("%s.toString()", invocationExpression);
+                String basicText = invocationExpression + ".toString()";
+                if (!rawType.isNullable()) {
+                    // Dealing with a primitive type that needs to be converted.
+                    return wrapPrimitiveMimeTypeText(basicText, (PrimitiveType) rawType);
+                }
+                return basicText;
 
             case BINARY:
                 return invocationExpression;
@@ -229,21 +235,18 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
                 } else if (responseBodyType == ClassType.BINARY_DATA) {
                     // BinaryData
                     return invocationExpression;
-                } else if (isModelOrBuiltin(responseBodyType)) {
-                    // class
-                    return String.format("%2$s.toObject(%1$s.class)", responseBodyType.asNullable(),
-                        invocationExpression);
                 } else if (responseBodyType == ArrayType.BYTE_ARRAY) {
                     // byte[]
                     if (rawType == ClassType.BASE_64_URL) {
-                        return String.format(
-                            "%1$s.toObject(" + ClassType.BASE_64_URL.getName() + ".class).decodedBytes()",
-                            invocationExpression);
+                        return invocationExpression + ".toObject(" + ClassType.BASE_64_URL.getName()
+                            + ".class).decodedBytes()";
                     } else {
-                        return String.format("%1$s.toObject(byte[].class)", invocationExpression);
+                        return invocationExpression + ".toObject(byte[].class)";
                     }
                 } else {
-                    return invocationExpression;
+                    // default, treat as class
+                    return String.format("%2$s.toObject(%1$s.class)", responseBodyType.asNullable(),
+                        invocationExpression);
                 }
         }
     }
