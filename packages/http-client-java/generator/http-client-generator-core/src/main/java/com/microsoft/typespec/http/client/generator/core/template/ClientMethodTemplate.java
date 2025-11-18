@@ -140,6 +140,8 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
     protected static void addOptionalAndConstantVariables(JavaBlock function, ClientMethod clientMethod,
         JavaSettings settings) {
         final List<ProxyMethodParameter> proxyMethodParameters = clientMethod.getProxyMethod().getParameters();
+        List<com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.MethodParameter> methodParameters
+            = MethodUtil.getParameters(clientMethod, false);
         for (ProxyMethodParameter parameter : proxyMethodParameters) {
             if (parameter.isFromClient()) {
                 // parameter is scoped to the client, hence no local variable instantiation for it.
@@ -164,7 +166,17 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
 
             // If the parameter isn't required and the client method only uses required parameters, optional
             // parameters are omitted and will need to instantiated in the method.
-            boolean optionalOmitted = clientMethod.getOnlyRequiredParameters() && !parameter.isRequired();
+            boolean optionalOmitted = !parameter.isRequired() && parameter.getClientType() != ClassType.CONTEXT;
+            if (optionalOmitted) {
+                boolean parameterInClientMethodSignature = methodParameters.stream()
+                        .filter(p -> p.getProxyMethodParameter() == parameter)
+                        .findFirst()
+                        .map(p -> p.getClientMethodParameter())
+                        .isPresent();
+                // if the parameter is defined in client method signature,
+                // it does not need to be instantiated in local variable.
+                optionalOmitted = !parameterInClientMethodSignature;
+            }
 
             // Optional variables and constants are always null if their wire type and client type differ and applying
             // conversions between the types is ignored.
