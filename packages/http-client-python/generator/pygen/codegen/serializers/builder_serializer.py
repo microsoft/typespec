@@ -777,7 +777,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             overload.request_builder.parameters.body_parameter.client_name for overload in builder.overloads
         ]
         all_dpg_model_overloads = False
-        if self.code_model.options["models-mode"] == "dpg":
+        if self.code_model.options["models-mode"] == "dpg" and builder.overloads:
             all_dpg_model_overloads = all(
                 isinstance(o.parameters.body_parameter.type, DPGModelType) for o in builder.overloads
             )
