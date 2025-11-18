@@ -1,0 +1,17 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "tsptest.armversioned.fluent.ArmVersionedClient": "TspTest.ArmVersioned",
+    "tsptest.armversioned.fluent.TopLevelArmResourcesClient": "TspTest.ArmVersioned.TopLevelArmResources",
+    "tsptest.armversioned.fluent.TopLevelArmResourcesClient.action": "TspTest.ArmVersioned.TopLevelArmResources.action",
+    "tsptest.armversioned.fluent.TopLevelArmResourcesClient.actionWithResponse": "TspTest.ArmVersioned.TopLevelArmResources.action",
+    "tsptest.armversioned.fluent.TopLevelArmResourcesClient.beginCreateOrUpdate": "TspTest.ArmVersioned.TopLevelArmResources.createOrUpdate",
+    "tsptest.armversioned.fluent.TopLevelArmResourcesClient.createOrUpdate": "TspTest.ArmVersioned.TopLevelArmResources.createOrUpdate",
+    "tsptest.armversioned.fluent.TopLevelArmResourcesClient.list": "TspTest.ArmVersioned.TopLevelArmResources.listBySubscription",
+    "tsptest.armversioned.fluent.models.TopLevelArmResourceInner": "TspTest.ArmVersioned.TopLevelArmResource",
+    "tsptest.armversioned.implementation.ArmVersionedClientBuilder": "TspTest.ArmVersioned",
+    "tsptest.armversioned.implementation.models.TopLevelArmResourceListResult": "Azure.ResourceManager.ResourceListResult",
+    "tsptest.armversioned.models.ResourceProvisioningState": "Azure.ResourceManager.ResourceProvisioningState",
+    "tsptest.armversioned.models.TopLevelArmResourceProperties": "TspTest.ArmVersioned.TopLevelArmResourceProperties"
+  }
+}
