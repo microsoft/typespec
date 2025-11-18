@@ -17,6 +17,7 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -90,8 +91,8 @@ public final class CodeFormatterUtil {
     private static Map<String, String> loadEclipseSettings() {
         try {
             DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            org.w3c.dom.Document document = documentBuilder.parse(CodeFormatterUtil.class.getClassLoader()
-                .getResourceAsStream("readme/eclipse-format-azure-sdk-for-java.xml"));
+            org.w3c.dom.Document document = documentBuilder.parse(
+                CodeFormatterUtil.class.getClassLoader().getResourceAsStream("eclipse-format-azure-sdk-for-java.xml"));
 
             NodeList formatterSettingXml = document.getElementsByTagName("setting");
             Map<String, String> formatterSettings = new HashMap<>();
@@ -142,17 +143,26 @@ public final class CodeFormatterUtil {
         List<String> lines = file.lines().collect(Collectors.toList());
 
         int lastLineReplaced = importStartLine - 1;
-        for (ImportDeclaration importDeclaration : imports) {
+        for (ImportDeclaration importDeclaration : distinctImports(imports)) {
             lines.set(lastLineReplaced, importToString(importDeclaration));
             lastLineReplaced++;
         }
 
         // Remove any remaining old import lines if the new import list is shorter.
-        for (int i = lastLineReplaced; i < importEndLine; i++) {
-            lines.remove(i);
+        if (importEndLine >= lastLineReplaced) {
+            // Use importLineEnd as-is since Position is 1-based and subList's end index is exclusive.
+            lines.subList(lastLineReplaced, importEndLine).clear();
         }
 
         return String.join("\n", lines);
+    }
+
+    private static List<ImportDeclaration> distinctImports(List<ImportDeclaration> imports) {
+        Map<String, ImportDeclaration> importMap = new LinkedHashMap<>();
+        for (ImportDeclaration importDecl : imports) {
+            importMap.putIfAbsent(importDecl.toString(), importDecl);
+        }
+        return new ArrayList<>(importMap.values());
     }
 
     /**
