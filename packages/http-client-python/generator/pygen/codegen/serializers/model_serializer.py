@@ -336,7 +336,7 @@ class DpgModelSerializer(_ModelSerializer):
             args.append(f"xml={prop.xml_metadata}")
 
         if prop.original_tsp_name:
-            args.append(f"original_tsp_name={prop.original_tsp_name}")
+            args.append(f'original_tsp_name="{prop.original_tsp_name}"')
 
         field = "rest_discriminator" if prop.is_discriminator else "rest_field"
         type_ignore = (
