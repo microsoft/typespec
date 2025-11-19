@@ -148,7 +148,7 @@ function getCompletedRatio(
     }
   }
 
-  return coveredCount / filtered.length;
+  return filtered.length > 0 ? coveredCount / filtered.length : 0;
 }
 
 interface DashboardHeaderRowProps {
