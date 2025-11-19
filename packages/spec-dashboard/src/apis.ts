@@ -70,7 +70,7 @@ function splitManifestByTables(
   manifest: ScenarioManifest,
   tableDefinitions: TableDefinition[],
 ): Array<{ manifest: ScenarioManifest; tableName: string }> {
-  const packageName = manifest.packageName ?? "";
+  const packageName = manifest.name ?? "";
 
   // Find table definitions that apply to this manifest
   const applicableTables = tableDefinitions.filter((table) => table.packageName === packageName);
@@ -158,7 +158,7 @@ export async function getCoverageSummaries(
       // No table definitions, use default behavior
       allManifests.push({
         manifest,
-        tableName: manifest.packageName ?? "",
+        tableName: manifest.name ?? "",
       });
     }
   }
@@ -193,7 +193,7 @@ function getSuiteReportForManifest(
       continue;
     }
     if (
-      value.scenariosMetadata.packageName === (manifest.packageName ?? "") ||
+      value.scenariosMetadata.packageName === (manifest.name ?? "") ||
       value.scenariosMetadata.packageName === (manifest as any).setName /* old name*/
     ) {
       data = value;

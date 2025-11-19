@@ -39,7 +39,7 @@ export function createScenarioManifest(
     version: pkg?.version ?? "?",
     repo: pkg && getRepo(pkg),
     sourceUrl: pkg?.spector?.sourceUrl,
-    packageName: pkg?.name,
+    name: pkg?.name,
     displayName: pkg && ("displayName" in pkg ? pkg.displayName as string : undefined),
     commit,
     scenarios: sortedScenarios.map(({ name, scenarioDoc, target }) => {

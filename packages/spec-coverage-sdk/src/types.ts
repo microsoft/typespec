@@ -1,5 +1,5 @@
 export type ScenarioManifest = {
-  packageName?: string;
+  name?: string;
   displayName?: string;
   /** Repository where scenarios live */
   repo?: string;
