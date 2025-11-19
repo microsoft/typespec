@@ -391,4 +391,83 @@ describe("discriminated union with polymorphic-models-strategy option", () => {
     strictEqual(petSchema.type, undefined);
     strictEqual(petSchema.oneOf, undefined, "Should not have oneOf");
   });
+
+  it("uses correct reference paths with emitAllModels", async () => {
+    const schemas = await emitSchema(
+      `
+        @discriminator("kind")
+        model Pet {
+          name: string;
+        }
+
+        model Cat extends Pet {
+          kind: "cat";
+          meow: int32;
+        }
+
+        model Dog extends Pet {
+          kind: "dog";
+          bark: string;
+        }
+      `,
+      { "polymorphic-models-strategy": "oneOf", emitAllModels: true },
+    );
+
+    const petSchema = schemas["Pet.json"];
+    ok(petSchema, "Pet schema should exist");
+    ok(petSchema.oneOf, "Pet schema should have oneOf");
+    
+    // All models emitted separately, so references point to separate files
+    deepStrictEqual(petSchema.oneOf[0], { $ref: "Cat.json" });
+    deepStrictEqual(petSchema.oneOf[1], { $ref: "Dog.json" });
+
+    // Mapping uses the same references as oneOf
+    deepStrictEqual(petSchema.discriminator.mapping, {
+      cat: "Cat.json",
+      dog: "Dog.json",
+    });
+  });
+
+  it("uses #/$defs references when derived models are bundled", async () => {
+    const schemas = await emitSchema(
+      `
+        @jsonSchema
+        @discriminator("kind")
+        model Pet {
+          name: string;
+        }
+
+        model Cat extends Pet {
+          kind: "cat";
+          meow: int32;
+        }
+
+        model Dog extends Pet {
+          kind: "dog";
+          bark: string;
+        }
+      `,
+      { "polymorphic-models-strategy": "oneOf" },
+      { emitNamespace: false },
+    );
+
+    const petSchema = schemas["Pet.json"];
+    ok(petSchema, "Pet schema should exist");
+    ok(petSchema.oneOf, "Pet schema should have oneOf");
+    
+    // Verify the derived models are in $defs
+    ok(petSchema.$defs?.Cat, "Cat should be in $defs");
+    ok(petSchema.$defs?.Dog, "Dog should be in $defs");
+    
+    // References use #/$defs when models are bundled
+    deepStrictEqual(petSchema.oneOf[0], { $ref: "#/$defs/Cat" });
+    deepStrictEqual(petSchema.oneOf[1], { $ref: "#/$defs/Dog" });
+    
+    // Mapping uses schema names with .json extension
+    // This works correctly with the $ref values for validation
+    deepStrictEqual(petSchema.discriminator.mapping, {
+      cat: "Cat.json",
+      dog: "Dog.json",
+    });
+  });
 });
