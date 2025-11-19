@@ -1,6 +1,9 @@
 import { TextDocumentIdentifier } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { ENABLE_UPDATE_MANAGER_LOGGING } from "./constants.js";
+import {
+  ENABLE_UPDATE_MANAGER_LOGGING,
+  UPDATE_MANAGER_DEBOUNCE_DELAY_OVERRIDE,
+} from "./constants.js";
 import { ServerLog } from "./types.js";
 
 interface PendingUpdate {
@@ -28,6 +31,9 @@ export class UpdateManager<T = void> {
   ) => Promise<T | undefined>;
   #docChangedTimesteps: number[] = [];
   #isStarted = false;
+
+  // Cache for debounce delay from environment variable
+  #cachedDebounceDelay: number | null = null;
 
   private _log: (sl: ServerLog) => void;
 
@@ -66,14 +72,20 @@ export class UpdateManager<T = void> {
   }
 
   private getDebounceDelayFromEnv = (): number => {
-    const delayOverride =
-      process.env.__TypeSpec__Server__UpdateManager__Debounce__Delay__Override__;
-    if (delayOverride !== undefined) {
-      const parsedDelay = parseInt(delayOverride, 0);
-      return !isNaN(parsedDelay) ? parsedDelay : -1;
+    // Return cached value if available
+    if (this.#cachedDebounceDelay !== null) {
+      return this.#cachedDebounceDelay;
     }
 
-    return -1;
+    const delayOverride = process.env[UPDATE_MANAGER_DEBOUNCE_DELAY_OVERRIDE];
+    if (delayOverride !== undefined) {
+      const parsedDelay = parseInt(delayOverride, 0);
+      this.#cachedDebounceDelay = !isNaN(parsedDelay) ? parsedDelay : -1;
+    } else {
+      this.#cachedDebounceDelay = -1;
+    }
+
+    return this.#cachedDebounceDelay;
   };
 
   /**

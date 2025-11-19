@@ -13,6 +13,7 @@ import { createTestFileSystem } from "./fs.js";
 import { StandardTestLibrary, TestHostOptions } from "./test-compiler-host.js";
 import { resolveVirtualPath } from "./test-utils.js";
 import { TestFileSystem } from "./types.js";
+import { UPDATE_MANAGER_DEBOUNCE_DELAY_OVERRIDE } from "../server/constants.js";
 
 export interface TestServerHost extends ServerHost, TestFileSystem {
   server: Server;
@@ -25,7 +26,8 @@ export interface TestServerHost extends ServerHost, TestFileSystem {
 }
 
 export async function createTestServerHost(options?: TestHostOptions & { workspaceDir?: string }) {
-  process.env.__TypeSpec__Server__UpdateManager__Debounce__Delay__Override__ = "0";
+  process.env[UPDATE_MANAGER_DEBOUNCE_DELAY_OVERRIDE] = "0";
+
   const logMessages: string[] = [];
   const documents = createStringMap<TextDocument>(!!options?.caseInsensitiveFileSystem);
   const diagnostics = createStringMap<Diagnostic[]>(!!options?.caseInsensitiveFileSystem);
