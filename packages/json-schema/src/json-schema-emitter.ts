@@ -36,6 +36,7 @@ import {
   explainStringTemplateNotSerializable,
   getDeprecated,
   getDirectoryPath,
+  getDiscriminator,
   getDoc,
   getExamples,
   getFormat,
@@ -101,6 +102,16 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   modelDeclaration(model: Model, name: string): EmitterOutput<object> {
+    // Check if this should emit as a discriminated union
+    const discriminator = getDiscriminator(this.emitter.getProgram(), model);
+    if (
+      this.emitter.getOptions()["emit-discriminated-union"] &&
+      discriminator &&
+      model.derivedModels.length > 0
+    ) {
+      return this.#createDiscriminatedUnionDeclaration(model, name, discriminator);
+    }
+
     const schema = this.#initializeSchema(model, name, {
       type: "object",
       properties: this.emitter.emitModelProperties(model),
@@ -166,6 +177,12 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       }
     }
 
+    // Add discriminator property to required if model has @discriminator decorator and property is not already defined
+    const discriminator = getDiscriminator(this.emitter.getProgram(), model);
+    if (discriminator && !model.properties.has(discriminator.propertyName)) {
+      requiredProps.push(discriminator.propertyName);
+    }
+
     return requiredProps.length > 0 ? requiredProps : undefined;
   }
 
@@ -175,6 +192,15 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     for (const [name, prop] of model.properties) {
       const result = this.emitter.emitModelProperty(prop);
       setProperty(props, name, result);
+    }
+
+    // Add discriminator property if model has @discriminator decorator and property is not already defined
+    const discriminator = getDiscriminator(this.emitter.getProgram(), model);
+    if (discriminator && !(discriminator.propertyName in props)) {
+      setProperty(props, discriminator.propertyName, {
+        type: "string",
+        description: `Discriminator property for ${model.name}.`,
+      });
     }
 
     return props;
@@ -651,6 +677,42 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
   #isStdType(type: Type) {
     return this.emitter.getProgram().checker.isStdType(type);
+  }
+
+  #createDiscriminatedUnionDeclaration(
+    model: Model,
+    name: string,
+    discriminator: { propertyName: string },
+  ): EmitterOutput<object> {
+    const oneOf = new ArrayBuilder<Record<string, unknown>>();
+    const mapping: Record<string, string> = {};
+
+    // Collect all derived models and their discriminator values
+    for (const derived of model.derivedModels) {
+      if (!includeDerivedModel(derived)) continue;
+
+      // Add reference to each derived model
+      const derivedRef = this.emitter.emitTypeReference(derived);
+      oneOf.push(derivedRef);
+
+      // Extract discriminator value from derived model
+      const prop = derived.properties.get(discriminator.propertyName);
+      if (prop?.type.kind === "String") {
+        const value = (prop.type as StringLiteral).value;
+        mapping[value] = `${derived.name}.json`;
+      }
+    }
+
+    const schema = this.#initializeSchema(model, name, {
+      oneOf: oneOf,
+      discriminator: {
+        propertyName: discriminator.propertyName,
+        mapping: mapping,
+      },
+    });
+
+    this.#applyConstraints(model, schema);
+    return this.#createDeclaration(model, name, schema);
   }
 
   intrinsic(intrinsic: IntrinsicType, name: string): EmitterOutput<object> {

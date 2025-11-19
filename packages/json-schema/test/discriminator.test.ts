@@ -1,0 +1,355 @@
+import { deepStrictEqual, ok, strictEqual } from "assert";
+import { describe, it } from "vitest";
+import { emitSchema } from "./utils.js";
+
+describe("json-schema: discriminator", () => {
+  describe("model inheritance with @discriminator", () => {
+    it("adds discriminator property to base model", async () => {
+      const schemas = await emitSchema(`
+        @discriminator("kind")
+        model Pet {
+          name: string;
+        }
+
+        model Cat extends Pet {
+          kind: "cat";
+          meow: int32;
+        }
+
+        model Dog extends Pet {
+          kind: "dog";
+          bark: string;
+        }
+      `);
+
+      const petSchema = schemas["Pet.json"];
+      ok(petSchema, "Pet schema should exist");
+      deepStrictEqual(petSchema.properties.kind, {
+        type: "string",
+        description: "Discriminator property for Pet.",
+      });
+      strictEqual(petSchema.properties.name.type, "string");
+      deepStrictEqual(petSchema.required, ["name", "kind"]);
+    });
+
+    it("derived models define discriminator with const value", async () => {
+      const schemas = await emitSchema(`
+        @discriminator("kind")
+        model Pet {
+          name: string;
+        }
+
+        model Cat extends Pet {
+          kind: "cat";
+          meow: int32;
+        }
+
+        model Dog extends Pet {
+          kind: "dog";
+          bark: string;
+        }
+      `);
+
+      const catSchema = schemas["Cat.json"];
+      ok(catSchema, "Cat schema should exist");
+      deepStrictEqual(catSchema.properties.kind, {
+        type: "string",
+        const: "cat",
+      });
+      strictEqual(catSchema.properties.meow.type, "integer");
+      deepStrictEqual(catSchema.allOf, [{ $ref: "Pet.json" }]);
+
+      const dogSchema = schemas["Dog.json"];
+      ok(dogSchema, "Dog schema should exist");
+      deepStrictEqual(dogSchema.properties.kind, {
+        type: "string",
+        const: "dog",
+      });
+      strictEqual(dogSchema.properties.bark.type, "string");
+      deepStrictEqual(dogSchema.allOf, [{ $ref: "Pet.json" }]);
+    });
+
+    it("works with union discriminator values", async () => {
+      const schemas = await emitSchema(`
+        union PetKind {
+          cat: "cat-kind",
+          dog: "dog-kind"
+        }
+
+        @discriminator("kind")
+        model Pet {
+          kind: PetKind;
+        }
+
+        model Cat extends Pet {
+          kind: PetKind.cat;
+          meow: int32;
+        }
+
+        model Dog extends Pet {
+          kind: PetKind.dog;
+          bark: string;
+        }
+      `);
+
+      const petSchema = schemas["Pet.json"];
+      ok(petSchema, "Pet schema should exist");
+
+      // The discriminator property should reference the union or be defined
+      ok(petSchema.properties.kind, "Pet should have kind property");
+
+      const catSchema = schemas["Cat.json"];
+      ok(catSchema, "Cat schema should exist");
+      deepStrictEqual(catSchema.properties.kind, {
+        type: "string",
+        const: "cat-kind",
+      });
+
+      const dogSchema = schemas["Dog.json"];
+      ok(dogSchema, "Dog schema should exist");
+      deepStrictEqual(dogSchema.properties.kind, {
+        type: "string",
+        const: "dog-kind",
+      });
+    });
+
+    it("supports multiple levels of inheritance", async () => {
+      const schemas = await emitSchema(`
+        @discriminator("kind")
+        model Pet {
+          name: string;
+        }
+
+        model Dog extends Pet {
+          kind: "dog";
+          bark: string;
+        }
+
+        model Beagle extends Dog {
+          purebred: boolean;
+        }
+      `);
+
+      const petSchema = schemas["Pet.json"];
+      ok(petSchema, "Pet schema should exist");
+      deepStrictEqual(petSchema.properties.kind, {
+        type: "string",
+        description: "Discriminator property for Pet.",
+      });
+
+      const dogSchema = schemas["Dog.json"];
+      ok(dogSchema, "Dog schema should exist");
+      deepStrictEqual(dogSchema.properties.kind, {
+        type: "string",
+        const: "dog",
+      });
+      deepStrictEqual(dogSchema.allOf, [{ $ref: "Pet.json" }]);
+
+      const beagleSchema = schemas["Beagle.json"];
+      ok(beagleSchema, "Beagle schema should exist");
+      strictEqual(beagleSchema.properties.purebred.type, "boolean");
+      deepStrictEqual(beagleSchema.allOf, [{ $ref: "Dog.json" }]);
+    });
+
+    it("doesn't add discriminator property if already explicitly defined", async () => {
+      const schemas = await emitSchema(`
+        @discriminator("kind")
+        model Pet {
+          name: string;
+          kind: string;
+        }
+
+        model Cat extends Pet {
+          kind: "cat";
+          meow: int32;
+        }
+      `);
+
+      const petSchema = schemas["Pet.json"];
+      ok(petSchema, "Pet schema should exist");
+      // Should use the explicitly defined property, not add description
+      deepStrictEqual(petSchema.properties.kind, {
+        type: "string",
+      });
+    });
+
+    it("works with non-empty base model", async () => {
+      const schemas = await emitSchema(`
+        @discriminator("kind")
+        model Pet {
+          name: string;
+          weight?: float32;
+        }
+
+        model Cat extends Pet {
+          kind: "cat";
+          meow: int32;
+        }
+
+        model Dog extends Pet {
+          kind: "dog";
+          bark: string;
+        }
+      `);
+
+      const petSchema = schemas["Pet.json"];
+      ok(petSchema, "Pet schema should exist");
+      strictEqual(petSchema.properties.name.type, "string");
+      strictEqual(petSchema.properties.weight.type, "number");
+      deepStrictEqual(petSchema.properties.kind, {
+        type: "string",
+        description: "Discriminator property for Pet.",
+      });
+      deepStrictEqual(petSchema.required, ["name", "kind"]);
+    });
+  });
+
+  describe("discriminated union with emit-discriminated-union option", () => {
+    it("emits oneOf schema for base model with derived types", async () => {
+      const schemas = await emitSchema(
+        `
+        @discriminator("kind")
+        model Pet {
+          name: string;
+        }
+
+        model Cat extends Pet {
+          kind: "cat";
+          meow: int32;
+        }
+
+        model Dog extends Pet {
+          kind: "dog";
+          bark: string;
+        }
+      `,
+        { "emit-discriminated-union": true },
+      );
+
+      const petSchema = schemas["Pet.json"];
+      ok(petSchema, "Pet schema should exist");
+      ok(petSchema.oneOf, "Pet schema should have oneOf");
+      strictEqual(petSchema.oneOf.length, 2, "oneOf should have 2 options");
+      deepStrictEqual(petSchema.oneOf[0], { $ref: "Cat.json" });
+      deepStrictEqual(petSchema.oneOf[1], { $ref: "Dog.json" });
+
+      ok(petSchema.discriminator, "Pet schema should have discriminator");
+      strictEqual(petSchema.discriminator.propertyName, "kind");
+      deepStrictEqual(petSchema.discriminator.mapping, {
+        cat: "Cat.json",
+        dog: "Dog.json",
+      });
+
+      // Should not have object properties
+      strictEqual(petSchema.properties, undefined);
+      strictEqual(petSchema.type, undefined);
+    });
+
+    it("still emits derived models normally", async () => {
+      const schemas = await emitSchema(
+        `
+        @discriminator("kind")
+        model Pet {
+          name: string;
+        }
+
+        model Cat extends Pet {
+          kind: "cat";
+          meow: int32;
+        }
+
+        model Dog extends Pet {
+          kind: "dog";
+          bark: string;
+        }
+      `,
+        { "emit-discriminated-union": true },
+      );
+
+      const catSchema = schemas["Cat.json"];
+      ok(catSchema, "Cat schema should exist");
+      strictEqual(catSchema.properties.kind.const, "cat");
+      strictEqual(catSchema.properties.meow.type, "integer");
+      deepStrictEqual(catSchema.allOf, [{ $ref: "Pet.json" }]);
+
+      const dogSchema = schemas["Dog.json"];
+      ok(dogSchema, "Dog schema should exist");
+      strictEqual(dogSchema.properties.kind.const, "dog");
+      strictEqual(dogSchema.properties.bark.type, "string");
+      deepStrictEqual(dogSchema.allOf, [{ $ref: "Pet.json" }]);
+    });
+
+    it("works with multiple levels of inheritance", async () => {
+      const schemas = await emitSchema(
+        `
+        @discriminator("kind")
+        model Pet {
+          name: string;
+        }
+
+        model Dog extends Pet {
+          kind: "dog";
+          bark: string;
+        }
+
+        model Beagle extends Dog {
+          purebred: boolean;
+        }
+      `,
+        { "emit-discriminated-union": true },
+      );
+
+      const petSchema = schemas["Pet.json"];
+      ok(petSchema, "Pet schema should exist");
+      ok(petSchema.oneOf, "Pet schema should have oneOf");
+      strictEqual(petSchema.oneOf.length, 1, "oneOf should have 1 option (Dog)");
+      deepStrictEqual(petSchema.oneOf[0], { $ref: "Dog.json" });
+
+      const dogSchema = schemas["Dog.json"];
+      ok(dogSchema, "Dog schema should exist");
+      deepStrictEqual(dogSchema.allOf, [{ $ref: "Pet.json" }]);
+    });
+
+    it("does not emit oneOf when option is false", async () => {
+      const schemas = await emitSchema(
+        `
+        @discriminator("kind")
+        model Pet {
+          name: string;
+        }
+
+        model Cat extends Pet {
+          kind: "cat";
+          meow: int32;
+        }
+      `,
+        { "emit-discriminated-union": false },
+      );
+
+      const petSchema = schemas["Pet.json"];
+      ok(petSchema, "Pet schema should exist");
+      strictEqual(petSchema.oneOf, undefined, "Should not have oneOf");
+      strictEqual(petSchema.type, "object", "Should be object type");
+      ok(petSchema.properties, "Should have properties");
+    });
+
+    it("does not emit oneOf for models without derived types", async () => {
+      const schemas = await emitSchema(
+        `
+        @discriminator("kind")
+        model Pet {
+          name: string;
+          kind: string;
+        }
+      `,
+        { "emit-discriminated-union": true },
+      );
+
+      const petSchema = schemas["Pet.json"];
+      ok(petSchema, "Pet schema should exist");
+      strictEqual(petSchema.oneOf, undefined, "Should not have oneOf");
+      strictEqual(petSchema.type, "object", "Should be object type");
+      ok(petSchema.properties, "Should have properties");
+    });
+  });
+});

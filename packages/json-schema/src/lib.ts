@@ -62,6 +62,13 @@ export interface JSONSchemaEmitterOptions {
    * @defaultValue false
    */
   "seal-object-schemas"?: boolean;
+
+  /**
+   * When true, models with the discriminator decorator that have derived models will emit a oneOf schema
+   * with references to all derived models, creating a closed discriminated union.
+   * @defaultValue false
+   */
+  "emit-discriminated-union"?: boolean;
 }
 
 /**
@@ -111,6 +118,16 @@ export const EmitterOptionsSchema: JSONSchemaType<JSONSchemaEmitterOptions> = {
       description: [
         "If true, then for models emitted as object schemas we default `unevaluatedProperties` to `{ not: {} }`,",
         "if not explicitly specified elsewhere.",
+        "Default: `false`",
+      ].join("\n"),
+    },
+    "emit-discriminated-union": {
+      type: "boolean",
+      nullable: true,
+      default: false,
+      description: [
+        "When true, models with the discriminator decorator that have derived models will emit a oneOf schema",
+        "with references to all derived models, creating a closed discriminated union.",
         "Default: `false`",
       ].join("\n"),
     },
