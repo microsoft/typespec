@@ -6,6 +6,10 @@ using System.ClientModel.Primitives;
 
 namespace Encode.Datetime
 {
+    /// <summary>
+    /// Context class which will be filled in by the System.ClientModel.SourceGeneration.
+    /// For more information <see href='https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/core/System.ClientModel/src/docs/ModelReaderWriterContext.md' />
+    /// </summary>
     [ModelReaderWriterBuildable(typeof(DefaultDatetimeProperty))]
     [ModelReaderWriterBuildable(typeof(Rfc3339DatetimeProperty))]
     [ModelReaderWriterBuildable(typeof(Rfc7231DatetimeProperty))]

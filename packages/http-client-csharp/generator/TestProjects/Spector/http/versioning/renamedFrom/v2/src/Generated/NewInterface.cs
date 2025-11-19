@@ -2,25 +2,106 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
+using Versioning.RenamedFrom.V2;
 
 namespace Versioning.RenamedFrom
 {
+    /// <summary> The NewInterface sub-client. </summary>
     public partial class NewInterface
     {
-        protected NewInterface() => throw null;
+        private readonly Uri _endpoint;
+        private readonly string _version;
 
-        public ClientPipeline Pipeline => throw null;
+        /// <summary> Initializes a new instance of NewInterface for mocking. </summary>
+        protected NewInterface()
+        {
+        }
 
-        public virtual ClientResult NewOpInNewInterface(BinaryContent content, RequestOptions options = null) => throw null;
+        /// <summary> Initializes a new instance of NewInterface. </summary>
+        /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
+        /// <param name="endpoint"> Service endpoint. </param>
+        /// <param name="version"></param>
+        internal NewInterface(ClientPipeline pipeline, Uri endpoint, string version)
+        {
+            _endpoint = endpoint;
+            Pipeline = pipeline;
+            _version = version;
+        }
 
-        public virtual Task<ClientResult> NewOpInNewInterfaceAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
+        public ClientPipeline Pipeline { get; }
 
-        public virtual ClientResult<NewModel> NewOpInNewInterface(NewModel body, CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] NewOpInNewInterface
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult NewOpInNewInterface(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
 
-        public virtual Task<ClientResult<NewModel>> NewOpInNewInterfaceAsync(NewModel body, CancellationToken cancellationToken = default) => throw null;
+            using PipelineMessage message = CreateNewOpInNewInterfaceRequest(content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] NewOpInNewInterface
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> NewOpInNewInterfaceAsync(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateNewOpInNewInterfaceRequest(content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> NewOpInNewInterface. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<NewModel> NewOpInNewInterface(NewModel body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(body, nameof(body));
+
+            ClientResult result = NewOpInNewInterface(body, cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue((NewModel)result, result.GetRawResponse());
+        }
+
+        /// <summary> NewOpInNewInterface. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<NewModel>> NewOpInNewInterfaceAsync(NewModel body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(body, nameof(body));
+
+            ClientResult result = await NewOpInNewInterfaceAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue((NewModel)result, result.GetRawResponse());
+        }
     }
 }

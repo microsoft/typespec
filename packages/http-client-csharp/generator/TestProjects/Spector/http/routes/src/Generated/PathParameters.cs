@@ -2,10 +2,12 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
+using Routes;
 using Routes._PathParameters.LabelExpansion;
 using Routes._PathParameters.MatrixExpansion;
 using Routes._PathParameters.PathExpansion;
@@ -14,44 +16,271 @@ using Routes._PathParameters.SimpleExpansion;
 
 namespace Routes._PathParameters
 {
+    /// <summary> The PathParameters sub-client. </summary>
     public partial class PathParameters
     {
-        protected PathParameters() => throw null;
+        private readonly Uri _endpoint;
+        private PathParametersReservedExpansion _cachedPathParametersReservedExpansion;
+        private PathParametersSimpleExpansion _cachedPathParametersSimpleExpansion;
+        private PathParametersPathExpansion _cachedPathParametersPathExpansion;
+        private PathParametersLabelExpansion _cachedPathParametersLabelExpansion;
+        private PathParametersMatrixExpansion _cachedPathParametersMatrixExpansion;
 
-        public ClientPipeline Pipeline => throw null;
+        /// <summary> Initializes a new instance of PathParameters for mocking. </summary>
+        protected PathParameters()
+        {
+        }
 
-        public virtual ClientResult TemplateOnly(string @param, RequestOptions options) => throw null;
+        /// <summary> Initializes a new instance of PathParameters. </summary>
+        /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
+        /// <param name="endpoint"> Service endpoint. </param>
+        internal PathParameters(ClientPipeline pipeline, Uri endpoint)
+        {
+            _endpoint = endpoint;
+            Pipeline = pipeline;
+        }
 
-        public virtual Task<ClientResult> TemplateOnlyAsync(string @param, RequestOptions options) => throw null;
+        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
+        public ClientPipeline Pipeline { get; }
 
-        public virtual ClientResult TemplateOnly(string @param, CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] TemplateOnly
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="param"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="param"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="param"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult TemplateOnly(string @param, RequestOptions options)
+        {
+            Argument.AssertNotNullOrEmpty(@param, nameof(@param));
 
-        public virtual Task<ClientResult> TemplateOnlyAsync(string @param, CancellationToken cancellationToken = default) => throw null;
+            using PipelineMessage message = CreateTemplateOnlyRequest(@param, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
 
-        public virtual ClientResult Explicit(string @param, RequestOptions options) => throw null;
+        /// <summary>
+        /// [Protocol Method] TemplateOnly
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="param"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="param"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="param"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> TemplateOnlyAsync(string @param, RequestOptions options)
+        {
+            Argument.AssertNotNullOrEmpty(@param, nameof(@param));
 
-        public virtual Task<ClientResult> ExplicitAsync(string @param, RequestOptions options) => throw null;
+            using PipelineMessage message = CreateTemplateOnlyRequest(@param, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
 
-        public virtual ClientResult Explicit(string @param, CancellationToken cancellationToken = default) => throw null;
+        /// <summary> TemplateOnly. </summary>
+        /// <param name="param"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="param"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="param"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult TemplateOnly(string @param, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(@param, nameof(@param));
 
-        public virtual Task<ClientResult> ExplicitAsync(string @param, CancellationToken cancellationToken = default) => throw null;
+            return TemplateOnly(@param, cancellationToken.ToRequestOptions());
+        }
 
-        public virtual ClientResult AnnotationOnly(string @param, RequestOptions options) => throw null;
+        /// <summary> TemplateOnly. </summary>
+        /// <param name="param"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="param"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="param"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> TemplateOnlyAsync(string @param, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(@param, nameof(@param));
 
-        public virtual Task<ClientResult> AnnotationOnlyAsync(string @param, RequestOptions options) => throw null;
+            return await TemplateOnlyAsync(@param, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+        }
 
-        public virtual ClientResult AnnotationOnly(string @param, CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] Explicit
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="param"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="param"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="param"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult Explicit(string @param, RequestOptions options)
+        {
+            Argument.AssertNotNullOrEmpty(@param, nameof(@param));
 
-        public virtual Task<ClientResult> AnnotationOnlyAsync(string @param, CancellationToken cancellationToken = default) => throw null;
+            using PipelineMessage message = CreateExplicitRequest(@param, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
 
-        public virtual PathParametersReservedExpansion GetPathParametersReservedExpansionClient() => throw null;
+        /// <summary>
+        /// [Protocol Method] Explicit
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="param"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="param"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="param"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> ExplicitAsync(string @param, RequestOptions options)
+        {
+            Argument.AssertNotNullOrEmpty(@param, nameof(@param));
 
-        public virtual PathParametersSimpleExpansion GetPathParametersSimpleExpansionClient() => throw null;
+            using PipelineMessage message = CreateExplicitRequest(@param, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
 
-        public virtual PathParametersPathExpansion GetPathParametersPathExpansionClient() => throw null;
+        /// <summary> Explicit. </summary>
+        /// <param name="param"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="param"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="param"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult Explicit(string @param, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(@param, nameof(@param));
 
-        public virtual PathParametersLabelExpansion GetPathParametersLabelExpansionClient() => throw null;
+            return Explicit(@param, cancellationToken.ToRequestOptions());
+        }
 
-        public virtual PathParametersMatrixExpansion GetPathParametersMatrixExpansionClient() => throw null;
+        /// <summary> Explicit. </summary>
+        /// <param name="param"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="param"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="param"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> ExplicitAsync(string @param, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(@param, nameof(@param));
+
+            return await ExplicitAsync(@param, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// [Protocol Method] AnnotationOnly
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="param"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="param"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="param"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult AnnotationOnly(string @param, RequestOptions options)
+        {
+            Argument.AssertNotNullOrEmpty(@param, nameof(@param));
+
+            using PipelineMessage message = CreateAnnotationOnlyRequest(@param, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] AnnotationOnly
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="param"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="param"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="param"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> AnnotationOnlyAsync(string @param, RequestOptions options)
+        {
+            Argument.AssertNotNullOrEmpty(@param, nameof(@param));
+
+            using PipelineMessage message = CreateAnnotationOnlyRequest(@param, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> AnnotationOnly. </summary>
+        /// <param name="param"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="param"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="param"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult AnnotationOnly(string @param, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(@param, nameof(@param));
+
+            return AnnotationOnly(@param, cancellationToken.ToRequestOptions());
+        }
+
+        /// <summary> AnnotationOnly. </summary>
+        /// <param name="param"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="param"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="param"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> AnnotationOnlyAsync(string @param, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(@param, nameof(@param));
+
+            return await AnnotationOnlyAsync(@param, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+        }
+
+        /// <summary> Initializes a new instance of PathParametersReservedExpansion. </summary>
+        public virtual PathParametersReservedExpansion GetPathParametersReservedExpansionClient()
+        {
+            return Volatile.Read(ref _cachedPathParametersReservedExpansion) ?? Interlocked.CompareExchange(ref _cachedPathParametersReservedExpansion, new PathParametersReservedExpansion(Pipeline, _endpoint), null) ?? _cachedPathParametersReservedExpansion;
+        }
+
+        /// <summary> Initializes a new instance of PathParametersSimpleExpansion. </summary>
+        public virtual PathParametersSimpleExpansion GetPathParametersSimpleExpansionClient()
+        {
+            return Volatile.Read(ref _cachedPathParametersSimpleExpansion) ?? Interlocked.CompareExchange(ref _cachedPathParametersSimpleExpansion, new PathParametersSimpleExpansion(Pipeline, _endpoint), null) ?? _cachedPathParametersSimpleExpansion;
+        }
+
+        /// <summary> Initializes a new instance of PathParametersPathExpansion. </summary>
+        public virtual PathParametersPathExpansion GetPathParametersPathExpansionClient()
+        {
+            return Volatile.Read(ref _cachedPathParametersPathExpansion) ?? Interlocked.CompareExchange(ref _cachedPathParametersPathExpansion, new PathParametersPathExpansion(Pipeline, _endpoint), null) ?? _cachedPathParametersPathExpansion;
+        }
+
+        /// <summary> Initializes a new instance of PathParametersLabelExpansion. </summary>
+        public virtual PathParametersLabelExpansion GetPathParametersLabelExpansionClient()
+        {
+            return Volatile.Read(ref _cachedPathParametersLabelExpansion) ?? Interlocked.CompareExchange(ref _cachedPathParametersLabelExpansion, new PathParametersLabelExpansion(Pipeline, _endpoint), null) ?? _cachedPathParametersLabelExpansion;
+        }
+
+        /// <summary> Initializes a new instance of PathParametersMatrixExpansion. </summary>
+        public virtual PathParametersMatrixExpansion GetPathParametersMatrixExpansionClient()
+        {
+            return Volatile.Read(ref _cachedPathParametersMatrixExpansion) ?? Interlocked.CompareExchange(ref _cachedPathParametersMatrixExpansion, new PathParametersMatrixExpansion(Pipeline, _endpoint), null) ?? _cachedPathParametersMatrixExpansion;
+        }
     }
 }

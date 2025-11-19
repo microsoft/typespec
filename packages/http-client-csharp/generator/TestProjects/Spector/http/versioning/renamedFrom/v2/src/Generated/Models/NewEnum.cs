@@ -4,6 +4,7 @@
 
 namespace Versioning.RenamedFrom
 {
+    /// <summary></summary>
     public enum NewEnum
     {
         /// <summary> NewEnumMember. </summary>

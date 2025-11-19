@@ -7,25 +7,116 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
+using Versioning.ReturnTypeChangedFrom.V2;
 
 namespace Versioning.ReturnTypeChangedFrom
 {
+    /// <summary> Test for the `@returnTypeChangedFrom` decorator. </summary>
     public partial class ReturnTypeChangedFromClient
     {
-        protected ReturnTypeChangedFromClient() => throw null;
+        private readonly Uri _endpoint;
+        private readonly string _version;
 
-        public ReturnTypeChangedFromClient(Uri endpoint) : this(endpoint, new ReturnTypeChangedFromClientOptions()) => throw null;
+        /// <summary> Initializes a new instance of ReturnTypeChangedFromClient for mocking. </summary>
+        protected ReturnTypeChangedFromClient()
+        {
+        }
 
-        public ReturnTypeChangedFromClient(Uri endpoint, ReturnTypeChangedFromClientOptions options) => throw null;
+        /// <summary> Initializes a new instance of ReturnTypeChangedFromClient. </summary>
+        /// <param name="endpoint"> Service endpoint. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> is null. </exception>
+        public ReturnTypeChangedFromClient(Uri endpoint) : this(endpoint, new ReturnTypeChangedFromClientOptions())
+        {
+        }
 
-        public ClientPipeline Pipeline => throw null;
+        /// <summary> Initializes a new instance of ReturnTypeChangedFromClient. </summary>
+        /// <param name="endpoint"> Service endpoint. </param>
+        /// <param name="options"> The options for configuring the client. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> is null. </exception>
+        public ReturnTypeChangedFromClient(Uri endpoint, ReturnTypeChangedFromClientOptions options)
+        {
+            Argument.AssertNotNull(endpoint, nameof(endpoint));
 
-        public virtual ClientResult Test(BinaryContent content, RequestOptions options = null) => throw null;
+            options ??= new ReturnTypeChangedFromClientOptions();
 
-        public virtual Task<ClientResult> TestAsync(BinaryContent content, RequestOptions options = null) => throw null;
+            _endpoint = endpoint;
+            Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>());
+            _version = options.Version;
+        }
 
-        public virtual ClientResult<string> Test(string body, CancellationToken cancellationToken = default) => throw null;
+        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
+        public ClientPipeline Pipeline { get; }
 
-        public virtual Task<ClientResult<string>> TestAsync(string body, CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] Test
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult Test(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateTestRequest(content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] Test
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> TestAsync(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateTestRequest(content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> Test. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="body"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<string> Test(string body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(body, nameof(body));
+
+            using BinaryContent content = BinaryContent.Create(BinaryData.FromObjectAsJson(body));
+            ClientResult result = Test(content, cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue(result.GetRawResponse().Content.ToObjectFromJson<string>(), result.GetRawResponse());
+        }
+
+        /// <summary> Test. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="body"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<string>> TestAsync(string body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(body, nameof(body));
+
+            using BinaryContent content = BinaryContent.Create(BinaryData.FromObjectAsJson(body));
+            ClientResult result = await TestAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue(result.GetRawResponse().Content.ToObjectFromJson<string>(), result.GetRawResponse());
+        }
     }
 }

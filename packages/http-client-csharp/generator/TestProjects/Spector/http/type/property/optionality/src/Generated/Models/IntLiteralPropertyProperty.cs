@@ -4,29 +4,52 @@
 
 using System;
 using System.ComponentModel;
+using System.Globalization;
 
 namespace _Type.Property.Optional
 {
+    /// <summary></summary>
     public readonly partial struct IntLiteralPropertyProperty : IEquatable<IntLiteralPropertyProperty>
     {
-        public IntLiteralPropertyProperty(int value) => throw null;
+        private readonly int _value;
+        private const int _1Value = 1;
 
-        public static IntLiteralPropertyProperty _1 => throw null;
+        /// <summary> Initializes a new instance of <see cref="IntLiteralPropertyProperty"/>. </summary>
+        /// <param name="value"> The value. </param>
+        public IntLiteralPropertyProperty(int value)
+        {
+            _value = value;
+        }
 
-        public static bool operator ==(IntLiteralPropertyProperty left, IntLiteralPropertyProperty right) => throw null;
+        /// <summary> Gets the _1. </summary>
+        public static IntLiteralPropertyProperty _1 { get; } = new IntLiteralPropertyProperty(_1Value);
 
-        public static bool operator !=(IntLiteralPropertyProperty left, IntLiteralPropertyProperty right) => throw null;
+        /// <summary> Determines if two <see cref="IntLiteralPropertyProperty"/> values are the same. </summary>
+        /// <param name="left"> The left value to compare. </param>
+        /// <param name="right"> The right value to compare. </param>
+        public static bool operator ==(IntLiteralPropertyProperty left, IntLiteralPropertyProperty right) => left.Equals(right);
 
-        public static implicit operator IntLiteralPropertyProperty(int value) => throw null;
+        /// <summary> Determines if two <see cref="IntLiteralPropertyProperty"/> values are not the same. </summary>
+        /// <param name="left"> The left value to compare. </param>
+        /// <param name="right"> The right value to compare. </param>
+        public static bool operator !=(IntLiteralPropertyProperty left, IntLiteralPropertyProperty right) => !left.Equals(right);
 
+        /// <summary> Converts a string to a <see cref="IntLiteralPropertyProperty"/>. </summary>
+        /// <param name="value"> The value. </param>
+        public static implicit operator IntLiteralPropertyProperty(int value) => new IntLiteralPropertyProperty(value);
+
+        /// <inheritdoc/>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj) => throw null;
+        public override bool Equals(object obj) => obj is IntLiteralPropertyProperty other && Equals(other);
 
-        public bool Equals(IntLiteralPropertyProperty other) => throw null;
+        /// <inheritdoc/>
+        public bool Equals(IntLiteralPropertyProperty other) => Equals(_value, other._value);
 
+        /// <inheritdoc/>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override int GetHashCode() => throw null;
+        public override int GetHashCode() => _value.GetHashCode();
 
-        public override string ToString() => throw null;
+        /// <inheritdoc/>
+        public override string ToString() => _value.ToString(CultureInfo.InvariantCulture);
     }
 }

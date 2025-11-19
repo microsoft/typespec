@@ -10,28 +10,155 @@ using System.Threading.Tasks;
 
 namespace Parameters.Path
 {
+    /// <summary> Test for path parameters cases. </summary>
     public partial class PathClient
     {
-        public PathClient() : this(new Uri("http://localhost:3000"), new PathClientOptions()) => throw null;
+        private readonly Uri _endpoint;
 
-        public PathClient(Uri endpoint, PathClientOptions options) => throw null;
+        /// <summary> Initializes a new instance of PathClient. </summary>
+        public PathClient() : this(new Uri("http://localhost:3000"), new PathClientOptions())
+        {
+        }
 
-        public ClientPipeline Pipeline => throw null;
+        /// <summary> Initializes a new instance of PathClient. </summary>
+        /// <param name="endpoint"> Service endpoint. </param>
+        /// <param name="options"> The options for configuring the client. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> is null. </exception>
+        public PathClient(Uri endpoint, PathClientOptions options)
+        {
+            Argument.AssertNotNull(endpoint, nameof(endpoint));
 
-        public virtual ClientResult Normal(string name, RequestOptions options) => throw null;
+            options ??= new PathClientOptions();
 
-        public virtual Task<ClientResult> NormalAsync(string name, RequestOptions options) => throw null;
+            _endpoint = endpoint;
+            Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>());
+        }
 
-        public virtual ClientResult Normal(string name, CancellationToken cancellationToken = default) => throw null;
+        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
+        public ClientPipeline Pipeline { get; }
 
-        public virtual Task<ClientResult> NormalAsync(string name, CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] Normal
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="name"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult Normal(string name, RequestOptions options)
+        {
+            Argument.AssertNotNullOrEmpty(name, nameof(name));
 
-        public virtual ClientResult Optional(string name, RequestOptions options) => throw null;
+            using PipelineMessage message = CreateNormalRequest(name, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
 
-        public virtual Task<ClientResult> OptionalAsync(string name, RequestOptions options) => throw null;
+        /// <summary>
+        /// [Protocol Method] Normal
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="name"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> NormalAsync(string name, RequestOptions options)
+        {
+            Argument.AssertNotNullOrEmpty(name, nameof(name));
 
-        public virtual ClientResult Optional(string name = default, CancellationToken cancellationToken = default) => throw null;
+            using PipelineMessage message = CreateNormalRequest(name, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
 
-        public virtual Task<ClientResult> OptionalAsync(string name = default, CancellationToken cancellationToken = default) => throw null;
+        /// <summary> Normal. </summary>
+        /// <param name="name"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="name"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult Normal(string name, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(name, nameof(name));
+
+            return Normal(name, cancellationToken.ToRequestOptions());
+        }
+
+        /// <summary> Normal. </summary>
+        /// <param name="name"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="name"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> NormalAsync(string name, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(name, nameof(name));
+
+            return await NormalAsync(name, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// [Protocol Method] Optional
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult Optional(string name, RequestOptions options)
+        {
+            using PipelineMessage message = CreateOptionalRequest(name, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] Optional
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> OptionalAsync(string name, RequestOptions options)
+        {
+            using PipelineMessage message = CreateOptionalRequest(name, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> Optional. </summary>
+        /// <param name="name"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult Optional(string name = default, CancellationToken cancellationToken = default)
+        {
+            return Optional(name, cancellationToken.ToRequestOptions());
+        }
+
+        /// <summary> Optional. </summary>
+        /// <param name="name"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> OptionalAsync(string name = default, CancellationToken cancellationToken = default)
+        {
+            return await OptionalAsync(name, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+        }
     }
 }

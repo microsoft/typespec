@@ -4,30 +4,144 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Collections.Generic;
 using System.Text.Json;
 
 namespace Response.StatusCodeRange
 {
+    /// <summary> The ErrorInRange. </summary>
     public partial class ErrorInRange : IJsonModel<ErrorInRange>
     {
-        internal ErrorInRange() => throw null;
+        /// <summary> Initializes a new instance of <see cref="ErrorInRange"/> for deserialization. </summary>
+        internal ErrorInRange()
+        {
+        }
 
-        void IJsonModel<ErrorInRange>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        void IJsonModel<ErrorInRange>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        {
+            writer.WriteStartObject();
+            JsonModelWriteCore(writer, options);
+            writer.WriteEndObject();
+        }
 
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<ErrorInRange>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(ErrorInRange)} does not support writing '{format}' format.");
+            }
+            writer.WritePropertyName("code"u8);
+            writer.WriteStringValue(Code);
+            writer.WritePropertyName("message"u8);
+            writer.WriteStringValue(Message);
+            if (options.Format != "W" && _additionalBinaryDataProperties != null)
+            {
+                foreach (var item in _additionalBinaryDataProperties)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
+            }
+        }
 
-        ErrorInRange IJsonModel<ErrorInRange>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        ErrorInRange IJsonModel<ErrorInRange>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
 
-        protected virtual ErrorInRange JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual ErrorInRange JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<ErrorInRange>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(ErrorInRange)} does not support reading '{format}' format.");
+            }
+            using JsonDocument document = JsonDocument.ParseValue(ref reader);
+            return DeserializeErrorInRange(document.RootElement, options);
+        }
 
-        BinaryData IPersistableModel<ErrorInRange>.Write(ModelReaderWriterOptions options) => throw null;
+        /// <param name="element"> The JSON element to deserialize. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        internal static ErrorInRange DeserializeErrorInRange(JsonElement element, ModelReaderWriterOptions options)
+        {
+            if (element.ValueKind == JsonValueKind.Null)
+            {
+                return null;
+            }
+            string code = default;
+            string message = default;
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
+            foreach (var prop in element.EnumerateObject())
+            {
+                if (prop.NameEquals("code"u8))
+                {
+                    code = prop.Value.GetString();
+                    continue;
+                }
+                if (prop.NameEquals("message"u8))
+                {
+                    message = prop.Value.GetString();
+                    continue;
+                }
+                if (options.Format != "W")
+                {
+                    additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
+                }
+            }
+            return new ErrorInRange(code, message, additionalBinaryDataProperties);
+        }
 
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<ErrorInRange>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
 
-        ErrorInRange IPersistableModel<ErrorInRange>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<ErrorInRange>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, ResponseStatusCodeRangeContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(ErrorInRange)} does not support writing '{options.Format}' format.");
+            }
+        }
 
-        protected virtual ErrorInRange PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        ErrorInRange IPersistableModel<ErrorInRange>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
 
-        string IPersistableModel<ErrorInRange>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual ErrorInRange PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<ErrorInRange>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
+                    {
+                        return DeserializeErrorInRange(document.RootElement, options);
+                    }
+                default:
+                    throw new FormatException($"The model {nameof(ErrorInRange)} does not support reading '{options.Format}' format.");
+            }
+        }
+
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<ErrorInRange>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
     }
 }

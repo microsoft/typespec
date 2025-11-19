@@ -2,22 +2,43 @@
 
 #nullable disable
 
+using System;
+using System.Collections.Generic;
+using Versioning.MadeOptional.V2;
+
 namespace Versioning.MadeOptional
 {
+    /// <summary> The TestModel. </summary>
     public partial class TestModel
     {
-        public TestModel(string prop) => throw null;
+        /// <summary> Keeps track of any properties unknown to the library. </summary>
+        private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
 
-        public string Prop
+        /// <summary> Initializes a new instance of <see cref="TestModel"/>. </summary>
+        /// <param name="prop"></param>
+        /// <exception cref="ArgumentNullException"> <paramref name="prop"/> is null. </exception>
+        public TestModel(string prop)
         {
-            get => throw null;
-            set => throw null;
+            Argument.AssertNotNull(prop, nameof(prop));
+
+            Prop = prop;
         }
 
-        public string ChangedProp
+        /// <summary> Initializes a new instance of <see cref="TestModel"/>. </summary>
+        /// <param name="prop"></param>
+        /// <param name="changedProp"></param>
+        /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
+        internal TestModel(string prop, string changedProp, IDictionary<string, BinaryData> additionalBinaryDataProperties)
         {
-            get => throw null;
-            set => throw null;
+            Prop = prop;
+            ChangedProp = changedProp;
+            _additionalBinaryDataProperties = additionalBinaryDataProperties;
         }
+
+        /// <summary> Gets or sets the Prop. </summary>
+        public string Prop { get; set; }
+
+        /// <summary> Gets or sets the ChangedProp. </summary>
+        public string ChangedProp { get; set; }
     }
 }

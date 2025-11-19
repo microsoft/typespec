@@ -7,35 +7,199 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
+using Versioning.Added.V2;
 
 namespace Versioning.Added
 {
+    /// <summary> Test for the `@added` decorator. </summary>
     public partial class AddedClient
     {
-        protected AddedClient() => throw null;
+        private readonly Uri _endpoint;
+        private readonly string _version;
+        private InterfaceV2 _cachedInterfaceV2;
 
-        public AddedClient(Uri endpoint) : this(endpoint, new AddedClientOptions()) => throw null;
+        /// <summary> Initializes a new instance of AddedClient for mocking. </summary>
+        protected AddedClient()
+        {
+        }
 
-        public AddedClient(Uri endpoint, AddedClientOptions options) => throw null;
+        /// <summary> Initializes a new instance of AddedClient. </summary>
+        /// <param name="endpoint"> Service endpoint. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> is null. </exception>
+        public AddedClient(Uri endpoint) : this(endpoint, new AddedClientOptions())
+        {
+        }
 
-        public ClientPipeline Pipeline => throw null;
+        /// <summary> Initializes a new instance of AddedClient. </summary>
+        /// <param name="endpoint"> Service endpoint. </param>
+        /// <param name="options"> The options for configuring the client. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> is null. </exception>
+        public AddedClient(Uri endpoint, AddedClientOptions options)
+        {
+            Argument.AssertNotNull(endpoint, nameof(endpoint));
 
-        public virtual ClientResult V1(string headerV2, BinaryContent content, RequestOptions options = null) => throw null;
+            options ??= new AddedClientOptions();
 
-        public virtual Task<ClientResult> V1Async(string headerV2, BinaryContent content, RequestOptions options = null) => throw null;
+            _endpoint = endpoint;
+            Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>());
+            _version = options.Version;
+        }
 
-        public virtual ClientResult<ModelV1> V1(string headerV2, ModelV1 body, CancellationToken cancellationToken = default) => throw null;
+        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
+        public ClientPipeline Pipeline { get; }
 
-        public virtual Task<ClientResult<ModelV1>> V1Async(string headerV2, ModelV1 body, CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] V1
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="headerV2"></param>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="headerV2"/> or <paramref name="content"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="headerV2"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult V1(string headerV2, BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNullOrEmpty(headerV2, nameof(headerV2));
+            Argument.AssertNotNull(content, nameof(content));
 
-        public virtual ClientResult V2(BinaryContent content, RequestOptions options = null) => throw null;
+            using PipelineMessage message = CreateV1Request(headerV2, content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
 
-        public virtual Task<ClientResult> V2Async(BinaryContent content, RequestOptions options = null) => throw null;
+        /// <summary>
+        /// [Protocol Method] V1
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="headerV2"></param>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="headerV2"/> or <paramref name="content"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="headerV2"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> V1Async(string headerV2, BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNullOrEmpty(headerV2, nameof(headerV2));
+            Argument.AssertNotNull(content, nameof(content));
 
-        public virtual ClientResult<ModelV2> V2(ModelV2 body, CancellationToken cancellationToken = default) => throw null;
+            using PipelineMessage message = CreateV1Request(headerV2, content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
 
-        public virtual Task<ClientResult<ModelV2>> V2Async(ModelV2 body, CancellationToken cancellationToken = default) => throw null;
+        /// <summary> V1. </summary>
+        /// <param name="headerV2"></param>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="headerV2"/> or <paramref name="body"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="headerV2"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<ModelV1> V1(string headerV2, ModelV1 body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(headerV2, nameof(headerV2));
+            Argument.AssertNotNull(body, nameof(body));
 
-        public virtual InterfaceV2 GetInterfaceV2Client() => throw null;
+            ClientResult result = V1(headerV2, body, cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue((ModelV1)result, result.GetRawResponse());
+        }
+
+        /// <summary> V1. </summary>
+        /// <param name="headerV2"></param>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="headerV2"/> or <paramref name="body"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="headerV2"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<ModelV1>> V1Async(string headerV2, ModelV1 body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(headerV2, nameof(headerV2));
+            Argument.AssertNotNull(body, nameof(body));
+
+            ClientResult result = await V1Async(headerV2, body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue((ModelV1)result, result.GetRawResponse());
+        }
+
+        /// <summary>
+        /// [Protocol Method] V2
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult V2(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateV2Request(content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] V2
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> V2Async(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateV2Request(content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> V2. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<ModelV2> V2(ModelV2 body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(body, nameof(body));
+
+            ClientResult result = V2(body, cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue((ModelV2)result, result.GetRawResponse());
+        }
+
+        /// <summary> V2. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<ModelV2>> V2Async(ModelV2 body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(body, nameof(body));
+
+            ClientResult result = await V2Async(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue((ModelV2)result, result.GetRawResponse());
+        }
+
+        /// <summary> Initializes a new instance of InterfaceV2. </summary>
+        public virtual InterfaceV2 GetInterfaceV2Client()
+        {
+            return Volatile.Read(ref _cachedInterfaceV2) ?? Interlocked.CompareExchange(ref _cachedInterfaceV2, new InterfaceV2(Pipeline, _endpoint, _version), null) ?? _cachedInterfaceV2;
+        }
     }
 }

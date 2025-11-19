@@ -2,16 +2,31 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel.Primitives;
 
 namespace Versioning.Removed
 {
+    /// <summary> Client options for <see cref="RemovedClient"/>. </summary>
     public partial class RemovedClientOptions : ClientPipelineOptions
     {
         private const ServiceVersion LatestVersion = ServiceVersion.V1;
 
-        public RemovedClientOptions(ServiceVersion version = LatestVersion) => throw null;
+        /// <summary> Initializes a new instance of RemovedClientOptions. </summary>
+        /// <param name="version"> The service version. </param>
+        public RemovedClientOptions(ServiceVersion version = LatestVersion)
+        {
+            Version = version switch
+            {
+                ServiceVersion.V1 => "v1",
+                _ => throw new NotSupportedException()
+            };
+        }
 
+        /// <summary> Gets the Version. </summary>
+        internal string Version { get; }
+
+        /// <summary> The version of the service to use. </summary>
         public enum ServiceVersion
         {
             /// <summary> The version v1. </summary>

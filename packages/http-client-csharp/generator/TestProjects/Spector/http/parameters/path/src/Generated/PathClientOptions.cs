@@ -6,6 +6,7 @@ using System.ClientModel.Primitives;
 
 namespace Parameters.Path
 {
+    /// <summary> Client options for <see cref="PathClient"/>. </summary>
     public partial class PathClientOptions : ClientPipelineOptions
     {
     }

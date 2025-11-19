@@ -5,32 +5,156 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Collections.Generic;
 using System.Text.Json;
 
 namespace _Type.Property.Optional
 {
+    /// <summary> Model with string literal property. </summary>
     public partial class StringLiteralProperty : IJsonModel<StringLiteralProperty>
     {
-        void IJsonModel<StringLiteralProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        void IJsonModel<StringLiteralProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        {
+            writer.WriteStartObject();
+            JsonModelWriteCore(writer, options);
+            writer.WriteEndObject();
+        }
 
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<StringLiteralProperty>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(StringLiteralProperty)} does not support writing '{format}' format.");
+            }
+            if (Optional.IsDefined(Property))
+            {
+                writer.WritePropertyName("property"u8);
+                writer.WriteStringValue(Property.Value.ToString());
+            }
+            if (options.Format != "W" && _additionalBinaryDataProperties != null)
+            {
+                foreach (var item in _additionalBinaryDataProperties)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
+            }
+        }
 
-        StringLiteralProperty IJsonModel<StringLiteralProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        StringLiteralProperty IJsonModel<StringLiteralProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
 
-        protected virtual StringLiteralProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual StringLiteralProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<StringLiteralProperty>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(StringLiteralProperty)} does not support reading '{format}' format.");
+            }
+            using JsonDocument document = JsonDocument.ParseValue(ref reader);
+            return DeserializeStringLiteralProperty(document.RootElement, options);
+        }
 
-        BinaryData IPersistableModel<StringLiteralProperty>.Write(ModelReaderWriterOptions options) => throw null;
+        /// <param name="element"> The JSON element to deserialize. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        internal static StringLiteralProperty DeserializeStringLiteralProperty(JsonElement element, ModelReaderWriterOptions options)
+        {
+            if (element.ValueKind == JsonValueKind.Null)
+            {
+                return null;
+            }
+            StringLiteralPropertyProperty? @property = default;
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
+            foreach (var prop in element.EnumerateObject())
+            {
+                if (prop.NameEquals("property"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        continue;
+                    }
+                    @property = new StringLiteralPropertyProperty(prop.Value.GetString());
+                    continue;
+                }
+                if (options.Format != "W")
+                {
+                    additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
+                }
+            }
+            return new StringLiteralProperty(@property, additionalBinaryDataProperties);
+        }
 
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<StringLiteralProperty>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
 
-        StringLiteralProperty IPersistableModel<StringLiteralProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<StringLiteralProperty>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, _TypePropertyOptionalContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(StringLiteralProperty)} does not support writing '{options.Format}' format.");
+            }
+        }
 
-        protected virtual StringLiteralProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        StringLiteralProperty IPersistableModel<StringLiteralProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
 
-        string IPersistableModel<StringLiteralProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual StringLiteralProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<StringLiteralProperty>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
+                    {
+                        return DeserializeStringLiteralProperty(document.RootElement, options);
+                    }
+                default:
+                    throw new FormatException($"The model {nameof(StringLiteralProperty)} does not support reading '{options.Format}' format.");
+            }
+        }
 
-        public static implicit operator BinaryContent(StringLiteralProperty stringLiteralProperty) => throw null;
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<StringLiteralProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
 
-        public static explicit operator StringLiteralProperty(ClientResult result) => throw null;
+        /// <param name="stringLiteralProperty"> The <see cref="StringLiteralProperty"/> to serialize into <see cref="BinaryContent"/>. </param>
+        public static implicit operator BinaryContent(StringLiteralProperty stringLiteralProperty)
+        {
+            if (stringLiteralProperty == null)
+            {
+                return null;
+            }
+            return BinaryContent.Create(stringLiteralProperty, ModelSerializationExtensions.WireOptions);
+        }
+
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="StringLiteralProperty"/> from. </param>
+        public static explicit operator StringLiteralProperty(ClientResult result)
+        {
+            PipelineResponse response = result.GetRawResponse();
+            using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
+            return DeserializeStringLiteralProperty(document.RootElement, ModelSerializationExtensions.WireOptions);
+        }
     }
 }

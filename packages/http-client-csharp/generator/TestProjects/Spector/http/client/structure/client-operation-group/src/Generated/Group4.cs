@@ -2,25 +2,88 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
+using Client.Structure.Service;
 
 namespace Client.Structure.ClientOperationGroup
 {
+    /// <summary> The Group4 sub-client. </summary>
     public partial class Group4
     {
-        protected Group4() => throw null;
+        private readonly Uri _endpoint;
+        private readonly ClientType _client;
 
-        public ClientPipeline Pipeline => throw null;
+        /// <summary> Initializes a new instance of Group4 for mocking. </summary>
+        protected Group4()
+        {
+        }
 
-        public virtual ClientResult Four(RequestOptions options) => throw null;
+        /// <summary> Initializes a new instance of Group4. </summary>
+        /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
+        /// <param name="endpoint"> Service endpoint. </param>
+        /// <param name="client"></param>
+        internal Group4(ClientPipeline pipeline, Uri endpoint, ClientType client)
+        {
+            _endpoint = endpoint;
+            Pipeline = pipeline;
+            _client = client;
+        }
 
-        public virtual Task<ClientResult> FourAsync(RequestOptions options) => throw null;
+        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
+        public ClientPipeline Pipeline { get; }
 
-        public virtual ClientResult Four(CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] Four
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult Four(RequestOptions options)
+        {
+            using PipelineMessage message = CreateFourRequest(options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
 
-        public virtual Task<ClientResult> FourAsync(CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] Four
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> FourAsync(RequestOptions options)
+        {
+            using PipelineMessage message = CreateFourRequest(options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> Four. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult Four(CancellationToken cancellationToken = default)
+        {
+            return Four(cancellationToken.ToRequestOptions());
+        }
+
+        /// <summary> Four. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> FourAsync(CancellationToken cancellationToken = default)
+        {
+            return await FourAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+        }
     }
 }

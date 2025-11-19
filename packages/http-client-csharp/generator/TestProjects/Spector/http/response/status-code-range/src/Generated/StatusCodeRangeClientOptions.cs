@@ -6,6 +6,7 @@ using System.ClientModel.Primitives;
 
 namespace Response.StatusCodeRange
 {
+    /// <summary> Client options for <see cref="StatusCodeRangeClient"/>. </summary>
     public partial class StatusCodeRangeClientOptions : ClientPipelineOptions
     {
     }

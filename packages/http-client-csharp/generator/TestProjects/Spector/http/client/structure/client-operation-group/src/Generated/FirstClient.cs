@@ -11,26 +11,106 @@ using Client.Structure.Service;
 
 namespace Client.Structure.ClientOperationGroup
 {
+    /// <summary> The FirstClient. </summary>
     public partial class FirstClient
     {
-        protected FirstClient() => throw null;
+        private readonly Uri _endpoint;
+        private readonly ClientType _client;
+        private Group3 _cachedGroup3;
+        private Group4 _cachedGroup4;
 
-        public FirstClient(Uri endpoint, ClientType client) : this(endpoint, client, new FirstClientOptions()) => throw null;
+        /// <summary> Initializes a new instance of FirstClient for mocking. </summary>
+        protected FirstClient()
+        {
+        }
 
-        public FirstClient(Uri endpoint, ClientType client, FirstClientOptions options) => throw null;
+        /// <summary> Initializes a new instance of FirstClient. </summary>
+        /// <param name="endpoint"> Service endpoint. </param>
+        /// <param name="client"> Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> is null. </exception>
+        public FirstClient(Uri endpoint, ClientType client) : this(endpoint, client, new FirstClientOptions())
+        {
+        }
 
-        public ClientPipeline Pipeline => throw null;
+        /// <summary> Initializes a new instance of FirstClient. </summary>
+        /// <param name="endpoint"> Service endpoint. </param>
+        /// <param name="client"> Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client. </param>
+        /// <param name="options"> The options for configuring the client. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> is null. </exception>
+        public FirstClient(Uri endpoint, ClientType client, FirstClientOptions options)
+        {
+            Argument.AssertNotNull(endpoint, nameof(endpoint));
 
-        public virtual ClientResult One(RequestOptions options) => throw null;
+            options ??= new FirstClientOptions();
 
-        public virtual Task<ClientResult> OneAsync(RequestOptions options) => throw null;
+            _endpoint = endpoint;
+            _client = client;
+            Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>());
+        }
 
-        public virtual ClientResult One(CancellationToken cancellationToken = default) => throw null;
+        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
+        public ClientPipeline Pipeline { get; }
 
-        public virtual Task<ClientResult> OneAsync(CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] One
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult One(RequestOptions options)
+        {
+            using PipelineMessage message = CreateOneRequest(options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
 
-        public virtual Group3 GetGroup3Client() => throw null;
+        /// <summary>
+        /// [Protocol Method] One
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> OneAsync(RequestOptions options)
+        {
+            using PipelineMessage message = CreateOneRequest(options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
 
-        public virtual Group4 GetGroup4Client() => throw null;
+        /// <summary> One. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult One(CancellationToken cancellationToken = default)
+        {
+            return One(cancellationToken.ToRequestOptions());
+        }
+
+        /// <summary> One. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> OneAsync(CancellationToken cancellationToken = default)
+        {
+            return await OneAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+        }
+
+        /// <summary> Initializes a new instance of Group3. </summary>
+        public virtual Group3 GetGroup3Client()
+        {
+            return Volatile.Read(ref _cachedGroup3) ?? Interlocked.CompareExchange(ref _cachedGroup3, new Group3(Pipeline, _endpoint, _client), null) ?? _cachedGroup3;
+        }
+
+        /// <summary> Initializes a new instance of Group4. </summary>
+        public virtual Group4 GetGroup4Client()
+        {
+            return Volatile.Read(ref _cachedGroup4) ?? Interlocked.CompareExchange(ref _cachedGroup4, new Group4(Pipeline, _endpoint, _client), null) ?? _cachedGroup4;
+        }
     }
 }

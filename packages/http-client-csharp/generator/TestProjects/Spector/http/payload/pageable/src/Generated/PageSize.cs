@@ -2,6 +2,7 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
@@ -9,26 +10,126 @@ using Payload.Pageable;
 
 namespace Payload.Pageable._PageSize
 {
+    /// <summary> The PageSize sub-client. </summary>
     public partial class PageSize
     {
-        protected PageSize() => throw null;
+        private readonly Uri _endpoint;
 
-        public ClientPipeline Pipeline => throw null;
+        /// <summary> Initializes a new instance of PageSize for mocking. </summary>
+        protected PageSize()
+        {
+        }
 
-        public virtual CollectionResult GetWithoutContinuation(RequestOptions options) => throw null;
+        /// <summary> Initializes a new instance of PageSize. </summary>
+        /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
+        /// <param name="endpoint"> Service endpoint. </param>
+        internal PageSize(ClientPipeline pipeline, Uri endpoint)
+        {
+            _endpoint = endpoint;
+            Pipeline = pipeline;
+        }
 
-        public virtual AsyncCollectionResult GetWithoutContinuationAsync(RequestOptions options) => throw null;
+        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
+        public ClientPipeline Pipeline { get; }
 
-        public virtual CollectionResult<Pet> GetWithoutContinuation(CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] GetWithoutContinuation
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual CollectionResult GetWithoutContinuation(RequestOptions options)
+        {
+            return new PageSizeGetWithoutContinuationCollectionResult(this, options);
+        }
 
-        public virtual AsyncCollectionResult<Pet> GetWithoutContinuationAsync(CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] GetWithoutContinuation
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual AsyncCollectionResult GetWithoutContinuationAsync(RequestOptions options)
+        {
+            return new PageSizeGetWithoutContinuationAsyncCollectionResult(this, options);
+        }
 
-        public virtual CollectionResult GetWithPageSize(int? pageSize, RequestOptions options) => throw null;
+        /// <summary> GetWithoutContinuation. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual CollectionResult<Pet> GetWithoutContinuation(CancellationToken cancellationToken = default)
+        {
+            return new PageSizeGetWithoutContinuationCollectionResultOfT(this, cancellationToken.ToRequestOptions());
+        }
 
-        public virtual AsyncCollectionResult GetWithPageSizeAsync(int? pageSize, RequestOptions options) => throw null;
+        /// <summary> GetWithoutContinuation. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual AsyncCollectionResult<Pet> GetWithoutContinuationAsync(CancellationToken cancellationToken = default)
+        {
+            return new PageSizeGetWithoutContinuationAsyncCollectionResultOfT(this, cancellationToken.ToRequestOptions());
+        }
 
-        public virtual CollectionResult<Pet> GetWithPageSize(int? pageSize = default, CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] GetWithPageSize
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="pageSize"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual CollectionResult GetWithPageSize(int? pageSize, RequestOptions options)
+        {
+            return new PageSizeGetWithPageSizeCollectionResult(this, pageSize, options);
+        }
 
-        public virtual AsyncCollectionResult<Pet> GetWithPageSizeAsync(int? pageSize = default, CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] GetWithPageSize
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="pageSize"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual AsyncCollectionResult GetWithPageSizeAsync(int? pageSize, RequestOptions options)
+        {
+            return new PageSizeGetWithPageSizeAsyncCollectionResult(this, pageSize, options);
+        }
+
+        /// <summary> GetWithPageSize. </summary>
+        /// <param name="pageSize"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual CollectionResult<Pet> GetWithPageSize(int? pageSize = default, CancellationToken cancellationToken = default)
+        {
+            return new PageSizeGetWithPageSizeCollectionResultOfT(this, pageSize, cancellationToken.ToRequestOptions());
+        }
+
+        /// <summary> GetWithPageSize. </summary>
+        /// <param name="pageSize"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual AsyncCollectionResult<Pet> GetWithPageSizeAsync(int? pageSize = default, CancellationToken cancellationToken = default)
+        {
+            return new PageSizeGetWithPageSizeAsyncCollectionResultOfT(this, pageSize, cancellationToken.ToRequestOptions());
+        }
     }
 }

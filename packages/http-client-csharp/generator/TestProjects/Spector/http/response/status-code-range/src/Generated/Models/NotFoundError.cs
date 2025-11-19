@@ -2,12 +2,41 @@
 
 #nullable disable
 
+using System;
+using System.Collections.Generic;
+
 namespace Response.StatusCodeRange
 {
+    /// <summary> The NotFoundError. </summary>
     public partial class NotFoundError
     {
-        public string Code => throw null;
+        /// <summary> Keeps track of any properties unknown to the library. </summary>
+        private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
 
-        public string ResourceId => throw null;
+        /// <summary> Initializes a new instance of <see cref="NotFoundError"/>. </summary>
+        /// <param name="code"></param>
+        /// <param name="resourceId"></param>
+        internal NotFoundError(string code, string resourceId)
+        {
+            Code = code;
+            ResourceId = resourceId;
+        }
+
+        /// <summary> Initializes a new instance of <see cref="NotFoundError"/>. </summary>
+        /// <param name="code"></param>
+        /// <param name="resourceId"></param>
+        /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
+        internal NotFoundError(string code, string resourceId, IDictionary<string, BinaryData> additionalBinaryDataProperties)
+        {
+            Code = code;
+            ResourceId = resourceId;
+            _additionalBinaryDataProperties = additionalBinaryDataProperties;
+        }
+
+        /// <summary> Gets the Code. </summary>
+        public string Code { get; }
+
+        /// <summary> Gets the ResourceId. </summary>
+        public string ResourceId { get; }
     }
 }

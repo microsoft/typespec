@@ -4,6 +4,7 @@
 
 namespace _Type.Property.ValueTypes
 {
+    /// <summary></summary>
     public enum UnionStringLiteralPropertyProperty
     {
         /// <summary> Hello. </summary>

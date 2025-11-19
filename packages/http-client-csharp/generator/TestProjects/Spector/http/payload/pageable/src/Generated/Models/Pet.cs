@@ -2,12 +2,41 @@
 
 #nullable disable
 
+using System;
+using System.Collections.Generic;
+
 namespace Payload.Pageable
 {
+    /// <summary> The Pet. </summary>
     public partial class Pet
     {
-        public string Id => throw null;
+        /// <summary> Keeps track of any properties unknown to the library. </summary>
+        private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
 
-        public string Name => throw null;
+        /// <summary> Initializes a new instance of <see cref="Pet"/>. </summary>
+        /// <param name="id"></param>
+        /// <param name="name"></param>
+        internal Pet(string id, string name)
+        {
+            Id = id;
+            Name = name;
+        }
+
+        /// <summary> Initializes a new instance of <see cref="Pet"/>. </summary>
+        /// <param name="id"></param>
+        /// <param name="name"></param>
+        /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
+        internal Pet(string id, string name, IDictionary<string, BinaryData> additionalBinaryDataProperties)
+        {
+            Id = id;
+            Name = name;
+            _additionalBinaryDataProperties = additionalBinaryDataProperties;
+        }
+
+        /// <summary> Gets the Id. </summary>
+        public string Id { get; }
+
+        /// <summary> Gets the Name. </summary>
+        public string Name { get; }
     }
 }

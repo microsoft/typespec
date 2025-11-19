@@ -2,22 +2,44 @@
 
 #nullable disable
 
+using System;
+using System.Collections.Generic;
+
 namespace _Type.Union.Discriminated
 {
+    /// <summary> The Cat. </summary>
     public partial class Cat
     {
-        public Cat(string name, bool meow) => throw null;
+        /// <summary> Keeps track of any properties unknown to the library. </summary>
+        private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
 
-        public string Name
+        /// <summary> Initializes a new instance of <see cref="Cat"/>. </summary>
+        /// <param name="name"></param>
+        /// <param name="meow"></param>
+        /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
+        public Cat(string name, bool meow)
         {
-            get => throw null;
-            set => throw null;
+            Argument.AssertNotNull(name, nameof(name));
+
+            Name = name;
+            Meow = meow;
         }
 
-        public bool Meow
+        /// <summary> Initializes a new instance of <see cref="Cat"/>. </summary>
+        /// <param name="name"></param>
+        /// <param name="meow"></param>
+        /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
+        internal Cat(string name, bool meow, IDictionary<string, BinaryData> additionalBinaryDataProperties)
         {
-            get => throw null;
-            set => throw null;
+            Name = name;
+            Meow = meow;
+            _additionalBinaryDataProperties = additionalBinaryDataProperties;
         }
+
+        /// <summary> Gets or sets the Name. </summary>
+        public string Name { get; set; }
+
+        /// <summary> Gets or sets the Meow. </summary>
+        public bool Meow { get; set; }
     }
 }

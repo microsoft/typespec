@@ -4,21 +4,51 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Threading;
 using Parameters.Basic._ExplicitBody;
 using Parameters.Basic._ImplicitBody;
 
 namespace Parameters.Basic
 {
+    /// <summary> Test for basic parameters cases. </summary>
     public partial class BasicClient
     {
-        public BasicClient() : this(new Uri("http://localhost:3000"), new BasicClientOptions()) => throw null;
+        private readonly Uri _endpoint;
+        private ExplicitBody _cachedExplicitBody;
+        private ImplicitBody _cachedImplicitBody;
 
-        public BasicClient(Uri endpoint, BasicClientOptions options) => throw null;
+        /// <summary> Initializes a new instance of BasicClient. </summary>
+        public BasicClient() : this(new Uri("http://localhost:3000"), new BasicClientOptions())
+        {
+        }
 
-        public ClientPipeline Pipeline => throw null;
+        /// <summary> Initializes a new instance of BasicClient. </summary>
+        /// <param name="endpoint"> Service endpoint. </param>
+        /// <param name="options"> The options for configuring the client. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> is null. </exception>
+        public BasicClient(Uri endpoint, BasicClientOptions options)
+        {
+            Argument.AssertNotNull(endpoint, nameof(endpoint));
 
-        public virtual ExplicitBody GetExplicitBodyClient() => throw null;
+            options ??= new BasicClientOptions();
 
-        public virtual ImplicitBody GetImplicitBodyClient() => throw null;
+            _endpoint = endpoint;
+            Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>());
+        }
+
+        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
+        public ClientPipeline Pipeline { get; }
+
+        /// <summary> Initializes a new instance of ExplicitBody. </summary>
+        public virtual ExplicitBody GetExplicitBodyClient()
+        {
+            return Volatile.Read(ref _cachedExplicitBody) ?? Interlocked.CompareExchange(ref _cachedExplicitBody, new ExplicitBody(Pipeline, _endpoint), null) ?? _cachedExplicitBody;
+        }
+
+        /// <summary> Initializes a new instance of ImplicitBody. </summary>
+        public virtual ImplicitBody GetImplicitBodyClient()
+        {
+            return Volatile.Read(ref _cachedImplicitBody) ?? Interlocked.CompareExchange(ref _cachedImplicitBody, new ImplicitBody(Pipeline, _endpoint), null) ?? _cachedImplicitBody;
+        }
     }
 }

@@ -6,8 +6,16 @@ using Versioning.Added;
 
 namespace Versioning.Added.V1
 {
+    /// <summary> A factory class for creating instances of the models for mocking. </summary>
     public static partial class VersioningAddedV1ModelFactory
     {
-        public static ModelV1 ModelV1(string prop = default, EnumV1 enumProp = default) => throw null;
+        /// <summary> The ModelV1. </summary>
+        /// <param name="prop"></param>
+        /// <param name="enumProp"></param>
+        /// <returns> A new <see cref="Added.ModelV1"/> instance for mocking. </returns>
+        public static ModelV1 ModelV1(string prop = default, EnumV1 enumProp = default)
+        {
+            return new ModelV1(prop, enumProp, additionalBinaryDataProperties: null);
+        }
     }
 }

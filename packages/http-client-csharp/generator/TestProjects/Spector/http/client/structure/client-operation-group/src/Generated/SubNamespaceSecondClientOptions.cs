@@ -6,6 +6,7 @@ using System.ClientModel.Primitives;
 
 namespace Client.Structure.AnotherClientOperationGroup
 {
+    /// <summary> Client options for <see cref="SubNamespaceSecondClient"/>. </summary>
     public partial class SubNamespaceSecondClientOptions : ClientPipelineOptions
     {
     }

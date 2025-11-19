@@ -7,29 +7,134 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
+using Payload.ContentNegotiation;
 
 namespace Payload.ContentNegotiation._SameBody
 {
+    /// <summary> The SameBody sub-client. </summary>
     public partial class SameBody
     {
-        protected SameBody() => throw null;
+        private readonly Uri _endpoint;
 
-        public ClientPipeline Pipeline => throw null;
+        /// <summary> Initializes a new instance of SameBody for mocking. </summary>
+        protected SameBody()
+        {
+        }
 
-        public virtual ClientResult GetAvatarAsPng(RequestOptions options) => throw null;
+        /// <summary> Initializes a new instance of SameBody. </summary>
+        /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
+        /// <param name="endpoint"> Service endpoint. </param>
+        internal SameBody(ClientPipeline pipeline, Uri endpoint)
+        {
+            _endpoint = endpoint;
+            Pipeline = pipeline;
+        }
 
-        public virtual Task<ClientResult> GetAvatarAsPngAsync(RequestOptions options) => throw null;
+        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
+        public ClientPipeline Pipeline { get; }
 
-        public virtual ClientResult<BinaryData> GetAvatarAsPng(CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] GetAvatarAsPng
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult GetAvatarAsPng(RequestOptions options)
+        {
+            using PipelineMessage message = CreateGetAvatarAsPngRequest(options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
 
-        public virtual Task<ClientResult<BinaryData>> GetAvatarAsPngAsync(CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] GetAvatarAsPng
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> GetAvatarAsPngAsync(RequestOptions options)
+        {
+            using PipelineMessage message = CreateGetAvatarAsPngRequest(options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
 
-        public virtual ClientResult GetAvatarAsJpeg(RequestOptions options) => throw null;
+        /// <summary> GetAvatarAsPng. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<BinaryData> GetAvatarAsPng(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = GetAvatarAsPng(cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue(result.GetRawResponse().Content, result.GetRawResponse());
+        }
 
-        public virtual Task<ClientResult> GetAvatarAsJpegAsync(RequestOptions options) => throw null;
+        /// <summary> GetAvatarAsPng. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<BinaryData>> GetAvatarAsPngAsync(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = await GetAvatarAsPngAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue(result.GetRawResponse().Content, result.GetRawResponse());
+        }
 
-        public virtual ClientResult<BinaryData> GetAvatarAsJpeg(CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] GetAvatarAsJpeg
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult GetAvatarAsJpeg(RequestOptions options)
+        {
+            using PipelineMessage message = CreateGetAvatarAsJpegRequest(options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
 
-        public virtual Task<ClientResult<BinaryData>> GetAvatarAsJpegAsync(CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] GetAvatarAsJpeg
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> GetAvatarAsJpegAsync(RequestOptions options)
+        {
+            using PipelineMessage message = CreateGetAvatarAsJpegRequest(options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> GetAvatarAsJpeg. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<BinaryData> GetAvatarAsJpeg(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = GetAvatarAsJpeg(cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue(result.GetRawResponse().Content, result.GetRawResponse());
+        }
+
+        /// <summary> GetAvatarAsJpeg. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<BinaryData>> GetAvatarAsJpegAsync(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = await GetAvatarAsJpegAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue(result.GetRawResponse().Content, result.GetRawResponse());
+        }
     }
 }

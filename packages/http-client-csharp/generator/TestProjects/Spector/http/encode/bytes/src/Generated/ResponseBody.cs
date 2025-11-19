@@ -7,53 +7,290 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
+using Encode.Bytes;
 
 namespace Encode.Bytes._ResponseBody
 {
+    /// <summary> The ResponseBody sub-client. </summary>
     public partial class ResponseBody
     {
-        protected ResponseBody() => throw null;
+        private readonly Uri _endpoint;
 
-        public ClientPipeline Pipeline => throw null;
+        /// <summary> Initializes a new instance of ResponseBody for mocking. </summary>
+        protected ResponseBody()
+        {
+        }
 
-        public virtual ClientResult Default(RequestOptions options) => throw null;
+        /// <summary> Initializes a new instance of ResponseBody. </summary>
+        /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
+        /// <param name="endpoint"> Service endpoint. </param>
+        internal ResponseBody(ClientPipeline pipeline, Uri endpoint)
+        {
+            _endpoint = endpoint;
+            Pipeline = pipeline;
+        }
 
-        public virtual Task<ClientResult> DefaultAsync(RequestOptions options) => throw null;
+        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
+        public ClientPipeline Pipeline { get; }
 
-        public virtual ClientResult<BinaryData> Default(CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] Default
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult Default(RequestOptions options)
+        {
+            using PipelineMessage message = CreateDefaultRequest(options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
 
-        public virtual Task<ClientResult<BinaryData>> DefaultAsync(CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] Default
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> DefaultAsync(RequestOptions options)
+        {
+            using PipelineMessage message = CreateDefaultRequest(options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
 
-        public virtual ClientResult OctetStream(RequestOptions options) => throw null;
+        /// <summary> Default. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<BinaryData> Default(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = Default(cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue(result.GetRawResponse().Content, result.GetRawResponse());
+        }
 
-        public virtual Task<ClientResult> OctetStreamAsync(RequestOptions options) => throw null;
+        /// <summary> Default. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<BinaryData>> DefaultAsync(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = await DefaultAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue(result.GetRawResponse().Content, result.GetRawResponse());
+        }
 
-        public virtual ClientResult<BinaryData> OctetStream(CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] OctetStream
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult OctetStream(RequestOptions options)
+        {
+            using PipelineMessage message = CreateOctetStreamRequest(options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
 
-        public virtual Task<ClientResult<BinaryData>> OctetStreamAsync(CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] OctetStream
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> OctetStreamAsync(RequestOptions options)
+        {
+            using PipelineMessage message = CreateOctetStreamRequest(options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
 
-        public virtual ClientResult CustomContentType(RequestOptions options) => throw null;
+        /// <summary> OctetStream. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<BinaryData> OctetStream(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = OctetStream(cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue(result.GetRawResponse().Content, result.GetRawResponse());
+        }
 
-        public virtual Task<ClientResult> CustomContentTypeAsync(RequestOptions options) => throw null;
+        /// <summary> OctetStream. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<BinaryData>> OctetStreamAsync(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = await OctetStreamAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue(result.GetRawResponse().Content, result.GetRawResponse());
+        }
 
-        public virtual ClientResult<BinaryData> CustomContentType(CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] CustomContentType
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult CustomContentType(RequestOptions options)
+        {
+            using PipelineMessage message = CreateCustomContentTypeRequest(options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
 
-        public virtual Task<ClientResult<BinaryData>> CustomContentTypeAsync(CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] CustomContentType
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> CustomContentTypeAsync(RequestOptions options)
+        {
+            using PipelineMessage message = CreateCustomContentTypeRequest(options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
 
-        public virtual ClientResult Base64(RequestOptions options) => throw null;
+        /// <summary> CustomContentType. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<BinaryData> CustomContentType(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = CustomContentType(cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue(result.GetRawResponse().Content, result.GetRawResponse());
+        }
 
-        public virtual Task<ClientResult> Base64Async(RequestOptions options) => throw null;
+        /// <summary> CustomContentType. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<BinaryData>> CustomContentTypeAsync(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = await CustomContentTypeAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue(result.GetRawResponse().Content, result.GetRawResponse());
+        }
 
-        public virtual ClientResult<BinaryData> Base64(CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] Base64
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult Base64(RequestOptions options)
+        {
+            using PipelineMessage message = CreateBase64Request(options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
 
-        public virtual Task<ClientResult<BinaryData>> Base64Async(CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] Base64
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> Base64Async(RequestOptions options)
+        {
+            using PipelineMessage message = CreateBase64Request(options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
 
-        public virtual ClientResult Base64url(RequestOptions options) => throw null;
+        /// <summary> Base64. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<BinaryData> Base64(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = Base64(cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue(result.GetRawResponse().Content, result.GetRawResponse());
+        }
 
-        public virtual Task<ClientResult> Base64urlAsync(RequestOptions options) => throw null;
+        /// <summary> Base64. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<BinaryData>> Base64Async(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = await Base64Async(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue(result.GetRawResponse().Content, result.GetRawResponse());
+        }
 
-        public virtual ClientResult<BinaryData> Base64url(CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] Base64url
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult Base64url(RequestOptions options)
+        {
+            using PipelineMessage message = CreateBase64urlRequest(options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
 
-        public virtual Task<ClientResult<BinaryData>> Base64urlAsync(CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] Base64url
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> Base64urlAsync(RequestOptions options)
+        {
+            using PipelineMessage message = CreateBase64urlRequest(options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> Base64url. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<BinaryData> Base64url(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = Base64url(cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue(result.GetRawResponse().Content, result.GetRawResponse());
+        }
+
+        /// <summary> Base64url. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<BinaryData>> Base64urlAsync(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = await Base64urlAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue(result.GetRawResponse().Content, result.GetRawResponse());
+        }
     }
 }

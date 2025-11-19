@@ -9,31 +9,149 @@ using System.Text.Json;
 
 namespace _Type.Model.Inheritance.EnumDiscriminator
 {
+    /// <summary>
+    /// Test extensible enum type for discriminator
+    /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="Golden"/>.
+    /// </summary>
     [PersistableModelProxy(typeof(UnknownDog))]
     public abstract partial class Dog : IJsonModel<Dog>
     {
-        internal Dog() => throw null;
+        /// <summary> Initializes a new instance of <see cref="Dog"/> for deserialization. </summary>
+        internal Dog()
+        {
+        }
 
-        void IJsonModel<Dog>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        void IJsonModel<Dog>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        {
+            writer.WriteStartObject();
+            JsonModelWriteCore(writer, options);
+            writer.WriteEndObject();
+        }
 
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<Dog>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(Dog)} does not support writing '{format}' format.");
+            }
+            writer.WritePropertyName("kind"u8);
+            writer.WriteStringValue(Kind.ToString());
+            writer.WritePropertyName("weight"u8);
+            writer.WriteNumberValue(Weight);
+            if (options.Format != "W" && _additionalBinaryDataProperties != null)
+            {
+                foreach (var item in _additionalBinaryDataProperties)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
+            }
+        }
 
-        Dog IJsonModel<Dog>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        Dog IJsonModel<Dog>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
 
-        protected virtual Dog JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual Dog JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<Dog>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(Dog)} does not support reading '{format}' format.");
+            }
+            using JsonDocument document = JsonDocument.ParseValue(ref reader);
+            return DeserializeDog(document.RootElement, options);
+        }
 
-        BinaryData IPersistableModel<Dog>.Write(ModelReaderWriterOptions options) => throw null;
+        /// <param name="element"> The JSON element to deserialize. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        internal static Dog DeserializeDog(JsonElement element, ModelReaderWriterOptions options)
+        {
+            if (element.ValueKind == JsonValueKind.Null)
+            {
+                return null;
+            }
+            if (element.TryGetProperty("kind"u8, out JsonElement discriminator))
+            {
+                switch (discriminator.GetString())
+                {
+                    case "golden":
+                        return Golden.DeserializeGolden(element, options);
+                }
+            }
+            return UnknownDog.DeserializeUnknownDog(element, options);
+        }
 
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<Dog>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
 
-        Dog IPersistableModel<Dog>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<Dog>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, _TypeModelInheritanceEnumDiscriminatorContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(Dog)} does not support writing '{options.Format}' format.");
+            }
+        }
 
-        protected virtual Dog PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        Dog IPersistableModel<Dog>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
 
-        string IPersistableModel<Dog>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual Dog PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<Dog>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
+                    {
+                        return DeserializeDog(document.RootElement, options);
+                    }
+                default:
+                    throw new FormatException($"The model {nameof(Dog)} does not support reading '{options.Format}' format.");
+            }
+        }
 
-        public static implicit operator BinaryContent(Dog dog) => throw null;
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<Dog>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
 
-        public static explicit operator Dog(ClientResult result) => throw null;
+        /// <param name="dog"> The <see cref="Dog"/> to serialize into <see cref="BinaryContent"/>. </param>
+        public static implicit operator BinaryContent(Dog dog)
+        {
+            if (dog == null)
+            {
+                return null;
+            }
+            return BinaryContent.Create(dog, ModelSerializationExtensions.WireOptions);
+        }
+
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="Dog"/> from. </param>
+        public static explicit operator Dog(ClientResult result)
+        {
+            PipelineResponse response = result.GetRawResponse();
+            using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
+            return DeserializeDog(document.RootElement, ModelSerializationExtensions.WireOptions);
+        }
     }
 }

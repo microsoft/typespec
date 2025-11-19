@@ -7,8 +7,15 @@ using Parameters.Basic._ImplicitBody;
 
 namespace Parameters.Basic
 {
+    /// <summary> A factory class for creating instances of the models for mocking. </summary>
     public static partial class ParametersBasicModelFactory
     {
-        public static User User(string name = default) => throw null;
+        /// <summary> This is a simple model. </summary>
+        /// <param name="name"></param>
+        /// <returns> A new <see cref="_ExplicitBody.User"/> instance for mocking. </returns>
+        public static User User(string name = default)
+        {
+            return new User(name, additionalBinaryDataProperties: null);
+        }
     }
 }

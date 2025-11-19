@@ -7,28 +7,55 @@ using System.ComponentModel;
 
 namespace _Type.Property.Optional
 {
+    /// <summary></summary>
     public readonly partial struct StringLiteralPropertyProperty : IEquatable<StringLiteralPropertyProperty>
     {
-        public StringLiteralPropertyProperty(string value) => throw null;
+        private readonly string _value;
+        private const string HelloValue = "hello";
 
-        public static StringLiteralPropertyProperty Hello => throw null;
+        /// <summary> Initializes a new instance of <see cref="StringLiteralPropertyProperty"/>. </summary>
+        /// <param name="value"> The value. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="value"/> is null. </exception>
+        public StringLiteralPropertyProperty(string value)
+        {
+            Argument.AssertNotNull(value, nameof(value));
 
-        public static bool operator ==(StringLiteralPropertyProperty left, StringLiteralPropertyProperty right) => throw null;
+            _value = value;
+        }
 
-        public static bool operator !=(StringLiteralPropertyProperty left, StringLiteralPropertyProperty right) => throw null;
+        /// <summary> Gets the Hello. </summary>
+        public static StringLiteralPropertyProperty Hello { get; } = new StringLiteralPropertyProperty(HelloValue);
 
-        public static implicit operator StringLiteralPropertyProperty(string value) => throw null;
+        /// <summary> Determines if two <see cref="StringLiteralPropertyProperty"/> values are the same. </summary>
+        /// <param name="left"> The left value to compare. </param>
+        /// <param name="right"> The right value to compare. </param>
+        public static bool operator ==(StringLiteralPropertyProperty left, StringLiteralPropertyProperty right) => left.Equals(right);
 
-        public static implicit operator StringLiteralPropertyProperty?(string value) => throw null;
+        /// <summary> Determines if two <see cref="StringLiteralPropertyProperty"/> values are not the same. </summary>
+        /// <param name="left"> The left value to compare. </param>
+        /// <param name="right"> The right value to compare. </param>
+        public static bool operator !=(StringLiteralPropertyProperty left, StringLiteralPropertyProperty right) => !left.Equals(right);
 
+        /// <summary> Converts a string to a <see cref="StringLiteralPropertyProperty"/>. </summary>
+        /// <param name="value"> The value. </param>
+        public static implicit operator StringLiteralPropertyProperty(string value) => new StringLiteralPropertyProperty(value);
+
+        /// <summary> Converts a string to a <see cref="StringLiteralPropertyProperty"/>. </summary>
+        /// <param name="value"> The value. </param>
+        public static implicit operator StringLiteralPropertyProperty?(string value) => value == null ? null : new StringLiteralPropertyProperty(value);
+
+        /// <inheritdoc/>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj) => throw null;
+        public override bool Equals(object obj) => obj is StringLiteralPropertyProperty other && Equals(other);
 
-        public bool Equals(StringLiteralPropertyProperty other) => throw null;
+        /// <inheritdoc/>
+        public bool Equals(StringLiteralPropertyProperty other) => string.Equals(_value, other._value, StringComparison.InvariantCultureIgnoreCase);
 
+        /// <inheritdoc/>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override int GetHashCode() => throw null;
+        public override int GetHashCode() => _value != null ? StringComparer.InvariantCultureIgnoreCase.GetHashCode(_value) : 0;
 
-        public override string ToString() => throw null;
+        /// <inheritdoc/>
+        public override string ToString() => _value;
     }
 }

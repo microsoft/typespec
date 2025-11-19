@@ -4,10 +4,25 @@
 
 namespace _Type.Union.Discriminated
 {
+    /// <summary> A factory class for creating instances of the models for mocking. </summary>
     public static partial class TypeUnionDiscriminatedModelFactory
     {
-        public static Cat Cat(string name = default, bool meow = default) => throw null;
+        /// <summary> The Cat. </summary>
+        /// <param name="name"></param>
+        /// <param name="meow"></param>
+        /// <returns> A new <see cref="Discriminated.Cat"/> instance for mocking. </returns>
+        public static Cat Cat(string name = default, bool meow = default)
+        {
+            return new Cat(name, meow, additionalBinaryDataProperties: null);
+        }
 
-        public static Dog Dog(string name = default, bool bark = default) => throw null;
+        /// <summary> The Dog. </summary>
+        /// <param name="name"></param>
+        /// <param name="bark"></param>
+        /// <returns> A new <see cref="Discriminated.Dog"/> instance for mocking. </returns>
+        public static Dog Dog(string name = default, bool bark = default)
+        {
+            return new Dog(name, bark, additionalBinaryDataProperties: null);
+        }
     }
 }

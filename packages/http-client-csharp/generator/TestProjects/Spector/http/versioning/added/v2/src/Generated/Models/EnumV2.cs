@@ -4,6 +4,7 @@
 
 namespace Versioning.Added
 {
+    /// <summary></summary>
     public enum EnumV2
     {
         /// <summary> EnumMember. </summary>

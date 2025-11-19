@@ -10,76 +10,475 @@ using System.Threading.Tasks;
 
 namespace _Type.Model.Inheritance.EnumDiscriminator
 {
+    /// <summary> Illustrates inheritance with enum discriminator. </summary>
     public partial class EnumDiscriminatorClient
     {
-        public EnumDiscriminatorClient() : this(new Uri("http://localhost:3000"), new EnumDiscriminatorClientOptions()) => throw null;
+        private readonly Uri _endpoint;
 
-        public EnumDiscriminatorClient(Uri endpoint, EnumDiscriminatorClientOptions options) => throw null;
+        /// <summary> Initializes a new instance of EnumDiscriminatorClient. </summary>
+        public EnumDiscriminatorClient() : this(new Uri("http://localhost:3000"), new EnumDiscriminatorClientOptions())
+        {
+        }
 
-        public ClientPipeline Pipeline => throw null;
+        /// <summary> Initializes a new instance of EnumDiscriminatorClient. </summary>
+        /// <param name="endpoint"> Service endpoint. </param>
+        /// <param name="options"> The options for configuring the client. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> is null. </exception>
+        public EnumDiscriminatorClient(Uri endpoint, EnumDiscriminatorClientOptions options)
+        {
+            Argument.AssertNotNull(endpoint, nameof(endpoint));
 
-        public virtual ClientResult GetExtensibleModel(RequestOptions options) => throw null;
+            options ??= new EnumDiscriminatorClientOptions();
 
-        public virtual Task<ClientResult> GetExtensibleModelAsync(RequestOptions options) => throw null;
+            _endpoint = endpoint;
+            Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>());
+        }
 
-        public virtual ClientResult<Dog> GetExtensibleModel(CancellationToken cancellationToken = default) => throw null;
+        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
+        public ClientPipeline Pipeline { get; }
 
-        public virtual Task<ClientResult<Dog>> GetExtensibleModelAsync(CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] Receive model with extensible enum discriminator type.
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult GetExtensibleModel(RequestOptions options)
+        {
+            using PipelineMessage message = CreateGetExtensibleModelRequest(options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
 
-        public virtual ClientResult PutExtensibleModel(BinaryContent content, RequestOptions options = null) => throw null;
+        /// <summary>
+        /// [Protocol Method] Receive model with extensible enum discriminator type.
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> GetExtensibleModelAsync(RequestOptions options)
+        {
+            using PipelineMessage message = CreateGetExtensibleModelRequest(options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
 
-        public virtual Task<ClientResult> PutExtensibleModelAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        /// <summary> Receive model with extensible enum discriminator type. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<Dog> GetExtensibleModel(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = GetExtensibleModel(cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue((Dog)result, result.GetRawResponse());
+        }
 
-        public virtual ClientResult PutExtensibleModel(Dog input, CancellationToken cancellationToken = default) => throw null;
+        /// <summary> Receive model with extensible enum discriminator type. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<Dog>> GetExtensibleModelAsync(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = await GetExtensibleModelAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue((Dog)result, result.GetRawResponse());
+        }
 
-        public virtual Task<ClientResult> PutExtensibleModelAsync(Dog input, CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] Send model with extensible enum discriminator type.
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult PutExtensibleModel(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
 
-        public virtual ClientResult GetExtensibleModelMissingDiscriminator(RequestOptions options) => throw null;
+            using PipelineMessage message = CreatePutExtensibleModelRequest(content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
 
-        public virtual Task<ClientResult> GetExtensibleModelMissingDiscriminatorAsync(RequestOptions options) => throw null;
+        /// <summary>
+        /// [Protocol Method] Send model with extensible enum discriminator type.
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> PutExtensibleModelAsync(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
 
-        public virtual ClientResult<Dog> GetExtensibleModelMissingDiscriminator(CancellationToken cancellationToken = default) => throw null;
+            using PipelineMessage message = CreatePutExtensibleModelRequest(content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
 
-        public virtual Task<ClientResult<Dog>> GetExtensibleModelMissingDiscriminatorAsync(CancellationToken cancellationToken = default) => throw null;
+        /// <summary> Send model with extensible enum discriminator type. </summary>
+        /// <param name="input"> Dog to create. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="input"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult PutExtensibleModel(Dog input, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(input, nameof(input));
 
-        public virtual ClientResult GetExtensibleModelWrongDiscriminator(RequestOptions options) => throw null;
+            return PutExtensibleModel(input, cancellationToken.ToRequestOptions());
+        }
 
-        public virtual Task<ClientResult> GetExtensibleModelWrongDiscriminatorAsync(RequestOptions options) => throw null;
+        /// <summary> Send model with extensible enum discriminator type. </summary>
+        /// <param name="input"> Dog to create. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="input"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> PutExtensibleModelAsync(Dog input, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(input, nameof(input));
 
-        public virtual ClientResult<Dog> GetExtensibleModelWrongDiscriminator(CancellationToken cancellationToken = default) => throw null;
+            return await PutExtensibleModelAsync(input, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+        }
 
-        public virtual Task<ClientResult<Dog>> GetExtensibleModelWrongDiscriminatorAsync(CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] Get a model omitting the discriminator.
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult GetExtensibleModelMissingDiscriminator(RequestOptions options)
+        {
+            using PipelineMessage message = CreateGetExtensibleModelMissingDiscriminatorRequest(options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
 
-        public virtual ClientResult GetFixedModel(RequestOptions options) => throw null;
+        /// <summary>
+        /// [Protocol Method] Get a model omitting the discriminator.
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> GetExtensibleModelMissingDiscriminatorAsync(RequestOptions options)
+        {
+            using PipelineMessage message = CreateGetExtensibleModelMissingDiscriminatorRequest(options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
 
-        public virtual Task<ClientResult> GetFixedModelAsync(RequestOptions options) => throw null;
+        /// <summary> Get a model omitting the discriminator. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<Dog> GetExtensibleModelMissingDiscriminator(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = GetExtensibleModelMissingDiscriminator(cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue((Dog)result, result.GetRawResponse());
+        }
 
-        public virtual ClientResult<Snake> GetFixedModel(CancellationToken cancellationToken = default) => throw null;
+        /// <summary> Get a model omitting the discriminator. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<Dog>> GetExtensibleModelMissingDiscriminatorAsync(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = await GetExtensibleModelMissingDiscriminatorAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue((Dog)result, result.GetRawResponse());
+        }
 
-        public virtual Task<ClientResult<Snake>> GetFixedModelAsync(CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] Get a model containing discriminator value never defined.
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult GetExtensibleModelWrongDiscriminator(RequestOptions options)
+        {
+            using PipelineMessage message = CreateGetExtensibleModelWrongDiscriminatorRequest(options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
 
-        public virtual ClientResult PutFixedModel(BinaryContent content, RequestOptions options = null) => throw null;
+        /// <summary>
+        /// [Protocol Method] Get a model containing discriminator value never defined.
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> GetExtensibleModelWrongDiscriminatorAsync(RequestOptions options)
+        {
+            using PipelineMessage message = CreateGetExtensibleModelWrongDiscriminatorRequest(options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
 
-        public virtual Task<ClientResult> PutFixedModelAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        /// <summary> Get a model containing discriminator value never defined. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<Dog> GetExtensibleModelWrongDiscriminator(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = GetExtensibleModelWrongDiscriminator(cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue((Dog)result, result.GetRawResponse());
+        }
 
-        public virtual ClientResult PutFixedModel(Snake input, CancellationToken cancellationToken = default) => throw null;
+        /// <summary> Get a model containing discriminator value never defined. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<Dog>> GetExtensibleModelWrongDiscriminatorAsync(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = await GetExtensibleModelWrongDiscriminatorAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue((Dog)result, result.GetRawResponse());
+        }
 
-        public virtual Task<ClientResult> PutFixedModelAsync(Snake input, CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] Receive model with fixed enum discriminator type.
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult GetFixedModel(RequestOptions options)
+        {
+            using PipelineMessage message = CreateGetFixedModelRequest(options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
 
-        public virtual ClientResult GetFixedModelMissingDiscriminator(RequestOptions options) => throw null;
+        /// <summary>
+        /// [Protocol Method] Receive model with fixed enum discriminator type.
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> GetFixedModelAsync(RequestOptions options)
+        {
+            using PipelineMessage message = CreateGetFixedModelRequest(options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
 
-        public virtual Task<ClientResult> GetFixedModelMissingDiscriminatorAsync(RequestOptions options) => throw null;
+        /// <summary> Receive model with fixed enum discriminator type. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<Snake> GetFixedModel(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = GetFixedModel(cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue((Snake)result, result.GetRawResponse());
+        }
 
-        public virtual ClientResult<Snake> GetFixedModelMissingDiscriminator(CancellationToken cancellationToken = default) => throw null;
+        /// <summary> Receive model with fixed enum discriminator type. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<Snake>> GetFixedModelAsync(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = await GetFixedModelAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue((Snake)result, result.GetRawResponse());
+        }
 
-        public virtual Task<ClientResult<Snake>> GetFixedModelMissingDiscriminatorAsync(CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] Send model with fixed enum discriminator type.
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult PutFixedModel(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
 
-        public virtual ClientResult GetFixedModelWrongDiscriminator(RequestOptions options) => throw null;
+            using PipelineMessage message = CreatePutFixedModelRequest(content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
 
-        public virtual Task<ClientResult> GetFixedModelWrongDiscriminatorAsync(RequestOptions options) => throw null;
+        /// <summary>
+        /// [Protocol Method] Send model with fixed enum discriminator type.
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> PutFixedModelAsync(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
 
-        public virtual ClientResult<Snake> GetFixedModelWrongDiscriminator(CancellationToken cancellationToken = default) => throw null;
+            using PipelineMessage message = CreatePutFixedModelRequest(content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
 
-        public virtual Task<ClientResult<Snake>> GetFixedModelWrongDiscriminatorAsync(CancellationToken cancellationToken = default) => throw null;
+        /// <summary> Send model with fixed enum discriminator type. </summary>
+        /// <param name="input"> Snake to create. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="input"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult PutFixedModel(Snake input, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(input, nameof(input));
+
+            return PutFixedModel(input, cancellationToken.ToRequestOptions());
+        }
+
+        /// <summary> Send model with fixed enum discriminator type. </summary>
+        /// <param name="input"> Snake to create. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="input"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> PutFixedModelAsync(Snake input, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(input, nameof(input));
+
+            return await PutFixedModelAsync(input, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// [Protocol Method] Get a model omitting the discriminator.
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult GetFixedModelMissingDiscriminator(RequestOptions options)
+        {
+            using PipelineMessage message = CreateGetFixedModelMissingDiscriminatorRequest(options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] Get a model omitting the discriminator.
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> GetFixedModelMissingDiscriminatorAsync(RequestOptions options)
+        {
+            using PipelineMessage message = CreateGetFixedModelMissingDiscriminatorRequest(options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> Get a model omitting the discriminator. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<Snake> GetFixedModelMissingDiscriminator(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = GetFixedModelMissingDiscriminator(cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue((Snake)result, result.GetRawResponse());
+        }
+
+        /// <summary> Get a model omitting the discriminator. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<Snake>> GetFixedModelMissingDiscriminatorAsync(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = await GetFixedModelMissingDiscriminatorAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue((Snake)result, result.GetRawResponse());
+        }
+
+        /// <summary>
+        /// [Protocol Method] Get a model containing discriminator value never defined.
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult GetFixedModelWrongDiscriminator(RequestOptions options)
+        {
+            using PipelineMessage message = CreateGetFixedModelWrongDiscriminatorRequest(options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] Get a model containing discriminator value never defined.
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> GetFixedModelWrongDiscriminatorAsync(RequestOptions options)
+        {
+            using PipelineMessage message = CreateGetFixedModelWrongDiscriminatorRequest(options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> Get a model containing discriminator value never defined. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<Snake> GetFixedModelWrongDiscriminator(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = GetFixedModelWrongDiscriminator(cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue((Snake)result, result.GetRawResponse());
+        }
+
+        /// <summary> Get a model containing discriminator value never defined. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<Snake>> GetFixedModelWrongDiscriminatorAsync(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = await GetFixedModelWrongDiscriminatorAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue((Snake)result, result.GetRawResponse());
+        }
     }
 }

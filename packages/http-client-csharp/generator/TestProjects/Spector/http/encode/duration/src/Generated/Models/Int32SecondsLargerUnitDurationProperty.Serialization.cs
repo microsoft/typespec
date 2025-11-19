@@ -5,34 +5,155 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Collections.Generic;
 using System.Text.Json;
+using Encode.Duration;
 
 namespace Encode.Duration._Property
 {
+    /// <summary> The Int32SecondsLargerUnitDurationProperty. </summary>
     public partial class Int32SecondsLargerUnitDurationProperty : IJsonModel<Int32SecondsLargerUnitDurationProperty>
     {
-        internal Int32SecondsLargerUnitDurationProperty() => throw null;
+        /// <summary> Initializes a new instance of <see cref="Int32SecondsLargerUnitDurationProperty"/> for deserialization. </summary>
+        internal Int32SecondsLargerUnitDurationProperty()
+        {
+        }
 
-        void IJsonModel<Int32SecondsLargerUnitDurationProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        void IJsonModel<Int32SecondsLargerUnitDurationProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        {
+            writer.WriteStartObject();
+            JsonModelWriteCore(writer, options);
+            writer.WriteEndObject();
+        }
 
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<Int32SecondsLargerUnitDurationProperty>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(Int32SecondsLargerUnitDurationProperty)} does not support writing '{format}' format.");
+            }
+            writer.WritePropertyName("value"u8);
+            writer.WriteNumberValue(Convert.ToInt32(Value.TotalSeconds));
+            if (options.Format != "W" && _additionalBinaryDataProperties != null)
+            {
+                foreach (var item in _additionalBinaryDataProperties)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
+            }
+        }
 
-        Int32SecondsLargerUnitDurationProperty IJsonModel<Int32SecondsLargerUnitDurationProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        Int32SecondsLargerUnitDurationProperty IJsonModel<Int32SecondsLargerUnitDurationProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
 
-        protected virtual Int32SecondsLargerUnitDurationProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual Int32SecondsLargerUnitDurationProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<Int32SecondsLargerUnitDurationProperty>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(Int32SecondsLargerUnitDurationProperty)} does not support reading '{format}' format.");
+            }
+            using JsonDocument document = JsonDocument.ParseValue(ref reader);
+            return DeserializeInt32SecondsLargerUnitDurationProperty(document.RootElement, options);
+        }
 
-        BinaryData IPersistableModel<Int32SecondsLargerUnitDurationProperty>.Write(ModelReaderWriterOptions options) => throw null;
+        /// <param name="element"> The JSON element to deserialize. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        internal static Int32SecondsLargerUnitDurationProperty DeserializeInt32SecondsLargerUnitDurationProperty(JsonElement element, ModelReaderWriterOptions options)
+        {
+            if (element.ValueKind == JsonValueKind.Null)
+            {
+                return null;
+            }
+            TimeSpan value = default;
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
+            foreach (var prop in element.EnumerateObject())
+            {
+                if (prop.NameEquals("value"u8))
+                {
+                    value = TimeSpan.FromSeconds(prop.Value.GetInt32());
+                    continue;
+                }
+                if (options.Format != "W")
+                {
+                    additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
+                }
+            }
+            return new Int32SecondsLargerUnitDurationProperty(value, additionalBinaryDataProperties);
+        }
 
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<Int32SecondsLargerUnitDurationProperty>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
 
-        Int32SecondsLargerUnitDurationProperty IPersistableModel<Int32SecondsLargerUnitDurationProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<Int32SecondsLargerUnitDurationProperty>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, EncodeDurationContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(Int32SecondsLargerUnitDurationProperty)} does not support writing '{options.Format}' format.");
+            }
+        }
 
-        protected virtual Int32SecondsLargerUnitDurationProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        Int32SecondsLargerUnitDurationProperty IPersistableModel<Int32SecondsLargerUnitDurationProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
 
-        string IPersistableModel<Int32SecondsLargerUnitDurationProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual Int32SecondsLargerUnitDurationProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<Int32SecondsLargerUnitDurationProperty>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
+                    {
+                        return DeserializeInt32SecondsLargerUnitDurationProperty(document.RootElement, options);
+                    }
+                default:
+                    throw new FormatException($"The model {nameof(Int32SecondsLargerUnitDurationProperty)} does not support reading '{options.Format}' format.");
+            }
+        }
 
-        public static implicit operator BinaryContent(Int32SecondsLargerUnitDurationProperty int32SecondsLargerUnitDurationProperty) => throw null;
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<Int32SecondsLargerUnitDurationProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
 
-        public static explicit operator Int32SecondsLargerUnitDurationProperty(ClientResult result) => throw null;
+        /// <param name="int32SecondsLargerUnitDurationProperty"> The <see cref="Int32SecondsLargerUnitDurationProperty"/> to serialize into <see cref="BinaryContent"/>. </param>
+        public static implicit operator BinaryContent(Int32SecondsLargerUnitDurationProperty int32SecondsLargerUnitDurationProperty)
+        {
+            if (int32SecondsLargerUnitDurationProperty == null)
+            {
+                return null;
+            }
+            return BinaryContent.Create(int32SecondsLargerUnitDurationProperty, ModelSerializationExtensions.WireOptions);
+        }
+
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="Int32SecondsLargerUnitDurationProperty"/> from. </param>
+        public static explicit operator Int32SecondsLargerUnitDurationProperty(ClientResult result)
+        {
+            PipelineResponse response = result.GetRawResponse();
+            using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
+            return DeserializeInt32SecondsLargerUnitDurationProperty(document.RootElement, ModelSerializationExtensions.WireOptions);
+        }
     }
 }

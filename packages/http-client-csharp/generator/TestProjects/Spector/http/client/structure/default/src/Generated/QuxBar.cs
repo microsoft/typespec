@@ -2,25 +2,89 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
+using Client.Structure.Service;
+using Client.Structure.Service.Default;
 
 namespace Client.Structure.Service._Qux
 {
+    /// <summary> The QuxBar sub-client. </summary>
     public partial class QuxBar
     {
-        protected QuxBar() => throw null;
+        private readonly Uri _endpoint;
+        private readonly ClientType _client;
 
-        public ClientPipeline Pipeline => throw null;
+        /// <summary> Initializes a new instance of QuxBar for mocking. </summary>
+        protected QuxBar()
+        {
+        }
 
-        public virtual ClientResult Nine(RequestOptions options) => throw null;
+        /// <summary> Initializes a new instance of QuxBar. </summary>
+        /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
+        /// <param name="endpoint"> Service endpoint. </param>
+        /// <param name="client"></param>
+        internal QuxBar(ClientPipeline pipeline, Uri endpoint, ClientType client)
+        {
+            _endpoint = endpoint;
+            Pipeline = pipeline;
+            _client = client;
+        }
 
-        public virtual Task<ClientResult> NineAsync(RequestOptions options) => throw null;
+        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
+        public ClientPipeline Pipeline { get; }
 
-        public virtual ClientResult Nine(CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] Nine
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult Nine(RequestOptions options)
+        {
+            using PipelineMessage message = CreateNineRequest(options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
 
-        public virtual Task<ClientResult> NineAsync(CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] Nine
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> NineAsync(RequestOptions options)
+        {
+            using PipelineMessage message = CreateNineRequest(options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> Nine. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult Nine(CancellationToken cancellationToken = default)
+        {
+            return Nine(cancellationToken.ToRequestOptions());
+        }
+
+        /// <summary> Nine. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> NineAsync(CancellationToken cancellationToken = default)
+        {
+            return await NineAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+        }
     }
 }

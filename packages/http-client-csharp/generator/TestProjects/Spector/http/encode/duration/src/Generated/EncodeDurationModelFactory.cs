@@ -4,38 +4,128 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Encode.Duration._Property;
 
 namespace Encode.Duration
 {
+    /// <summary> A factory class for creating instances of the models for mocking. </summary>
     public static partial class EncodeDurationModelFactory
     {
-        public static DefaultDurationProperty DefaultDurationProperty(TimeSpan value = default) => throw null;
+        /// <summary> The DefaultDurationProperty. </summary>
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="_Property.DefaultDurationProperty"/> instance for mocking. </returns>
+        public static DefaultDurationProperty DefaultDurationProperty(TimeSpan value = default)
+        {
+            return new DefaultDurationProperty(value, additionalBinaryDataProperties: null);
+        }
 
-        public static ISO8601DurationProperty ISO8601DurationProperty(TimeSpan value = default) => throw null;
+        /// <summary> The ISO8601DurationProperty. </summary>
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="_Property.ISO8601DurationProperty"/> instance for mocking. </returns>
+        public static ISO8601DurationProperty ISO8601DurationProperty(TimeSpan value = default)
+        {
+            return new ISO8601DurationProperty(value, additionalBinaryDataProperties: null);
+        }
 
-        public static Int32SecondsDurationProperty Int32SecondsDurationProperty(TimeSpan value = default) => throw null;
+        /// <summary> The Int32SecondsDurationProperty. </summary>
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="_Property.Int32SecondsDurationProperty"/> instance for mocking. </returns>
+        public static Int32SecondsDurationProperty Int32SecondsDurationProperty(TimeSpan value = default)
+        {
+            return new Int32SecondsDurationProperty(value, additionalBinaryDataProperties: null);
+        }
 
-        public static FloatSecondsDurationProperty FloatSecondsDurationProperty(TimeSpan value = default) => throw null;
+        /// <summary> The FloatSecondsDurationProperty. </summary>
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="_Property.FloatSecondsDurationProperty"/> instance for mocking. </returns>
+        public static FloatSecondsDurationProperty FloatSecondsDurationProperty(TimeSpan value = default)
+        {
+            return new FloatSecondsDurationProperty(value, additionalBinaryDataProperties: null);
+        }
 
-        public static Float64SecondsDurationProperty Float64SecondsDurationProperty(TimeSpan value = default) => throw null;
+        /// <summary> The Float64SecondsDurationProperty. </summary>
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="_Property.Float64SecondsDurationProperty"/> instance for mocking. </returns>
+        public static Float64SecondsDurationProperty Float64SecondsDurationProperty(TimeSpan value = default)
+        {
+            return new Float64SecondsDurationProperty(value, additionalBinaryDataProperties: null);
+        }
 
-        public static Int32MillisecondsDurationProperty Int32MillisecondsDurationProperty(TimeSpan value = default) => throw null;
+        /// <summary> The Int32MillisecondsDurationProperty. </summary>
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="_Property.Int32MillisecondsDurationProperty"/> instance for mocking. </returns>
+        public static Int32MillisecondsDurationProperty Int32MillisecondsDurationProperty(TimeSpan value = default)
+        {
+            return new Int32MillisecondsDurationProperty(value, additionalBinaryDataProperties: null);
+        }
 
-        public static FloatMillisecondsDurationProperty FloatMillisecondsDurationProperty(TimeSpan value = default) => throw null;
+        /// <summary> The FloatMillisecondsDurationProperty. </summary>
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="_Property.FloatMillisecondsDurationProperty"/> instance for mocking. </returns>
+        public static FloatMillisecondsDurationProperty FloatMillisecondsDurationProperty(TimeSpan value = default)
+        {
+            return new FloatMillisecondsDurationProperty(value, additionalBinaryDataProperties: null);
+        }
 
-        public static Float64MillisecondsDurationProperty Float64MillisecondsDurationProperty(TimeSpan value = default) => throw null;
+        /// <summary> The Float64MillisecondsDurationProperty. </summary>
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="_Property.Float64MillisecondsDurationProperty"/> instance for mocking. </returns>
+        public static Float64MillisecondsDurationProperty Float64MillisecondsDurationProperty(TimeSpan value = default)
+        {
+            return new Float64MillisecondsDurationProperty(value, additionalBinaryDataProperties: null);
+        }
 
-        public static FloatSecondsDurationArrayProperty FloatSecondsDurationArrayProperty(IEnumerable<TimeSpan> value = default) => throw null;
+        /// <summary> The FloatSecondsDurationArrayProperty. </summary>
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="_Property.FloatSecondsDurationArrayProperty"/> instance for mocking. </returns>
+        public static FloatSecondsDurationArrayProperty FloatSecondsDurationArrayProperty(IEnumerable<TimeSpan> value = default)
+        {
+            value ??= new ChangeTrackingList<TimeSpan>();
 
-        public static FloatMillisecondsDurationArrayProperty FloatMillisecondsDurationArrayProperty(IEnumerable<TimeSpan> value = default) => throw null;
+            return new FloatSecondsDurationArrayProperty(value.ToList(), additionalBinaryDataProperties: null);
+        }
 
-        public static Int32SecondsLargerUnitDurationProperty Int32SecondsLargerUnitDurationProperty(TimeSpan value = default) => throw null;
+        /// <summary> The FloatMillisecondsDurationArrayProperty. </summary>
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="_Property.FloatMillisecondsDurationArrayProperty"/> instance for mocking. </returns>
+        public static FloatMillisecondsDurationArrayProperty FloatMillisecondsDurationArrayProperty(IEnumerable<TimeSpan> value = default)
+        {
+            value ??= new ChangeTrackingList<TimeSpan>();
 
-        public static FloatSecondsLargerUnitDurationProperty FloatSecondsLargerUnitDurationProperty(TimeSpan value = default) => throw null;
+            return new FloatMillisecondsDurationArrayProperty(value.ToList(), additionalBinaryDataProperties: null);
+        }
 
-        public static Int32MillisecondsLargerUnitDurationProperty Int32MillisecondsLargerUnitDurationProperty(TimeSpan value = default) => throw null;
+        /// <summary> The Int32SecondsLargerUnitDurationProperty. </summary>
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="_Property.Int32SecondsLargerUnitDurationProperty"/> instance for mocking. </returns>
+        public static Int32SecondsLargerUnitDurationProperty Int32SecondsLargerUnitDurationProperty(TimeSpan value = default)
+        {
+            return new Int32SecondsLargerUnitDurationProperty(value, additionalBinaryDataProperties: null);
+        }
 
-        public static FloatMillisecondsLargerUnitDurationProperty FloatMillisecondsLargerUnitDurationProperty(TimeSpan value = default) => throw null;
+        /// <summary> The FloatSecondsLargerUnitDurationProperty. </summary>
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="_Property.FloatSecondsLargerUnitDurationProperty"/> instance for mocking. </returns>
+        public static FloatSecondsLargerUnitDurationProperty FloatSecondsLargerUnitDurationProperty(TimeSpan value = default)
+        {
+            return new FloatSecondsLargerUnitDurationProperty(value, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The Int32MillisecondsLargerUnitDurationProperty. </summary>
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="_Property.Int32MillisecondsLargerUnitDurationProperty"/> instance for mocking. </returns>
+        public static Int32MillisecondsLargerUnitDurationProperty Int32MillisecondsLargerUnitDurationProperty(TimeSpan value = default)
+        {
+            return new Int32MillisecondsLargerUnitDurationProperty(value, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The FloatMillisecondsLargerUnitDurationProperty. </summary>
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="_Property.FloatMillisecondsLargerUnitDurationProperty"/> instance for mocking. </returns>
+        public static FloatMillisecondsLargerUnitDurationProperty FloatMillisecondsLargerUnitDurationProperty(TimeSpan value = default)
+        {
+            return new FloatMillisecondsLargerUnitDurationProperty(value, additionalBinaryDataProperties: null);
+        }
     }
 }

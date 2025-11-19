@@ -7,49 +7,298 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
+using Resiliency.SrvDriven.V2;
 
 namespace Resiliency.ServiceDriven
 {
+    /// <summary>
+    /// Test that we can grow up a service spec and service deployment into a multi-versioned service with full client support.
+    /// 
+    /// There are three concepts that should be clarified:
+    /// 1. Client spec version: refers to the spec that the client is generated from. 'v1' is a client generated from old.tsp and 'v2' is a client generated from main.tsp.
+    /// 2. Service deployment version: refers to a deployment version of the service. 'v1' represents the initial deployment of the service with a single api version. 'v2' represents the new deployment of a service with multiple api versions
+    /// 3. Api version: The initial deployment of the service only supports api version 'v1'. The new deployment of the service supports api versions 'v1' and 'v2'.
+    /// 
+    /// We test the following configurations from this service spec:
+    /// - A client generated from the second service spec can call the second deployment of a service with api version v1
+    /// - A client generated from the second service spec can call the second deployment of a service with api version v2
+    /// </summary>
     public partial class ResiliencyServiceDrivenClient
     {
-        protected ResiliencyServiceDrivenClient() => throw null;
+        private readonly Uri _endpoint;
+        private readonly string _serviceDeploymentVersion;
+        private readonly string _apiVersion;
 
-        public ResiliencyServiceDrivenClient(Uri endpoint, string serviceDeploymentVersion) : this(endpoint, serviceDeploymentVersion, new ResiliencyServiceDrivenClientOptions()) => throw null;
+        /// <summary> Initializes a new instance of ResiliencyServiceDrivenClient for mocking. </summary>
+        protected ResiliencyServiceDrivenClient()
+        {
+        }
 
-        public ResiliencyServiceDrivenClient(Uri endpoint, string serviceDeploymentVersion, ResiliencyServiceDrivenClientOptions options) => throw null;
+        /// <summary> Initializes a new instance of ResiliencyServiceDrivenClient. </summary>
+        /// <param name="endpoint"> Service endpoint. </param>
+        /// <param name="serviceDeploymentVersion"> Pass in either 'v1' or 'v2'. This represents a version of the service deployment in history. 'v1' is for the deployment when the service had only one api version. 'v2' is for the deployment when the service had api-versions 'v1' and 'v2'. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="serviceDeploymentVersion"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="serviceDeploymentVersion"/> is an empty string, and was expected to be non-empty. </exception>
+        public ResiliencyServiceDrivenClient(Uri endpoint, string serviceDeploymentVersion) : this(endpoint, serviceDeploymentVersion, new ResiliencyServiceDrivenClientOptions())
+        {
+        }
 
-        public ClientPipeline Pipeline => throw null;
+        /// <summary> Initializes a new instance of ResiliencyServiceDrivenClient. </summary>
+        /// <param name="endpoint"> Service endpoint. </param>
+        /// <param name="serviceDeploymentVersion"> Pass in either 'v1' or 'v2'. This represents a version of the service deployment in history. 'v1' is for the deployment when the service had only one api version. 'v2' is for the deployment when the service had api-versions 'v1' and 'v2'. </param>
+        /// <param name="options"> The options for configuring the client. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> or <paramref name="serviceDeploymentVersion"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="serviceDeploymentVersion"/> is an empty string, and was expected to be non-empty. </exception>
+        public ResiliencyServiceDrivenClient(Uri endpoint, string serviceDeploymentVersion, ResiliencyServiceDrivenClientOptions options)
+        {
+            Argument.AssertNotNull(endpoint, nameof(endpoint));
+            Argument.AssertNotNullOrEmpty(serviceDeploymentVersion, nameof(serviceDeploymentVersion));
 
-        public virtual ClientResult AddOperation(RequestOptions options) => throw null;
+            options ??= new ResiliencyServiceDrivenClientOptions();
 
-        public virtual Task<ClientResult> AddOperationAsync(RequestOptions options) => throw null;
+            _endpoint = endpoint;
+            _serviceDeploymentVersion = serviceDeploymentVersion;
+            Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>());
+            _apiVersion = options.Version;
+        }
 
-        public virtual ClientResult AddOperation(CancellationToken cancellationToken = default) => throw null;
+        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
+        public ClientPipeline Pipeline { get; }
 
-        public virtual Task<ClientResult> AddOperationAsync(CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] Added operation
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult AddOperation(RequestOptions options)
+        {
+            using PipelineMessage message = CreateAddOperationRequest(options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
 
-        public virtual ClientResult FromNone(string newParameter, RequestOptions options) => throw null;
+        /// <summary>
+        /// [Protocol Method] Added operation
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> AddOperationAsync(RequestOptions options)
+        {
+            using PipelineMessage message = CreateAddOperationRequest(options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
 
-        public virtual Task<ClientResult> FromNoneAsync(string newParameter, RequestOptions options) => throw null;
+        /// <summary> Added operation. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult AddOperation(CancellationToken cancellationToken = default)
+        {
+            return AddOperation(cancellationToken.ToRequestOptions());
+        }
 
-        public virtual ClientResult FromNone(string newParameter = default, CancellationToken cancellationToken = default) => throw null;
+        /// <summary> Added operation. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> AddOperationAsync(CancellationToken cancellationToken = default)
+        {
+            return await AddOperationAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+        }
 
-        public virtual Task<ClientResult> FromNoneAsync(string newParameter = default, CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] Test that grew up from accepting no parameters to an optional input parameter
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="newParameter"> I'm a new input optional parameter. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult FromNone(string newParameter, RequestOptions options)
+        {
+            using PipelineMessage message = CreateFromNoneRequest(newParameter, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
 
-        public virtual ClientResult FromOneRequired(string parameter, string newParameter, RequestOptions options) => throw null;
+        /// <summary>
+        /// [Protocol Method] Test that grew up from accepting no parameters to an optional input parameter
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="newParameter"> I'm a new input optional parameter. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> FromNoneAsync(string newParameter, RequestOptions options)
+        {
+            using PipelineMessage message = CreateFromNoneRequest(newParameter, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
 
-        public virtual Task<ClientResult> FromOneRequiredAsync(string parameter, string newParameter, RequestOptions options) => throw null;
+        /// <summary> Test that grew up from accepting no parameters to an optional input parameter. </summary>
+        /// <param name="newParameter"> I'm a new input optional parameter. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult FromNone(string newParameter = default, CancellationToken cancellationToken = default)
+        {
+            return FromNone(newParameter, cancellationToken.ToRequestOptions());
+        }
 
-        public virtual ClientResult FromOneRequired(string parameter, string newParameter = default, CancellationToken cancellationToken = default) => throw null;
+        /// <summary> Test that grew up from accepting no parameters to an optional input parameter. </summary>
+        /// <param name="newParameter"> I'm a new input optional parameter. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> FromNoneAsync(string newParameter = default, CancellationToken cancellationToken = default)
+        {
+            return await FromNoneAsync(newParameter, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+        }
 
-        public virtual Task<ClientResult> FromOneRequiredAsync(string parameter, string newParameter = default, CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] Operation that grew up from accepting one required parameter to accepting a required parameter and an optional parameter.
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="parameter"> I am a required parameter. </param>
+        /// <param name="newParameter"> I'm a new input optional parameter. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="parameter"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="parameter"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult FromOneRequired(string parameter, string newParameter, RequestOptions options)
+        {
+            Argument.AssertNotNullOrEmpty(parameter, nameof(parameter));
 
-        public virtual ClientResult FromOneOptional(string parameter, string newParameter, RequestOptions options) => throw null;
+            using PipelineMessage message = CreateFromOneRequiredRequest(parameter, newParameter, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
 
-        public virtual Task<ClientResult> FromOneOptionalAsync(string parameter, string newParameter, RequestOptions options) => throw null;
+        /// <summary>
+        /// [Protocol Method] Operation that grew up from accepting one required parameter to accepting a required parameter and an optional parameter.
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="parameter"> I am a required parameter. </param>
+        /// <param name="newParameter"> I'm a new input optional parameter. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="parameter"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="parameter"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> FromOneRequiredAsync(string parameter, string newParameter, RequestOptions options)
+        {
+            Argument.AssertNotNullOrEmpty(parameter, nameof(parameter));
 
-        public virtual ClientResult FromOneOptional(string parameter = default, string newParameter = default, CancellationToken cancellationToken = default) => throw null;
+            using PipelineMessage message = CreateFromOneRequiredRequest(parameter, newParameter, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
 
-        public virtual Task<ClientResult> FromOneOptionalAsync(string parameter = default, string newParameter = default, CancellationToken cancellationToken = default) => throw null;
+        /// <summary> Operation that grew up from accepting one required parameter to accepting a required parameter and an optional parameter. </summary>
+        /// <param name="parameter"> I am a required parameter. </param>
+        /// <param name="newParameter"> I'm a new input optional parameter. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="parameter"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="parameter"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult FromOneRequired(string parameter, string newParameter = default, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(parameter, nameof(parameter));
+
+            return FromOneRequired(parameter, newParameter, cancellationToken.ToRequestOptions());
+        }
+
+        /// <summary> Operation that grew up from accepting one required parameter to accepting a required parameter and an optional parameter. </summary>
+        /// <param name="parameter"> I am a required parameter. </param>
+        /// <param name="newParameter"> I'm a new input optional parameter. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="parameter"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="parameter"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> FromOneRequiredAsync(string parameter, string newParameter = default, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(parameter, nameof(parameter));
+
+            return await FromOneRequiredAsync(parameter, newParameter, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// [Protocol Method] Tests that we can grow up an operation from accepting one optional parameter to accepting two optional parameters.
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="parameter"> I am an optional parameter. </param>
+        /// <param name="newParameter"> I'm a new input optional parameter. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult FromOneOptional(string parameter, string newParameter, RequestOptions options)
+        {
+            using PipelineMessage message = CreateFromOneOptionalRequest(parameter, newParameter, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] Tests that we can grow up an operation from accepting one optional parameter to accepting two optional parameters.
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="parameter"> I am an optional parameter. </param>
+        /// <param name="newParameter"> I'm a new input optional parameter. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> FromOneOptionalAsync(string parameter, string newParameter, RequestOptions options)
+        {
+            using PipelineMessage message = CreateFromOneOptionalRequest(parameter, newParameter, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> Tests that we can grow up an operation from accepting one optional parameter to accepting two optional parameters. </summary>
+        /// <param name="parameter"> I am an optional parameter. </param>
+        /// <param name="newParameter"> I'm a new input optional parameter. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult FromOneOptional(string parameter = default, string newParameter = default, CancellationToken cancellationToken = default)
+        {
+            return FromOneOptional(parameter, newParameter, cancellationToken.ToRequestOptions());
+        }
+
+        /// <summary> Tests that we can grow up an operation from accepting one optional parameter to accepting two optional parameters. </summary>
+        /// <param name="parameter"> I am an optional parameter. </param>
+        /// <param name="newParameter"> I'm a new input optional parameter. </param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> FromOneOptionalAsync(string parameter = default, string newParameter = default, CancellationToken cancellationToken = default)
+        {
+            return await FromOneOptionalAsync(parameter, newParameter, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+        }
     }
 }

@@ -2,6 +2,7 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
@@ -10,36 +11,177 @@ using Payload.Pageable._ServerDrivenPagination.ContinuationToken;
 
 namespace Payload.Pageable._ServerDrivenPagination
 {
+    /// <summary> The ServerDrivenPagination sub-client. </summary>
     public partial class ServerDrivenPagination
     {
-        protected ServerDrivenPagination() => throw null;
+        private readonly Uri _endpoint;
+        private ServerDrivenPaginationContinuationToken _cachedServerDrivenPaginationContinuationToken;
 
-        public ClientPipeline Pipeline => throw null;
+        /// <summary> Initializes a new instance of ServerDrivenPagination for mocking. </summary>
+        protected ServerDrivenPagination()
+        {
+        }
 
-        public virtual CollectionResult Link(RequestOptions options) => throw null;
+        /// <summary> Initializes a new instance of ServerDrivenPagination. </summary>
+        /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
+        /// <param name="endpoint"> Service endpoint. </param>
+        internal ServerDrivenPagination(ClientPipeline pipeline, Uri endpoint)
+        {
+            _endpoint = endpoint;
+            Pipeline = pipeline;
+        }
 
-        public virtual AsyncCollectionResult LinkAsync(RequestOptions options) => throw null;
+        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
+        public ClientPipeline Pipeline { get; }
 
-        public virtual CollectionResult<Pet> Link(CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] Link
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual CollectionResult Link(RequestOptions options)
+        {
+            return new ServerDrivenPaginationLinkCollectionResult(this, options);
+        }
 
-        public virtual AsyncCollectionResult<Pet> LinkAsync(CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] Link
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual AsyncCollectionResult LinkAsync(RequestOptions options)
+        {
+            return new ServerDrivenPaginationLinkAsyncCollectionResult(this, options);
+        }
 
-        public virtual CollectionResult LinkString(RequestOptions options) => throw null;
+        /// <summary> Link. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual CollectionResult<Pet> Link(CancellationToken cancellationToken = default)
+        {
+            return new ServerDrivenPaginationLinkCollectionResultOfT(this, cancellationToken.ToRequestOptions());
+        }
 
-        public virtual AsyncCollectionResult LinkStringAsync(RequestOptions options) => throw null;
+        /// <summary> Link. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual AsyncCollectionResult<Pet> LinkAsync(CancellationToken cancellationToken = default)
+        {
+            return new ServerDrivenPaginationLinkAsyncCollectionResultOfT(this, cancellationToken.ToRequestOptions());
+        }
 
-        public virtual CollectionResult<Pet> LinkString(CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] LinkString
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual CollectionResult LinkString(RequestOptions options)
+        {
+            return new ServerDrivenPaginationLinkStringCollectionResult(this, options);
+        }
 
-        public virtual AsyncCollectionResult<Pet> LinkStringAsync(CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] LinkString
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual AsyncCollectionResult LinkStringAsync(RequestOptions options)
+        {
+            return new ServerDrivenPaginationLinkStringAsyncCollectionResult(this, options);
+        }
 
-        public virtual CollectionResult NestedLink(RequestOptions options) => throw null;
+        /// <summary> LinkString. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual CollectionResult<Pet> LinkString(CancellationToken cancellationToken = default)
+        {
+            return new ServerDrivenPaginationLinkStringCollectionResultOfT(this, cancellationToken.ToRequestOptions());
+        }
 
-        public virtual AsyncCollectionResult NestedLinkAsync(RequestOptions options) => throw null;
+        /// <summary> LinkString. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual AsyncCollectionResult<Pet> LinkStringAsync(CancellationToken cancellationToken = default)
+        {
+            return new ServerDrivenPaginationLinkStringAsyncCollectionResultOfT(this, cancellationToken.ToRequestOptions());
+        }
 
-        public virtual CollectionResult<Pet> NestedLink(CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] NestedLink
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual CollectionResult NestedLink(RequestOptions options)
+        {
+            return new ServerDrivenPaginationNestedLinkCollectionResult(this, options);
+        }
 
-        public virtual AsyncCollectionResult<Pet> NestedLinkAsync(CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] NestedLink
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual AsyncCollectionResult NestedLinkAsync(RequestOptions options)
+        {
+            return new ServerDrivenPaginationNestedLinkAsyncCollectionResult(this, options);
+        }
 
-        public virtual ServerDrivenPaginationContinuationToken GetServerDrivenPaginationContinuationTokenClient() => throw null;
+        /// <summary> NestedLink. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual CollectionResult<Pet> NestedLink(CancellationToken cancellationToken = default)
+        {
+            return new ServerDrivenPaginationNestedLinkCollectionResultOfT(this, cancellationToken.ToRequestOptions());
+        }
+
+        /// <summary> NestedLink. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual AsyncCollectionResult<Pet> NestedLinkAsync(CancellationToken cancellationToken = default)
+        {
+            return new ServerDrivenPaginationNestedLinkAsyncCollectionResultOfT(this, cancellationToken.ToRequestOptions());
+        }
+
+        /// <summary> Initializes a new instance of ServerDrivenPaginationContinuationToken. </summary>
+        public virtual ServerDrivenPaginationContinuationToken GetServerDrivenPaginationContinuationTokenClient()
+        {
+            return Volatile.Read(ref _cachedServerDrivenPaginationContinuationToken) ?? Interlocked.CompareExchange(ref _cachedServerDrivenPaginationContinuationToken, new ServerDrivenPaginationContinuationToken(Pipeline, _endpoint), null) ?? _cachedServerDrivenPaginationContinuationToken;
+        }
     }
 }

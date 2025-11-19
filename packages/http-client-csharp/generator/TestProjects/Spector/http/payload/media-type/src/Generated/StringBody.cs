@@ -2,49 +2,279 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
+using Payload.MediaType;
 
 namespace Payload.MediaType._StringBody
 {
+    /// <summary> The StringBody sub-client. </summary>
     public partial class StringBody
     {
-        protected StringBody() => throw null;
+        private readonly Uri _endpoint;
 
-        public ClientPipeline Pipeline => throw null;
+        /// <summary> Initializes a new instance of StringBody for mocking. </summary>
+        protected StringBody()
+        {
+        }
 
-        public virtual ClientResult SendAsText(BinaryContent content, RequestOptions options = null) => throw null;
+        /// <summary> Initializes a new instance of StringBody. </summary>
+        /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
+        /// <param name="endpoint"> Service endpoint. </param>
+        internal StringBody(ClientPipeline pipeline, Uri endpoint)
+        {
+            _endpoint = endpoint;
+            Pipeline = pipeline;
+        }
 
-        public virtual Task<ClientResult> SendAsTextAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
+        public ClientPipeline Pipeline { get; }
 
-        public virtual ClientResult SendAsText(string text, CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] SendAsText
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult SendAsText(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
 
-        public virtual Task<ClientResult> SendAsTextAsync(string text, CancellationToken cancellationToken = default) => throw null;
+            using PipelineMessage message = CreateSendAsTextRequest(content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
 
-        public virtual ClientResult GetAsText(RequestOptions options) => throw null;
+        /// <summary>
+        /// [Protocol Method] SendAsText
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> SendAsTextAsync(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
 
-        public virtual Task<ClientResult> GetAsTextAsync(RequestOptions options) => throw null;
+            using PipelineMessage message = CreateSendAsTextRequest(content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
 
-        public virtual ClientResult<string> GetAsText(CancellationToken cancellationToken = default) => throw null;
+        /// <summary> SendAsText. </summary>
+        /// <param name="text"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="text"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="text"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult SendAsText(string text, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(text, nameof(text));
 
-        public virtual Task<ClientResult<string>> GetAsTextAsync(CancellationToken cancellationToken = default) => throw null;
+            using BinaryContent content = BinaryContent.Create(BinaryData.FromString(text));
+            return SendAsText(content, cancellationToken.ToRequestOptions());
+        }
 
-        public virtual ClientResult SendAsJson(BinaryContent content, RequestOptions options = null) => throw null;
+        /// <summary> SendAsText. </summary>
+        /// <param name="text"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="text"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="text"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> SendAsTextAsync(string text, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(text, nameof(text));
 
-        public virtual Task<ClientResult> SendAsJsonAsync(BinaryContent content, RequestOptions options = null) => throw null;
+            using BinaryContent content = BinaryContent.Create(BinaryData.FromString(text));
+            return await SendAsTextAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+        }
 
-        public virtual ClientResult SendAsJson(string text, CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] GetAsText
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult GetAsText(RequestOptions options)
+        {
+            using PipelineMessage message = CreateGetAsTextRequest(options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
 
-        public virtual Task<ClientResult> SendAsJsonAsync(string text, CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] GetAsText
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> GetAsTextAsync(RequestOptions options)
+        {
+            using PipelineMessage message = CreateGetAsTextRequest(options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
 
-        public virtual ClientResult GetAsJson(RequestOptions options) => throw null;
+        /// <summary> GetAsText. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<string> GetAsText(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = GetAsText(cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue(result.GetRawResponse().Content.ToString(), result.GetRawResponse());
+        }
 
-        public virtual Task<ClientResult> GetAsJsonAsync(RequestOptions options) => throw null;
+        /// <summary> GetAsText. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<string>> GetAsTextAsync(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = await GetAsTextAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue(result.GetRawResponse().Content.ToString(), result.GetRawResponse());
+        }
 
-        public virtual ClientResult<string> GetAsJson(CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] SendAsJson
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult SendAsJson(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
 
-        public virtual Task<ClientResult<string>> GetAsJsonAsync(CancellationToken cancellationToken = default) => throw null;
+            using PipelineMessage message = CreateSendAsJsonRequest(content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] SendAsJson
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> SendAsJsonAsync(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateSendAsJsonRequest(content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> SendAsJson. </summary>
+        /// <param name="text"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="text"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="text"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult SendAsJson(string text, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(text, nameof(text));
+
+            using BinaryContent content = BinaryContent.Create(BinaryData.FromObjectAsJson(text));
+            return SendAsJson(content, cancellationToken.ToRequestOptions());
+        }
+
+        /// <summary> SendAsJson. </summary>
+        /// <param name="text"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="text"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="text"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> SendAsJsonAsync(string text, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(text, nameof(text));
+
+            using BinaryContent content = BinaryContent.Create(BinaryData.FromObjectAsJson(text));
+            return await SendAsJsonAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// [Protocol Method] GetAsJson
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult GetAsJson(RequestOptions options)
+        {
+            using PipelineMessage message = CreateGetAsJsonRequest(options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] GetAsJson
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> GetAsJsonAsync(RequestOptions options)
+        {
+            using PipelineMessage message = CreateGetAsJsonRequest(options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> GetAsJson. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<string> GetAsJson(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = GetAsJson(cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue(result.GetRawResponse().Content.ToObjectFromJson<string>(), result.GetRawResponse());
+        }
+
+        /// <summary> GetAsJson. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<string>> GetAsJsonAsync(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = await GetAsJsonAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue(result.GetRawResponse().Content.ToObjectFromJson<string>(), result.GetRawResponse());
+        }
     }
 }

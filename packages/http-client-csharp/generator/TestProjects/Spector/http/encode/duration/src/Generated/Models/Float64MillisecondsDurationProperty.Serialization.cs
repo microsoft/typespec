@@ -5,34 +5,155 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Collections.Generic;
 using System.Text.Json;
+using Encode.Duration;
 
 namespace Encode.Duration._Property
 {
+    /// <summary> The Float64MillisecondsDurationProperty. </summary>
     public partial class Float64MillisecondsDurationProperty : IJsonModel<Float64MillisecondsDurationProperty>
     {
-        internal Float64MillisecondsDurationProperty() => throw null;
+        /// <summary> Initializes a new instance of <see cref="Float64MillisecondsDurationProperty"/> for deserialization. </summary>
+        internal Float64MillisecondsDurationProperty()
+        {
+        }
 
-        void IJsonModel<Float64MillisecondsDurationProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        void IJsonModel<Float64MillisecondsDurationProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        {
+            writer.WriteStartObject();
+            JsonModelWriteCore(writer, options);
+            writer.WriteEndObject();
+        }
 
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<Float64MillisecondsDurationProperty>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(Float64MillisecondsDurationProperty)} does not support writing '{format}' format.");
+            }
+            writer.WritePropertyName("value"u8);
+            writer.WriteNumberValue(Value.TotalMilliseconds);
+            if (options.Format != "W" && _additionalBinaryDataProperties != null)
+            {
+                foreach (var item in _additionalBinaryDataProperties)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (JsonDocument document = JsonDocument.Parse(item.Value))
+                    {
+                        JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
+            }
+        }
 
-        Float64MillisecondsDurationProperty IJsonModel<Float64MillisecondsDurationProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        Float64MillisecondsDurationProperty IJsonModel<Float64MillisecondsDurationProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
 
-        protected virtual Float64MillisecondsDurationProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual Float64MillisecondsDurationProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<Float64MillisecondsDurationProperty>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(Float64MillisecondsDurationProperty)} does not support reading '{format}' format.");
+            }
+            using JsonDocument document = JsonDocument.ParseValue(ref reader);
+            return DeserializeFloat64MillisecondsDurationProperty(document.RootElement, options);
+        }
 
-        BinaryData IPersistableModel<Float64MillisecondsDurationProperty>.Write(ModelReaderWriterOptions options) => throw null;
+        /// <param name="element"> The JSON element to deserialize. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        internal static Float64MillisecondsDurationProperty DeserializeFloat64MillisecondsDurationProperty(JsonElement element, ModelReaderWriterOptions options)
+        {
+            if (element.ValueKind == JsonValueKind.Null)
+            {
+                return null;
+            }
+            TimeSpan value = default;
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
+            foreach (var prop in element.EnumerateObject())
+            {
+                if (prop.NameEquals("value"u8))
+                {
+                    value = TimeSpan.FromMilliseconds(prop.Value.GetDouble());
+                    continue;
+                }
+                if (options.Format != "W")
+                {
+                    additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
+                }
+            }
+            return new Float64MillisecondsDurationProperty(value, additionalBinaryDataProperties);
+        }
 
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<Float64MillisecondsDurationProperty>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
 
-        Float64MillisecondsDurationProperty IPersistableModel<Float64MillisecondsDurationProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<Float64MillisecondsDurationProperty>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, EncodeDurationContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(Float64MillisecondsDurationProperty)} does not support writing '{options.Format}' format.");
+            }
+        }
 
-        protected virtual Float64MillisecondsDurationProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        Float64MillisecondsDurationProperty IPersistableModel<Float64MillisecondsDurationProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
 
-        string IPersistableModel<Float64MillisecondsDurationProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected virtual Float64MillisecondsDurationProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<Float64MillisecondsDurationProperty>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
+                    {
+                        return DeserializeFloat64MillisecondsDurationProperty(document.RootElement, options);
+                    }
+                default:
+                    throw new FormatException($"The model {nameof(Float64MillisecondsDurationProperty)} does not support reading '{options.Format}' format.");
+            }
+        }
 
-        public static implicit operator BinaryContent(Float64MillisecondsDurationProperty float64MillisecondsDurationProperty) => throw null;
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<Float64MillisecondsDurationProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
 
-        public static explicit operator Float64MillisecondsDurationProperty(ClientResult result) => throw null;
+        /// <param name="float64MillisecondsDurationProperty"> The <see cref="Float64MillisecondsDurationProperty"/> to serialize into <see cref="BinaryContent"/>. </param>
+        public static implicit operator BinaryContent(Float64MillisecondsDurationProperty float64MillisecondsDurationProperty)
+        {
+            if (float64MillisecondsDurationProperty == null)
+            {
+                return null;
+            }
+            return BinaryContent.Create(float64MillisecondsDurationProperty, ModelSerializationExtensions.WireOptions);
+        }
+
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="Float64MillisecondsDurationProperty"/> from. </param>
+        public static explicit operator Float64MillisecondsDurationProperty(ClientResult result)
+        {
+            PipelineResponse response = result.GetRawResponse();
+            using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
+            return DeserializeFloat64MillisecondsDurationProperty(document.RootElement, ModelSerializationExtensions.WireOptions);
+        }
     }
 }

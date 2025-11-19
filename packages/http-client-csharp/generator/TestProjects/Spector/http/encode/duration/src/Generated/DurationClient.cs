@@ -4,24 +4,59 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Threading;
 using Encode.Duration._Header;
 using Encode.Duration._Property;
 using Encode.Duration._Query;
 
 namespace Encode.Duration
 {
+    /// <summary> Test for encode decorator on duration. </summary>
     public partial class DurationClient
     {
-        public DurationClient() : this(new Uri("http://localhost:3000"), new DurationClientOptions()) => throw null;
+        private readonly Uri _endpoint;
+        private Query _cachedQuery;
+        private Property _cachedProperty;
+        private Header _cachedHeader;
 
-        public DurationClient(Uri endpoint, DurationClientOptions options) => throw null;
+        /// <summary> Initializes a new instance of DurationClient. </summary>
+        public DurationClient() : this(new Uri("http://localhost:3000"), new DurationClientOptions())
+        {
+        }
 
-        public ClientPipeline Pipeline => throw null;
+        /// <summary> Initializes a new instance of DurationClient. </summary>
+        /// <param name="endpoint"> Service endpoint. </param>
+        /// <param name="options"> The options for configuring the client. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> is null. </exception>
+        public DurationClient(Uri endpoint, DurationClientOptions options)
+        {
+            Argument.AssertNotNull(endpoint, nameof(endpoint));
 
-        public virtual Query GetQueryClient() => throw null;
+            options ??= new DurationClientOptions();
 
-        public virtual Property GetPropertyClient() => throw null;
+            _endpoint = endpoint;
+            Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>());
+        }
 
-        public virtual Header GetHeaderClient() => throw null;
+        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
+        public ClientPipeline Pipeline { get; }
+
+        /// <summary> Initializes a new instance of Query. </summary>
+        public virtual Query GetQueryClient()
+        {
+            return Volatile.Read(ref _cachedQuery) ?? Interlocked.CompareExchange(ref _cachedQuery, new Query(Pipeline, _endpoint), null) ?? _cachedQuery;
+        }
+
+        /// <summary> Initializes a new instance of Property. </summary>
+        public virtual Property GetPropertyClient()
+        {
+            return Volatile.Read(ref _cachedProperty) ?? Interlocked.CompareExchange(ref _cachedProperty, new Property(Pipeline, _endpoint), null) ?? _cachedProperty;
+        }
+
+        /// <summary> Initializes a new instance of Header. </summary>
+        public virtual Header GetHeaderClient()
+        {
+            return Volatile.Read(ref _cachedHeader) ?? Interlocked.CompareExchange(ref _cachedHeader, new Header(Pipeline, _endpoint), null) ?? _cachedHeader;
+        }
     }
 }

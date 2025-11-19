@@ -2,34 +2,170 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace _Type._Array
 {
+    /// <summary> Array of model values. </summary>
     public partial class ModelValue
     {
-        protected ModelValue() => throw null;
+        private readonly Uri _endpoint;
 
-        public ClientPipeline Pipeline => throw null;
+        /// <summary> Initializes a new instance of ModelValue for mocking. </summary>
+        protected ModelValue()
+        {
+        }
 
-        public virtual ClientResult Get(RequestOptions options) => throw null;
+        /// <summary> Initializes a new instance of ModelValue. </summary>
+        /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
+        /// <param name="endpoint"> Service endpoint. </param>
+        internal ModelValue(ClientPipeline pipeline, Uri endpoint)
+        {
+            _endpoint = endpoint;
+            Pipeline = pipeline;
+        }
 
-        public virtual Task<ClientResult> GetAsync(RequestOptions options) => throw null;
+        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
+        public ClientPipeline Pipeline { get; }
 
-        public virtual ClientResult<IReadOnlyList<InnerModel>> Get(CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] Get
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult Get(RequestOptions options)
+        {
+            using PipelineMessage message = CreateGetRequest(options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
 
-        public virtual Task<ClientResult<IReadOnlyList<InnerModel>>> GetAsync(CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] Get
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> GetAsync(RequestOptions options)
+        {
+            using PipelineMessage message = CreateGetRequest(options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
 
-        public virtual ClientResult Put(BinaryContent content, RequestOptions options = null) => throw null;
+        /// <summary> Get. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<IReadOnlyList<InnerModel>> Get(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = Get(cancellationToken.ToRequestOptions());
+            IList<InnerModel> value = new List<InnerModel>();
+            BinaryData data = result.GetRawResponse().Content;
+            using JsonDocument document = JsonDocument.Parse(data);
+            foreach (var item in document.RootElement.EnumerateArray())
+            {
+                value.Add(InnerModel.DeserializeInnerModel(item, ModelSerializationExtensions.WireOptions));
+            }
+            return ClientResult.FromValue((IReadOnlyList<InnerModel>)value, result.GetRawResponse());
+        }
 
-        public virtual Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        /// <summary> Get. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<IReadOnlyList<InnerModel>>> GetAsync(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = await GetAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            IList<InnerModel> value = new List<InnerModel>();
+            BinaryData data = result.GetRawResponse().Content;
+            using JsonDocument document = JsonDocument.Parse(data);
+            foreach (var item in document.RootElement.EnumerateArray())
+            {
+                value.Add(InnerModel.DeserializeInnerModel(item, ModelSerializationExtensions.WireOptions));
+            }
+            return ClientResult.FromValue((IReadOnlyList<InnerModel>)value, result.GetRawResponse());
+        }
 
-        public virtual ClientResult Put(IEnumerable<InnerModel> body, CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] Put
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult Put(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
 
-        public virtual Task<ClientResult> PutAsync(IEnumerable<InnerModel> body, CancellationToken cancellationToken = default) => throw null;
+            using PipelineMessage message = CreatePutRequest(content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] Put
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> PutAsync(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreatePutRequest(content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> Put. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult Put(IEnumerable<InnerModel> body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(body, nameof(body));
+
+            using BinaryContent content = BinaryContentHelper.FromEnumerable(body);
+            return Put(content, cancellationToken.ToRequestOptions());
+        }
+
+        /// <summary> Put. </summary>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> PutAsync(IEnumerable<InnerModel> body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(body, nameof(body));
+
+            using BinaryContent content = BinaryContentHelper.FromEnumerable(body);
+            return await PutAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+        }
     }
 }

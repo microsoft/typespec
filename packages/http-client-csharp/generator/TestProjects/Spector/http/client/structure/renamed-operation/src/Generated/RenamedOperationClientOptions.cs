@@ -6,6 +6,7 @@ using System.ClientModel.Primitives;
 
 namespace Client.Structure.RenamedOperation
 {
+    /// <summary> Client options for <see cref="RenamedOperationClient"/>. </summary>
     public partial class RenamedOperationClientOptions : ClientPipelineOptions
     {
     }

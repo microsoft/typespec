@@ -2,16 +2,32 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel.Primitives;
 
 namespace Versioning.TypeChangedFrom
 {
+    /// <summary> Client options for <see cref="TypeChangedFromClient"/>. </summary>
     public partial class TypeChangedFromClientOptions : ClientPipelineOptions
     {
         private const ServiceVersion LatestVersion = ServiceVersion.V2;
 
-        public TypeChangedFromClientOptions(ServiceVersion version = LatestVersion) => throw null;
+        /// <summary> Initializes a new instance of TypeChangedFromClientOptions. </summary>
+        /// <param name="version"> The service version. </param>
+        public TypeChangedFromClientOptions(ServiceVersion version = LatestVersion)
+        {
+            Version = version switch
+            {
+                ServiceVersion.V1 => "v1",
+                ServiceVersion.V2 => "v2",
+                _ => throw new NotSupportedException()
+            };
+        }
 
+        /// <summary> Gets the Version. </summary>
+        internal string Version { get; }
+
+        /// <summary> The version of the service to use. </summary>
         public enum ServiceVersion
         {
             /// <summary> The version v1. </summary>

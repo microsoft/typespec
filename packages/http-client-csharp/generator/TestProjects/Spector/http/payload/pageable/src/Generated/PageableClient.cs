@@ -4,21 +4,51 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Threading;
 using Payload.Pageable._PageSize;
 using Payload.Pageable._ServerDrivenPagination;
 
 namespace Payload.Pageable
 {
+    /// <summary> Test for pageable payload. </summary>
     public partial class PageableClient
     {
-        public PageableClient() : this(new Uri("http://localhost:3000"), new PageableClientOptions()) => throw null;
+        private readonly Uri _endpoint;
+        private ServerDrivenPagination _cachedServerDrivenPagination;
+        private PageSize _cachedPageSize;
 
-        public PageableClient(Uri endpoint, PageableClientOptions options) => throw null;
+        /// <summary> Initializes a new instance of PageableClient. </summary>
+        public PageableClient() : this(new Uri("http://localhost:3000"), new PageableClientOptions())
+        {
+        }
 
-        public ClientPipeline Pipeline => throw null;
+        /// <summary> Initializes a new instance of PageableClient. </summary>
+        /// <param name="endpoint"> Service endpoint. </param>
+        /// <param name="options"> The options for configuring the client. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> is null. </exception>
+        public PageableClient(Uri endpoint, PageableClientOptions options)
+        {
+            Argument.AssertNotNull(endpoint, nameof(endpoint));
 
-        public virtual ServerDrivenPagination GetServerDrivenPaginationClient() => throw null;
+            options ??= new PageableClientOptions();
 
-        public virtual PageSize GetPageSizeClient() => throw null;
+            _endpoint = endpoint;
+            Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>());
+        }
+
+        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
+        public ClientPipeline Pipeline { get; }
+
+        /// <summary> Initializes a new instance of ServerDrivenPagination. </summary>
+        public virtual ServerDrivenPagination GetServerDrivenPaginationClient()
+        {
+            return Volatile.Read(ref _cachedServerDrivenPagination) ?? Interlocked.CompareExchange(ref _cachedServerDrivenPagination, new ServerDrivenPagination(Pipeline, _endpoint), null) ?? _cachedServerDrivenPagination;
+        }
+
+        /// <summary> Initializes a new instance of PageSize. </summary>
+        public virtual PageSize GetPageSizeClient()
+        {
+            return Volatile.Read(ref _cachedPageSize) ?? Interlocked.CompareExchange(ref _cachedPageSize, new PageSize(Pipeline, _endpoint), null) ?? _cachedPageSize;
+        }
     }
 }

@@ -6,6 +6,7 @@ using System.ClientModel.Primitives;
 
 namespace Payload.Pageable
 {
+    /// <summary> Client options for <see cref="PageableClient"/>. </summary>
     public partial class PageableClientOptions : ClientPipelineOptions
     {
     }

@@ -2,22 +2,45 @@
 
 #nullable disable
 
+using System;
+using System.Collections.Generic;
+using Versioning.Added.V1;
+
 namespace Versioning.Added
 {
+    /// <summary> The ModelV1. </summary>
     public partial class ModelV1
     {
-        public ModelV1(string prop, EnumV1 enumProp) => throw null;
+        /// <summary> Keeps track of any properties unknown to the library. </summary>
+        private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
 
-        public string Prop
+        /// <summary> Initializes a new instance of <see cref="ModelV1"/>. </summary>
+        /// <param name="prop"></param>
+        /// <param name="enumProp"></param>
+        /// <exception cref="ArgumentNullException"> <paramref name="prop"/> is null. </exception>
+        public ModelV1(string prop, EnumV1 enumProp)
         {
-            get => throw null;
-            set => throw null;
+            Argument.AssertNotNull(prop, nameof(prop));
+
+            Prop = prop;
+            EnumProp = enumProp;
         }
 
-        public EnumV1 EnumProp
+        /// <summary> Initializes a new instance of <see cref="ModelV1"/>. </summary>
+        /// <param name="prop"></param>
+        /// <param name="enumProp"></param>
+        /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
+        internal ModelV1(string prop, EnumV1 enumProp, IDictionary<string, BinaryData> additionalBinaryDataProperties)
         {
-            get => throw null;
-            set => throw null;
+            Prop = prop;
+            EnumProp = enumProp;
+            _additionalBinaryDataProperties = additionalBinaryDataProperties;
         }
+
+        /// <summary> Gets or sets the Prop. </summary>
+        public string Prop { get; set; }
+
+        /// <summary> Gets or sets the EnumProp. </summary>
+        public EnumV1 EnumProp { get; set; }
     }
 }

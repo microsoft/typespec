@@ -10,60 +10,371 @@ using System.Threading.Tasks;
 
 namespace _Type.Model.Inheritance.NestedDiscriminator
 {
+    /// <summary> Illustrates multiple level inheritance with multiple discriminators. </summary>
     public partial class NestedDiscriminatorClient
     {
-        public NestedDiscriminatorClient() : this(new Uri("http://localhost:3000"), new NestedDiscriminatorClientOptions()) => throw null;
+        private readonly Uri _endpoint;
 
-        public NestedDiscriminatorClient(Uri endpoint, NestedDiscriminatorClientOptions options) => throw null;
+        /// <summary> Initializes a new instance of NestedDiscriminatorClient. </summary>
+        public NestedDiscriminatorClient() : this(new Uri("http://localhost:3000"), new NestedDiscriminatorClientOptions())
+        {
+        }
 
-        public ClientPipeline Pipeline => throw null;
+        /// <summary> Initializes a new instance of NestedDiscriminatorClient. </summary>
+        /// <param name="endpoint"> Service endpoint. </param>
+        /// <param name="options"> The options for configuring the client. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> is null. </exception>
+        public NestedDiscriminatorClient(Uri endpoint, NestedDiscriminatorClientOptions options)
+        {
+            Argument.AssertNotNull(endpoint, nameof(endpoint));
 
-        public virtual ClientResult GetModel(RequestOptions options) => throw null;
+            options ??= new NestedDiscriminatorClientOptions();
 
-        public virtual Task<ClientResult> GetModelAsync(RequestOptions options) => throw null;
+            _endpoint = endpoint;
+            Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>());
+        }
 
-        public virtual ClientResult<Fish> GetModel(CancellationToken cancellationToken = default) => throw null;
+        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
+        public ClientPipeline Pipeline { get; }
 
-        public virtual Task<ClientResult<Fish>> GetModelAsync(CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] GetModel
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult GetModel(RequestOptions options)
+        {
+            using PipelineMessage message = CreateGetModelRequest(options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
 
-        public virtual ClientResult PutModel(BinaryContent content, RequestOptions options = null) => throw null;
+        /// <summary>
+        /// [Protocol Method] GetModel
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> GetModelAsync(RequestOptions options)
+        {
+            using PipelineMessage message = CreateGetModelRequest(options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
 
-        public virtual Task<ClientResult> PutModelAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        /// <summary> GetModel. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<Fish> GetModel(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = GetModel(cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue((Fish)result, result.GetRawResponse());
+        }
 
-        public virtual ClientResult PutModel(Fish input, CancellationToken cancellationToken = default) => throw null;
+        /// <summary> GetModel. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<Fish>> GetModelAsync(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = await GetModelAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue((Fish)result, result.GetRawResponse());
+        }
 
-        public virtual Task<ClientResult> PutModelAsync(Fish input, CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] PutModel
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult PutModel(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
 
-        public virtual ClientResult GetRecursiveModel(RequestOptions options) => throw null;
+            using PipelineMessage message = CreatePutModelRequest(content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
 
-        public virtual Task<ClientResult> GetRecursiveModelAsync(RequestOptions options) => throw null;
+        /// <summary>
+        /// [Protocol Method] PutModel
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> PutModelAsync(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
 
-        public virtual ClientResult<Fish> GetRecursiveModel(CancellationToken cancellationToken = default) => throw null;
+            using PipelineMessage message = CreatePutModelRequest(content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
 
-        public virtual Task<ClientResult<Fish>> GetRecursiveModelAsync(CancellationToken cancellationToken = default) => throw null;
+        /// <summary> PutModel. </summary>
+        /// <param name="input"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="input"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult PutModel(Fish input, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(input, nameof(input));
 
-        public virtual ClientResult PutRecursiveModel(BinaryContent content, RequestOptions options = null) => throw null;
+            return PutModel(input, cancellationToken.ToRequestOptions());
+        }
 
-        public virtual Task<ClientResult> PutRecursiveModelAsync(BinaryContent content, RequestOptions options = null) => throw null;
+        /// <summary> PutModel. </summary>
+        /// <param name="input"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="input"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> PutModelAsync(Fish input, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(input, nameof(input));
 
-        public virtual ClientResult PutRecursiveModel(Fish input, CancellationToken cancellationToken = default) => throw null;
+            return await PutModelAsync(input, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+        }
 
-        public virtual Task<ClientResult> PutRecursiveModelAsync(Fish input, CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] GetRecursiveModel
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult GetRecursiveModel(RequestOptions options)
+        {
+            using PipelineMessage message = CreateGetRecursiveModelRequest(options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
 
-        public virtual ClientResult GetMissingDiscriminator(RequestOptions options) => throw null;
+        /// <summary>
+        /// [Protocol Method] GetRecursiveModel
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> GetRecursiveModelAsync(RequestOptions options)
+        {
+            using PipelineMessage message = CreateGetRecursiveModelRequest(options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
 
-        public virtual Task<ClientResult> GetMissingDiscriminatorAsync(RequestOptions options) => throw null;
+        /// <summary> GetRecursiveModel. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<Fish> GetRecursiveModel(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = GetRecursiveModel(cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue((Fish)result, result.GetRawResponse());
+        }
 
-        public virtual ClientResult<Fish> GetMissingDiscriminator(CancellationToken cancellationToken = default) => throw null;
+        /// <summary> GetRecursiveModel. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<Fish>> GetRecursiveModelAsync(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = await GetRecursiveModelAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue((Fish)result, result.GetRawResponse());
+        }
 
-        public virtual Task<ClientResult<Fish>> GetMissingDiscriminatorAsync(CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] PutRecursiveModel
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult PutRecursiveModel(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
 
-        public virtual ClientResult GetWrongDiscriminator(RequestOptions options) => throw null;
+            using PipelineMessage message = CreatePutRecursiveModelRequest(content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
 
-        public virtual Task<ClientResult> GetWrongDiscriminatorAsync(RequestOptions options) => throw null;
+        /// <summary>
+        /// [Protocol Method] PutRecursiveModel
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> PutRecursiveModelAsync(BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNull(content, nameof(content));
 
-        public virtual ClientResult<Fish> GetWrongDiscriminator(CancellationToken cancellationToken = default) => throw null;
+            using PipelineMessage message = CreatePutRecursiveModelRequest(content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
 
-        public virtual Task<ClientResult<Fish>> GetWrongDiscriminatorAsync(CancellationToken cancellationToken = default) => throw null;
+        /// <summary> PutRecursiveModel. </summary>
+        /// <param name="input"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="input"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult PutRecursiveModel(Fish input, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(input, nameof(input));
+
+            return PutRecursiveModel(input, cancellationToken.ToRequestOptions());
+        }
+
+        /// <summary> PutRecursiveModel. </summary>
+        /// <param name="input"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="input"/> is null. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> PutRecursiveModelAsync(Fish input, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNull(input, nameof(input));
+
+            return await PutRecursiveModelAsync(input, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// [Protocol Method] GetMissingDiscriminator
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult GetMissingDiscriminator(RequestOptions options)
+        {
+            using PipelineMessage message = CreateGetMissingDiscriminatorRequest(options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] GetMissingDiscriminator
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> GetMissingDiscriminatorAsync(RequestOptions options)
+        {
+            using PipelineMessage message = CreateGetMissingDiscriminatorRequest(options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> GetMissingDiscriminator. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<Fish> GetMissingDiscriminator(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = GetMissingDiscriminator(cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue((Fish)result, result.GetRawResponse());
+        }
+
+        /// <summary> GetMissingDiscriminator. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<Fish>> GetMissingDiscriminatorAsync(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = await GetMissingDiscriminatorAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue((Fish)result, result.GetRawResponse());
+        }
+
+        /// <summary>
+        /// [Protocol Method] GetWrongDiscriminator
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult GetWrongDiscriminator(RequestOptions options)
+        {
+            using PipelineMessage message = CreateGetWrongDiscriminatorRequest(options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] GetWrongDiscriminator
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> GetWrongDiscriminatorAsync(RequestOptions options)
+        {
+            using PipelineMessage message = CreateGetWrongDiscriminatorRequest(options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> GetWrongDiscriminator. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<Fish> GetWrongDiscriminator(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = GetWrongDiscriminator(cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue((Fish)result, result.GetRawResponse());
+        }
+
+        /// <summary> GetWrongDiscriminator. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<Fish>> GetWrongDiscriminatorAsync(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = await GetWrongDiscriminatorAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue((Fish)result, result.GetRawResponse());
+        }
     }
 }

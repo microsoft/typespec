@@ -4,6 +4,7 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Threading;
 using Encode.Datetime._Header;
 using Encode.Datetime._Property;
 using Encode.Datetime._Query;
@@ -11,20 +12,59 @@ using Encode.Datetime._ResponseHeader;
 
 namespace Encode.Datetime
 {
+    /// <summary> Test for encode decorator on datetime. </summary>
     public partial class DatetimeClient
     {
-        public DatetimeClient() : this(new Uri("http://localhost:3000"), new DatetimeClientOptions()) => throw null;
+        private readonly Uri _endpoint;
+        private Query _cachedQuery;
+        private Property _cachedProperty;
+        private Header _cachedHeader;
+        private ResponseHeader _cachedResponseHeader;
 
-        public DatetimeClient(Uri endpoint, DatetimeClientOptions options) => throw null;
+        /// <summary> Initializes a new instance of DatetimeClient. </summary>
+        public DatetimeClient() : this(new Uri("http://localhost:3000"), new DatetimeClientOptions())
+        {
+        }
 
-        public ClientPipeline Pipeline => throw null;
+        /// <summary> Initializes a new instance of DatetimeClient. </summary>
+        /// <param name="endpoint"> Service endpoint. </param>
+        /// <param name="options"> The options for configuring the client. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> is null. </exception>
+        public DatetimeClient(Uri endpoint, DatetimeClientOptions options)
+        {
+            Argument.AssertNotNull(endpoint, nameof(endpoint));
 
-        public virtual Query GetQueryClient() => throw null;
+            options ??= new DatetimeClientOptions();
 
-        public virtual Property GetPropertyClient() => throw null;
+            _endpoint = endpoint;
+            Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>());
+        }
 
-        public virtual Header GetHeaderClient() => throw null;
+        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
+        public ClientPipeline Pipeline { get; }
 
-        public virtual ResponseHeader GetResponseHeaderClient() => throw null;
+        /// <summary> Initializes a new instance of Query. </summary>
+        public virtual Query GetQueryClient()
+        {
+            return Volatile.Read(ref _cachedQuery) ?? Interlocked.CompareExchange(ref _cachedQuery, new Query(Pipeline, _endpoint), null) ?? _cachedQuery;
+        }
+
+        /// <summary> Initializes a new instance of Property. </summary>
+        public virtual Property GetPropertyClient()
+        {
+            return Volatile.Read(ref _cachedProperty) ?? Interlocked.CompareExchange(ref _cachedProperty, new Property(Pipeline, _endpoint), null) ?? _cachedProperty;
+        }
+
+        /// <summary> Initializes a new instance of Header. </summary>
+        public virtual Header GetHeaderClient()
+        {
+            return Volatile.Read(ref _cachedHeader) ?? Interlocked.CompareExchange(ref _cachedHeader, new Header(Pipeline, _endpoint), null) ?? _cachedHeader;
+        }
+
+        /// <summary> Initializes a new instance of ResponseHeader. </summary>
+        public virtual ResponseHeader GetResponseHeaderClient()
+        {
+            return Volatile.Read(ref _cachedResponseHeader) ?? Interlocked.CompareExchange(ref _cachedResponseHeader, new ResponseHeader(Pipeline, _endpoint), null) ?? _cachedResponseHeader;
+        }
     }
 }

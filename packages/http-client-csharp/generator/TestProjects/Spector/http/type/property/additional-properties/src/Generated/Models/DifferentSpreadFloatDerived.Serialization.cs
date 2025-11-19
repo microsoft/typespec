@@ -5,34 +5,157 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Collections.Generic;
 using System.Text.Json;
 
 namespace _Type.Property.AdditionalProperties
 {
+    /// <summary> The model extends from a model that spread Record&lt;float32&gt; with the different known property type. </summary>
     public partial class DifferentSpreadFloatDerived : DifferentSpreadFloatRecord, IJsonModel<DifferentSpreadFloatDerived>
     {
-        internal DifferentSpreadFloatDerived() => throw null;
+        /// <summary> Initializes a new instance of <see cref="DifferentSpreadFloatDerived"/> for deserialization. </summary>
+        internal DifferentSpreadFloatDerived()
+        {
+        }
 
-        void IJsonModel<DifferentSpreadFloatDerived>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        void IJsonModel<DifferentSpreadFloatDerived>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        {
+            writer.WriteStartObject();
+            JsonModelWriteCore(writer, options);
+            writer.WriteEndObject();
+        }
 
-        protected override void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
+        /// <param name="writer"> The JSON writer. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected override void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<DifferentSpreadFloatDerived>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(DifferentSpreadFloatDerived)} does not support writing '{format}' format.");
+            }
+            base.JsonModelWriteCore(writer, options);
+            writer.WritePropertyName("derivedProp"u8);
+            writer.WriteNumberValue(DerivedProp);
+        }
 
-        DifferentSpreadFloatDerived IJsonModel<DifferentSpreadFloatDerived>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        DifferentSpreadFloatDerived IJsonModel<DifferentSpreadFloatDerived>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => (DifferentSpreadFloatDerived)JsonModelCreateCore(ref reader, options);
 
-        protected override DifferentSpreadFloatRecord JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
+        /// <param name="reader"> The JSON reader. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected override DifferentSpreadFloatRecord JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<DifferentSpreadFloatDerived>)this).GetFormatFromOptions(options) : options.Format;
+            if (format != "J")
+            {
+                throw new FormatException($"The model {nameof(DifferentSpreadFloatDerived)} does not support reading '{format}' format.");
+            }
+            using JsonDocument document = JsonDocument.ParseValue(ref reader);
+            return DeserializeDifferentSpreadFloatDerived(document.RootElement, options);
+        }
 
-        BinaryData IPersistableModel<DifferentSpreadFloatDerived>.Write(ModelReaderWriterOptions options) => throw null;
+        /// <param name="element"> The JSON element to deserialize. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        internal static DifferentSpreadFloatDerived DeserializeDifferentSpreadFloatDerived(JsonElement element, ModelReaderWriterOptions options)
+        {
+            if (element.ValueKind == JsonValueKind.Null)
+            {
+                return null;
+            }
+            string name = default;
+            IDictionary<string, float> additionalProperties = new ChangeTrackingDictionary<string, float>();
+            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
+            float derivedProp = default;
+            foreach (var prop in element.EnumerateObject())
+            {
+                if (prop.NameEquals("name"u8))
+                {
+                    name = prop.Value.GetString();
+                    continue;
+                }
+                if (prop.NameEquals("derivedProp"u8))
+                {
+                    derivedProp = prop.Value.GetSingle();
+                    continue;
+                }
+                switch (prop.Value.ValueKind)
+                {
+                    case JsonValueKind.Number:
+                        if (prop.Value.TryGetSingle(out float floatValue))
+                        {
+                            additionalProperties.Add(prop.Name, floatValue);
+                            continue;
+                        }
+                        break;
+                }
+                if (options.Format != "W")
+                {
+                    additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
+                }
+            }
+            return new DifferentSpreadFloatDerived(name, additionalProperties, additionalBinaryDataProperties, derivedProp);
+        }
 
-        protected override BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
+        /// <param name="options"> The client options for reading and writing models. </param>
+        BinaryData IPersistableModel<DifferentSpreadFloatDerived>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
 
-        DifferentSpreadFloatDerived IPersistableModel<DifferentSpreadFloatDerived>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected override BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<DifferentSpreadFloatDerived>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    return ModelReaderWriter.Write(this, options, _TypePropertyAdditionalPropertiesContext.Default);
+                default:
+                    throw new FormatException($"The model {nameof(DifferentSpreadFloatDerived)} does not support writing '{options.Format}' format.");
+            }
+        }
 
-        protected override DifferentSpreadFloatRecord PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        DifferentSpreadFloatDerived IPersistableModel<DifferentSpreadFloatDerived>.Create(BinaryData data, ModelReaderWriterOptions options) => (DifferentSpreadFloatDerived)PersistableModelCreateCore(data, options);
 
-        string IPersistableModel<DifferentSpreadFloatDerived>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
+        /// <param name="data"> The data to parse. </param>
+        /// <param name="options"> The client options for reading and writing models. </param>
+        protected override DifferentSpreadFloatRecord PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
+        {
+            string format = options.Format == "W" ? ((IPersistableModel<DifferentSpreadFloatDerived>)this).GetFormatFromOptions(options) : options.Format;
+            switch (format)
+            {
+                case "J":
+                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
+                    {
+                        return DeserializeDifferentSpreadFloatDerived(document.RootElement, options);
+                    }
+                default:
+                    throw new FormatException($"The model {nameof(DifferentSpreadFloatDerived)} does not support reading '{options.Format}' format.");
+            }
+        }
 
-        public static implicit operator BinaryContent(DifferentSpreadFloatDerived differentSpreadFloatDerived) => throw null;
+        /// <param name="options"> The client options for reading and writing models. </param>
+        string IPersistableModel<DifferentSpreadFloatDerived>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
 
-        public static explicit operator DifferentSpreadFloatDerived(ClientResult result) => throw null;
+        /// <param name="differentSpreadFloatDerived"> The <see cref="DifferentSpreadFloatDerived"/> to serialize into <see cref="BinaryContent"/>. </param>
+        public static implicit operator BinaryContent(DifferentSpreadFloatDerived differentSpreadFloatDerived)
+        {
+            if (differentSpreadFloatDerived == null)
+            {
+                return null;
+            }
+            return BinaryContent.Create(differentSpreadFloatDerived, ModelSerializationExtensions.WireOptions);
+        }
+
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="DifferentSpreadFloatDerived"/> from. </param>
+        public static explicit operator DifferentSpreadFloatDerived(ClientResult result)
+        {
+            PipelineResponse response = result.GetRawResponse();
+            using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
+            return DeserializeDifferentSpreadFloatDerived(document.RootElement, ModelSerializationExtensions.WireOptions);
+        }
     }
 }

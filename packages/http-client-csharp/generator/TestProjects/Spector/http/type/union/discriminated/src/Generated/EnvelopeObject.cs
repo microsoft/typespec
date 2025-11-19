@@ -2,18 +2,46 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel.Primitives;
+using System.Threading;
 
 namespace _Type.Union.Discriminated._Envelope.Object
 {
+    /// <summary> The EnvelopeObject sub-client. </summary>
     public partial class EnvelopeObject
     {
-        protected EnvelopeObject() => throw null;
+        private readonly Uri _endpoint;
+        private EnvelopeObjectDefault _cachedEnvelopeObjectDefault;
+        private EnvelopeObjectCustomProperties _cachedEnvelopeObjectCustomProperties;
 
-        public ClientPipeline Pipeline => throw null;
+        /// <summary> Initializes a new instance of EnvelopeObject for mocking. </summary>
+        protected EnvelopeObject()
+        {
+        }
 
-        public virtual EnvelopeObjectDefault GetEnvelopeObjectDefaultClient() => throw null;
+        /// <summary> Initializes a new instance of EnvelopeObject. </summary>
+        /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
+        /// <param name="endpoint"> Service endpoint. </param>
+        internal EnvelopeObject(ClientPipeline pipeline, Uri endpoint)
+        {
+            _endpoint = endpoint;
+            Pipeline = pipeline;
+        }
 
-        public virtual EnvelopeObjectCustomProperties GetEnvelopeObjectCustomPropertiesClient() => throw null;
+        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
+        public ClientPipeline Pipeline { get; }
+
+        /// <summary> Initializes a new instance of EnvelopeObjectDefault. </summary>
+        public virtual EnvelopeObjectDefault GetEnvelopeObjectDefaultClient()
+        {
+            return Volatile.Read(ref _cachedEnvelopeObjectDefault) ?? Interlocked.CompareExchange(ref _cachedEnvelopeObjectDefault, new EnvelopeObjectDefault(Pipeline, _endpoint), null) ?? _cachedEnvelopeObjectDefault;
+        }
+
+        /// <summary> Initializes a new instance of EnvelopeObjectCustomProperties. </summary>
+        public virtual EnvelopeObjectCustomProperties GetEnvelopeObjectCustomPropertiesClient()
+        {
+            return Volatile.Read(ref _cachedEnvelopeObjectCustomProperties) ?? Interlocked.CompareExchange(ref _cachedEnvelopeObjectCustomProperties, new EnvelopeObjectCustomProperties(Pipeline, _endpoint), null) ?? _cachedEnvelopeObjectCustomProperties;
+        }
     }
 }

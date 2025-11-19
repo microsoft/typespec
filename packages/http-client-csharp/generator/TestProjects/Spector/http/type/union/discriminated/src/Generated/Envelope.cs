@@ -2,17 +2,40 @@
 
 #nullable disable
 
+using System;
 using System.ClientModel.Primitives;
+using System.Threading;
 using _Type.Union.Discriminated._Envelope.Object;
 
 namespace _Type.Union.Discriminated._Envelope
 {
+    /// <summary> The Envelope sub-client. </summary>
     public partial class Envelope
     {
-        protected Envelope() => throw null;
+        private readonly Uri _endpoint;
+        private EnvelopeObject _cachedEnvelopeObject;
 
-        public ClientPipeline Pipeline => throw null;
+        /// <summary> Initializes a new instance of Envelope for mocking. </summary>
+        protected Envelope()
+        {
+        }
 
-        public virtual EnvelopeObject GetEnvelopeObjectClient() => throw null;
+        /// <summary> Initializes a new instance of Envelope. </summary>
+        /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
+        /// <param name="endpoint"> Service endpoint. </param>
+        internal Envelope(ClientPipeline pipeline, Uri endpoint)
+        {
+            _endpoint = endpoint;
+            Pipeline = pipeline;
+        }
+
+        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
+        public ClientPipeline Pipeline { get; }
+
+        /// <summary> Initializes a new instance of EnvelopeObject. </summary>
+        public virtual EnvelopeObject GetEnvelopeObjectClient()
+        {
+            return Volatile.Read(ref _cachedEnvelopeObject) ?? Interlocked.CompareExchange(ref _cachedEnvelopeObject, new EnvelopeObject(Pipeline, _endpoint), null) ?? _cachedEnvelopeObject;
+        }
     }
 }

@@ -4,15 +4,24 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Payload.Pageable._PageSize;
 using Payload.Pageable._ServerDrivenPagination;
 using Payload.Pageable._ServerDrivenPagination.ContinuationToken;
 
 namespace Payload.Pageable
 {
+    /// <summary> A factory class for creating instances of the models for mocking. </summary>
     public static partial class PayloadPageableModelFactory
     {
 
-        public static Pet Pet(string id = default, string name = default) => throw null;
+        /// <summary> The Pet. </summary>
+        /// <param name="id"></param>
+        /// <param name="name"></param>
+        /// <returns> A new <see cref="Pageable.Pet"/> instance for mocking. </returns>
+        public static Pet Pet(string id = default, string name = default)
+        {
+            return new Pet(id, name, additionalBinaryDataProperties: null);
+        }
     }
 }

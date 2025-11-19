@@ -4,7 +4,9 @@
 
 namespace _Type.Property.Optional
 {
+    /// <summary></summary>
     public readonly partial struct FloatLiteralPropertyProperty
     {
+        internal float ToSerialSingle() => _value;
     }
 }

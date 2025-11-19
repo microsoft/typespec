@@ -7,27 +7,131 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
+using Versioning.RenamedFrom.V1;
 
 namespace Versioning.RenamedFrom
 {
+    /// <summary> Test for the `@renamedFrom` decorator. </summary>
     public partial class RenamedFromClient
     {
-        protected RenamedFromClient() => throw null;
+        private readonly Uri _endpoint;
+        private readonly string _version;
+        private OldInterface _cachedOldInterface;
 
-        public RenamedFromClient(Uri endpoint) : this(endpoint, new RenamedFromClientOptions()) => throw null;
+        /// <summary> Initializes a new instance of RenamedFromClient for mocking. </summary>
+        protected RenamedFromClient()
+        {
+        }
 
-        public RenamedFromClient(Uri endpoint, RenamedFromClientOptions options) => throw null;
+        /// <summary> Initializes a new instance of RenamedFromClient. </summary>
+        /// <param name="endpoint"> Service endpoint. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> is null. </exception>
+        public RenamedFromClient(Uri endpoint) : this(endpoint, new RenamedFromClientOptions())
+        {
+        }
 
-        public ClientPipeline Pipeline => throw null;
+        /// <summary> Initializes a new instance of RenamedFromClient. </summary>
+        /// <param name="endpoint"> Service endpoint. </param>
+        /// <param name="options"> The options for configuring the client. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> is null. </exception>
+        public RenamedFromClient(Uri endpoint, RenamedFromClientOptions options)
+        {
+            Argument.AssertNotNull(endpoint, nameof(endpoint));
 
-        public virtual ClientResult OldOp(string oldQuery, BinaryContent content, RequestOptions options = null) => throw null;
+            options ??= new RenamedFromClientOptions();
 
-        public virtual Task<ClientResult> OldOpAsync(string oldQuery, BinaryContent content, RequestOptions options = null) => throw null;
+            _endpoint = endpoint;
+            Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>());
+            _version = options.Version;
+        }
 
-        public virtual ClientResult<OldModel> OldOp(string oldQuery, OldModel body, CancellationToken cancellationToken = default) => throw null;
+        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
+        public ClientPipeline Pipeline { get; }
 
-        public virtual Task<ClientResult<OldModel>> OldOpAsync(string oldQuery, OldModel body, CancellationToken cancellationToken = default) => throw null;
+        /// <summary>
+        /// [Protocol Method] OldOp
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="oldQuery"></param>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="oldQuery"/> or <paramref name="content"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="oldQuery"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult OldOp(string oldQuery, BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNullOrEmpty(oldQuery, nameof(oldQuery));
+            Argument.AssertNotNull(content, nameof(content));
 
-        public virtual OldInterface GetOldInterfaceClient() => throw null;
+            using PipelineMessage message = CreateOldOpRequest(oldQuery, content, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] OldOp
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="oldQuery"></param>
+        /// <param name="content"> The content to send as the body of the request. </param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="oldQuery"/> or <paramref name="content"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="oldQuery"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> OldOpAsync(string oldQuery, BinaryContent content, RequestOptions options = null)
+        {
+            Argument.AssertNotNullOrEmpty(oldQuery, nameof(oldQuery));
+            Argument.AssertNotNull(content, nameof(content));
+
+            using PipelineMessage message = CreateOldOpRequest(oldQuery, content, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> OldOp. </summary>
+        /// <param name="oldQuery"></param>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="oldQuery"/> or <paramref name="body"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="oldQuery"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<OldModel> OldOp(string oldQuery, OldModel body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(oldQuery, nameof(oldQuery));
+            Argument.AssertNotNull(body, nameof(body));
+
+            ClientResult result = OldOp(oldQuery, body, cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue((OldModel)result, result.GetRawResponse());
+        }
+
+        /// <summary> OldOp. </summary>
+        /// <param name="oldQuery"></param>
+        /// <param name="body"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="oldQuery"/> or <paramref name="body"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="oldQuery"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<OldModel>> OldOpAsync(string oldQuery, OldModel body, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(oldQuery, nameof(oldQuery));
+            Argument.AssertNotNull(body, nameof(body));
+
+            ClientResult result = await OldOpAsync(oldQuery, body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue((OldModel)result, result.GetRawResponse());
+        }
+
+        /// <summary> Initializes a new instance of OldInterface. </summary>
+        public virtual OldInterface GetOldInterfaceClient()
+        {
+            return Volatile.Read(ref _cachedOldInterface) ?? Interlocked.CompareExchange(ref _cachedOldInterface, new OldInterface(Pipeline, _endpoint, _version), null) ?? _cachedOldInterface;
+        }
     }
 }
