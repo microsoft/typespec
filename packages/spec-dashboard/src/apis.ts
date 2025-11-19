@@ -25,6 +25,8 @@ export interface CoverageFromAzureStorageOptions {
   readonly modes?: string[];
   /** Optional table definitions to split scenarios into multiple tables */
   readonly tables?: TableDefinition[];
+  /** Debug option: use an arbitrary manifest URL instead of Azure Storage */
+  readonly debugManifestUrl?: string;
 }
 
 export interface GeneratorCoverageSuiteReport extends CoverageReport {
@@ -131,13 +133,27 @@ function splitManifestByTables(
   return result;
 }
 
+/**
+ * Loads manifests from an arbitrary URL for debugging purposes
+ */
+async function loadManifestFromUrl(url: string): Promise<ScenarioManifest[]> {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch manifest from ${url}: ${response.status} ${response.statusText}`);
+  }
+  const manifest = await response.json();
+  
+  // Handle both single manifest and array of manifests
+  return Array.isArray(manifest) ? manifest : [manifest];
+}
+
 export async function getCoverageSummaries(
   options: CoverageFromAzureStorageOptions,
 ): Promise<CoverageSummary[]> {
   const coverageClient = getCoverageClient(options);
   const manifestClient = getManifestClient(options);
   const [manifests, generatorReports] = await Promise.all([
-    manifestClient.manifest.get(),
+    options.debugManifestUrl ? loadManifestFromUrl(options.debugManifestUrl) : manifestClient.manifest.get(),
     loadReports(coverageClient, options),
   ]);
 
