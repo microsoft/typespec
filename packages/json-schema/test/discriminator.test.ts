@@ -416,7 +416,7 @@ describe("discriminated union with polymorphic-models-strategy option", () => {
     const petSchema = schemas["Pet.json"];
     ok(petSchema, "Pet schema should exist");
     ok(petSchema.oneOf, "Pet schema should have oneOf");
-    
+
     // All models emitted separately, so references point to separate files
     deepStrictEqual(petSchema.oneOf[0], { $ref: "Cat.json" });
     deepStrictEqual(petSchema.oneOf[1], { $ref: "Dog.json" });
@@ -454,15 +454,15 @@ describe("discriminated union with polymorphic-models-strategy option", () => {
     const petSchema = schemas["Pet.json"];
     ok(petSchema, "Pet schema should exist");
     ok(petSchema.oneOf, "Pet schema should have oneOf");
-    
+
     // Verify the derived models are in $defs
     ok(petSchema.$defs?.Cat, "Cat should be in $defs");
     ok(petSchema.$defs?.Dog, "Dog should be in $defs");
-    
+
     // References use #/$defs when models are bundled
     deepStrictEqual(petSchema.oneOf[0], { $ref: "#/$defs/Cat" });
     deepStrictEqual(petSchema.oneOf[1], { $ref: "#/$defs/Dog" });
-    
+
     // Mapping uses schema names with .json extension
     // This works correctly with the $ref values for validation
     deepStrictEqual(petSchema.discriminator.mapping, {

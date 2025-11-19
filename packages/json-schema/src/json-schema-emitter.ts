@@ -703,9 +703,10 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
         const value = (prop.type as StringLiteral).value;
         // Get the result from the emitter context to access the actual $ref value
         const refResult = this.emitter.result.rawCode(derivedRef);
-        const refPath = refResult && typeof refResult === "object" && "$ref" in refResult
-          ? refResult.$ref
-          : `${derived.name}.json`;
+        const refPath =
+          refResult && typeof refResult === "object" && "$ref" in refResult
+            ? refResult.$ref
+            : `${derived.name}.json`;
         mapping[value] = refPath as string;
       }
     }
