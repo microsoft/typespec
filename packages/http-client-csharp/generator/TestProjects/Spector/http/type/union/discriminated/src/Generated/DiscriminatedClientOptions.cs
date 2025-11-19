@@ -6,7 +6,6 @@ using System.ClientModel.Primitives;
 
 namespace _Type.Union.Discriminated
 {
-    /// <summary> Client options for <see cref="DiscriminatedClient"/>. </summary>
     public partial class DiscriminatedClientOptions : ClientPipelineOptions
     {
     }

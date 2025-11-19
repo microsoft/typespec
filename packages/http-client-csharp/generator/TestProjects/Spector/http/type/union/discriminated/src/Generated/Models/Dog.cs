@@ -2,44 +2,22 @@
 
 #nullable disable
 
-using System;
-using System.Collections.Generic;
-
 namespace _Type.Union.Discriminated
 {
-    /// <summary> The Dog. </summary>
     public partial class Dog
     {
-        /// <summary> Keeps track of any properties unknown to the library. </summary>
-        private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
+        public Dog(string name, bool bark) => throw null;
 
-        /// <summary> Initializes a new instance of <see cref="Dog"/>. </summary>
-        /// <param name="name"></param>
-        /// <param name="bark"></param>
-        /// <exception cref="ArgumentNullException"> <paramref name="name"/> is null. </exception>
-        public Dog(string name, bool bark)
+        public string Name
         {
-            Argument.AssertNotNull(name, nameof(name));
-
-            Name = name;
-            Bark = bark;
+            get => throw null;
+            set => throw null;
         }
 
-        /// <summary> Initializes a new instance of <see cref="Dog"/>. </summary>
-        /// <param name="name"></param>
-        /// <param name="bark"></param>
-        /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
-        internal Dog(string name, bool bark, IDictionary<string, BinaryData> additionalBinaryDataProperties)
+        public bool Bark
         {
-            Name = name;
-            Bark = bark;
-            _additionalBinaryDataProperties = additionalBinaryDataProperties;
+            get => throw null;
+            set => throw null;
         }
-
-        /// <summary> Gets or sets the Name. </summary>
-        public string Name { get; set; }
-
-        /// <summary> Gets or sets the Bark. </summary>
-        public bool Bark { get; set; }
     }
 }

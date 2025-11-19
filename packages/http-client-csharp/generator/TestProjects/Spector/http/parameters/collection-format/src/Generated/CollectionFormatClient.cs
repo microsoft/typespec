@@ -4,51 +4,21 @@
 
 using System;
 using System.ClientModel.Primitives;
-using System.Threading;
 using Parameters.CollectionFormat._Header;
 using Parameters.CollectionFormat._Query;
 
 namespace Parameters.CollectionFormat
 {
-    /// <summary> Test for collectionFormat. </summary>
     public partial class CollectionFormatClient
     {
-        private readonly Uri _endpoint;
-        private Query _cachedQuery;
-        private Header _cachedHeader;
+        public CollectionFormatClient() : this(new Uri("http://localhost:3000"), new CollectionFormatClientOptions()) => throw null;
 
-        /// <summary> Initializes a new instance of CollectionFormatClient. </summary>
-        public CollectionFormatClient() : this(new Uri("http://localhost:3000"), new CollectionFormatClientOptions())
-        {
-        }
+        public CollectionFormatClient(Uri endpoint, CollectionFormatClientOptions options) => throw null;
 
-        /// <summary> Initializes a new instance of CollectionFormatClient. </summary>
-        /// <param name="endpoint"> Service endpoint. </param>
-        /// <param name="options"> The options for configuring the client. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> is null. </exception>
-        public CollectionFormatClient(Uri endpoint, CollectionFormatClientOptions options)
-        {
-            Argument.AssertNotNull(endpoint, nameof(endpoint));
+        public ClientPipeline Pipeline => throw null;
 
-            options ??= new CollectionFormatClientOptions();
+        public virtual Query GetQueryClient() => throw null;
 
-            _endpoint = endpoint;
-            Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>());
-        }
-
-        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
-        public ClientPipeline Pipeline { get; }
-
-        /// <summary> Initializes a new instance of Query. </summary>
-        public virtual Query GetQueryClient()
-        {
-            return Volatile.Read(ref _cachedQuery) ?? Interlocked.CompareExchange(ref _cachedQuery, new Query(Pipeline, _endpoint), null) ?? _cachedQuery;
-        }
-
-        /// <summary> Initializes a new instance of Header. </summary>
-        public virtual Header GetHeaderClient()
-        {
-            return Volatile.Read(ref _cachedHeader) ?? Interlocked.CompareExchange(ref _cachedHeader, new Header(Pipeline, _endpoint), null) ?? _cachedHeader;
-        }
+        public virtual Header GetHeaderClient() => throw null;
     }
 }

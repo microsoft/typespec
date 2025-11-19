@@ -12,102 +12,26 @@ using Routes._QueryParameters;
 
 namespace Routes
 {
-    /// <summary> Define scenario in building the http route/uri. </summary>
     public partial class RoutesClient
     {
-        private readonly Uri _endpoint;
-        private PathParameters _cachedPathParameters;
-        private QueryParameters _cachedQueryParameters;
-        private InInterface _cachedInInterface;
+        public RoutesClient() : this(new Uri("http://localhost:3000"), new RoutesClientOptions()) => throw null;
 
-        /// <summary> Initializes a new instance of RoutesClient. </summary>
-        public RoutesClient() : this(new Uri("http://localhost:3000"), new RoutesClientOptions())
-        {
-        }
+        public RoutesClient(Uri endpoint, RoutesClientOptions options) => throw null;
 
-        /// <summary> Initializes a new instance of RoutesClient. </summary>
-        /// <param name="endpoint"> Service endpoint. </param>
-        /// <param name="options"> The options for configuring the client. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> is null. </exception>
-        public RoutesClient(Uri endpoint, RoutesClientOptions options)
-        {
-            Argument.AssertNotNull(endpoint, nameof(endpoint));
+        public ClientPipeline Pipeline => throw null;
 
-            options ??= new RoutesClientOptions();
+        public virtual ClientResult Fixed(RequestOptions options) => throw null;
 
-            _endpoint = endpoint;
-            Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>());
-        }
+        public virtual Task<ClientResult> FixedAsync(RequestOptions options) => throw null;
 
-        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
-        public ClientPipeline Pipeline { get; }
+        public virtual ClientResult Fixed(CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] Fixed
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult Fixed(RequestOptions options)
-        {
-            using PipelineMessage message = CreateFixedRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
+        public virtual Task<ClientResult> FixedAsync(CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] Fixed
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> FixedAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateFixedRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
+        public virtual PathParameters GetPathParametersClient() => throw null;
 
-        /// <summary> Fixed. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult Fixed(CancellationToken cancellationToken = default)
-        {
-            return Fixed(cancellationToken.ToRequestOptions());
-        }
+        public virtual QueryParameters GetQueryParametersClient() => throw null;
 
-        /// <summary> Fixed. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> FixedAsync(CancellationToken cancellationToken = default)
-        {
-            return await FixedAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary> Initializes a new instance of PathParameters. </summary>
-        public virtual PathParameters GetPathParametersClient()
-        {
-            return Volatile.Read(ref _cachedPathParameters) ?? Interlocked.CompareExchange(ref _cachedPathParameters, new PathParameters(Pipeline, _endpoint), null) ?? _cachedPathParameters;
-        }
-
-        /// <summary> Initializes a new instance of QueryParameters. </summary>
-        public virtual QueryParameters GetQueryParametersClient()
-        {
-            return Volatile.Read(ref _cachedQueryParameters) ?? Interlocked.CompareExchange(ref _cachedQueryParameters, new QueryParameters(Pipeline, _endpoint), null) ?? _cachedQueryParameters;
-        }
-
-        /// <summary> Initializes a new instance of InInterface. </summary>
-        public virtual InInterface GetInInterfaceClient()
-        {
-            return Volatile.Read(ref _cachedInInterface) ?? Interlocked.CompareExchange(ref _cachedInInterface, new InInterface(Pipeline, _endpoint), null) ?? _cachedInInterface;
-        }
+        public virtual InInterface GetInInterfaceClient() => throw null;
     }
 }

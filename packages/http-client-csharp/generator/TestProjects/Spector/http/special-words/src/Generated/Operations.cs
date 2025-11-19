@@ -2,7 +2,6 @@
 
 #nullable disable
 
-using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
@@ -10,1676 +9,274 @@ using System.Threading.Tasks;
 
 namespace SpecialWords
 {
-    /// <summary> Test reserved words as operation name. </summary>
     public partial class Operations
     {
-        private readonly Uri _endpoint;
-
-        /// <summary> Initializes a new instance of Operations for mocking. </summary>
-        protected Operations()
-        {
-        }
-
-        /// <summary> Initializes a new instance of Operations. </summary>
-        /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
-        /// <param name="endpoint"> Service endpoint. </param>
-        internal Operations(ClientPipeline pipeline, Uri endpoint)
-        {
-            _endpoint = endpoint;
-            Pipeline = pipeline;
-        }
-
-        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
-        public ClientPipeline Pipeline { get; }
-
-        /// <summary>
-        /// [Protocol Method] And
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult And(RequestOptions options)
-        {
-            using PipelineMessage message = CreateAndRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] And
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> AndAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateAndRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> And. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult And(CancellationToken cancellationToken = default)
-        {
-            return And(cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> And. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> AndAsync(CancellationToken cancellationToken = default)
-        {
-            return await AndAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] As
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult As(RequestOptions options)
-        {
-            using PipelineMessage message = CreateAsRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] As
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> AsAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateAsRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> As. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult As(CancellationToken cancellationToken = default)
-        {
-            return As(cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> As. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> AsAsync(CancellationToken cancellationToken = default)
-        {
-            return await AsAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] Assert
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult Assert(RequestOptions options)
-        {
-            using PipelineMessage message = CreateAssertRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] Assert
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> AssertAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateAssertRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> Assert. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult Assert(CancellationToken cancellationToken = default)
-        {
-            return Assert(cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> Assert. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> AssertAsync(CancellationToken cancellationToken = default)
-        {
-            return await AssertAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] Async
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult Async(RequestOptions options)
-        {
-            using PipelineMessage message = CreateAsyncRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] Async
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> AsyncAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateAsyncRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> Async. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult Async(CancellationToken cancellationToken = default)
-        {
-            return Async(cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> Async. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> AsyncAsync(CancellationToken cancellationToken = default)
-        {
-            return await AsyncAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] Await
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult Await(RequestOptions options)
-        {
-            using PipelineMessage message = CreateAwaitRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] Await
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> AwaitAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateAwaitRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> Await. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult Await(CancellationToken cancellationToken = default)
-        {
-            return Await(cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> Await. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> AwaitAsync(CancellationToken cancellationToken = default)
-        {
-            return await AwaitAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] Break
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult Break(RequestOptions options)
-        {
-            using PipelineMessage message = CreateBreakRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] Break
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> BreakAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateBreakRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> Break. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult Break(CancellationToken cancellationToken = default)
-        {
-            return Break(cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> Break. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> BreakAsync(CancellationToken cancellationToken = default)
-        {
-            return await BreakAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] Class
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult Class(RequestOptions options)
-        {
-            using PipelineMessage message = CreateClassRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] Class
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> ClassAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateClassRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> Class. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult Class(CancellationToken cancellationToken = default)
-        {
-            return Class(cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> Class. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> ClassAsync(CancellationToken cancellationToken = default)
-        {
-            return await ClassAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] Constructor
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult Constructor(RequestOptions options)
-        {
-            using PipelineMessage message = CreateConstructorRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] Constructor
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> ConstructorAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateConstructorRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> Constructor. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult Constructor(CancellationToken cancellationToken = default)
-        {
-            return Constructor(cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> Constructor. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> ConstructorAsync(CancellationToken cancellationToken = default)
-        {
-            return await ConstructorAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] Continue
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult Continue(RequestOptions options)
-        {
-            using PipelineMessage message = CreateContinueRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] Continue
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> ContinueAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateContinueRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> Continue. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult Continue(CancellationToken cancellationToken = default)
-        {
-            return Continue(cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> Continue. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> ContinueAsync(CancellationToken cancellationToken = default)
-        {
-            return await ContinueAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] Def
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult Def(RequestOptions options)
-        {
-            using PipelineMessage message = CreateDefRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] Def
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> DefAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateDefRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> Def. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult Def(CancellationToken cancellationToken = default)
-        {
-            return Def(cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> Def. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> DefAsync(CancellationToken cancellationToken = default)
-        {
-            return await DefAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] Del
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult Del(RequestOptions options)
-        {
-            using PipelineMessage message = CreateDelRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] Del
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> DelAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateDelRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> Del. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult Del(CancellationToken cancellationToken = default)
-        {
-            return Del(cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> Del. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> DelAsync(CancellationToken cancellationToken = default)
-        {
-            return await DelAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] Elif
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult Elif(RequestOptions options)
-        {
-            using PipelineMessage message = CreateElifRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] Elif
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> ElifAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateElifRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> Elif. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult Elif(CancellationToken cancellationToken = default)
-        {
-            return Elif(cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> Elif. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> ElifAsync(CancellationToken cancellationToken = default)
-        {
-            return await ElifAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] Else
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult Else(RequestOptions options)
-        {
-            using PipelineMessage message = CreateElseRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] Else
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> ElseAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateElseRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> Else. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult Else(CancellationToken cancellationToken = default)
-        {
-            return Else(cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> Else. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> ElseAsync(CancellationToken cancellationToken = default)
-        {
-            return await ElseAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] Except
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult Except(RequestOptions options)
-        {
-            using PipelineMessage message = CreateExceptRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] Except
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> ExceptAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateExceptRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> Except. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult Except(CancellationToken cancellationToken = default)
-        {
-            return Except(cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> Except. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> ExceptAsync(CancellationToken cancellationToken = default)
-        {
-            return await ExceptAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] Exec
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult Exec(RequestOptions options)
-        {
-            using PipelineMessage message = CreateExecRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] Exec
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> ExecAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateExecRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> Exec. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult Exec(CancellationToken cancellationToken = default)
-        {
-            return Exec(cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> Exec. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> ExecAsync(CancellationToken cancellationToken = default)
-        {
-            return await ExecAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] Finally
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult Finally(RequestOptions options)
-        {
-            using PipelineMessage message = CreateFinallyRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] Finally
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> FinallyAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateFinallyRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> Finally. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult Finally(CancellationToken cancellationToken = default)
-        {
-            return Finally(cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> Finally. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> FinallyAsync(CancellationToken cancellationToken = default)
-        {
-            return await FinallyAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] For
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult For(RequestOptions options)
-        {
-            using PipelineMessage message = CreateForRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] For
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> ForAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateForRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> For. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult For(CancellationToken cancellationToken = default)
-        {
-            return For(cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> For. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> ForAsync(CancellationToken cancellationToken = default)
-        {
-            return await ForAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] From
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult From(RequestOptions options)
-        {
-            using PipelineMessage message = CreateFromRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] From
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> FromAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateFromRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> From. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult From(CancellationToken cancellationToken = default)
-        {
-            return From(cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> From. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> FromAsync(CancellationToken cancellationToken = default)
-        {
-            return await FromAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] Global
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult Global(RequestOptions options)
-        {
-            using PipelineMessage message = CreateGlobalRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] Global
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> GlobalAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateGlobalRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> Global. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult Global(CancellationToken cancellationToken = default)
-        {
-            return Global(cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> Global. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> GlobalAsync(CancellationToken cancellationToken = default)
-        {
-            return await GlobalAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] If
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult If(RequestOptions options)
-        {
-            using PipelineMessage message = CreateIfRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] If
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> IfAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateIfRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> If. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult If(CancellationToken cancellationToken = default)
-        {
-            return If(cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> If. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> IfAsync(CancellationToken cancellationToken = default)
-        {
-            return await IfAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] Import
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult Import(RequestOptions options)
-        {
-            using PipelineMessage message = CreateImportRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] Import
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> ImportAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateImportRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> Import. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult Import(CancellationToken cancellationToken = default)
-        {
-            return Import(cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> Import. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> ImportAsync(CancellationToken cancellationToken = default)
-        {
-            return await ImportAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] In
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult In(RequestOptions options)
-        {
-            using PipelineMessage message = CreateInRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] In
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> InAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateInRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> In. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult In(CancellationToken cancellationToken = default)
-        {
-            return In(cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> In. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> InAsync(CancellationToken cancellationToken = default)
-        {
-            return await InAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] Is
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult Is(RequestOptions options)
-        {
-            using PipelineMessage message = CreateIsRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] Is
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> IsAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateIsRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> Is. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult Is(CancellationToken cancellationToken = default)
-        {
-            return Is(cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> Is. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> IsAsync(CancellationToken cancellationToken = default)
-        {
-            return await IsAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] Lambda
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult Lambda(RequestOptions options)
-        {
-            using PipelineMessage message = CreateLambdaRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] Lambda
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> LambdaAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateLambdaRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> Lambda. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult Lambda(CancellationToken cancellationToken = default)
-        {
-            return Lambda(cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> Lambda. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> LambdaAsync(CancellationToken cancellationToken = default)
-        {
-            return await LambdaAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] Not
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult Not(RequestOptions options)
-        {
-            using PipelineMessage message = CreateNotRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] Not
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> NotAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateNotRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> Not. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult Not(CancellationToken cancellationToken = default)
-        {
-            return Not(cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> Not. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> NotAsync(CancellationToken cancellationToken = default)
-        {
-            return await NotAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] Or
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult Or(RequestOptions options)
-        {
-            using PipelineMessage message = CreateOrRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] Or
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> OrAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateOrRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> Or. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult Or(CancellationToken cancellationToken = default)
-        {
-            return Or(cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> Or. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> OrAsync(CancellationToken cancellationToken = default)
-        {
-            return await OrAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] Pass
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult Pass(RequestOptions options)
-        {
-            using PipelineMessage message = CreatePassRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] Pass
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> PassAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreatePassRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> Pass. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult Pass(CancellationToken cancellationToken = default)
-        {
-            return Pass(cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> Pass. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> PassAsync(CancellationToken cancellationToken = default)
-        {
-            return await PassAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] Raise
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult Raise(RequestOptions options)
-        {
-            using PipelineMessage message = CreateRaiseRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] Raise
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> RaiseAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateRaiseRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> Raise. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult Raise(CancellationToken cancellationToken = default)
-        {
-            return Raise(cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> Raise. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> RaiseAsync(CancellationToken cancellationToken = default)
-        {
-            return await RaiseAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] Return
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult Return(RequestOptions options)
-        {
-            using PipelineMessage message = CreateReturnRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] Return
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> ReturnAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateReturnRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> Return. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult Return(CancellationToken cancellationToken = default)
-        {
-            return Return(cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> Return. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> ReturnAsync(CancellationToken cancellationToken = default)
-        {
-            return await ReturnAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] Try
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult Try(RequestOptions options)
-        {
-            using PipelineMessage message = CreateTryRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] Try
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> TryAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateTryRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> Try. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult Try(CancellationToken cancellationToken = default)
-        {
-            return Try(cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> Try. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> TryAsync(CancellationToken cancellationToken = default)
-        {
-            return await TryAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] While
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult While(RequestOptions options)
-        {
-            using PipelineMessage message = CreateWhileRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] While
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> WhileAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateWhileRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> While. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult While(CancellationToken cancellationToken = default)
-        {
-            return While(cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> While. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> WhileAsync(CancellationToken cancellationToken = default)
-        {
-            return await WhileAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] With
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult With(RequestOptions options)
-        {
-            using PipelineMessage message = CreateWithRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] With
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> WithAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateWithRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> With. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult With(CancellationToken cancellationToken = default)
-        {
-            return With(cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> With. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> WithAsync(CancellationToken cancellationToken = default)
-        {
-            return await WithAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] Yield
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult Yield(RequestOptions options)
-        {
-            using PipelineMessage message = CreateYieldRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] Yield
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> YieldAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateYieldRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> Yield. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult Yield(CancellationToken cancellationToken = default)
-        {
-            return Yield(cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> Yield. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> YieldAsync(CancellationToken cancellationToken = default)
-        {
-            return await YieldAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
+        protected Operations() => throw null;
+
+        public ClientPipeline Pipeline => throw null;
+
+        public virtual ClientResult And(RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> AndAsync(RequestOptions options) => throw null;
+
+        public virtual ClientResult And(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> AndAsync(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult As(RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> AsAsync(RequestOptions options) => throw null;
+
+        public virtual ClientResult As(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> AsAsync(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult Assert(RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> AssertAsync(RequestOptions options) => throw null;
+
+        public virtual ClientResult Assert(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> AssertAsync(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult Async(RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> AsyncAsync(RequestOptions options) => throw null;
+
+        public virtual ClientResult Async(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> AsyncAsync(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult Await(RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> AwaitAsync(RequestOptions options) => throw null;
+
+        public virtual ClientResult Await(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> AwaitAsync(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult Break(RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> BreakAsync(RequestOptions options) => throw null;
+
+        public virtual ClientResult Break(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> BreakAsync(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult Class(RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> ClassAsync(RequestOptions options) => throw null;
+
+        public virtual ClientResult Class(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> ClassAsync(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult Constructor(RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> ConstructorAsync(RequestOptions options) => throw null;
+
+        public virtual ClientResult Constructor(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> ConstructorAsync(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult Continue(RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> ContinueAsync(RequestOptions options) => throw null;
+
+        public virtual ClientResult Continue(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> ContinueAsync(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult Def(RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> DefAsync(RequestOptions options) => throw null;
+
+        public virtual ClientResult Def(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> DefAsync(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult Del(RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> DelAsync(RequestOptions options) => throw null;
+
+        public virtual ClientResult Del(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> DelAsync(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult Elif(RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> ElifAsync(RequestOptions options) => throw null;
+
+        public virtual ClientResult Elif(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> ElifAsync(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult Else(RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> ElseAsync(RequestOptions options) => throw null;
+
+        public virtual ClientResult Else(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> ElseAsync(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult Except(RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> ExceptAsync(RequestOptions options) => throw null;
+
+        public virtual ClientResult Except(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> ExceptAsync(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult Exec(RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> ExecAsync(RequestOptions options) => throw null;
+
+        public virtual ClientResult Exec(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> ExecAsync(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult Finally(RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> FinallyAsync(RequestOptions options) => throw null;
+
+        public virtual ClientResult Finally(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> FinallyAsync(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult For(RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> ForAsync(RequestOptions options) => throw null;
+
+        public virtual ClientResult For(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> ForAsync(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult From(RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> FromAsync(RequestOptions options) => throw null;
+
+        public virtual ClientResult From(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> FromAsync(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult Global(RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> GlobalAsync(RequestOptions options) => throw null;
+
+        public virtual ClientResult Global(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> GlobalAsync(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult If(RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> IfAsync(RequestOptions options) => throw null;
+
+        public virtual ClientResult If(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> IfAsync(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult Import(RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> ImportAsync(RequestOptions options) => throw null;
+
+        public virtual ClientResult Import(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> ImportAsync(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult In(RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> InAsync(RequestOptions options) => throw null;
+
+        public virtual ClientResult In(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> InAsync(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult Is(RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> IsAsync(RequestOptions options) => throw null;
+
+        public virtual ClientResult Is(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> IsAsync(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult Lambda(RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> LambdaAsync(RequestOptions options) => throw null;
+
+        public virtual ClientResult Lambda(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> LambdaAsync(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult Not(RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> NotAsync(RequestOptions options) => throw null;
+
+        public virtual ClientResult Not(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> NotAsync(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult Or(RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> OrAsync(RequestOptions options) => throw null;
+
+        public virtual ClientResult Or(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> OrAsync(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult Pass(RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> PassAsync(RequestOptions options) => throw null;
+
+        public virtual ClientResult Pass(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> PassAsync(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult Raise(RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> RaiseAsync(RequestOptions options) => throw null;
+
+        public virtual ClientResult Raise(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> RaiseAsync(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult Return(RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> ReturnAsync(RequestOptions options) => throw null;
+
+        public virtual ClientResult Return(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> ReturnAsync(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult Try(RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> TryAsync(RequestOptions options) => throw null;
+
+        public virtual ClientResult Try(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> TryAsync(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult While(RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> WhileAsync(RequestOptions options) => throw null;
+
+        public virtual ClientResult While(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> WhileAsync(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult With(RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> WithAsync(RequestOptions options) => throw null;
+
+        public virtual ClientResult With(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> WithAsync(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult Yield(RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> YieldAsync(RequestOptions options) => throw null;
+
+        public virtual ClientResult Yield(CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> YieldAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

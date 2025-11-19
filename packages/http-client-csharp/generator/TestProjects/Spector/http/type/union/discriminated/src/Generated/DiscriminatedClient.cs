@@ -4,51 +4,21 @@
 
 using System;
 using System.ClientModel.Primitives;
-using System.Threading;
 using _Type.Union.Discriminated._Envelope;
 using _Type.Union.Discriminated._NoEnvelope;
 
 namespace _Type.Union.Discriminated
 {
-    /// <summary> Describe scenarios for discriminated unions. </summary>
     public partial class DiscriminatedClient
     {
-        private readonly Uri _endpoint;
-        private Envelope _cachedEnvelope;
-        private NoEnvelope _cachedNoEnvelope;
+        public DiscriminatedClient() : this(new Uri("http://localhost:3000"), new DiscriminatedClientOptions()) => throw null;
 
-        /// <summary> Initializes a new instance of DiscriminatedClient. </summary>
-        public DiscriminatedClient() : this(new Uri("http://localhost:3000"), new DiscriminatedClientOptions())
-        {
-        }
+        public DiscriminatedClient(Uri endpoint, DiscriminatedClientOptions options) => throw null;
 
-        /// <summary> Initializes a new instance of DiscriminatedClient. </summary>
-        /// <param name="endpoint"> Service endpoint. </param>
-        /// <param name="options"> The options for configuring the client. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> is null. </exception>
-        public DiscriminatedClient(Uri endpoint, DiscriminatedClientOptions options)
-        {
-            Argument.AssertNotNull(endpoint, nameof(endpoint));
+        public ClientPipeline Pipeline => throw null;
 
-            options ??= new DiscriminatedClientOptions();
+        public virtual Envelope GetEnvelopeClient() => throw null;
 
-            _endpoint = endpoint;
-            Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>());
-        }
-
-        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
-        public ClientPipeline Pipeline { get; }
-
-        /// <summary> Initializes a new instance of Envelope. </summary>
-        public virtual Envelope GetEnvelopeClient()
-        {
-            return Volatile.Read(ref _cachedEnvelope) ?? Interlocked.CompareExchange(ref _cachedEnvelope, new Envelope(Pipeline, _endpoint), null) ?? _cachedEnvelope;
-        }
-
-        /// <summary> Initializes a new instance of NoEnvelope. </summary>
-        public virtual NoEnvelope GetNoEnvelopeClient()
-        {
-            return Volatile.Read(ref _cachedNoEnvelope) ?? Interlocked.CompareExchange(ref _cachedNoEnvelope, new NoEnvelope(Pipeline, _endpoint), null) ?? _cachedNoEnvelope;
-        }
+        public virtual NoEnvelope GetNoEnvelopeClient() => throw null;
     }
 }

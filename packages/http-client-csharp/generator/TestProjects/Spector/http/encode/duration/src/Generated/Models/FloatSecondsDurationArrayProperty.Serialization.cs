@@ -5,165 +5,34 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
-using System.Collections.Generic;
 using System.Text.Json;
-using Encode.Duration;
 
 namespace Encode.Duration._Property
 {
-    /// <summary> The FloatSecondsDurationArrayProperty. </summary>
     public partial class FloatSecondsDurationArrayProperty : IJsonModel<FloatSecondsDurationArrayProperty>
     {
-        /// <summary> Initializes a new instance of <see cref="FloatSecondsDurationArrayProperty"/> for deserialization. </summary>
-        internal FloatSecondsDurationArrayProperty()
-        {
-        }
+        internal FloatSecondsDurationArrayProperty() => throw null;
 
-        /// <param name="writer"> The JSON writer. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        void IJsonModel<FloatSecondsDurationArrayProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
-        {
-            writer.WriteStartObject();
-            JsonModelWriteCore(writer, options);
-            writer.WriteEndObject();
-        }
+        void IJsonModel<FloatSecondsDurationArrayProperty>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="writer"> The JSON writer. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<FloatSecondsDurationArrayProperty>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
-            {
-                throw new FormatException($"The model {nameof(FloatSecondsDurationArrayProperty)} does not support writing '{format}' format.");
-            }
-            writer.WritePropertyName("value"u8);
-            writer.WriteStartArray();
-            foreach (TimeSpan item in Value)
-            {
-                writer.WriteNumberValue(item.TotalSeconds);
-            }
-            writer.WriteEndArray();
-            if (options.Format != "W" && _additionalBinaryDataProperties != null)
-            {
-                foreach (var item in _additionalBinaryDataProperties)
-                {
-                    writer.WritePropertyName(item.Key);
-#if NET6_0_OR_GREATER
-                    writer.WriteRawValue(item.Value);
-#else
-                    using (JsonDocument document = JsonDocument.Parse(item.Value))
-                    {
-                        JsonSerializer.Serialize(writer, document.RootElement);
-                    }
-#endif
-                }
-            }
-        }
+        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="reader"> The JSON reader. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        FloatSecondsDurationArrayProperty IJsonModel<FloatSecondsDurationArrayProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
+        FloatSecondsDurationArrayProperty IJsonModel<FloatSecondsDurationArrayProperty>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="reader"> The JSON reader. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual FloatSecondsDurationArrayProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<FloatSecondsDurationArrayProperty>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
-            {
-                throw new FormatException($"The model {nameof(FloatSecondsDurationArrayProperty)} does not support reading '{format}' format.");
-            }
-            using JsonDocument document = JsonDocument.ParseValue(ref reader);
-            return DeserializeFloatSecondsDurationArrayProperty(document.RootElement, options);
-        }
+        protected virtual FloatSecondsDurationArrayProperty JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="element"> The JSON element to deserialize. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        internal static FloatSecondsDurationArrayProperty DeserializeFloatSecondsDurationArrayProperty(JsonElement element, ModelReaderWriterOptions options)
-        {
-            if (element.ValueKind == JsonValueKind.Null)
-            {
-                return null;
-            }
-            IList<TimeSpan> value = default;
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
-            foreach (var prop in element.EnumerateObject())
-            {
-                if (prop.NameEquals("value"u8))
-                {
-                    List<TimeSpan> array = new List<TimeSpan>();
-                    foreach (var item in prop.Value.EnumerateArray())
-                    {
-                        array.Add(TimeSpan.FromSeconds(item.GetDouble()));
-                    }
-                    value = array;
-                    continue;
-                }
-                if (options.Format != "W")
-                {
-                    additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
-                }
-            }
-            return new FloatSecondsDurationArrayProperty(value, additionalBinaryDataProperties);
-        }
+        BinaryData IPersistableModel<FloatSecondsDurationArrayProperty>.Write(ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<FloatSecondsDurationArrayProperty>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<FloatSecondsDurationArrayProperty>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, EncodeDurationContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(FloatSecondsDurationArrayProperty)} does not support writing '{options.Format}' format.");
-            }
-        }
+        FloatSecondsDurationArrayProperty IPersistableModel<FloatSecondsDurationArrayProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        FloatSecondsDurationArrayProperty IPersistableModel<FloatSecondsDurationArrayProperty>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
+        protected virtual FloatSecondsDurationArrayProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual FloatSecondsDurationArrayProperty PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<FloatSecondsDurationArrayProperty>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
-                    {
-                        return DeserializeFloatSecondsDurationArrayProperty(document.RootElement, options);
-                    }
-                default:
-                    throw new FormatException($"The model {nameof(FloatSecondsDurationArrayProperty)} does not support reading '{options.Format}' format.");
-            }
-        }
+        string IPersistableModel<FloatSecondsDurationArrayProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<FloatSecondsDurationArrayProperty>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+        public static implicit operator BinaryContent(FloatSecondsDurationArrayProperty floatSecondsDurationArrayProperty) => throw null;
 
-        /// <param name="floatSecondsDurationArrayProperty"> The <see cref="FloatSecondsDurationArrayProperty"/> to serialize into <see cref="BinaryContent"/>. </param>
-        public static implicit operator BinaryContent(FloatSecondsDurationArrayProperty floatSecondsDurationArrayProperty)
-        {
-            if (floatSecondsDurationArrayProperty == null)
-            {
-                return null;
-            }
-            return BinaryContent.Create(floatSecondsDurationArrayProperty, ModelSerializationExtensions.WireOptions);
-        }
-
-        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="FloatSecondsDurationArrayProperty"/> from. </param>
-        public static explicit operator FloatSecondsDurationArrayProperty(ClientResult result)
-        {
-            PipelineResponse response = result.GetRawResponse();
-            using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
-            return DeserializeFloatSecondsDurationArrayProperty(document.RootElement, ModelSerializationExtensions.WireOptions);
-        }
+        public static explicit operator FloatSecondsDurationArrayProperty(ClientResult result) => throw null;
     }
 }

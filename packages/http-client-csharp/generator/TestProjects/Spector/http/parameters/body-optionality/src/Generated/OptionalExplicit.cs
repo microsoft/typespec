@@ -2,7 +2,6 @@
 
 #nullable disable
 
-using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
@@ -11,134 +10,26 @@ using Parameters.BodyOptionality;
 
 namespace Parameters.BodyOptionality._OptionalExplicit
 {
-    /// <summary> The OptionalExplicit sub-client. </summary>
     public partial class OptionalExplicit
     {
-        private readonly Uri _endpoint;
+        protected OptionalExplicit() => throw null;
 
-        /// <summary> Initializes a new instance of OptionalExplicit for mocking. </summary>
-        protected OptionalExplicit()
-        {
-        }
+        public ClientPipeline Pipeline => throw null;
 
-        /// <summary> Initializes a new instance of OptionalExplicit. </summary>
-        /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
-        /// <param name="endpoint"> Service endpoint. </param>
-        internal OptionalExplicit(ClientPipeline pipeline, Uri endpoint)
-        {
-            _endpoint = endpoint;
-            Pipeline = pipeline;
-        }
+        public virtual ClientResult Set(BinaryContent content, RequestOptions options = null) => throw null;
 
-        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
-        public ClientPipeline Pipeline { get; }
+        public virtual Task<ClientResult> SetAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] Set
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="content"> The content to send as the body of the request. </param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult Set(BinaryContent content, RequestOptions options = null)
-        {
-            using PipelineMessage message = CreateSetRequest(content, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
+        public virtual ClientResult Set(BodyModel body = default, CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] Set
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="content"> The content to send as the body of the request. </param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> SetAsync(BinaryContent content, RequestOptions options = null)
-        {
-            using PipelineMessage message = CreateSetRequest(content, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
+        public virtual Task<ClientResult> SetAsync(BodyModel body = default, CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary> Set. </summary>
-        /// <param name="body"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult Set(BodyModel body = default, CancellationToken cancellationToken = default)
-        {
-            return Set(body, cancellationToken.ToRequestOptions());
-        }
+        public virtual ClientResult Omit(BinaryContent content, RequestOptions options = null) => throw null;
 
-        /// <summary> Set. </summary>
-        /// <param name="body"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> SetAsync(BodyModel body = default, CancellationToken cancellationToken = default)
-        {
-            return await SetAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
+        public virtual Task<ClientResult> OmitAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] Omit
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="content"> The content to send as the body of the request. </param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult Omit(BinaryContent content, RequestOptions options = null)
-        {
-            using PipelineMessage message = CreateOmitRequest(content, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
+        public virtual ClientResult Omit(BodyModel body = default, CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] Omit
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="content"> The content to send as the body of the request. </param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> OmitAsync(BinaryContent content, RequestOptions options = null)
-        {
-            using PipelineMessage message = CreateOmitRequest(content, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> Omit. </summary>
-        /// <param name="body"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult Omit(BodyModel body = default, CancellationToken cancellationToken = default)
-        {
-            return Omit(body, cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> Omit. </summary>
-        /// <param name="body"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> OmitAsync(BodyModel body = default, CancellationToken cancellationToken = default)
-        {
-            return await OmitAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
+        public virtual Task<ClientResult> OmitAsync(BodyModel body = default, CancellationToken cancellationToken = default) => throw null;
     }
 }

@@ -2,7 +2,6 @@
 
 #nullable disable
 
-using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
@@ -10,262 +9,42 @@ using System.Threading.Tasks;
 
 namespace _Type.Property.Optional
 {
-    /// <summary> Test optional and required properties. </summary>
     public partial class RequiredAndOptional
     {
-        private readonly Uri _endpoint;
+        protected RequiredAndOptional() => throw null;
 
-        /// <summary> Initializes a new instance of RequiredAndOptional for mocking. </summary>
-        protected RequiredAndOptional()
-        {
-        }
+        public ClientPipeline Pipeline => throw null;
 
-        /// <summary> Initializes a new instance of RequiredAndOptional. </summary>
-        /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
-        /// <param name="endpoint"> Service endpoint. </param>
-        internal RequiredAndOptional(ClientPipeline pipeline, Uri endpoint)
-        {
-            _endpoint = endpoint;
-            Pipeline = pipeline;
-        }
+        public virtual ClientResult GetAll(RequestOptions options) => throw null;
 
-        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
-        public ClientPipeline Pipeline { get; }
+        public virtual Task<ClientResult> GetAllAsync(RequestOptions options) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] Get models that will return all properties in the model
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult GetAll(RequestOptions options)
-        {
-            using PipelineMessage message = CreateGetAllRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
+        public virtual ClientResult<RequiredAndOptionalProperty> GetAll(CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] Get models that will return all properties in the model
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> GetAllAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateGetAllRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
+        public virtual Task<ClientResult<RequiredAndOptionalProperty>> GetAllAsync(CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary> Get models that will return all properties in the model. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<RequiredAndOptionalProperty> GetAll(CancellationToken cancellationToken = default)
-        {
-            ClientResult result = GetAll(cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((RequiredAndOptionalProperty)result, result.GetRawResponse());
-        }
+        public virtual ClientResult GetRequiredOnly(RequestOptions options) => throw null;
 
-        /// <summary> Get models that will return all properties in the model. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<RequiredAndOptionalProperty>> GetAllAsync(CancellationToken cancellationToken = default)
-        {
-            ClientResult result = await GetAllAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((RequiredAndOptionalProperty)result, result.GetRawResponse());
-        }
+        public virtual Task<ClientResult> GetRequiredOnlyAsync(RequestOptions options) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] Get models that will return only the required properties
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult GetRequiredOnly(RequestOptions options)
-        {
-            using PipelineMessage message = CreateGetRequiredOnlyRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
+        public virtual ClientResult<RequiredAndOptionalProperty> GetRequiredOnly(CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] Get models that will return only the required properties
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> GetRequiredOnlyAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateGetRequiredOnlyRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
+        public virtual Task<ClientResult<RequiredAndOptionalProperty>> GetRequiredOnlyAsync(CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary> Get models that will return only the required properties. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<RequiredAndOptionalProperty> GetRequiredOnly(CancellationToken cancellationToken = default)
-        {
-            ClientResult result = GetRequiredOnly(cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((RequiredAndOptionalProperty)result, result.GetRawResponse());
-        }
+        public virtual ClientResult PutAll(BinaryContent content, RequestOptions options = null) => throw null;
 
-        /// <summary> Get models that will return only the required properties. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<RequiredAndOptionalProperty>> GetRequiredOnlyAsync(CancellationToken cancellationToken = default)
-        {
-            ClientResult result = await GetRequiredOnlyAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((RequiredAndOptionalProperty)result, result.GetRawResponse());
-        }
+        public virtual Task<ClientResult> PutAllAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] Put a body with all properties present.
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="content"> The content to send as the body of the request. </param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult PutAll(BinaryContent content, RequestOptions options = null)
-        {
-            Argument.AssertNotNull(content, nameof(content));
+        public virtual ClientResult PutAll(RequiredAndOptionalProperty body, CancellationToken cancellationToken = default) => throw null;
 
-            using PipelineMessage message = CreatePutAllRequest(content, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
+        public virtual Task<ClientResult> PutAllAsync(RequiredAndOptionalProperty body, CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] Put a body with all properties present.
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="content"> The content to send as the body of the request. </param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> PutAllAsync(BinaryContent content, RequestOptions options = null)
-        {
-            Argument.AssertNotNull(content, nameof(content));
+        public virtual ClientResult PutRequiredOnly(BinaryContent content, RequestOptions options = null) => throw null;
 
-            using PipelineMessage message = CreatePutAllRequest(content, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
+        public virtual Task<ClientResult> PutRequiredOnlyAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        /// <summary> Put a body with all properties present. </summary>
-        /// <param name="body"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult PutAll(RequiredAndOptionalProperty body, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNull(body, nameof(body));
+        public virtual ClientResult PutRequiredOnly(RequiredAndOptionalProperty body, CancellationToken cancellationToken = default) => throw null;
 
-            return PutAll(body, cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> Put a body with all properties present. </summary>
-        /// <param name="body"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> PutAllAsync(RequiredAndOptionalProperty body, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNull(body, nameof(body));
-
-            return await PutAllAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] Put a body with only required properties.
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="content"> The content to send as the body of the request. </param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult PutRequiredOnly(BinaryContent content, RequestOptions options = null)
-        {
-            Argument.AssertNotNull(content, nameof(content));
-
-            using PipelineMessage message = CreatePutRequiredOnlyRequest(content, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] Put a body with only required properties.
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="content"> The content to send as the body of the request. </param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> PutRequiredOnlyAsync(BinaryContent content, RequestOptions options = null)
-        {
-            Argument.AssertNotNull(content, nameof(content));
-
-            using PipelineMessage message = CreatePutRequiredOnlyRequest(content, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> Put a body with only required properties. </summary>
-        /// <param name="body"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult PutRequiredOnly(RequiredAndOptionalProperty body, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNull(body, nameof(body));
-
-            return PutRequiredOnly(body, cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> Put a body with only required properties. </summary>
-        /// <param name="body"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> PutRequiredOnlyAsync(RequiredAndOptionalProperty body, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNull(body, nameof(body));
-
-            return await PutRequiredOnlyAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
+        public virtual Task<ClientResult> PutRequiredOnlyAsync(RequiredAndOptionalProperty body, CancellationToken cancellationToken = default) => throw null;
     }
 }

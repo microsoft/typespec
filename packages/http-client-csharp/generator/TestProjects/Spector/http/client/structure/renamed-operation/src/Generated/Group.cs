@@ -2,189 +2,41 @@
 
 #nullable disable
 
-using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
-using Client.Structure.Service;
-using Client.Structure.Service.Renamed.Operation;
 
 namespace Client.Structure.RenamedOperation
 {
-    /// <summary> The Group sub-client. </summary>
     public partial class Group
     {
-        private readonly Uri _endpoint;
-        private readonly ClientType _client;
+        protected Group() => throw null;
 
-        /// <summary> Initializes a new instance of Group for mocking. </summary>
-        protected Group()
-        {
-        }
+        public ClientPipeline Pipeline => throw null;
 
-        /// <summary> Initializes a new instance of Group. </summary>
-        /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
-        /// <param name="endpoint"> Service endpoint. </param>
-        /// <param name="client"></param>
-        internal Group(ClientPipeline pipeline, Uri endpoint, ClientType client)
-        {
-            _endpoint = endpoint;
-            Pipeline = pipeline;
-            _client = client;
-        }
+        public virtual ClientResult RenamedTwo(RequestOptions options) => throw null;
 
-        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
-        public ClientPipeline Pipeline { get; }
+        public virtual Task<ClientResult> RenamedTwoAsync(RequestOptions options) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] RenamedTwo
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult RenamedTwo(RequestOptions options)
-        {
-            using PipelineMessage message = CreateRenamedTwoRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
+        public virtual ClientResult RenamedTwo(CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] RenamedTwo
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> RenamedTwoAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateRenamedTwoRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
+        public virtual Task<ClientResult> RenamedTwoAsync(CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary> RenamedTwo. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult RenamedTwo(CancellationToken cancellationToken = default)
-        {
-            return RenamedTwo(cancellationToken.ToRequestOptions());
-        }
+        public virtual ClientResult RenamedFour(RequestOptions options) => throw null;
 
-        /// <summary> RenamedTwo. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> RenamedTwoAsync(CancellationToken cancellationToken = default)
-        {
-            return await RenamedTwoAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
+        public virtual Task<ClientResult> RenamedFourAsync(RequestOptions options) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] RenamedFour
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult RenamedFour(RequestOptions options)
-        {
-            using PipelineMessage message = CreateRenamedFourRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
+        public virtual ClientResult RenamedFour(CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] RenamedFour
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> RenamedFourAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateRenamedFourRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
+        public virtual Task<ClientResult> RenamedFourAsync(CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary> RenamedFour. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult RenamedFour(CancellationToken cancellationToken = default)
-        {
-            return RenamedFour(cancellationToken.ToRequestOptions());
-        }
+        public virtual ClientResult RenamedSix(RequestOptions options) => throw null;
 
-        /// <summary> RenamedFour. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> RenamedFourAsync(CancellationToken cancellationToken = default)
-        {
-            return await RenamedFourAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
+        public virtual Task<ClientResult> RenamedSixAsync(RequestOptions options) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] RenamedSix
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult RenamedSix(RequestOptions options)
-        {
-            using PipelineMessage message = CreateRenamedSixRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
+        public virtual ClientResult RenamedSix(CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] RenamedSix
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> RenamedSixAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateRenamedSixRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> RenamedSix. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult RenamedSix(CancellationToken cancellationToken = default)
-        {
-            return RenamedSix(cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> RenamedSix. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> RenamedSixAsync(CancellationToken cancellationToken = default)
-        {
-            return await RenamedSixAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
+        public virtual Task<ClientResult> RenamedSixAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

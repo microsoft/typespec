@@ -6,7 +6,6 @@ using System.ClientModel.Primitives;
 
 namespace Encode.Bytes
 {
-    /// <summary> Client options for <see cref="BytesClient"/>. </summary>
     public partial class BytesClientOptions : ClientPipelineOptions
     {
     }

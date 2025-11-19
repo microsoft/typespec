@@ -6,7 +6,6 @@ using System.ClientModel.Primitives;
 
 namespace _Type.Union
 {
-    /// <summary> Client options for <see cref="UnionClient"/>. </summary>
     public partial class UnionClientOptions : ClientPipelineOptions
     {
     }

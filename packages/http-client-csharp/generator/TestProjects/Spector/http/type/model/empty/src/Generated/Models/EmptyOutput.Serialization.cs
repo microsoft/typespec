@@ -5,131 +5,30 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
-using System.Collections.Generic;
 using System.Text.Json;
 
 namespace _Type.Model.Empty
 {
-    /// <summary> Empty model used in operation return type. </summary>
     public partial class EmptyOutput : IJsonModel<EmptyOutput>
     {
-        /// <param name="writer"> The JSON writer. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        void IJsonModel<EmptyOutput>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
-        {
-            writer.WriteStartObject();
-            JsonModelWriteCore(writer, options);
-            writer.WriteEndObject();
-        }
+        void IJsonModel<EmptyOutput>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="writer"> The JSON writer. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<EmptyOutput>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
-            {
-                throw new FormatException($"The model {nameof(EmptyOutput)} does not support writing '{format}' format.");
-            }
-            if (options.Format != "W" && _additionalBinaryDataProperties != null)
-            {
-                foreach (var item in _additionalBinaryDataProperties)
-                {
-                    writer.WritePropertyName(item.Key);
-#if NET6_0_OR_GREATER
-                    writer.WriteRawValue(item.Value);
-#else
-                    using (JsonDocument document = JsonDocument.Parse(item.Value))
-                    {
-                        JsonSerializer.Serialize(writer, document.RootElement);
-                    }
-#endif
-                }
-            }
-        }
+        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="reader"> The JSON reader. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        EmptyOutput IJsonModel<EmptyOutput>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
+        EmptyOutput IJsonModel<EmptyOutput>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="reader"> The JSON reader. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual EmptyOutput JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<EmptyOutput>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
-            {
-                throw new FormatException($"The model {nameof(EmptyOutput)} does not support reading '{format}' format.");
-            }
-            using JsonDocument document = JsonDocument.ParseValue(ref reader);
-            return DeserializeEmptyOutput(document.RootElement, options);
-        }
+        protected virtual EmptyOutput JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="element"> The JSON element to deserialize. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        internal static EmptyOutput DeserializeEmptyOutput(JsonElement element, ModelReaderWriterOptions options)
-        {
-            if (element.ValueKind == JsonValueKind.Null)
-            {
-                return null;
-            }
-            IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
-            foreach (var prop in element.EnumerateObject())
-            {
-                if (options.Format != "W")
-                {
-                    additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
-                }
-            }
-            return new EmptyOutput(additionalBinaryDataProperties);
-        }
+        BinaryData IPersistableModel<EmptyOutput>.Write(ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<EmptyOutput>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<EmptyOutput>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, _TypeModelEmptyContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(EmptyOutput)} does not support writing '{options.Format}' format.");
-            }
-        }
+        EmptyOutput IPersistableModel<EmptyOutput>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        EmptyOutput IPersistableModel<EmptyOutput>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
+        protected virtual EmptyOutput PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual EmptyOutput PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<EmptyOutput>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
-                    {
-                        return DeserializeEmptyOutput(document.RootElement, options);
-                    }
-                default:
-                    throw new FormatException($"The model {nameof(EmptyOutput)} does not support reading '{options.Format}' format.");
-            }
-        }
+        string IPersistableModel<EmptyOutput>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<EmptyOutput>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
-
-        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="EmptyOutput"/> from. </param>
-        public static explicit operator EmptyOutput(ClientResult result)
-        {
-            PipelineResponse response = result.GetRawResponse();
-            using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
-            return DeserializeEmptyOutput(document.RootElement, ModelSerializationExtensions.WireOptions);
-        }
+        public static explicit operator EmptyOutput(ClientResult result) => throw null;
     }
 }

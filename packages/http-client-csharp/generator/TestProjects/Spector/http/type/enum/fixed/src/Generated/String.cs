@@ -2,7 +2,6 @@
 
 #nullable disable
 
-using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
@@ -10,198 +9,34 @@ using System.Threading.Tasks;
 
 namespace _Type._Enum.Fixed
 {
-    /// <summary> The String sub-client. </summary>
     public partial class String
     {
-        private readonly Uri _endpoint;
+        protected String() => throw null;
 
-        /// <summary> Initializes a new instance of String for mocking. </summary>
-        protected String()
-        {
-        }
+        public ClientPipeline Pipeline => throw null;
 
-        /// <summary> Initializes a new instance of String. </summary>
-        /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
-        /// <param name="endpoint"> Service endpoint. </param>
-        internal String(ClientPipeline pipeline, Uri endpoint)
-        {
-            _endpoint = endpoint;
-            Pipeline = pipeline;
-        }
+        public virtual ClientResult GetKnownValue(RequestOptions options) => throw null;
 
-        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
-        public ClientPipeline Pipeline { get; }
+        public virtual Task<ClientResult> GetKnownValueAsync(RequestOptions options) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] getKnownValue
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult GetKnownValue(RequestOptions options)
-        {
-            using PipelineMessage message = CreateGetKnownValueRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
+        public virtual ClientResult<DaysOfWeekEnum> GetKnownValue(CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] getKnownValue
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> GetKnownValueAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateGetKnownValueRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
+        public virtual Task<ClientResult<DaysOfWeekEnum>> GetKnownValueAsync(CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary> getKnownValue. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<DaysOfWeekEnum> GetKnownValue(CancellationToken cancellationToken = default)
-        {
-            ClientResult result = GetKnownValue(cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue(result.GetRawResponse().Content.ToObjectFromJson<string>().ToDaysOfWeekEnum(), result.GetRawResponse());
-        }
+        public virtual ClientResult PutKnownValue(BinaryContent content, RequestOptions options = null) => throw null;
 
-        /// <summary> getKnownValue. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<DaysOfWeekEnum>> GetKnownValueAsync(CancellationToken cancellationToken = default)
-        {
-            ClientResult result = await GetKnownValueAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue(result.GetRawResponse().Content.ToObjectFromJson<string>().ToDaysOfWeekEnum(), result.GetRawResponse());
-        }
+        public virtual Task<ClientResult> PutKnownValueAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] putKnownValue
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="content"> The content to send as the body of the request. </param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult PutKnownValue(BinaryContent content, RequestOptions options = null)
-        {
-            Argument.AssertNotNull(content, nameof(content));
+        public virtual ClientResult PutKnownValue(DaysOfWeekEnum body, CancellationToken cancellationToken = default) => throw null;
 
-            using PipelineMessage message = CreatePutKnownValueRequest(content, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
+        public virtual Task<ClientResult> PutKnownValueAsync(DaysOfWeekEnum body, CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] putKnownValue
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="content"> The content to send as the body of the request. </param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> PutKnownValueAsync(BinaryContent content, RequestOptions options = null)
-        {
-            Argument.AssertNotNull(content, nameof(content));
+        public virtual ClientResult PutUnknownValue(BinaryContent content, RequestOptions options = null) => throw null;
 
-            using PipelineMessage message = CreatePutKnownValueRequest(content, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
+        public virtual Task<ClientResult> PutUnknownValueAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        /// <summary> putKnownValue. </summary>
-        /// <param name="body"> _. </param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult PutKnownValue(DaysOfWeekEnum body, CancellationToken cancellationToken = default)
-        {
-            return PutKnownValue(BinaryContent.Create(BinaryData.FromObjectAsJson(body.ToSerialString())), cancellationToken.ToRequestOptions());
-        }
+        public virtual ClientResult PutUnknownValue(DaysOfWeekEnum body, CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary> putKnownValue. </summary>
-        /// <param name="body"> _. </param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> PutKnownValueAsync(DaysOfWeekEnum body, CancellationToken cancellationToken = default)
-        {
-            return await PutKnownValueAsync(BinaryContent.Create(BinaryData.FromObjectAsJson(body.ToSerialString())), cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] putUnknownValue
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="content"> The content to send as the body of the request. </param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult PutUnknownValue(BinaryContent content, RequestOptions options = null)
-        {
-            Argument.AssertNotNull(content, nameof(content));
-
-            using PipelineMessage message = CreatePutUnknownValueRequest(content, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] putUnknownValue
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="content"> The content to send as the body of the request. </param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> PutUnknownValueAsync(BinaryContent content, RequestOptions options = null)
-        {
-            Argument.AssertNotNull(content, nameof(content));
-
-            using PipelineMessage message = CreatePutUnknownValueRequest(content, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> putUnknownValue. </summary>
-        /// <param name="body"> _. </param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult PutUnknownValue(DaysOfWeekEnum body, CancellationToken cancellationToken = default)
-        {
-            return PutUnknownValue(BinaryContent.Create(BinaryData.FromObjectAsJson(body.ToSerialString())), cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> putUnknownValue. </summary>
-        /// <param name="body"> _. </param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> PutUnknownValueAsync(DaysOfWeekEnum body, CancellationToken cancellationToken = default)
-        {
-            return await PutUnknownValueAsync(BinaryContent.Create(BinaryData.FromObjectAsJson(body.ToSerialString())), cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
+        public virtual Task<ClientResult> PutUnknownValueAsync(DaysOfWeekEnum body, CancellationToken cancellationToken = default) => throw null;
     }
 }

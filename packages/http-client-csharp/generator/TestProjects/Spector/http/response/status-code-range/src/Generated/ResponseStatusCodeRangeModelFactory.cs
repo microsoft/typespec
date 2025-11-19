@@ -4,25 +4,10 @@
 
 namespace Response.StatusCodeRange
 {
-    /// <summary> A factory class for creating instances of the models for mocking. </summary>
     public static partial class ResponseStatusCodeRangeModelFactory
     {
-        /// <summary> The ErrorInRange. </summary>
-        /// <param name="code"></param>
-        /// <param name="message"></param>
-        /// <returns> A new <see cref="StatusCodeRange.ErrorInRange"/> instance for mocking. </returns>
-        public static ErrorInRange ErrorInRange(string code = default, string message = default)
-        {
-            return new ErrorInRange(code, message, additionalBinaryDataProperties: null);
-        }
+        public static ErrorInRange ErrorInRange(string code = default, string message = default) => throw null;
 
-        /// <summary> The NotFoundError. </summary>
-        /// <param name="code"></param>
-        /// <param name="resourceId"></param>
-        /// <returns> A new <see cref="StatusCodeRange.NotFoundError"/> instance for mocking. </returns>
-        public static NotFoundError NotFoundError(string code = default, string resourceId = default)
-        {
-            return new NotFoundError(code, resourceId, additionalBinaryDataProperties: null);
-        }
+        public static NotFoundError NotFoundError(string code = default, string resourceId = default) => throw null;
     }
 }

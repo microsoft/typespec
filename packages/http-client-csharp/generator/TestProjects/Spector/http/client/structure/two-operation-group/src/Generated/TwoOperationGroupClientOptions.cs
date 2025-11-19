@@ -6,7 +6,6 @@ using System.ClientModel.Primitives;
 
 namespace Client.Structure.TwoOperationGroup
 {
-    /// <summary> Client options for <see cref="TwoOperationGroupClient"/>. </summary>
     public partial class TwoOperationGroupClientOptions : ClientPipelineOptions
     {
     }

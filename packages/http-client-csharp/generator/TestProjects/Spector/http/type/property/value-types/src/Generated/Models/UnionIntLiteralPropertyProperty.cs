@@ -4,7 +4,6 @@
 
 namespace _Type.Property.ValueTypes
 {
-    /// <summary></summary>
     public enum UnionIntLiteralPropertyProperty
     {
         /// <summary> _42. </summary>

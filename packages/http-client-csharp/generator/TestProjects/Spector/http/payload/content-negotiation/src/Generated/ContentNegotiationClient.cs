@@ -4,51 +4,21 @@
 
 using System;
 using System.ClientModel.Primitives;
-using System.Threading;
 using Payload.ContentNegotiation._DifferentBody;
 using Payload.ContentNegotiation._SameBody;
 
 namespace Payload.ContentNegotiation
 {
-    /// <summary> Test describing optionality of the request body. </summary>
     public partial class ContentNegotiationClient
     {
-        private readonly Uri _endpoint;
-        private SameBody _cachedSameBody;
-        private DifferentBody _cachedDifferentBody;
+        public ContentNegotiationClient() : this(new Uri("http://localhost:3000"), new ContentNegotiationClientOptions()) => throw null;
 
-        /// <summary> Initializes a new instance of ContentNegotiationClient. </summary>
-        public ContentNegotiationClient() : this(new Uri("http://localhost:3000"), new ContentNegotiationClientOptions())
-        {
-        }
+        public ContentNegotiationClient(Uri endpoint, ContentNegotiationClientOptions options) => throw null;
 
-        /// <summary> Initializes a new instance of ContentNegotiationClient. </summary>
-        /// <param name="endpoint"> Service endpoint. </param>
-        /// <param name="options"> The options for configuring the client. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> is null. </exception>
-        public ContentNegotiationClient(Uri endpoint, ContentNegotiationClientOptions options)
-        {
-            Argument.AssertNotNull(endpoint, nameof(endpoint));
+        public ClientPipeline Pipeline => throw null;
 
-            options ??= new ContentNegotiationClientOptions();
+        public virtual SameBody GetSameBodyClient() => throw null;
 
-            _endpoint = endpoint;
-            Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>());
-        }
-
-        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
-        public ClientPipeline Pipeline { get; }
-
-        /// <summary> Initializes a new instance of SameBody. </summary>
-        public virtual SameBody GetSameBodyClient()
-        {
-            return Volatile.Read(ref _cachedSameBody) ?? Interlocked.CompareExchange(ref _cachedSameBody, new SameBody(Pipeline, _endpoint), null) ?? _cachedSameBody;
-        }
-
-        /// <summary> Initializes a new instance of DifferentBody. </summary>
-        public virtual DifferentBody GetDifferentBodyClient()
-        {
-            return Volatile.Read(ref _cachedDifferentBody) ?? Interlocked.CompareExchange(ref _cachedDifferentBody, new DifferentBody(Pipeline, _endpoint), null) ?? _cachedDifferentBody;
-        }
+        public virtual DifferentBody GetDifferentBodyClient() => throw null;
     }
 }

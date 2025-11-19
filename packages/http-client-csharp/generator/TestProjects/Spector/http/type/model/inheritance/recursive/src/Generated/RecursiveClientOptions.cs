@@ -6,7 +6,6 @@ using System.ClientModel.Primitives;
 
 namespace _Type.Model.Inheritance.Recursive
 {
-    /// <summary> Client options for <see cref="RecursiveClient"/>. </summary>
     public partial class RecursiveClientOptions : ClientPipelineOptions
     {
     }

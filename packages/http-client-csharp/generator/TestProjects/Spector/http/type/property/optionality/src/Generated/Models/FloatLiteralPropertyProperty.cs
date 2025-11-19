@@ -4,52 +4,29 @@
 
 using System;
 using System.ComponentModel;
-using System.Globalization;
 
 namespace _Type.Property.Optional
 {
-    /// <summary></summary>
     public readonly partial struct FloatLiteralPropertyProperty : IEquatable<FloatLiteralPropertyProperty>
     {
-        private readonly float _value;
-        private const float _125Value = 1.25F;
+        public FloatLiteralPropertyProperty(float value) => throw null;
 
-        /// <summary> Initializes a new instance of <see cref="FloatLiteralPropertyProperty"/>. </summary>
-        /// <param name="value"> The value. </param>
-        public FloatLiteralPropertyProperty(float value)
-        {
-            _value = value;
-        }
+        public static FloatLiteralPropertyProperty _125 => throw null;
 
-        /// <summary> Gets the _125. </summary>
-        public static FloatLiteralPropertyProperty _125 { get; } = new FloatLiteralPropertyProperty(_125Value);
+        public static bool operator ==(FloatLiteralPropertyProperty left, FloatLiteralPropertyProperty right) => throw null;
 
-        /// <summary> Determines if two <see cref="FloatLiteralPropertyProperty"/> values are the same. </summary>
-        /// <param name="left"> The left value to compare. </param>
-        /// <param name="right"> The right value to compare. </param>
-        public static bool operator ==(FloatLiteralPropertyProperty left, FloatLiteralPropertyProperty right) => left.Equals(right);
+        public static bool operator !=(FloatLiteralPropertyProperty left, FloatLiteralPropertyProperty right) => throw null;
 
-        /// <summary> Determines if two <see cref="FloatLiteralPropertyProperty"/> values are not the same. </summary>
-        /// <param name="left"> The left value to compare. </param>
-        /// <param name="right"> The right value to compare. </param>
-        public static bool operator !=(FloatLiteralPropertyProperty left, FloatLiteralPropertyProperty right) => !left.Equals(right);
+        public static implicit operator FloatLiteralPropertyProperty(float value) => throw null;
 
-        /// <summary> Converts a string to a <see cref="FloatLiteralPropertyProperty"/>. </summary>
-        /// <param name="value"> The value. </param>
-        public static implicit operator FloatLiteralPropertyProperty(float value) => new FloatLiteralPropertyProperty(value);
-
-        /// <inheritdoc/>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj) => obj is FloatLiteralPropertyProperty other && Equals(other);
+        public override bool Equals(object obj) => throw null;
 
-        /// <inheritdoc/>
-        public bool Equals(FloatLiteralPropertyProperty other) => Equals(_value, other._value);
+        public bool Equals(FloatLiteralPropertyProperty other) => throw null;
 
-        /// <inheritdoc/>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public override int GetHashCode() => _value.GetHashCode();
+        public override int GetHashCode() => throw null;
 
-        /// <inheritdoc/>
-        public override string ToString() => _value.ToString(CultureInfo.InvariantCulture);
+        public override string ToString() => throw null;
     }
 }

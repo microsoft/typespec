@@ -10,88 +10,22 @@ using System.Threading.Tasks;
 
 namespace Server.Path.Single
 {
-    /// <summary> Illustrates server with a single path parameter @server. </summary>
     public partial class SingleClient
     {
-        private readonly Uri _endpoint;
+        protected SingleClient() => throw null;
 
-        /// <summary> Initializes a new instance of SingleClient for mocking. </summary>
-        protected SingleClient()
-        {
-        }
+        public SingleClient(Uri endpoint) : this(endpoint, new SingleClientOptions()) => throw null;
 
-        /// <summary> Initializes a new instance of SingleClient. </summary>
-        /// <param name="endpoint"> Service endpoint. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> is null. </exception>
-        public SingleClient(Uri endpoint) : this(endpoint, new SingleClientOptions())
-        {
-        }
+        public SingleClient(Uri endpoint, SingleClientOptions options) => throw null;
 
-        /// <summary> Initializes a new instance of SingleClient. </summary>
-        /// <param name="endpoint"> Service endpoint. </param>
-        /// <param name="options"> The options for configuring the client. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> is null. </exception>
-        public SingleClient(Uri endpoint, SingleClientOptions options)
-        {
-            Argument.AssertNotNull(endpoint, nameof(endpoint));
+        public ClientPipeline Pipeline => throw null;
 
-            options ??= new SingleClientOptions();
+        public virtual ClientResult MyOp(RequestOptions options) => throw null;
 
-            _endpoint = endpoint;
-            Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>());
-        }
+        public virtual Task<ClientResult> MyOpAsync(RequestOptions options) => throw null;
 
-        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
-        public ClientPipeline Pipeline { get; }
+        public virtual ClientResult MyOp(CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] MyOp
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult MyOp(RequestOptions options)
-        {
-            using PipelineMessage message = CreateMyOpRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] MyOp
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> MyOpAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateMyOpRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> MyOp. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult MyOp(CancellationToken cancellationToken = default)
-        {
-            return MyOp(cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> MyOp. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> MyOpAsync(CancellationToken cancellationToken = default)
-        {
-            return await MyOpAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
+        public virtual Task<ClientResult> MyOpAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

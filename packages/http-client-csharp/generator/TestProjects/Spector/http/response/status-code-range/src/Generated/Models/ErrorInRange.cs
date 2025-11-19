@@ -2,41 +2,12 @@
 
 #nullable disable
 
-using System;
-using System.Collections.Generic;
-
 namespace Response.StatusCodeRange
 {
-    /// <summary> The ErrorInRange. </summary>
     public partial class ErrorInRange
     {
-        /// <summary> Keeps track of any properties unknown to the library. </summary>
-        private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
+        public string Code => throw null;
 
-        /// <summary> Initializes a new instance of <see cref="ErrorInRange"/>. </summary>
-        /// <param name="code"></param>
-        /// <param name="message"></param>
-        internal ErrorInRange(string code, string message)
-        {
-            Code = code;
-            Message = message;
-        }
-
-        /// <summary> Initializes a new instance of <see cref="ErrorInRange"/>. </summary>
-        /// <param name="code"></param>
-        /// <param name="message"></param>
-        /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
-        internal ErrorInRange(string code, string message, IDictionary<string, BinaryData> additionalBinaryDataProperties)
-        {
-            Code = code;
-            Message = message;
-            _additionalBinaryDataProperties = additionalBinaryDataProperties;
-        }
-
-        /// <summary> Gets the Code. </summary>
-        public string Code { get; }
-
-        /// <summary> Gets the Message. </summary>
-        public string Message { get; }
+        public string Message => throw null;
     }
 }

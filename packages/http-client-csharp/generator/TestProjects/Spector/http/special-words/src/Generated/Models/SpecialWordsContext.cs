@@ -8,10 +8,6 @@ using SpecialWords._Models;
 
 namespace SpecialWords
 {
-    /// <summary>
-    /// Context class which will be filled in by the System.ClientModel.SourceGeneration.
-    /// For more information <see href='https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/core/System.ClientModel/src/docs/ModelReaderWriterContext.md' />
-    /// </summary>
     [ModelReaderWriterBuildable(typeof(And))]
     [ModelReaderWriterBuildable(typeof(As))]
     [ModelReaderWriterBuildable(typeof(Assert))]

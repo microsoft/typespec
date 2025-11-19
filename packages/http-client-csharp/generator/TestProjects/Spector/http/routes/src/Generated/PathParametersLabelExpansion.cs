@@ -2,48 +2,20 @@
 
 #nullable disable
 
-using System;
 using System.ClientModel.Primitives;
-using System.Threading;
 using Routes._PathParameters.LabelExpansion.Explode;
 using Routes._PathParameters.LabelExpansion.Standard;
 
 namespace Routes._PathParameters.LabelExpansion
 {
-    /// <summary> The PathParametersLabelExpansion sub-client. </summary>
     public partial class PathParametersLabelExpansion
     {
-        private readonly Uri _endpoint;
-        private PathParametersLabelExpansionStandard _cachedPathParametersLabelExpansionStandard;
-        private PathParametersLabelExpansionExplode _cachedPathParametersLabelExpansionExplode;
+        protected PathParametersLabelExpansion() => throw null;
 
-        /// <summary> Initializes a new instance of PathParametersLabelExpansion for mocking. </summary>
-        protected PathParametersLabelExpansion()
-        {
-        }
+        public ClientPipeline Pipeline => throw null;
 
-        /// <summary> Initializes a new instance of PathParametersLabelExpansion. </summary>
-        /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
-        /// <param name="endpoint"> Service endpoint. </param>
-        internal PathParametersLabelExpansion(ClientPipeline pipeline, Uri endpoint)
-        {
-            _endpoint = endpoint;
-            Pipeline = pipeline;
-        }
+        public virtual PathParametersLabelExpansionStandard GetPathParametersLabelExpansionStandardClient() => throw null;
 
-        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
-        public ClientPipeline Pipeline { get; }
-
-        /// <summary> Initializes a new instance of PathParametersLabelExpansionStandard. </summary>
-        public virtual PathParametersLabelExpansionStandard GetPathParametersLabelExpansionStandardClient()
-        {
-            return Volatile.Read(ref _cachedPathParametersLabelExpansionStandard) ?? Interlocked.CompareExchange(ref _cachedPathParametersLabelExpansionStandard, new PathParametersLabelExpansionStandard(Pipeline, _endpoint), null) ?? _cachedPathParametersLabelExpansionStandard;
-        }
-
-        /// <summary> Initializes a new instance of PathParametersLabelExpansionExplode. </summary>
-        public virtual PathParametersLabelExpansionExplode GetPathParametersLabelExpansionExplodeClient()
-        {
-            return Volatile.Read(ref _cachedPathParametersLabelExpansionExplode) ?? Interlocked.CompareExchange(ref _cachedPathParametersLabelExpansionExplode, new PathParametersLabelExpansionExplode(Pipeline, _endpoint), null) ?? _cachedPathParametersLabelExpansionExplode;
-        }
+        public virtual PathParametersLabelExpansionExplode GetPathParametersLabelExpansionExplodeClient() => throw null;
     }
 }

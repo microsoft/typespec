@@ -4,43 +4,18 @@
 
 using System;
 using System.ClientModel.Primitives;
-using System.Threading;
 using Serialization.EncodedName.Json._Property;
 
 namespace Serialization.EncodedName.Json
 {
-    /// <summary> Encoded names. </summary>
     public partial class JsonClient
     {
-        private readonly Uri _endpoint;
-        private Property _cachedProperty;
+        public JsonClient() : this(new Uri("http://localhost:3000"), new JsonClientOptions()) => throw null;
 
-        /// <summary> Initializes a new instance of JsonClient. </summary>
-        public JsonClient() : this(new Uri("http://localhost:3000"), new JsonClientOptions())
-        {
-        }
+        public JsonClient(Uri endpoint, JsonClientOptions options) => throw null;
 
-        /// <summary> Initializes a new instance of JsonClient. </summary>
-        /// <param name="endpoint"> Service endpoint. </param>
-        /// <param name="options"> The options for configuring the client. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> is null. </exception>
-        public JsonClient(Uri endpoint, JsonClientOptions options)
-        {
-            Argument.AssertNotNull(endpoint, nameof(endpoint));
+        public ClientPipeline Pipeline => throw null;
 
-            options ??= new JsonClientOptions();
-
-            _endpoint = endpoint;
-            Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>());
-        }
-
-        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
-        public ClientPipeline Pipeline { get; }
-
-        /// <summary> Initializes a new instance of Property. </summary>
-        public virtual Property GetPropertyClient()
-        {
-            return Volatile.Read(ref _cachedProperty) ?? Interlocked.CompareExchange(ref _cachedProperty, new Property(Pipeline, _endpoint), null) ?? _cachedProperty;
-        }
+        public virtual Property GetPropertyClient() => throw null;
     }
 }

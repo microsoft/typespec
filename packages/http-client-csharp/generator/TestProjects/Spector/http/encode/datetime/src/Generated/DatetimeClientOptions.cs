@@ -6,7 +6,6 @@ using System.ClientModel.Primitives;
 
 namespace Encode.Datetime
 {
-    /// <summary> Client options for <see cref="DatetimeClient"/>. </summary>
     public partial class DatetimeClientOptions : ClientPipelineOptions
     {
     }

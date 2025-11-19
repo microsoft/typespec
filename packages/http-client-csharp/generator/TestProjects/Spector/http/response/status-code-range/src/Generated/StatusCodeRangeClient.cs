@@ -10,131 +10,28 @@ using System.Threading.Tasks;
 
 namespace Response.StatusCodeRange
 {
-    /// <summary> Test for range of status code. </summary>
     public partial class StatusCodeRangeClient
     {
-        private readonly Uri _endpoint;
+        public StatusCodeRangeClient() : this(new Uri("http://localhost:3000"), new StatusCodeRangeClientOptions()) => throw null;
 
-        /// <summary> Initializes a new instance of StatusCodeRangeClient. </summary>
-        public StatusCodeRangeClient() : this(new Uri("http://localhost:3000"), new StatusCodeRangeClientOptions())
-        {
-        }
+        public StatusCodeRangeClient(Uri endpoint, StatusCodeRangeClientOptions options) => throw null;
 
-        /// <summary> Initializes a new instance of StatusCodeRangeClient. </summary>
-        /// <param name="endpoint"> Service endpoint. </param>
-        /// <param name="options"> The options for configuring the client. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> is null. </exception>
-        public StatusCodeRangeClient(Uri endpoint, StatusCodeRangeClientOptions options)
-        {
-            Argument.AssertNotNull(endpoint, nameof(endpoint));
+        public ClientPipeline Pipeline => throw null;
 
-            options ??= new StatusCodeRangeClientOptions();
+        public virtual ClientResult ErrorResponseStatusCodeInRange(RequestOptions options) => throw null;
 
-            _endpoint = endpoint;
-            Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>());
-        }
+        public virtual Task<ClientResult> ErrorResponseStatusCodeInRangeAsync(RequestOptions options) => throw null;
 
-        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
-        public ClientPipeline Pipeline { get; }
+        public virtual ClientResult ErrorResponseStatusCodeInRange(CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] ErrorResponseStatusCodeInRange
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult ErrorResponseStatusCodeInRange(RequestOptions options)
-        {
-            using PipelineMessage message = CreateErrorResponseStatusCodeInRangeRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
+        public virtual Task<ClientResult> ErrorResponseStatusCodeInRangeAsync(CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] ErrorResponseStatusCodeInRange
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> ErrorResponseStatusCodeInRangeAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateErrorResponseStatusCodeInRangeRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
+        public virtual ClientResult ErrorResponseStatusCode404(RequestOptions options) => throw null;
 
-        /// <summary> ErrorResponseStatusCodeInRange. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult ErrorResponseStatusCodeInRange(CancellationToken cancellationToken = default)
-        {
-            return ErrorResponseStatusCodeInRange(cancellationToken.ToRequestOptions());
-        }
+        public virtual Task<ClientResult> ErrorResponseStatusCode404Async(RequestOptions options) => throw null;
 
-        /// <summary> ErrorResponseStatusCodeInRange. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> ErrorResponseStatusCodeInRangeAsync(CancellationToken cancellationToken = default)
-        {
-            return await ErrorResponseStatusCodeInRangeAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
+        public virtual ClientResult ErrorResponseStatusCode404(CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] ErrorResponseStatusCode404
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult ErrorResponseStatusCode404(RequestOptions options)
-        {
-            using PipelineMessage message = CreateErrorResponseStatusCode404Request(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] ErrorResponseStatusCode404
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> ErrorResponseStatusCode404Async(RequestOptions options)
-        {
-            using PipelineMessage message = CreateErrorResponseStatusCode404Request(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> ErrorResponseStatusCode404. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult ErrorResponseStatusCode404(CancellationToken cancellationToken = default)
-        {
-            return ErrorResponseStatusCode404(cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> ErrorResponseStatusCode404. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> ErrorResponseStatusCode404Async(CancellationToken cancellationToken = default)
-        {
-            return await ErrorResponseStatusCode404Async(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
+        public virtual Task<ClientResult> ErrorResponseStatusCode404Async(CancellationToken cancellationToken = default) => throw null;
     }
 }

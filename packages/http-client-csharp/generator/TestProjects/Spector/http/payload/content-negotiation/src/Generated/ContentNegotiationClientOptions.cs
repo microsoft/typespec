@@ -6,7 +6,6 @@ using System.ClientModel.Primitives;
 
 namespace Payload.ContentNegotiation
 {
-    /// <summary> Client options for <see cref="ContentNegotiationClient"/>. </summary>
     public partial class ContentNegotiationClientOptions : ClientPipelineOptions
     {
     }

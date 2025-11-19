@@ -2,48 +2,20 @@
 
 #nullable disable
 
-using System;
 using System.ClientModel.Primitives;
-using System.Threading;
 using Routes._QueryParameters.QueryContinuation.Explode;
 using Routes._QueryParameters.QueryContinuation.Standard;
 
 namespace Routes._QueryParameters.QueryContinuation
 {
-    /// <summary> The QueryParametersQueryContinuation sub-client. </summary>
     public partial class QueryParametersQueryContinuation
     {
-        private readonly Uri _endpoint;
-        private QueryParametersQueryContinuationStandard _cachedQueryParametersQueryContinuationStandard;
-        private QueryParametersQueryContinuationExplode _cachedQueryParametersQueryContinuationExplode;
+        protected QueryParametersQueryContinuation() => throw null;
 
-        /// <summary> Initializes a new instance of QueryParametersQueryContinuation for mocking. </summary>
-        protected QueryParametersQueryContinuation()
-        {
-        }
+        public ClientPipeline Pipeline => throw null;
 
-        /// <summary> Initializes a new instance of QueryParametersQueryContinuation. </summary>
-        /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
-        /// <param name="endpoint"> Service endpoint. </param>
-        internal QueryParametersQueryContinuation(ClientPipeline pipeline, Uri endpoint)
-        {
-            _endpoint = endpoint;
-            Pipeline = pipeline;
-        }
+        public virtual QueryParametersQueryContinuationStandard GetQueryParametersQueryContinuationStandardClient() => throw null;
 
-        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
-        public ClientPipeline Pipeline { get; }
-
-        /// <summary> Initializes a new instance of QueryParametersQueryContinuationStandard. </summary>
-        public virtual QueryParametersQueryContinuationStandard GetQueryParametersQueryContinuationStandardClient()
-        {
-            return Volatile.Read(ref _cachedQueryParametersQueryContinuationStandard) ?? Interlocked.CompareExchange(ref _cachedQueryParametersQueryContinuationStandard, new QueryParametersQueryContinuationStandard(Pipeline, _endpoint), null) ?? _cachedQueryParametersQueryContinuationStandard;
-        }
-
-        /// <summary> Initializes a new instance of QueryParametersQueryContinuationExplode. </summary>
-        public virtual QueryParametersQueryContinuationExplode GetQueryParametersQueryContinuationExplodeClient()
-        {
-            return Volatile.Read(ref _cachedQueryParametersQueryContinuationExplode) ?? Interlocked.CompareExchange(ref _cachedQueryParametersQueryContinuationExplode, new QueryParametersQueryContinuationExplode(Pipeline, _endpoint), null) ?? _cachedQueryParametersQueryContinuationExplode;
-        }
+        public virtual QueryParametersQueryContinuationExplode GetQueryParametersQueryContinuationExplodeClient() => throw null;
     }
 }

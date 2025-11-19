@@ -8,312 +8,53 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Encode.Datetime;
 
 namespace Encode.Datetime._Header
 {
-    /// <summary> The Header sub-client. </summary>
     public partial class Header
     {
-        private readonly Uri _endpoint;
+        protected Header() => throw null;
 
-        /// <summary> Initializes a new instance of Header for mocking. </summary>
-        protected Header()
-        {
-        }
+        public ClientPipeline Pipeline => throw null;
 
-        /// <summary> Initializes a new instance of Header. </summary>
-        /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
-        /// <param name="endpoint"> Service endpoint. </param>
-        internal Header(ClientPipeline pipeline, Uri endpoint)
-        {
-            _endpoint = endpoint;
-            Pipeline = pipeline;
-        }
+        public virtual ClientResult Default(DateTimeOffset value, RequestOptions options) => throw null;
 
-        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
-        public ClientPipeline Pipeline { get; }
+        public virtual Task<ClientResult> DefaultAsync(DateTimeOffset value, RequestOptions options) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] Default
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult Default(DateTimeOffset value, RequestOptions options)
-        {
-            using PipelineMessage message = CreateDefaultRequest(value, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
+        public virtual ClientResult Default(DateTimeOffset value, CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] Default
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> DefaultAsync(DateTimeOffset value, RequestOptions options)
-        {
-            using PipelineMessage message = CreateDefaultRequest(value, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
+        public virtual Task<ClientResult> DefaultAsync(DateTimeOffset value, CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary> Default. </summary>
-        /// <param name="value"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult Default(DateTimeOffset value, CancellationToken cancellationToken = default)
-        {
-            return Default(value, cancellationToken.ToRequestOptions());
-        }
+        public virtual ClientResult Rfc3339(DateTimeOffset value, RequestOptions options) => throw null;
 
-        /// <summary> Default. </summary>
-        /// <param name="value"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> DefaultAsync(DateTimeOffset value, CancellationToken cancellationToken = default)
-        {
-            return await DefaultAsync(value, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
+        public virtual Task<ClientResult> Rfc3339Async(DateTimeOffset value, RequestOptions options) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] Rfc3339
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult Rfc3339(DateTimeOffset value, RequestOptions options)
-        {
-            using PipelineMessage message = CreateRfc3339Request(value, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
+        public virtual ClientResult Rfc3339(DateTimeOffset value, CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] Rfc3339
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> Rfc3339Async(DateTimeOffset value, RequestOptions options)
-        {
-            using PipelineMessage message = CreateRfc3339Request(value, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
+        public virtual Task<ClientResult> Rfc3339Async(DateTimeOffset value, CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary> Rfc3339. </summary>
-        /// <param name="value"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult Rfc3339(DateTimeOffset value, CancellationToken cancellationToken = default)
-        {
-            return Rfc3339(value, cancellationToken.ToRequestOptions());
-        }
+        public virtual ClientResult Rfc7231(DateTimeOffset value, RequestOptions options) => throw null;
 
-        /// <summary> Rfc3339. </summary>
-        /// <param name="value"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> Rfc3339Async(DateTimeOffset value, CancellationToken cancellationToken = default)
-        {
-            return await Rfc3339Async(value, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
+        public virtual Task<ClientResult> Rfc7231Async(DateTimeOffset value, RequestOptions options) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] Rfc7231
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult Rfc7231(DateTimeOffset value, RequestOptions options)
-        {
-            using PipelineMessage message = CreateRfc7231Request(value, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
+        public virtual ClientResult Rfc7231(DateTimeOffset value, CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] Rfc7231
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> Rfc7231Async(DateTimeOffset value, RequestOptions options)
-        {
-            using PipelineMessage message = CreateRfc7231Request(value, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
+        public virtual Task<ClientResult> Rfc7231Async(DateTimeOffset value, CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary> Rfc7231. </summary>
-        /// <param name="value"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult Rfc7231(DateTimeOffset value, CancellationToken cancellationToken = default)
-        {
-            return Rfc7231(value, cancellationToken.ToRequestOptions());
-        }
+        public virtual ClientResult UnixTimestamp(DateTimeOffset value, RequestOptions options) => throw null;
 
-        /// <summary> Rfc7231. </summary>
-        /// <param name="value"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> Rfc7231Async(DateTimeOffset value, CancellationToken cancellationToken = default)
-        {
-            return await Rfc7231Async(value, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
+        public virtual Task<ClientResult> UnixTimestampAsync(DateTimeOffset value, RequestOptions options) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] UnixTimestamp
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult UnixTimestamp(DateTimeOffset value, RequestOptions options)
-        {
-            using PipelineMessage message = CreateUnixTimestampRequest(value, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
+        public virtual ClientResult UnixTimestamp(DateTimeOffset value, CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] UnixTimestamp
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> UnixTimestampAsync(DateTimeOffset value, RequestOptions options)
-        {
-            using PipelineMessage message = CreateUnixTimestampRequest(value, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
+        public virtual Task<ClientResult> UnixTimestampAsync(DateTimeOffset value, CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary> UnixTimestamp. </summary>
-        /// <param name="value"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult UnixTimestamp(DateTimeOffset value, CancellationToken cancellationToken = default)
-        {
-            return UnixTimestamp(value, cancellationToken.ToRequestOptions());
-        }
+        public virtual ClientResult UnixTimestampArray(IEnumerable<DateTimeOffset> value, RequestOptions options) => throw null;
 
-        /// <summary> UnixTimestamp. </summary>
-        /// <param name="value"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> UnixTimestampAsync(DateTimeOffset value, CancellationToken cancellationToken = default)
-        {
-            return await UnixTimestampAsync(value, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
+        public virtual Task<ClientResult> UnixTimestampArrayAsync(IEnumerable<DateTimeOffset> value, RequestOptions options) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] UnixTimestampArray
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="value"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult UnixTimestampArray(IEnumerable<DateTimeOffset> value, RequestOptions options)
-        {
-            Argument.AssertNotNull(value, nameof(value));
+        public virtual ClientResult UnixTimestampArray(IEnumerable<DateTimeOffset> value, CancellationToken cancellationToken = default) => throw null;
 
-            using PipelineMessage message = CreateUnixTimestampArrayRequest(value, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] UnixTimestampArray
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="value"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> UnixTimestampArrayAsync(IEnumerable<DateTimeOffset> value, RequestOptions options)
-        {
-            Argument.AssertNotNull(value, nameof(value));
-
-            using PipelineMessage message = CreateUnixTimestampArrayRequest(value, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> UnixTimestampArray. </summary>
-        /// <param name="value"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="value"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult UnixTimestampArray(IEnumerable<DateTimeOffset> value, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNull(value, nameof(value));
-
-            return UnixTimestampArray(value, cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> UnixTimestampArray. </summary>
-        /// <param name="value"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="value"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> UnixTimestampArrayAsync(IEnumerable<DateTimeOffset> value, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNull(value, nameof(value));
-
-            return await UnixTimestampArrayAsync(value, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
+        public virtual Task<ClientResult> UnixTimestampArrayAsync(IEnumerable<DateTimeOffset> value, CancellationToken cancellationToken = default) => throw null;
     }
 }

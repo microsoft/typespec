@@ -6,7 +6,6 @@ using System.ClientModel.Primitives;
 
 namespace _Type.Model.Inheritance.EnumDiscriminator
 {
-    /// <summary> Client options for <see cref="EnumDiscriminatorClient"/>. </summary>
     public partial class EnumDiscriminatorClientOptions : ClientPipelineOptions
     {
     }

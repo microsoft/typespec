@@ -6,7 +6,6 @@ using System.ClientModel.Primitives;
 
 namespace _Type.Model.Usage
 {
-    /// <summary> Client options for <see cref="UsageClient"/>. </summary>
     public partial class UsageClientOptions : ClientPipelineOptions
     {
     }

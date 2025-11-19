@@ -2,96 +2,27 @@
 
 #nullable disable
 
-using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
-using Client.Structure.Service;
-using Client.Structure.Service.Default;
 
 namespace Client.Structure.Service._Qux
 {
-    /// <summary> The Qux sub-client. </summary>
     public partial class Qux
     {
-        private readonly Uri _endpoint;
-        private readonly ClientType _client;
-        private QuxBar _cachedQuxBar;
+        protected Qux() => throw null;
 
-        /// <summary> Initializes a new instance of Qux for mocking. </summary>
-        protected Qux()
-        {
-        }
+        public ClientPipeline Pipeline => throw null;
 
-        /// <summary> Initializes a new instance of Qux. </summary>
-        /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
-        /// <param name="endpoint"> Service endpoint. </param>
-        /// <param name="client"></param>
-        internal Qux(ClientPipeline pipeline, Uri endpoint, ClientType client)
-        {
-            _endpoint = endpoint;
-            Pipeline = pipeline;
-            _client = client;
-        }
+        public virtual ClientResult Eight(RequestOptions options) => throw null;
 
-        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
-        public ClientPipeline Pipeline { get; }
+        public virtual Task<ClientResult> EightAsync(RequestOptions options) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] Eight
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult Eight(RequestOptions options)
-        {
-            using PipelineMessage message = CreateEightRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
+        public virtual ClientResult Eight(CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] Eight
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> EightAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateEightRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
+        public virtual Task<ClientResult> EightAsync(CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary> Eight. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult Eight(CancellationToken cancellationToken = default)
-        {
-            return Eight(cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> Eight. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> EightAsync(CancellationToken cancellationToken = default)
-        {
-            return await EightAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary> Initializes a new instance of QuxBar. </summary>
-        public virtual QuxBar GetQuxBarClient()
-        {
-            return Volatile.Read(ref _cachedQuxBar) ?? Interlocked.CompareExchange(ref _cachedQuxBar, new QuxBar(Pipeline, _endpoint, _client), null) ?? _cachedQuxBar;
-        }
+        public virtual QuxBar GetQuxBarClient() => throw null;
     }
 }

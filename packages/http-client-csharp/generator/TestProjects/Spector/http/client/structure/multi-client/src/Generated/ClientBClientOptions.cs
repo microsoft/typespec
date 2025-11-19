@@ -6,7 +6,6 @@ using System.ClientModel.Primitives;
 
 namespace Client.Structure.MultiClient
 {
-    /// <summary> Client options for <see cref="ClientBClient"/>. </summary>
     public partial class ClientBClientOptions : ClientPipelineOptions
     {
     }

@@ -4,43 +4,18 @@
 
 using System;
 using System.ClientModel.Primitives;
-using System.Threading;
 using Payload.MultiPart._FormData;
 
 namespace Payload.MultiPart
 {
-    /// <summary> Test for multipart. </summary>
     public partial class MultiPartClient
     {
-        private readonly Uri _endpoint;
-        private FormData _cachedFormData;
+        public MultiPartClient() : this(new Uri("http://localhost:3000"), new MultiPartClientOptions()) => throw null;
 
-        /// <summary> Initializes a new instance of MultiPartClient. </summary>
-        public MultiPartClient() : this(new Uri("http://localhost:3000"), new MultiPartClientOptions())
-        {
-        }
+        public MultiPartClient(Uri endpoint, MultiPartClientOptions options) => throw null;
 
-        /// <summary> Initializes a new instance of MultiPartClient. </summary>
-        /// <param name="endpoint"> Service endpoint. </param>
-        /// <param name="options"> The options for configuring the client. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> is null. </exception>
-        public MultiPartClient(Uri endpoint, MultiPartClientOptions options)
-        {
-            Argument.AssertNotNull(endpoint, nameof(endpoint));
+        public ClientPipeline Pipeline => throw null;
 
-            options ??= new MultiPartClientOptions();
-
-            _endpoint = endpoint;
-            Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>());
-        }
-
-        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
-        public ClientPipeline Pipeline { get; }
-
-        /// <summary> Initializes a new instance of FormData. </summary>
-        public virtual FormData GetFormDataClient()
-        {
-            return Volatile.Read(ref _cachedFormData) ?? Interlocked.CompareExchange(ref _cachedFormData, new FormData(Pipeline, _endpoint), null) ?? _cachedFormData;
-        }
+        public virtual FormData GetFormDataClient() => throw null;
     }
 }

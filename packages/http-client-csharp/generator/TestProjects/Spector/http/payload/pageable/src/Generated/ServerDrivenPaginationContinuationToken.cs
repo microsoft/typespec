@@ -2,7 +2,6 @@
 
 #nullable disable
 
-using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
@@ -10,386 +9,58 @@ using Payload.Pageable;
 
 namespace Payload.Pageable._ServerDrivenPagination.ContinuationToken
 {
-    /// <summary> The ServerDrivenPaginationContinuationToken sub-client. </summary>
     public partial class ServerDrivenPaginationContinuationToken
     {
-        private readonly Uri _endpoint;
+        protected ServerDrivenPaginationContinuationToken() => throw null;
 
-        /// <summary> Initializes a new instance of ServerDrivenPaginationContinuationToken for mocking. </summary>
-        protected ServerDrivenPaginationContinuationToken()
-        {
-        }
+        public ClientPipeline Pipeline => throw null;
 
-        /// <summary> Initializes a new instance of ServerDrivenPaginationContinuationToken. </summary>
-        /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
-        /// <param name="endpoint"> Service endpoint. </param>
-        internal ServerDrivenPaginationContinuationToken(ClientPipeline pipeline, Uri endpoint)
-        {
-            _endpoint = endpoint;
-            Pipeline = pipeline;
-        }
+        public virtual CollectionResult RequestQueryResponseBody(string token, string foo, string bar, RequestOptions options) => throw null;
 
-        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
-        public ClientPipeline Pipeline { get; }
+        public virtual AsyncCollectionResult RequestQueryResponseBodyAsync(string token, string foo, string bar, RequestOptions options) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] RequestQueryResponseBody
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="token"></param>
-        /// <param name="foo"></param>
-        /// <param name="bar"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual CollectionResult RequestQueryResponseBody(string token, string foo, string bar, RequestOptions options)
-        {
-            return new ServerDrivenPaginationContinuationTokenRequestQueryResponseBodyCollectionResult(this, token, foo, bar, options);
-        }
+        public virtual CollectionResult<Pet> RequestQueryResponseBody(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] RequestQueryResponseBody
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="token"></param>
-        /// <param name="foo"></param>
-        /// <param name="bar"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual AsyncCollectionResult RequestQueryResponseBodyAsync(string token, string foo, string bar, RequestOptions options)
-        {
-            return new ServerDrivenPaginationContinuationTokenRequestQueryResponseBodyAsyncCollectionResult(this, token, foo, bar, options);
-        }
+        public virtual AsyncCollectionResult<Pet> RequestQueryResponseBodyAsync(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary> RequestQueryResponseBody. </summary>
-        /// <param name="token"></param>
-        /// <param name="foo"></param>
-        /// <param name="bar"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual CollectionResult<Pet> RequestQueryResponseBody(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default)
-        {
-            return new ServerDrivenPaginationContinuationTokenRequestQueryResponseBodyCollectionResultOfT(this, token, foo, bar, cancellationToken.ToRequestOptions());
-        }
+        public virtual CollectionResult RequestHeaderResponseBody(string token, string foo, string bar, RequestOptions options) => throw null;
 
-        /// <summary> RequestQueryResponseBody. </summary>
-        /// <param name="token"></param>
-        /// <param name="foo"></param>
-        /// <param name="bar"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual AsyncCollectionResult<Pet> RequestQueryResponseBodyAsync(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default)
-        {
-            return new ServerDrivenPaginationContinuationTokenRequestQueryResponseBodyAsyncCollectionResultOfT(this, token, foo, bar, cancellationToken.ToRequestOptions());
-        }
+        public virtual AsyncCollectionResult RequestHeaderResponseBodyAsync(string token, string foo, string bar, RequestOptions options) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] RequestHeaderResponseBody
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="token"></param>
-        /// <param name="foo"></param>
-        /// <param name="bar"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual CollectionResult RequestHeaderResponseBody(string token, string foo, string bar, RequestOptions options)
-        {
-            return new ServerDrivenPaginationContinuationTokenRequestHeaderResponseBodyCollectionResult(this, token, foo, bar, options);
-        }
+        public virtual CollectionResult<Pet> RequestHeaderResponseBody(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] RequestHeaderResponseBody
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="token"></param>
-        /// <param name="foo"></param>
-        /// <param name="bar"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual AsyncCollectionResult RequestHeaderResponseBodyAsync(string token, string foo, string bar, RequestOptions options)
-        {
-            return new ServerDrivenPaginationContinuationTokenRequestHeaderResponseBodyAsyncCollectionResult(this, token, foo, bar, options);
-        }
+        public virtual AsyncCollectionResult<Pet> RequestHeaderResponseBodyAsync(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary> RequestHeaderResponseBody. </summary>
-        /// <param name="token"></param>
-        /// <param name="foo"></param>
-        /// <param name="bar"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual CollectionResult<Pet> RequestHeaderResponseBody(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default)
-        {
-            return new ServerDrivenPaginationContinuationTokenRequestHeaderResponseBodyCollectionResultOfT(this, token, foo, bar, cancellationToken.ToRequestOptions());
-        }
+        public virtual CollectionResult RequestQueryResponseHeader(string token, string foo, string bar, RequestOptions options) => throw null;
 
-        /// <summary> RequestHeaderResponseBody. </summary>
-        /// <param name="token"></param>
-        /// <param name="foo"></param>
-        /// <param name="bar"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual AsyncCollectionResult<Pet> RequestHeaderResponseBodyAsync(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default)
-        {
-            return new ServerDrivenPaginationContinuationTokenRequestHeaderResponseBodyAsyncCollectionResultOfT(this, token, foo, bar, cancellationToken.ToRequestOptions());
-        }
+        public virtual AsyncCollectionResult RequestQueryResponseHeaderAsync(string token, string foo, string bar, RequestOptions options) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] RequestQueryResponseHeader
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="token"></param>
-        /// <param name="foo"></param>
-        /// <param name="bar"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual CollectionResult RequestQueryResponseHeader(string token, string foo, string bar, RequestOptions options)
-        {
-            return new ServerDrivenPaginationContinuationTokenRequestQueryResponseHeaderCollectionResult(this, token, foo, bar, options);
-        }
+        public virtual CollectionResult<Pet> RequestQueryResponseHeader(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] RequestQueryResponseHeader
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="token"></param>
-        /// <param name="foo"></param>
-        /// <param name="bar"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual AsyncCollectionResult RequestQueryResponseHeaderAsync(string token, string foo, string bar, RequestOptions options)
-        {
-            return new ServerDrivenPaginationContinuationTokenRequestQueryResponseHeaderAsyncCollectionResult(this, token, foo, bar, options);
-        }
+        public virtual AsyncCollectionResult<Pet> RequestQueryResponseHeaderAsync(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary> RequestQueryResponseHeader. </summary>
-        /// <param name="token"></param>
-        /// <param name="foo"></param>
-        /// <param name="bar"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual CollectionResult<Pet> RequestQueryResponseHeader(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default)
-        {
-            return new ServerDrivenPaginationContinuationTokenRequestQueryResponseHeaderCollectionResultOfT(this, token, foo, bar, cancellationToken.ToRequestOptions());
-        }
+        public virtual CollectionResult RequestHeaderResponseHeader(string token, string foo, string bar, RequestOptions options) => throw null;
 
-        /// <summary> RequestQueryResponseHeader. </summary>
-        /// <param name="token"></param>
-        /// <param name="foo"></param>
-        /// <param name="bar"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual AsyncCollectionResult<Pet> RequestQueryResponseHeaderAsync(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default)
-        {
-            return new ServerDrivenPaginationContinuationTokenRequestQueryResponseHeaderAsyncCollectionResultOfT(this, token, foo, bar, cancellationToken.ToRequestOptions());
-        }
+        public virtual AsyncCollectionResult RequestHeaderResponseHeaderAsync(string token, string foo, string bar, RequestOptions options) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] RequestHeaderResponseHeader
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="token"></param>
-        /// <param name="foo"></param>
-        /// <param name="bar"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual CollectionResult RequestHeaderResponseHeader(string token, string foo, string bar, RequestOptions options)
-        {
-            return new ServerDrivenPaginationContinuationTokenRequestHeaderResponseHeaderCollectionResult(this, token, foo, bar, options);
-        }
+        public virtual CollectionResult<Pet> RequestHeaderResponseHeader(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] RequestHeaderResponseHeader
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="token"></param>
-        /// <param name="foo"></param>
-        /// <param name="bar"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual AsyncCollectionResult RequestHeaderResponseHeaderAsync(string token, string foo, string bar, RequestOptions options)
-        {
-            return new ServerDrivenPaginationContinuationTokenRequestHeaderResponseHeaderAsyncCollectionResult(this, token, foo, bar, options);
-        }
+        public virtual AsyncCollectionResult<Pet> RequestHeaderResponseHeaderAsync(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary> RequestHeaderResponseHeader. </summary>
-        /// <param name="token"></param>
-        /// <param name="foo"></param>
-        /// <param name="bar"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual CollectionResult<Pet> RequestHeaderResponseHeader(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default)
-        {
-            return new ServerDrivenPaginationContinuationTokenRequestHeaderResponseHeaderCollectionResultOfT(this, token, foo, bar, cancellationToken.ToRequestOptions());
-        }
+        public virtual CollectionResult RequestQueryNestedResponseBody(string token, string foo, string bar, RequestOptions options) => throw null;
 
-        /// <summary> RequestHeaderResponseHeader. </summary>
-        /// <param name="token"></param>
-        /// <param name="foo"></param>
-        /// <param name="bar"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual AsyncCollectionResult<Pet> RequestHeaderResponseHeaderAsync(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default)
-        {
-            return new ServerDrivenPaginationContinuationTokenRequestHeaderResponseHeaderAsyncCollectionResultOfT(this, token, foo, bar, cancellationToken.ToRequestOptions());
-        }
+        public virtual AsyncCollectionResult RequestQueryNestedResponseBodyAsync(string token, string foo, string bar, RequestOptions options) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] RequestQueryNestedResponseBody
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="token"></param>
-        /// <param name="foo"></param>
-        /// <param name="bar"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual CollectionResult RequestQueryNestedResponseBody(string token, string foo, string bar, RequestOptions options)
-        {
-            return new ServerDrivenPaginationContinuationTokenRequestQueryNestedResponseBodyCollectionResult(this, token, foo, bar, options);
-        }
+        public virtual CollectionResult<Pet> RequestQueryNestedResponseBody(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] RequestQueryNestedResponseBody
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="token"></param>
-        /// <param name="foo"></param>
-        /// <param name="bar"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual AsyncCollectionResult RequestQueryNestedResponseBodyAsync(string token, string foo, string bar, RequestOptions options)
-        {
-            return new ServerDrivenPaginationContinuationTokenRequestQueryNestedResponseBodyAsyncCollectionResult(this, token, foo, bar, options);
-        }
+        public virtual AsyncCollectionResult<Pet> RequestQueryNestedResponseBodyAsync(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary> RequestQueryNestedResponseBody. </summary>
-        /// <param name="token"></param>
-        /// <param name="foo"></param>
-        /// <param name="bar"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual CollectionResult<Pet> RequestQueryNestedResponseBody(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default)
-        {
-            return new ServerDrivenPaginationContinuationTokenRequestQueryNestedResponseBodyCollectionResultOfT(this, token, foo, bar, cancellationToken.ToRequestOptions());
-        }
+        public virtual CollectionResult RequestHeaderNestedResponseBody(string token, string foo, string bar, RequestOptions options) => throw null;
 
-        /// <summary> RequestQueryNestedResponseBody. </summary>
-        /// <param name="token"></param>
-        /// <param name="foo"></param>
-        /// <param name="bar"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual AsyncCollectionResult<Pet> RequestQueryNestedResponseBodyAsync(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default)
-        {
-            return new ServerDrivenPaginationContinuationTokenRequestQueryNestedResponseBodyAsyncCollectionResultOfT(this, token, foo, bar, cancellationToken.ToRequestOptions());
-        }
+        public virtual AsyncCollectionResult RequestHeaderNestedResponseBodyAsync(string token, string foo, string bar, RequestOptions options) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] RequestHeaderNestedResponseBody
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="token"></param>
-        /// <param name="foo"></param>
-        /// <param name="bar"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual CollectionResult RequestHeaderNestedResponseBody(string token, string foo, string bar, RequestOptions options)
-        {
-            return new ServerDrivenPaginationContinuationTokenRequestHeaderNestedResponseBodyCollectionResult(this, token, foo, bar, options);
-        }
+        public virtual CollectionResult<Pet> RequestHeaderNestedResponseBody(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] RequestHeaderNestedResponseBody
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="token"></param>
-        /// <param name="foo"></param>
-        /// <param name="bar"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual AsyncCollectionResult RequestHeaderNestedResponseBodyAsync(string token, string foo, string bar, RequestOptions options)
-        {
-            return new ServerDrivenPaginationContinuationTokenRequestHeaderNestedResponseBodyAsyncCollectionResult(this, token, foo, bar, options);
-        }
-
-        /// <summary> RequestHeaderNestedResponseBody. </summary>
-        /// <param name="token"></param>
-        /// <param name="foo"></param>
-        /// <param name="bar"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual CollectionResult<Pet> RequestHeaderNestedResponseBody(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default)
-        {
-            return new ServerDrivenPaginationContinuationTokenRequestHeaderNestedResponseBodyCollectionResultOfT(this, token, foo, bar, cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> RequestHeaderNestedResponseBody. </summary>
-        /// <param name="token"></param>
-        /// <param name="foo"></param>
-        /// <param name="bar"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual AsyncCollectionResult<Pet> RequestHeaderNestedResponseBodyAsync(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default)
-        {
-            return new ServerDrivenPaginationContinuationTokenRequestHeaderNestedResponseBodyAsyncCollectionResultOfT(this, token, foo, bar, cancellationToken.ToRequestOptions());
-        }
+        public virtual AsyncCollectionResult<Pet> RequestHeaderNestedResponseBodyAsync(string token = default, string foo = default, string bar = default, CancellationToken cancellationToken = default) => throw null;
     }
 }

@@ -10,160 +10,30 @@ using System.Threading.Tasks;
 
 namespace Server.Path.Multiple
 {
-    /// <summary> The MultipleClient. </summary>
     public partial class MultipleClient
     {
-        private readonly Uri _endpoint;
-        private readonly string _apiVersion;
+        protected MultipleClient() => throw null;
 
-        /// <summary> Initializes a new instance of MultipleClient for mocking. </summary>
-        protected MultipleClient()
-        {
-        }
+        public MultipleClient(Uri endpoint) : this(endpoint, new MultipleClientOptions()) => throw null;
 
-        /// <summary> Initializes a new instance of MultipleClient. </summary>
-        /// <param name="endpoint"> Service endpoint. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> is null. </exception>
-        public MultipleClient(Uri endpoint) : this(endpoint, new MultipleClientOptions())
-        {
-        }
+        public MultipleClient(Uri endpoint, MultipleClientOptions options) => throw null;
 
-        /// <summary> Initializes a new instance of MultipleClient. </summary>
-        /// <param name="endpoint"> Service endpoint. </param>
-        /// <param name="options"> The options for configuring the client. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> is null. </exception>
-        public MultipleClient(Uri endpoint, MultipleClientOptions options)
-        {
-            Argument.AssertNotNull(endpoint, nameof(endpoint));
+        public ClientPipeline Pipeline => throw null;
 
-            options ??= new MultipleClientOptions();
+        public virtual ClientResult NoOperationParams(RequestOptions options) => throw null;
 
-            _endpoint = endpoint;
-            Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>());
-            _apiVersion = options.Version;
-        }
+        public virtual Task<ClientResult> NoOperationParamsAsync(RequestOptions options) => throw null;
 
-        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
-        public ClientPipeline Pipeline { get; }
+        public virtual ClientResult NoOperationParams(CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] NoOperationParams
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult NoOperationParams(RequestOptions options)
-        {
-            using PipelineMessage message = CreateNoOperationParamsRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
+        public virtual Task<ClientResult> NoOperationParamsAsync(CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] NoOperationParams
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> NoOperationParamsAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateNoOperationParamsRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
+        public virtual ClientResult WithOperationPathParam(string keyword, RequestOptions options) => throw null;
 
-        /// <summary> NoOperationParams. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult NoOperationParams(CancellationToken cancellationToken = default)
-        {
-            return NoOperationParams(cancellationToken.ToRequestOptions());
-        }
+        public virtual Task<ClientResult> WithOperationPathParamAsync(string keyword, RequestOptions options) => throw null;
 
-        /// <summary> NoOperationParams. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> NoOperationParamsAsync(CancellationToken cancellationToken = default)
-        {
-            return await NoOperationParamsAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
+        public virtual ClientResult WithOperationPathParam(string keyword, CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] WithOperationPathParam
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="keyword"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="keyword"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="keyword"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult WithOperationPathParam(string keyword, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(keyword, nameof(keyword));
-
-            using PipelineMessage message = CreateWithOperationPathParamRequest(keyword, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithOperationPathParam
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="keyword"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="keyword"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="keyword"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> WithOperationPathParamAsync(string keyword, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(keyword, nameof(keyword));
-
-            using PipelineMessage message = CreateWithOperationPathParamRequest(keyword, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> WithOperationPathParam. </summary>
-        /// <param name="keyword"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="keyword"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="keyword"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult WithOperationPathParam(string keyword, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(keyword, nameof(keyword));
-
-            return WithOperationPathParam(keyword, cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> WithOperationPathParam. </summary>
-        /// <param name="keyword"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="keyword"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="keyword"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> WithOperationPathParamAsync(string keyword, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(keyword, nameof(keyword));
-
-            return await WithOperationPathParamAsync(keyword, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
+        public virtual Task<ClientResult> WithOperationPathParamAsync(string keyword, CancellationToken cancellationToken = default) => throw null;
     }
 }

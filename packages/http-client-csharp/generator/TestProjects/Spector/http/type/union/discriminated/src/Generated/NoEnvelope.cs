@@ -2,46 +2,18 @@
 
 #nullable disable
 
-using System;
 using System.ClientModel.Primitives;
-using System.Threading;
 
 namespace _Type.Union.Discriminated._NoEnvelope
 {
-    /// <summary> The NoEnvelope sub-client. </summary>
     public partial class NoEnvelope
     {
-        private readonly Uri _endpoint;
-        private NoEnvelopeDefault _cachedNoEnvelopeDefault;
-        private NoEnvelopeCustomDiscriminator _cachedNoEnvelopeCustomDiscriminator;
+        protected NoEnvelope() => throw null;
 
-        /// <summary> Initializes a new instance of NoEnvelope for mocking. </summary>
-        protected NoEnvelope()
-        {
-        }
+        public ClientPipeline Pipeline => throw null;
 
-        /// <summary> Initializes a new instance of NoEnvelope. </summary>
-        /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
-        /// <param name="endpoint"> Service endpoint. </param>
-        internal NoEnvelope(ClientPipeline pipeline, Uri endpoint)
-        {
-            _endpoint = endpoint;
-            Pipeline = pipeline;
-        }
+        public virtual NoEnvelopeDefault GetNoEnvelopeDefaultClient() => throw null;
 
-        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
-        public ClientPipeline Pipeline { get; }
-
-        /// <summary> Initializes a new instance of NoEnvelopeDefault. </summary>
-        public virtual NoEnvelopeDefault GetNoEnvelopeDefaultClient()
-        {
-            return Volatile.Read(ref _cachedNoEnvelopeDefault) ?? Interlocked.CompareExchange(ref _cachedNoEnvelopeDefault, new NoEnvelopeDefault(Pipeline, _endpoint), null) ?? _cachedNoEnvelopeDefault;
-        }
-
-        /// <summary> Initializes a new instance of NoEnvelopeCustomDiscriminator. </summary>
-        public virtual NoEnvelopeCustomDiscriminator GetNoEnvelopeCustomDiscriminatorClient()
-        {
-            return Volatile.Read(ref _cachedNoEnvelopeCustomDiscriminator) ?? Interlocked.CompareExchange(ref _cachedNoEnvelopeCustomDiscriminator, new NoEnvelopeCustomDiscriminator(Pipeline, _endpoint), null) ?? _cachedNoEnvelopeCustomDiscriminator;
-        }
+        public virtual NoEnvelopeCustomDiscriminator GetNoEnvelopeCustomDiscriminatorClient() => throw null;
     }
 }

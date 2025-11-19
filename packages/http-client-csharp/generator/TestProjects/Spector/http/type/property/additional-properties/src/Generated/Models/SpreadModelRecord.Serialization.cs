@@ -5,148 +5,34 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
-using System.Collections.Generic;
 using System.Text.Json;
 
 namespace _Type.Property.AdditionalProperties
 {
-    /// <summary> The model spread Record&lt;ModelForRecord&gt; with the same known property type. </summary>
     public partial class SpreadModelRecord : IJsonModel<SpreadModelRecord>
     {
-        /// <summary> Initializes a new instance of <see cref="SpreadModelRecord"/> for deserialization. </summary>
-        internal SpreadModelRecord()
-        {
-        }
+        internal SpreadModelRecord() => throw null;
 
-        /// <param name="writer"> The JSON writer. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        void IJsonModel<SpreadModelRecord>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
-        {
-            writer.WriteStartObject();
-            JsonModelWriteCore(writer, options);
-            writer.WriteEndObject();
-        }
+        void IJsonModel<SpreadModelRecord>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="writer"> The JSON writer. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<SpreadModelRecord>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
-            {
-                throw new FormatException($"The model {nameof(SpreadModelRecord)} does not support writing '{format}' format.");
-            }
-            writer.WritePropertyName("knownProp"u8);
-            writer.WriteObjectValue(KnownProp, options);
-            foreach (var item in AdditionalProperties)
-            {
-                writer.WritePropertyName(item.Key);
-#if NET6_0_OR_GREATER
-                writer.WriteRawValue(item.Value);
-#else
-                using (JsonDocument document = JsonDocument.Parse(item.Value))
-                {
-                    JsonSerializer.Serialize(writer, document.RootElement);
-                }
-#endif
-            }
-        }
+        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="reader"> The JSON reader. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        SpreadModelRecord IJsonModel<SpreadModelRecord>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
+        SpreadModelRecord IJsonModel<SpreadModelRecord>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="reader"> The JSON reader. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual SpreadModelRecord JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<SpreadModelRecord>)this).GetFormatFromOptions(options) : options.Format;
-            if (format != "J")
-            {
-                throw new FormatException($"The model {nameof(SpreadModelRecord)} does not support reading '{format}' format.");
-            }
-            using JsonDocument document = JsonDocument.ParseValue(ref reader);
-            return DeserializeSpreadModelRecord(document.RootElement, options);
-        }
+        protected virtual SpreadModelRecord JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="element"> The JSON element to deserialize. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        internal static SpreadModelRecord DeserializeSpreadModelRecord(JsonElement element, ModelReaderWriterOptions options)
-        {
-            if (element.ValueKind == JsonValueKind.Null)
-            {
-                return null;
-            }
-            ModelForRecord knownProp = default;
-            IDictionary<string, BinaryData> additionalProperties = new ChangeTrackingDictionary<string, BinaryData>();
-            foreach (var prop in element.EnumerateObject())
-            {
-                if (prop.NameEquals("knownProp"u8))
-                {
-                    knownProp = ModelForRecord.DeserializeModelForRecord(prop.Value, options);
-                    continue;
-                }
-                additionalProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
-            }
-            return new SpreadModelRecord(knownProp, additionalProperties);
-        }
+        BinaryData IPersistableModel<SpreadModelRecord>.Write(ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<SpreadModelRecord>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<SpreadModelRecord>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    return ModelReaderWriter.Write(this, options, _TypePropertyAdditionalPropertiesContext.Default);
-                default:
-                    throw new FormatException($"The model {nameof(SpreadModelRecord)} does not support writing '{options.Format}' format.");
-            }
-        }
+        SpreadModelRecord IPersistableModel<SpreadModelRecord>.Create(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        SpreadModelRecord IPersistableModel<SpreadModelRecord>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
+        protected virtual SpreadModelRecord PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="data"> The data to parse. </param>
-        /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual SpreadModelRecord PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
-        {
-            string format = options.Format == "W" ? ((IPersistableModel<SpreadModelRecord>)this).GetFormatFromOptions(options) : options.Format;
-            switch (format)
-            {
-                case "J":
-                    using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
-                    {
-                        return DeserializeSpreadModelRecord(document.RootElement, options);
-                    }
-                default:
-                    throw new FormatException($"The model {nameof(SpreadModelRecord)} does not support reading '{options.Format}' format.");
-            }
-        }
+        string IPersistableModel<SpreadModelRecord>.GetFormatFromOptions(ModelReaderWriterOptions options) => throw null;
 
-        /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<SpreadModelRecord>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+        public static implicit operator BinaryContent(SpreadModelRecord spreadModelRecord) => throw null;
 
-        /// <param name="spreadModelRecord"> The <see cref="SpreadModelRecord"/> to serialize into <see cref="BinaryContent"/>. </param>
-        public static implicit operator BinaryContent(SpreadModelRecord spreadModelRecord)
-        {
-            if (spreadModelRecord == null)
-            {
-                return null;
-            }
-            return BinaryContent.Create(spreadModelRecord, ModelSerializationExtensions.WireOptions);
-        }
-
-        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="SpreadModelRecord"/> from. </param>
-        public static explicit operator SpreadModelRecord(ClientResult result)
-        {
-            PipelineResponse response = result.GetRawResponse();
-            using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
-            return DeserializeSpreadModelRecord(document.RootElement, ModelSerializationExtensions.WireOptions);
-        }
+        public static explicit operator SpreadModelRecord(ClientResult result) => throw null;
     }
 }

@@ -7,15 +7,8 @@ using Payload.ContentNegotiation._DifferentBody;
 
 namespace Payload.ContentNegotiation
 {
-    /// <summary> A factory class for creating instances of the models for mocking. </summary>
     public static partial class PayloadContentNegotiationModelFactory
     {
-        /// <summary> The PngImageAsJson. </summary>
-        /// <param name="content"></param>
-        /// <returns> A new <see cref="_DifferentBody.PngImageAsJson"/> instance for mocking. </returns>
-        public static PngImageAsJson PngImageAsJson(BinaryData content = default)
-        {
-            return new PngImageAsJson("application/json", content, additionalBinaryDataProperties: null);
-        }
+        public static PngImageAsJson PngImageAsJson(BinaryData content = default) => throw null;
     }
 }

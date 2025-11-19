@@ -2,43 +2,16 @@
 
 #nullable disable
 
-using System;
 using System.ClientModel.Primitives;
-using System.Threading;
-using Client.Structure.Service;
 
 namespace Client.Structure.Service._Baz
 {
-    /// <summary> The Baz sub-client. </summary>
     public partial class Baz
     {
-        private readonly Uri _endpoint;
-        private readonly ClientType _client;
-        private BazFoo _cachedBazFoo;
+        protected Baz() => throw null;
 
-        /// <summary> Initializes a new instance of Baz for mocking. </summary>
-        protected Baz()
-        {
-        }
+        public ClientPipeline Pipeline => throw null;
 
-        /// <summary> Initializes a new instance of Baz. </summary>
-        /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
-        /// <param name="endpoint"> Service endpoint. </param>
-        /// <param name="client"></param>
-        internal Baz(ClientPipeline pipeline, Uri endpoint, ClientType client)
-        {
-            _endpoint = endpoint;
-            Pipeline = pipeline;
-            _client = client;
-        }
-
-        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
-        public ClientPipeline Pipeline { get; }
-
-        /// <summary> Initializes a new instance of BazFoo. </summary>
-        public virtual BazFoo GetBazFooClient()
-        {
-            return Volatile.Read(ref _cachedBazFoo) ?? Interlocked.CompareExchange(ref _cachedBazFoo, new BazFoo(Pipeline, _endpoint, _client), null) ?? _cachedBazFoo;
-        }
+        public virtual BazFoo GetBazFooClient() => throw null;
     }
 }

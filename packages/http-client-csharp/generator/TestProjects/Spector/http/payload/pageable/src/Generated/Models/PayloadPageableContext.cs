@@ -9,28 +9,7 @@ using Payload.Pageable._ServerDrivenPagination.ContinuationToken;
 
 namespace Payload.Pageable
 {
-    /// <summary>
-    /// Context class which will be filled in by the System.ClientModel.SourceGeneration.
-    /// For more information <see href='https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/core/System.ClientModel/src/docs/ModelReaderWriterContext.md' />
-    /// </summary>
-    [ModelReaderWriterBuildable(typeof(LinkResponse))]
-    [ModelReaderWriterBuildable(typeof(LinkStringResponse))]
-    [ModelReaderWriterBuildable(typeof(ListWithoutContinuationResponse))]
-    [ModelReaderWriterBuildable(typeof(ListWithPageSizeResponse))]
-    [ModelReaderWriterBuildable(typeof(NestedLinkResponse))]
-    [ModelReaderWriterBuildable(typeof(NestedLinkResponseNestedItems))]
-    [ModelReaderWriterBuildable(typeof(NestedLinkResponseNestedNext))]
     [ModelReaderWriterBuildable(typeof(Pet))]
-    [ModelReaderWriterBuildable(typeof(RequestHeaderNestedResponseBodyResponse))]
-    [ModelReaderWriterBuildable(typeof(RequestHeaderNestedResponseBodyResponseNestedItems))]
-    [ModelReaderWriterBuildable(typeof(RequestHeaderNestedResponseBodyResponseNestedNext))]
-    [ModelReaderWriterBuildable(typeof(RequestHeaderResponseBodyResponse))]
-    [ModelReaderWriterBuildable(typeof(RequestHeaderResponseHeaderResponse))]
-    [ModelReaderWriterBuildable(typeof(RequestQueryNestedResponseBodyResponse))]
-    [ModelReaderWriterBuildable(typeof(RequestQueryNestedResponseBodyResponseNestedItems))]
-    [ModelReaderWriterBuildable(typeof(RequestQueryNestedResponseBodyResponseNestedNext))]
-    [ModelReaderWriterBuildable(typeof(RequestQueryResponseBodyResponse))]
-    [ModelReaderWriterBuildable(typeof(RequestQueryResponseHeaderResponse))]
     public partial class PayloadPageableContext : ModelReaderWriterContext
     {
     }

@@ -2,48 +2,20 @@
 
 #nullable disable
 
-using System;
 using System.ClientModel.Primitives;
-using System.Threading;
 using Routes._QueryParameters.QueryExpansion.Explode;
 using Routes._QueryParameters.QueryExpansion.Standard;
 
 namespace Routes._QueryParameters.QueryExpansion
 {
-    /// <summary> The QueryParametersQueryExpansion sub-client. </summary>
     public partial class QueryParametersQueryExpansion
     {
-        private readonly Uri _endpoint;
-        private QueryParametersQueryExpansionStandard _cachedQueryParametersQueryExpansionStandard;
-        private QueryParametersQueryExpansionExplode _cachedQueryParametersQueryExpansionExplode;
+        protected QueryParametersQueryExpansion() => throw null;
 
-        /// <summary> Initializes a new instance of QueryParametersQueryExpansion for mocking. </summary>
-        protected QueryParametersQueryExpansion()
-        {
-        }
+        public ClientPipeline Pipeline => throw null;
 
-        /// <summary> Initializes a new instance of QueryParametersQueryExpansion. </summary>
-        /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
-        /// <param name="endpoint"> Service endpoint. </param>
-        internal QueryParametersQueryExpansion(ClientPipeline pipeline, Uri endpoint)
-        {
-            _endpoint = endpoint;
-            Pipeline = pipeline;
-        }
+        public virtual QueryParametersQueryExpansionStandard GetQueryParametersQueryExpansionStandardClient() => throw null;
 
-        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
-        public ClientPipeline Pipeline { get; }
-
-        /// <summary> Initializes a new instance of QueryParametersQueryExpansionStandard. </summary>
-        public virtual QueryParametersQueryExpansionStandard GetQueryParametersQueryExpansionStandardClient()
-        {
-            return Volatile.Read(ref _cachedQueryParametersQueryExpansionStandard) ?? Interlocked.CompareExchange(ref _cachedQueryParametersQueryExpansionStandard, new QueryParametersQueryExpansionStandard(Pipeline, _endpoint), null) ?? _cachedQueryParametersQueryExpansionStandard;
-        }
-
-        /// <summary> Initializes a new instance of QueryParametersQueryExpansionExplode. </summary>
-        public virtual QueryParametersQueryExpansionExplode GetQueryParametersQueryExpansionExplodeClient()
-        {
-            return Volatile.Read(ref _cachedQueryParametersQueryExpansionExplode) ?? Interlocked.CompareExchange(ref _cachedQueryParametersQueryExpansionExplode, new QueryParametersQueryExpansionExplode(Pipeline, _endpoint), null) ?? _cachedQueryParametersQueryExpansionExplode;
-        }
+        public virtual QueryParametersQueryExpansionExplode GetQueryParametersQueryExpansionExplodeClient() => throw null;
     }
 }

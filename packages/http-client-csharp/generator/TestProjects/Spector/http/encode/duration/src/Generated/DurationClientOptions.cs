@@ -6,7 +6,6 @@ using System.ClientModel.Primitives;
 
 namespace Encode.Duration
 {
-    /// <summary> Client options for <see cref="DurationClient"/>. </summary>
     public partial class DurationClientOptions : ClientPipelineOptions
     {
     }

@@ -2,48 +2,20 @@
 
 #nullable disable
 
-using System;
 using System.ClientModel.Primitives;
-using System.Threading;
 using Routes._PathParameters.PathExpansion.Explode;
 using Routes._PathParameters.PathExpansion.Standard;
 
 namespace Routes._PathParameters.PathExpansion
 {
-    /// <summary> The PathParametersPathExpansion sub-client. </summary>
     public partial class PathParametersPathExpansion
     {
-        private readonly Uri _endpoint;
-        private PathParametersPathExpansionStandard _cachedPathParametersPathExpansionStandard;
-        private PathParametersPathExpansionExplode _cachedPathParametersPathExpansionExplode;
+        protected PathParametersPathExpansion() => throw null;
 
-        /// <summary> Initializes a new instance of PathParametersPathExpansion for mocking. </summary>
-        protected PathParametersPathExpansion()
-        {
-        }
+        public ClientPipeline Pipeline => throw null;
 
-        /// <summary> Initializes a new instance of PathParametersPathExpansion. </summary>
-        /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
-        /// <param name="endpoint"> Service endpoint. </param>
-        internal PathParametersPathExpansion(ClientPipeline pipeline, Uri endpoint)
-        {
-            _endpoint = endpoint;
-            Pipeline = pipeline;
-        }
+        public virtual PathParametersPathExpansionStandard GetPathParametersPathExpansionStandardClient() => throw null;
 
-        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
-        public ClientPipeline Pipeline { get; }
-
-        /// <summary> Initializes a new instance of PathParametersPathExpansionStandard. </summary>
-        public virtual PathParametersPathExpansionStandard GetPathParametersPathExpansionStandardClient()
-        {
-            return Volatile.Read(ref _cachedPathParametersPathExpansionStandard) ?? Interlocked.CompareExchange(ref _cachedPathParametersPathExpansionStandard, new PathParametersPathExpansionStandard(Pipeline, _endpoint), null) ?? _cachedPathParametersPathExpansionStandard;
-        }
-
-        /// <summary> Initializes a new instance of PathParametersPathExpansionExplode. </summary>
-        public virtual PathParametersPathExpansionExplode GetPathParametersPathExpansionExplodeClient()
-        {
-            return Volatile.Read(ref _cachedPathParametersPathExpansionExplode) ?? Interlocked.CompareExchange(ref _cachedPathParametersPathExpansionExplode, new PathParametersPathExpansionExplode(Pipeline, _endpoint), null) ?? _cachedPathParametersPathExpansionExplode;
-        }
+        public virtual PathParametersPathExpansionExplode GetPathParametersPathExpansionExplodeClient() => throw null;
     }
 }

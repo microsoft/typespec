@@ -2,48 +2,20 @@
 
 #nullable disable
 
-using System;
 using System.ClientModel.Primitives;
-using System.Threading;
 using Routes._PathParameters.MatrixExpansion.Explode;
 using Routes._PathParameters.MatrixExpansion.Standard;
 
 namespace Routes._PathParameters.MatrixExpansion
 {
-    /// <summary> The PathParametersMatrixExpansion sub-client. </summary>
     public partial class PathParametersMatrixExpansion
     {
-        private readonly Uri _endpoint;
-        private PathParametersMatrixExpansionStandard _cachedPathParametersMatrixExpansionStandard;
-        private PathParametersMatrixExpansionExplode _cachedPathParametersMatrixExpansionExplode;
+        protected PathParametersMatrixExpansion() => throw null;
 
-        /// <summary> Initializes a new instance of PathParametersMatrixExpansion for mocking. </summary>
-        protected PathParametersMatrixExpansion()
-        {
-        }
+        public ClientPipeline Pipeline => throw null;
 
-        /// <summary> Initializes a new instance of PathParametersMatrixExpansion. </summary>
-        /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
-        /// <param name="endpoint"> Service endpoint. </param>
-        internal PathParametersMatrixExpansion(ClientPipeline pipeline, Uri endpoint)
-        {
-            _endpoint = endpoint;
-            Pipeline = pipeline;
-        }
+        public virtual PathParametersMatrixExpansionStandard GetPathParametersMatrixExpansionStandardClient() => throw null;
 
-        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
-        public ClientPipeline Pipeline { get; }
-
-        /// <summary> Initializes a new instance of PathParametersMatrixExpansionStandard. </summary>
-        public virtual PathParametersMatrixExpansionStandard GetPathParametersMatrixExpansionStandardClient()
-        {
-            return Volatile.Read(ref _cachedPathParametersMatrixExpansionStandard) ?? Interlocked.CompareExchange(ref _cachedPathParametersMatrixExpansionStandard, new PathParametersMatrixExpansionStandard(Pipeline, _endpoint), null) ?? _cachedPathParametersMatrixExpansionStandard;
-        }
-
-        /// <summary> Initializes a new instance of PathParametersMatrixExpansionExplode. </summary>
-        public virtual PathParametersMatrixExpansionExplode GetPathParametersMatrixExpansionExplodeClient()
-        {
-            return Volatile.Read(ref _cachedPathParametersMatrixExpansionExplode) ?? Interlocked.CompareExchange(ref _cachedPathParametersMatrixExpansionExplode, new PathParametersMatrixExpansionExplode(Pipeline, _endpoint), null) ?? _cachedPathParametersMatrixExpansionExplode;
-        }
+        public virtual PathParametersMatrixExpansionExplode GetPathParametersMatrixExpansionExplodeClient() => throw null;
     }
 }

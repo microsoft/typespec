@@ -11,99 +11,24 @@ using Client.Structure.Service;
 
 namespace Client.Structure.AnotherClientOperationGroup
 {
-    /// <summary> The SubNamespaceSecondClient. </summary>
     public partial class SubNamespaceSecondClient
     {
-        private readonly Uri _endpoint;
-        private readonly ClientType _client;
-        private Group5 _cachedGroup5;
+        protected SubNamespaceSecondClient() => throw null;
 
-        /// <summary> Initializes a new instance of SubNamespaceSecondClient for mocking. </summary>
-        protected SubNamespaceSecondClient()
-        {
-        }
+        public SubNamespaceSecondClient(Uri endpoint, ClientType client) : this(endpoint, client, new SubNamespaceSecondClientOptions()) => throw null;
 
-        /// <summary> Initializes a new instance of SubNamespaceSecondClient. </summary>
-        /// <param name="endpoint"> Service endpoint. </param>
-        /// <param name="client"> Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> is null. </exception>
-        public SubNamespaceSecondClient(Uri endpoint, ClientType client) : this(endpoint, client, new SubNamespaceSecondClientOptions())
-        {
-        }
+        public SubNamespaceSecondClient(Uri endpoint, ClientType client, SubNamespaceSecondClientOptions options) => throw null;
 
-        /// <summary> Initializes a new instance of SubNamespaceSecondClient. </summary>
-        /// <param name="endpoint"> Service endpoint. </param>
-        /// <param name="client"> Need to be set as 'default', 'multi-client', 'renamed-operation', 'two-operation-group' in client. </param>
-        /// <param name="options"> The options for configuring the client. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> is null. </exception>
-        public SubNamespaceSecondClient(Uri endpoint, ClientType client, SubNamespaceSecondClientOptions options)
-        {
-            Argument.AssertNotNull(endpoint, nameof(endpoint));
+        public ClientPipeline Pipeline => throw null;
 
-            options ??= new SubNamespaceSecondClientOptions();
+        public virtual ClientResult Five(RequestOptions options) => throw null;
 
-            _endpoint = endpoint;
-            _client = client;
-            Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>(), Array.Empty<PipelinePolicy>());
-        }
+        public virtual Task<ClientResult> FiveAsync(RequestOptions options) => throw null;
 
-        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
-        public ClientPipeline Pipeline { get; }
+        public virtual ClientResult Five(CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] Five
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult Five(RequestOptions options)
-        {
-            using PipelineMessage message = CreateFiveRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
+        public virtual Task<ClientResult> FiveAsync(CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] Five
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> FiveAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateFiveRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> Five. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult Five(CancellationToken cancellationToken = default)
-        {
-            return Five(cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> Five. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> FiveAsync(CancellationToken cancellationToken = default)
-        {
-            return await FiveAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary> Initializes a new instance of Group5. </summary>
-        public virtual Group5 GetGroup5Client()
-        {
-            return Volatile.Read(ref _cachedGroup5) ?? Interlocked.CompareExchange(ref _cachedGroup5, new Group5(Pipeline, _endpoint, _client), null) ?? _cachedGroup5;
-        }
+        public virtual Group5 GetGroup5Client() => throw null;
     }
 }

@@ -2,7 +2,6 @@
 
 #nullable disable
 
-using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
@@ -10,2406 +9,282 @@ using System.Threading.Tasks;
 
 namespace SpecialWords
 {
-    /// <summary> Verify reserved words as parameter name. </summary>
     public partial class Parameters
     {
-        private readonly Uri _endpoint;
-
-        /// <summary> Initializes a new instance of Parameters for mocking. </summary>
-        protected Parameters()
-        {
-        }
-
-        /// <summary> Initializes a new instance of Parameters. </summary>
-        /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
-        /// <param name="endpoint"> Service endpoint. </param>
-        internal Parameters(ClientPipeline pipeline, Uri endpoint)
-        {
-            _endpoint = endpoint;
-            Pipeline = pipeline;
-        }
-
-        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
-        public ClientPipeline Pipeline { get; }
-
-        /// <summary>
-        /// [Protocol Method] WithAnd
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="and"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="and"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="and"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult WithAnd(string @and, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(@and, nameof(@and));
-
-            using PipelineMessage message = CreateWithAndRequest(@and, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithAnd
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="and"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="and"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="and"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> WithAndAsync(string @and, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(@and, nameof(@and));
-
-            using PipelineMessage message = CreateWithAndRequest(@and, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> WithAnd. </summary>
-        /// <param name="and"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="and"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="and"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult WithAnd(string @and, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(@and, nameof(@and));
-
-            return WithAnd(@and, cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> WithAnd. </summary>
-        /// <param name="and"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="and"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="and"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> WithAndAsync(string @and, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(@and, nameof(@and));
-
-            return await WithAndAsync(@and, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithAs
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="as"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="as"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="as"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult WithAs(string @as, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(@as, nameof(@as));
-
-            using PipelineMessage message = CreateWithAsRequest(@as, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithAs
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="as"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="as"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="as"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> WithAsAsync(string @as, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(@as, nameof(@as));
-
-            using PipelineMessage message = CreateWithAsRequest(@as, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> WithAs. </summary>
-        /// <param name="as"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="as"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="as"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult WithAs(string @as, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(@as, nameof(@as));
-
-            return WithAs(@as, cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> WithAs. </summary>
-        /// <param name="as"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="as"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="as"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> WithAsAsync(string @as, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(@as, nameof(@as));
-
-            return await WithAsAsync(@as, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithAssert
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="assert"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="assert"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="assert"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult WithAssert(string assert, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(assert, nameof(assert));
-
-            using PipelineMessage message = CreateWithAssertRequest(assert, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithAssert
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="assert"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="assert"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="assert"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> WithAssertAsync(string assert, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(assert, nameof(assert));
-
-            using PipelineMessage message = CreateWithAssertRequest(assert, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> WithAssert. </summary>
-        /// <param name="assert"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="assert"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="assert"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult WithAssert(string assert, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(assert, nameof(assert));
-
-            return WithAssert(assert, cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> WithAssert. </summary>
-        /// <param name="assert"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="assert"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="assert"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> WithAssertAsync(string assert, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(assert, nameof(assert));
-
-            return await WithAssertAsync(assert, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithAsync
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="async"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="async"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="async"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult WithAsync(string @async, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(@async, nameof(@async));
-
-            using PipelineMessage message = CreateWithAsyncRequest(@async, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithAsync
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="async"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="async"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="async"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> WithAsyncAsync(string @async, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(@async, nameof(@async));
-
-            using PipelineMessage message = CreateWithAsyncRequest(@async, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> WithAsync. </summary>
-        /// <param name="async"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="async"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="async"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult WithAsync(string @async, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(@async, nameof(@async));
-
-            return WithAsync(@async, cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> WithAsync. </summary>
-        /// <param name="async"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="async"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="async"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> WithAsyncAsync(string @async, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(@async, nameof(@async));
-
-            return await WithAsyncAsync(@async, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithAwait
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="await"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="await"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="await"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult WithAwait(string @await, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(@await, nameof(@await));
-
-            using PipelineMessage message = CreateWithAwaitRequest(@await, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithAwait
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="await"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="await"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="await"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> WithAwaitAsync(string @await, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(@await, nameof(@await));
-
-            using PipelineMessage message = CreateWithAwaitRequest(@await, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> WithAwait. </summary>
-        /// <param name="await"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="await"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="await"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult WithAwait(string @await, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(@await, nameof(@await));
-
-            return WithAwait(@await, cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> WithAwait. </summary>
-        /// <param name="await"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="await"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="await"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> WithAwaitAsync(string @await, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(@await, nameof(@await));
-
-            return await WithAwaitAsync(@await, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithBreak
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="break"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="break"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="break"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult WithBreak(string @break, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(@break, nameof(@break));
-
-            using PipelineMessage message = CreateWithBreakRequest(@break, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithBreak
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="break"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="break"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="break"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> WithBreakAsync(string @break, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(@break, nameof(@break));
-
-            using PipelineMessage message = CreateWithBreakRequest(@break, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> WithBreak. </summary>
-        /// <param name="break"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="break"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="break"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult WithBreak(string @break, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(@break, nameof(@break));
-
-            return WithBreak(@break, cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> WithBreak. </summary>
-        /// <param name="break"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="break"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="break"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> WithBreakAsync(string @break, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(@break, nameof(@break));
-
-            return await WithBreakAsync(@break, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithClass
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="class"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="class"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="class"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult WithClass(string @class, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(@class, nameof(@class));
-
-            using PipelineMessage message = CreateWithClassRequest(@class, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithClass
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="class"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="class"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="class"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> WithClassAsync(string @class, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(@class, nameof(@class));
-
-            using PipelineMessage message = CreateWithClassRequest(@class, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> WithClass. </summary>
-        /// <param name="class"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="class"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="class"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult WithClass(string @class, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(@class, nameof(@class));
-
-            return WithClass(@class, cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> WithClass. </summary>
-        /// <param name="class"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="class"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="class"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> WithClassAsync(string @class, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(@class, nameof(@class));
-
-            return await WithClassAsync(@class, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithConstructor
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="constructor"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="constructor"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="constructor"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult WithConstructor(string constructor, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(constructor, nameof(constructor));
-
-            using PipelineMessage message = CreateWithConstructorRequest(constructor, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithConstructor
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="constructor"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="constructor"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="constructor"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> WithConstructorAsync(string constructor, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(constructor, nameof(constructor));
-
-            using PipelineMessage message = CreateWithConstructorRequest(constructor, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> WithConstructor. </summary>
-        /// <param name="constructor"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="constructor"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="constructor"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult WithConstructor(string constructor, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(constructor, nameof(constructor));
-
-            return WithConstructor(constructor, cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> WithConstructor. </summary>
-        /// <param name="constructor"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="constructor"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="constructor"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> WithConstructorAsync(string constructor, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(constructor, nameof(constructor));
-
-            return await WithConstructorAsync(constructor, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithContinue
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="continue"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="continue"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="continue"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult WithContinue(string @continue, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(@continue, nameof(@continue));
-
-            using PipelineMessage message = CreateWithContinueRequest(@continue, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithContinue
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="continue"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="continue"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="continue"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> WithContinueAsync(string @continue, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(@continue, nameof(@continue));
-
-            using PipelineMessage message = CreateWithContinueRequest(@continue, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> WithContinue. </summary>
-        /// <param name="continue"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="continue"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="continue"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult WithContinue(string @continue, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(@continue, nameof(@continue));
-
-            return WithContinue(@continue, cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> WithContinue. </summary>
-        /// <param name="continue"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="continue"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="continue"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> WithContinueAsync(string @continue, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(@continue, nameof(@continue));
-
-            return await WithContinueAsync(@continue, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithDef
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="def"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="def"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="def"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult WithDef(string def, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(def, nameof(def));
-
-            using PipelineMessage message = CreateWithDefRequest(def, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithDef
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="def"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="def"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="def"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> WithDefAsync(string def, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(def, nameof(def));
-
-            using PipelineMessage message = CreateWithDefRequest(def, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> WithDef. </summary>
-        /// <param name="def"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="def"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="def"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult WithDef(string def, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(def, nameof(def));
-
-            return WithDef(def, cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> WithDef. </summary>
-        /// <param name="def"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="def"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="def"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> WithDefAsync(string def, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(def, nameof(def));
-
-            return await WithDefAsync(def, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithDel
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="del"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="del"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="del"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult WithDel(string del, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(del, nameof(del));
-
-            using PipelineMessage message = CreateWithDelRequest(del, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithDel
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="del"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="del"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="del"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> WithDelAsync(string del, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(del, nameof(del));
-
-            using PipelineMessage message = CreateWithDelRequest(del, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> WithDel. </summary>
-        /// <param name="del"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="del"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="del"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult WithDel(string del, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(del, nameof(del));
-
-            return WithDel(del, cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> WithDel. </summary>
-        /// <param name="del"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="del"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="del"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> WithDelAsync(string del, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(del, nameof(del));
-
-            return await WithDelAsync(del, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithElif
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="elif"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="elif"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="elif"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult WithElif(string elif, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(elif, nameof(elif));
-
-            using PipelineMessage message = CreateWithElifRequest(elif, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithElif
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="elif"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="elif"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="elif"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> WithElifAsync(string elif, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(elif, nameof(elif));
-
-            using PipelineMessage message = CreateWithElifRequest(elif, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> WithElif. </summary>
-        /// <param name="elif"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="elif"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="elif"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult WithElif(string elif, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(elif, nameof(elif));
-
-            return WithElif(elif, cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> WithElif. </summary>
-        /// <param name="elif"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="elif"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="elif"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> WithElifAsync(string elif, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(elif, nameof(elif));
-
-            return await WithElifAsync(elif, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithElse
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="else"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="else"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="else"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult WithElse(string @else, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(@else, nameof(@else));
-
-            using PipelineMessage message = CreateWithElseRequest(@else, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithElse
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="else"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="else"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="else"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> WithElseAsync(string @else, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(@else, nameof(@else));
-
-            using PipelineMessage message = CreateWithElseRequest(@else, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> WithElse. </summary>
-        /// <param name="else"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="else"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="else"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult WithElse(string @else, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(@else, nameof(@else));
-
-            return WithElse(@else, cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> WithElse. </summary>
-        /// <param name="else"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="else"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="else"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> WithElseAsync(string @else, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(@else, nameof(@else));
-
-            return await WithElseAsync(@else, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithExcept
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="except"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="except"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="except"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult WithExcept(string except, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(except, nameof(except));
-
-            using PipelineMessage message = CreateWithExceptRequest(except, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithExcept
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="except"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="except"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="except"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> WithExceptAsync(string except, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(except, nameof(except));
-
-            using PipelineMessage message = CreateWithExceptRequest(except, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> WithExcept. </summary>
-        /// <param name="except"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="except"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="except"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult WithExcept(string except, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(except, nameof(except));
-
-            return WithExcept(except, cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> WithExcept. </summary>
-        /// <param name="except"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="except"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="except"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> WithExceptAsync(string except, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(except, nameof(except));
-
-            return await WithExceptAsync(except, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithExec
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="exec"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="exec"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="exec"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult WithExec(string exec, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(exec, nameof(exec));
-
-            using PipelineMessage message = CreateWithExecRequest(exec, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithExec
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="exec"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="exec"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="exec"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> WithExecAsync(string exec, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(exec, nameof(exec));
-
-            using PipelineMessage message = CreateWithExecRequest(exec, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> WithExec. </summary>
-        /// <param name="exec"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="exec"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="exec"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult WithExec(string exec, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(exec, nameof(exec));
-
-            return WithExec(exec, cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> WithExec. </summary>
-        /// <param name="exec"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="exec"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="exec"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> WithExecAsync(string exec, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(exec, nameof(exec));
-
-            return await WithExecAsync(exec, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithFinally
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="finally"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="finally"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="finally"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult WithFinally(string @finally, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(@finally, nameof(@finally));
-
-            using PipelineMessage message = CreateWithFinallyRequest(@finally, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithFinally
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="finally"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="finally"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="finally"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> WithFinallyAsync(string @finally, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(@finally, nameof(@finally));
-
-            using PipelineMessage message = CreateWithFinallyRequest(@finally, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> WithFinally. </summary>
-        /// <param name="finally"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="finally"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="finally"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult WithFinally(string @finally, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(@finally, nameof(@finally));
-
-            return WithFinally(@finally, cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> WithFinally. </summary>
-        /// <param name="finally"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="finally"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="finally"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> WithFinallyAsync(string @finally, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(@finally, nameof(@finally));
-
-            return await WithFinallyAsync(@finally, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithFor
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="for"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="for"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="for"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult WithFor(string @for, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(@for, nameof(@for));
-
-            using PipelineMessage message = CreateWithForRequest(@for, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithFor
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="for"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="for"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="for"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> WithForAsync(string @for, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(@for, nameof(@for));
-
-            using PipelineMessage message = CreateWithForRequest(@for, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> WithFor. </summary>
-        /// <param name="for"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="for"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="for"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult WithFor(string @for, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(@for, nameof(@for));
-
-            return WithFor(@for, cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> WithFor. </summary>
-        /// <param name="for"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="for"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="for"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> WithForAsync(string @for, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(@for, nameof(@for));
-
-            return await WithForAsync(@for, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithFrom
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="from"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="from"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="from"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult WithFrom(string @from, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(@from, nameof(@from));
-
-            using PipelineMessage message = CreateWithFromRequest(@from, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithFrom
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="from"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="from"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="from"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> WithFromAsync(string @from, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(@from, nameof(@from));
-
-            using PipelineMessage message = CreateWithFromRequest(@from, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> WithFrom. </summary>
-        /// <param name="from"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="from"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="from"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult WithFrom(string @from, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(@from, nameof(@from));
-
-            return WithFrom(@from, cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> WithFrom. </summary>
-        /// <param name="from"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="from"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="from"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> WithFromAsync(string @from, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(@from, nameof(@from));
-
-            return await WithFromAsync(@from, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithGlobal
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="global"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="global"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="global"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult WithGlobal(string @global, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(@global, nameof(@global));
-
-            using PipelineMessage message = CreateWithGlobalRequest(@global, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithGlobal
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="global"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="global"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="global"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> WithGlobalAsync(string @global, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(@global, nameof(@global));
-
-            using PipelineMessage message = CreateWithGlobalRequest(@global, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> WithGlobal. </summary>
-        /// <param name="global"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="global"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="global"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult WithGlobal(string @global, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(@global, nameof(@global));
-
-            return WithGlobal(@global, cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> WithGlobal. </summary>
-        /// <param name="global"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="global"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="global"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> WithGlobalAsync(string @global, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(@global, nameof(@global));
-
-            return await WithGlobalAsync(@global, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithIf
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="if"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="if"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="if"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult WithIf(string @if, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(@if, nameof(@if));
-
-            using PipelineMessage message = CreateWithIfRequest(@if, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithIf
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="if"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="if"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="if"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> WithIfAsync(string @if, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(@if, nameof(@if));
-
-            using PipelineMessage message = CreateWithIfRequest(@if, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> WithIf. </summary>
-        /// <param name="if"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="if"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="if"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult WithIf(string @if, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(@if, nameof(@if));
-
-            return WithIf(@if, cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> WithIf. </summary>
-        /// <param name="if"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="if"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="if"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> WithIfAsync(string @if, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(@if, nameof(@if));
-
-            return await WithIfAsync(@if, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithImport
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="import"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="import"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="import"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult WithImport(string import, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(import, nameof(import));
-
-            using PipelineMessage message = CreateWithImportRequest(import, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithImport
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="import"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="import"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="import"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> WithImportAsync(string import, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(import, nameof(import));
-
-            using PipelineMessage message = CreateWithImportRequest(import, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> WithImport. </summary>
-        /// <param name="import"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="import"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="import"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult WithImport(string import, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(import, nameof(import));
-
-            return WithImport(import, cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> WithImport. </summary>
-        /// <param name="import"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="import"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="import"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> WithImportAsync(string import, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(import, nameof(import));
-
-            return await WithImportAsync(import, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithIn
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="in"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="in"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="in"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult WithIn(string @in, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(@in, nameof(@in));
-
-            using PipelineMessage message = CreateWithInRequest(@in, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithIn
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="in"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="in"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="in"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> WithInAsync(string @in, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(@in, nameof(@in));
-
-            using PipelineMessage message = CreateWithInRequest(@in, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> WithIn. </summary>
-        /// <param name="in"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="in"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="in"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult WithIn(string @in, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(@in, nameof(@in));
-
-            return WithIn(@in, cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> WithIn. </summary>
-        /// <param name="in"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="in"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="in"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> WithInAsync(string @in, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(@in, nameof(@in));
-
-            return await WithInAsync(@in, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithIs
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="is"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="is"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="is"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult WithIs(string @is, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(@is, nameof(@is));
-
-            using PipelineMessage message = CreateWithIsRequest(@is, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithIs
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="is"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="is"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="is"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> WithIsAsync(string @is, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(@is, nameof(@is));
-
-            using PipelineMessage message = CreateWithIsRequest(@is, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> WithIs. </summary>
-        /// <param name="is"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="is"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="is"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult WithIs(string @is, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(@is, nameof(@is));
-
-            return WithIs(@is, cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> WithIs. </summary>
-        /// <param name="is"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="is"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="is"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> WithIsAsync(string @is, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(@is, nameof(@is));
-
-            return await WithIsAsync(@is, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithLambda
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="lambda"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="lambda"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="lambda"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult WithLambda(string lambda, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(lambda, nameof(lambda));
-
-            using PipelineMessage message = CreateWithLambdaRequest(lambda, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithLambda
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="lambda"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="lambda"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="lambda"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> WithLambdaAsync(string lambda, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(lambda, nameof(lambda));
-
-            using PipelineMessage message = CreateWithLambdaRequest(lambda, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> WithLambda. </summary>
-        /// <param name="lambda"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="lambda"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="lambda"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult WithLambda(string lambda, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(lambda, nameof(lambda));
-
-            return WithLambda(lambda, cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> WithLambda. </summary>
-        /// <param name="lambda"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="lambda"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="lambda"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> WithLambdaAsync(string lambda, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(lambda, nameof(lambda));
-
-            return await WithLambdaAsync(lambda, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithNot
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="not"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="not"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="not"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult WithNot(string @not, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(@not, nameof(@not));
-
-            using PipelineMessage message = CreateWithNotRequest(@not, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithNot
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="not"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="not"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="not"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> WithNotAsync(string @not, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(@not, nameof(@not));
-
-            using PipelineMessage message = CreateWithNotRequest(@not, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> WithNot. </summary>
-        /// <param name="not"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="not"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="not"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult WithNot(string @not, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(@not, nameof(@not));
-
-            return WithNot(@not, cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> WithNot. </summary>
-        /// <param name="not"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="not"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="not"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> WithNotAsync(string @not, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(@not, nameof(@not));
-
-            return await WithNotAsync(@not, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithOr
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="or"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="or"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="or"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult WithOr(string @or, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(@or, nameof(@or));
-
-            using PipelineMessage message = CreateWithOrRequest(@or, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithOr
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="or"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="or"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="or"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> WithOrAsync(string @or, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(@or, nameof(@or));
-
-            using PipelineMessage message = CreateWithOrRequest(@or, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> WithOr. </summary>
-        /// <param name="or"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="or"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="or"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult WithOr(string @or, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(@or, nameof(@or));
-
-            return WithOr(@or, cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> WithOr. </summary>
-        /// <param name="or"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="or"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="or"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> WithOrAsync(string @or, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(@or, nameof(@or));
-
-            return await WithOrAsync(@or, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithPass
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="pass"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="pass"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="pass"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult WithPass(string pass, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(pass, nameof(pass));
-
-            using PipelineMessage message = CreateWithPassRequest(pass, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithPass
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="pass"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="pass"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="pass"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> WithPassAsync(string pass, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(pass, nameof(pass));
-
-            using PipelineMessage message = CreateWithPassRequest(pass, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> WithPass. </summary>
-        /// <param name="pass"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="pass"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="pass"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult WithPass(string pass, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(pass, nameof(pass));
-
-            return WithPass(pass, cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> WithPass. </summary>
-        /// <param name="pass"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="pass"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="pass"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> WithPassAsync(string pass, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(pass, nameof(pass));
-
-            return await WithPassAsync(pass, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithRaise
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="raise"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="raise"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="raise"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult WithRaise(string raise, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(raise, nameof(raise));
-
-            using PipelineMessage message = CreateWithRaiseRequest(raise, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithRaise
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="raise"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="raise"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="raise"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> WithRaiseAsync(string raise, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(raise, nameof(raise));
-
-            using PipelineMessage message = CreateWithRaiseRequest(raise, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> WithRaise. </summary>
-        /// <param name="raise"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="raise"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="raise"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult WithRaise(string raise, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(raise, nameof(raise));
-
-            return WithRaise(raise, cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> WithRaise. </summary>
-        /// <param name="raise"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="raise"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="raise"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> WithRaiseAsync(string raise, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(raise, nameof(raise));
-
-            return await WithRaiseAsync(raise, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithReturn
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="return"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="return"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="return"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult WithReturn(string @return, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(@return, nameof(@return));
-
-            using PipelineMessage message = CreateWithReturnRequest(@return, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithReturn
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="return"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="return"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="return"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> WithReturnAsync(string @return, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(@return, nameof(@return));
-
-            using PipelineMessage message = CreateWithReturnRequest(@return, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> WithReturn. </summary>
-        /// <param name="return"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="return"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="return"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult WithReturn(string @return, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(@return, nameof(@return));
-
-            return WithReturn(@return, cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> WithReturn. </summary>
-        /// <param name="return"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="return"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="return"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> WithReturnAsync(string @return, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(@return, nameof(@return));
-
-            return await WithReturnAsync(@return, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithTry
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="try"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="try"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="try"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult WithTry(string @try, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(@try, nameof(@try));
-
-            using PipelineMessage message = CreateWithTryRequest(@try, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithTry
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="try"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="try"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="try"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> WithTryAsync(string @try, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(@try, nameof(@try));
-
-            using PipelineMessage message = CreateWithTryRequest(@try, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> WithTry. </summary>
-        /// <param name="try"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="try"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="try"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult WithTry(string @try, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(@try, nameof(@try));
-
-            return WithTry(@try, cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> WithTry. </summary>
-        /// <param name="try"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="try"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="try"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> WithTryAsync(string @try, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(@try, nameof(@try));
-
-            return await WithTryAsync(@try, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithWhile
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="while"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="while"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="while"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult WithWhile(string @while, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(@while, nameof(@while));
-
-            using PipelineMessage message = CreateWithWhileRequest(@while, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithWhile
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="while"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="while"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="while"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> WithWhileAsync(string @while, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(@while, nameof(@while));
-
-            using PipelineMessage message = CreateWithWhileRequest(@while, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> WithWhile. </summary>
-        /// <param name="while"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="while"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="while"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult WithWhile(string @while, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(@while, nameof(@while));
-
-            return WithWhile(@while, cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> WithWhile. </summary>
-        /// <param name="while"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="while"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="while"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> WithWhileAsync(string @while, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(@while, nameof(@while));
-
-            return await WithWhileAsync(@while, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithWith
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="with"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="with"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="with"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult WithWith(string @with, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(@with, nameof(@with));
-
-            using PipelineMessage message = CreateWithWithRequest(@with, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithWith
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="with"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="with"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="with"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> WithWithAsync(string @with, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(@with, nameof(@with));
-
-            using PipelineMessage message = CreateWithWithRequest(@with, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> WithWith. </summary>
-        /// <param name="with"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="with"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="with"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult WithWith(string @with, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(@with, nameof(@with));
-
-            return WithWith(@with, cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> WithWith. </summary>
-        /// <param name="with"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="with"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="with"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> WithWithAsync(string @with, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(@with, nameof(@with));
-
-            return await WithWithAsync(@with, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithYield
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="yield"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="yield"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="yield"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult WithYield(string @yield, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(@yield, nameof(@yield));
-
-            using PipelineMessage message = CreateWithYieldRequest(@yield, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithYield
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="yield"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="yield"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="yield"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> WithYieldAsync(string @yield, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(@yield, nameof(@yield));
-
-            using PipelineMessage message = CreateWithYieldRequest(@yield, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> WithYield. </summary>
-        /// <param name="yield"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="yield"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="yield"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult WithYield(string @yield, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(@yield, nameof(@yield));
-
-            return WithYield(@yield, cancellationToken.ToRequestOptions());
-        }
-
-        /// <summary> WithYield. </summary>
-        /// <param name="yield"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="yield"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="yield"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> WithYieldAsync(string @yield, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNullOrEmpty(@yield, nameof(@yield));
-
-            return await WithYieldAsync(@yield, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithCancellationToken
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="cancellationToken"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="cancellationToken"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="cancellationToken"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult WithCancellationToken(string cancellationToken, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(cancellationToken, nameof(cancellationToken));
-
-            using PipelineMessage message = CreateWithCancellationTokenRequest(cancellationToken, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] WithCancellationToken
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="cancellationToken"></param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="cancellationToken"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="cancellationToken"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> WithCancellationTokenAsync(string cancellationToken, RequestOptions options)
-        {
-            Argument.AssertNotNullOrEmpty(cancellationToken, nameof(cancellationToken));
-
-            using PipelineMessage message = CreateWithCancellationTokenRequest(cancellationToken, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> WithCancellationToken. </summary>
-        /// <param name="cancellationToken"></param>
-        /// <param name="cancellationToken0"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="cancellationToken"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="cancellationToken"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult WithCancellationToken(string cancellationToken, CancellationToken cancellationToken0 = default)
-        {
-            Argument.AssertNotNullOrEmpty(cancellationToken, nameof(cancellationToken));
-
-            return WithCancellationToken(cancellationToken, cancellationToken0.ToRequestOptions());
-        }
-
-        /// <summary> WithCancellationToken. </summary>
-        /// <param name="cancellationToken"></param>
-        /// <param name="cancellationToken0"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="cancellationToken"/> is null. </exception>
-        /// <exception cref="ArgumentException"> <paramref name="cancellationToken"/> is an empty string, and was expected to be non-empty. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult> WithCancellationTokenAsync(string cancellationToken, CancellationToken cancellationToken0 = default)
-        {
-            Argument.AssertNotNullOrEmpty(cancellationToken, nameof(cancellationToken));
-
-            return await WithCancellationTokenAsync(cancellationToken, cancellationToken0.ToRequestOptions()).ConfigureAwait(false);
-        }
+        protected Parameters() => throw null;
+
+        public ClientPipeline Pipeline => throw null;
+
+        public virtual ClientResult WithAnd(string @and, RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> WithAndAsync(string @and, RequestOptions options) => throw null;
+
+        public virtual ClientResult WithAnd(string @and, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> WithAndAsync(string @and, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult WithAs(string @as, RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> WithAsAsync(string @as, RequestOptions options) => throw null;
+
+        public virtual ClientResult WithAs(string @as, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> WithAsAsync(string @as, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult WithAssert(string assert, RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> WithAssertAsync(string assert, RequestOptions options) => throw null;
+
+        public virtual ClientResult WithAssert(string assert, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> WithAssertAsync(string assert, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult WithAsync(string @async, RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> WithAsyncAsync(string @async, RequestOptions options) => throw null;
+
+        public virtual ClientResult WithAsync(string @async, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> WithAsyncAsync(string @async, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult WithAwait(string @await, RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> WithAwaitAsync(string @await, RequestOptions options) => throw null;
+
+        public virtual ClientResult WithAwait(string @await, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> WithAwaitAsync(string @await, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult WithBreak(string @break, RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> WithBreakAsync(string @break, RequestOptions options) => throw null;
+
+        public virtual ClientResult WithBreak(string @break, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> WithBreakAsync(string @break, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult WithClass(string @class, RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> WithClassAsync(string @class, RequestOptions options) => throw null;
+
+        public virtual ClientResult WithClass(string @class, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> WithClassAsync(string @class, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult WithConstructor(string constructor, RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> WithConstructorAsync(string constructor, RequestOptions options) => throw null;
+
+        public virtual ClientResult WithConstructor(string constructor, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> WithConstructorAsync(string constructor, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult WithContinue(string @continue, RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> WithContinueAsync(string @continue, RequestOptions options) => throw null;
+
+        public virtual ClientResult WithContinue(string @continue, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> WithContinueAsync(string @continue, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult WithDef(string def, RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> WithDefAsync(string def, RequestOptions options) => throw null;
+
+        public virtual ClientResult WithDef(string def, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> WithDefAsync(string def, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult WithDel(string del, RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> WithDelAsync(string del, RequestOptions options) => throw null;
+
+        public virtual ClientResult WithDel(string del, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> WithDelAsync(string del, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult WithElif(string elif, RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> WithElifAsync(string elif, RequestOptions options) => throw null;
+
+        public virtual ClientResult WithElif(string elif, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> WithElifAsync(string elif, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult WithElse(string @else, RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> WithElseAsync(string @else, RequestOptions options) => throw null;
+
+        public virtual ClientResult WithElse(string @else, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> WithElseAsync(string @else, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult WithExcept(string except, RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> WithExceptAsync(string except, RequestOptions options) => throw null;
+
+        public virtual ClientResult WithExcept(string except, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> WithExceptAsync(string except, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult WithExec(string exec, RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> WithExecAsync(string exec, RequestOptions options) => throw null;
+
+        public virtual ClientResult WithExec(string exec, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> WithExecAsync(string exec, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult WithFinally(string @finally, RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> WithFinallyAsync(string @finally, RequestOptions options) => throw null;
+
+        public virtual ClientResult WithFinally(string @finally, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> WithFinallyAsync(string @finally, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult WithFor(string @for, RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> WithForAsync(string @for, RequestOptions options) => throw null;
+
+        public virtual ClientResult WithFor(string @for, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> WithForAsync(string @for, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult WithFrom(string @from, RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> WithFromAsync(string @from, RequestOptions options) => throw null;
+
+        public virtual ClientResult WithFrom(string @from, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> WithFromAsync(string @from, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult WithGlobal(string @global, RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> WithGlobalAsync(string @global, RequestOptions options) => throw null;
+
+        public virtual ClientResult WithGlobal(string @global, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> WithGlobalAsync(string @global, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult WithIf(string @if, RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> WithIfAsync(string @if, RequestOptions options) => throw null;
+
+        public virtual ClientResult WithIf(string @if, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> WithIfAsync(string @if, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult WithImport(string import, RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> WithImportAsync(string import, RequestOptions options) => throw null;
+
+        public virtual ClientResult WithImport(string import, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> WithImportAsync(string import, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult WithIn(string @in, RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> WithInAsync(string @in, RequestOptions options) => throw null;
+
+        public virtual ClientResult WithIn(string @in, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> WithInAsync(string @in, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult WithIs(string @is, RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> WithIsAsync(string @is, RequestOptions options) => throw null;
+
+        public virtual ClientResult WithIs(string @is, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> WithIsAsync(string @is, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult WithLambda(string lambda, RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> WithLambdaAsync(string lambda, RequestOptions options) => throw null;
+
+        public virtual ClientResult WithLambda(string lambda, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> WithLambdaAsync(string lambda, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult WithNot(string @not, RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> WithNotAsync(string @not, RequestOptions options) => throw null;
+
+        public virtual ClientResult WithNot(string @not, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> WithNotAsync(string @not, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult WithOr(string @or, RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> WithOrAsync(string @or, RequestOptions options) => throw null;
+
+        public virtual ClientResult WithOr(string @or, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> WithOrAsync(string @or, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult WithPass(string pass, RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> WithPassAsync(string pass, RequestOptions options) => throw null;
+
+        public virtual ClientResult WithPass(string pass, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> WithPassAsync(string pass, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult WithRaise(string raise, RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> WithRaiseAsync(string raise, RequestOptions options) => throw null;
+
+        public virtual ClientResult WithRaise(string raise, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> WithRaiseAsync(string raise, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult WithReturn(string @return, RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> WithReturnAsync(string @return, RequestOptions options) => throw null;
+
+        public virtual ClientResult WithReturn(string @return, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> WithReturnAsync(string @return, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult WithTry(string @try, RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> WithTryAsync(string @try, RequestOptions options) => throw null;
+
+        public virtual ClientResult WithTry(string @try, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> WithTryAsync(string @try, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult WithWhile(string @while, RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> WithWhileAsync(string @while, RequestOptions options) => throw null;
+
+        public virtual ClientResult WithWhile(string @while, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> WithWhileAsync(string @while, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult WithWith(string @with, RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> WithWithAsync(string @with, RequestOptions options) => throw null;
+
+        public virtual ClientResult WithWith(string @with, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> WithWithAsync(string @with, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult WithYield(string @yield, RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> WithYieldAsync(string @yield, RequestOptions options) => throw null;
+
+        public virtual ClientResult WithYield(string @yield, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> WithYieldAsync(string @yield, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult WithCancellationToken(string cancellationToken, RequestOptions options) => throw null;
+
+        public virtual Task<ClientResult> WithCancellationTokenAsync(string cancellationToken, RequestOptions options) => throw null;
+
+        public virtual ClientResult WithCancellationToken(string cancellationToken, CancellationToken cancellationToken0 = default) => throw null;
+
+        public virtual Task<ClientResult> WithCancellationTokenAsync(string cancellationToken, CancellationToken cancellationToken0 = default) => throw null;
     }
 }

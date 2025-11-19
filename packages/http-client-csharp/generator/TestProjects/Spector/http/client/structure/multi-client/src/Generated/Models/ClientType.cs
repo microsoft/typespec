@@ -4,7 +4,6 @@
 
 namespace Client.Structure.Service
 {
-    /// <summary></summary>
     public enum ClientType
     {
         /// <summary> Default. </summary>

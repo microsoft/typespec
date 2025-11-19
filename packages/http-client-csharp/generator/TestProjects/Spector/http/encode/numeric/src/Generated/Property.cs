@@ -2,239 +2,41 @@
 
 #nullable disable
 
-using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Threading;
 using System.Threading.Tasks;
-using Encode.Numeric;
 
 namespace Encode.Numeric._Property
 {
-    /// <summary> The Property sub-client. </summary>
     public partial class Property
     {
-        private readonly Uri _endpoint;
+        protected Property() => throw null;
 
-        /// <summary> Initializes a new instance of Property for mocking. </summary>
-        protected Property()
-        {
-        }
+        public ClientPipeline Pipeline => throw null;
 
-        /// <summary> Initializes a new instance of Property. </summary>
-        /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
-        /// <param name="endpoint"> Service endpoint. </param>
-        internal Property(ClientPipeline pipeline, Uri endpoint)
-        {
-            _endpoint = endpoint;
-            Pipeline = pipeline;
-        }
+        public virtual ClientResult SafeintAsString(BinaryContent content, RequestOptions options = null) => throw null;
 
-        /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
-        public ClientPipeline Pipeline { get; }
+        public virtual Task<ClientResult> SafeintAsStringAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] SafeintAsString
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="content"> The content to send as the body of the request. </param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult SafeintAsString(BinaryContent content, RequestOptions options = null)
-        {
-            Argument.AssertNotNull(content, nameof(content));
+        public virtual ClientResult<SafeintAsStringProperty> SafeintAsString(SafeintAsStringProperty value, CancellationToken cancellationToken = default) => throw null;
 
-            using PipelineMessage message = CreateSafeintAsStringRequest(content, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
+        public virtual Task<ClientResult<SafeintAsStringProperty>> SafeintAsStringAsync(SafeintAsStringProperty value, CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] SafeintAsString
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="content"> The content to send as the body of the request. </param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> SafeintAsStringAsync(BinaryContent content, RequestOptions options = null)
-        {
-            Argument.AssertNotNull(content, nameof(content));
+        public virtual ClientResult Uint32AsStringOptional(BinaryContent content, RequestOptions options = null) => throw null;
 
-            using PipelineMessage message = CreateSafeintAsStringRequest(content, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
+        public virtual Task<ClientResult> Uint32AsStringOptionalAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        /// <summary> SafeintAsString. </summary>
-        /// <param name="value"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="value"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<SafeintAsStringProperty> SafeintAsString(SafeintAsStringProperty value, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNull(value, nameof(value));
+        public virtual ClientResult<Uint32AsStringProperty> Uint32AsStringOptional(Uint32AsStringProperty value, CancellationToken cancellationToken = default) => throw null;
 
-            ClientResult result = SafeintAsString(value, cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((SafeintAsStringProperty)result, result.GetRawResponse());
-        }
+        public virtual Task<ClientResult<Uint32AsStringProperty>> Uint32AsStringOptionalAsync(Uint32AsStringProperty value, CancellationToken cancellationToken = default) => throw null;
 
-        /// <summary> SafeintAsString. </summary>
-        /// <param name="value"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="value"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<SafeintAsStringProperty>> SafeintAsStringAsync(SafeintAsStringProperty value, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNull(value, nameof(value));
+        public virtual ClientResult Uint8AsString(BinaryContent content, RequestOptions options = null) => throw null;
 
-            ClientResult result = await SafeintAsStringAsync(value, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((SafeintAsStringProperty)result, result.GetRawResponse());
-        }
+        public virtual Task<ClientResult> Uint8AsStringAsync(BinaryContent content, RequestOptions options = null) => throw null;
 
-        /// <summary>
-        /// [Protocol Method] Uint32AsStringOptional
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="content"> The content to send as the body of the request. </param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult Uint32AsStringOptional(BinaryContent content, RequestOptions options = null)
-        {
-            Argument.AssertNotNull(content, nameof(content));
+        public virtual ClientResult<Uint8AsStringProperty> Uint8AsString(Uint8AsStringProperty value, CancellationToken cancellationToken = default) => throw null;
 
-            using PipelineMessage message = CreateUint32AsStringOptionalRequest(content, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] Uint32AsStringOptional
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="content"> The content to send as the body of the request. </param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> Uint32AsStringOptionalAsync(BinaryContent content, RequestOptions options = null)
-        {
-            Argument.AssertNotNull(content, nameof(content));
-
-            using PipelineMessage message = CreateUint32AsStringOptionalRequest(content, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> Uint32AsStringOptional. </summary>
-        /// <param name="value"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="value"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<Uint32AsStringProperty> Uint32AsStringOptional(Uint32AsStringProperty value, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNull(value, nameof(value));
-
-            ClientResult result = Uint32AsStringOptional(value, cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((Uint32AsStringProperty)result, result.GetRawResponse());
-        }
-
-        /// <summary> Uint32AsStringOptional. </summary>
-        /// <param name="value"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="value"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<Uint32AsStringProperty>> Uint32AsStringOptionalAsync(Uint32AsStringProperty value, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNull(value, nameof(value));
-
-            ClientResult result = await Uint32AsStringOptionalAsync(value, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((Uint32AsStringProperty)result, result.GetRawResponse());
-        }
-
-        /// <summary>
-        /// [Protocol Method] Uint8AsString
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="content"> The content to send as the body of the request. </param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult Uint8AsString(BinaryContent content, RequestOptions options = null)
-        {
-            Argument.AssertNotNull(content, nameof(content));
-
-            using PipelineMessage message = CreateUint8AsStringRequest(content, options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] Uint8AsString
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="content"> The content to send as the body of the request. </param>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> Uint8AsStringAsync(BinaryContent content, RequestOptions options = null)
-        {
-            Argument.AssertNotNull(content, nameof(content));
-
-            using PipelineMessage message = CreateUint8AsStringRequest(content, options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> Uint8AsString. </summary>
-        /// <param name="value"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="value"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<Uint8AsStringProperty> Uint8AsString(Uint8AsStringProperty value, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNull(value, nameof(value));
-
-            ClientResult result = Uint8AsString(value, cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((Uint8AsStringProperty)result, result.GetRawResponse());
-        }
-
-        /// <summary> Uint8AsString. </summary>
-        /// <param name="value"></param>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ArgumentNullException"> <paramref name="value"/> is null. </exception>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<Uint8AsStringProperty>> Uint8AsStringAsync(Uint8AsStringProperty value, CancellationToken cancellationToken = default)
-        {
-            Argument.AssertNotNull(value, nameof(value));
-
-            ClientResult result = await Uint8AsStringAsync(value, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((Uint8AsStringProperty)result, result.GetRawResponse());
-        }
+        public virtual Task<ClientResult<Uint8AsStringProperty>> Uint8AsStringAsync(Uint8AsStringProperty value, CancellationToken cancellationToken = default) => throw null;
     }
 }
