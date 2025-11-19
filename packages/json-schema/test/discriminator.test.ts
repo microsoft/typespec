@@ -232,16 +232,10 @@ describe("discriminated union with polymorphic-models-strategy option", () => {
     deepStrictEqual(petSchema.oneOf[0], { $ref: "Cat.json" });
     deepStrictEqual(petSchema.oneOf[1], { $ref: "Dog.json" });
 
-    ok(petSchema.discriminator, "Pet schema should have discriminator");
-    strictEqual(petSchema.discriminator.propertyName, "kind");
-    deepStrictEqual(petSchema.discriminator.mapping, {
-      cat: "Cat.json",
-      dog: "Dog.json",
-    });
-
-    // Should not have object properties
+    // Should not have object properties or discriminator (discriminator is OpenAPI, not JSON Schema)
     strictEqual(petSchema.properties, undefined);
     strictEqual(petSchema.type, undefined);
+    strictEqual(petSchema.discriminator, undefined);
   });
 
   it("still emits derived models normally", async () => {
@@ -379,17 +373,11 @@ describe("discriminated union with polymorphic-models-strategy option", () => {
     deepStrictEqual(petSchema.anyOf[0], { $ref: "Cat.json" });
     deepStrictEqual(petSchema.anyOf[1], { $ref: "Dog.json" });
 
-    ok(petSchema.discriminator, "Pet schema should have discriminator");
-    strictEqual(petSchema.discriminator.propertyName, "kind");
-    deepStrictEqual(petSchema.discriminator.mapping, {
-      cat: "Cat.json",
-      dog: "Dog.json",
-    });
-
-    // Should not have object properties
+    // Should not have object properties or discriminator (discriminator is OpenAPI, not JSON Schema)
     strictEqual(petSchema.properties, undefined);
     strictEqual(petSchema.type, undefined);
     strictEqual(petSchema.oneOf, undefined, "Should not have oneOf");
+    strictEqual(petSchema.discriminator, undefined);
   });
 
   it("uses correct reference paths with emitAllModels", async () => {
@@ -420,12 +408,6 @@ describe("discriminated union with polymorphic-models-strategy option", () => {
     // All models emitted separately, so references point to separate files
     deepStrictEqual(petSchema.oneOf[0], { $ref: "Cat.json" });
     deepStrictEqual(petSchema.oneOf[1], { $ref: "Dog.json" });
-
-    // Mapping uses the same references as oneOf
-    deepStrictEqual(petSchema.discriminator.mapping, {
-      cat: "Cat.json",
-      dog: "Dog.json",
-    });
   });
 
   it("uses #/$defs references when derived models are bundled", async () => {
@@ -462,12 +444,5 @@ describe("discriminated union with polymorphic-models-strategy option", () => {
     // References use #/$defs when models are bundled
     deepStrictEqual(petSchema.oneOf[0], { $ref: "#/$defs/Cat" });
     deepStrictEqual(petSchema.oneOf[1], { $ref: "#/$defs/Dog" });
-
-    // Mapping uses schema names with .json extension
-    // This works correctly with the $ref values for validation
-    deepStrictEqual(petSchema.discriminator.mapping, {
-      cat: "Cat.json",
-      dog: "Dog.json",
-    });
   });
 });

@@ -687,36 +687,18 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     strategy: "oneOf" | "anyOf",
   ): EmitterOutput<object> {
     const variants = new ArrayBuilder<Record<string, unknown>>();
-    const mapping: Record<string, string> = {};
 
-    // Collect all derived models and their discriminator values
+    // Collect all derived models
     for (const derived of model.derivedModels) {
       if (!includeDerivedModel(derived)) continue;
 
       // Add reference to each derived model
       const derivedRef = this.emitter.emitTypeReference(derived);
       variants.push(derivedRef);
-
-      // Extract discriminator value and reference path from derived model
-      const prop = derived.properties.get(discriminator.propertyName);
-      if (prop?.type.kind === "String") {
-        const value = (prop.type as StringLiteral).value;
-        // Get the result from the emitter context to access the actual $ref value
-        const refResult = this.emitter.result.rawCode(derivedRef);
-        const refPath =
-          refResult && typeof refResult === "object" && "$ref" in refResult
-            ? refResult.$ref
-            : `${derived.name}.json`;
-        mapping[value] = refPath as string;
-      }
     }
 
     const schema = this.#initializeSchema(model, name, {
       [strategy]: variants,
-      discriminator: {
-        propertyName: discriminator.propertyName,
-        mapping: mapping,
-      },
     });
 
     this.#applyConstraints(model, schema);
