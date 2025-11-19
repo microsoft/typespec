@@ -6,6 +6,7 @@ import { parse, visitChildren } from "../core/parser.js";
 import { resolvePath } from "../core/path-utils.js";
 import { IdentifierNode, SyntaxKind } from "../core/types.js";
 import { createClientConfigProvider } from "../server/client-config-provider.js";
+import { UPDATE_MANAGER_DEBOUNCE_DELAY_OVERRIDE } from "../server/constants.js";
 import { Server, ServerHost, createServer } from "../server/index.js";
 import { ServerCompileOptions } from "../server/server-compile-manager.js";
 import { createStringMap } from "../utils/misc.js";
@@ -13,7 +14,6 @@ import { createTestFileSystem } from "./fs.js";
 import { StandardTestLibrary, TestHostOptions } from "./test-compiler-host.js";
 import { resolveVirtualPath } from "./test-utils.js";
 import { TestFileSystem } from "./types.js";
-import { UPDATE_MANAGER_DEBOUNCE_DELAY_OVERRIDE } from "../server/constants.js";
 
 export interface TestServerHost extends ServerHost, TestFileSystem {
   server: Server;
