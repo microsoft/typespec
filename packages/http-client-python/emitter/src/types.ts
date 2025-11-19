@@ -1,4 +1,5 @@
 import {
+  getUsageOverride,
   isHttpMetadata,
   SdkArrayType,
   SdkBuiltInType,
@@ -16,7 +17,7 @@ import {
   SdkUnionType,
   UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
-import { Type } from "@typespec/compiler";
+import { Model, Type } from "@typespec/compiler";
 import { HttpAuth, Visibility } from "@typespec/http";
 import { dump } from "js-yaml";
 import { PythonSdkContext } from "./lib.js";
@@ -284,6 +285,7 @@ function emitModel(context: PythonSdkContext, type: SdkModelType): Record<string
     internal: type.access === "internal",
     crossLanguageDefinitionId: type.crossLanguageDefinitionId,
     usage: type.usage,
+    usageOverride: type.__raw ? getUsageOverride(context, type.__raw as Model) : undefined,
     isXml: type.usage & UsageFlags.Xml ? true : false,
     xmlMetadata: getXmlMetadata(type),
     clientNamespace: getClientNamespace(context, type.namespace),
