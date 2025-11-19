@@ -123,48 +123,11 @@ const isBodyEmpty = (body: string | Buffer | undefined | null) => {
 };
 
 /**
- * Check if a string represents a numeric value.
- * @param value String to check
- * @returns true if the string is a valid number representation
- */
-const isNumericString = (value: string): boolean => {
-  return value !== "" && !isNaN(Number(value));
-};
-
-/**
- * Compare two values, treating numeric strings as numbers.
- * This allows "150" and "150.0" to be considered equal.
- * @param actual Actual value (can be undefined or various types from Express)
- * @param expected Expected value
- * @returns true if values are equal (including numeric string comparison)
- */
-const areValuesEqual = (actual: any, expected: string): boolean => {
-  // Handle undefined or null
-  if (actual == null) {
-    return false;
-  }
-
-  // Convert actual to string for comparison
-  const actualStr = String(actual);
-  
-  if (actualStr === expected) {
-    return true;
-  }
-  
-  // If both values are numeric strings, compare them as numbers
-  if (isNumericString(actualStr) && isNumericString(expected)) {
-    return Number(actualStr) === Number(expected);
-  }
-  
-  return false;
-};
-
-/**
  * Check whether the request header contains the given name/value pair
  */
 export const validateHeader = (request: RequestExt, headerName: string, expected: string): void => {
   const actual = request.headers[headerName];
-  if (!areValuesEqual(actual, expected)) {
+  if (actual !== expected) {
     throw new ValidationError(`Expected ${expected} but got ${actual}`, expected, actual);
   }
 };
@@ -202,14 +165,7 @@ export const validateQueryParam = (
         actual,
       );
     }
-  } else if (typeof expected === "string" && !areValuesEqual(actual, expected)) {
-    throw new ValidationError(
-      `Expected query param ${paramName}=${expected} but got ${actual}`,
-      expected,
-      actual,
-    );
-  } else if (typeof expected !== "string") {
-    // If expected is an array but no collectionFormat was provided, treat as error
+  } else if (actual !== expected) {
     throw new ValidationError(
       `Expected query param ${paramName}=${expected} but got ${actual}`,
       expected,
