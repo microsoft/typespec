@@ -104,12 +104,13 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   modelDeclaration(model: Model, name: string): EmitterOutput<object> {
     // Check if this should emit as a discriminated union
     const discriminator = getDiscriminator(this.emitter.getProgram(), model);
+    const strategy = this.emitter.getOptions()["polymorphic-models-strategy"];
     if (
-      this.emitter.getOptions()["emit-discriminated-union"] &&
+      (strategy === "oneOf" || strategy === "anyOf") &&
       discriminator &&
       model.derivedModels.length > 0
     ) {
-      return this.#createDiscriminatedUnionDeclaration(model, name, discriminator);
+      return this.#createDiscriminatedUnionDeclaration(model, name, discriminator, strategy);
     }
 
     const schema = this.#initializeSchema(model, name, {
@@ -683,8 +684,9 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     model: Model,
     name: string,
     discriminator: { propertyName: string },
+    strategy: "oneOf" | "anyOf",
   ): EmitterOutput<object> {
-    const oneOf = new ArrayBuilder<Record<string, unknown>>();
+    const variants = new ArrayBuilder<Record<string, unknown>>();
     const mapping: Record<string, string> = {};
 
     // Collect all derived models and their discriminator values
@@ -693,7 +695,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
       // Add reference to each derived model
       const derivedRef = this.emitter.emitTypeReference(derived);
-      oneOf.push(derivedRef);
+      variants.push(derivedRef);
 
       // Extract discriminator value from derived model
       const prop = derived.properties.get(discriminator.propertyName);
@@ -704,7 +706,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     }
 
     const schema = this.#initializeSchema(model, name, {
-      oneOf: oneOf,
+      [strategy]: variants,
       discriminator: {
         propertyName: discriminator.propertyName,
         mapping: mapping,

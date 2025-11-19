@@ -19,6 +19,14 @@ export type FileType = "yaml" | "json";
 export type Int64Strategy = "string" | "number";
 
 /**
+ * Strategy for handling models with the discriminator decorator.
+ * - ignore: Emit as regular object schema (default)
+ * - oneOf: Emit a oneOf schema with references to all derived models (closed union)
+ * - anyOf: Emit an anyOf schema with references to all derived models (open union)
+ */
+export type PolymorphicModelsStrategy = "ignore" | "oneOf" | "anyOf";
+
+/**
  * Json schema emitter options
  */
 export interface JSONSchemaEmitterOptions {
@@ -64,11 +72,13 @@ export interface JSONSchemaEmitterOptions {
   "seal-object-schemas"?: boolean;
 
   /**
-   * When true, models with the discriminator decorator that have derived models will emit a oneOf schema
-   * with references to all derived models, creating a closed discriminated union.
-   * @defaultValue false
+   * Strategy for emitting models with the discriminator decorator.
+   * - ignore: Emit as regular object schema (default)
+   * - oneOf: Emit a oneOf schema with references to all derived models (closed union)
+   * - anyOf: Emit an anyOf schema with references to all derived models (open union)
+   * @defaultValue "ignore"
    */
-  "emit-discriminated-union"?: boolean;
+  "polymorphic-models-strategy"?: PolymorphicModelsStrategy;
 }
 
 /**
@@ -121,14 +131,16 @@ export const EmitterOptionsSchema: JSONSchemaType<JSONSchemaEmitterOptions> = {
         "Default: `false`",
       ].join("\n"),
     },
-    "emit-discriminated-union": {
-      type: "boolean",
+    "polymorphic-models-strategy": {
+      type: "string",
+      enum: ["ignore", "oneOf", "anyOf"],
       nullable: true,
-      default: false,
+      default: "ignore",
       description: [
-        "When true, models with the discriminator decorator that have derived models will emit a oneOf schema",
-        "with references to all derived models, creating a closed discriminated union.",
-        "Default: `false`",
+        "Strategy for emitting models with the @discriminator decorator:",
+        "- ignore: Emit as regular object schema (default)",
+        "- oneOf: Emit a oneOf schema with references to all derived models (closed union)",
+        "- anyOf: Emit an anyOf schema with references to all derived models (open union)",
       ].join("\n"),
     },
   },
