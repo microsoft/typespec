@@ -191,8 +191,8 @@ export function getSemanticTokens(ast: TypeSpecScriptNode): SemanticToken[] {
       case Token.Star:
       case Token.Identifier:
         return SemanticTokenKind.Comment;
-      case Token.DocCodeSpan: 
-        return SemanticTokenKind.Variable; 
+      case Token.DocCodeSpan:
+        return SemanticTokenKind.Variable;
       case Token.At:
         return defer;
       default:
