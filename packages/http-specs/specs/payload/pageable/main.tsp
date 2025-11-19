@@ -23,6 +23,7 @@ alias HeaderAndQuery = {
 @route("/server-driven-pagination")
 namespace ServerDrivenPagination {
   @scenario
+  @scenarioTier("core")
   @scenarioDoc("""
     Test case for using link as pagination. 
     
@@ -142,6 +143,7 @@ namespace ServerDrivenPagination {
   @route("/continuationtoken")
   namespace ContinuationToken {
     @scenario
+    @scenarioTier("extended")
     @scenarioDoc("""
       Test case for using continuation token as pagination. Continuation token is passed in the request query and response body.
       
@@ -188,6 +190,7 @@ namespace ServerDrivenPagination {
     };
 
     @scenario
+    @scenarioTier("extended")
     @scenarioDoc("""
       Test case for using continuation token as pagination. Continuation token is passed in the request header and response body.
       
@@ -235,6 +238,7 @@ namespace ServerDrivenPagination {
     };
 
     @scenario
+    @scenarioTier("extended")
     @scenarioDoc("""
       Test case for using continuation token as pagination. Continuation token is passed in the request query and response header.
       
@@ -283,6 +287,7 @@ namespace ServerDrivenPagination {
     };
 
     @scenario
+    @scenarioTier("extended")
     @scenarioDoc("""
       Test case for using continuation token as pagination. Continuation token is passed in the request header and response header.
       

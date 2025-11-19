@@ -6,6 +6,7 @@ using Spector;
 
 @doc("Illustrates inheritance with single discriminator.")
 @scenarioService("/type/model/inheritance/single-discriminator")
+@scenarioTier("core")
 namespace Type.Model.Inheritance.SingleDiscriminator;
 
 @doc("This is base model for polymorphic single level inheritance with a discriminator.")

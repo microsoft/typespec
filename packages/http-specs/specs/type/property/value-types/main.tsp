@@ -6,6 +6,7 @@ using Spector;
 
 @doc("Illustrates various property types for models")
 @scenarioService("/type/property/value-types")
+@scenarioTier("core")
 namespace Type.Property.ValueTypes;
 
 // TEMPLATES

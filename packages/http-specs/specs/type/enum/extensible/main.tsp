@@ -5,6 +5,7 @@ using Http;
 using Spector;
 
 @scenarioService("/type/enum/extensible")
+@scenarioTier("core")
 namespace Type.Enum.Extensible;
 
 @doc("Days of the week")

@@ -7,6 +7,7 @@ using Spector;
 @scenarioService("/authentication/api-key")
 @doc("Illustrates clients generated with ApiKey authentication.")
 @useAuth(ApiKeyAuth<ApiKeyLocation.header, "x-ms-api-key">)
+@scenarioTier("core")
 namespace Authentication.ApiKey;
 
 @scenario

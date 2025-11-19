@@ -6,6 +6,7 @@ using Spector;
 
 @doc("Illustrates inheritance with enum discriminator.")
 @scenarioService("/type/model/inheritance/enum-discriminator")
+@scenarioTier("core")
 namespace Type.Model.Inheritance.EnumDiscriminator;
 
 @doc("extensible enum type for discriminator")

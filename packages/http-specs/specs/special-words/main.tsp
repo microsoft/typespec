@@ -46,6 +46,7 @@ using Spector;
  * ```
  */
 @scenarioService("/special-words")
+@scenarioTier("core")
 namespace SpecialWords;
 
 /**

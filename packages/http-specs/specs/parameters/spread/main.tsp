@@ -6,6 +6,7 @@ using Spector;
 
 @doc("Test for the spread operator.")
 @scenarioService("/parameters/spread")
+@scenarioTier("core")
 namespace Parameters.Spread;
 
 @route("/model")

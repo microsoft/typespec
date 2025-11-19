@@ -6,6 +6,7 @@ using Spector;
 
 @doc("Illustrates not-discriminated inheritance model.")
 @scenarioService("/type/model/inheritance/not-discriminated")
+@scenarioTier("core")
 namespace Type.Model.Inheritance.NotDiscriminated;
 
 @doc("This is base model for not-discriminated normal multiple levels inheritance.")

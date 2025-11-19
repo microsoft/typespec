@@ -6,6 +6,7 @@ using Spector;
 
 @doc("Illustrates various types of arrays.")
 @scenarioService("/type/array")
+@scenarioTier("core")
 namespace Type.Array;
 
 @doc("Template to have Array operations")

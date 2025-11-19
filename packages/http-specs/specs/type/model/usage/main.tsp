@@ -12,6 +12,7 @@ using Spector;
  */
 @doc("Illustrates usage of Record in different places(Operation parameters, return type or both).")
 @scenarioService("/type/model/usage")
+@scenarioTier("core")
 namespace Type.Model.Usage;
 
 alias RecordBase = {

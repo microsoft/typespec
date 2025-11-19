@@ -6,6 +6,7 @@ using Spector;
 
 @doc("Test describing optionality of the request body.")
 @scenarioService("/parameters/body-optionality")
+@scenarioTier("core")
 namespace Parameters.BodyOptionality;
 
 model BodyModel {

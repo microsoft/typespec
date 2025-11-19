@@ -18,6 +18,7 @@ export type ScenarioData = {
   name: string;
   scenarioDoc: string;
   location: ScenarioLocation;
+  tier: "core" | "extended" | "edge";
 };
 
 export type ScenarioLocation = {

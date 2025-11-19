@@ -39,8 +39,18 @@ export type ScenarioDocDecorator = (
   formatArgs?: Model,
 ) => void;
 
+/**
+ * Specify the tier of the scenario: core, extended or edge.
+ */
+export type ScenarioTierDecorator = (
+  context: DecoratorContext,
+  target: Namespace | Interface | Operation,
+  tier: "core" | "extended" | "edge",
+) => void;
+
 export type TypeSpecSpectorDecorators = {
   scenarioService: ScenarioServiceDecorator;
   scenario: ScenarioDecorator;
   scenarioDoc: ScenarioDocDecorator;
+  scenarioTier: ScenarioTierDecorator;
 };

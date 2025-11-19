@@ -6,6 +6,7 @@ using Spector;
 
 @doc("Test for encode decorator on datetime.")
 @scenarioService("/encode/datetime")
+@scenarioTier("core")
 namespace Encode.Datetime;
 
 @encode(DateTimeKnownEncoding.unixTimestamp, int64)

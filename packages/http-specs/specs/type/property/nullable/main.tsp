@@ -6,6 +6,7 @@ using Spector;
 
 @doc("Illustrates models with nullable properties.")
 @scenarioService("/type/property/nullable")
+@scenarioTier("core")
 namespace Type.Property.Nullable;
 
 @doc("Template type for testing models with nullable property. Pass in the type of the property you are looking for")

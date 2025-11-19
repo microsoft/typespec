@@ -8,6 +8,7 @@ using Spector;
  * Describe scenarios for various combinations of unions.
  */
 @scenarioService("/type/union")
+@scenarioTier("core")
 namespace Type.Union;
 
 model Cat {

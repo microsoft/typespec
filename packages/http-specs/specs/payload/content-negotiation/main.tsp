@@ -6,6 +6,7 @@ using Spector;
 
 @doc("Test describing optionality of the request body.")
 @scenarioService("/content-negotiation")
+@scenarioTier("core")
 namespace Payload.ContentNegotiation;
 
 @scenario

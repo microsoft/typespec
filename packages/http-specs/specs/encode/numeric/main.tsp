@@ -6,6 +6,7 @@ using Spector;
 
 @doc("Test for encode decorator on integer.")
 @scenarioService("/encode/numeric")
+@scenarioTier("core")
 namespace Encode.Numeric;
 
 @route("/property")

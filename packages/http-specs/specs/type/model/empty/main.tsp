@@ -6,6 +6,7 @@ using Spector;
 
 @doc("Illustrates usage of empty model used in operation's parameters and responses.")
 @scenarioService("/type/model/empty")
+@scenarioTier("core")
 namespace Type.Model.Empty;
 
 @doc("Empty model used in operation parameters")

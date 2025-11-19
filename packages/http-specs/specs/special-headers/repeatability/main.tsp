@@ -8,6 +8,7 @@ using Versioning;
 
 @doc("Illustrates OASIS repeatability headers")
 @scenarioService("/special-headers/repeatability")
+@scenarioTier("core")
 namespace SpecialHeaders.Repeatability;
 
 model RepeatableResponse {

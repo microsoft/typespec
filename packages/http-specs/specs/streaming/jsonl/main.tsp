@@ -8,6 +8,7 @@ using Spector;
 
 @doc("Test of jsonl streaming.")
 @scenarioService("/streaming/jsonl")
+@scenarioTier("extended")
 namespace Streaming.Jsonl;
 
 @route("basic")

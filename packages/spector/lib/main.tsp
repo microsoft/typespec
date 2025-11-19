@@ -35,3 +35,10 @@ extern dec scenarioDoc(
   doc: valueof string,
   formatArgs?: Model
 );
+/**
+ * Specify the tier of the scenario: core, extended or edge.
+ */
+extern dec scenarioTier(
+  target: Namespace | Interface | Operation,
+  tier: valueof "core" | "extended" | "edge"
+);

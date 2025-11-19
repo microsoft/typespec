@@ -11,6 +11,7 @@ using Spector;
 namespace Routes;
 
 @scenario
+@scenarioTier("core")
 @scenarioDoc("""
   Simple operation at a fixed in an interface
     Expected path: /routes/fixed
@@ -19,6 +20,7 @@ namespace Routes;
 op fixed(): void;
 
 @scenario
+@scenarioTier("core")
 @scenarioDoc("""
   Simple operation at a fixed in an interface
     Expected path: /routes/in-interface/fixed
@@ -32,6 +34,7 @@ interface InInterface {
 @route("path")
 namespace PathParameters {
   @scenario
+  @scenarioTier("core")
   @scenarioDoc("""
     Path parameter defined implicitly
       Value: "a"
@@ -41,6 +44,7 @@ namespace PathParameters {
   op templateOnly(param: string): void;
 
   @scenario
+  @scenarioTier("core")
   @scenarioDoc("""
     Path parameter defined explicitly
       Value: "a"
@@ -50,6 +54,7 @@ namespace PathParameters {
   op explicit(@path param: string): void;
 
   @scenario
+  @scenarioTier("core")
   @scenarioDoc("""
     Path parameter annotated with @path but not defined explicitly in the route
       Value: "a"
@@ -59,6 +64,7 @@ namespace PathParameters {
   op annotationOnly(@path param: string): void;
 
   @route("reserved-expansion")
+  @scenarioTier("extended")
   namespace ReservedExpansion {
     @scenario
     @scenarioDoc("""
@@ -80,6 +86,7 @@ namespace PathParameters {
   }
 
   @route("simple")
+  @scenarioTier("extended")
   namespace SimpleExpansion {
     @route("standard")
     namespace Standard {
@@ -143,6 +150,7 @@ namespace PathParameters {
   }
 
   @route("path")
+  @scenarioTier("extended")
   namespace PathExpansion {
     @route("standard")
     namespace Standard {
@@ -206,6 +214,7 @@ namespace PathParameters {
   }
 
   @route("label")
+  @scenarioTier("extended")
   namespace LabelExpansion {
     @route("standard")
     namespace Standard {
@@ -269,6 +278,7 @@ namespace PathParameters {
   }
 
   @route("matrix")
+  @scenarioTier("extended")
   namespace MatrixExpansion {
     @route("standard")
     namespace Standard {
@@ -335,21 +345,25 @@ namespace PathParameters {
 @route("query")
 namespace QueryParameters {
   @scenario
+  @scenarioTier("core")
   @scenarioDoc("Query parameter defined implicitly")
   @route("template-only{?param}")
   op templateOnly(param: string): void;
 
   @scenario
+  @scenarioTier("core")
   @scenarioDoc("Query parameter marked with explicit @query")
   @route("explicit{?param}")
   op explicit(@query param: string): void;
 
   @scenario
+  @scenarioTier("core")
   @scenarioDoc("Query parameter annotated with @query but not defined explicitly in the route")
   @route("annotation-only")
   op annotationOnly(@query param: string): void;
 
   @route("query-expansion")
+  @scenarioTier("extended")
   namespace QueryExpansion {
     @route("standard")
     namespace Standard {
@@ -417,6 +431,7 @@ namespace QueryParameters {
     @route("standard")
     namespace Standard {
       @scenario
+      @scenarioTier("extended")
       @scenarioDoc("""
         Test query continuation expansion with explode: false when passed a primitive value.
             Param value: "a"
@@ -426,6 +441,7 @@ namespace QueryParameters {
       op primitive(param: string): void;
 
       @scenario
+      @scenarioTier("core")
       @scenarioDoc("""
         Test query continuation expansion with explode: false when passed an array value.
             Param value: ["a","b"]
@@ -435,6 +451,7 @@ namespace QueryParameters {
       op `array`(param: string[]): void;
 
       @scenario
+      @scenarioTier("core")
       @scenarioDoc("""
         Test query continuation expansion with explode: false when passed a record value.
             Param value: {a: 1, b: 2}
@@ -447,6 +464,7 @@ namespace QueryParameters {
     @route("explode")
     namespace Explode {
       @scenario
+      @scenarioTier("core")
       @scenarioDoc("""
         Test query continuation expansion with explode: true when passed a primitive value.
             Param value: "a"
@@ -456,6 +474,7 @@ namespace QueryParameters {
       op primitive(param: string): void;
 
       @scenario
+      @scenarioTier("extended")
       @scenarioDoc("""
         Test query continuation expansion with explode: true when passed an array value.
             Param value: ["a","b"]
@@ -465,6 +484,7 @@ namespace QueryParameters {
       op `array`(param: string[]): void;
 
       @scenario
+      @scenarioTier("extended")
       @scenarioDoc("""
         Test query continuation expansion with explode: true when passed a record value.
             Param value: {a: 1, b: 2}

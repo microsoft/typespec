@@ -6,6 +6,7 @@ using Spector;
 
 @doc("Tests for additional properties of models")
 @scenarioService("/type/property/additionalProperties")
+@scenarioTier("core")
 namespace Type.Property.AdditionalProperties;
 
 @doc("Template to have models operations")

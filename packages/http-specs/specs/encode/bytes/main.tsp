@@ -6,6 +6,7 @@ using Spector;
 
 @doc("Test for encode decorator on bytes.")
 @scenarioService("/encode/bytes")
+@scenarioTier("core")
 namespace Encode.Bytes;
 
 @encode(BytesKnownEncoding.base64url)

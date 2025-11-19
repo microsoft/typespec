@@ -6,6 +6,7 @@ using Spector;
 
 @doc("Test for path parameters cases.")
 @scenarioService("/parameters/path")
+@scenarioTier("core")
 namespace Parameters.Path;
 
 @scenario
