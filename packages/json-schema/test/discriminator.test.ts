@@ -2,7 +2,7 @@ import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
 import { emitSchema } from "./utils.js";
 
-describe("model inheritance with @discriminator", () => {
+describe("default behavior", () => {
   it("adds discriminator property to base model", async () => {
     const schemas = await emitSchema(`
         @discriminator("kind")
