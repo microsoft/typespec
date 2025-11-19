@@ -2390,8 +2390,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     if (token() === Token.Identifier) {
       sv = tokenValue();
       nextToken();
-    } else if (token() === Token.StringLiteral && messageId !== "tag") {
-      // Allow string literals as identifiers (similar to model properties)
+    } else if (token() === Token.DocCodeSpan) {
+      // Support DocCodeSpan as identifier
       sv = tokenValue();
       nextToken();
     } else {

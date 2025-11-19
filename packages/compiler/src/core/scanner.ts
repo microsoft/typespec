@@ -857,34 +857,9 @@ export function createScanner(
           return next(Token.Star);
 
         case CharCode.Backtick:
-          // Check if it is a code fence (three backticks)
-          if (lookAhead(1) === CharCode.Backtick && lookAhead(2) === CharCode.Backtick) {
-            return next(Token.DocCodeFenceDelimiter, 3);
-          }
-
-          // Check if possible backtick identifier
-          // Need to look ahead to determine if this is a single backtick or a backtick identifier
-          let nextPos = position + 1;
-          let hasContent = false;
-          while (nextPos < endPosition) {
-            const nextCh = input.charCodeAt(nextPos);
-            if (nextCh === CharCode.Backtick) {
-              // Find the closing backtick, which is a backtick identifier
-              if (hasContent) {
-                return scanBacktickedIdentifier();
-              }
-              break;
-            } else if (nextCh === CharCode.LineFeed || nextCh === CharCode.CarriageReturn) {
-              // Newline encountered, this is not a backtick identifier
-              break;
-            } else if (nextCh !== CharCode.Space && nextCh !== CharCode.Tab) {
-              hasContent = true;
-            }
-            nextPos++;
-          }
-
-          // Handled as code span by default
-          return scanDocCodeSpan();
+          return lookAhead(1) === CharCode.Backtick && lookAhead(2) === CharCode.Backtick
+            ? next(Token.DocCodeFenceDelimiter, 3)
+            : scanDocCodeSpan();
 
         case CharCode.LessThan:
         case CharCode.GreaterThan:
