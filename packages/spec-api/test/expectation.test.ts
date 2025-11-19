@@ -50,4 +50,72 @@ describe("containsQueryParam()", () => {
     const requestExpectation = new RequestExpectation(requestExt);
     expect(requestExpectation.containsQueryParam("letter", "[a, b, c]")).toBe(undefined);
   });
+
+  it("should validate successfully when numeric strings match exactly", () => {
+    const requestExt = { query: { value: "150.0" } } as unknown as RequestExt;
+    const requestExpectation = new RequestExpectation(requestExt);
+    expect(requestExpectation.containsQueryParam("value", "150.0")).toBe(undefined);
+  });
+
+  it("should validate successfully when numeric strings are numerically equal", () => {
+    const requestExt = { query: { value: "150" } } as unknown as RequestExt;
+    const requestExpectation = new RequestExpectation(requestExt);
+    expect(requestExpectation.containsQueryParam("value", "150.0")).toBe(undefined);
+  });
+
+  it("should validate successfully when numeric strings with trailing zero match", () => {
+    const requestExt = { query: { value: "210000.0" } } as unknown as RequestExt;
+    const requestExpectation = new RequestExpectation(requestExt);
+    expect(requestExpectation.containsQueryParam("value", "210000")).toBe(undefined);
+  });
+
+  it("should throw validation error when numeric values are different", () => {
+    const requestExt = { query: { value: "150" } } as unknown as RequestExt;
+    const requestExpectation = new RequestExpectation(requestExt);
+    expect(() => requestExpectation.containsQueryParam("value", "151")).toThrow();
+  });
+
+  it("should throw validation error when non-numeric strings don't match", () => {
+    const requestExt = { query: { value: "hello" } } as unknown as RequestExt;
+    const requestExpectation = new RequestExpectation(requestExt);
+    expect(() => requestExpectation.containsQueryParam("value", "world")).toThrow();
+  });
+});
+
+describe("containsHeader()", () => {
+  it("should validate successfully when header matches exactly", () => {
+    const requestExt = { headers: { duration: "P40D" } } as unknown as RequestExt;
+    const requestExpectation = new RequestExpectation(requestExt);
+    expect(requestExpectation.containsHeader("duration", "P40D")).toBe(undefined);
+  });
+
+  it("should validate successfully when numeric header strings match exactly", () => {
+    const requestExt = { headers: { duration: "150.0" } } as unknown as RequestExt;
+    const requestExpectation = new RequestExpectation(requestExt);
+    expect(requestExpectation.containsHeader("duration", "150.0")).toBe(undefined);
+  });
+
+  it("should validate successfully when numeric header strings are numerically equal", () => {
+    const requestExt = { headers: { duration: "150" } } as unknown as RequestExt;
+    const requestExpectation = new RequestExpectation(requestExt);
+    expect(requestExpectation.containsHeader("duration", "150.0")).toBe(undefined);
+  });
+
+  it("should validate successfully when numeric header strings with trailing zero match", () => {
+    const requestExt = { headers: { duration: "210000.0" } } as unknown as RequestExt;
+    const requestExpectation = new RequestExpectation(requestExt);
+    expect(requestExpectation.containsHeader("duration", "210000")).toBe(undefined);
+  });
+
+  it("should throw validation error when numeric header values are different", () => {
+    const requestExt = { headers: { duration: "150" } } as unknown as RequestExt;
+    const requestExpectation = new RequestExpectation(requestExt);
+    expect(() => requestExpectation.containsHeader("duration", "151")).toThrow();
+  });
+
+  it("should throw validation error when non-numeric header strings don't match", () => {
+    const requestExt = { headers: { duration: "P40D" } } as unknown as RequestExt;
+    const requestExpectation = new RequestExpectation(requestExt);
+    expect(() => requestExpectation.containsHeader("duration", "P50D")).toThrow();
+  });
 });
