@@ -139,10 +139,12 @@ function splitManifestByTables(
 async function loadManifestFromUrl(url: string): Promise<ScenarioManifest[]> {
   const response = await fetch(url);
   if (!response.ok) {
-    throw new Error(`Failed to fetch manifest from ${url}: ${response.status} ${response.statusText}`);
+    throw new Error(
+      `Failed to fetch manifest from ${url}: ${response.status} ${response.statusText}`,
+    );
   }
   const manifest = await response.json();
-  
+
   // Handle both single manifest and array of manifests
   return Array.isArray(manifest) ? manifest : [manifest];
 }
@@ -153,7 +155,9 @@ export async function getCoverageSummaries(
   const coverageClient = getCoverageClient(options);
   const manifestClient = getManifestClient(options);
   const [manifests, generatorReports] = await Promise.all([
-    options.debugManifestUrl ? loadManifestFromUrl(options.debugManifestUrl) : manifestClient.manifest.get(),
+    options.debugManifestUrl
+      ? loadManifestFromUrl(options.debugManifestUrl)
+      : manifestClient.manifest.get(),
     loadReports(coverageClient, options),
   ]);
 

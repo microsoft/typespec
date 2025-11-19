@@ -7,7 +7,9 @@ The dashboard now supports loading manifests from arbitrary URLs for debugging a
 ## Usage
 
 ### URL Parameter
+
 Add `?debugManifest=<URL>` to the dashboard URL:
+
 ```
 https://typespec.io/can-i-use/http?debugManifest=https://example.com/manifest.json
 ```

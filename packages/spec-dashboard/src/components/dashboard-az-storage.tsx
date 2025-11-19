@@ -71,7 +71,7 @@ export const DashboardFromAzureStorage = (props: DashboardFromAzureStorageProps)
           <strong>Debug Mode:</strong> Using custom manifest from: {debugMode}
         </MessageBar>
       )}
-      
+
       {isLoading ? (
         <div>Loading...</div>
       ) : coverageSummaries ? (
