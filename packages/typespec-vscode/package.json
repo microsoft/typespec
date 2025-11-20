@@ -302,7 +302,7 @@
     "esbuild": "^0.25.1",
     "mocha": "^11.1.0",
     "playwright": "^1.51.1",
-    "rimraf": "~6.0.1",
+    "rimraf": "~6.1.2",
     "semver": "^7.7.1",
     "swagger-ui-dist": "^5.20.1",
     "typescript": "~5.9.2",

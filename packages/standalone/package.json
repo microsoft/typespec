@@ -47,7 +47,7 @@
     "execa": "^9.5.2",
     "ora": "^9.0.0",
     "postject": "1.0.0-alpha.6",
-    "rimraf": "~6.0.1",
+    "rimraf": "~6.1.2",
     "tsx": "^4.19.3",
     "typescript": "~5.9.2",
     "vitest": "^4.0.4"

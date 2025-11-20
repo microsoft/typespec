@@ -40,7 +40,7 @@
     "@types/xml2js": "^0.4.11",
     "@vitest/coverage-v8": "^4.0.4",
     "@vitest/ui": "^4.0.4",
-    "rimraf": "~6.0.1",
+    "rimraf": "~6.1.2",
     "typescript": "~5.9.2",
     "vitest": "^4.0.4"
   }

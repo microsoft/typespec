@@ -55,7 +55,7 @@
     "@typespec/openapi": "workspace:^",
     "@typespec/openapi3": "workspace:^",
     "concurrently": "^9.1.2",
-    "rimraf": "~6.0.1",
+    "rimraf": "~6.1.2",
     "typescript": "~5.9.2"
   },
   "peerDependencies": {
