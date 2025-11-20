@@ -759,8 +759,8 @@ function loadPagingServiceMetadata(
 
   let pageSizeParameterSegments: string[] | undefined;
   if (method.pagingMetadata.pageSizeParameterSegments) {
-    pageSizeParameterSegments = method.pagingMetadata.pageSizeParameterSegments.map((segment) =>
-      segment.name,
+    pageSizeParameterSegments = method.pagingMetadata.pageSizeParameterSegments.map(
+      (segment) => segment.name,
     );
   }
 
