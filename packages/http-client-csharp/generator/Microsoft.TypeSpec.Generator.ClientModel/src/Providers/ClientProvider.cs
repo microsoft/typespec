@@ -571,27 +571,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             // handle pipeline property
             var userAgentPolicy = This.ToApi<ClientPipelineApi>().UserAgentPolicy(Type);
+
+            List<ValueExpression> perRetryPoliciesList = [];
+            if (userAgentPolicy != null)
+            {
+                perRetryPoliciesList.Add(userAgentPolicy);
+            }
+
             ValueExpression perRetryPolicies;
             switch (authFields)
             {
                 case ApiKeyFields keyAuthFields:
                     ValueExpression? keyPrefixExpression = keyAuthFields.AuthorizationApiKeyPrefixField != null ? (ValueExpression)keyAuthFields.AuthorizationApiKeyPrefixField : null;
-                    var keyAuthPolicies = userAgentPolicy != null
-                        ? new[] { userAgentPolicy, This.ToApi<ClientPipelineApi>().KeyAuthorizationPolicy(keyAuthFields.AuthField, keyAuthFields.AuthorizationHeaderField, keyPrefixExpression) }
-                        : new[] { This.ToApi<ClientPipelineApi>().KeyAuthorizationPolicy(keyAuthFields.AuthField, keyAuthFields.AuthorizationHeaderField, keyPrefixExpression) };
-                    perRetryPolicies = New.Array(ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType, isInline: true, keyAuthPolicies);
+                    perRetryPoliciesList.Add(This.ToApi<ClientPipelineApi>().KeyAuthorizationPolicy(keyAuthFields.AuthField, keyAuthFields.AuthorizationHeaderField, keyPrefixExpression));
+                    perRetryPolicies = New.Array(ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType, isInline: true, [.. perRetryPoliciesList]);
                     break;
                 case OAuth2Fields oauth2AuthFields:
-                    var oauth2Policies = userAgentPolicy != null
-                        ? new[] { userAgentPolicy, This.ToApi<ClientPipelineApi>().TokenAuthorizationPolicy(oauth2AuthFields.AuthField, oauth2AuthFields.AuthorizationScopesField) }
-                        : new[] { This.ToApi<ClientPipelineApi>().TokenAuthorizationPolicy(oauth2AuthFields.AuthField, oauth2AuthFields.AuthorizationScopesField) };
-                    perRetryPolicies = New.Array(ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType, isInline: true, oauth2Policies);
+                    perRetryPoliciesList.Add(This.ToApi<ClientPipelineApi>().TokenAuthorizationPolicy(oauth2AuthFields.AuthField, oauth2AuthFields.AuthorizationScopesField));
+                    perRetryPolicies = New.Array(ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType, isInline: true, [.. perRetryPoliciesList]);
                     break;
                 default:
-                    var defaultPolicies = userAgentPolicy != null
-                        ? new[] { userAgentPolicy }
-                        : Array.Empty<ValueExpression>();
-                    perRetryPolicies = New.Array(ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType, isInline: true, defaultPolicies);
+                    perRetryPolicies = New.Array(ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType, isInline: true, [.. perRetryPoliciesList]);
                     break;
             }
 
