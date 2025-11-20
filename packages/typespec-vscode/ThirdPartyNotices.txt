@@ -30,7 +30,7 @@ granted herein, whether by implication, estoppel or otherwise.
 20. shebang-command version 2.0.0 (kevva/shebang-command)
 21. shebang-regex version 3.0.0 (sindresorhus/shebang-regex)
 22. which version 2.0.2 (https://github.com/isaacs/node-which)
-23. which version 6.0.0 (https://github.com/npm/node-which)
+23. which version 5.0.0 (https://github.com/npm/node-which)
 24. yaml version 2.8.1 (github:eemeli/yaml)
 
 
