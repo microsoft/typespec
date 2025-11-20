@@ -94,37 +94,5 @@ namespace Encode.Duration._Property
         public virtual ClientResult<FloatMillisecondsDurationArrayProperty> FloatMillisecondsArray(FloatMillisecondsDurationArrayProperty body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult<FloatMillisecondsDurationArrayProperty>> FloatMillisecondsArrayAsync(FloatMillisecondsDurationArrayProperty body, CancellationToken cancellationToken = default) => throw null;
-
-        public virtual ClientResult Int32SecondsLargerUnit(BinaryContent content, RequestOptions options = null) => throw null;
-
-        public virtual Task<ClientResult> Int32SecondsLargerUnitAsync(BinaryContent content, RequestOptions options = null) => throw null;
-
-        public virtual ClientResult<Int32SecondsLargerUnitDurationProperty> Int32SecondsLargerUnit(Int32SecondsLargerUnitDurationProperty body, CancellationToken cancellationToken = default) => throw null;
-
-        public virtual Task<ClientResult<Int32SecondsLargerUnitDurationProperty>> Int32SecondsLargerUnitAsync(Int32SecondsLargerUnitDurationProperty body, CancellationToken cancellationToken = default) => throw null;
-
-        public virtual ClientResult FloatSecondsLargerUnit(BinaryContent content, RequestOptions options = null) => throw null;
-
-        public virtual Task<ClientResult> FloatSecondsLargerUnitAsync(BinaryContent content, RequestOptions options = null) => throw null;
-
-        public virtual ClientResult<FloatSecondsLargerUnitDurationProperty> FloatSecondsLargerUnit(FloatSecondsLargerUnitDurationProperty body, CancellationToken cancellationToken = default) => throw null;
-
-        public virtual Task<ClientResult<FloatSecondsLargerUnitDurationProperty>> FloatSecondsLargerUnitAsync(FloatSecondsLargerUnitDurationProperty body, CancellationToken cancellationToken = default) => throw null;
-
-        public virtual ClientResult Int32MillisecondsLargerUnit(BinaryContent content, RequestOptions options = null) => throw null;
-
-        public virtual Task<ClientResult> Int32MillisecondsLargerUnitAsync(BinaryContent content, RequestOptions options = null) => throw null;
-
-        public virtual ClientResult<Int32MillisecondsLargerUnitDurationProperty> Int32MillisecondsLargerUnit(Int32MillisecondsLargerUnitDurationProperty body, CancellationToken cancellationToken = default) => throw null;
-
-        public virtual Task<ClientResult<Int32MillisecondsLargerUnitDurationProperty>> Int32MillisecondsLargerUnitAsync(Int32MillisecondsLargerUnitDurationProperty body, CancellationToken cancellationToken = default) => throw null;
-
-        public virtual ClientResult FloatMillisecondsLargerUnit(BinaryContent content, RequestOptions options = null) => throw null;
-
-        public virtual Task<ClientResult> FloatMillisecondsLargerUnitAsync(BinaryContent content, RequestOptions options = null) => throw null;
-
-        public virtual ClientResult<FloatMillisecondsLargerUnitDurationProperty> FloatMillisecondsLargerUnit(FloatMillisecondsLargerUnitDurationProperty body, CancellationToken cancellationToken = default) => throw null;
-
-        public virtual Task<ClientResult<FloatMillisecondsLargerUnitDurationProperty>> FloatMillisecondsLargerUnitAsync(FloatMillisecondsLargerUnitDurationProperty body, CancellationToken cancellationToken = default) => throw null;
     }
 }
