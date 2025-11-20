@@ -702,7 +702,7 @@ export interface Decorator extends BaseType {
   namespace: Namespace;
   target: MixedFunctionParameter;
   parameters: MixedFunctionParameter[];
-  implementation: (...args: unknown[]) => void;
+  implementation: (ctx: DecoratorContext, target: Type, ...args: unknown[]) => void;
 }
 
 export interface FunctionType extends BaseType {
@@ -712,7 +712,7 @@ export interface FunctionType extends BaseType {
   namespace?: Namespace;
   parameters: MixedFunctionParameter[];
   returnType: MixedParameterConstraint;
-  implementation: (...args: unknown[]) => unknown;
+  implementation: (ctx: FunctionContext, ...args: unknown[]) => unknown;
 }
 
 export interface FunctionParameterBase extends BaseType {

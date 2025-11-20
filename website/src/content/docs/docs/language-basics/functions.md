@@ -3,13 +3,23 @@ id: functions
 title: Functions
 ---
 
-Functions in TypeSpec allow developers to compute and return types or values based on their inputs. Compared to [decorators](./decorators.md), functions provide an input-output based approach to creating type or value instances, offering more flexibility than decorators for creating new types dynamically. Functions enable complex type manipulation, filtering, and transformation.
+Functions in TypeSpec allow library developers to compute and return types or
+values based on their inputs. Compared to [decorators](./decorators.md),
+functions provide an input-output based approach to creating type or value
+instances, offering more flexibility than decorators for creating new types
+dynamically. Functions enable complex type manipulation, filtering, and
+transformation.
 
-Functions are declared using the `fn` keyword (with the required `extern` modifier, like decorators) and are backed by JavaScript implementations. When a TypeSpec program calls a function, the corresponding JavaScript function is invoked with the provided arguments, and the result is returned as either a Type or a Value depending on the function's declaration.
+Functions are declared using the `fn` keyword (with the required `extern`
+modifier, like decorators) and are backed by JavaScript implementations. When a
+TypeSpec program calls a function, the corresponding JavaScript function is
+invoked with the provided arguments, and the result is returned as either a Type
+or a Value depending on the function's declaration.
 
 ## Declaring functions
 
-Functions are declared using the `extern fn` syntax followed by a name, parameter list, optional return type constraint, and semicolon:
+Functions are declared using the `extern fn` syntax followed by a name,
+parameter list, optional return type constraint, and semicolon:
 
 ```typespec
 extern fn functionName(param1: Type, param2: valueof string): ReturnType;
@@ -70,12 +80,19 @@ extern fn getName(): valueof string;
 extern fn flexible(): unknown | (valueof unknown);
 ```
 
+:::note
+A function call does not always evaluate to its return type. The function call may evaluate to any _subtype_
+of the return type constraint (any type or value that is _assignable_ to the constraint). For example, a function that
+returns `Reflection.Model` may actually evaluate to any model. A function that returns `Foo` where `Foo` is a model may
+evaluate to any model that is assignable to `Foo`.
+:::
+
 ## Parameter types
 
 Function parameters follow the same rules as decorator parameters:
 
 - **Type parameters**: Accept TypeScript types (e.g., `param: string`)
-- **Value parameters**: Accept runtime values using `valueof` (e.g., `param: valueof string`)
+- **Value parameters**: Accept values using `valueof` (e.g., `param: valueof string`)
 - **Mixed parameters**: Can accept both types and values with union syntax
 
 ```typespec
@@ -108,7 +125,7 @@ alias PublicModel<M extends Model> = applyVisibility(UserModel, PUBLIC_FILTER);
 ### Value computation
 
 ```typespec
-// Compute a default value
+// Compute a default value using some external logic
 extern fn computeDefault(fieldType: string): valueof unknown;
 
 model Config {

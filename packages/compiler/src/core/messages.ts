@@ -540,10 +540,11 @@ const diagnostics = {
       default: "A function declaration must be prefixed with the 'extern' modifier.",
     },
   },
-  "function-unsupported": {
+  "function-return": {
     severity: "error",
     messages: {
-      default: "Function are currently not supported.",
+      default: "Function implementation returned an invalid result.",
+      "invalid-value": paramMessage`Function implementation returned invalid JS value '${"value"}'.`,
     },
   },
   "missing-implementation": {

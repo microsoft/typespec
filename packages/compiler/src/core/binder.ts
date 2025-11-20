@@ -134,7 +134,7 @@ export function createBinder(program: Program): Binder {
 
     for (const [key, member] of Object.entries(sourceFile.esmExports)) {
       let name: string;
-      let kind: "decorator" | "function" | "template";
+      let kind: "decorator" | "function";
       if (key === "$flags") {
         const context = getLocationContext(program, sourceFile);
         if (context.type === "library" || context.type === "project") {

@@ -8,6 +8,7 @@ export const typespecCompiler = createPackage({
       named: [
         "Program",
         "DecoratorContext",
+        "FunctionContext",
         "Type",
         "Namespace",
         "Model",

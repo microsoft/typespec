@@ -25,8 +25,8 @@ export function FunctionSignatureType(props: Readonly<FunctionSignatureProps>) {
   const func = props.signature.tspFunction;
   const parameters: ts.ParameterDescriptor[] = [
     {
-      name: "program",
-      type: typespecCompiler.Program,
+      name: "context",
+      type: typespecCompiler.FunctionContext,
     },
     ...func.parameters.map(
       (param): ts.ParameterDescriptor => ({

@@ -68,6 +68,7 @@ import {
   EnumValue,
   ErrorType,
   Expression,
+  FunctionContext,
   FunctionDeclarationStatementNode,
   FunctionParameter,
   FunctionParameterNode,
@@ -358,14 +359,6 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   const unknownEntity: IndeterminateEntity = {
     entityKind: "Indeterminate",
     type: unknownType,
-  };
-
-  // Special value representing `valueof void` undefined function returns
-  const voidValue: Value = {
-    entityKind: "Value",
-    valueKind: "NullValue",
-    value: null,
-    type: voidType,
   };
 
   /**
@@ -4389,8 +4382,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     const canCall = satisfied && !(target.implementation as any).isDefaultFunctionImplementation;
 
+    const ctx = createFunctionContext(program, node);
+
     const functionReturn = canCall
-      ? target.implementation(program, ...resolvedArgs)
+      ? target.implementation(ctx, ...resolvedArgs)
       : getDefaultFunctionResult(target.returnType);
 
     const returnIsTypeOrValue =
@@ -4401,27 +4396,35 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     // special case for when the return value is `undefined` and the return type is `void` or `valueof void`.
     if (functionReturn === undefined && isVoidReturn(target.returnType)) {
-      if (target.returnType.valueType) {
-        return voidValue;
-      } else {
-        return voidType;
-      }
+      return voidType;
     }
 
-    const result = returnIsTypeOrValue
+    const unmarshaled = returnIsTypeOrValue
       ? (functionReturn as Type | Value)
       : unmarshalJsToValue(program, functionReturn, function onInvalid(value) {
-          // TODO: diagnostic for invalid return value
+          let valueSummary = String(value);
+          if (valueSummary.length > 30) {
+            valueSummary = valueSummary.slice(0, 27) + "...";
+          }
+          reportCheckerDiagnostic(
+            createDiagnostic({
+              code: "function-return",
+              messageId: "invalid-value",
+              format: { value: valueSummary },
+              target: node,
+            }),
+          );
         });
 
-    if (satisfied) checkFunctionReturn(target, result, node);
+    let result: Type | Value | null = unmarshaled;
+    if (satisfied) result = checkFunctionReturn(target, unmarshaled, node);
 
     return result;
   }
 
   function isVoidReturn(constraint: MixedParameterConstraint): boolean {
     if (constraint.valueType) {
-      if (!isVoidType(constraint.valueType)) return false;
+      return false;
     }
 
     if (constraint.type) {
@@ -4459,6 +4462,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     target: FunctionType,
     mapper: TypeMapper | undefined,
   ): [boolean, any[]] {
+    let satisfied = true;
     const minArgs = target.parameters.filter((p) => !p.optional && !p.rest).length;
     const maxArgs = target.parameters[target.parameters.length - 1]?.rest
       ? undefined
@@ -4482,12 +4486,12 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           target: target.node!,
         }),
       );
+      // This error doesn't actually prevent us from checking the arguments and evaluating the function.
     }
 
     const collector = createDiagnosticCollector();
 
     const resolvedArgs: any[] = [];
-    let satisfied = true;
 
     let idx = 0;
 
@@ -4500,9 +4504,11 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           continue;
         }
 
-        const restArgs = args
-          .slice(idx)
-          .map((arg) => getTypeOrValueForNode(arg, mapper, { kind: "argument", constraint }));
+        const restArgExpressions = args.slice(idx);
+
+        const restArgs = restArgExpressions.map((arg) =>
+          getTypeOrValueForNode(arg, mapper, { kind: "argument", constraint }),
+        );
 
         if (restArgs.some((x) => x === null)) {
           satisfied = false;
@@ -4510,10 +4516,16 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         }
 
         resolvedArgs.push(
-          ...restArgs.map((v) =>
+          ...restArgs.map((v, idx) =>
             v !== null && isValue(v)
               ? marshalTypeForJs(v, undefined, function onUnknown() {
-                  // TODO: diagnostic for unknown value
+                  reportCheckerDiagnostic(
+                    createDiagnostic({
+                      code: "unknown-value",
+                      messageId: "in-js-argument",
+                      target: restArgExpressions[idx],
+                    }),
+                  );
                 })
               : v,
           ),
@@ -4526,15 +4538,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
             resolvedArgs.push(undefined);
             continue;
           } else {
-            reportCheckerDiagnostic(
-              createDiagnostic({
-                code: "invalid-argument",
-                messageId: "default",
-                // TODO: render constraint
-                format: { value: "undefined", expected: "TODO" },
-                target: target.node!,
-              }),
-            );
+            // No need to report a diagnostic here because we already reported one for
+            // invalid argument counts above.
+
             satisfied = false;
             continue;
           }
@@ -4581,14 +4587,20 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return [satisfied, resolvedArgs];
   }
 
-  function checkFunctionReturn(target: FunctionType, result: Type | Value, diagnosticTarget: Node) {
-    const [_, diagnostics] = checkEntityAssignableToConstraint(
+  function checkFunctionReturn(
+    target: FunctionType,
+    result: Type | Value,
+    diagnosticTarget: Node,
+  ): Type | Value | null {
+    const [checked, diagnostics] = checkEntityAssignableToConstraint(
       result,
       target.returnType,
       diagnosticTarget,
     );
 
     reportCheckerDiagnostics(diagnostics);
+
+    return checked;
   }
 
   function checkEntityAssignableToConstraint(
@@ -7050,18 +7062,45 @@ function applyDecoratorToType(program: Program, decApp: DecoratorApplication, ta
   }
 }
 
-function createDecoratorContext(program: Program, decApp: DecoratorApplication): DecoratorContext {
-  function createPassThruContext(program: Program, decApp: DecoratorApplication): DecoratorContext {
-    return {
-      program,
-      decoratorTarget: decApp.node!,
-      getArgumentTarget: () => decApp.node!,
-      call: (decorator, target, ...args) => {
-        return decorator(createPassThruContext(program, decApp), target, ...args);
-      },
-    };
-  }
+function createPassThruContexts(
+  program: Program,
+  target: DiagnosticTarget,
+): {
+  decorator: DecoratorContext;
+  function: FunctionContext;
+} {
+  const decCtx: DecoratorContext = {
+    program,
+    decoratorTarget: target,
+    getArgumentTarget: () => target,
+    call: (decorator, target, ...args) => {
+      return decorator(decCtx, target, ...args);
+    },
+    callFunction(fn, ...args) {
+      return fn(fnCtx, ...args);
+    },
+  };
 
+  const fnCtx: FunctionContext = {
+    program,
+    functionCallTarget: target,
+    getArgumentTarget: () => target,
+    callFunction(fn, ...args) {
+      return fn(fnCtx, ...args);
+    },
+    callDecorator(decorator, target, ...args) {
+      return decorator(decCtx, target, ...args);
+    },
+  };
+
+  return {
+    decorator: decCtx,
+    function: fnCtx,
+  };
+}
+
+function createDecoratorContext(program: Program, decApp: DecoratorApplication): DecoratorContext {
+  const passthrough = createPassThruContexts(program, decApp.node!);
   return {
     program,
     decoratorTarget: decApp.node!,
@@ -7069,7 +7108,27 @@ function createDecoratorContext(program: Program, decApp: DecoratorApplication):
       return decApp.args[index]?.node;
     },
     call: (decorator, target, ...args) => {
-      return decorator(createPassThruContext(program, decApp), target, ...args);
+      return decorator(passthrough.decorator, target, ...args);
+    },
+    callFunction(fn, ...args) {
+      return fn(passthrough.function, ...args);
+    },
+  };
+}
+
+function createFunctionContext(program: Program, fnCall: CallExpressionNode): FunctionContext {
+  const passthrough = createPassThruContexts(program, fnCall);
+  return {
+    program,
+    functionCallTarget: fnCall,
+    getArgumentTarget: (index: number) => {
+      return fnCall.arguments[index];
+    },
+    callDecorator(decorator, target, ...args) {
+      return decorator(passthrough.decorator, target, ...args);
+    },
+    callFunction(fn, ...args) {
+      return fn(passthrough.function, ...args);
     },
   };
 }

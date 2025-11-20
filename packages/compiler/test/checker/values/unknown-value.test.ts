@@ -72,3 +72,50 @@ describe("invalid uses of unknown value", () => {
     ]);
   });
 });
+
+describe("usage", () => {
+  let host: TestHost;
+  let runner: BasicTestRunner;
+
+  beforeEach(async () => {
+    host = await createTestHost();
+    runner = await createTestRunner(host);
+  });
+
+  for (const typeDescriptor of [
+    "unknown",
+    "string",
+    "int32",
+    "boolean",
+    "model Foo",
+    "union Bar",
+    "enum Baz",
+    "string[]",
+    "Record<int32>",
+  ]) {
+    const type = typeDescriptor.replace(/^(model|union|enum) /, "");
+
+    it(`can be assigned to variable of type valueof '${typeDescriptor}'`, async () => {
+      const diags = await runner.diagnose(`
+        model Foo {
+          example: string;
+        }
+
+        union Bar {
+          foo: Foo;
+          baz: Baz;
+        }
+
+        enum Baz {
+          A,
+          B,
+          C,
+        }
+
+        const x: ${type} = unknown;
+      `);
+
+      expectDiagnostics(diags, []);
+    });
+  }
+});

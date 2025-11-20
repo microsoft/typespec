@@ -1,6 +1,12 @@
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
-import { Diagnostic, ModelProperty, Namespace, Type } from "../../src/core/types.js";
+import {
+  Diagnostic,
+  FunctionContext,
+  ModelProperty,
+  Namespace,
+  Type,
+} from "../../src/core/types.js";
 import { Program, setTypeSpecNamespace } from "../../src/index.js";
 import {
   BasicTestRunner,
@@ -11,6 +17,8 @@ import {
   expectDiagnostics,
 } from "../../src/testing/index.js";
 import { $ } from "../../src/typekit/index.js";
+
+// TODO/witemple: thoroughly review this file
 
 /** Helper to assert a function declaration was bound to the js implementation */
 function expectFunction(ns: Namespace, name: string, impl: any) {
@@ -31,7 +39,7 @@ describe("compiler: checker: functions", () => {
     let testJs: Record<string, any>;
     let testImpl: any;
     beforeEach(() => {
-      testImpl = (_program: Program) => undefined;
+      testImpl = (ctx: FunctionContext) => undefined;
       testJs = { testFn: testImpl };
       testHost.addJsFile("test.js", testJs);
       runner = createTestWrapper(testHost, {
@@ -62,14 +70,14 @@ describe("compiler: checker: functions", () => {
       });
 
       it("defined at root via $functions map", async () => {
-        const impl = (_p: Program) => undefined;
+        const impl = (_ctx: FunctionContext) => undefined;
         testJs.$functions = { "": { otherFn: impl } };
         await runner.compile(`extern fn otherFn();`);
         expectFunction(runner.program.getGlobalNamespaceType(), "otherFn", impl);
       });
 
       it("in namespace via $functions map", async () => {
-        const impl = (_p: Program) => undefined;
+        const impl = (_ctx: FunctionContext) => undefined;
         testJs.$functions = { "Foo.Bar": { nsFn: impl } };
         await runner.compile(`namespace Foo.Bar { extern fn nsFn(); }`);
         const ns = runner.program
@@ -118,18 +126,18 @@ describe("compiler: checker: functions", () => {
     beforeEach(() => {
       calledArgs = undefined;
       testHost.addJsFile("test.js", {
-        testFn(program: Program, a: any, b: any, ...rest: any[]) {
-          calledArgs = [program, a, b, ...rest];
+        testFn(ctx: FunctionContext, a: any, b: any, ...rest: any[]) {
+          calledArgs = [ctx, a, b, ...rest];
           return a; // Return first arg
         },
-        sum(program: Program, ...addends: number[]) {
+        sum(_ctx: FunctionContext, ...addends: number[]) {
           return addends.reduce((a, b) => a + b, 0);
         },
-        valFirst(program: Program, v: any) {
+        valFirst(_ctx: FunctionContext, v: any) {
           return v;
         },
-        voidFn(program: Program, arg: any) {
-          calledArgs = [program, arg];
+        voidFn(ctx: FunctionContext, arg: any) {
+          calledArgs = [ctx, arg];
           // No return value
         },
       });
@@ -178,7 +186,7 @@ describe("compiler: checker: functions", () => {
 
     it("accepts function with explicit void return type", async () => {
       const diagnostics = await runner.diagnose(
-        `extern fn voidFn(a: valueof string): valueof void; const X: void = voidFn("test");`,
+        `extern fn voidFn(a: valueof string): void; alias V = voidFn("test");`,
       );
       expectDiagnostics(diagnostics, []);
       expectCalledWith("test");
@@ -252,8 +260,8 @@ describe("compiler: checker: functions", () => {
   describe("referencing result type", () => {
     it("can use function result in alias", async () => {
       testHost.addJsFile("test.js", {
-        makeArray(program: Program, t: Type) {
-          return $(program).array.create(t);
+        makeArray(ctx: FunctionContext, t: Type) {
+          return $(ctx.program).array.create(t);
         },
       });
       const runner = createTestWrapper(testHost, {
@@ -288,31 +296,31 @@ describe("compiler: checker: functions", () => {
     beforeEach(() => {
       receivedTypes = [];
       testHost.addJsFile("test.js", {
-        expectModel(program: Program, model: Type) {
+        expectModel(_ctx: FunctionContext, model: Type) {
           receivedTypes.push(model);
           return model;
         },
-        expectEnum(program: Program, enumType: Type) {
+        expectEnum(_ctx: FunctionContext, enumType: Type) {
           receivedTypes.push(enumType);
           return enumType;
         },
-        expectScalar(program: Program, scalar: Type) {
+        expectScalar(_ctx: FunctionContext, scalar: Type) {
           receivedTypes.push(scalar);
           return scalar;
         },
-        expectUnion(program: Program, union: Type) {
+        expectUnion(_ctx: FunctionContext, union: Type) {
           receivedTypes.push(union);
           return union;
         },
-        expectInterface(program: Program, iface: Type) {
+        expectInterface(_ctx: FunctionContext, iface: Type) {
           receivedTypes.push(iface);
           return iface;
         },
-        expectNamespace(program: Program, ns: Type) {
+        expectNamespace(_ctx: FunctionContext, ns: Type) {
           receivedTypes.push(ns);
           return ns;
         },
-        expectOperation(program: Program, op: Type) {
+        expectOperation(_ctx: FunctionContext, op: Type) {
           receivedTypes.push(op);
           return op;
         },
@@ -392,7 +400,7 @@ describe("compiler: checker: functions", () => {
 
     it("accepts Reflection.Operation parameter", async () => {
       const diagnostics = await runner.diagnose(`
-        extern fn expectOperation(oper: Reflection.Operation): Reflection.Operation;
+        extern fn expectOperation(operation: Reflection.Operation): Reflection.Operation;
         op testOp(): string;
         alias X = expectOperation(testOp);
       `);
@@ -524,10 +532,10 @@ describe("compiler: checker: functions", () => {
         const X = returnInvalidJsValue();
       `);
       // Should not crash, but may produce diagnostics about invalid return value
-      // The implementation currently has a TODO for this case
+      // The implementation currently has a TODO/witemple for this case
     });
 
-    it("unmarshals complex JS objects to values", async () => {
+    it("unmarshal complex JS objects to values", async () => {
       const _diagnostics = await runner.diagnose(`
         extern fn returnComplexObject(): valueof unknown;
         const X = returnComplexObject();
@@ -544,21 +552,21 @@ describe("compiler: checker: functions", () => {
     beforeEach(() => {
       receivedArgs = [];
       testHost.addJsFile("test.js", {
-        acceptTypeOrValue(program: Program, arg: any) {
+        acceptTypeOrValue(_ctx: FunctionContext, arg: any) {
           receivedArgs.push(arg);
           return arg;
         },
-        acceptMultipleTypes(program: Program, arg: any) {
+        acceptMultipleTypes(_ctx: FunctionContext, arg: any) {
           receivedArgs.push(arg);
           return arg;
         },
-        acceptMultipleValues(program: Program, arg: any) {
+        acceptMultipleValues(_ctx: FunctionContext, arg: any) {
           receivedArgs.push(arg);
           return arg;
         },
-        returnTypeOrValue(program: Program, returnType: boolean) {
+        returnTypeOrValue(ctx: FunctionContext, returnType: boolean) {
           if (returnType) {
-            return program.checker.getStdType("string");
+            return ctx.program.checker.getStdType("string");
           } else {
             return "hello";
           }
@@ -653,22 +661,22 @@ describe("compiler: checker: functions", () => {
 
     beforeEach(() => {
       testHost.addJsFile("test.js", {
-        returnWrongEntityKind(program: Program) {
+        returnWrongEntityKind(_ctx: FunctionContext) {
           return "string value"; // Returns value when type expected
         },
-        returnWrongValueType(program: Program) {
+        returnWrongValueType(_ctx: FunctionContext) {
           return 42; // Returns number when string expected
         },
-        throwError(program: Program) {
+        throwError(_ctx: FunctionContext) {
           throw new Error("JS error");
         },
-        returnUndefined(program: Program) {
+        returnUndefined(_ctx: FunctionContext) {
           return undefined;
         },
-        returnNull(program: Program) {
+        returnNull(_ctx: FunctionContext) {
           return null;
         },
-        expectNonOptionalAfterOptional(program: Program, opt: any, req: any) {
+        expectNonOptionalAfterOptional(_ctx: FunctionContext, _opt: any, req: any) {
           return req;
         },
       });
@@ -679,21 +687,24 @@ describe("compiler: checker: functions", () => {
     });
 
     it("errors when function returns wrong type kind", async () => {
-      const _diagnostics = await runner.diagnose(`
+      const diagnostics = await runner.diagnose(`
         extern fn returnWrongEntityKind(): Reflection.Type;
         alias X = returnWrongEntityKind();
       `);
       // Should get diagnostics about type mismatch in return value
-      // The current implementation has TODO for better error handling
+      expectDiagnostics(diagnostics, {
+        code: "value-in-type",
+        message: "A value cannot be used as a type.",
+      });
     });
 
     it("errors when function returns wrong value type", async () => {
-      const _diagnostics = await runner.diagnose(`
+      const diagnostics = await runner.diagnose(`
         extern fn returnWrongValueType(): valueof string;
         const X = returnWrongValueType();
       `);
 
-      expectDiagnostics(_diagnostics, {
+      expectDiagnostics(diagnostics, {
         code: "unassignable",
         message: "Type '42' is not assignable to type 'string'",
       });
@@ -720,6 +731,7 @@ describe("compiler: checker: functions", () => {
         const X = returnUndefined();
       `);
       // Should handle undefined appropriately
+      expectDiagnosticEmpty(_diagnostics);
     });
 
     it("handles null return value", async () => {
@@ -728,6 +740,7 @@ describe("compiler: checker: functions", () => {
         const X = returnNull();
       `);
       // Should handle null appropriately
+      expectDiagnosticEmpty(_diagnostics);
     });
 
     it("validates required parameter after optional not allowed in regular param position", async () => {
@@ -741,7 +754,7 @@ describe("compiler: checker: functions", () => {
 
     it("allows rest parameters after optional parameters", async () => {
       testHost.addJsFile("rest-after-optional.js", {
-        restAfterOptional(program: Program, opt: any, ...rest: any[]) {
+        restAfterOptional(_ctx: FunctionContext, opt: any, ...rest: any[]) {
           return rest.length;
         },
       });
@@ -758,18 +771,9 @@ describe("compiler: checker: functions", () => {
       expectDiagnosticEmpty(diagnostics);
     });
 
-    it("errors on empty union constraints", async () => {
-      // This is likely a parse error, but worth testing behavior
-      const _diagnostics = await runner.diagnose(`
-        extern fn emptyUnion(arg: ): unknown;
-        alias X = emptyUnion();
-      `);
-      // Should get parse error
-    });
-
     it("handles deeply nested type constraints", async () => {
       testHost.addJsFile("nested.js", {
-        processNestedModel(program: Program, model: Type) {
+        processNestedModel(_ctx: FunctionContext, model: Type) {
           return model;
         },
       });
@@ -796,10 +800,10 @@ describe("compiler: checker: functions", () => {
 
     it("validates function return type matches declared constraint", async () => {
       testHost.addJsFile("return-validation.js", {
-        returnString(program: Program) {
+        returnString(_ctx: FunctionContext) {
           return "hello";
         },
-        returnNumber(program: Program) {
+        returnNumber(_ctx: FunctionContext) {
           return 42;
         },
       });
@@ -808,7 +812,7 @@ describe("compiler: checker: functions", () => {
         autoUsings: ["TypeSpec.Reflection"],
       });
 
-      const _diagnostics = await returnRunner.diagnose(`
+      const diagnostics = await returnRunner.diagnose(`
         extern fn returnString(): valueof string;
         extern fn returnNumber(): valueof string; // Wrong: returns number but declares string
         
@@ -816,6 +820,10 @@ describe("compiler: checker: functions", () => {
         const Y = returnNumber();
       `);
       // Should get diagnostic about return type mismatch for returnNumber
+      expectDiagnostics(diagnostics, {
+        code: "unassignable",
+        message: "Type '42' is not assignable to type 'string'",
+      });
     });
   });
 
@@ -868,10 +876,10 @@ describe("compiler: checker: functions", () => {
 
     beforeEach(() => {
       testHost.addJsFile("templates.js", {
-        processGeneric(program: Program, type: Type) {
-          return $(program).array.create(type);
+        processGeneric(ctx: FunctionContext, type: Type) {
+          return $(ctx.program).array.create(type);
         },
-        processConstrainedGeneric(program: Program, type: Type) {
+        processConstrainedGeneric(_ctx: FunctionContext, type: Type) {
           return type;
         },
       });
