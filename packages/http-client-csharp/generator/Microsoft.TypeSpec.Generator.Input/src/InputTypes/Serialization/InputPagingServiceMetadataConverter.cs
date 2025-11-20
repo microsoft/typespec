@@ -43,7 +43,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                 }
             }
 
-            return new InputPagingServiceMetadata(itemPropertySegments ?? [], nextLink, continuationToken, pageSizeParameterSegments);
+            return new InputPagingServiceMetadata(itemPropertySegments ?? [], nextLink, continuationToken, pageSizeParameterSegments ?? []);
         }
     }
 }

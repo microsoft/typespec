@@ -83,8 +83,30 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             var pagingMetadata = JsonSerializer.Deserialize<InputPagingServiceMetadata>(content, options);
             Assert.IsNotNull(pagingMetadata);
             Assert.IsNotNull(pagingMetadata?.PageSizeParameterSegments);
-            Assert.AreEqual(1, pagingMetadata!.PageSizeParameterSegments!.Count);
+            Assert.AreEqual(1, pagingMetadata!.PageSizeParameterSegments.Count);
             Assert.AreEqual("maxpagesize", pagingMetadata.PageSizeParameterSegments[0]);
+        }
+
+        [Test]
+        public void LoadsPagingWithoutPageSizeParameter()
+        {
+            var directory = Helpers.GetAssetFileOrDirectoryPath(false);
+            // this tspCodeModel.json contains a partial part of the full tspCodeModel.json
+            var content = File.ReadAllText(Path.Combine(directory, "tspCodeModel.json"));
+            var options = new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true,
+                Converters =
+                {
+                    new JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
+                    new InputPagingServiceMetadataConverter(),
+                    new InputNextLinkConverter(),
+                }
+            };
+            var pagingMetadata = JsonSerializer.Deserialize<InputPagingServiceMetadata>(content, options);
+            Assert.IsNotNull(pagingMetadata);
+            Assert.IsNotNull(pagingMetadata?.PageSizeParameterSegments);
+            Assert.AreEqual(0, pagingMetadata!.PageSizeParameterSegments.Count);
         }
 
         [Test]
