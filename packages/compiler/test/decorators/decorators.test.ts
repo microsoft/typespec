@@ -32,7 +32,9 @@ import {
   createTestRunner,
   expectDiagnosticEmpty,
   expectDiagnostics,
+  t,
 } from "../../src/testing/index.js";
+import { Tester } from "../tester.js";
 
 describe("compiler: built-in decorators", () => {
   let runner: BasicTestRunner;
@@ -798,51 +800,47 @@ describe("compiler: built-in decorators", () => {
 
     describe("ArrayEncoding enum", () => {
       it("can use ArrayEncoding.pipeDelimited", async () => {
-        const { prop } = (await runner.compile(`
+        const { prop, program } = await Tester.compile(t.code`
           model Foo {
             @encode(ArrayEncoding.pipeDelimited)
-            @test
-            prop: string[];
+            ${t.modelProperty("prop")}: string[];
           }
-        `)) as { prop: ModelProperty };
+        `);
 
-        strictEqual(getEncode(runner.program, prop)?.encoding, "ArrayEncoding.pipeDelimited");
+        strictEqual(getEncode(program, prop)?.encoding, "ArrayEncoding.pipeDelimited");
       });
 
       it("can use ArrayEncoding.spaceDelimited", async () => {
-        const { prop } = (await runner.compile(`
+        const { prop, program } = await Tester.compile(t.code`
           model Foo {
             @encode(ArrayEncoding.spaceDelimited)
-            @test
-            prop: string[];
+            ${t.modelProperty("prop")}: string[];
           }
-        `)) as { prop: ModelProperty };
+        `);
 
-        strictEqual(getEncode(runner.program, prop)?.encoding, "ArrayEncoding.spaceDelimited");
+        strictEqual(getEncode(program, prop)?.encoding, "ArrayEncoding.spaceDelimited");
       });
 
       it("can use ArrayEncoding.commaDelimited", async () => {
-        const { prop } = (await runner.compile(`
+        const { prop, program } = await Tester.compile(t.code`
           model Foo {
             @encode(ArrayEncoding.commaDelimited)
-            @test
-            prop: string[];
+            ${t.modelProperty("prop")}: string[];
           }
-        `)) as { prop: ModelProperty };
+        `);
 
-        strictEqual(getEncode(runner.program, prop)?.encoding, "ArrayEncoding.commaDelimited");
+        strictEqual(getEncode(program, prop)?.encoding, "ArrayEncoding.commaDelimited");
       });
 
       it("can use ArrayEncoding.newlineDelimited", async () => {
-        const { prop } = (await runner.compile(`
+        const { prop, program } = await Tester.compile(t.code`
           model Foo {
             @encode(ArrayEncoding.newlineDelimited)
-            @test
-            prop: string[];
+            ${t.modelProperty("prop")}: string[];
           }
-        `)) as { prop: ModelProperty };
+        `);
 
-        strictEqual(getEncode(runner.program, prop)?.encoding, "ArrayEncoding.newlineDelimited");
+        strictEqual(getEncode(program, prop)?.encoding, "ArrayEncoding.newlineDelimited");
       });
     });
   });
