@@ -461,7 +461,7 @@ describe("PageSize parameter operations", () => {
     ok(paging);
     ok(paging.itemPropertySegments);
     strictEqual(paging.itemPropertySegments[0], "items");
-    
+
     // Check if pageSizeParameterSegments is populated when @pageSize is present
     if (paging.pageSizeParameterSegments) {
       strictEqual(paging.pageSizeParameterSegments.length, 1);
