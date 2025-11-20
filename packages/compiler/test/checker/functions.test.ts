@@ -7,7 +7,7 @@ import {
   Namespace,
   Type,
 } from "../../src/core/types.js";
-import { Program, setTypeSpecNamespace } from "../../src/index.js";
+import { setTypeSpecNamespace } from "../../src/index.js";
 import {
   BasicTestRunner,
   TestHost,
@@ -429,30 +429,30 @@ describe("compiler: checker: functions", () => {
     beforeEach(() => {
       receivedValues = [];
       testHost.addJsFile("test.js", {
-        expectString(program: Program, str: string) {
+        expectString(ctx: FunctionContext, str: string) {
           receivedValues.push(str);
           return str;
         },
-        expectNumber(program: Program, num: number) {
+        expectNumber(ctx: FunctionContext, num: number) {
           receivedValues.push(num);
           return num;
         },
-        expectBoolean(program: Program, bool: boolean) {
+        expectBoolean(ctx: FunctionContext, bool: boolean) {
           receivedValues.push(bool);
           return bool;
         },
-        expectArray(program: Program, arr: any[]) {
+        expectArray(ctx: FunctionContext, arr: any[]) {
           receivedValues.push(arr);
           return arr;
         },
-        expectObject(program: Program, obj: Record<string, any>) {
+        expectObject(ctx: FunctionContext, obj: Record<string, any>) {
           receivedValues.push(obj);
           return obj;
         },
-        returnInvalidJsValue(program: Program) {
+        returnInvalidJsValue(ctx: FunctionContext) {
           return Symbol("invalid"); // Invalid JS value that can't be unmarshaled
         },
-        returnComplexObject(program: Program) {
+        returnComplexObject(ctx: FunctionContext) {
           return {
             nested: { value: 42 },
             array: [1, "test", true],
@@ -693,8 +693,9 @@ describe("compiler: checker: functions", () => {
       `);
       // Should get diagnostics about type mismatch in return value
       expectDiagnostics(diagnostics, {
-        code: "value-in-type",
-        message: "A value cannot be used as a type.",
+        code: "function-return",
+        message:
+          "Implementation of function 'returnWrongEntityKind' returned value '\"string value\"', which is not assignable to the declared return type 'Type'.",
       });
     });
 
@@ -705,8 +706,9 @@ describe("compiler: checker: functions", () => {
       `);
 
       expectDiagnostics(diagnostics, {
-        code: "unassignable",
-        message: "Type '42' is not assignable to type 'string'",
+        code: "function-return",
+        message:
+          "Implementation of function 'returnWrongValueType' returned value '42', which is not assignable to the declared return type 'valueof string'.",
       });
     });
 
@@ -821,8 +823,9 @@ describe("compiler: checker: functions", () => {
       `);
       // Should get diagnostic about return type mismatch for returnNumber
       expectDiagnostics(diagnostics, {
-        code: "unassignable",
-        message: "Type '42' is not assignable to type 'string'",
+        code: "function-return",
+        message:
+          "Implementation of function 'returnNumber' returned value '42', which is not assignable to the declared return type 'valueof string'.",
       });
     });
   });

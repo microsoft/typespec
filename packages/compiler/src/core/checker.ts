@@ -3059,12 +3059,15 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         case IdentifierKind.Decorator:
           // Only return decorators and namespaces when completing decorator
           return !!(sym.flags & (SymbolFlags.Decorator | SymbolFlags.Namespace));
+        case IdentifierKind.Function:
+          // Only return functions and namespaces when completing function calls
+          return !!(sym.flags & (SymbolFlags.Function | SymbolFlags.Namespace));
         case IdentifierKind.Using:
           // Only return namespaces when completing using
           return !!(sym.flags & SymbolFlags.Namespace);
         case IdentifierKind.TypeReference:
-          // Do not return functions or decorators when completing types
-          return !(sym.flags & (SymbolFlags.Function | SymbolFlags.Decorator));
+          // Do not return decorators when completing types
+          return !(sym.flags & SymbolFlags.Decorator);
         case IdentifierKind.TemplateArgument:
           return !!(sym.flags & SymbolFlags.TemplateParameter);
         default:
@@ -4598,7 +4601,21 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       diagnosticTarget,
     );
 
-    reportCheckerDiagnostics(diagnostics);
+    if (diagnostics.length > 0) {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "function-return",
+          messageId: "unassignable",
+          format: {
+            name: getTypeName(target, { printable: true }),
+            entityKind: result.entityKind.toLowerCase(),
+            return: getEntityName(result, { printable: true }),
+            type: getEntityName(target.returnType, { printable: true }),
+          },
+          target: diagnosticTarget,
+        }),
+      );
+    }
 
     return checked;
   }

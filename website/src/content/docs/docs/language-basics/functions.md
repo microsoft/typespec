@@ -3,23 +3,20 @@ id: functions
 title: Functions
 ---
 
-Functions in TypeSpec allow library developers to compute and return types or
-values based on their inputs. Compared to [decorators](./decorators.md),
-functions provide an input-output based approach to creating type or value
-instances, offering more flexibility than decorators for creating new types
-dynamically. Functions enable complex type manipulation, filtering, and
-transformation.
+Functions in TypeSpec allow library developers to compute and return types or values based on their inputs. Compared to
+[decorators](./decorators.md), functions provide an input-output based approach to creating type or value instances,
+offering more flexibility than decorators for creating new types dynamically. Functions enable complex type
+manipulation, filtering, and transformation.
 
-Functions are declared using the `fn` keyword (with the required `extern`
-modifier, like decorators) and are backed by JavaScript implementations. When a
-TypeSpec program calls a function, the corresponding JavaScript function is
-invoked with the provided arguments, and the result is returned as either a Type
-or a Value depending on the function's declaration.
+Functions are declared using the `fn` keyword (with the required `extern` modifier, like decorators) and are backed by
+JavaScript implementations. When a TypeSpec program calls a function, the corresponding JavaScript function is invoked
+with the provided arguments, and the result is returned as either a Type or a Value depending on the function's
+declaration.
 
 ## Declaring functions
 
-Functions are declared using the `extern fn` syntax followed by a name,
-parameter list, optional return type constraint, and semicolon:
+Functions are declared using the `extern fn` syntax followed by a name, parameter list, optional return type constraint,
+and semicolon:
 
 ```typespec
 extern fn functionName(param1: Type, param2: valueof string): ReturnType;
@@ -46,7 +43,8 @@ extern fn processFilter(filter: valueof Filter): valueof Filter;
 
 ## Calling functions
 
-Functions are called using standard function call syntax with parentheses. They can be used in type expressions, aliases, and anywhere a type or value is expected:
+Functions are called using standard function call syntax with parentheses. They can be used in type expressions, aliases,
+and anywhere a type or value is expected:
 
 ```typespec
 // Call a function in an alias

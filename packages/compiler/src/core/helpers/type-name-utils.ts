@@ -40,6 +40,8 @@ export function getTypeName(type: Type, options?: TypeNameOptions): string {
       return getInterfaceName(type, options);
     case "Operation":
       return getOperationName(type, options);
+    case "Function":
+      return getIdentifierName(type.name, options);
     case "Enum":
       return getEnumName(type, options);
     case "EnumMember":
