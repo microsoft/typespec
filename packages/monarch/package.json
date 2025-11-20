@@ -42,16 +42,16 @@
     "!dist/test/**"
   ],
   "devDependencies": {
-    "@types/node": "~24.9.1",
+    "@types/node": "~24.10.1",
     "@vitest/coverage-v8": "^4.0.4",
     "@vitest/ui": "^4.0.4",
     "c8": "^10.1.3",
     "happy-dom": "^20.0.8",
-    "rimraf": "~6.0.1",
+    "rimraf": "~6.1.2",
     "typescript": "~5.9.2",
     "vitest": "^4.0.4"
   },
   "dependencies": {
-    "monaco-editor-core": "^0.54.0"
+    "monaco-editor-core": "^0.55.0"
   }
 }
