@@ -344,11 +344,6 @@
       "commandLineArgs": "$(SolutionDir)/TestProjects/Local/Sample-TypeSpec -g ScmCodeModelGenerator",
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
-    },
-    "Azure.Developer.LoadTesting": {
-      "executablePath": "dotnet",
-      "commandName": "Executable",
-      "commandLineArgs": "\"C:\\Users\\jolov\\repos\\azure-sdk-for-net\\sdk\\loadtestservice\\Azure.Developer.LoadTesting/TempTypeSpecFiles/node_modules/@azure-typespec/http-client-csharp/dist/generator/Microsoft.TypeSpec.Generator.dll\" \"C:\\Users\\jolov\\repos\\azure-sdk-for-net\\sdk\\loadtestservice\\Azure.Developer.LoadTesting\" -g AzureClientGenerator"
     }
   }
 }
