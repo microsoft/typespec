@@ -83,7 +83,7 @@
     }
   },
   "devDependencies": {
-    "@types/node": "~24.9.1",
+    "@types/node": "~24.10.1",
     "@typespec/compiler": "workspace:^",
     "@typespec/library-linter": "workspace:^",
     "@typespec/streams": "workspace:^",

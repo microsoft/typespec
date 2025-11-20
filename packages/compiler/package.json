@@ -106,11 +106,11 @@
   },
   "dependencies": {
     "@babel/code-frame": "~7.27.1",
-    "@inquirer/prompts": "^7.4.0",
+    "@inquirer/prompts": "^8.0.1",
     "ajv": "~8.17.1",
     "change-case": "~5.4.4",
     "env-paths": "^3.0.0",
-    "globby": "~15.0.0",
+    "globby": "~16.0.0",
     "is-unicode-supported": "^2.1.0",
     "mustache": "~4.2.0",
     "picocolors": "~1.1.1",
@@ -126,7 +126,7 @@
   "devDependencies": {
     "@types/babel__code-frame": "~7.0.6",
     "@types/mustache": "~4.2.5",
-    "@types/node": "~24.9.1",
+    "@types/node": "~24.10.1",
     "@types/semver": "^7.5.8",
     "@types/yargs": "~17.0.33",
     "@typespec/internal-build-utils": "workspace:^",

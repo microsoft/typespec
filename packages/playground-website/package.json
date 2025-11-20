@@ -78,7 +78,7 @@
     "@babel/core": "^7.26.10",
     "@playwright/test": "^1.51.1",
     "@types/debounce": "~1.2.4",
-    "@types/node": "~24.9.1",
+    "@types/node": "~24.10.1",
     "@types/react": "~19.2.2",
     "@types/react-dom": "~19.2.2",
     "@types/swagger-ui": "~5.21.1",

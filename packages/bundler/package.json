@@ -43,14 +43,14 @@
   ],
   "dependencies": {
     "@typespec/compiler": "workspace:^",
-    "esbuild": "^0.25.1",
+    "esbuild": "^0.27.0",
     "esbuild-plugins-node-modules-polyfill": "^1.7.0",
     "node-stdlib-browser": "~1.3.1",
     "picocolors": "~1.1.1",
     "yargs": "~18.0.0"
   },
   "devDependencies": {
-    "@types/node": "~24.9.1",
+    "@types/node": "~24.10.1",
     "@types/yargs": "~17.0.33",
     "@vitest/coverage-v8": "^4.0.4",
     "@vitest/ui": "^4.0.4",

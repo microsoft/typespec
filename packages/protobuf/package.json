@@ -45,7 +45,7 @@
   },
   "devDependencies": {
     "@types/micromatch": "^4.0.9",
-    "@types/node": "~24.9.1",
+    "@types/node": "~24.10.1",
     "@typespec/compiler": "workspace:^",
     "@typespec/tspd": "workspace:^",
     "@vitest/coverage-v8": "^4.0.4",

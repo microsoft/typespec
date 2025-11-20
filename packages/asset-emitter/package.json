@@ -45,7 +45,7 @@
     "@typespec/compiler": "workspace:^"
   },
   "devDependencies": {
-    "@types/node": "~24.9.1",
+    "@types/node": "~24.10.1",
     "@typespec/compiler": "workspace:^",
     "@vitest/coverage-v8": "^4.0.4",
     "@vitest/ui": "^4.0.4",

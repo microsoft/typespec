@@ -63,7 +63,7 @@
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
-    "@types/node": "~24.9.1",
+    "@types/node": "~24.10.1",
     "@types/react": "~19.2.2",
     "@types/react-dom": "~19.2.2",
     "@typespec/compiler": "workspace:^",
