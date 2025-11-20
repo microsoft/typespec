@@ -697,7 +697,11 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       variants.push(derivedRef);
     }
 
+    // Include base model properties and the discriminated union
     const schema = this.#initializeSchema(model, name, {
+      type: "object",
+      properties: this.emitter.emitModelProperties(model),
+      required: this.#requiredModelProperties(model),
       [strategy]: variants,
     });
 

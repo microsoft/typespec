@@ -232,9 +232,17 @@ describe("discriminated union with polymorphic-models-strategy option", () => {
     deepStrictEqual(petSchema.oneOf[0], { $ref: "Cat.json" });
     deepStrictEqual(petSchema.oneOf[1], { $ref: "Dog.json" });
 
-    // Should not have object properties or discriminator (discriminator is OpenAPI, not JSON Schema)
-    strictEqual(petSchema.properties, undefined);
-    strictEqual(petSchema.type, undefined);
+    // Should have base model properties along with oneOf
+    strictEqual(petSchema.type, "object");
+    ok(petSchema.properties, "Should have properties");
+    strictEqual(petSchema.properties.name.type, "string");
+    deepStrictEqual(petSchema.properties.kind, {
+      type: "string",
+      description: "Discriminator property for Pet.",
+    });
+    deepStrictEqual(petSchema.required, ["name", "kind"]);
+
+    // Should not have discriminator keyword (discriminator is OpenAPI, not JSON Schema)
     strictEqual(petSchema.discriminator, undefined);
   });
 
@@ -373,10 +381,18 @@ describe("discriminated union with polymorphic-models-strategy option", () => {
     deepStrictEqual(petSchema.anyOf[0], { $ref: "Cat.json" });
     deepStrictEqual(petSchema.anyOf[1], { $ref: "Dog.json" });
 
-    // Should not have object properties or discriminator (discriminator is OpenAPI, not JSON Schema)
-    strictEqual(petSchema.properties, undefined);
-    strictEqual(petSchema.type, undefined);
+    // Should have base model properties along with anyOf
+    strictEqual(petSchema.type, "object");
+    ok(petSchema.properties, "Should have properties");
+    strictEqual(petSchema.properties.name.type, "string");
+    deepStrictEqual(petSchema.properties.kind, {
+      type: "string",
+      description: "Discriminator property for Pet.",
+    });
+    deepStrictEqual(petSchema.required, ["name", "kind"]);
     strictEqual(petSchema.oneOf, undefined, "Should not have oneOf");
+
+    // Should not have discriminator keyword (discriminator is OpenAPI, not JSON Schema)
     strictEqual(petSchema.discriminator, undefined);
   });
 
