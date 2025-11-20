@@ -26,7 +26,7 @@ namespace SampleTypeSpec
         /// <summary> A credential provider used to authenticate to the service. </summary>
         private readonly AuthenticationTokenProvider _tokenProvider;
         /// <summary> The OAuth2 flows supported by the service. </summary>
-        private readonly Dictionary<string, object>[] _flows = new Dictionary<string, object>[]
+        private readonly Dictionary<string, object>[] _flows = new Dictionary<string, object>[] 
         {
             new Dictionary<string, object>
             {
