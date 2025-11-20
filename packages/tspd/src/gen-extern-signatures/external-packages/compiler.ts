@@ -22,6 +22,7 @@ export const typespecCompiler = createPackage({
         "Scalar",
         "EnumValue",
         "Numeric",
+        "ScalarValue",
       ],
     },
   },

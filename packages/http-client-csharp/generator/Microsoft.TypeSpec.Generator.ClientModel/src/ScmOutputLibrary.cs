@@ -13,20 +13,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
         private static TypeProvider[] BuildClientTypes()
         {
             var inputClients = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.RootClients;
-            var clients = new List<TypeProvider>();
+            var types = new HashSet<TypeProvider>();
+
             foreach (var inputClient in inputClients)
             {
-                BuildClient(inputClient, clients);
+                BuildClient(inputClient, types);
             }
 
-            return [.. clients];
+            return [.. types];
         }
 
-        private static void BuildClient(InputClient inputClient, IList<TypeProvider> clients)
+        private static void BuildClient(InputClient inputClient, HashSet<TypeProvider> types)
         {
             foreach (var child in inputClient.Children)
             {
-                BuildClient(child, clients);
+                BuildClient(child, types);
             }
 
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
@@ -34,19 +35,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             {
                 return;
             }
-            clients.Add(client);
-            clients.Add(client.RestClient);
+            types.Add(client);
+            types.Add(client.RestClient);
             var clientOptions = client.ClientOptions;
             if (clientOptions != null)
             {
-                clients.Add(clientOptions);
+                types.Add(clientOptions);
             }
 
             foreach (var method in client.Methods)
             {
                 if (method is ScmMethodProvider scmMethod && scmMethod.CollectionDefinition != null)
                 {
-                    clients.Add(scmMethod.CollectionDefinition);
+                    types.Add(scmMethod.CollectionDefinition);
                 }
             }
         }
@@ -70,11 +71,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                 ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition,
                 ScmCodeModelGenerator.Instance.SerializationFormatDefinition,
                 new TypeFormattersDefinition(),
-                new ClientPipelineExtensionsDefinition(),
                 new ErrorResultDefinition(),
                 new ClientUriBuilderDefinition(),
                 new Utf8JsonBinaryContentDefinition(),
                 new BinaryContentHelperDefinition(),
+                new ClientPipelineExtensionsDefinition(),
+                new CancellationTokenExtensionsDefinition(),
                 new PipelineRequestHeadersExtensionsDefinition(),
                 .. GetMultipartFormDataBinaryContentDefinition(),
                 new ModelReaderWriterContextDefinition()

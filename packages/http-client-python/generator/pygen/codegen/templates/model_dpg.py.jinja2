@@ -78,7 +78,7 @@
         if key in self.__flattened_items:
             if self.{{ flattened_property_attr }} is None:
                 self.{{ flattened_property_attr }} = self._attr_to_rest_field["{{ flattened_property_attr }}"]._class_type()
-            setattr(self.properties, key, value)
+            setattr(self.{{ flattened_property_attr }}, key, value)
         else:
             super().__setattr__(key, value)
         {% endif %}

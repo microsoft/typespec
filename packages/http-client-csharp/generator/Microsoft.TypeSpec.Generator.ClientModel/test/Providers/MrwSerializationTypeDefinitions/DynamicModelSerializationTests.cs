@@ -1,11 +1,13 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
@@ -45,6 +47,244 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var file = writer.Write();
 
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public async Task PropagateCustomizedDynamicProperty()
+        {
+            var otherDynamicModel = InputFactory.Model(
+                "foo",
+                isDynamicModel: true,
+                properties:
+                [
+                    InputFactory.Property("someOtherProperty", InputPrimitiveType.String, isRequired: true)
+                ]);
+
+            var inputModel = InputFactory.Model(
+                "dynamicModel",
+                isDynamicModel: true,
+                properties:
+                [
+                    InputFactory.Property("prop1", otherDynamicModel, isRequired: true)
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                inputModels: () => [inputModel, otherDynamicModel]);
+            var model = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<ClientModel.Providers.ScmModelProvider>().FirstOrDefault(m => m.Name == "DynamicModel");
+
+            Assert.IsNotNull(model);
+            Assert.IsTrue(model!.IsDynamicModel);
+            var serialization = model.SerializationProviders.SingleOrDefault();
+            Assert.IsNotNull(serialization);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serialization!,
+                name => name is "PropagateGet" or "PropagateSet"));
+
+            var file = writer.Write();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+
+            // Also validate that the propagate method is called from the serialization constructor
+            var constructor =
+                model.Constructors.FirstOrDefault(c => c.Signature.Parameters.Any(p => p.Name == "patch"));
+            Assert.IsNotNull(constructor);
+            StringAssert.Contains("_patch.SetPropagators(PropagateSet, PropagateGet);", constructor!.BodyStatements!.ToDisplayString());
+        }
+
+        [Test]
+        public async Task DoesNotPropagateDynamicPropertyWithNoWireInfo()
+        {
+            var otherDynamicModel = InputFactory.Model(
+                "foo",
+                isDynamicModel: true,
+                properties:
+                [
+                    InputFactory.Property("someOtherProperty", InputPrimitiveType.String, isRequired: true)
+                ]);
+
+            var inputModel = InputFactory.Model(
+                "dynamicModel",
+                isDynamicModel: true,
+                properties:
+                [
+                    InputFactory.Property("prop1", InputPrimitiveType.String, isRequired: true)
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                inputModels: () => [inputModel, otherDynamicModel]);
+            var model = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<ClientModel.Providers.ScmModelProvider>().FirstOrDefault(m => m.Name == "DynamicModel");
+
+            Assert.IsNotNull(model);
+            Assert.IsTrue(model!.IsDynamicModel);
+            var serialization = model.SerializationProviders.SingleOrDefault();
+            Assert.IsNotNull(serialization);
+            Assert.IsFalse(serialization!.Methods.Any(m => m.Signature.Name is "PropagateGet" or "PropagateSet"));
+        }
+
+        [Test]
+        public async Task PropagateCustomizedDynamicPropertyMixed()
+        {
+            var otherDynamicModel = InputFactory.Model(
+                "foo",
+                isDynamicModel: true,
+                properties:
+                [
+                    InputFactory.Property("someOtherProperty", InputPrimitiveType.String, isRequired: true)
+                ]);
+
+            var inputModel = InputFactory.Model(
+                "dynamicModel",
+                isDynamicModel: true,
+                properties:
+                [
+                    InputFactory.Property("prop1", otherDynamicModel, isRequired: true)
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                inputModels: () => [inputModel, otherDynamicModel]);
+            var model = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<ClientModel.Providers.ScmModelProvider>().FirstOrDefault(m => m.Name == "DynamicModel");
+
+            Assert.IsNotNull(model);
+            Assert.IsTrue(model!.IsDynamicModel);
+            var serialization = model.SerializationProviders.SingleOrDefault();
+            Assert.IsNotNull(serialization);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serialization!,
+                name => name is "PropagateGet" or "PropagateSet"));
+
+            var file = writer.Write();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+
+            // Also validate that the propagate method is called from the serialization constructor
+            var constructor =
+                model.Constructors.FirstOrDefault(c => c.Signature.Parameters.Any(p => p.Name == "patch"));
+            Assert.IsNotNull(constructor);
+            StringAssert.Contains("_patch.SetPropagators(PropagateSet, PropagateGet);", constructor!.BodyStatements!.ToDisplayString());
+        }
+
+        [Test]
+        public async Task DoesNotPropagateListDynamicPropertyWithNoWireInfo()
+        {
+            var otherDynamicModel = InputFactory.Model(
+                "foo",
+                isDynamicModel: true,
+                properties:
+                [
+                    InputFactory.Property("someOtherProperty", InputPrimitiveType.String, isRequired: true)
+                ]);
+
+            var inputModel = InputFactory.Model(
+                "dynamicModel",
+                isDynamicModel: true,
+                properties:
+                [
+                    InputFactory.Property("prop1", InputPrimitiveType.String, isRequired: true)
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                inputModels: () => [inputModel, otherDynamicModel]);
+            var model = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<ClientModel.Providers.ScmModelProvider>().FirstOrDefault(m => m.Name == "DynamicModel");
+
+            Assert.IsNotNull(model);
+            Assert.IsTrue(model!.IsDynamicModel);
+            var serialization = model.SerializationProviders.SingleOrDefault();
+            Assert.IsNotNull(serialization);
+            Assert.IsFalse(serialization!.Methods.Any(m => m.Signature.Name is "PropagateGet" or "PropagateSet"));
+        }
+
+        [Test]
+        public async Task PropagateCustomizedDynamicListProperty()
+        {
+            var otherDynamicModel = InputFactory.Model(
+                "foo",
+                isDynamicModel: true,
+                properties:
+                [
+                    InputFactory.Property("someOtherProperty", InputPrimitiveType.String, isRequired: true)
+                ]);
+
+            var inputModel = InputFactory.Model(
+                "dynamicModel",
+                isDynamicModel: true,
+                properties:
+                [
+                    InputFactory.Property("prop1", InputFactory.Array(otherDynamicModel), isRequired: true)
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                inputModels: () => [inputModel, otherDynamicModel]);
+            var model = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<ClientModel.Providers.ScmModelProvider>().FirstOrDefault(m => m.Name == "DynamicModel");
+
+            Assert.IsNotNull(model);
+            Assert.IsTrue(model!.IsDynamicModel);
+            var serialization = model.SerializationProviders.SingleOrDefault();
+            Assert.IsNotNull(serialization);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serialization!,
+                name => name is "PropagateGet" or "PropagateSet"));
+
+            var file = writer.Write();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+
+            // Also validate that the propagate method is called from the serialization constructor
+            var constructor =
+                model.Constructors.FirstOrDefault(c => c.Signature.Parameters.Any(p => p.Name == "patch"));
+            Assert.IsNotNull(constructor);
+            StringAssert.Contains("_patch.SetPropagators(PropagateSet, PropagateGet);", constructor!.BodyStatements!.ToDisplayString());
+        }
+
+        [Test]
+        public async Task PropagateCustomizedDynamicListPropertyMixed()
+        {
+            var otherDynamicModel = InputFactory.Model(
+                "foo",
+                isDynamicModel: true,
+                properties:
+                [
+                    InputFactory.Property("someOtherProperty", InputPrimitiveType.String, isRequired: true)
+                ]);
+
+            var inputModel = InputFactory.Model(
+                "dynamicModel",
+                isDynamicModel: true,
+                properties:
+                [
+                    InputFactory.Property("prop1", InputFactory.Array(otherDynamicModel), isRequired: true)
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                inputModels: () => [inputModel, otherDynamicModel]);
+            var model = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<ClientModel.Providers.ScmModelProvider>().FirstOrDefault(m => m.Name == "DynamicModel");
+
+            Assert.IsNotNull(model);
+            Assert.IsTrue(model!.IsDynamicModel);
+            var serialization = model.SerializationProviders.SingleOrDefault();
+            Assert.IsNotNull(serialization);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serialization!,
+                name => name is "PropagateGet" or "PropagateSet"));
+
+            var file = writer.Write();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+
+            // Also validate that the propagate method is called from the serialization constructor
+            var constructor =
+                model.Constructors.FirstOrDefault(c => c.Signature.Parameters.Any(p => p.Name == "patch"));
+            Assert.IsNotNull(constructor);
+            StringAssert.Contains("_patch.SetPropagators(PropagateSet, PropagateGet);", constructor!.BodyStatements!.ToDisplayString());
         }
 
         [Test]
@@ -619,12 +859,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         [Test]
         public void WriteDiscriminatedDerivedModel()
         {
-            var catModel = InputFactory.Model("cat", discriminatedKind: "cat", properties:
+            var catModel = InputFactory.Model("cat", isDynamicModel: true, discriminatedKind: "cat", properties:
             [
                 InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
                 InputFactory.Property("meows", InputPrimitiveType.Boolean, isRequired: true)
             ]);
-            var dogModel = InputFactory.Model("dog", discriminatedKind: "dog", properties:
+            var dogModel = InputFactory.Model("dog", isDynamicModel: true, discriminatedKind: "dog", properties:
             [
                 InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
                 InputFactory.Property("barks", InputPrimitiveType.Boolean, isRequired: true)
@@ -643,7 +883,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(catModel) as ClientModel.Providers.ScmModelProvider;
 
             Assert.IsNotNull(model);
-            Assert.IsTrue(model!.HasDynamicModelSupport);
+            Assert.IsTrue(model!.IsDynamicModel);
             var serialization = model.SerializationProviders.SingleOrDefault();
             Assert.IsNotNull(serialization);
 
@@ -690,7 +930,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         [Test]
         public void WriteDerivedModel()
         {
-            var catModel = InputFactory.Model("cat", properties:
+            var catModel = InputFactory.Model("cat", isDynamicModel: true, properties:
             [
                 InputFactory.Property("meows", InputPrimitiveType.Boolean, isRequired: true)
             ]);
@@ -707,7 +947,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(catModel) as ClientModel.Providers.ScmModelProvider;
 
             Assert.IsNotNull(model);
-            Assert.IsTrue(model!.HasDynamicModelSupport);
+            Assert.IsTrue(model!.IsDynamicModel);
             var serialization = model.SerializationProviders.SingleOrDefault();
             Assert.IsNotNull(serialization);
 
@@ -922,6 +1162,241 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(isDynamicModel.ToString()), file.Content);
+        }
+
+        [Test]
+        public void PropagateDerivedDynamicPropertiesWithNonDynamicBase()
+        {
+            // Base model with NO dynamic properties (just a discriminator)
+            var baseModel = InputFactory.Model(
+                "baseModel",
+                isDynamicModel: true,
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true)
+                ]);
+
+            // Derived model with a dynamic property
+            var nestedDynamicModel = InputFactory.Model(
+                "nestedDynamic",
+                isDynamicModel: true,
+                properties:
+                [
+                    InputFactory.Property("value", InputPrimitiveType.String, isRequired: true)
+                ]);
+
+            var derivedModel = InputFactory.Model(
+                "derivedModel",
+                isDynamicModel: true,
+                baseModel: baseModel,
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("derivedProp", nestedDynamicModel, isRequired: true)
+                ]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [baseModel, derivedModel, nestedDynamicModel]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(derivedModel) as ClientModel.Providers.ScmModelProvider;
+
+            Assert.IsNotNull(model);
+            Assert.IsTrue(model!.IsDynamicModel);
+            var serialization = model.SerializationProviders.SingleOrDefault();
+            Assert.IsNotNull(serialization);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serialization!,
+                name => name is "PropagateGet" or "PropagateSet"));
+
+            var file = writer.Write();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+
+            // Validate that SetPropagators IS called in the constructor because derived model has dynamic properties
+            var constructor =
+                model.Constructors.FirstOrDefault(c => c.Signature.Parameters.Any(p => p.Name == "patch"));
+            Assert.IsNotNull(constructor);
+            StringAssert.Contains("Patch.SetPropagators(PropagateSet, PropagateGet);", constructor!.BodyStatements!.ToDisplayString());
+        }
+
+        [Test]
+        public void PropagateIncludesBaseDynamicProperties()
+        {
+            // Base model with a dynamic property
+            var baseDynamicModel = InputFactory.Model(
+                "baseDynamic",
+                isDynamicModel: true,
+                properties:
+                [
+                    InputFactory.Property("baseValue", InputPrimitiveType.String, isRequired: true)
+                ]);
+
+            var baseModel = InputFactory.Model(
+                "baseModel",
+                isDynamicModel: true,
+                properties:
+                [
+                    InputFactory.Property("baseProp", baseDynamicModel, isRequired: true)
+                ]);
+
+            // Derived model with another dynamic property
+            var derivedDynamicModel = InputFactory.Model(
+                "derivedDynamic",
+                isDynamicModel: true,
+                properties:
+                [
+                    InputFactory.Property("derivedValue", InputPrimitiveType.String, isRequired: true)
+                ]);
+
+            var derivedModel = InputFactory.Model(
+                "derivedModel",
+                isDynamicModel: true,
+                baseModel: baseModel,
+                properties:
+                [
+                    InputFactory.Property("derivedProp", derivedDynamicModel, isRequired: true)
+                ]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [baseModel, derivedModel, baseDynamicModel, derivedDynamicModel]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(derivedModel) as ClientModel.Providers.ScmModelProvider;
+
+            Assert.IsNotNull(model);
+            Assert.IsTrue(model!.IsDynamicModel);
+            var serialization = model.SerializationProviders.SingleOrDefault();
+            Assert.IsNotNull(serialization);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serialization!,
+                name => name is "PropagateGet" or "PropagateSet"));
+
+            var file = writer.Write();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+
+            // Validate that SetPropagators is called in the derived model constructor
+            var derivedConstructor =
+                model.Constructors.FirstOrDefault(c => c.Signature.Parameters.Any(p => p.Name == "patch"));
+            Assert.IsNotNull(derivedConstructor);
+            StringAssert.Contains("Patch.SetPropagators(PropagateSet, PropagateGet);", derivedConstructor!.BodyStatements!.ToDisplayString());
+
+            // Also validate that SetPropagators is called in the base model constructor
+            var baseModelProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(baseModel) as ClientModel.Providers.ScmModelProvider;
+            Assert.IsNotNull(baseModelProvider);
+            var baseConstructor =
+                baseModelProvider!.Constructors.FirstOrDefault(c => c.Signature.Parameters.Any(p => p.Name == "patch"));
+            Assert.IsNotNull(baseConstructor);
+            StringAssert.Contains("_patch.SetPropagators(PropagateSet, PropagateGet);", baseConstructor!.BodyStatements!.ToDisplayString());
+        }
+
+        [Test]
+        public void DerivedModelWithoutOwnDynamicPropertiesDoesNotGeneratePropagators()
+        {
+            // Base model marked as dynamic but with NO dynamic properties
+            var baseModel = InputFactory.Model(
+                "baseModel",
+                isDynamicModel: true,
+                properties:
+                [
+                    InputFactory.Property("baseProp", InputPrimitiveType.String, isRequired: true)
+                ]);
+
+            // Derived model also with NO dynamic properties - only regular properties
+            var derivedModel = InputFactory.Model(
+                "derivedModel",
+                isDynamicModel: true,  // Marked as dynamic because base is dynamic
+                baseModel: baseModel,
+                properties:
+                [
+                    InputFactory.Property("derivedProp", InputPrimitiveType.String, isRequired: true)
+                ]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [baseModel, derivedModel]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(derivedModel) as ClientModel.Providers.ScmModelProvider;
+
+            Assert.IsNotNull(model);
+            Assert.IsTrue(model!.IsDynamicModel, "Derived model should be marked as dynamic because base is dynamic");
+            Assert.IsFalse(model.HasDynamicProperties, "Derived model should not have dynamic properties when neither it nor base have dynamic property types");
+            
+            var serialization = model.SerializationProviders.SingleOrDefault();
+            Assert.IsNotNull(serialization);
+
+            // The derived model should NOT have PropagateGet/PropagateSet methods since neither it nor base have dynamic properties
+            var methods = serialization!.Methods;
+            Assert.IsFalse(methods.Any(m => m.Signature.Name == "PropagateGet"), "Derived model should not have PropagateGet method when no dynamic properties exist");
+            Assert.IsFalse(methods.Any(m => m.Signature.Name == "PropagateSet"), "Derived model should not have PropagateSet method when no dynamic properties exist");
+
+            // The derived model constructor should NOT call SetPropagators
+            var derivedConstructor =
+                model.Constructors.FirstOrDefault(c => c.Signature.Parameters.Any(p => p.Name == "patch"));
+            if (derivedConstructor != null)
+            {
+                StringAssert.DoesNotContain("SetPropagators", derivedConstructor.BodyStatements!.ToDisplayString(), "Derived model constructor should not call SetPropagators when no dynamic properties exist");
+            }
+        }
+
+        [Test]
+        public void DerivedModelWithoutDynamicPropertiesButBaseHasDynamicProperties()
+        {
+            // Base model with dynamic properties
+            var baseDynamicModel = InputFactory.Model(
+                "baseDynamic",
+                isDynamicModel: true,
+                properties:
+                [
+                    InputFactory.Property("baseValue", InputPrimitiveType.String, isRequired: true)
+                ]);
+
+            var baseModel = InputFactory.Model(
+                "baseModel",
+                isDynamicModel: true,
+                properties:
+                [
+                    InputFactory.Property("baseProp", baseDynamicModel, isRequired: true)
+                ]);
+
+            // Derived model with NO dynamic properties - only regular properties
+            var derivedModel = InputFactory.Model(
+                "derivedModel",
+                isDynamicModel: true,  // Marked as dynamic because base is dynamic
+                baseModel: baseModel,
+                properties:
+                [
+                    InputFactory.Property("derivedProp", InputPrimitiveType.String, isRequired: true)
+                ]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [baseModel, derivedModel, baseDynamicModel]);
+            
+            // Validate base model has dynamic properties and propagators
+            var baseModelProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(baseModel) as ClientModel.Providers.ScmModelProvider;
+            Assert.IsNotNull(baseModelProvider);
+            Assert.IsTrue(baseModelProvider!.HasDynamicProperties, "Base model should have dynamic properties");
+            
+            var baseSerialization = baseModelProvider.SerializationProviders.SingleOrDefault();
+            Assert.IsNotNull(baseSerialization);
+            var baseMethods = baseSerialization!.Methods;
+            Assert.IsTrue(baseMethods.Any(m => m.Signature.Name == "PropagateGet"), "Base model should have PropagateGet method");
+            Assert.IsTrue(baseMethods.Any(m => m.Signature.Name == "PropagateSet"), "Base model should have PropagateSet method");
+
+            // Validate derived model does NOT have dynamic properties or propagators
+            var derivedModelProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(derivedModel) as ClientModel.Providers.ScmModelProvider;
+            Assert.IsNotNull(derivedModelProvider);
+            Assert.IsTrue(derivedModelProvider!.IsDynamicModel, "Derived model should be marked as dynamic because base is dynamic");
+            Assert.IsFalse(derivedModelProvider.HasDynamicProperties, "Derived model should not have dynamic properties when it has no dynamic property types of its own");
+            
+            var derivedSerialization = derivedModelProvider.SerializationProviders.SingleOrDefault();
+            Assert.IsNotNull(derivedSerialization);
+
+            // The derived model should NOT have PropagateGet/PropagateSet methods since it has no dynamic properties of its own
+            var derivedMethods = derivedSerialization!.Methods;
+            Assert.IsFalse(derivedMethods.Any(m => m.Signature.Name == "PropagateGet"), "Derived model should not have PropagateGet method when it has no dynamic properties");
+            Assert.IsFalse(derivedMethods.Any(m => m.Signature.Name == "PropagateSet"), "Derived model should not have PropagateSet method when it has no dynamic properties");
+
+            // The derived model constructor should NOT call SetPropagators
+            var derivedConstructor =
+                derivedModelProvider.Constructors.FirstOrDefault(c => c.Signature.Parameters.Any(p => p.Name == "patch"));
+            if (derivedConstructor != null)
+            {
+                StringAssert.DoesNotContain("SetPropagators", derivedConstructor.BodyStatements!.ToDisplayString(), "Derived model constructor should not call SetPropagators when it has no dynamic properties");
+            }
         }
     }
 }

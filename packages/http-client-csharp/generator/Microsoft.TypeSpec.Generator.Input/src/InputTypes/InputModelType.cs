@@ -32,6 +32,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             {
                 AddDerivedModel(model);
             }
+            IsDynamicModel = isDynamicModel;
             if (discriminatedSubtypes is not null)
             {
                 foreach (var model in discriminatedSubtypes.Values)
@@ -47,7 +48,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             IsPropertyBag = false;
             ModelAsStruct = modelAsStruct;
             SerializationOptions = serializationOptions;
-            IsDynamicModel = isDynamicModel;
         }
 
         public string Namespace { get; internal set; }
@@ -79,6 +79,11 @@ namespace Microsoft.TypeSpec.Generator.Input
         {
             model.BaseModel = this;
             _derivedModels.Add(model);
+            // If this base model is dynamic, the derived model should also be dynamic
+            if (IsDynamicModel && !model.IsDynamicModel)
+            {
+                model.IsDynamicModel = true;
+            }
         }
         public string? DiscriminatorValue { get; internal set; }
         public InputModelProperty? DiscriminatorProperty { get; internal set; }
@@ -113,7 +118,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     null,
                     false,
                     SerializationOptions,
-                    false)
+                    IsDynamicModel)
                 );
             }
         }

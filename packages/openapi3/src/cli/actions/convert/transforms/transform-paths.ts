@@ -3,6 +3,9 @@ import {
   OpenAPI3Parameter,
   OpenAPI3PathItem,
   OpenAPI3RequestBody,
+  OpenAPIParameter3_2,
+  OpenAPIPathItem3_2,
+  OpenAPIRequestBody3_2,
   Refable,
 } from "../../../../types.js";
 import {
@@ -23,7 +26,7 @@ import { supportedHttpMethods } from "../utils/supported-http-methods.js";
  * @returns
  */
 export function transformPaths(
-  paths: Record<string, OpenAPI3PathItem>,
+  paths: Record<string, OpenAPI3PathItem> | Record<string, OpenAPIPathItem3_2>,
   context: Context,
 ): TypeSpecOperation[] {
   const operations: TypeSpecOperation[] = [];
@@ -111,7 +114,7 @@ function dedupeParameters(
 }
 
 function transformOperationParameter(
-  parameter: Refable<OpenAPI3Parameter>,
+  parameter: Refable<OpenAPI3Parameter> | Refable<OpenAPIParameter3_2>,
 ): Refable<TypeSpecOperationParameter> {
   if ("$ref" in parameter) {
     return { $ref: parameter.$ref };
@@ -123,7 +126,7 @@ function transformOperationParameter(
     doc: parameter.description,
     decorators: getParameterDecorators(parameter),
     isOptional: !parameter.required,
-    schema: parameter.schema,
+    schema: "schema" in parameter ? (parameter.schema ?? {}) : {},
   };
 }
 
@@ -241,7 +244,7 @@ function splitOperationByContentType(
 }
 
 function transformRequestBodies(
-  requestBodies: Refable<OpenAPI3RequestBody> | undefined,
+  requestBodies: Refable<OpenAPI3RequestBody> | Refable<OpenAPIRequestBody3_2> | undefined,
   context: Context,
 ): TypeSpecRequestBody[] {
   if (!requestBodies) {
@@ -265,8 +268,8 @@ function transformRequestBodies(
       contentType,
       isOptional: !requestBodies.required,
       doc: description ?? requestBodies.description,
-      encoding: contentBody.encoding,
-      schema: contentBody.schema,
+      encoding: "encoding" in contentBody ? contentBody.encoding : undefined,
+      schema: "schema" in contentBody ? contentBody.schema : {},
     });
   }
 

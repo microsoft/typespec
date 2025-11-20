@@ -145,6 +145,9 @@ public class ImplementationDetails {
                 case INTERNAL:
                     return INTERNAL;
 
+                case EXTERNAL:
+                    return EXTERNAL;
+
                 case JSON_MERGE_PATCH:
                     return JSON_MERGE_PATCH;
 

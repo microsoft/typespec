@@ -25,6 +25,32 @@
       <groupId>com.azure</groupId>
       <artifactId>azure-core</artifactId>
       <version>1.57.0</version>
+      <exclusions>
+        <exclusion>
+          <groupId>com.azure</groupId>
+          <artifactId>azure-json</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.azure</groupId>
+          <artifactId>azure-xml</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-annotations</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-core</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-databind</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.fasterxml.jackson.datatype</groupId>
+          <artifactId>jackson-datatype-jsr310</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>io.clientcore</groupId>
@@ -35,11 +61,7 @@
       <groupId>com.azure</groupId>
       <artifactId>azure-json</artifactId>
       <version>1.5.0</version>
-    </dependency>
-    <dependency>
-      <groupId>com.azure</groupId>
-      <artifactId>azure-xml</artifactId>
-      <version>1.2.0</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.yaml</groupId>
@@ -61,6 +83,13 @@
       <groupId>com.google.googlejavaformat</groupId>
       <artifactId>google-java-format</artifactId>
       <version>1.24.0</version>
+    </dependency>
+    <!-- 3.27.0 aligns with the version used when Spotless uses Eclipse 4.21 / 4.21.0. -->
+    <!-- In the future when this is upgraded it might slightly change code formatting. -->
+    <dependency>
+      <groupId>org.eclipse.jdt</groupId>
+      <artifactId>org.eclipse.jdt.core</artifactId>
+      <version>3.27.0</version>
     </dependency>
     <dependency>
       <groupId>org.atteo</groupId>

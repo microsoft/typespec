@@ -1,5 +1,16 @@
 # Change Log - @typespec/spector
 
+## 0.1.0-alpha.20
+
+### Features
+
+- [#8938](https://github.com/microsoft/typespec/pull/8938) Resolve packageName and spec display name from spec set package.json
+
+### Bump dependencies
+
+- [#8823](https://github.com/microsoft/typespec/pull/8823) Upgrade dependencies
+
+
 ## 0.1.0-alpha.19
 
 ### Bump dependencies

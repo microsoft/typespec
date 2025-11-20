@@ -4,6 +4,10 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  cross-spawn@>=7.0.0 <7.0.5: ^7.0.5
+  rollup: 4.49.0
+
 importers:
 
   .:
@@ -40,10 +44,10 @@ importers:
         version: 24.9.1
       '@vitest/coverage-v8':
         specifier: ^4.0.4
-        version: 4.0.4(vitest@4.0.4(@types/debug@4.1.12)(@types/node@24.9.1)(@vitest/ui@4.0.4)(happy-dom@20.0.8)(jsdom@25.0.1)(tsx@4.20.6)(yaml@2.8.1))
+        version: 4.0.4(vitest@4.0.4)
       '@vitest/eslint-plugin':
         specifier: ^1.1.38
-        version: 1.3.25(eslint@9.38.0)(typescript@5.9.3)(vitest@4.0.4(@types/debug@4.1.12)(@types/node@24.9.1)(@vitest/ui@4.0.4)(happy-dom@20.0.8)(jsdom@25.0.1)(tsx@4.20.6)(yaml@2.8.1))
+        version: 1.3.25(eslint@9.38.0)(typescript@5.9.3)(vitest@4.0.4)
       c8:
         specifier: ^10.1.3
         version: 10.1.3
@@ -120,7 +124,7 @@ importers:
         version: link:../compiler
       '@vitest/coverage-v8':
         specifier: ^4.0.4
-        version: 4.0.4(vitest@4.0.4(@types/debug@4.1.12)(@types/node@24.9.1)(@vitest/ui@4.0.4)(happy-dom@20.0.8)(jsdom@25.0.1)(tsx@4.20.6)(yaml@2.8.1))
+        version: 4.0.4(vitest@4.0.4)
       '@vitest/ui':
         specifier: ^4.0.4
         version: 4.0.4(vitest@4.0.4)
@@ -181,7 +185,7 @@ importers:
         version: link:../compiler
       '@vitest/coverage-v8':
         specifier: ^4.0.4
-        version: 4.0.4(vitest@4.0.4(@types/debug@4.1.12)(@types/node@24.9.1)(@vitest/ui@4.0.4)(happy-dom@20.0.8)(jsdom@25.0.1)(tsx@4.20.6)(yaml@2.8.1))
+        version: 4.0.4(vitest@4.0.4)
       '@vitest/ui':
         specifier: ^4.0.4
         version: 4.0.4(vitest@4.0.4)
@@ -230,7 +234,7 @@ importers:
         version: 7.7.1
       '@vitest/coverage-v8':
         specifier: ^4.0.4
-        version: 4.0.4(vitest@4.0.4(@types/debug@4.1.12)(@types/node@24.9.1)(@vitest/ui@4.0.4)(happy-dom@20.0.8)(jsdom@25.0.1)(tsx@4.20.6)(yaml@2.8.1))
+        version: 4.0.4(vitest@4.0.4)
       '@vitest/ui':
         specifier: ^4.0.4
         version: 4.0.4(vitest@4.0.4)
@@ -276,7 +280,7 @@ importers:
         version: 17.0.34
       '@vitest/coverage-v8':
         specifier: ^4.0.4
-        version: 4.0.4(vitest@4.0.4(@types/debug@4.1.12)(@types/node@24.9.1)(@vitest/ui@4.0.4)(happy-dom@20.0.8)(jsdom@25.0.1)(tsx@4.20.6)(yaml@2.8.1))
+        version: 4.0.4(vitest@4.0.4)
       '@vitest/ui':
         specifier: ^4.0.4
         version: 4.0.4(vitest@4.0.4)
@@ -332,8 +336,8 @@ importers:
         specifier: ^7.7.1
         version: 7.7.3
       tar:
-        specifier: ^7.4.3
-        version: 7.5.1
+        specifier: ^7.5.2
+        version: 7.5.2
       temporal-polyfill:
         specifier: ^0.3.0
         version: 0.3.0
@@ -370,7 +374,7 @@ importers:
         version: link:../internal-build-utils
       '@vitest/coverage-v8':
         specifier: ^4.0.4
-        version: 4.0.4(vitest@4.0.4(@types/debug@4.1.12)(@types/node@24.9.1)(@vitest/ui@4.0.4)(happy-dom@20.0.8)(jsdom@25.0.1)(tsx@4.20.6)(yaml@2.8.1))
+        version: 4.0.4(vitest@4.0.4)
       '@vitest/ui':
         specifier: ^4.0.4
         version: 4.0.4(vitest@4.0.4)
@@ -408,21 +412,21 @@ importers:
   packages/emitter-framework:
     dependencies:
       '@alloy-js/csharp':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: ^0.21.0
+        version: 0.21.0
     devDependencies:
       '@alloy-js/cli':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: ^0.21.0
+        version: 0.21.0
       '@alloy-js/core':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: ^0.21.0
+        version: 0.21.0
       '@alloy-js/rollup-plugin':
         specifier: ^0.1.0
         version: 0.1.0(@babel/core@7.28.5)(@types/babel__core@7.20.5)(rollup@4.49.0)
       '@alloy-js/typescript':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: ^0.21.0
+        version: 0.21.0
       '@typespec/compiler':
         specifier: workspace:^
         version: link:../compiler
@@ -480,7 +484,7 @@ importers:
         version: 8.46.2
       '@vitest/coverage-v8':
         specifier: ^4.0.4
-        version: 4.0.4(vitest@4.0.4(@types/debug@4.1.12)(@types/node@24.9.1)(@vitest/ui@4.0.4)(happy-dom@20.0.8)(jsdom@25.0.1)(tsx@4.20.6)(yaml@2.8.1))
+        version: 4.0.4(vitest@4.0.4)
       '@vitest/ui':
         specifier: ^4.0.4
         version: 4.0.4(vitest@4.0.4)
@@ -516,7 +520,7 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^4.0.4
-        version: 4.0.4(vitest@4.0.4(@types/debug@4.1.12)(@types/node@24.9.1)(@vitest/ui@4.0.4)(happy-dom@20.0.8)(jsdom@25.0.1)(tsx@4.20.6)(yaml@2.8.1))
+        version: 4.0.4(vitest@4.0.4)
       '@vitest/ui':
         specifier: ^4.0.4
         version: 4.0.4(vitest@4.0.4)
@@ -586,7 +590,7 @@ importers:
         version: 5.1.0(vite@7.1.12(@types/node@24.9.1)(tsx@4.20.6)(yaml@2.8.1))
       '@vitest/coverage-v8':
         specifier: ^4.0.4
-        version: 4.0.4(vitest@4.0.4(@types/debug@4.1.12)(@types/node@24.9.1)(@vitest/ui@4.0.4)(happy-dom@20.0.8)(jsdom@25.0.1)(tsx@4.20.6)(yaml@2.8.1))
+        version: 4.0.4(vitest@4.0.4)
       '@vitest/ui':
         specifier: ^4.0.4
         version: 4.0.4(vitest@4.0.4)
@@ -634,7 +638,7 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^4.0.4
-        version: 4.0.4(vitest@4.0.4(@types/debug@4.1.12)(@types/node@24.9.1)(@vitest/ui@4.0.4)(happy-dom@20.0.8)(jsdom@25.0.1)(tsx@4.20.6)(yaml@2.8.1))
+        version: 4.0.4(vitest@4.0.4)
       '@vitest/ui':
         specifier: ^4.0.4
         version: 4.0.4(vitest@4.0.4)
@@ -676,17 +680,17 @@ importers:
   packages/http-client:
     devDependencies:
       '@alloy-js/cli':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: ^0.21.0
+        version: 0.21.0
       '@alloy-js/core':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: ^0.21.0
+        version: 0.21.0
       '@alloy-js/rollup-plugin':
         specifier: ^0.1.0
         version: 0.1.0(@babel/core@7.28.5)(@types/babel__core@7.20.5)(rollup@4.49.0)
       '@alloy-js/typescript':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: ^0.21.0
+        version: 0.21.0
       '@types/node':
         specifier: ~24.9.1
         version: 24.9.1
@@ -721,11 +725,11 @@ importers:
   packages/http-client-js:
     dependencies:
       '@alloy-js/core':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: ^0.21.0
+        version: 0.21.0
       '@alloy-js/typescript':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: ^0.21.0
+        version: 0.21.0
       '@typespec/compiler':
         specifier: workspace:^
         version: link:../compiler
@@ -743,8 +747,8 @@ importers:
         version: 3.6.2
     devDependencies:
       '@alloy-js/cli':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: ^0.21.0
+        version: 0.21.0
       '@alloy-js/rollup-plugin':
         specifier: ^0.1.0
         version: 0.1.0(@babel/core@7.28.5)(@types/babel__core@7.20.5)(rollup@4.49.0)
@@ -880,7 +884,7 @@ importers:
         version: link:../versioning
       '@vitest/coverage-v8':
         specifier: ^4.0.4
-        version: 4.0.4(vitest@4.0.4(@types/debug@4.1.12)(@types/node@24.9.1)(@vitest/ui@4.0.4)(happy-dom@20.0.8)(jsdom@25.0.1)(tsx@4.20.6)(yaml@2.8.1))
+        version: 4.0.4(vitest@4.0.4)
       '@vitest/ui':
         specifier: ^4.0.4
         version: 4.0.4(vitest@4.0.4)
@@ -953,7 +957,7 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^4.0.4
-        version: 4.0.4(vitest@4.0.4(@types/debug@4.1.12)(@types/node@24.9.1)(@vitest/ui@4.0.4)(happy-dom@20.0.8)(jsdom@25.0.1)(tsx@4.20.6)(yaml@2.8.1))
+        version: 4.0.4(vitest@4.0.4)
       '@vitest/ui':
         specifier: ^4.0.4
         version: 4.0.4(vitest@4.0.4)
@@ -1096,7 +1100,7 @@ importers:
         version: 17.0.34
       '@vitest/coverage-v8':
         specifier: ^4.0.4
-        version: 4.0.4(vitest@4.0.4(@types/debug@4.1.12)(@types/node@24.9.1)(@vitest/ui@4.0.4)(happy-dom@20.0.8)(jsdom@25.0.1)(tsx@4.20.6)(yaml@2.8.1))
+        version: 4.0.4(vitest@4.0.4)
       '@vitest/ui':
         specifier: ^4.0.4
         version: 4.0.4(vitest@4.0.4)
@@ -1142,7 +1146,7 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^4.0.4
-        version: 4.0.4(vitest@4.0.4(@types/debug@4.1.12)(@types/node@24.9.1)(@vitest/ui@4.0.4)(happy-dom@20.0.8)(jsdom@25.0.1)(tsx@4.20.6)(yaml@2.8.1))
+        version: 4.0.4(vitest@4.0.4)
       '@vitest/ui':
         specifier: ^4.0.4
         version: 4.0.4(vitest@4.0.4)
@@ -1175,7 +1179,7 @@ importers:
         version: link:../compiler
       '@vitest/coverage-v8':
         specifier: ^4.0.4
-        version: 4.0.4(vitest@4.0.4(@types/debug@4.1.12)(@types/node@24.9.1)(@vitest/ui@4.0.4)(happy-dom@20.0.8)(jsdom@25.0.1)(tsx@4.20.6)(yaml@2.8.1))
+        version: 4.0.4(vitest@4.0.4)
       '@vitest/ui':
         specifier: ^4.0.4
         version: 4.0.4(vitest@4.0.4)
@@ -1203,7 +1207,7 @@ importers:
         version: 24.9.1
       '@vitest/coverage-v8':
         specifier: ^4.0.4
-        version: 4.0.4(vitest@4.0.4(@types/debug@4.1.12)(@types/node@24.9.1)(@vitest/ui@4.0.4)(happy-dom@20.0.8)(jsdom@25.0.1)(tsx@4.20.6)(yaml@2.8.1))
+        version: 4.0.4(vitest@4.0.4)
       '@vitest/ui':
         specifier: ^4.0.4
         version: 4.0.4(vitest@4.0.4)
@@ -1260,7 +1264,7 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^4.0.4
-        version: 4.0.4(vitest@4.0.4(@types/debug@4.1.12)(@types/node@24.9.1)(@vitest/ui@4.0.4)(happy-dom@20.0.8)(jsdom@25.0.1)(tsx@4.20.6)(yaml@2.8.1))
+        version: 4.0.4(vitest@4.0.4)
       '@vitest/ui':
         specifier: ^4.0.4
         version: 4.0.4(vitest@4.0.4)
@@ -1304,6 +1308,9 @@ importers:
       '@typespec/compiler':
         specifier: workspace:^
         version: link:../compiler
+      '@typespec/events':
+        specifier: workspace:^
+        version: link:../events
       '@typespec/http':
         specifier: workspace:^
         version: link:../http
@@ -1319,6 +1326,12 @@ importers:
       '@typespec/rest':
         specifier: workspace:^
         version: link:../rest
+      '@typespec/sse':
+        specifier: workspace:^
+        version: link:../sse
+      '@typespec/streams':
+        specifier: workspace:^
+        version: link:../streams
       '@typespec/tspd':
         specifier: workspace:^
         version: link:../tspd
@@ -1330,7 +1343,7 @@ importers:
         version: link:../xml
       '@vitest/coverage-v8':
         specifier: ^4.0.4
-        version: 4.0.4(vitest@4.0.4(@types/debug@4.1.12)(@types/node@24.9.1)(@vitest/ui@4.0.4)(happy-dom@20.0.8)(jsdom@25.0.1)(tsx@4.20.6)(yaml@2.8.1))
+        version: 4.0.4(vitest@4.0.4)
       '@vitest/ui':
         specifier: ^4.0.4
         version: 4.0.4(vitest@4.0.4)
@@ -1364,7 +1377,7 @@ importers:
         version: 24.9.1
       '@vitest/coverage-v8':
         specifier: ^4.0.4
-        version: 4.0.4(vitest@4.0.4(@types/debug@4.1.12)(@types/node@24.9.1)(@vitest/ui@4.0.4)(happy-dom@20.0.8)(jsdom@25.0.1)(tsx@4.20.6)(yaml@2.8.1))
+        version: 4.0.4(vitest@4.0.4)
       '@vitest/ui':
         specifier: ^4.0.4
         version: 4.0.4(vitest@4.0.4)
@@ -1603,7 +1616,7 @@ importers:
         version: 5.1.0(vite@7.1.12(@types/node@24.9.1)(tsx@4.20.6)(yaml@2.8.1))
       '@vitest/coverage-v8':
         specifier: ^4.0.4
-        version: 4.0.4(vitest@4.0.4(@types/debug@4.1.12)(@types/node@24.9.1)(@vitest/ui@4.0.4)(happy-dom@20.0.8)(jsdom@25.0.1)(tsx@4.20.6)(yaml@2.8.1))
+        version: 4.0.4(vitest@4.0.4)
       '@vitest/ui':
         specifier: ^4.0.4
         version: 4.0.4(vitest@4.0.4)
@@ -1670,7 +1683,7 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^4.0.4
-        version: 4.0.4(vitest@4.0.4(@types/debug@4.1.12)(@types/node@24.9.1)(@vitest/ui@4.0.4)(happy-dom@20.0.8)(jsdom@25.0.1)(tsx@4.20.6)(yaml@2.8.1))
+        version: 4.0.4(vitest@4.0.4)
       '@vitest/ui':
         specifier: ^4.0.4
         version: 4.0.4(vitest@4.0.4)
@@ -1731,7 +1744,7 @@ importers:
         version: 5.1.0(vite@7.1.12(@types/node@24.9.1)(tsx@4.20.6)(yaml@2.8.1))
       '@vitest/coverage-v8':
         specifier: ^4.0.4
-        version: 4.0.4(vitest@4.0.4(@types/debug@4.1.12)(@types/node@24.9.1)(@vitest/ui@4.0.4)(happy-dom@20.0.8)(jsdom@25.0.1)(tsx@4.20.6)(yaml@2.8.1))
+        version: 4.0.4(vitest@4.0.4)
       '@vitest/ui':
         specifier: ^4.0.4
         version: 4.0.4(vitest@4.0.4)
@@ -1776,7 +1789,7 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^4.0.4
-        version: 4.0.4(vitest@4.0.4(@types/debug@4.1.12)(@types/node@24.9.1)(@vitest/ui@4.0.4)(happy-dom@20.0.8)(jsdom@25.0.1)(tsx@4.20.6)(yaml@2.8.1))
+        version: 4.0.4(vitest@4.0.4)
       '@vitest/ui':
         specifier: ^4.0.4
         version: 4.0.4(vitest@4.0.4)
@@ -1849,7 +1862,7 @@ importers:
         version: link:../internal-build-utils
       '@vitest/coverage-v8':
         specifier: ^4.0.4
-        version: 4.0.4(vitest@4.0.4(@types/debug@4.1.12)(@types/node@24.9.1)(@vitest/ui@4.0.4)(happy-dom@20.0.8)(jsdom@25.0.1)(tsx@4.20.6)(yaml@2.8.1))
+        version: 4.0.4(vitest@4.0.4)
       '@vitest/ui':
         specifier: ^4.0.4
         version: 4.0.4(vitest@4.0.4)
@@ -1907,7 +1920,7 @@ importers:
         version: 0.4.14
       '@vitest/coverage-v8':
         specifier: ^4.0.4
-        version: 4.0.4(vitest@4.0.4(@types/debug@4.1.12)(@types/node@24.9.1)(@vitest/ui@4.0.4)(happy-dom@20.0.8)(jsdom@25.0.1)(tsx@4.20.6)(yaml@2.8.1))
+        version: 4.0.4(vitest@4.0.4)
       '@vitest/ui':
         specifier: ^4.0.4
         version: 4.0.4(vitest@4.0.4)
@@ -1997,9 +2010,6 @@ importers:
       '@azure/identity':
         specifier: ~4.13.0
         version: 4.13.0
-      '@types/js-yaml':
-        specifier: ^4.0.5
-        version: 4.0.9
       '@typespec/compiler':
         specifier: workspace:^
         version: link:../compiler
@@ -2033,9 +2043,6 @@ importers:
       globby:
         specifier: ~15.0.0
         version: 15.0.0
-      js-yaml:
-        specifier: ^4.1.0
-        version: 4.1.0
       micromatch:
         specifier: ^4.0.8
         version: 4.0.8
@@ -2054,6 +2061,9 @@ importers:
       xml2js:
         specifier: ^0.6.2
         version: 0.6.2
+      yaml:
+        specifier: ~2.8.0
+        version: 2.8.1
       yargs:
         specifier: ~18.0.0
         version: 18.0.0
@@ -2120,7 +2130,7 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^4.0.4
-        version: 4.0.4(vitest@4.0.4(@types/debug@4.1.12)(@types/node@24.9.1)(@vitest/ui@4.0.4)(happy-dom@20.0.8)(jsdom@25.0.1)(tsx@4.20.6)(yaml@2.8.1))
+        version: 4.0.4(vitest@4.0.4)
       '@vitest/ui':
         specifier: ^4.0.4
         version: 4.0.4(vitest@4.0.4)
@@ -2160,7 +2170,7 @@ importers:
         version: 24.9.1
       '@vitest/coverage-v8':
         specifier: ^4.0.4
-        version: 4.0.4(vitest@4.0.4(@types/debug@4.1.12)(@types/node@24.9.1)(@vitest/ui@4.0.4)(happy-dom@20.0.8)(jsdom@25.0.1)(tsx@4.20.6)(yaml@2.8.1))
+        version: 4.0.4(vitest@4.0.4)
       '@vitest/ui':
         specifier: ^4.0.4
         version: 4.0.4(vitest@4.0.4)
@@ -2208,7 +2218,7 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^4.0.4
-        version: 4.0.4(vitest@4.0.4(@types/debug@4.1.12)(@types/node@24.9.1)(@vitest/ui@4.0.4)(happy-dom@20.0.8)(jsdom@25.0.1)(tsx@4.20.6)(yaml@2.8.1))
+        version: 4.0.4(vitest@4.0.4)
       '@vitest/ui':
         specifier: ^4.0.4
         version: 4.0.4(vitest@4.0.4)
@@ -2250,14 +2260,14 @@ importers:
   packages/tspd:
     dependencies:
       '@alloy-js/core':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: ^0.21.0
+        version: 0.21.0
       '@alloy-js/markdown':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: ^0.21.0
+        version: 0.21.0
       '@alloy-js/typescript':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: ^0.21.0
+        version: 0.21.0
       '@microsoft/api-extractor':
         specifier: ^7.52.1
         version: 7.53.3(@types/node@24.9.1)
@@ -2293,8 +2303,8 @@ importers:
         version: 18.0.0
     devDependencies:
       '@alloy-js/cli':
-        specifier: ^0.20.0
-        version: 0.20.0
+        specifier: ^0.21.0
+        version: 0.21.0
       '@alloy-js/rollup-plugin':
         specifier: ^0.1.0
         version: 0.1.0(@babel/core@7.28.5)(@types/babel__core@7.20.5)(rollup@4.49.0)
@@ -2309,7 +2319,7 @@ importers:
         version: link:../prettier-plugin-typespec
       '@vitest/coverage-v8':
         specifier: ^4.0.4
-        version: 4.0.4(vitest@4.0.4(@types/debug@4.1.12)(@types/node@24.9.1)(@vitest/ui@4.0.4)(happy-dom@20.0.8)(jsdom@25.0.1)(tsx@4.20.6)(yaml@2.8.1))
+        version: 4.0.4(vitest@4.0.4)
       '@vitest/ui':
         specifier: ^4.0.4
         version: 4.0.4(vitest@4.0.4)
@@ -2366,7 +2376,7 @@ importers:
         version: link:../internal-build-utils
       '@vitest/coverage-v8':
         specifier: ^4.0.4
-        version: 4.0.4(vitest@4.0.4(@types/debug@4.1.12)(@types/node@24.9.1)(@vitest/ui@4.0.4)(happy-dom@20.0.8)(jsdom@25.0.1)(tsx@4.20.6)(yaml@2.8.1))
+        version: 4.0.4(vitest@4.0.4)
       '@vitest/ui':
         specifier: ^4.0.4
         version: 4.0.4(vitest@4.0.4)
@@ -2441,7 +2451,7 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^4.0.4
-        version: 4.0.4(vitest@4.0.4(@types/debug@4.1.12)(@types/node@24.9.1)(@vitest/ui@4.0.4)(happy-dom@20.0.8)(jsdom@25.0.1)(tsx@4.20.6)(yaml@2.8.1))
+        version: 4.0.4(vitest@4.0.4)
       '@vitest/ui':
         specifier: ^4.0.4
         version: 4.0.4(vitest@4.0.4)
@@ -2474,7 +2484,7 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: ^4.0.4
-        version: 4.0.4(vitest@4.0.4(@types/debug@4.1.12)(@types/node@24.9.1)(@vitest/ui@4.0.4)(happy-dom@20.0.8)(jsdom@25.0.1)(tsx@4.20.6)(yaml@2.8.1))
+        version: 4.0.4(vitest@4.0.4)
       '@vitest/ui':
         specifier: ^4.0.4
         version: 4.0.4(vitest@4.0.4)
@@ -2637,7 +2647,7 @@ importers:
         version: 6.0.1
       vite-plugin-node-polyfills:
         specifier: ^0.24.0
-        version: 0.24.0(rollup@4.49.0)(vite@6.4.1(@types/node@24.9.1)(tsx@4.20.6)(yaml@2.8.1))
+        version: 0.24.0(rollup@4.49.0)(vite@7.1.12(@types/node@24.9.1)(tsx@4.20.6)(yaml@2.8.1))
 
 packages:
 
@@ -2702,26 +2712,29 @@ packages:
   '@alloy-js/babel-preset@0.2.1':
     resolution: {integrity: sha512-vz9kvQwx5qBzHIw4ryqUaQqpgNOMBmkdDcV3e2zZfMq8Pp16ePFtvviHh6RwyLcvXQQClex3ZZy8ON9TifMnxw==}
 
-  '@alloy-js/cli@0.20.0':
-    resolution: {integrity: sha512-iDiJAs2yjP5G8lMmry+4usM33tL9G1u8IKp+beh0jx5RqfLsZsXOu78S4ZIZLqskAMkCLuRJogsh8fPREg2CzQ==}
+  '@alloy-js/cli@0.21.0':
+    resolution: {integrity: sha512-k1Rf6kbYPdMKYJ1pFmhbk0NpW7p/aL/HbmxpJxmF/tbXAhZmNO62f9JM4qF64jNnq9byq31PMBSOIAIZFLqa1A==}
     engines: {node: '>=18.0.0'}
     hasBin: true
 
-  '@alloy-js/core@0.20.0':
-    resolution: {integrity: sha512-ylPf+ayI9MsqUPrNVzND3Oh9rVrfOOcMkyVwtXXaxaobWPkcRq2I4rX09FkG0i/9DoaLE6ZCvUfdgJsM29MYBA==}
+  '@alloy-js/core@0.21.0':
+    resolution: {integrity: sha512-eIBllm+Lgk/AcV6QdipZAVlYPIp6RHmgz046GXBQeXZnTZXmPHURVFI18/FVuaK7K+uUt0eriPXIYXs4/Ja5rQ==}
 
-  '@alloy-js/csharp@0.20.0':
-    resolution: {integrity: sha512-Yn8oua43tVWYGN9Gt5DDtGUdLIB9io6/nL8dK4qDvL019w9uK7f3wosr+/JtSm14PuToN4jM1s7HNVzqh41KUA==}
+  '@alloy-js/csharp@0.21.0':
+    resolution: {integrity: sha512-Tw3AQaHjwRTZB6L6QPoXFJOmjDQyyGb2gwwAKGnea7q/J6BmwNkBHvCSuVe21Nkhgb4/upivWFyP8zbtdVAE5A==}
 
-  '@alloy-js/markdown@0.20.0':
-    resolution: {integrity: sha512-c1Q4dzUvWC4Bdoi6dRT9yAYVoCiqz3ZMClV8CHzEsgZYjjdS0S2ZWWmgxzS87rSDHSjmQIXJ4BcUZfKyfnMrFA==}
+  '@alloy-js/markdown@0.21.0':
+    resolution: {integrity: sha512-Er2aqWdolajWUrHxeqZoiK/Grdet2zaEr8ZtIbvv/M0sMz975p0ltijZNF3OnMde0wFlk1Jg14hkiitI9wFVgQ==}
+
+  '@alloy-js/msbuild@0.21.0':
+    resolution: {integrity: sha512-QmMwF7eoYMdR5mX+8cIKb5F3Mgi3uQlFYrGYq92ht6BOc/XKyBXIwCXq6zqPMAT7nd2BHDD2hvgbL6nLS4QcGg==}
 
   '@alloy-js/rollup-plugin@0.1.0':
     resolution: {integrity: sha512-MXR8mBdSh/pxMP8kIXAcMYKsm5yOWZ+igxcaRX1vBXFiHU4eK7gE/5q6Fk8Vdydh+MItWtgekwIhUWvcszdNFQ==}
     engines: {node: '>=18.0.0'}
 
-  '@alloy-js/typescript@0.20.0':
-    resolution: {integrity: sha512-F1y5QjneE8GVxIq6oYsebu+Fccrn72qFHelNX5GSLfs4Ps2fxpk2+70rsGznZyHe9LIt70StaAciTjH6cxH4bQ==}
+  '@alloy-js/typescript@0.21.0':
+    resolution: {integrity: sha512-SsxdYkXhrP8jjO2gENav9bHPHaonNrreW469RaOot3cRqhsHPA1RmBrzNPJov37YknzTg4Wlk0JsEFT4Qibgfg==}
 
   '@antfu/install-pkg@1.1.0':
     resolution: {integrity: sha512-MGQsmw10ZyI+EJo45CdSER4zEb+p31LpDAFp2Z3gkSd1yqVZGi0Ebx++YTEMonJy4oChEMLsxZ64j8FH6sSqtQ==}
@@ -5424,7 +5437,7 @@ packages:
     peerDependencies:
       '@babel/core': ^7.0.0
       '@types/babel__core': ^7.1.9
-      rollup: ^1.20.0||^2.0.0||^3.0.0||^4.0.0
+      rollup: 4.49.0
     peerDependenciesMeta:
       '@types/babel__core':
         optional: true
@@ -5435,7 +5448,7 @@ packages:
     resolution: {integrity: sha512-2+DEJbNBoPROPkgTDNe8/1YXWcqxbN5DTjASVIOx8HS+pITXushyNiBV56RB08zuptzz8gT3YfkqriTBVycepg==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
-      rollup: ^1.20.0||^2.0.0||^3.0.0||^4.0.0
+      rollup: 4.49.0
     peerDependenciesMeta:
       rollup:
         optional: true
@@ -5444,7 +5457,7 @@ packages:
     resolution: {integrity: sha512-5EdhGZtnu3V88ces7s53hhfK5KSASnJZv8Lulpc04cWO3REESroJXg73DFsOmgbU2BhwV0E20bu2IDZb3VKW4Q==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
-      rollup: ^1.20.0||^2.0.0||^3.0.0||^4.0.0
+      rollup: 4.49.0
     peerDependenciesMeta:
       rollup:
         optional: true
@@ -7683,10 +7696,6 @@ packages:
     resolution: {integrity: sha512-GsYosgnACZTADcmEyJctkJIoqAhHjttw7RsFrVoJNXbsWWqaq6Ym+7kZjq6mS45O0jij6vtiReppKQEtqWy6Dw==}
     engines: {node: '>=20'}
     hasBin: true
-
-  cross-spawn@7.0.3:
-    resolution: {integrity: sha512-iRDPJKUPVEND7dHPO8rkbOnPpyDygcDFtWjpeWNCgy8WP2rXcxXL8TskReQl6OrB2G7+UJrags1q15Fudc7G6w==}
-    engines: {node: '>= 8'}
 
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
@@ -11298,7 +11307,7 @@ packages:
     engines: {node: '>= 14.18.0'}
 
   readline-sync@1.4.9:
-    resolution: {integrity: sha1-PtqOZfI80qF+YTAbHwADOWr17No=}
+    resolution: {integrity: sha512-mp5h1N39kuKbCRGebLPIKTBOhuDw55GaNg5S+K9TW9uDAS1wIHpGUc2YokdUMZJb8GqS49sWmWEDijaESYh0Hg==}
     engines: {node: '>= 0.8.0'}
 
   realpath-missing@1.1.0:
@@ -11522,7 +11531,7 @@ packages:
     hasBin: true
     peerDependencies:
       rolldown: 1.x || ^1.0.0-beta
-      rollup: 2.x || 3.x || 4.x
+      rollup: 4.49.0
     peerDependenciesMeta:
       rolldown:
         optional: true
@@ -12114,8 +12123,8 @@ packages:
     resolution: {integrity: sha512-DZ4yORTwrbTj/7MZYq2w+/ZFdI6OZ/f9SFHR+71gIVUZhOQPHzVCLpvRnPgyaMpfWxxk/4ONva3GQSyNIKRv6A==}
     engines: {node: '>=10'}
 
-  tar@7.5.1:
-    resolution: {integrity: sha512-nlGpxf+hv0v7GkWBK2V9spgactGOp0qvfWRxUMjqHyzrt3SgwE48DIv/FhqPHJYLHpgW1opq3nERbz5Anq7n1g==}
+  tar@7.5.2:
+    resolution: {integrity: sha512-7NyxrTE4Anh8km8iEy7o0QYPs+0JKBTj5ZaqHg6B39erLg0qYXN3BijtShwbsNSvQ+LN75+KV+C4QR/f6Gwnpg==}
     engines: {node: '>=18'}
 
   tau-prolog@0.2.81:
@@ -13475,7 +13484,7 @@ snapshots:
       - '@babel/core'
       - supports-color
 
-  '@alloy-js/cli@0.20.0':
+  '@alloy-js/cli@0.21.0':
     dependencies:
       '@alloy-js/babel-preset': 0.2.1(@babel/core@7.28.5)
       '@babel/core': 7.28.5
@@ -13485,7 +13494,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@alloy-js/core@0.20.0':
+  '@alloy-js/core@0.21.0':
     dependencies:
       '@vue/reactivity': 3.5.22
       cli-table3: 0.6.5
@@ -13493,17 +13502,25 @@ snapshots:
       picocolors: 1.1.1
       prettier: 3.6.2
 
-  '@alloy-js/csharp@0.20.0':
+  '@alloy-js/csharp@0.21.0':
     dependencies:
-      '@alloy-js/core': 0.20.0
+      '@alloy-js/core': 0.21.0
+      '@alloy-js/msbuild': 0.21.0
       change-case: 5.4.4
       marked: 16.4.1
       pathe: 2.0.3
 
-  '@alloy-js/markdown@0.20.0':
+  '@alloy-js/markdown@0.21.0':
     dependencies:
-      '@alloy-js/core': 0.20.0
+      '@alloy-js/core': 0.21.0
       yaml: 2.8.1
+
+  '@alloy-js/msbuild@0.21.0':
+    dependencies:
+      '@alloy-js/core': 0.21.0
+      change-case: 5.4.4
+      marked: 16.4.1
+      pathe: 2.0.3
 
   '@alloy-js/rollup-plugin@0.1.0(@babel/core@7.28.5)(@types/babel__core@7.20.5)(rollup@4.49.0)':
     dependencies:
@@ -13516,9 +13533,9 @@ snapshots:
       - rollup
       - supports-color
 
-  '@alloy-js/typescript@0.20.0':
+  '@alloy-js/typescript@0.21.0':
     dependencies:
-      '@alloy-js/core': 0.20.0
+      '@alloy-js/core': 0.21.0
       change-case: 5.4.4
       pathe: 2.0.3
 
@@ -18670,7 +18687,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vitest/coverage-v8@4.0.4(vitest@4.0.4(@types/debug@4.1.12)(@types/node@24.9.1)(@vitest/ui@4.0.4)(happy-dom@20.0.8)(jsdom@25.0.1)(tsx@4.20.6)(yaml@2.8.1))':
+  '@vitest/coverage-v8@4.0.4(vitest@4.0.4)':
     dependencies:
       '@bcoe/v8-coverage': 1.0.2
       '@vitest/utils': 4.0.4
@@ -18687,7 +18704,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vitest/eslint-plugin@1.3.25(eslint@9.38.0)(typescript@5.9.3)(vitest@4.0.4(@types/debug@4.1.12)(@types/node@24.9.1)(@vitest/ui@4.0.4)(happy-dom@20.0.8)(jsdom@25.0.1)(tsx@4.20.6)(yaml@2.8.1))':
+  '@vitest/eslint-plugin@1.3.25(eslint@9.38.0)(typescript@5.9.3)(vitest@4.0.4)':
     dependencies:
       '@typescript-eslint/scope-manager': 8.46.2
       '@typescript-eslint/utils': 8.46.2(eslint@9.38.0)(typescript@5.9.3)
@@ -19067,7 +19084,7 @@ snapshots:
 
   '@yarnpkg/libui@3.0.2(ink@3.2.0(@types/react@19.2.2)(react@17.0.2))(react@17.0.2)':
     dependencies:
-      ink: 3.2.0(@types/react@19.2.2)(react@17.0.2)
+      ink: 3.2.0(@types/react@19.2.2)(react@18.3.1)
       react: 17.0.2
       tslib: 2.8.1
 
@@ -19348,7 +19365,7 @@ snapshots:
       '@yarnpkg/plugin-git': 3.1.3(@yarnpkg/core@4.4.4(typanion@3.14.0))(typanion@3.14.0)
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
       es-toolkit: 1.41.0
-      ink: 3.2.0(@types/react@19.2.2)(react@17.0.2)
+      ink: 3.2.0(@types/react@19.2.2)(react@18.3.1)
       react: 17.0.2
       semver: 7.7.3
       tslib: 2.8.1
@@ -19382,7 +19399,7 @@ snapshots:
       '@yarnpkg/parsers': 3.0.3
       chalk: 3.0.0
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
-      cross-spawn: 7.0.3
+      cross-spawn: 7.0.6
       fast-glob: 3.3.3
       micromatch: 4.0.8
       tslib: 2.8.1
@@ -20116,7 +20133,7 @@ snapshots:
       minipass-pipeline: 1.2.4
       p-map: 7.0.3
       ssri: 12.0.0
-      tar: 7.5.1
+      tar: 7.5.2
       unique-filename: 4.0.0
 
   cacache@20.0.1:
@@ -20570,12 +20587,6 @@ snapshots:
     dependencies:
       '@epic-web/invariant': 1.0.0
       cross-spawn: 7.0.6
-
-  cross-spawn@7.0.3:
-    dependencies:
-      path-key: 3.1.1
-      shebang-command: 2.0.0
-      which: 2.0.2
 
   cross-spawn@7.0.6:
     dependencies:
@@ -22611,7 +22622,7 @@ snapshots:
   ink-text-input@4.0.3(ink@3.2.0(@types/react@19.2.2)(react@17.0.2))(react@17.0.2):
     dependencies:
       chalk: 4.1.2
-      ink: 3.2.0(@types/react@19.2.2)(react@17.0.2)
+      ink: 3.2.0(@types/react@19.2.2)(react@18.3.1)
       react: 17.0.2
       type-fest: 0.15.1
 
@@ -22631,6 +22642,38 @@ snapshots:
       react: 17.0.2
       react-devtools-core: 4.28.5
       react-reconciler: 0.26.2(react@17.0.2)
+      scheduler: 0.20.2
+      signal-exit: 3.0.7
+      slice-ansi: 3.0.0
+      stack-utils: 2.0.6
+      string-width: 4.2.3
+      type-fest: 0.12.0
+      widest-line: 3.1.0
+      wrap-ansi: 6.2.0
+      ws: 7.5.10
+      yoga-layout-prebuilt: 1.10.0
+    optionalDependencies:
+      '@types/react': 19.2.2
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
+  ink@3.2.0(@types/react@19.2.2)(react@18.3.1):
+    dependencies:
+      ansi-escapes: 4.3.2
+      auto-bind: 4.0.0
+      chalk: 4.1.2
+      cli-boxes: 2.2.1
+      cli-cursor: 3.1.0
+      cli-truncate: 2.1.0
+      code-excerpt: 3.0.0
+      indent-string: 4.0.0
+      is-ci: 2.0.0
+      lodash: 4.17.21
+      patch-console: 1.0.0
+      react: 18.3.1
+      react-devtools-core: 4.28.5
+      react-reconciler: 0.26.2(react@18.3.1)
       scheduler: 0.20.2
       signal-exit: 3.0.7
       slice-ansi: 3.0.0
@@ -24124,7 +24167,7 @@ snapshots:
       nopt: 8.1.0
       proc-log: 5.0.0
       semver: 7.7.3
-      tar: 7.5.1
+      tar: 7.5.2
       tinyglobby: 0.2.15
       which: 5.0.0
     transitivePeerDependencies:
@@ -24544,7 +24587,7 @@ snapshots:
       promise-retry: 2.0.1
       sigstore: 4.0.0
       ssri: 12.0.0
-      tar: 7.5.1
+      tar: 7.5.2
     transitivePeerDependencies:
       - supports-color
 
@@ -25075,6 +25118,13 @@ snapshots:
       loose-envify: 1.4.0
       object-assign: 4.1.1
       react: 17.0.2
+      scheduler: 0.20.2
+
+  react-reconciler@0.26.2(react@18.3.1):
+    dependencies:
+      loose-envify: 1.4.0
+      object-assign: 4.1.1
+      react: 18.3.1
       scheduler: 0.20.2
 
   react-refresh@0.17.0: {}
@@ -26229,7 +26279,7 @@ snapshots:
       mkdirp: 1.0.4
       yallist: 4.0.0
 
-  tar@7.5.1:
+  tar@7.5.2:
     dependencies:
       '@isaacs/fs-minipass': 4.0.1
       chownr: 3.0.0
@@ -26852,14 +26902,6 @@ snapshots:
       - '@types/node'
       - rollup
       - supports-color
-
-  vite-plugin-node-polyfills@0.24.0(rollup@4.49.0)(vite@6.4.1(@types/node@24.9.1)(tsx@4.20.6)(yaml@2.8.1)):
-    dependencies:
-      '@rollup/plugin-inject': 5.0.5(rollup@4.49.0)
-      node-stdlib-browser: 1.3.1
-      vite: 6.4.1(@types/node@24.9.1)(tsx@4.20.6)(yaml@2.8.1)
-    transitivePeerDependencies:
-      - rollup
 
   vite-plugin-node-polyfills@0.24.0(rollup@4.49.0)(vite@7.1.12(@types/node@24.9.1)(tsx@4.20.6)(yaml@2.8.1)):
     dependencies:

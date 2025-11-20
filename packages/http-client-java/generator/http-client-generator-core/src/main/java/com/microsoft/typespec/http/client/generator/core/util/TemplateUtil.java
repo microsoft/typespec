@@ -4,8 +4,6 @@
 package com.microsoft.typespec.http.client.generator.core.util;
 
 import com.azure.core.util.CoreUtils;
-import com.azure.json.JsonProviders;
-import com.azure.json.JsonWriter;
 import com.microsoft.typespec.http.client.generator.core.Javagen;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
@@ -22,6 +20,7 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaCla
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFileContents;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaType;
 import com.microsoft.typespec.http.client.generator.core.template.Templates;
+import io.clientcore.core.serialization.json.JsonWriter;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -79,7 +78,7 @@ public class TemplateUtil {
      */
     public static String prettyPrintToJson(Object jsonObject) {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            JsonWriter jsonWriter = JsonProviders.createWriter(outputStream)) {
+            JsonWriter jsonWriter = JsonWriter.toStream(outputStream)) {
             jsonWriter.writeUntyped(jsonObject).flush();
 
             return outputStream.toString(StandardCharsets.UTF_8);
@@ -100,9 +99,9 @@ public class TemplateUtil {
         try (InputStream inputStream = TemplateUtil.class.getClassLoader().getResourceAsStream(filename)) {
             if (inputStream != null) {
                 text = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8)).lines()
-                    .collect(Collectors.joining(System.lineSeparator()));
+                    .collect(Collectors.joining(Constants.NEW_LINE));
                 if (!text.isEmpty()) {
-                    text += System.lineSeparator();
+                    text += Constants.NEW_LINE;
                 }
 
                 if (replacements.length > 0) {

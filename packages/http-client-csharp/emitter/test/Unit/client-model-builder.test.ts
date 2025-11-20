@@ -12,7 +12,7 @@ import {
   typeSpecCompile,
 } from "./utils/test-util.js";
 
-describe("fixConstantAndEnumNaming", () => {
+describe("fixNamingConflicts", () => {
   let runner: TestHost;
 
   beforeEach(async () => {
@@ -97,5 +97,82 @@ describe("fixConstantAndEnumNaming", () => {
     strictEqual(model2Enum.namespace, model2.namespace);
     strictEqual(model2Enum.access, model2.access);
     strictEqual(model2Enum.usage, model2.usage);
+  });
+
+  it("should handle duplicate model names in the same namespace", async () => {
+    const program = await typeSpecCompile(
+      `
+      namespace SubNamespace1 {
+        model ErrorResponse {
+          code: string;
+          message: string;
+        }
+      }
+
+      namespace SubNamespace2 {
+        model ErrorResponse {
+          errorCode: int32;
+          errorMessage: string;
+        }
+      }
+
+      namespace SubNamespace3 {
+        model ErrorResponse {
+          error: string;
+        }
+      }
+
+      // Use all three ErrorResponse models
+      @route("/test1")
+      op test1(): SubNamespace1.ErrorResponse;
+      
+      @route("/test2")
+      op test2(): SubNamespace2.ErrorResponse;
+
+      @route("/test3")
+      op test3(): SubNamespace3.ErrorResponse;
+    `,
+      runner,
+    );
+
+    // Create emitter context with namespace option set to test the scenario
+    // where models from different source namespaces get remapped to same target namespace
+    const targetNamespace = "Azure.Csharp.Testing";
+    const context = createEmitterContext(program, {
+      namespace: targetNamespace,
+    } as any);
+    const sdkContext = await createCSharpSdkContext(context);
+    const root = createModel(sdkContext);
+
+    // Get all ErrorResponse models - fixNamingConflicts should have resolved the conflicts
+    const errorModels = root.models.filter(
+      (m) => m.name.startsWith("ErrorResponse") && m.namespace === targetNamespace,
+    );
+    ok(
+      errorModels.length >= 3,
+      `Should have at least 3 ErrorResponse models, found ${errorModels.length}`,
+    );
+
+    // Verify they have unique names after fixNamingConflicts runs automatically
+    const modelNames = new Set(errorModels.map((m) => m.name));
+    strictEqual(
+      modelNames.size,
+      errorModels.length,
+      "All ErrorResponse models should have unique names",
+    );
+
+    // Verify one kept original name and others got numbered suffixes
+    const originalName = errorModels.find((m) => m.name === "ErrorResponse");
+    const renamedModels = errorModels.filter((m) => m.name !== "ErrorResponse");
+    ok(originalName, "One model should keep the original ErrorResponse name");
+    ok(renamedModels.length >= 2, "Other models should have numbered suffixes");
+    ok(
+      renamedModels.some((m) => m.name === "ErrorResponse1"),
+      "Should have ErrorResponse1",
+    );
+    ok(
+      renamedModels.some((m) => m.name === "ErrorResponse2"),
+      "Should have ErrorResponse2",
+    );
   });
 });

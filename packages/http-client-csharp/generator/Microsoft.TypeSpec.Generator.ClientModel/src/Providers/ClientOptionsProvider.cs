@@ -24,8 +24,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private readonly TypeProvider? _serviceVersionEnum;
         private readonly PropertyProvider? _versionProperty;
         private FieldProvider? _latestVersionField;
+        private static ClientOptionsProvider? _singletonInstance;
 
-        public ClientOptionsProvider(InputClient inputClient, ClientProvider clientProvider)
+        // Internal constructor for testing purposes
+        internal ClientOptionsProvider(InputClient inputClient, ClientProvider clientProvider)
         {
             _inputClient = inputClient;
             _clientProvider = clientProvider;
@@ -46,6 +48,68 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
         }
 
+        /// <summary>
+        /// Factory method to create a ClientOptionsProvider instance.
+        /// Returns a singleton instance when there are multiple root clients and the client has no custom parameters.
+        /// Otherwise, creates a new instance specific to the client.
+        /// </summary>
+        /// <param name="inputClient">The input client.</param>
+        /// <param name="clientProvider">The client provider.</param>
+        /// <returns>A ClientOptionsProvider instance.</returns>
+        public static ClientOptionsProvider CreateClientOptionsProvider(InputClient inputClient, ClientProvider clientProvider)
+        {
+            if (UseSingletonInstance(inputClient))
+            {
+                // Use singleton instance
+                if (_singletonInstance == null)
+                {
+                    // Create singleton with namespace-based naming
+                    _singletonInstance = new ClientOptionsProvider(inputClient, clientProvider);
+                }
+                return _singletonInstance;
+            }
+
+            // Create client-specific instance
+            return new ClientOptionsProvider(inputClient, clientProvider);
+        }
+
+        /// <summary>
+        /// Determines if a client has only standard parameters (ApiVersion and Endpoint).
+        /// </summary>
+        /// <param name="inputClient">The input client to check.</param>
+        /// <returns>True if the client has only standard parameters, false otherwise.</returns>
+        private static bool UseSingletonInstance(InputClient inputClient)
+        {
+            var rootClients = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.RootClients;
+            if (rootClients.Count <= 1)
+            {
+                // Only one root client, no need for singleton
+                return false;
+            }
+
+            foreach (var parameter in inputClient.Parameters)
+            {
+                // Check if parameter is NOT an ApiVersion or Endpoint parameter
+                if (!parameter.IsApiVersion)
+                {
+                    if (parameter is InputEndpointParameter endpointParam)
+                    {
+                        // Endpoint parameters are standard
+                        if (!endpointParam.IsEndpoint)
+                        {
+                            return false; // Found a non-standard endpoint parameter
+                        }
+                    }
+                    else
+                    {
+                        // Found a non-ApiVersion, non-Endpoint parameter
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
         internal PropertyProvider? VersionProperty => _versionProperty;
         private FieldProvider? LatestVersionField => _latestVersionField ??= BuildLatestVersionField();
 
@@ -63,9 +127,30 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
-        protected override string BuildName() => $"{_clientProvider.Name}Options";
+
+        protected override string BuildName()
+        {
+            if (UseSingletonInstance(_inputClient))
+            {
+                // Use namespace-based naming for singleton
+                return $"{ScmCodeModelGenerator.Instance.TypeFactory.ServiceName}ClientOptions";
+            }
+
+            // Use client-specific naming
+            return $"{_clientProvider.Name}Options";
+        }
+
         protected override string BuildNamespace() => _clientProvider.Type.Namespace;
-        protected override FormattableString BuildDescription() => $"Client options for {_clientProvider.Type:C}.";
+
+        protected override FormattableString BuildDescription()
+        {
+            if (this == _singletonInstance)
+            {
+                return $"Client options for clients in this library.";
+            }
+
+            return $"Client options for {_clientProvider.Type:C}.";
+        }
 
         protected override CSharpType BuildBaseType()
         {

@@ -11,6 +11,8 @@ words:
   - alzimmer
   - amqp
   - AQID
+  - Arize
+  - arizeaiobservabilityeval
   - arraya
   - astimezone
   - astro
@@ -157,11 +159,13 @@ words:
   - myname
   - mypy
   - nanos
+  - ncpu
   - nexted
   - nihao
   - nint
   - NODEFS
   - noformat
+  - nologo
   - noopener
   - noreferrer
   - nosec
@@ -227,8 +231,8 @@ words:
   - rtype
   - rushx
   - safeint
-  - sdkcore
   - SCME
+  - sdkcore
   - segmentof
   - serde
   - setuppy
@@ -291,6 +295,7 @@ words:
   - wday
   - weidxu
   - westus
+  - WHATWG
   - WINDOWSARMVMIMAGE
   - WINDOWSVMIMAGE
   - xiangyan

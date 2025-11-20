@@ -203,7 +203,7 @@ export interface Checker {
   ): T & TypePrototype;
   finishType<T extends Type>(typeDef: T): T;
   createLiteralType(value: string, node?: StringLiteralNode): StringLiteral;
-  createLiteralType(value: number, node?: NumericLiteralNode): NumericLiteral;
+  createLiteralType(value: number | Numeric, node?: NumericLiteralNode): NumericLiteral;
   createLiteralType(value: boolean, node?: BooleanLiteralNode): BooleanLiteral;
   createLiteralType(
     value: string | number | boolean,
@@ -225,6 +225,20 @@ export interface Checker {
   isTypeAssignableTo(
     source: Entity,
     target: Entity,
+    diagnosticTarget: DiagnosticTarget,
+  ): [boolean, readonly Diagnostic[]];
+
+  /**
+   * Check if the value is assignable to the given type
+   * @param source Source value, should be assignable to the target type.
+   * @param target Target type
+   * @param diagnosticTarget Target for the diagnostic, unless something better can be inferred.
+   * @returns [related, list of diagnostics]
+   * @internal
+   */
+  isValueOfType(
+    source: Value,
+    target: Type,
     diagnosticTarget: DiagnosticTarget,
   ): [boolean, readonly Diagnostic[]];
 
@@ -406,10 +420,12 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     getValueExactType,
     getTemplateParameterUsageMap,
     isTypeAssignableTo: undefined!,
+    isValueOfType: undefined!,
     stats,
   };
   const relation = createTypeRelationChecker(program, checker);
   checker.isTypeAssignableTo = relation.isTypeAssignableTo;
+  checker.isValueOfType = relation.isValueOfType;
 
   return checker;
 
@@ -2113,8 +2129,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         }
       }
     }
-    for (const [_, option] of modelOptions) {
-      intersection.sourceModels.push({ usage: "intersection", model: option });
+    for (const [optionNode, option] of modelOptions) {
+      intersection.sourceModels.push({ usage: "intersection", model: option, node: optionNode });
       const allProps = walkPropertiesInherited(option);
       for (const prop of allProps) {
         if (properties.has(prop.name)) {
@@ -3094,11 +3110,15 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       typeof options === "boolean"
         ? { ...defaultSymbolResolutionOptions, resolveDecorators: options }
         : { ...defaultSymbolResolutionOptions, ...(options ?? {}) };
-    if (mapper === undefined && resolvedOptions.checkTemplateTypes && referenceSymCache.has(node)) {
+    if (
+      mapper === undefined &&
+      !resolvedOptions.resolveDeclarationOfTemplate &&
+      referenceSymCache.has(node)
+    ) {
       return referenceSymCache.get(node);
     }
     const sym = resolveTypeReferenceSymInternal(node, mapper, resolvedOptions);
-    if (resolvedOptions.checkTemplateTypes) {
+    if (!resolvedOptions.resolveDeclarationOfTemplate) {
       referenceSymCache.set(node, sym);
     }
     return sym;
@@ -3169,6 +3189,12 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           return undefined;
         }
         base = aliasedSym;
+      } else if (!options.resolveDeclarationOfTemplate && isTemplatedNode(getSymNode(base))) {
+        const baseSym = getContainerTemplateSymbol(base, node.base, mapper);
+        if (!baseSym) {
+          return undefined;
+        }
+        base = baseSym;
       }
       return resolveMemberInContainer(base, node, options);
     }
@@ -3293,23 +3319,58 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     // Otherwise for templates we need to get the type and retrieve the late bound symbol.
     const aliasType = getTypeForNode(node as AliasStatementNode, mapper);
-    if (isErrorType(aliasType)) {
+    return lateBindContainer(aliasType, aliasSymbol);
+  }
+
+  /** Check case where a template type member is referenced like
+   * ```
+   * model Foo<T> {t: T}
+   * model Test { t: Foo.t } // check `Foo` is correctly used as template
+   * ```
+   */
+  function getContainerTemplateSymbol(
+    sym: Sym,
+    node: MemberExpressionNode | IdentifierNode,
+    mapper: TypeMapper | undefined,
+  ): Sym | undefined {
+    if (pendingResolutions.has(sym, ResolutionKind.Type)) {
+      if (mapper === undefined) {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "circular-alias-type",
+            format: { typeName: sym.name },
+            target: node,
+          }),
+        );
+      }
       return undefined;
     }
-    switch (aliasType.kind) {
+
+    pendingResolutions.start(sym, ResolutionKind.Type);
+    const type = checkTypeReferenceSymbol(sym, node, mapper);
+    pendingResolutions.finish(sym, ResolutionKind.Type);
+
+    return lateBindContainer(type, sym);
+  }
+
+  function lateBindContainer(type: Type, sym: Sym) {
+    if (isErrorType(type)) {
+      return undefined;
+    }
+    switch (type.kind) {
       case "Model":
       case "Interface":
       case "Union":
-        if (isTemplateInstance(aliasType)) {
+        if (isTemplateInstance(type)) {
           // this is an alias for some instantiation, so late-bind the instantiation
-          lateBindMemberContainer(aliasType);
-          return aliasType.symbol!;
+          lateBindMemberContainer(type);
+          return type.symbol!;
         }
       // fallthrough
       default:
         // get the symbol from the node aliased type's node, or just return the base
         // if it doesn't have a symbol (which will likely result in an error later on)
-        return getMergedSymbol(aliasType.node!.symbol) ?? aliasSymbol;
+        return getMergedSymbol(type.node!.symbol) ?? sym;
     }
   }
 
@@ -3640,7 +3701,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       () => {
         if (isBase) {
           type.sourceModel = isBase;
-          type.sourceModels.push({ usage: "is", model: isBase });
+          type.sourceModels.push({ usage: "is", model: isBase, node: node.is });
           decorators.push(...isBase.decorators);
           if (isBase.indexer) {
             type.indexer = isBase.indexer;
@@ -5103,7 +5164,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return [[], undefined];
     }
 
-    parentModel.sourceModels.push({ usage: "spread", model: targetType });
+    parentModel.sourceModels.push({ usage: "spread", model: targetType, node: targetNode });
 
     const props: ModelProperty[] = [];
     // copy each property
@@ -5556,7 +5617,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    */
   function checkAugmentDecorator(node: AugmentDecoratorStatementNode) {
     // This will validate the target type is pointing to a valid ref.
-    resolveTypeReferenceSym(node.targetType, undefined);
+    resolveTypeReferenceSym(node.targetType, undefined, { resolveDeclarationOfTemplate: true });
     const links = resolver.getNodeLinks(node.targetType);
     if (links.isTemplateInstantiation) {
       program.reportDiagnostic(
@@ -6029,6 +6090,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   ): Map<string, Operation> {
     const ownMembers = new Map<string, Operation>();
 
+    // Preregister each operation sym links instantiation to make sure there is no race condition when instantiating templated interface
+    for (const opNode of node.operations) {
+      const symbol = getSymbolForMember(opNode);
+      const links = symbol && getSymbolLinks(symbol);
+      if (links) {
+        links.instantiations = new TypeInstantiationMap();
+      }
+    }
     for (const opNode of node.operations) {
       const opType = checkOperation(opNode, mapper, interfaceType);
       if (ownMembers.has(opType.name)) {
@@ -6540,14 +6609,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       | StringTemplateMiddleNode
       | StringTemplateTailNode,
   ): StringLiteral;
-  function createLiteralType(value: number, node?: NumericLiteralNode): NumericLiteral;
+  function createLiteralType(value: number | Numeric, node?: NumericLiteralNode): NumericLiteral;
   function createLiteralType(value: boolean, node?: BooleanLiteralNode): BooleanLiteral;
   function createLiteralType(
     value: string | number | boolean,
     node?: LiteralNode,
   ): StringLiteral | NumericLiteral | BooleanLiteral;
   function createLiteralType(
-    value: string | number | boolean,
+    value: string | number | boolean | Numeric,
     node?: LiteralNode,
   ): StringLiteral | NumericLiteral | BooleanLiteral {
     if (program.literalTypes.has(value)) {
@@ -6580,6 +6649,13 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           numericValue: Numeric(valueAsString),
         });
         break;
+      default:
+        type = createType({
+          kind: "Number",
+          value: value.asNumber() ?? 0,
+          valueAsString: value.toString(),
+          numericValue: value,
+        });
     }
     program.literalTypes.set(value, type);
     return finishType(type);
@@ -7197,15 +7273,21 @@ interface SymbolResolutionOptions {
   resolveDecorators: boolean;
 
   /**
-   * Should the symbol resolution instantiate templates and do a late bind of symbols.
-   * @default true
+   * When resolving a symbol should it resolve to the declaration or template instance for ambiguous cases
+   * ```tsp
+   * model Foo<T = string> {}
+   * ```
+   *
+   * Does `Foo` reference to the `Foo<T>` or `Foo<string>` instance. By default it is the instance. Only case looking for declaration are augment decorator target
+   *
+   * @default false
    */
-  checkTemplateTypes: boolean;
+  resolveDeclarationOfTemplate: boolean;
 }
 
 const defaultSymbolResolutionOptions: SymbolResolutionOptions = {
   resolveDecorators: false,
-  checkTemplateTypes: true,
+  resolveDeclarationOfTemplate: false,
 };
 
 function printTypeReferenceNode(
