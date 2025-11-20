@@ -231,4 +231,42 @@ namespace ModelProperties {
     """)
   @route("same-as-model")
   op sameAsModel(@body body: SameAsModel): void;
+
+  // Python dict method names that could conflict
+  model DictMethods {
+    keys: string;
+    items: string;
+    values: string;
+    popitem: string;
+    clear: string;
+    update: string;
+    setdefault: string;
+    pop: string;
+    get: string;
+    copy: string;
+  }
+
+  @scenario
+  @scenarioDoc("""
+    Verify that model properties can use names that are Python dict methods. These names (keys, items, values, etc.) may conflict with Python's dict class methods.
+    
+    Send
+    
+    ```json
+    {
+      "keys": "ok",
+      "items": "ok",
+      "values": "ok",
+      "popitem": "ok",
+      "clear": "ok",
+      "update": "ok",
+      "setdefault": "ok",
+      "pop": "ok",
+      "get": "ok",
+      "copy": "ok"
+    }
+    ```
+    """)
+  @route("dict-methods")
+  op dictMethods(@body body: DictMethods): void;
 }

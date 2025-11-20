@@ -18,7 +18,6 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlo
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaClass;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaIfBlock;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -32,7 +31,7 @@ public class ProtocolTestWriter {
     private final Consumer<JavaClass> clientVariableWriter;
     private final Consumer<JavaBlock> clientInitializationWriter;
 
-    public ProtocolTestWriter(TestContext testContext) {
+    public ProtocolTestWriter(TestContext<?> testContext) {
         final List<ServiceClient> serviceClients = testContext.getServiceClients();
         final ServiceClient serviceClient = serviceClients.iterator().next();
         final List<AsyncSyncClient> syncClients = testContext.getSyncClients();
@@ -40,7 +39,7 @@ public class ProtocolTestWriter {
             && serviceClient.getSecurityInfo().getSecurityTypes() != null
             && serviceClient.getSecurityInfo().getSecurityTypes().contains(Scheme.SecuritySchemeType.OAUTH2);
 
-        this.imports = new HashSet<>(Arrays.asList(HttpClient.class.getName(), HttpLogDetailLevel.class.getName(),
+        this.imports = new HashSet<>(List.of(HttpClient.class.getName(), HttpLogDetailLevel.class.getName(),
             HttpLogOptions.class.getName(), Configuration.class.getName(),
             "com.azure.core.test.utils.MockTokenCredential", "com.azure.identity.DefaultAzureCredentialBuilder",
             "com.azure.core.test.TestProxyTestBase", "com.azure.core.test.TestMode",
@@ -56,13 +55,11 @@ public class ProtocolTestWriter {
         // base test class
         imports.add(String.format("%s.%s", testContext.getPackageName(), testContext.getTestBaseClassName()));
 
-        this.clientVariableWriter = classBlock -> {
-            syncClients.forEach(c -> {
-                if (c.getClientBuilder() != null) {
-                    classBlock.protectedMemberVariable(c.getClassName(), CodeNamer.toCamelCase(c.getClassName()));
-                }
-            });
-        };
+        this.clientVariableWriter = classBlock -> syncClients.forEach(c -> {
+            if (c.getClientBuilder() != null) {
+                classBlock.protectedMemberVariable(c.getClassName(), CodeNamer.toCamelCase(c.getClassName()));
+            }
+        });
 
         this.clientInitializationWriter = methodBlock -> {
             Iterator<ServiceClient> serviceClientIterator = serviceClients.iterator();
@@ -166,6 +163,6 @@ public class ProtocolTestWriter {
     }
 
     public void writeClientInitialization(JavaBlock methodBlock) {
-        clientInitializationWriter.accept(methodBlock);;
+        clientInitializationWriter.accept(methodBlock);
     }
 }
