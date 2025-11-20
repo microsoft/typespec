@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
 import { ScenarioManifest } from "@typespec/spec-coverage-sdk";
+import { describe, expect, it } from "vitest";
 import { splitManifestByTables, TableDefinition } from "./apis.js";
 
 describe("splitManifestByTables", () => {
@@ -81,7 +81,7 @@ describe("splitManifestByTables", () => {
     const result = splitManifestByTables(manifest, tables);
 
     expect(result).toHaveLength(2);
-    
+
     // First table should have prefix1 scenarios
     const prefix1Table = result.find((r) => r.tableName === "Prefix1 Table");
     expect(prefix1Table).toBeDefined();
@@ -225,4 +225,3 @@ describe("splitManifestByTables", () => {
     expect(defaultTable!.manifest.scenarios[0].name).toBe("unique_scenario");
   });
 });
-
