@@ -73,6 +73,8 @@ public class JavaFile implements JavaContext {
         getContents().declarePackage(packageKeyword);
     }
 
+    @SuppressWarnings("SafeVarargsOnNonReifiableType")
+    @SafeVarargs
     public final void declareImport(String... imports) {
         declareImport(Arrays.asList(imports));
     }

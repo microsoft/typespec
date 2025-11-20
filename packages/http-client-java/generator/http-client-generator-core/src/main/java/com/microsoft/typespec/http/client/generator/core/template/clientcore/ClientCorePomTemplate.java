@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.template.clientcore;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Pom;
 import com.microsoft.typespec.http.client.generator.core.model.xmlmodel.XmlBlock;
@@ -11,6 +10,7 @@ import com.microsoft.typespec.http.client.generator.core.model.xmlmodel.XmlFile;
 import com.microsoft.typespec.http.client.generator.core.template.PomTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.TemplateHelper;
 import com.microsoft.typespec.http.client.generator.core.util.Constants;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;

@@ -5,7 +5,6 @@ package com.microsoft.typespec.http.client.generator.core.template.util;
 
 import com.azure.core.http.HttpHeaderName;
 import com.azure.core.http.HttpHeaders;
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ArrayType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
@@ -22,6 +21,7 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaMod
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.template.ModelTemplate;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
+import io.clientcore.core.utils.CoreUtils;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;

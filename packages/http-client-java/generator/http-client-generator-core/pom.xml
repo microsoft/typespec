@@ -50,6 +50,10 @@
           <groupId>com.fasterxml.jackson.datatype</groupId>
           <artifactId>jackson-datatype-jsr310</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>io.projectreactor</groupId>
+          <artifactId>reactor-core</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
@@ -61,6 +65,12 @@
       <groupId>com.azure</groupId>
       <artifactId>azure-json</artifactId>
       <version>1.5.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.projectreactor</groupId>
+      <artifactId>reactor-core</artifactId>
+      <version>3.7.11</version>
       <scope>test</scope>
     </dependency>
     <dependency>

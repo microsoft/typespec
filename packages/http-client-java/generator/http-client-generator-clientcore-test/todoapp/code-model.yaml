@@ -1,0 +1,4363 @@
+language:
+  default:
+    name: Todo
+    description: ''
+    namespace: Todo
+  java:
+    namespace: todo
+protocol: {}
+info:
+  title: Todo
+  description: ''
+schemas:
+  uris:
+    - &ref_32
+      language:
+        default:
+          name: endpoint
+          description: Represent a URL string as described by https://url.spec.whatwg.org/
+      protocol: {}
+      type: uri
+    - &ref_15
+      language:
+        default:
+          name: url
+          description: Represent a URL string as described by https://url.spec.whatwg.org/
+      protocol: {}
+      type: uri
+  strings:
+    - &ref_0
+      language:
+        default:
+          name: string
+          description: A sequence of textual characters.
+      protocol: {}
+      type: string
+    - &ref_11
+      language:
+        default:
+          name: String
+          description: A sequence of textual characters.
+      protocol: {}
+      type: string
+    - &ref_12
+      language:
+        default:
+          name: StringList
+          description: A sequence of textual characters.
+      protocol: {}
+      type: string
+    - &ref_20
+      language:
+        default:
+          name: string
+          description: simple string
+      protocol: {}
+      type: string
+  constants:
+    - &ref_33
+      language:
+        default:
+          name: createContentType
+          description: ''
+      protocol: {}
+      type: constant
+      valueType: *ref_0
+      value:
+        value: application/json
+      usage:
+        - input
+        - public
+    - &ref_34
+      language:
+        default:
+          name: createContentType1
+          description: ''
+      protocol: {}
+      type: constant
+      valueType: *ref_0
+      value:
+        value: application/json
+      usage:
+        - input
+        - public
+    - &ref_9
+      language:
+        default:
+          name: UserExistsResponseCode
+          description: ''
+      protocol: {}
+      type: constant
+      valueType: *ref_0
+      value:
+        value: user-exists
+      usage:
+        - exception
+        - public
+    - &ref_4
+      language:
+        default:
+          name: InvalidUserResponseCode
+          description: ''
+      protocol: {}
+      type: constant
+      valueType: *ref_0
+      value:
+        value: invalid-user
+      usage:
+        - exception
+        - public
+    - &ref_43
+      language:
+        default:
+          name: listContentType
+          description: ''
+      protocol: {}
+      type: constant
+      valueType: *ref_0
+      value:
+        value: application/json
+      usage:
+        - input
+        - public
+    - &ref_53
+      language:
+        default:
+          name: CreateJsonRequestContentType
+          description: ''
+      protocol: {}
+      type: constant
+      valueType: *ref_0
+      value:
+        value: application/json
+      usage:
+        - input
+        - public
+    - &ref_54
+      language:
+        default:
+          name: createJsonContentType
+          description: ''
+      protocol: {}
+      type: constant
+      valueType: *ref_0
+      value:
+        value: application/json
+      usage:
+        - input
+        - public
+    - &ref_55
+      language:
+        default:
+          name: CreateFormRequestContentType
+          description: ''
+      protocol: {}
+      type: constant
+      valueType: *ref_0
+      value:
+        value: multipart/form-data
+      usage:
+        - input
+        - public
+    - &ref_56
+      language:
+        default:
+          name: createFormContentType
+          description: ''
+      protocol: {}
+      type: constant
+      valueType: *ref_0
+      value:
+        value: application/json
+      usage:
+        - input
+        - public
+    - &ref_60
+      language:
+        default:
+          name: getContentType
+          description: ''
+      protocol: {}
+      type: constant
+      valueType: *ref_0
+      value:
+        value: application/json
+      usage:
+        - input
+        - public
+    - &ref_23
+      language:
+        default:
+          name: NotFoundErrorResponseCode
+          description: ''
+      protocol: {}
+      type: constant
+      valueType: *ref_0
+      value:
+        value: not-found
+      usage:
+        - exception
+        - public
+    - &ref_63
+      language:
+        default:
+          name: UpdateRequestContentType
+          description: ''
+      protocol: {}
+      type: constant
+      valueType: *ref_0
+      value:
+        value: application/merge-patch+json
+      usage:
+        - input
+        - public
+    - &ref_64
+      language:
+        default:
+          name: updateContentType
+          description: ''
+      protocol: {}
+      type: constant
+      valueType: *ref_0
+      value:
+        value: application/json
+      usage:
+        - input
+        - public
+    - &ref_71
+      language:
+        default:
+          name: listContentType1
+          description: ''
+      protocol: {}
+      type: constant
+      valueType: *ref_0
+      value:
+        value: application/json
+      usage:
+        - input
+        - public
+    - &ref_74
+      language:
+        default:
+          name: CreateJsonRequestContentType1
+          description: ''
+      protocol: {}
+      type: constant
+      valueType: *ref_0
+      value:
+        value: application/json
+      usage:
+        - input
+        - public
+    - &ref_77
+      language:
+        default:
+          name: CreateFormRequestContentType1
+          description: ''
+      protocol: {}
+      type: constant
+      valueType: *ref_0
+      value:
+        value: multipart/form-data
+      usage:
+        - input
+        - public
+  objects:
+    - &ref_35
+      language:
+        default:
+          name: User
+          description: ''
+          namespace: Todo
+          crossLanguageDefinitionId: Todo.User
+        java:
+          namespace: todo
+      protocol: {}
+      type: object
+      properties:
+        - language:
+            default:
+              name: id
+              description: An autogenerated unique id for the user
+          protocol: {}
+          schema: &ref_1
+            language:
+              default:
+                name: safeint
+                description: >-
+                  An integer that can be serialized to JSON (`−9007199254740991
+                  (−(2^53 − 1))` to `9007199254740991 (2^53 − 1)` )
+            protocol: {}
+            type: integer
+            precision: 64
+          serializedName: id
+          required: true
+          nullable: false
+          readOnly: true
+          extensions:
+            x-ms-mutability:
+              - read
+        - language:
+            default:
+              name: username
+              description: The user's username
+          protocol: {}
+          schema: *ref_0
+          serializedName: username
+          required: true
+          nullable: false
+          readOnly: false
+        - language:
+            default:
+              name: email
+              description: The user's email address
+          protocol: {}
+          schema: *ref_0
+          serializedName: email
+          required: true
+          nullable: false
+          readOnly: false
+        - language:
+            default:
+              name: password
+              description: |-
+                The user's password, provided when creating a user
+                but is otherwise not visible (and hashed by the backend)
+          protocol: {}
+          schema: *ref_0
+          serializedName: password
+          required: true
+          nullable: true
+          readOnly: false
+          extensions:
+            x-ms-secret: true
+            x-ms-mutability:
+              - create
+      usage:
+        - input
+        - public
+    - &ref_37
+      language:
+        default:
+          name: UserCreatedResponse
+          description: ''
+          namespace: Todo.Users
+          crossLanguageDefinitionId: Todo.Users.UserCreatedResponse
+        java:
+          namespace: todo.users
+      protocol: {}
+      type: object
+      properties:
+        - language:
+            default:
+              name: id
+              description: An autogenerated unique id for the user
+          protocol: {}
+          schema: *ref_1
+          serializedName: id
+          required: true
+          nullable: false
+          readOnly: true
+          extensions:
+            x-ms-mutability:
+              - read
+        - language:
+            default:
+              name: username
+              description: The user's username
+          protocol: {}
+          schema: *ref_0
+          serializedName: username
+          required: true
+          nullable: false
+          readOnly: false
+        - language:
+            default:
+              name: email
+              description: The user's email address
+          protocol: {}
+          schema: *ref_0
+          serializedName: email
+          required: true
+          nullable: false
+          readOnly: false
+        - language:
+            default:
+              name: password
+              description: |-
+                The user's password, provided when creating a user
+                but is otherwise not visible (and hashed by the backend)
+          protocol: {}
+          schema: *ref_0
+          serializedName: password
+          required: true
+          nullable: true
+          readOnly: false
+          extensions:
+            x-ms-secret: true
+            x-ms-mutability:
+              - create
+        - language:
+            default:
+              name: token
+              description: The token to use to construct the validate email address url
+          protocol: {}
+          schema: *ref_0
+          serializedName: token
+          required: true
+          nullable: false
+          readOnly: false
+      usage:
+        - output
+        - public
+    - &ref_2
+      language:
+        default:
+          name: UserExistsResponse
+          description: The user already exists
+          namespace: Todo.Users
+          crossLanguageDefinitionId: Todo.Users.UserExistsResponse
+        java:
+          namespace: todo.users
+      protocol: {}
+      type: object
+      parents:
+        immediate:
+          - &ref_3
+            language:
+              default:
+                name: ApiError
+                description: ''
+                namespace: Todo
+                crossLanguageDefinitionId: Todo.ApiError
+              java:
+                namespace: todo
+            protocol: {}
+            type: object
+            properties:
+              - language:
+                  default:
+                    name: code
+                    description: A machine readable error code
+                protocol: {}
+                schema: *ref_0
+                serializedName: code
+                required: true
+                nullable: false
+                readOnly: false
+              - language:
+                  default:
+                    name: message
+                    description: A human readable message
+                protocol: {}
+                schema: *ref_0
+                serializedName: message
+                required: true
+                nullable: false
+                readOnly: false
+            children:
+              immediate:
+                - *ref_2
+                - &ref_5
+                  language:
+                    default:
+                      name: InvalidUserResponse
+                      description: The user is invalid (e.g. forgot to enter email address)
+                      namespace: Todo.Users
+                      crossLanguageDefinitionId: Todo.Users.InvalidUserResponse
+                    java:
+                      namespace: todo.users
+                  protocol: {}
+                  type: object
+                  parents:
+                    immediate:
+                      - *ref_3
+                    all:
+                      - *ref_3
+                  properties:
+                    - language:
+                        default:
+                          name: code
+                          description: ''
+                      protocol: {}
+                      schema: *ref_4
+                      serializedName: code
+                      required: true
+                      nullable: false
+                      readOnly: false
+                  usage:
+                    - exception
+                    - public
+                - &ref_6
+                  language:
+                    default:
+                      name: Standard4XXResponse
+                      description: Something is wrong with you.
+                      namespace: Todo
+                      crossLanguageDefinitionId: Todo.Standard4XXResponse
+                    java:
+                      namespace: todo
+                  protocol: {}
+                  type: object
+                  parents:
+                    immediate:
+                      - *ref_3
+                    all:
+                      - *ref_3
+                  usage:
+                    - exception
+                    - public
+                - &ref_7
+                  language:
+                    default:
+                      name: Standard5XXResponse
+                      description: Something is wrong with me.
+                      namespace: Todo
+                      crossLanguageDefinitionId: Todo.Standard5XXResponse
+                    java:
+                      namespace: todo
+                  protocol: {}
+                  type: object
+                  parents:
+                    immediate:
+                      - *ref_3
+                    all:
+                      - *ref_3
+                  usage:
+                    - exception
+                    - public
+                - &ref_8
+                  language:
+                    default:
+                      name: InvalidTodoItem
+                      description: ''
+                      namespace: Todo.TodoItems
+                      crossLanguageDefinitionId: Todo.TodoItems.InvalidTodoItem
+                    java:
+                      namespace: todo.todoitems
+                  protocol: {}
+                  type: object
+                  parents:
+                    immediate:
+                      - *ref_3
+                    all:
+                      - *ref_3
+                  usage:
+                    - exception
+                    - public
+              all:
+                - *ref_2
+                - *ref_5
+                - *ref_6
+                - *ref_7
+                - *ref_8
+            usage:
+              - exception
+              - public
+        all:
+          - *ref_3
+      properties:
+        - language:
+            default:
+              name: code
+              description: ''
+          protocol: {}
+          schema: *ref_9
+          serializedName: code
+          required: true
+          nullable: false
+          readOnly: false
+      usage:
+        - exception
+        - public
+    - *ref_3
+    - *ref_5
+    - *ref_6
+    - *ref_7
+    - &ref_46
+      language:
+        default:
+          name: TodoPage
+          description: ''
+          namespace: Todo.TodoItems
+          crossLanguageDefinitionId: Todo.TodoItems.TodoPage
+        java:
+          namespace: todo.todoitems
+      protocol: {}
+      type: object
+      properties:
+        - &ref_38
+          language:
+            default:
+              name: items
+              description: The items in the page
+          protocol: {}
+          schema: &ref_28
+            language:
+              default:
+                name: ''
+                description: ''
+            protocol: {}
+            type: array
+            elementType: &ref_16
+              language:
+                default:
+                  name: TodoItem
+                  description: ''
+                  namespace: Todo
+                  crossLanguageDefinitionId: Todo.TodoItem
+                java:
+                  namespace: todo
+              protocol: {}
+              type: object
+              properties:
+                - language:
+                    default:
+                      name: id
+                      description: The item's unique id
+                  protocol: {}
+                  schema: *ref_1
+                  serializedName: id
+                  required: true
+                  nullable: false
+                  readOnly: true
+                  extensions:
+                    x-ms-mutability:
+                      - read
+                - language:
+                    default:
+                      name: title
+                      description: The item's title
+                  protocol: {}
+                  schema: *ref_0
+                  serializedName: title
+                  required: true
+                  nullable: false
+                  readOnly: false
+                - language:
+                    default:
+                      name: createdBy
+                      description: User that created the todo
+                  protocol: {}
+                  schema: *ref_1
+                  serializedName: createdBy
+                  required: true
+                  nullable: false
+                  readOnly: true
+                  extensions:
+                    x-ms-mutability:
+                      - read
+                - language:
+                    default:
+                      name: assignedTo
+                      description: User that the todo is assigned to
+                  protocol: {}
+                  schema: *ref_1
+                  serializedName: assignedTo
+                  required: false
+                  nullable: false
+                  readOnly: false
+                - language:
+                    default:
+                      name: description
+                      description: A longer description of the todo item in markdown format
+                  protocol: {}
+                  schema: *ref_0
+                  serializedName: description
+                  required: false
+                  nullable: false
+                  readOnly: false
+                - language:
+                    default:
+                      name: status
+                      description: The status of the todo item
+                  protocol: {}
+                  schema: &ref_18
+                    language:
+                      default:
+                        name: TodoItemStatus
+                        description: ''
+                        namespace: Todo
+                        crossLanguageDefinitionId: Todo.TodoItem.status.anonymous
+                      java:
+                        namespace: todo
+                    protocol: {}
+                    type: sealed-choice
+                    choiceType: *ref_0
+                    choices:
+                      - value: NotStarted
+                        language:
+                          default:
+                            name: NotStarted
+                            description: ''
+                      - value: InProgress
+                        language:
+                          default:
+                            name: InProgress
+                            description: ''
+                      - value: Completed
+                        language:
+                          default:
+                            name: Completed
+                            description: ''
+                    usage:
+                      - output
+                      - public
+                      - input
+                    serializationFormats: []
+                  serializedName: status
+                  required: true
+                  nullable: false
+                  readOnly: false
+                - language:
+                    default:
+                      name: createdAt
+                      description: When the todo item was created.
+                  protocol: {}
+                  schema: &ref_10
+                    language:
+                      default:
+                        name: ''
+                        description: An instant in coordinated universal time (UTC)"
+                    protocol: {}
+                    type: date-time
+                    format: date-time
+                  serializedName: createdAt
+                  required: true
+                  nullable: false
+                  readOnly: true
+                  extensions:
+                    x-ms-mutability:
+                      - read
+                - language:
+                    default:
+                      name: updatedAt
+                      description: When the todo item was last updated
+                  protocol: {}
+                  schema: *ref_10
+                  serializedName: updatedAt
+                  required: true
+                  nullable: false
+                  readOnly: true
+                  extensions:
+                    x-ms-mutability:
+                      - read
+                - language:
+                    default:
+                      name: completedAt
+                      description: When the todo item was marked as completed
+                  protocol: {}
+                  schema: *ref_10
+                  serializedName: completedAt
+                  required: false
+                  nullable: false
+                  readOnly: true
+                  extensions:
+                    x-ms-mutability:
+                      - read
+                - language:
+                    default:
+                      name: labels
+                      description: ''
+                  protocol: {}
+                  schema: &ref_19
+                    language:
+                      default:
+                        name: TodoLabelsBase
+                        description: ''
+                    protocol: {}
+                    type: or
+                    anyOf:
+                      - language:
+                          default:
+                            name: StringTodoLabels
+                            description: A sequence of textual characters.
+                            namespace: Todo
+                          java:
+                            namespace: todo
+                        protocol: {}
+                        type: object
+                        properties:
+                          - language:
+                              default:
+                                name: value
+                                description: ''
+                            protocol: {}
+                            schema: *ref_11
+                            serializedName: value
+                            required: true
+                            readOnly: false
+                        usage:
+                          - output
+                          - public
+                          - input
+                        serializationFormats: []
+                      - language:
+                          default:
+                            name: StringListTodoLabels
+                            description: ''
+                            namespace: Todo
+                          java:
+                            namespace: todo
+                        protocol: {}
+                        type: object
+                        properties:
+                          - language:
+                              default:
+                                name: value
+                                description: ''
+                            protocol: {}
+                            schema: &ref_26
+                              language:
+                                default:
+                                  name: StringList
+                                  description: ''
+                              protocol: {}
+                              type: array
+                              elementType: *ref_12
+                              nullableItems: false
+                            serializedName: value
+                            required: true
+                            readOnly: false
+                        usage:
+                          - output
+                          - public
+                          - input
+                        serializationFormats: []
+                      - language:
+                          default:
+                            name: TodoLabelRecordTodoLabels
+                            description: ''
+                            namespace: Todo
+                          java:
+                            namespace: todo
+                        protocol: {}
+                        type: object
+                        properties:
+                          - language:
+                              default:
+                                name: value
+                                description: ''
+                            protocol: {}
+                            schema: &ref_13
+                              language:
+                                default:
+                                  name: TodoLabelRecord
+                                  description: ''
+                                  namespace: Todo
+                                  crossLanguageDefinitionId: Todo.TodoLabelRecord
+                                java:
+                                  namespace: todo
+                              protocol: {}
+                              type: object
+                              properties:
+                                - language:
+                                    default:
+                                      name: name
+                                      description: ''
+                                  protocol: {}
+                                  schema: *ref_0
+                                  serializedName: name
+                                  required: true
+                                  nullable: false
+                                  readOnly: false
+                                - language:
+                                    default:
+                                      name: color
+                                      description: ''
+                                  protocol: {}
+                                  schema: *ref_0
+                                  serializedName: color
+                                  required: false
+                                  nullable: false
+                                  readOnly: false
+                              usage:
+                                - output
+                                - public
+                                - input
+                              serializationFormats: []
+                            serializedName: value
+                            required: true
+                            readOnly: false
+                        usage:
+                          - output
+                          - public
+                          - input
+                        serializationFormats: []
+                      - language:
+                          default:
+                            name: TodoLabelRecordListTodoLabels
+                            description: ''
+                            namespace: Todo
+                          java:
+                            namespace: todo
+                        protocol: {}
+                        type: object
+                        properties:
+                          - language:
+                              default:
+                                name: value
+                                description: ''
+                            protocol: {}
+                            schema: &ref_27
+                              language:
+                                default:
+                                  name: TodoLabelRecordList
+                                  description: ''
+                              protocol: {}
+                              type: array
+                              elementType: *ref_13
+                              nullableItems: false
+                            serializedName: value
+                            required: true
+                            readOnly: false
+                        usage:
+                          - output
+                          - public
+                          - input
+                        serializationFormats: []
+                    usage:
+                      - output
+                      - public
+                      - input
+                    serializationFormats: []
+                  serializedName: labels
+                  required: false
+                  nullable: false
+                  readOnly: false
+                - language:
+                    default:
+                      name: _dummy
+                      description: ''
+                  protocol: {}
+                  schema: *ref_0
+                  serializedName: _dummy
+                  required: false
+                  nullable: true
+                  readOnly: false
+                  extensions:
+                    x-ms-secret: true
+                    x-ms-mutability:
+                      - create
+              usage:
+                - output
+                - public
+                - input
+            nullableItems: false
+          serializedName: items
+          required: true
+          nullable: false
+          readOnly: false
+        - language:
+            default:
+              name: pageSize
+              description: The number of items returned in this page
+          protocol: {}
+          schema: &ref_14
+            language:
+              default:
+                name: int32
+                description: A 32-bit integer. (`-2,147,483,648` to `2,147,483,647`)
+            protocol: {}
+            type: integer
+            precision: 32
+          serializedName: pageSize
+          required: true
+          nullable: false
+          readOnly: false
+        - language:
+            default:
+              name: totalSize
+              description: The total number of items
+          protocol: {}
+          schema: *ref_14
+          serializedName: totalSize
+          required: true
+          nullable: false
+          readOnly: false
+        - language:
+            default:
+              name: prevLink
+              description: A link to the previous page, if it exists
+          protocol: {}
+          schema: *ref_15
+          serializedName: prevLink
+          required: false
+          nullable: false
+          readOnly: false
+        - &ref_39
+          language:
+            default:
+              name: nextLink
+              description: A link to the next page, if it exists
+          protocol: {}
+          schema: *ref_15
+          serializedName: nextLink
+          required: false
+          nullable: false
+          readOnly: false
+      usage:
+        - output
+        - public
+        - paged
+    - *ref_16
+    - *ref_13
+    - &ref_47
+      language:
+        default:
+          name: CreateJsonRequest
+          description: ''
+          crossLanguageDefinitionId: Todo.TodoItems.createJson.Request.anonymous
+        java:
+          namespace: todo
+      protocol: {}
+      type: object
+      properties:
+        - &ref_48
+          language:
+            default:
+              name: item
+              description: ''
+          protocol: {}
+          schema: *ref_16
+          serializedName: item
+          required: true
+          nullable: false
+          readOnly: false
+        - &ref_50
+          language:
+            default:
+              name: attachments
+              description: ''
+          protocol: {}
+          schema: &ref_24
+            language:
+              default:
+                name: ''
+                description: ''
+            protocol: {}
+            type: array
+            elementType: &ref_17
+              language:
+                default:
+                  name: TodoAttachment
+                  description: ''
+                  namespace: Todo
+                  crossLanguageDefinitionId: Todo.TodoAttachment
+                java:
+                  namespace: todo
+              protocol: {}
+              type: object
+              properties:
+                - language:
+                    default:
+                      name: filename
+                      description: The file name of the attachment
+                  protocol: {}
+                  schema: *ref_0
+                  serializedName: filename
+                  required: true
+                  nullable: false
+                  readOnly: false
+                - language:
+                    default:
+                      name: mediaType
+                      description: The media type of the attachment
+                  protocol: {}
+                  schema: *ref_0
+                  serializedName: mediaType
+                  required: true
+                  nullable: false
+                  readOnly: false
+                - language:
+                    default:
+                      name: contents
+                      description: The contents of the file
+                  protocol: {}
+                  schema: &ref_29
+                    language:
+                      default:
+                        name: bytes
+                        description: Represent a byte array
+                    protocol: {}
+                    type: byte-array
+                    format: byte
+                  serializedName: contents
+                  required: true
+                  nullable: false
+                  readOnly: false
+              usage:
+                - input
+                - public
+                - output
+            nullableItems: false
+          serializedName: attachments
+          required: false
+          nullable: false
+          readOnly: false
+      usage:
+        - input
+        - internal
+    - *ref_17
+    - *ref_8
+    - &ref_57
+      language:
+        default:
+          name: ToDoItemMultipartRequest
+          description: ''
+          namespace: Todo
+          crossLanguageDefinitionId: Todo.ToDoItemMultipartRequest
+        java:
+          namespace: todo
+      protocol: {}
+      type: object
+      properties:
+        - language:
+            default:
+              name: item
+              description: ''
+          protocol: {}
+          schema: &ref_21
+            language:
+              default:
+                name: CreateFormRequestItem
+                description: ''
+                crossLanguageDefinitionId: Todo.TodoItems.createForm.RequestItem.anonymous
+              java:
+                namespace: todo
+            protocol: {}
+            type: object
+            properties:
+              - language:
+                  default:
+                    name: title
+                    description: The item's title
+                protocol: {}
+                schema: *ref_0
+                serializedName: title
+                required: true
+                nullable: false
+                readOnly: false
+              - language:
+                  default:
+                    name: assignedTo
+                    description: User that the todo is assigned to
+                protocol: {}
+                schema: *ref_1
+                serializedName: assignedTo
+                required: false
+                nullable: false
+                readOnly: false
+              - language:
+                  default:
+                    name: description
+                    description: A longer description of the todo item in markdown format
+                protocol: {}
+                schema: *ref_0
+                serializedName: description
+                required: false
+                nullable: false
+                readOnly: false
+              - language:
+                  default:
+                    name: status
+                    description: The status of the todo item
+                protocol: {}
+                schema: *ref_18
+                serializedName: status
+                required: true
+                nullable: false
+                readOnly: false
+              - language:
+                  default:
+                    name: labels
+                    description: ''
+                protocol: {}
+                schema: *ref_19
+                serializedName: labels
+                required: false
+                nullable: false
+                readOnly: false
+              - language:
+                  default:
+                    name: _dummy
+                    description: ''
+                protocol: {}
+                schema: *ref_0
+                serializedName: _dummy
+                required: false
+                nullable: true
+                readOnly: false
+                extensions:
+                  x-ms-secret: true
+                  x-ms-mutability:
+                    - create
+            usage:
+              - input
+              - public
+            serializationFormats: []
+          serializedName: item
+          required: true
+          nullable: false
+          readOnly: false
+        - language:
+            default:
+              name: attachments
+              description: ''
+          protocol: {}
+          schema:
+            language:
+              default:
+                name: attachments
+                description: ''
+            protocol: {}
+            type: array
+            elementType: &ref_22
+              language:
+                default:
+                  name: FileDetails
+                  description: >-
+                    A file in an HTTP request, response, or multipart payload.
+
+
+                    Files have a special meaning that the HTTP library
+                    understands. When the body of an HTTP request, response,
+
+                    or multipart payload is _effectively_ an instance of
+                    `TypeSpec.Http.File` or any type that extends it, the
+
+                    operation is treated as a file upload or download.
+
+
+                    When using file bodies, the fields of the file model are
+                    defined to come from particular locations by default:
+
+
+                    - `contentType`: The `Content-Type` header of the request,
+                    response, or multipart payload (CANNOT be overridden or
+                    changed).
+
+                    - `contents`: The body of the request, response, or
+                    multipart payload (CANNOT be overridden or changed).
+
+                    - `filename`: The `filename` parameter value of the
+                    `Content-Disposition` header of the response or multipart
+                    payload
+
+                    (MAY be overridden or changed).
+
+
+                    A File may be used as a normal structured JSON object in a
+                    request or response, if the request specifies an explicit
+
+                    `Content-Type` header. In this case, the entire File model
+                    is serialized as if it were any other model. In a JSON
+                    payload,
+
+                    it will have a structure like:
+
+
+                    ```
+
+                    {
+                      "contentType": <string?>,
+                      "filename": <string?>,
+                      "contents": <string, base64>
+                    }
+
+                    ```
+
+
+                    The `contentType` _within_ the file defines what media types
+                    the data inside the file can be, but if the specification
+
+                    defines a `Content-Type` for the payload as HTTP metadata,
+                    that `Content-Type` metadata defines _how the file is
+
+                    serialized_. See the examples below for more information.
+
+
+                    NOTE: The `filename` and `contentType` fields are optional.
+                    Furthermore, the default location of `filename`
+
+                    (`Content-Disposition: <disposition>; filename=<filename>`)
+                    is only valid in HTTP responses and multipart payloads. If
+
+                    you wish to send the `filename` in a request, you must use
+                    HTTP metadata decorators to describe the location of the
+
+                    `filename` field. You can combine the metadata decorators
+                    with `@visibility` to control when the `filename` location
+
+                    is overridden, as shown in the examples below.
+                  namespace: TypeSpec
+                  crossLanguageDefinitionId: TypeSpec.Http.File
+                java:
+                  namespace: todo
+              protocol: {}
+              type: object
+              serializationFormats:
+                - multipart
+              summary: A file in an HTTP request, response, or multipart payload.
+              properties:
+                - language:
+                    default:
+                      name: content
+                      description: The content of the file.
+                  protocol: {}
+                  schema: &ref_30
+                    language:
+                      default:
+                        name: binary
+                        description: simple binary
+                    protocol: {}
+                    type: binary
+                  serializedName: content
+                  required: true
+                  nullable: false
+                  readOnly: false
+                - language:
+                    default:
+                      name: filename
+                      description: The filename of the file.
+                  protocol: {}
+                  schema: *ref_20
+                  serializedName: filename
+                  required: false
+                  nullable: false
+                  readOnly: false
+                - language:
+                    default:
+                      name: contentType
+                      description: The content-type of the file.
+                  protocol: {}
+                  schema: *ref_20
+                  serializedName: contentType
+                  required: false
+                  nullable: false
+                  readOnly: false
+                  clientDefaultValue: application/octet-stream
+              usage:
+                - input
+                - public
+          serializedName: attachments
+          required: false
+          nullable: false
+          readOnly: false
+      usage:
+        - input
+        - public
+      serializationFormats:
+        - multipart
+    - *ref_21
+    - *ref_22
+    - &ref_62
+      language:
+        default:
+          name: NotFoundErrorResponse
+          description: ''
+          namespace: Todo.TodoItems
+          crossLanguageDefinitionId: Todo.TodoItems.NotFoundErrorResponse
+        java:
+          namespace: todo.todoitems
+      protocol: {}
+      type: object
+      properties:
+        - language:
+            default:
+              name: code
+              description: ''
+          protocol: {}
+          schema: *ref_23
+          serializedName: code
+          required: true
+          nullable: false
+          readOnly: false
+      usage:
+        - exception
+        - public
+    - &ref_65
+      language:
+        default:
+          name: TodoItemPatch
+          description: ''
+          namespace: Todo.TodoItems
+          crossLanguageDefinitionId: Todo.TodoItems.TodoItemPatch
+        java:
+          namespace: todo.todoitems
+      protocol: {}
+      type: object
+      properties:
+        - language:
+            default:
+              name: title
+              description: The item's title
+          protocol: {}
+          schema: *ref_0
+          serializedName: title
+          required: false
+          nullable: false
+          readOnly: false
+        - language:
+            default:
+              name: assignedTo
+              description: User that the todo is assigned to
+          protocol: {}
+          schema: *ref_1
+          serializedName: assignedTo
+          required: false
+          nullable: true
+          readOnly: false
+        - language:
+            default:
+              name: description
+              description: A longer description of the todo item in markdown format
+          protocol: {}
+          schema: *ref_0
+          serializedName: description
+          required: false
+          nullable: true
+          readOnly: false
+        - language:
+            default:
+              name: status
+              description: The status of the todo item
+          protocol: {}
+          schema: &ref_25
+            language:
+              default:
+                name: TodoItemPatchStatus
+                description: ''
+                namespace: Todo.TodoItems
+                crossLanguageDefinitionId: Todo.TodoItems.TodoItemPatch.status.anonymous
+              java:
+                namespace: todo.todoitems
+            protocol: {}
+            type: sealed-choice
+            choiceType: *ref_0
+            choices:
+              - value: NotStarted
+                language:
+                  default:
+                    name: NotStarted
+                    description: ''
+              - value: InProgress
+                language:
+                  default:
+                    name: InProgress
+                    description: ''
+              - value: Completed
+                language:
+                  default:
+                    name: Completed
+                    description: ''
+            usage:
+              - input
+              - public
+              - json-merge-patch
+          serializedName: status
+          required: false
+          nullable: false
+          readOnly: false
+      usage:
+        - input
+        - public
+        - json-merge-patch
+    - &ref_73
+      language:
+        default:
+          name: PageTodoAttachment
+          description: ''
+          namespace: Todo.TodoItems
+          crossLanguageDefinitionId: Todo.TodoItems.Page
+        java:
+          namespace: todo.todoitems
+      protocol: {}
+      type: object
+      properties:
+        - &ref_69
+          language:
+            default:
+              name: items
+              description: ''
+          protocol: {}
+          schema: *ref_24
+          serializedName: items
+          required: true
+          nullable: false
+          readOnly: false
+      usage:
+        - output
+        - public
+        - paged
+    - &ref_78
+      language:
+        default:
+          name: FileAttachmentMultipartRequest
+          description: ''
+          namespace: Todo
+          crossLanguageDefinitionId: Todo.FileAttachmentMultipartRequest
+        java:
+          namespace: todo
+      protocol: {}
+      type: object
+      properties:
+        - language:
+            default:
+              name: contents
+              description: ''
+          protocol: {}
+          schema: *ref_22
+          serializedName: contents
+          required: true
+          nullable: false
+          readOnly: false
+      usage:
+        - input
+        - public
+      serializationFormats:
+        - multipart
+  numbers:
+    - *ref_1
+    - &ref_41
+      language:
+        default:
+          name: limit
+          description: A 32-bit integer. (`-2,147,483,648` to `2,147,483,647`)
+      protocol: {}
+      type: integer
+      precision: 32
+    - &ref_42
+      language:
+        default:
+          name: offset
+          description: A 32-bit integer. (`-2,147,483,648` to `2,147,483,647`)
+      protocol: {}
+      type: integer
+      precision: 32
+    - *ref_14
+    - &ref_59
+      language:
+        default:
+          name: id
+          description: >-
+            An integer that can be serialized to JSON (`−9007199254740991
+            (−(2^53 − 1))` to `9007199254740991 (2^53 − 1)` )
+      protocol: {}
+      type: integer
+      precision: 64
+    - &ref_70
+      language:
+        default:
+          name: itemId
+          description: >-
+            An integer that can be serialized to JSON (`−9007199254740991
+            (−(2^53 − 1))` to `9007199254740991 (2^53 − 1)` )
+      protocol: {}
+      type: integer
+      precision: 64
+  sealedChoices:
+    - *ref_18
+    - *ref_25
+  dateTimes:
+    - *ref_10
+  arrays:
+    - *ref_26
+    - *ref_27
+    - *ref_28
+    - *ref_24
+  ors:
+    - *ref_19
+  byteArrays:
+    - *ref_29
+  binaries:
+    - *ref_30
+operationGroups: []
+security:
+  authenticationRequired: true
+  schemes:
+    - &ref_31
+      type: Key
+      name: authorization
+      prefix: Bearer
+clients:
+  - language:
+      default:
+        name: TodoClient
+        description: ''
+        namespace: Todo
+        crossLanguageDefinitionId: Todo
+      java:
+        namespace: todo
+    protocol: {}
+    security:
+      authenticationRequired: true
+      schemes:
+        - *ref_31
+    operationGroups:
+      - language:
+          default:
+            name: Users
+            description: ''
+            crossLanguageDefinitionId: Todo.Users
+        protocol: {}
+        $key: Users
+        operations:
+          - language:
+              default:
+                name: create
+                description: ''
+                crossLanguageDefinitionId: Todo.Users.create
+            protocol: {}
+            operationId: Users_create
+            extensions: {}
+            internalApi: false
+            convenienceApi:
+              language:
+                default:
+                  name: create
+                  description: ''
+              protocol: {}
+            generateProtocolApi: true
+            requests:
+              - language:
+                  default:
+                    name: ''
+                    description: ''
+                protocol:
+                  http:
+                    path: /users
+                    method: post
+                    uri: '{endpoint}'
+                    mediaTypes:
+                      - application/json
+            parameters:
+              - &ref_40
+                language:
+                  default:
+                    name: endpoint
+                    description: Service host
+                    serializedName: endpoint
+                protocol:
+                  http:
+                    in: uri
+                schema: *ref_32
+                implementation: Client
+                origin: modelerfour:synthesized/host
+                required: true
+                extensions:
+                  x-ms-skip-url-encoding: true
+              - language:
+                  default:
+                    name: contentType
+                    description: >-
+                      Body parameter's content type. Known values are
+                      application/json
+                    serializedName: Content-Type
+                protocol:
+                  http:
+                    in: header
+                schema: *ref_33
+                implementation: Method
+                required: true
+                nullable: false
+              - language:
+                  default:
+                    name: accept
+                    description: ''
+                    serializedName: Accept
+                protocol:
+                  http:
+                    in: header
+                schema: *ref_34
+                implementation: Method
+                required: true
+                nullable: false
+              - &ref_36
+                language:
+                  default:
+                    name: user
+                    description: ''
+                protocol:
+                  http:
+                    in: body
+                schema: *ref_35
+                implementation: Method
+                required: true
+            signatureParameters:
+              - *ref_36
+            responses:
+              - language:
+                  default:
+                    name: createResponse
+                    description: The request has succeeded.
+                protocol:
+                  http:
+                    statusCodes:
+                      - '200'
+                    headers: []
+                    mediaTypes:
+                      - application/json
+                schema: *ref_37
+            exceptions:
+              - language:
+                  default:
+                    name: createResponse
+                    description: The user already exists
+                protocol:
+                  http:
+                    statusCodes:
+                      - '409'
+                    headers: []
+                    mediaTypes:
+                      - application/json
+                schema: *ref_2
+              - language:
+                  default:
+                    name: createResponse
+                    description: The user is invalid (e.g. forgot to enter email address)
+                protocol:
+                  http:
+                    statusCodes:
+                      - '422'
+                    headers: []
+                    mediaTypes:
+                      - application/json
+                schema: *ref_5
+              - language:
+                  default:
+                    name: createResponse
+                    description: Something is wrong with you.
+                protocol:
+                  http:
+                    statusCodes:
+                      - '400'
+                      - '401'
+                      - '402'
+                      - '403'
+                      - '404'
+                      - '405'
+                      - '406'
+                      - '407'
+                      - '408'
+                      - '409'
+                      - '410'
+                      - '411'
+                      - '412'
+                      - '413'
+                      - '414'
+                      - '415'
+                      - '416'
+                      - '417'
+                      - '418'
+                      - '419'
+                      - '420'
+                      - '421'
+                      - '422'
+                      - '423'
+                      - '424'
+                      - '425'
+                      - '426'
+                      - '427'
+                      - '428'
+                      - '429'
+                      - '430'
+                      - '431'
+                      - '432'
+                      - '433'
+                      - '434'
+                      - '435'
+                      - '436'
+                      - '437'
+                      - '438'
+                      - '439'
+                      - '440'
+                      - '441'
+                      - '442'
+                      - '443'
+                      - '444'
+                      - '445'
+                      - '446'
+                      - '447'
+                      - '448'
+                      - '449'
+                      - '450'
+                      - '451'
+                      - '452'
+                      - '453'
+                      - '454'
+                      - '455'
+                      - '456'
+                      - '457'
+                      - '458'
+                      - '459'
+                      - '460'
+                      - '461'
+                      - '462'
+                      - '463'
+                      - '464'
+                      - '465'
+                      - '466'
+                      - '467'
+                      - '468'
+                      - '469'
+                      - '470'
+                      - '471'
+                      - '472'
+                      - '473'
+                      - '474'
+                      - '475'
+                      - '476'
+                      - '477'
+                      - '478'
+                      - '479'
+                      - '480'
+                      - '481'
+                      - '482'
+                      - '483'
+                      - '484'
+                      - '485'
+                      - '486'
+                      - '487'
+                      - '488'
+                      - '489'
+                      - '490'
+                      - '491'
+                      - '492'
+                      - '493'
+                      - '494'
+                      - '495'
+                      - '496'
+                      - '497'
+                      - '498'
+                      - '499'
+                    headers: []
+                    mediaTypes:
+                      - application/json
+                schema: *ref_6
+              - language:
+                  default:
+                    name: createResponse
+                    description: Something is wrong with me.
+                protocol:
+                  http:
+                    statusCodes:
+                      - '500'
+                      - '501'
+                      - '502'
+                      - '503'
+                      - '504'
+                      - '505'
+                      - '506'
+                      - '507'
+                      - '508'
+                      - '509'
+                      - '510'
+                      - '511'
+                      - '512'
+                      - '513'
+                      - '514'
+                      - '515'
+                      - '516'
+                      - '517'
+                      - '518'
+                      - '519'
+                      - '520'
+                      - '521'
+                      - '522'
+                      - '523'
+                      - '524'
+                      - '525'
+                      - '526'
+                      - '527'
+                      - '528'
+                      - '529'
+                      - '530'
+                      - '531'
+                      - '532'
+                      - '533'
+                      - '534'
+                      - '535'
+                      - '536'
+                      - '537'
+                      - '538'
+                      - '539'
+                      - '540'
+                      - '541'
+                      - '542'
+                      - '543'
+                      - '544'
+                      - '545'
+                      - '546'
+                      - '547'
+                      - '548'
+                      - '549'
+                      - '550'
+                      - '551'
+                      - '552'
+                      - '553'
+                      - '554'
+                      - '555'
+                      - '556'
+                      - '557'
+                      - '558'
+                      - '559'
+                      - '560'
+                      - '561'
+                      - '562'
+                      - '563'
+                      - '564'
+                      - '565'
+                      - '566'
+                      - '567'
+                      - '568'
+                      - '569'
+                      - '570'
+                      - '571'
+                      - '572'
+                      - '573'
+                      - '574'
+                      - '575'
+                      - '576'
+                      - '577'
+                      - '578'
+                      - '579'
+                      - '580'
+                      - '581'
+                      - '582'
+                      - '583'
+                      - '584'
+                      - '585'
+                      - '586'
+                      - '587'
+                      - '588'
+                      - '589'
+                      - '590'
+                      - '591'
+                      - '592'
+                      - '593'
+                      - '594'
+                      - '595'
+                      - '596'
+                      - '597'
+                      - '598'
+                      - '599'
+                    headers: []
+                    mediaTypes:
+                      - application/json
+                schema: *ref_7
+      - language:
+          default:
+            name: TodoItems
+            description: ''
+            crossLanguageDefinitionId: Todo.TodoItems
+        protocol: {}
+        $key: TodoItems
+        operations:
+          - language:
+              default:
+                name: list
+                description: ''
+                crossLanguageDefinitionId: Todo.TodoItems.list
+            protocol: {}
+            operationId: TodoItems_list
+            extensions:
+              x-ms-pageable:
+                itemName: items
+                nextLinkName: nextLink
+                pageItemsProperty:
+                  - *ref_38
+                nextLinkProperty:
+                  - *ref_39
+                nextLinkVerb: GET
+            internalApi: false
+            convenienceApi:
+              language:
+                default:
+                  name: list
+                  description: ''
+              protocol: {}
+            generateProtocolApi: true
+            requests:
+              - language:
+                  default:
+                    name: ''
+                    description: ''
+                protocol:
+                  http:
+                    path: /items
+                    method: get
+                    uri: '{endpoint}'
+            parameters:
+              - *ref_40
+              - &ref_44
+                language:
+                  default:
+                    name: limit
+                    description: The limit to the number of items
+                    serializedName: limit
+                protocol:
+                  http:
+                    in: query
+                schema: *ref_41
+                implementation: Method
+                required: false
+                nullable: false
+              - &ref_45
+                language:
+                  default:
+                    name: offset
+                    description: The offset to start paginating at
+                    serializedName: offset
+                protocol:
+                  http:
+                    in: query
+                schema: *ref_42
+                implementation: Method
+                required: false
+                nullable: false
+              - language:
+                  default:
+                    name: accept
+                    description: ''
+                    serializedName: Accept
+                protocol:
+                  http:
+                    in: header
+                schema: *ref_43
+                implementation: Method
+                required: true
+                nullable: false
+            signatureParameters:
+              - *ref_44
+              - *ref_45
+            responses:
+              - language:
+                  default:
+                    name: listResponse
+                    description: The request has succeeded.
+                protocol:
+                  http:
+                    statusCodes:
+                      - '200'
+                    headers: []
+                    mediaTypes:
+                      - application/json
+                schema: *ref_46
+            exceptions:
+              - language:
+                  default:
+                    name: listResponse
+                    description: Something is wrong with you.
+                protocol:
+                  http:
+                    statusCodes:
+                      - '400'
+                      - '401'
+                      - '402'
+                      - '403'
+                      - '404'
+                      - '405'
+                      - '406'
+                      - '407'
+                      - '408'
+                      - '409'
+                      - '410'
+                      - '411'
+                      - '412'
+                      - '413'
+                      - '414'
+                      - '415'
+                      - '416'
+                      - '417'
+                      - '418'
+                      - '419'
+                      - '420'
+                      - '421'
+                      - '422'
+                      - '423'
+                      - '424'
+                      - '425'
+                      - '426'
+                      - '427'
+                      - '428'
+                      - '429'
+                      - '430'
+                      - '431'
+                      - '432'
+                      - '433'
+                      - '434'
+                      - '435'
+                      - '436'
+                      - '437'
+                      - '438'
+                      - '439'
+                      - '440'
+                      - '441'
+                      - '442'
+                      - '443'
+                      - '444'
+                      - '445'
+                      - '446'
+                      - '447'
+                      - '448'
+                      - '449'
+                      - '450'
+                      - '451'
+                      - '452'
+                      - '453'
+                      - '454'
+                      - '455'
+                      - '456'
+                      - '457'
+                      - '458'
+                      - '459'
+                      - '460'
+                      - '461'
+                      - '462'
+                      - '463'
+                      - '464'
+                      - '465'
+                      - '466'
+                      - '467'
+                      - '468'
+                      - '469'
+                      - '470'
+                      - '471'
+                      - '472'
+                      - '473'
+                      - '474'
+                      - '475'
+                      - '476'
+                      - '477'
+                      - '478'
+                      - '479'
+                      - '480'
+                      - '481'
+                      - '482'
+                      - '483'
+                      - '484'
+                      - '485'
+                      - '486'
+                      - '487'
+                      - '488'
+                      - '489'
+                      - '490'
+                      - '491'
+                      - '492'
+                      - '493'
+                      - '494'
+                      - '495'
+                      - '496'
+                      - '497'
+                      - '498'
+                      - '499'
+                    headers: []
+                    mediaTypes:
+                      - application/json
+                schema: *ref_6
+              - language:
+                  default:
+                    name: listResponse
+                    description: Something is wrong with me.
+                protocol:
+                  http:
+                    statusCodes:
+                      - '500'
+                      - '501'
+                      - '502'
+                      - '503'
+                      - '504'
+                      - '505'
+                      - '506'
+                      - '507'
+                      - '508'
+                      - '509'
+                      - '510'
+                      - '511'
+                      - '512'
+                      - '513'
+                      - '514'
+                      - '515'
+                      - '516'
+                      - '517'
+                      - '518'
+                      - '519'
+                      - '520'
+                      - '521'
+                      - '522'
+                      - '523'
+                      - '524'
+                      - '525'
+                      - '526'
+                      - '527'
+                      - '528'
+                      - '529'
+                      - '530'
+                      - '531'
+                      - '532'
+                      - '533'
+                      - '534'
+                      - '535'
+                      - '536'
+                      - '537'
+                      - '538'
+                      - '539'
+                      - '540'
+                      - '541'
+                      - '542'
+                      - '543'
+                      - '544'
+                      - '545'
+                      - '546'
+                      - '547'
+                      - '548'
+                      - '549'
+                      - '550'
+                      - '551'
+                      - '552'
+                      - '553'
+                      - '554'
+                      - '555'
+                      - '556'
+                      - '557'
+                      - '558'
+                      - '559'
+                      - '560'
+                      - '561'
+                      - '562'
+                      - '563'
+                      - '564'
+                      - '565'
+                      - '566'
+                      - '567'
+                      - '568'
+                      - '569'
+                      - '570'
+                      - '571'
+                      - '572'
+                      - '573'
+                      - '574'
+                      - '575'
+                      - '576'
+                      - '577'
+                      - '578'
+                      - '579'
+                      - '580'
+                      - '581'
+                      - '582'
+                      - '583'
+                      - '584'
+                      - '585'
+                      - '586'
+                      - '587'
+                      - '588'
+                      - '589'
+                      - '590'
+                      - '591'
+                      - '592'
+                      - '593'
+                      - '594'
+                      - '595'
+                      - '596'
+                      - '597'
+                      - '598'
+                      - '599'
+                    headers: []
+                    mediaTypes:
+                      - application/json
+                schema: *ref_7
+          - language:
+              default:
+                name: createJson
+                description: ''
+                crossLanguageDefinitionId: Todo.TodoItems.createJson
+            protocol: {}
+            operationId: TodoItems_createJson
+            extensions: {}
+            internalApi: false
+            convenienceApi:
+              language:
+                default:
+                  name: createJson
+                  description: ''
+              protocol: {}
+              requests:
+                - language:
+                    default:
+                      name: ''
+                      description: ''
+                  protocol:
+                    http: &ref_52
+                      path: /items
+                      method: post
+                      uri: '{endpoint}'
+                      mediaTypes:
+                        - application/json
+                  parameters: &ref_51
+                    - language:
+                        default:
+                          name: item
+                          description: ''
+                          serializedName: item
+                      protocol: {}
+                      schema: *ref_16
+                      originalParameter: &ref_49
+                        language:
+                          default:
+                            name: createJsonRequest
+                            description: ''
+                        protocol:
+                          http:
+                            in: body
+                        schema: *ref_47
+                        implementation: Method
+                        required: true
+                      targetProperty: *ref_48
+                      implementation: Method
+                      required: true
+                      nullable: false
+                    - language:
+                        default:
+                          name: attachments
+                          description: ''
+                          serializedName: attachments
+                      protocol: {}
+                      schema: *ref_24
+                      originalParameter: *ref_49
+                      targetProperty: *ref_50
+                      implementation: Method
+                      required: false
+                      nullable: false
+                  signatureParameters: *ref_51
+            generateProtocolApi: true
+            requests:
+              - language:
+                  default:
+                    name: ''
+                    description: ''
+                protocol:
+                  http: *ref_52
+            parameters:
+              - *ref_40
+              - language:
+                  default:
+                    name: contentType
+                    description: ''
+                    serializedName: content-type
+                protocol:
+                  http:
+                    in: header
+                schema: *ref_53
+                implementation: Method
+                required: true
+                nullable: false
+              - language:
+                  default:
+                    name: accept
+                    description: ''
+                    serializedName: Accept
+                protocol:
+                  http:
+                    in: header
+                schema: *ref_54
+                implementation: Method
+                required: true
+                nullable: false
+              - *ref_49
+            signatureParameters:
+              - *ref_49
+            responses:
+              - language:
+                  default:
+                    name: createJsonResponse
+                    description: The request has succeeded.
+                protocol:
+                  http:
+                    statusCodes:
+                      - '200'
+                    headers: []
+                    mediaTypes:
+                      - application/json
+                schema: *ref_16
+            exceptions:
+              - language:
+                  default:
+                    name: createJsonResponse
+                    description: Client error
+                protocol:
+                  http:
+                    statusCodes:
+                      - '422'
+                    headers: []
+                    mediaTypes:
+                      - application/json
+                schema: *ref_8
+              - language:
+                  default:
+                    name: createJsonResponse
+                    description: Something is wrong with you.
+                protocol:
+                  http:
+                    statusCodes:
+                      - '400'
+                      - '401'
+                      - '402'
+                      - '403'
+                      - '404'
+                      - '405'
+                      - '406'
+                      - '407'
+                      - '408'
+                      - '409'
+                      - '410'
+                      - '411'
+                      - '412'
+                      - '413'
+                      - '414'
+                      - '415'
+                      - '416'
+                      - '417'
+                      - '418'
+                      - '419'
+                      - '420'
+                      - '421'
+                      - '422'
+                      - '423'
+                      - '424'
+                      - '425'
+                      - '426'
+                      - '427'
+                      - '428'
+                      - '429'
+                      - '430'
+                      - '431'
+                      - '432'
+                      - '433'
+                      - '434'
+                      - '435'
+                      - '436'
+                      - '437'
+                      - '438'
+                      - '439'
+                      - '440'
+                      - '441'
+                      - '442'
+                      - '443'
+                      - '444'
+                      - '445'
+                      - '446'
+                      - '447'
+                      - '448'
+                      - '449'
+                      - '450'
+                      - '451'
+                      - '452'
+                      - '453'
+                      - '454'
+                      - '455'
+                      - '456'
+                      - '457'
+                      - '458'
+                      - '459'
+                      - '460'
+                      - '461'
+                      - '462'
+                      - '463'
+                      - '464'
+                      - '465'
+                      - '466'
+                      - '467'
+                      - '468'
+                      - '469'
+                      - '470'
+                      - '471'
+                      - '472'
+                      - '473'
+                      - '474'
+                      - '475'
+                      - '476'
+                      - '477'
+                      - '478'
+                      - '479'
+                      - '480'
+                      - '481'
+                      - '482'
+                      - '483'
+                      - '484'
+                      - '485'
+                      - '486'
+                      - '487'
+                      - '488'
+                      - '489'
+                      - '490'
+                      - '491'
+                      - '492'
+                      - '493'
+                      - '494'
+                      - '495'
+                      - '496'
+                      - '497'
+                      - '498'
+                      - '499'
+                    headers: []
+                    mediaTypes:
+                      - application/json
+                schema: *ref_6
+              - language:
+                  default:
+                    name: createJsonResponse
+                    description: Something is wrong with me.
+                protocol:
+                  http:
+                    statusCodes:
+                      - '500'
+                      - '501'
+                      - '502'
+                      - '503'
+                      - '504'
+                      - '505'
+                      - '506'
+                      - '507'
+                      - '508'
+                      - '509'
+                      - '510'
+                      - '511'
+                      - '512'
+                      - '513'
+                      - '514'
+                      - '515'
+                      - '516'
+                      - '517'
+                      - '518'
+                      - '519'
+                      - '520'
+                      - '521'
+                      - '522'
+                      - '523'
+                      - '524'
+                      - '525'
+                      - '526'
+                      - '527'
+                      - '528'
+                      - '529'
+                      - '530'
+                      - '531'
+                      - '532'
+                      - '533'
+                      - '534'
+                      - '535'
+                      - '536'
+                      - '537'
+                      - '538'
+                      - '539'
+                      - '540'
+                      - '541'
+                      - '542'
+                      - '543'
+                      - '544'
+                      - '545'
+                      - '546'
+                      - '547'
+                      - '548'
+                      - '549'
+                      - '550'
+                      - '551'
+                      - '552'
+                      - '553'
+                      - '554'
+                      - '555'
+                      - '556'
+                      - '557'
+                      - '558'
+                      - '559'
+                      - '560'
+                      - '561'
+                      - '562'
+                      - '563'
+                      - '564'
+                      - '565'
+                      - '566'
+                      - '567'
+                      - '568'
+                      - '569'
+                      - '570'
+                      - '571'
+                      - '572'
+                      - '573'
+                      - '574'
+                      - '575'
+                      - '576'
+                      - '577'
+                      - '578'
+                      - '579'
+                      - '580'
+                      - '581'
+                      - '582'
+                      - '583'
+                      - '584'
+                      - '585'
+                      - '586'
+                      - '587'
+                      - '588'
+                      - '589'
+                      - '590'
+                      - '591'
+                      - '592'
+                      - '593'
+                      - '594'
+                      - '595'
+                      - '596'
+                      - '597'
+                      - '598'
+                      - '599'
+                    headers: []
+                    mediaTypes:
+                      - application/json
+                schema: *ref_7
+          - language:
+              default:
+                name: createForm
+                description: ''
+                crossLanguageDefinitionId: Todo.TodoItems.createForm
+              java:
+                comment: >-
+                  Operation 'createForm' is of content-type
+                  'multipart/form-data'. Protocol API is not usable and hence
+                  not generated.
+            protocol: {}
+            operationId: TodoItems_createForm
+            extensions: {}
+            internalApi: false
+            convenienceApi:
+              language:
+                default:
+                  name: createForm
+                  description: ''
+              protocol: {}
+            generateProtocolApi: false
+            requests:
+              - language:
+                  default:
+                    name: ''
+                    description: ''
+                protocol:
+                  http:
+                    path: /items
+                    method: post
+                    uri: '{endpoint}'
+                    mediaTypes:
+                      - multipart/form-data
+            parameters:
+              - *ref_40
+              - language:
+                  default:
+                    name: contentType
+                    description: ''
+                    serializedName: content-type
+                protocol:
+                  http:
+                    in: header
+                schema: *ref_55
+                implementation: Method
+                required: true
+                nullable: false
+              - language:
+                  default:
+                    name: accept
+                    description: ''
+                    serializedName: Accept
+                protocol:
+                  http:
+                    in: header
+                schema: *ref_56
+                implementation: Method
+                required: true
+                nullable: false
+              - &ref_58
+                language:
+                  default:
+                    name: body
+                    description: ''
+                protocol:
+                  http:
+                    in: body
+                schema: *ref_57
+                implementation: Method
+                required: true
+            signatureParameters:
+              - *ref_58
+            responses:
+              - language:
+                  default:
+                    name: createFormResponse
+                    description: The request has succeeded.
+                protocol:
+                  http:
+                    statusCodes:
+                      - '200'
+                    headers: []
+                    mediaTypes:
+                      - application/json
+                schema: *ref_16
+            exceptions:
+              - language:
+                  default:
+                    name: createFormResponse
+                    description: Client error
+                protocol:
+                  http:
+                    statusCodes:
+                      - '422'
+                    headers: []
+                    mediaTypes:
+                      - application/json
+                schema: *ref_8
+              - language:
+                  default:
+                    name: createFormResponse
+                    description: Something is wrong with you.
+                protocol:
+                  http:
+                    statusCodes:
+                      - '400'
+                      - '401'
+                      - '402'
+                      - '403'
+                      - '404'
+                      - '405'
+                      - '406'
+                      - '407'
+                      - '408'
+                      - '409'
+                      - '410'
+                      - '411'
+                      - '412'
+                      - '413'
+                      - '414'
+                      - '415'
+                      - '416'
+                      - '417'
+                      - '418'
+                      - '419'
+                      - '420'
+                      - '421'
+                      - '422'
+                      - '423'
+                      - '424'
+                      - '425'
+                      - '426'
+                      - '427'
+                      - '428'
+                      - '429'
+                      - '430'
+                      - '431'
+                      - '432'
+                      - '433'
+                      - '434'
+                      - '435'
+                      - '436'
+                      - '437'
+                      - '438'
+                      - '439'
+                      - '440'
+                      - '441'
+                      - '442'
+                      - '443'
+                      - '444'
+                      - '445'
+                      - '446'
+                      - '447'
+                      - '448'
+                      - '449'
+                      - '450'
+                      - '451'
+                      - '452'
+                      - '453'
+                      - '454'
+                      - '455'
+                      - '456'
+                      - '457'
+                      - '458'
+                      - '459'
+                      - '460'
+                      - '461'
+                      - '462'
+                      - '463'
+                      - '464'
+                      - '465'
+                      - '466'
+                      - '467'
+                      - '468'
+                      - '469'
+                      - '470'
+                      - '471'
+                      - '472'
+                      - '473'
+                      - '474'
+                      - '475'
+                      - '476'
+                      - '477'
+                      - '478'
+                      - '479'
+                      - '480'
+                      - '481'
+                      - '482'
+                      - '483'
+                      - '484'
+                      - '485'
+                      - '486'
+                      - '487'
+                      - '488'
+                      - '489'
+                      - '490'
+                      - '491'
+                      - '492'
+                      - '493'
+                      - '494'
+                      - '495'
+                      - '496'
+                      - '497'
+                      - '498'
+                      - '499'
+                    headers: []
+                    mediaTypes:
+                      - application/json
+                schema: *ref_6
+              - language:
+                  default:
+                    name: createFormResponse
+                    description: Something is wrong with me.
+                protocol:
+                  http:
+                    statusCodes:
+                      - '500'
+                      - '501'
+                      - '502'
+                      - '503'
+                      - '504'
+                      - '505'
+                      - '506'
+                      - '507'
+                      - '508'
+                      - '509'
+                      - '510'
+                      - '511'
+                      - '512'
+                      - '513'
+                      - '514'
+                      - '515'
+                      - '516'
+                      - '517'
+                      - '518'
+                      - '519'
+                      - '520'
+                      - '521'
+                      - '522'
+                      - '523'
+                      - '524'
+                      - '525'
+                      - '526'
+                      - '527'
+                      - '528'
+                      - '529'
+                      - '530'
+                      - '531'
+                      - '532'
+                      - '533'
+                      - '534'
+                      - '535'
+                      - '536'
+                      - '537'
+                      - '538'
+                      - '539'
+                      - '540'
+                      - '541'
+                      - '542'
+                      - '543'
+                      - '544'
+                      - '545'
+                      - '546'
+                      - '547'
+                      - '548'
+                      - '549'
+                      - '550'
+                      - '551'
+                      - '552'
+                      - '553'
+                      - '554'
+                      - '555'
+                      - '556'
+                      - '557'
+                      - '558'
+                      - '559'
+                      - '560'
+                      - '561'
+                      - '562'
+                      - '563'
+                      - '564'
+                      - '565'
+                      - '566'
+                      - '567'
+                      - '568'
+                      - '569'
+                      - '570'
+                      - '571'
+                      - '572'
+                      - '573'
+                      - '574'
+                      - '575'
+                      - '576'
+                      - '577'
+                      - '578'
+                      - '579'
+                      - '580'
+                      - '581'
+                      - '582'
+                      - '583'
+                      - '584'
+                      - '585'
+                      - '586'
+                      - '587'
+                      - '588'
+                      - '589'
+                      - '590'
+                      - '591'
+                      - '592'
+                      - '593'
+                      - '594'
+                      - '595'
+                      - '596'
+                      - '597'
+                      - '598'
+                      - '599'
+                    headers: []
+                    mediaTypes:
+                      - application/json
+                schema: *ref_7
+          - language:
+              default:
+                name: get
+                description: ''
+                crossLanguageDefinitionId: Todo.TodoItems.get
+            protocol: {}
+            operationId: TodoItems_get
+            extensions: {}
+            internalApi: false
+            convenienceApi:
+              language:
+                default:
+                  name: get
+                  description: ''
+              protocol: {}
+            generateProtocolApi: true
+            requests:
+              - language:
+                  default:
+                    name: ''
+                    description: ''
+                protocol:
+                  http:
+                    path: /items/{id}
+                    method: get
+                    uri: '{endpoint}'
+            parameters:
+              - *ref_40
+              - &ref_61
+                language:
+                  default:
+                    name: id
+                    description: ''
+                    serializedName: id
+                protocol:
+                  http:
+                    in: path
+                schema: *ref_59
+                implementation: Method
+                required: true
+                nullable: false
+              - language:
+                  default:
+                    name: accept
+                    description: ''
+                    serializedName: Accept
+                protocol:
+                  http:
+                    in: header
+                schema: *ref_60
+                implementation: Method
+                required: true
+                nullable: false
+            signatureParameters:
+              - *ref_61
+            responses:
+              - language:
+                  default:
+                    name: getResponse
+                    description: The request has succeeded.
+                protocol:
+                  http:
+                    statusCodes:
+                      - '200'
+                    headers: []
+                    mediaTypes:
+                      - application/json
+                schema: *ref_16
+            exceptions:
+              - language:
+                  default:
+                    name: getResponse
+                    description: The server cannot find the requested resource.
+                protocol:
+                  http:
+                    statusCodes:
+                      - '404'
+                    headers: []
+                    mediaTypes:
+                      - application/json
+                schema: *ref_62
+          - language:
+              default:
+                name: update
+                description: ''
+                crossLanguageDefinitionId: Todo.TodoItems.update
+            protocol: {}
+            operationId: TodoItems_update
+            extensions: {}
+            internalApi: false
+            convenienceApi:
+              language:
+                default:
+                  name: update
+                  description: ''
+              protocol: {}
+            generateProtocolApi: true
+            requests:
+              - language:
+                  default:
+                    name: ''
+                    description: ''
+                protocol:
+                  http:
+                    path: /items/{id}
+                    method: patch
+                    uri: '{endpoint}'
+                    mediaTypes:
+                      - application/merge-patch+json
+            parameters:
+              - *ref_40
+              - language:
+                  default:
+                    name: contentType
+                    description: ''
+                    serializedName: content-type
+                protocol:
+                  http:
+                    in: header
+                schema: *ref_63
+                implementation: Method
+                required: true
+                nullable: false
+              - &ref_66
+                language:
+                  default:
+                    name: id
+                    description: ''
+                    serializedName: id
+                protocol:
+                  http:
+                    in: path
+                schema: *ref_59
+                implementation: Method
+                required: true
+                nullable: false
+              - language:
+                  default:
+                    name: accept
+                    description: ''
+                    serializedName: Accept
+                protocol:
+                  http:
+                    in: header
+                schema: *ref_64
+                implementation: Method
+                required: true
+                nullable: false
+              - &ref_67
+                language:
+                  default:
+                    name: patch
+                    description: ''
+                protocol:
+                  http:
+                    in: body
+                schema: *ref_65
+                implementation: Method
+                required: true
+            signatureParameters:
+              - *ref_66
+              - *ref_67
+            responses:
+              - language:
+                  default:
+                    name: updateResponse
+                    description: The request has succeeded.
+                protocol:
+                  http:
+                    statusCodes:
+                      - '200'
+                    headers: []
+                    mediaTypes:
+                      - application/json
+                schema: *ref_16
+          - language:
+              default:
+                name: delete
+                description: ''
+                crossLanguageDefinitionId: Todo.TodoItems.delete
+            protocol: {}
+            operationId: TodoItems_delete
+            extensions: {}
+            internalApi: false
+            convenienceApi:
+              language:
+                default:
+                  name: delete
+                  description: ''
+              protocol: {}
+            generateProtocolApi: true
+            requests:
+              - language:
+                  default:
+                    name: ''
+                    description: ''
+                protocol:
+                  http:
+                    path: /items/{id}
+                    method: delete
+                    uri: '{endpoint}'
+            parameters:
+              - *ref_40
+              - &ref_68
+                language:
+                  default:
+                    name: id
+                    description: ''
+                    serializedName: id
+                protocol:
+                  http:
+                    in: path
+                schema: *ref_59
+                implementation: Method
+                required: true
+                nullable: false
+            signatureParameters:
+              - *ref_68
+            responses:
+              - language:
+                  default:
+                    name: deleteResponse
+                    description: >-
+                      There is no content to send for this request, but the
+                      headers may be useful.
+                protocol:
+                  http:
+                    statusCodes:
+                      - '204'
+                    headers: []
+            exceptions:
+              - language:
+                  default:
+                    name: deleteResponse
+                    description: The server cannot find the requested resource.
+                protocol:
+                  http:
+                    statusCodes:
+                      - '404'
+                    headers: []
+                    mediaTypes:
+                      - application/json
+                schema: *ref_62
+              - language:
+                  default:
+                    name: deleteResponse
+                    description: Something is wrong with you.
+                protocol:
+                  http:
+                    statusCodes:
+                      - '400'
+                      - '401'
+                      - '402'
+                      - '403'
+                      - '404'
+                      - '405'
+                      - '406'
+                      - '407'
+                      - '408'
+                      - '409'
+                      - '410'
+                      - '411'
+                      - '412'
+                      - '413'
+                      - '414'
+                      - '415'
+                      - '416'
+                      - '417'
+                      - '418'
+                      - '419'
+                      - '420'
+                      - '421'
+                      - '422'
+                      - '423'
+                      - '424'
+                      - '425'
+                      - '426'
+                      - '427'
+                      - '428'
+                      - '429'
+                      - '430'
+                      - '431'
+                      - '432'
+                      - '433'
+                      - '434'
+                      - '435'
+                      - '436'
+                      - '437'
+                      - '438'
+                      - '439'
+                      - '440'
+                      - '441'
+                      - '442'
+                      - '443'
+                      - '444'
+                      - '445'
+                      - '446'
+                      - '447'
+                      - '448'
+                      - '449'
+                      - '450'
+                      - '451'
+                      - '452'
+                      - '453'
+                      - '454'
+                      - '455'
+                      - '456'
+                      - '457'
+                      - '458'
+                      - '459'
+                      - '460'
+                      - '461'
+                      - '462'
+                      - '463'
+                      - '464'
+                      - '465'
+                      - '466'
+                      - '467'
+                      - '468'
+                      - '469'
+                      - '470'
+                      - '471'
+                      - '472'
+                      - '473'
+                      - '474'
+                      - '475'
+                      - '476'
+                      - '477'
+                      - '478'
+                      - '479'
+                      - '480'
+                      - '481'
+                      - '482'
+                      - '483'
+                      - '484'
+                      - '485'
+                      - '486'
+                      - '487'
+                      - '488'
+                      - '489'
+                      - '490'
+                      - '491'
+                      - '492'
+                      - '493'
+                      - '494'
+                      - '495'
+                      - '496'
+                      - '497'
+                      - '498'
+                      - '499'
+                    headers: []
+                    mediaTypes:
+                      - application/json
+                schema: *ref_6
+              - language:
+                  default:
+                    name: deleteResponse
+                    description: Something is wrong with me.
+                protocol:
+                  http:
+                    statusCodes:
+                      - '500'
+                      - '501'
+                      - '502'
+                      - '503'
+                      - '504'
+                      - '505'
+                      - '506'
+                      - '507'
+                      - '508'
+                      - '509'
+                      - '510'
+                      - '511'
+                      - '512'
+                      - '513'
+                      - '514'
+                      - '515'
+                      - '516'
+                      - '517'
+                      - '518'
+                      - '519'
+                      - '520'
+                      - '521'
+                      - '522'
+                      - '523'
+                      - '524'
+                      - '525'
+                      - '526'
+                      - '527'
+                      - '528'
+                      - '529'
+                      - '530'
+                      - '531'
+                      - '532'
+                      - '533'
+                      - '534'
+                      - '535'
+                      - '536'
+                      - '537'
+                      - '538'
+                      - '539'
+                      - '540'
+                      - '541'
+                      - '542'
+                      - '543'
+                      - '544'
+                      - '545'
+                      - '546'
+                      - '547'
+                      - '548'
+                      - '549'
+                      - '550'
+                      - '551'
+                      - '552'
+                      - '553'
+                      - '554'
+                      - '555'
+                      - '556'
+                      - '557'
+                      - '558'
+                      - '559'
+                      - '560'
+                      - '561'
+                      - '562'
+                      - '563'
+                      - '564'
+                      - '565'
+                      - '566'
+                      - '567'
+                      - '568'
+                      - '569'
+                      - '570'
+                      - '571'
+                      - '572'
+                      - '573'
+                      - '574'
+                      - '575'
+                      - '576'
+                      - '577'
+                      - '578'
+                      - '579'
+                      - '580'
+                      - '581'
+                      - '582'
+                      - '583'
+                      - '584'
+                      - '585'
+                      - '586'
+                      - '587'
+                      - '588'
+                      - '589'
+                      - '590'
+                      - '591'
+                      - '592'
+                      - '593'
+                      - '594'
+                      - '595'
+                      - '596'
+                      - '597'
+                      - '598'
+                      - '599'
+                    headers: []
+                    mediaTypes:
+                      - application/json
+                schema: *ref_7
+      - language:
+          default:
+            name: TodoItemsAttachments
+            description: ''
+            crossLanguageDefinitionId: Todo.TodoItems.Attachments
+        protocol: {}
+        $key: TodoItemsAttachments
+        operations:
+          - language:
+              default:
+                name: list
+                description: ''
+                crossLanguageDefinitionId: Todo.TodoItems.Attachments.list
+            protocol: {}
+            operationId: TodoItemsAttachments_list
+            extensions:
+              x-ms-pageable:
+                itemName: items
+                pageItemsProperty:
+                  - *ref_69
+                nextLinkVerb: GET
+            internalApi: false
+            convenienceApi:
+              language:
+                default:
+                  name: list
+                  description: ''
+              protocol: {}
+            generateProtocolApi: true
+            requests:
+              - language:
+                  default:
+                    name: ''
+                    description: ''
+                protocol:
+                  http:
+                    path: /items/{itemId}/attachments
+                    method: get
+                    uri: '{endpoint}'
+            parameters:
+              - *ref_40
+              - &ref_72
+                language:
+                  default:
+                    name: itemId
+                    description: ''
+                    serializedName: itemId
+                protocol:
+                  http:
+                    in: path
+                schema: *ref_70
+                implementation: Method
+                required: true
+                nullable: false
+              - language:
+                  default:
+                    name: accept
+                    description: ''
+                    serializedName: Accept
+                protocol:
+                  http:
+                    in: header
+                schema: *ref_71
+                implementation: Method
+                required: true
+                nullable: false
+            signatureParameters:
+              - *ref_72
+            responses:
+              - language:
+                  default:
+                    name: listResponse
+                    description: The request has succeeded.
+                protocol:
+                  http:
+                    statusCodes:
+                      - '200'
+                    headers: []
+                    mediaTypes:
+                      - application/json
+                schema: *ref_73
+            exceptions:
+              - language:
+                  default:
+                    name: listResponse
+                    description: The server cannot find the requested resource.
+                protocol:
+                  http:
+                    statusCodes:
+                      - '404'
+                    headers: []
+                    mediaTypes:
+                      - application/json
+                schema: *ref_62
+              - language:
+                  default:
+                    name: listResponse
+                    description: Something is wrong with you.
+                protocol:
+                  http:
+                    statusCodes:
+                      - '400'
+                      - '401'
+                      - '402'
+                      - '403'
+                      - '404'
+                      - '405'
+                      - '406'
+                      - '407'
+                      - '408'
+                      - '409'
+                      - '410'
+                      - '411'
+                      - '412'
+                      - '413'
+                      - '414'
+                      - '415'
+                      - '416'
+                      - '417'
+                      - '418'
+                      - '419'
+                      - '420'
+                      - '421'
+                      - '422'
+                      - '423'
+                      - '424'
+                      - '425'
+                      - '426'
+                      - '427'
+                      - '428'
+                      - '429'
+                      - '430'
+                      - '431'
+                      - '432'
+                      - '433'
+                      - '434'
+                      - '435'
+                      - '436'
+                      - '437'
+                      - '438'
+                      - '439'
+                      - '440'
+                      - '441'
+                      - '442'
+                      - '443'
+                      - '444'
+                      - '445'
+                      - '446'
+                      - '447'
+                      - '448'
+                      - '449'
+                      - '450'
+                      - '451'
+                      - '452'
+                      - '453'
+                      - '454'
+                      - '455'
+                      - '456'
+                      - '457'
+                      - '458'
+                      - '459'
+                      - '460'
+                      - '461'
+                      - '462'
+                      - '463'
+                      - '464'
+                      - '465'
+                      - '466'
+                      - '467'
+                      - '468'
+                      - '469'
+                      - '470'
+                      - '471'
+                      - '472'
+                      - '473'
+                      - '474'
+                      - '475'
+                      - '476'
+                      - '477'
+                      - '478'
+                      - '479'
+                      - '480'
+                      - '481'
+                      - '482'
+                      - '483'
+                      - '484'
+                      - '485'
+                      - '486'
+                      - '487'
+                      - '488'
+                      - '489'
+                      - '490'
+                      - '491'
+                      - '492'
+                      - '493'
+                      - '494'
+                      - '495'
+                      - '496'
+                      - '497'
+                      - '498'
+                      - '499'
+                    headers: []
+                    mediaTypes:
+                      - application/json
+                schema: *ref_6
+              - language:
+                  default:
+                    name: listResponse
+                    description: Something is wrong with me.
+                protocol:
+                  http:
+                    statusCodes:
+                      - '500'
+                      - '501'
+                      - '502'
+                      - '503'
+                      - '504'
+                      - '505'
+                      - '506'
+                      - '507'
+                      - '508'
+                      - '509'
+                      - '510'
+                      - '511'
+                      - '512'
+                      - '513'
+                      - '514'
+                      - '515'
+                      - '516'
+                      - '517'
+                      - '518'
+                      - '519'
+                      - '520'
+                      - '521'
+                      - '522'
+                      - '523'
+                      - '524'
+                      - '525'
+                      - '526'
+                      - '527'
+                      - '528'
+                      - '529'
+                      - '530'
+                      - '531'
+                      - '532'
+                      - '533'
+                      - '534'
+                      - '535'
+                      - '536'
+                      - '537'
+                      - '538'
+                      - '539'
+                      - '540'
+                      - '541'
+                      - '542'
+                      - '543'
+                      - '544'
+                      - '545'
+                      - '546'
+                      - '547'
+                      - '548'
+                      - '549'
+                      - '550'
+                      - '551'
+                      - '552'
+                      - '553'
+                      - '554'
+                      - '555'
+                      - '556'
+                      - '557'
+                      - '558'
+                      - '559'
+                      - '560'
+                      - '561'
+                      - '562'
+                      - '563'
+                      - '564'
+                      - '565'
+                      - '566'
+                      - '567'
+                      - '568'
+                      - '569'
+                      - '570'
+                      - '571'
+                      - '572'
+                      - '573'
+                      - '574'
+                      - '575'
+                      - '576'
+                      - '577'
+                      - '578'
+                      - '579'
+                      - '580'
+                      - '581'
+                      - '582'
+                      - '583'
+                      - '584'
+                      - '585'
+                      - '586'
+                      - '587'
+                      - '588'
+                      - '589'
+                      - '590'
+                      - '591'
+                      - '592'
+                      - '593'
+                      - '594'
+                      - '595'
+                      - '596'
+                      - '597'
+                      - '598'
+                      - '599'
+                    headers: []
+                    mediaTypes:
+                      - application/json
+                schema: *ref_7
+          - language:
+              default:
+                name: createJsonAttachment
+                description: ''
+                crossLanguageDefinitionId: Todo.TodoItems.Attachments.createJsonAttachment
+            protocol: {}
+            operationId: TodoItemsAttachments_createJsonAttachment
+            extensions: {}
+            internalApi: false
+            convenienceApi:
+              language:
+                default:
+                  name: createJsonAttachment
+                  description: ''
+              protocol: {}
+            generateProtocolApi: true
+            requests:
+              - language:
+                  default:
+                    name: ''
+                    description: ''
+                protocol:
+                  http:
+                    path: /items/{itemId}/attachments
+                    method: post
+                    uri: '{endpoint}'
+                    mediaTypes:
+                      - application/json
+            parameters:
+              - *ref_40
+              - language:
+                  default:
+                    name: contentType
+                    description: ''
+                    serializedName: content-type
+                protocol:
+                  http:
+                    in: header
+                schema: *ref_74
+                implementation: Method
+                required: true
+                nullable: false
+              - &ref_75
+                language:
+                  default:
+                    name: itemId
+                    description: ''
+                    serializedName: itemId
+                protocol:
+                  http:
+                    in: path
+                schema: *ref_70
+                implementation: Method
+                required: true
+                nullable: false
+              - &ref_76
+                language:
+                  default:
+                    name: contents
+                    description: ''
+                protocol:
+                  http:
+                    in: body
+                schema: *ref_17
+                implementation: Method
+                required: true
+            signatureParameters:
+              - *ref_75
+              - *ref_76
+            responses:
+              - language:
+                  default:
+                    name: createJsonAttachmentResponse
+                    description: >-
+                      There is no content to send for this request, but the
+                      headers may be useful.
+                protocol:
+                  http:
+                    statusCodes:
+                      - '204'
+                    headers: []
+            exceptions:
+              - language:
+                  default:
+                    name: createJsonAttachmentResponse
+                    description: The server cannot find the requested resource.
+                protocol:
+                  http:
+                    statusCodes:
+                      - '404'
+                    headers: []
+                    mediaTypes:
+                      - application/json
+                schema: *ref_62
+              - language:
+                  default:
+                    name: createJsonAttachmentResponse
+                    description: Something is wrong with you.
+                protocol:
+                  http:
+                    statusCodes:
+                      - '400'
+                      - '401'
+                      - '402'
+                      - '403'
+                      - '404'
+                      - '405'
+                      - '406'
+                      - '407'
+                      - '408'
+                      - '409'
+                      - '410'
+                      - '411'
+                      - '412'
+                      - '413'
+                      - '414'
+                      - '415'
+                      - '416'
+                      - '417'
+                      - '418'
+                      - '419'
+                      - '420'
+                      - '421'
+                      - '422'
+                      - '423'
+                      - '424'
+                      - '425'
+                      - '426'
+                      - '427'
+                      - '428'
+                      - '429'
+                      - '430'
+                      - '431'
+                      - '432'
+                      - '433'
+                      - '434'
+                      - '435'
+                      - '436'
+                      - '437'
+                      - '438'
+                      - '439'
+                      - '440'
+                      - '441'
+                      - '442'
+                      - '443'
+                      - '444'
+                      - '445'
+                      - '446'
+                      - '447'
+                      - '448'
+                      - '449'
+                      - '450'
+                      - '451'
+                      - '452'
+                      - '453'
+                      - '454'
+                      - '455'
+                      - '456'
+                      - '457'
+                      - '458'
+                      - '459'
+                      - '460'
+                      - '461'
+                      - '462'
+                      - '463'
+                      - '464'
+                      - '465'
+                      - '466'
+                      - '467'
+                      - '468'
+                      - '469'
+                      - '470'
+                      - '471'
+                      - '472'
+                      - '473'
+                      - '474'
+                      - '475'
+                      - '476'
+                      - '477'
+                      - '478'
+                      - '479'
+                      - '480'
+                      - '481'
+                      - '482'
+                      - '483'
+                      - '484'
+                      - '485'
+                      - '486'
+                      - '487'
+                      - '488'
+                      - '489'
+                      - '490'
+                      - '491'
+                      - '492'
+                      - '493'
+                      - '494'
+                      - '495'
+                      - '496'
+                      - '497'
+                      - '498'
+                      - '499'
+                    headers: []
+                    mediaTypes:
+                      - application/json
+                schema: *ref_6
+              - language:
+                  default:
+                    name: createJsonAttachmentResponse
+                    description: Something is wrong with me.
+                protocol:
+                  http:
+                    statusCodes:
+                      - '500'
+                      - '501'
+                      - '502'
+                      - '503'
+                      - '504'
+                      - '505'
+                      - '506'
+                      - '507'
+                      - '508'
+                      - '509'
+                      - '510'
+                      - '511'
+                      - '512'
+                      - '513'
+                      - '514'
+                      - '515'
+                      - '516'
+                      - '517'
+                      - '518'
+                      - '519'
+                      - '520'
+                      - '521'
+                      - '522'
+                      - '523'
+                      - '524'
+                      - '525'
+                      - '526'
+                      - '527'
+                      - '528'
+                      - '529'
+                      - '530'
+                      - '531'
+                      - '532'
+                      - '533'
+                      - '534'
+                      - '535'
+                      - '536'
+                      - '537'
+                      - '538'
+                      - '539'
+                      - '540'
+                      - '541'
+                      - '542'
+                      - '543'
+                      - '544'
+                      - '545'
+                      - '546'
+                      - '547'
+                      - '548'
+                      - '549'
+                      - '550'
+                      - '551'
+                      - '552'
+                      - '553'
+                      - '554'
+                      - '555'
+                      - '556'
+                      - '557'
+                      - '558'
+                      - '559'
+                      - '560'
+                      - '561'
+                      - '562'
+                      - '563'
+                      - '564'
+                      - '565'
+                      - '566'
+                      - '567'
+                      - '568'
+                      - '569'
+                      - '570'
+                      - '571'
+                      - '572'
+                      - '573'
+                      - '574'
+                      - '575'
+                      - '576'
+                      - '577'
+                      - '578'
+                      - '579'
+                      - '580'
+                      - '581'
+                      - '582'
+                      - '583'
+                      - '584'
+                      - '585'
+                      - '586'
+                      - '587'
+                      - '588'
+                      - '589'
+                      - '590'
+                      - '591'
+                      - '592'
+                      - '593'
+                      - '594'
+                      - '595'
+                      - '596'
+                      - '597'
+                      - '598'
+                      - '599'
+                    headers: []
+                    mediaTypes:
+                      - application/json
+                schema: *ref_7
+          - language:
+              default:
+                name: createFileAttachment
+                description: ''
+                crossLanguageDefinitionId: Todo.TodoItems.Attachments.createFileAttachment
+              java:
+                comment: >-
+                  Operation 'createFileAttachment' is of content-type
+                  'multipart/form-data'. Protocol API is not usable and hence
+                  not generated.
+            protocol: {}
+            operationId: TodoItemsAttachments_createFileAttachment
+            extensions: {}
+            internalApi: false
+            convenienceApi:
+              language:
+                default:
+                  name: createFileAttachment
+                  description: ''
+              protocol: {}
+            generateProtocolApi: false
+            requests:
+              - language:
+                  default:
+                    name: ''
+                    description: ''
+                protocol:
+                  http:
+                    path: /items/{itemId}/attachments
+                    method: post
+                    uri: '{endpoint}'
+                    mediaTypes:
+                      - multipart/form-data
+            parameters:
+              - *ref_40
+              - language:
+                  default:
+                    name: contentType
+                    description: ''
+                    serializedName: content-type
+                protocol:
+                  http:
+                    in: header
+                schema: *ref_77
+                implementation: Method
+                required: true
+                nullable: false
+              - &ref_79
+                language:
+                  default:
+                    name: itemId
+                    description: ''
+                    serializedName: itemId
+                protocol:
+                  http:
+                    in: path
+                schema: *ref_70
+                implementation: Method
+                required: true
+                nullable: false
+              - &ref_80
+                language:
+                  default:
+                    name: body
+                    description: ''
+                protocol:
+                  http:
+                    in: body
+                schema: *ref_78
+                implementation: Method
+                required: true
+            signatureParameters:
+              - *ref_79
+              - *ref_80
+            responses:
+              - language:
+                  default:
+                    name: createFileAttachmentResponse
+                    description: >-
+                      There is no content to send for this request, but the
+                      headers may be useful.
+                protocol:
+                  http:
+                    statusCodes:
+                      - '204'
+                    headers: []
+            exceptions:
+              - language:
+                  default:
+                    name: createFileAttachmentResponse
+                    description: The server cannot find the requested resource.
+                protocol:
+                  http:
+                    statusCodes:
+                      - '404'
+                    headers: []
+                    mediaTypes:
+                      - application/json
+                schema: *ref_62
+              - language:
+                  default:
+                    name: createFileAttachmentResponse
+                    description: Something is wrong with you.
+                protocol:
+                  http:
+                    statusCodes:
+                      - '400'
+                      - '401'
+                      - '402'
+                      - '403'
+                      - '404'
+                      - '405'
+                      - '406'
+                      - '407'
+                      - '408'
+                      - '409'
+                      - '410'
+                      - '411'
+                      - '412'
+                      - '413'
+                      - '414'
+                      - '415'
+                      - '416'
+                      - '417'
+                      - '418'
+                      - '419'
+                      - '420'
+                      - '421'
+                      - '422'
+                      - '423'
+                      - '424'
+                      - '425'
+                      - '426'
+                      - '427'
+                      - '428'
+                      - '429'
+                      - '430'
+                      - '431'
+                      - '432'
+                      - '433'
+                      - '434'
+                      - '435'
+                      - '436'
+                      - '437'
+                      - '438'
+                      - '439'
+                      - '440'
+                      - '441'
+                      - '442'
+                      - '443'
+                      - '444'
+                      - '445'
+                      - '446'
+                      - '447'
+                      - '448'
+                      - '449'
+                      - '450'
+                      - '451'
+                      - '452'
+                      - '453'
+                      - '454'
+                      - '455'
+                      - '456'
+                      - '457'
+                      - '458'
+                      - '459'
+                      - '460'
+                      - '461'
+                      - '462'
+                      - '463'
+                      - '464'
+                      - '465'
+                      - '466'
+                      - '467'
+                      - '468'
+                      - '469'
+                      - '470'
+                      - '471'
+                      - '472'
+                      - '473'
+                      - '474'
+                      - '475'
+                      - '476'
+                      - '477'
+                      - '478'
+                      - '479'
+                      - '480'
+                      - '481'
+                      - '482'
+                      - '483'
+                      - '484'
+                      - '485'
+                      - '486'
+                      - '487'
+                      - '488'
+                      - '489'
+                      - '490'
+                      - '491'
+                      - '492'
+                      - '493'
+                      - '494'
+                      - '495'
+                      - '496'
+                      - '497'
+                      - '498'
+                      - '499'
+                    headers: []
+                    mediaTypes:
+                      - application/json
+                schema: *ref_6
+              - language:
+                  default:
+                    name: createFileAttachmentResponse
+                    description: Something is wrong with me.
+                protocol:
+                  http:
+                    statusCodes:
+                      - '500'
+                      - '501'
+                      - '502'
+                      - '503'
+                      - '504'
+                      - '505'
+                      - '506'
+                      - '507'
+                      - '508'
+                      - '509'
+                      - '510'
+                      - '511'
+                      - '512'
+                      - '513'
+                      - '514'
+                      - '515'
+                      - '516'
+                      - '517'
+                      - '518'
+                      - '519'
+                      - '520'
+                      - '521'
+                      - '522'
+                      - '523'
+                      - '524'
+                      - '525'
+                      - '526'
+                      - '527'
+                      - '528'
+                      - '529'
+                      - '530'
+                      - '531'
+                      - '532'
+                      - '533'
+                      - '534'
+                      - '535'
+                      - '536'
+                      - '537'
+                      - '538'
+                      - '539'
+                      - '540'
+                      - '541'
+                      - '542'
+                      - '543'
+                      - '544'
+                      - '545'
+                      - '546'
+                      - '547'
+                      - '548'
+                      - '549'
+                      - '550'
+                      - '551'
+                      - '552'
+                      - '553'
+                      - '554'
+                      - '555'
+                      - '556'
+                      - '557'
+                      - '558'
+                      - '559'
+                      - '560'
+                      - '561'
+                      - '562'
+                      - '563'
+                      - '564'
+                      - '565'
+                      - '566'
+                      - '567'
+                      - '568'
+                      - '569'
+                      - '570'
+                      - '571'
+                      - '572'
+                      - '573'
+                      - '574'
+                      - '575'
+                      - '576'
+                      - '577'
+                      - '578'
+                      - '579'
+                      - '580'
+                      - '581'
+                      - '582'
+                      - '583'
+                      - '584'
+                      - '585'
+                      - '586'
+                      - '587'
+                      - '588'
+                      - '589'
+                      - '590'
+                      - '591'
+                      - '592'
+                      - '593'
+                      - '594'
+                      - '595'
+                      - '596'
+                      - '597'
+                      - '598'
+                      - '599'
+                    headers: []
+                    mediaTypes:
+                      - application/json
+                schema: *ref_7
+    subClients: []
+    buildMethodPublic: true
+    parentAccessorPublic: false
+    globalParameters:
+      - *ref_40
+globalParameters:
+  - *ref_40
