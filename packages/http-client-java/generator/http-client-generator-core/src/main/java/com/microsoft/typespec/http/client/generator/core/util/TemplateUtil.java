@@ -99,9 +99,9 @@ public class TemplateUtil {
         try (InputStream inputStream = TemplateUtil.class.getClassLoader().getResourceAsStream(filename)) {
             if (inputStream != null) {
                 text = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8)).lines()
-                    .collect(Collectors.joining(System.lineSeparator()));
+                    .collect(Collectors.joining(Constants.NEW_LINE));
                 if (!text.isEmpty()) {
-                    text += System.lineSeparator();
+                    text += Constants.NEW_LINE;
                 }
 
                 if (replacements.length > 0) {
