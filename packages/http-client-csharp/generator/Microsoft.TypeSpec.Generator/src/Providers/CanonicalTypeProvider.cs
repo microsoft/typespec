@@ -44,13 +44,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers() => _generatedTypeProvider.DeclarationModifiers;
 
+        private protected override bool FilterCustomizedMembers => false;
+
         protected override IReadOnlyList<MethodBodyStatement> BuildAttributes()
         {
             return [.. _generatedTypeProvider.Attributes, .. _generatedTypeProvider.CustomCodeView?.Attributes ?? []];
         }
-
-        internal override PropertyProvider[] FilterCustomizedProperties(IEnumerable<PropertyProvider> canonicalProperties) => [..canonicalProperties];
-        internal override FieldProvider[] FilterCustomizedFields(IEnumerable<FieldProvider> canonicalFields) => [..canonicalFields];
 
         private protected override CanonicalTypeProvider BuildCanonicalView() => this;
 

@@ -114,10 +114,8 @@ namespace Microsoft.TypeSpec.Generator.Tests
             {
                 CallBase = true
             };
-        mockSerializationProvider.Protected().Setup<MethodProvider[]>("BuildMethods")
+            mockSerializationProvider.Protected().Setup<MethodProvider[]>("BuildMethods")
                 .Returns([mockMethodProvider.Object]);
-        mockSerializationProvider.Protected().Setup<MethodProvider[]>("FilterCustomizedMethods", ItExpr.IsAny<MethodProvider[]>())
-            .Returns<MethodProvider[]>(methods => methods);
 
             _mockVisitor.Object.VisitLibrary(_mockGenerator.Object.OutputLibrary);
 

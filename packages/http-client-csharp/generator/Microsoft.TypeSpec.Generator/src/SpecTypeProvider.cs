@@ -14,12 +14,13 @@ namespace Microsoft.TypeSpec.Generator
             _underlyingProvider = underlyingProvider;
         }
 
-        public override PropertyProvider[] Properties => _underlyingProvider.BuildProperties();
-        public override FieldProvider[] Fields => _underlyingProvider.BuildFields();
-        public override MethodProvider[] Methods => _underlyingProvider.BuildMethods();
-        public override ConstructorProvider[] Constructors => _underlyingProvider.BuildConstructors();
+        protected internal override PropertyProvider[] BuildProperties() => _underlyingProvider.BuildProperties();
+        protected internal override FieldProvider[] BuildFields() => _underlyingProvider.BuildFields();
+        protected internal override MethodProvider[] BuildMethods() => _underlyingProvider.BuildMethods();
+        protected internal override ConstructorProvider[] BuildConstructors() => _underlyingProvider.BuildConstructors();
 
         protected override string BuildRelativeFilePath() => _underlyingProvider.RelativeFilePath;
         protected override string BuildName() => _underlyingProvider.Name;
+        private protected override bool FilterCustomizedMembers => false;
     }
 }
