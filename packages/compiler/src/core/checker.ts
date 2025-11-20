@@ -7167,6 +7167,9 @@ function createPassThruContexts(
     decoratorTarget: target,
     getArgumentTarget: () => target,
     call: (decorator, target, ...args) => {
+      return decCtx.callDecorator(decorator, target, ...args);
+    },
+    callDecorator(decorator, target, ...args) {
       return decorator(decCtx, target, ...args);
     },
     callFunction(fn, ...args) {
@@ -7194,19 +7197,24 @@ function createPassThruContexts(
 
 function createDecoratorContext(program: Program, decApp: DecoratorApplication): DecoratorContext {
   const passthrough = createPassThruContexts(program, decApp.node!);
-  return {
+  const decCtx: DecoratorContext = {
     program,
     decoratorTarget: decApp.node!,
     getArgumentTarget: (index: number) => {
       return decApp.args[index]?.node;
     },
     call: (decorator, target, ...args) => {
+      return decCtx.callDecorator(decorator, target, ...args);
+    },
+    callDecorator: (decorator, target, ...args) => {
       return decorator(passthrough.decorator, target, ...args);
     },
     callFunction(fn, ...args) {
       return fn(passthrough.function, ...args);
     },
   };
+
+  return decCtx;
 }
 
 function createFunctionContext(program: Program, fnCall: CallExpressionNode): FunctionContext {

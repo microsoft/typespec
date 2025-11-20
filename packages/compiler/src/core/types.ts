@@ -733,7 +733,13 @@ export interface FunctionType extends BaseType {
   /**
    * The JavaScript implementation of the function.
    *
-   * @internal
+   * WARNING: Calling the implementation function directly is dangerous. It assumes that you have marshaled the arguments
+   * to JS values correctly and that you will handle the return value appropriately. Constructing the correct context
+   * is your responsibility (use the `call
+   *
+   * @param ctx - The FunctionContext providing information about the call site.
+   * @param args - The arguments passed to the function.
+   * @returns The return value of the function, which is arbitrary.
    */
   implementation: (ctx: FunctionContext, ...args: unknown[]) => unknown;
 }
@@ -2548,11 +2554,27 @@ export interface DecoratorContext {
 
   /**
    * Helper to call a decorator implementation from within another decorator implementation.
+   *
+   * This function is identical to `callDecorator`.
+   *
    * @param decorator The decorator function to call.
    * @param target The target to which the decorator is applied.
    * @param args Arguments to pass to the decorator.
    */
   call<T extends Type, A extends any[], R>(
+    decorator: (context: DecoratorContext, target: T, ...args: A) => R,
+    target: T,
+    ...args: A
+  ): R;
+
+  /**
+   * Helper to call a decorator implementation from within another decorator implementation.
+   *
+   * @param decorator The decorator function to call.
+   * @param target The target to which the decorator is applied.
+   * @param args Arguments to pass to the decorator.
+   */
+  callDecorator<T extends Type, A extends any[], R>(
     decorator: (context: DecoratorContext, target: T, ...args: A) => R,
     target: T,
     ...args: A
