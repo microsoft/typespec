@@ -30,18 +30,20 @@ namespace Microsoft.TypeSpec.Generator.Input
             IReadOnlyList<string>? itemPropertySegments = null;
             InputNextLink? nextLink = null;
             InputContinuationToken? continuationToken = null;
+            IReadOnlyList<string>? pageSizeParameterSegments = null;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadComplexType("itemPropertySegments", options, ref itemPropertySegments)
                     || reader.TryReadComplexType("nextLink", options, ref nextLink)
-                    || reader.TryReadComplexType("continuationToken", options, ref continuationToken);
+                    || reader.TryReadComplexType("continuationToken", options, ref continuationToken)
+                    || reader.TryReadComplexType("pageSizeParameterSegments", options, ref pageSizeParameterSegments);
                 if (!isKnownProperty)
                 {
                     reader.SkipProperty();
                 }
             }
 
-            return new InputPagingServiceMetadata(itemPropertySegments ?? [], nextLink, continuationToken);
+            return new InputPagingServiceMetadata(itemPropertySegments ?? [], nextLink, continuationToken, pageSizeParameterSegments);
         }
     }
 }

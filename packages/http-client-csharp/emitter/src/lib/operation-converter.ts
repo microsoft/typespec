@@ -757,11 +757,19 @@ function loadPagingServiceMetadata(
     }
   }
 
+  let pageSizeParameterSegments: string[] | undefined;
+  if (method.pagingMetadata.pageSizeParameterSegments) {
+    pageSizeParameterSegments = method.pagingMetadata.pageSizeParameterSegments.map((segment) =>
+      segment.name,
+    );
+  }
+
   return {
     // TODO - this is hopefully temporary until TCGC provides the information directly on pagingMetadata https://github.com/Azure/typespec-azure/issues/2291
     itemPropertySegments: method.response.resultSegments!.map((s) => s.name),
     nextLink: nextLink,
     continuationToken: continuationToken,
+    pageSizeParameterSegments: pageSizeParameterSegments,
   };
 }
 
