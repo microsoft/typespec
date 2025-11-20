@@ -2363,8 +2363,8 @@ importers:
         specifier: ^7.5.8
         version: 7.7.1
       '@types/vscode':
-        specifier: ~1.106.1
-        version: 1.106.1
+        specifier: ~1.105.0
+        version: 1.105.0
       '@types/which':
         specifier: ^3.0.4
         version: 3.0.4
@@ -2387,11 +2387,11 @@ importers:
         specifier: ^2.3.9
         version: 2.5.2
       '@vscode/test-web':
-        specifier: ^0.0.75
-        version: 0.0.75
+        specifier: ^0.0.74
+        version: 0.0.74
       '@vscode/vsce':
-        specifier: ~3.7.0
-        version: 3.7.0
+        specifier: ~3.6.0
+        version: 3.6.2
       ajv:
         specifier: ~8.17.1
         version: 8.17.1
@@ -2429,8 +2429,8 @@ importers:
         specifier: ~9.0.1
         version: 9.0.1
       which:
-        specifier: ^6.0.0
-        version: 6.0.0
+        specifier: ^5.0.0
+        version: 5.0.0
       yaml:
         specifier: ~2.8.0
         version: 2.8.1
@@ -6378,8 +6378,8 @@ packages:
   '@types/unist@3.0.3':
     resolution: {integrity: sha512-ko/gIFJRv177XgZsZcBwnqJN5x/Gien8qNOn0D5bQU/zAzVf9Zt3BlcUiLqhV9y4ARk0GbT3tnUiPNgnTXzc/Q==}
 
-  '@types/vscode@1.106.1':
-    resolution: {integrity: sha512-R/HV8u2h8CAddSbX8cjpdd7B8/GnE4UjgjpuGuHcbp1xV6yh4OeqU4L1pKjlwujCrSFS0MOpwJAIs/NexMB1fQ==}
+  '@types/vscode@1.105.0':
+    resolution: {integrity: sha512-Lotk3CTFlGZN8ray4VxJE7axIyLZZETQJVWi/lYoUVQuqfRxlQhVOfoejsD2V3dVXPSbS15ov5ZyowMAzgUqcw==}
 
   '@types/whatwg-mimetype@3.0.2':
     resolution: {integrity: sha512-c2AKvDT8ToxLIOUlN51gTiHXflsfIFisS4pO7pDPoKouJCESkhZnEy623gwP9laCy5lnLDAw1vAzu2vM2YLOrA==}
@@ -6596,8 +6596,8 @@ packages:
     resolution: {integrity: sha512-8ukpxv4wYe0iWMRQU18jhzJOHkeGKbnw7xWRX3Zw1WJA4cEKbHcmmLPdPrPtL6rhDcrlCZN+xKRpv09n4gRHYg==}
     engines: {node: '>=16'}
 
-  '@vscode/test-web@0.0.75':
-    resolution: {integrity: sha512-/V+wPN2jDUrUxoT1nDbGTghwhKU6AlfLrnkq0lNvBqX3ka5QImmRnDTHFu1JKfwkCCp3WJEQgFZVrcpKmC+n2g==}
+  '@vscode/test-web@0.0.74':
+    resolution: {integrity: sha512-rXIcru66y56j1RPOhFJYSNs5MAw6yZCFUktqa5tPrxsRel/Lj6vDszq8E47XsVN1NjwsLj8L3FMqwR4/B+0QmA==}
     engines: {node: '>=20'}
     hasBin: true
 
@@ -6649,8 +6649,8 @@ packages:
   '@vscode/vsce-sign@2.0.9':
     resolution: {integrity: sha512-8IvaRvtFyzUnGGl3f5+1Cnor3LqaUWvhaUjAYO8Y39OUYlOf3cRd+dowuQYLpZcP3uwSG+mURwjEBOSq4SOJ0g==}
 
-  '@vscode/vsce@3.7.0':
-    resolution: {integrity: sha512-LY9r2T4joszRjz4d92ZPl6LTBUPS4IWH9gG/3JUv+1QyBJrveZlcVISuiaq0EOpmcgFh0GgVgKD4rD/21Tu8sA==}
+  '@vscode/vsce@3.6.2':
+    resolution: {integrity: sha512-gvBfarWF+Ii20ESqjA3dpnPJpQJ8fFJYtcWtjwbRADommCzGg1emtmb34E+DKKhECYvaVyAl+TF9lWS/3GSPvg==}
     engines: {node: '>= 20'}
     hasBin: true
 
@@ -12425,6 +12425,10 @@ packages:
   tinyexec@1.0.2:
     resolution: {integrity: sha512-W/KYk+NFhkmsYpuHq5JykngiOCnxeVL8v8dFnqxSD8qEEdRfXk1SDM6JzNqcERbcGYj9tMrDQBYV9cjgnunFIg==}
     engines: {node: '>=18'}
+
+  tinyglobby@0.2.14:
+    resolution: {integrity: sha512-tX5e7OM1HnYr2+a2C/4V0htOcSQcoSTH9KgJnVvNm5zm/cyEWKJ7j7YutsH9CxMdtOkkLFy2AHrMci9IM8IPZQ==}
+    engines: {node: '>=12.0.0'}
 
   tinyglobby@0.2.15:
     resolution: {integrity: sha512-j2Zq4NyQYG5XMST4cbs02Ak8iJUdxRM0XI5QyxXuZOzKOINmWurp3smXu3y5wDcJrptwpSjgXHzIQxR0omXljQ==}
@@ -18865,7 +18869,7 @@ snapshots:
 
   '@types/unist@3.0.3': {}
 
-  '@types/vscode@1.106.1': {}
+  '@types/vscode@1.105.0': {}
 
   '@types/whatwg-mimetype@3.0.2': {}
 
@@ -19200,7 +19204,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vscode/test-web@0.0.75':
+  '@vscode/test-web@0.0.74':
     dependencies:
       '@koa/cors': 5.0.0
       '@koa/router': 14.0.0
@@ -19215,7 +19219,7 @@ snapshots:
       minimist: 1.2.8
       playwright: 1.56.1
       tar-fs: 3.1.1
-      tinyglobby: 0.2.15
+      tinyglobby: 0.2.14
       vscode-uri: 3.1.0
     transitivePeerDependencies:
       - bare-abort-controller
@@ -19262,7 +19266,7 @@ snapshots:
       '@vscode/vsce-sign-win32-arm64': 2.0.6
       '@vscode/vsce-sign-win32-x64': 2.0.6
 
-  '@vscode/vsce@3.7.0':
+  '@vscode/vsce@3.6.2':
     dependencies:
       '@azure/identity': 4.13.0
       '@secretlint/node': 10.2.2
@@ -26786,6 +26790,11 @@ snapshots:
   tinyexec@0.3.2: {}
 
   tinyexec@1.0.2: {}
+
+  tinyglobby@0.2.14:
+    dependencies:
+      fdir: 6.5.0(picomatch@4.0.3)
+      picomatch: 4.0.3
 
   tinyglobby@0.2.15:
     dependencies:
