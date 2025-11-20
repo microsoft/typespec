@@ -705,34 +705,72 @@ export interface Decorator extends BaseType {
   implementation: (ctx: DecoratorContext, target: Type, ...args: unknown[]) => void;
 }
 
+/**
+ * A function (`fn`) declared in the TypeSpec program.
+ */
 export interface FunctionType extends BaseType {
   kind: "Function";
   node?: FunctionDeclarationStatementNode;
+  /**
+   * The function's name as declared in the TypeSpec source.
+   */
   name: string;
-  namespace?: Namespace;
+  /**
+   * The namespace in which this function was declared.
+   */
+  namespace: Namespace;
+  /**
+   * The parameters of the function.
+   */
   parameters: MixedFunctionParameter[];
+  /**
+   * The return type constraint of the function.
+   */
   returnType: MixedParameterConstraint;
+  /**
+   * The JavaScript implementation of the function.
+   *
+   * @internal
+   */
   implementation: (ctx: FunctionContext, ...args: unknown[]) => unknown;
 }
 
 export interface FunctionParameterBase extends BaseType {
   kind: "FunctionParameter";
   node?: FunctionParameterNode;
+  /**
+   * The name of this function parameter, as declared in the TypeSpec source.
+   */
   name: string;
+  /**
+   * Whether this parameter is optional.
+   */
   optional: boolean;
+  /**
+   * Whether this parameter is a rest parameter (i.e., `...args`).
+   */
   rest: boolean;
 }
 
-/** Represent a function parameter that could accept types or values in the TypeSpec program. */
+/**
+ * A function parameter with a mixed parameter constraint that could accept a value.
+ */
 export interface MixedFunctionParameter extends FunctionParameterBase {
   mixed: true;
   type: MixedParameterConstraint;
 }
-/** Represent a function parameter that represent the parameter signature(i.e the type would be the type of the value passed) */
+
+/**
+ * A function parameter with a simple type constraint.
+ */
 export interface SignatureFunctionParameter extends FunctionParameterBase {
   mixed: false;
   type: Type;
 }
+
+/**
+ * A function parameter.
+ */
 export type FunctionParameter = MixedFunctionParameter | SignatureFunctionParameter;
 
 export interface Sym {
