@@ -105,7 +105,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
         [Test]
         public void VisitsSerializationProviderMembers()
         {
-            var mockSerializationProvider = new Mock<TypeProvider>();
+            var mockSerializationProvider = new Mock<TypeProvider>() { CallBase = true };
             _mockTypeProvider.Protected().Setup<TypeProvider[]>("BuildSerializationProviders")
                 .Returns([mockSerializationProvider.Object]);
             var sig = new MethodSignature("Test", $"", MethodSignatureModifiers.Public, null, $"", []);
@@ -114,7 +114,6 @@ namespace Microsoft.TypeSpec.Generator.Tests
             {
                 CallBase = true
             };
-
         mockSerializationProvider.Protected().Setup<MethodProvider[]>("BuildMethods")
                 .Returns([mockMethodProvider.Object]);
         mockSerializationProvider.Protected().Setup<MethodProvider[]>("FilterCustomizedMethods", ItExpr.IsAny<MethodProvider[]>())

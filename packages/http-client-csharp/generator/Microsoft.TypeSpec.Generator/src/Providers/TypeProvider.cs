@@ -19,6 +19,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private Lazy<TypeProvider?> _customCodeView;
         private Lazy<TypeProvider?> _lastContractView;
         private Lazy<CanonicalTypeProvider> _canonicalView;
+        private Lazy<TypeProvider> _specView;
         private readonly InputType? _inputType;
 
         protected TypeProvider(InputType? inputType = default)
@@ -26,6 +27,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _customCodeView = new(() => BuildCustomCodeView());
             _canonicalView = new(BuildCanonicalView);
             _lastContractView = new(() => BuildLastContractView());
+            _specView = new(BuildSpecView);
             _inputType = inputType;
         }
 
@@ -49,8 +51,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 generatedTypeName ?? CustomCodeView?.Name ?? BuildName(),
                 DeclaringTypeProvider?.Type.Name);
 
+        private protected virtual TypeProvider BuildSpecView() => new SpecTypeProvider(this);
+
         public TypeProvider? CustomCodeView => _customCodeView.Value;
         public TypeProvider? LastContractView => _lastContractView.Value;
+        public TypeProvider SpecView => _specView.Value!;
 
         private IReadOnlyList<PropertyProvider> BuildAllCustomProperties()
         {
@@ -215,17 +220,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private IReadOnlyList<PropertyProvider>? _properties;
 
-        public IReadOnlyList<PropertyProvider> Properties => _properties ??= FilterCustomizedProperties(BuildProperties());
+        public virtual IReadOnlyList<PropertyProvider> Properties => _properties ??= FilterCustomizedProperties(BuildProperties());
 
         private IReadOnlyList<MethodProvider>? _methods;
-        public IReadOnlyList<MethodProvider> Methods => _methods ??= FilterCustomizedMethods(BuildMethods());
+        public virtual IReadOnlyList<MethodProvider> Methods => _methods ??= FilterCustomizedMethods(BuildMethods());
 
         private IReadOnlyList<ConstructorProvider>? _constructors;
 
-        public IReadOnlyList<ConstructorProvider> Constructors => _constructors ??= FilterCustomizedConstructors(BuildConstructors());
+        public virtual IReadOnlyList<ConstructorProvider> Constructors => _constructors ??= FilterCustomizedConstructors(BuildConstructors());
 
         private IReadOnlyList<FieldProvider>? _fields;
-        public IReadOnlyList<FieldProvider> Fields => _fields ??= FilterCustomizedFields(BuildFields());
+        public virtual IReadOnlyList<FieldProvider> Fields => _fields ??= FilterCustomizedFields(BuildFields());
 
         private IReadOnlyList<TypeProvider>? _nestedTypes;
         public IReadOnlyList<TypeProvider> NestedTypes => _nestedTypes ??= BuildNestedTypesInternal();
@@ -358,15 +363,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return [.. nestedTypes];
         }
 
-        protected virtual PropertyProvider[] BuildProperties() => [];
+        protected internal virtual PropertyProvider[] BuildProperties() => [];
 
-        protected virtual FieldProvider[] BuildFields() => [];
+        protected internal virtual FieldProvider[] BuildFields() => [];
 
-        protected virtual CSharpType[] BuildImplements() => [];
+        protected internal virtual CSharpType[] BuildImplements() => [];
 
-        protected virtual MethodProvider[] BuildMethods() => [];
+        protected internal virtual MethodProvider[] BuildMethods() => [];
 
-        protected virtual ConstructorProvider[] BuildConstructors() => [];
+        protected internal virtual ConstructorProvider[] BuildConstructors() => [];
 
         protected virtual TypeProvider[] BuildNestedTypes() => [];
 
