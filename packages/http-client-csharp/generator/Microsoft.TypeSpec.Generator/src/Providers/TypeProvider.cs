@@ -222,17 +222,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private IReadOnlyList<PropertyProvider>? _properties;
 
-        public virtual IReadOnlyList<PropertyProvider> Properties => _properties ??= FilterCustomizedMembers ? FilterCustomizedProperties(BuildProperties()) : BuildProperties();
+        public IReadOnlyList<PropertyProvider> Properties => _properties ??= FilterCustomizedMembers ? FilterCustomizedProperties(BuildProperties()) : BuildProperties();
 
         private IReadOnlyList<MethodProvider>? _methods;
-        public virtual IReadOnlyList<MethodProvider> Methods => _methods ??= FilterCustomizedMembers ? FilterCustomizedMethods(BuildMethods()) : BuildMethods();
+        public IReadOnlyList<MethodProvider> Methods => _methods ??= FilterCustomizedMembers ? FilterCustomizedMethods(BuildMethods()) : BuildMethods();
 
         private IReadOnlyList<ConstructorProvider>? _constructors;
 
-        public virtual IReadOnlyList<ConstructorProvider> Constructors => _constructors ??= FilterCustomizedMembers ? FilterCustomizedConstructors(BuildConstructors()) : BuildConstructors();
+        public IReadOnlyList<ConstructorProvider> Constructors => _constructors ??= FilterCustomizedMembers ? FilterCustomizedConstructors(BuildConstructors()) : BuildConstructors();
 
         private IReadOnlyList<FieldProvider>? _fields;
-        public virtual IReadOnlyList<FieldProvider> Fields => _fields ??= FilterCustomizedMembers ? FilterCustomizedFields(BuildFields()) : BuildFields();
+        public IReadOnlyList<FieldProvider> Fields => _fields ??= FilterCustomizedMembers ? FilterCustomizedFields(BuildFields()) : BuildFields();
 
         private IReadOnlyList<TypeProvider>? _nestedTypes;
         public IReadOnlyList<TypeProvider> NestedTypes => _nestedTypes ??= BuildNestedTypesInternal();
