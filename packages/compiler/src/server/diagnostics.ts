@@ -13,7 +13,7 @@ import {
 import { getTypeName } from "../core/helpers/type-name-utils.js";
 import type { Program } from "../core/program.js";
 import type { Node, SourceFile, SourceLocation } from "../core/types.js";
-import { Diagnostic, NoTarget } from "../core/types.js";
+import { Diagnostic } from "../core/types.js";
 import { isDefined } from "../utils/misc.js";
 import { getLocationInYamlScript } from "../yaml/diagnostics.js";
 import { parseYaml } from "../yaml/parser.js";
@@ -40,18 +40,15 @@ export async function convertDiagnosticToLsp(
     const emitterName = program.compilerOptions.emit?.find((emitName) =>
       diagnostic.message.includes(emitName),
     );
-    if (emitterName === undefined) {
-      return [];
-    }
 
-    const result = await getDiagnosticInTspConfig(
+    const result = await getLocationInTspConfig(
       fileService,
       program.compilerOptions.config,
       readFile,
       emitterName,
     );
-    if (result === NoTarget) {
-      return getDiagnosticInSettings(diagnostic, document, emitterName, clientConfig);
+    if (result === undefined) {
+      return [[getDiagnosticInSettings(diagnostic, emitterName, clientConfig), document]];
     } else {
       root = result;
     }
@@ -204,28 +201,28 @@ function convertSeverity(severity: "warning" | "error"): DiagnosticSeverity {
   }
 }
 
-async function getDiagnosticInTspConfig(
+async function getLocationInTspConfig(
   fileService: FileService,
   configFilePath: string | undefined,
   readFile: ((path: string) => Promise<SourceFile>) | undefined,
-  emitterName: string,
-): Promise<VSLocation | typeof NoTarget> {
-  if (configFilePath && readFile && emitterName.length > 0) {
+  emitterName?: string,
+): Promise<VSLocation | undefined> {
+  if (configFilePath && readFile && emitterName && emitterName.length > 0) {
     const docTspConfig = fileService.getOpenDocument(configFilePath);
     if (!docTspConfig) {
-      return NoTarget;
+      return undefined;
     }
 
     const range = await getDiagnosticRangeInTspConfig(configFilePath, readFile, emitterName);
     if (range === undefined) {
-      return NoTarget;
+      return undefined;
     }
     return {
       range,
       document: docTspConfig,
     };
   }
-  return NoTarget;
+  return undefined;
 }
 
 export async function getDiagnosticRangeInTspConfig(
@@ -250,26 +247,22 @@ export async function getDiagnosticRangeInTspConfig(
 
 function getDiagnosticInSettings(
   diagnostic: Diagnostic,
-  document: TextDocument,
-  emitterName: string,
+  emitterName?: string,
   clientConfig?: Config | undefined,
-): [VSDiagnostic, TextDocument][] {
+): VSDiagnostic {
   let customMsg = "";
-  if (clientConfig?.lsp?.emit && clientConfig.lsp.emit.includes(emitterName)) {
+  if (clientConfig?.lsp?.emit && emitterName && clientConfig.lsp.emit.includes(emitterName)) {
     customMsg = " [In IDE settings]";
+  } else {
+    customMsg = " [No associated source found]";
   }
 
   const relatedInformation: DiagnosticRelatedInformation[] = [];
-  return [
-    [
-      createLspDiagnostic({
-        range: VSRange.create(0, 0, 0, 0),
-        message: diagnostic.message + customMsg,
-        severity: convertSeverity(diagnostic.severity),
-        code: diagnostic.code,
-        relatedInformation,
-      }),
-      document,
-    ],
-  ];
+  return createLspDiagnostic({
+    range: VSRange.create(0, 0, 0, 0),
+    message: diagnostic.message + customMsg,
+    severity: convertSeverity(diagnostic.severity),
+    code: diagnostic.code,
+    relatedInformation,
+  });
 }
