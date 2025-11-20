@@ -164,7 +164,7 @@ const DashboardHeaderRow: FunctionComponent<DashboardHeaderRowProps> = ({ covera
     }
     return [language, getCompletedRatio(coverageSummary.manifest.scenarios, report), report];
   });
-  const tableHeader = <th>{coverageSummary.manifest.displayName ?? "Specs"} </th>;
+  const tableHeader = <th>{coverageSummary.tableName || coverageSummary.manifest.displayName || "Specs"} </th>;
   return (
     <tr>
       {tableHeader}
