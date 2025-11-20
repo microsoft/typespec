@@ -55,7 +55,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public TypeProvider? CustomCodeView => _customCodeView.Value;
         public TypeProvider? LastContractView => _lastContractView.Value;
-        public TypeProvider SpecView => _specView.Value!;
+        public TypeProvider SpecView => _specView.Value;
 
         private IReadOnlyList<PropertyProvider> BuildAllCustomProperties()
         {
