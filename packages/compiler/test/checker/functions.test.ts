@@ -269,7 +269,7 @@ describe("compiler: checker: functions", () => {
         autoUsings: ["TypeSpec.Reflection"],
       });
       const [{ prop }, diagnostics] = (await runner.compileAndDiagnose(`
-        extern fn makeArray(T: Reflection.Type);
+        extern fn makeArray(T: unknown);
         
         alias X = makeArray(string);
 
@@ -580,7 +580,7 @@ describe("compiler: checker: functions", () => {
 
     it("accepts type parameter", async () => {
       const diagnostics = await runner.diagnose(`
-        extern fn acceptTypeOrValue(arg: Reflection.Type): Reflection.Type;
+        extern fn acceptTypeOrValue(arg: unknown): unknown;
         
         alias TypeResult = acceptTypeOrValue(string);
       `);
@@ -639,7 +639,7 @@ describe("compiler: checker: functions", () => {
 
     it("can return type from function", async () => {
       const diagnostics = await runner.diagnose(`
-        extern fn returnTypeOrValue(returnType: valueof boolean): Reflection.Type;
+        extern fn returnTypeOrValue(returnType: valueof boolean): unknown;
         
         alias TypeResult = returnTypeOrValue(true);
       `);
@@ -688,14 +688,14 @@ describe("compiler: checker: functions", () => {
 
     it("errors when function returns wrong type kind", async () => {
       const diagnostics = await runner.diagnose(`
-        extern fn returnWrongEntityKind(): Reflection.Type;
+        extern fn returnWrongEntityKind(): unknown;
         alias X = returnWrongEntityKind();
       `);
       // Should get diagnostics about type mismatch in return value
       expectDiagnostics(diagnostics, {
         code: "function-return",
         message:
-          "Implementation of function 'returnWrongEntityKind' returned value '\"string value\"', which is not assignable to the declared return type 'Type'.",
+          "Implementation of function 'returnWrongEntityKind' returned value '\"string value\"', which is not assignable to the declared return type 'unknown'.",
       });
     });
 
@@ -716,7 +716,7 @@ describe("compiler: checker: functions", () => {
       // Wrap in try-catch to handle JS errors gracefully
       try {
         const _diagnostics = await runner.diagnose(`
-          extern fn throwError(): Reflection.Type;
+          extern fn throwError(): unknown;
           alias X = throwError();
         `);
         // If we get here, the function didn't throw (unexpected)
@@ -855,7 +855,7 @@ describe("compiler: checker: functions", () => {
 
     it("returns default type for missing type-returning function", async () => {
       const diagnostics = await runner.diagnose(`
-        extern fn missingTypeFn(): Reflection.Type;
+        extern fn missingTypeFn(): unknown;
         alias X = missingTypeFn();
       `);
       expectDiagnostics(diagnostics, {
@@ -865,7 +865,7 @@ describe("compiler: checker: functions", () => {
 
     it("returns appropriate default for union return type", async () => {
       const diagnostics = await runner.diagnose(`
-        extern fn missingUnionFn(): Reflection.Type | valueof string;
+        extern fn missingUnionFn(): unknown | valueof string;
         const X = missingUnionFn();
       `);
       expectDiagnostics(diagnostics, {
@@ -894,7 +894,7 @@ describe("compiler: checker: functions", () => {
 
     it("works with template aliases", async () => {
       const [{ prop }, diagnostics] = (await runner.compileAndDiagnose(`
-        extern fn processGeneric(T: Reflection.Type): Reflection.Type;
+        extern fn processGeneric(T: unknown): unknown;
         
         alias ArrayOf<T> = processGeneric(T);
         

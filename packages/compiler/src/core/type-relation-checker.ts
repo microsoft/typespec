@@ -100,7 +100,7 @@ const ReflectionNameToKind = {
   UnionVariant: "UnionVariant",
 } as const satisfies Record<string, Type["kind"]>;
 
-type ReflectionTypeName = keyof typeof ReflectionNameToKind | "Type";
+type ReflectionTypeName = keyof typeof ReflectionNameToKind;
 
 export function createTypeRelationChecker(program: Program, checker: Checker): TypeRelation {
   return {
@@ -511,7 +511,7 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
     if (isVoidType(target)) return isVoidType(source);
     if (isUnknownType(target)) return true;
     if (isReflectionType(target)) {
-      return target.name === "Type" || source.kind === ReflectionNameToKind[target.name];
+      return source.kind === ReflectionNameToKind[target.name];
     }
 
     if (target.kind === "Scalar") {

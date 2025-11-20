@@ -11,4 +11,3 @@ model Scalar {}
 model Union {}
 model UnionVariant {}
 model StringTemplate {}
-model Type {}
