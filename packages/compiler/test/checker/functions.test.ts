@@ -3,6 +3,7 @@ import { beforeEach, describe, it } from "vitest";
 import {
   Diagnostic,
   FunctionContext,
+  IndeterminateEntity,
   ModelProperty,
   Namespace,
   Type,
@@ -190,6 +191,19 @@ describe("compiler: checker: functions", () => {
       );
       expectDiagnostics(diagnostics, []);
       expectCalledWith("test");
+    });
+
+    it("errors if non-void function returns undefined", async () => {
+      const diagnostics = await runner.diagnose(
+        `extern fn voidFn(a: valueof string): unknown; alias V = voidFn("test");`,
+      );
+
+      expectCalledWith("test");
+      expectDiagnostics(diagnostics, {
+        code: "function-return",
+        message:
+          "Implementation of function 'voidFn' returned value 'null', which is not assignable to the declared return type 'unknown'.",
+      });
     });
 
     it("errors if not enough args", async () => {
@@ -459,6 +473,9 @@ describe("compiler: checker: functions", () => {
             mixed: null,
           };
         },
+        returnIndeterminate(ctx: FunctionContext): IndeterminateEntity {
+          return { entityKind: "Indeterminate", type: $(ctx.program).literal.create(42) };
+        },
       });
       runner = createTestWrapper(testHost, {
         autoImports: ["./test.js"],
@@ -542,6 +559,24 @@ describe("compiler: checker: functions", () => {
       `);
       expectDiagnosticEmpty(_diagnostics);
       strictEqual(receivedValues.length, 0); // No input values, only return
+    });
+
+    it("handles indeterminate entities coerced to values", async () => {
+      const diagnostics = await runner.diagnose(`
+        extern fn returnIndeterminate(): valueof int32;
+        extern fn expectNumber(n: valueof int32): valueof int32;
+        const X = expectNumber(returnIndeterminate());
+      `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it("handles indeterminate entities coerced to types", async () => {
+      const diagnosed = await runner.diagnose(`
+        extern fn returnIndeterminate(): int32;
+
+        alias X = returnIndeterminate();
+      `);
+      expectDiagnosticEmpty(diagnosed);
     });
   });
 

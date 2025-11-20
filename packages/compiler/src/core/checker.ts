@@ -4452,18 +4452,20 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       ? target.implementation(ctx, ...resolvedArgs)
       : getDefaultFunctionResult(target.returnType);
 
-    const returnIsTypeOrValue =
+    const returnIsEntity =
       typeof functionReturn === "object" &&
       functionReturn !== null &&
       "entityKind" in functionReturn &&
-      (functionReturn.entityKind === "Type" || functionReturn.entityKind === "Value");
+      (functionReturn.entityKind === "Type" ||
+        functionReturn.entityKind === "Value" ||
+        functionReturn.entityKind === "Indeterminate");
 
     // special case for when the return value is `undefined` and the return type is `void` or `valueof void`.
     if (functionReturn === undefined && isVoidReturn(target.returnType)) {
       return voidType;
     }
 
-    const unmarshaled = returnIsTypeOrValue
+    const unmarshaled = returnIsEntity
       ? (functionReturn as Type | Value)
       : unmarshalJsToValue(program, functionReturn, function onInvalid(value) {
           let valueSummary = String(value);
@@ -4480,7 +4482,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           );
         });
 
-    let result: Type | Value | null = unmarshaled;
+    let result: Type | Value | IndeterminateEntity | null = unmarshaled;
     if (satisfied) result = checkFunctionReturn(target, unmarshaled, node);
 
     return result;
@@ -4583,6 +4585,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           ...restArgs.map((v, idx) =>
             v !== null && isValue(v)
               ? marshalTypeForJs(v, undefined, function onUnknown() {
+                  satisfied = false;
                   reportCheckerDiagnostic(
                     createDiagnostic({
                       code: "unknown-value",
@@ -4653,7 +4656,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
   function checkFunctionReturn(
     target: FunctionType,
-    result: Type | Value,
+    result: Type | Value | IndeterminateEntity,
     diagnosticTarget: Node,
   ): Type | Value | null {
     const [checked, diagnostics] = checkEntityAssignableToConstraint(
@@ -4703,6 +4706,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return collector.wrap(assignable ? normed : null);
     } else {
       // Constraint is a type
+      if (entity.entityKind === "Indeterminate") entity = entity.type;
 
       if (entity.entityKind !== "Type") {
         collector.add(
@@ -5468,17 +5472,21 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         !(isType(arg) && isErrorType(arg)) &&
         checkArgumentAssignable(arg, perParamType, argNode)
       ) {
+        const [valid, jsValue] = resolveArgumentJsValue(
+          arg,
+          extractValueOfConstraints({
+            kind: "argument",
+            constraint: perParamType,
+          }),
+          argNode,
+        );
+
+        if (!valid) return undefined;
+
         return {
           value: arg,
           node: argNode,
-          jsValue: resolveArgumentJsValue(
-            arg,
-            extractValueOfConstraints({
-              kind: "argument",
-              constraint: perParamType,
-            }),
-            argNode,
-          ),
+          jsValue,
         };
       } else {
         return undefined;
@@ -5555,10 +5563,12 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     value: Type | Value,
     valueConstraint: CheckValueConstraint | undefined,
     diagnosticTarget: Node,
-  ) {
+  ): [valid: boolean, jsValue: any] {
     if (valueConstraint !== undefined) {
       if (isValue(value)) {
-        return marshalTypeForJs(value, valueConstraint.type, function onUnknown() {
+        let valid = true;
+        const unmarshaled = marshalTypeForJs(value, valueConstraint.type, function onUnknown() {
+          valid = false;
           reportCheckerDiagnostic(
             createDiagnostic({
               code: "unknown-value",
@@ -5567,11 +5577,12 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
             }),
           );
         });
+        return [valid, unmarshaled];
       } else {
-        return value;
+        return [true, value];
       }
     }
-    return value;
+    return [true, value];
   }
 
   function checkArgumentAssignable(
