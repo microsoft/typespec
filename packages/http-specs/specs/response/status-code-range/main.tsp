@@ -8,6 +8,7 @@ using Spector;
  * Test for range of status code.
  */
 @scenarioService("/response/status-code-range")
+@scenarioTier("extended")
 namespace Response.StatusCodeRange;
 
 @scenario

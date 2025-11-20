@@ -26,6 +26,7 @@ using TypeSpec.Versioning;
     version: Versions,
   }
 )
+@scenarioTier("core")
 namespace Versioning.MadeOptional;
 
 /**

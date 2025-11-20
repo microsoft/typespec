@@ -6,6 +6,7 @@ using Spector;
 
 @doc("Illustrates inheritance recursion")
 @scenarioService("/type/model/inheritance/recursive")
+@scenarioTier("core")
 namespace Type.Model.Inheritance.Recursive;
 
 @doc("extension")

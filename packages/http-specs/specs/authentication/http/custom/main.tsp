@@ -5,6 +5,7 @@ using TypeSpec.Http;
 using Spector;
 
 @scenarioService("/authentication/http/custom")
+@scenarioTier("core")
 @doc("Illustrates clients generated with generic HTTP auth.")
 @useAuth({
   type: AuthType.http,

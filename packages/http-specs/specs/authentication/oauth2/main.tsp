@@ -5,6 +5,7 @@ using Http;
 using Spector;
 
 @scenarioService("/authentication/oauth2")
+@scenarioTier("core")
 @doc("Illustrates clients generated with OAuth2 authentication.")
 @useAuth(OAuth2Auth<[MyFlow]>)
 namespace Authentication.OAuth2;

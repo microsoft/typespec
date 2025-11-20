@@ -6,6 +6,7 @@ using Spector;
 
 @doc("Test for collectionFormat.")
 @scenarioService("/parameters/collection-format")
+@scenarioTier("core")
 namespace Parameters.CollectionFormat;
 
 @route("/query")

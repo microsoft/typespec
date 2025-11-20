@@ -6,6 +6,7 @@ using Spector;
 
 @doc("Encoded names")
 @scenarioService("/serialization/encoded-name/json")
+@scenarioTier("core")
 namespace Serialization.EncodedName.Json;
 
 @route("/property")

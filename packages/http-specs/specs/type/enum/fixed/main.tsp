@@ -5,6 +5,7 @@ using Http;
 using Spector;
 
 @scenarioService("/type/enum/fixed")
+@scenarioTier("core")
 namespace Type.Enum.Fixed;
 
 #suppress "@azure-tools/typespec-azure-core/use-extensible-enum" "For testing"

@@ -19,6 +19,7 @@ using Spector;
   }
 )
 @route("/server/versions/not-versioned")
+@scenarioTier("core")
 namespace Server.Versions.NotVersioned;
 
 @scenario

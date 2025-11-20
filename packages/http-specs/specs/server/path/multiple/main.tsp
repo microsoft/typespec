@@ -20,6 +20,7 @@ using Rest;
     apiVersion: Versions,
   }
 )
+@scenarioTier("core")
 namespace Server.Path.Multiple;
 
 @doc("Service versions")

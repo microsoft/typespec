@@ -8,6 +8,7 @@ using TypeSpec.Xml;
 
 @doc("Sends and receives bodies in XML format.")
 @scenarioService("/payload/xml")
+@scenarioTier("extended")
 namespace Payload.Xml;
 
 @doc("Contains fields of primitive types.")

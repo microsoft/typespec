@@ -6,6 +6,7 @@ using Spector;
 
 @doc("Test for multipart")
 @scenarioService("/multipart")
+@scenarioTier("core")
 namespace Payload.MultiPart;
 
 model MultiPartRequest {

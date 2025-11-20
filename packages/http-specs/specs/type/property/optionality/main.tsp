@@ -6,6 +6,7 @@ using Spector;
 
 @doc("Illustrates models with optional properties.")
 @scenarioService("/type/property/optional")
+@scenarioTier("core")
 namespace Type.Property.Optional;
 
 @doc("Template type for testing models with optional property. Pass in the type of the property you are looking for")

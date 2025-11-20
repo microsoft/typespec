@@ -42,14 +42,14 @@ export function createScenarioManifest(
     packageName: pkg?.name,
     displayName: pkg && ("displayName" in pkg ? pkg.displayName as string : undefined),
     commit,
-    scenarios: sortedScenarios.map(({ name, scenarioDoc, target }) => {
+    scenarios: sortedScenarios.map(({ name, scenarioDoc, target, tier }) => {
       const tspLocation = getSourceLocation(target);
       const location: ScenarioLocation = {
         path: normalizePath(relative(scenariosPath, tspLocation.file.path)),
         start: tspLocation.file.getLineAndCharacterOfPosition(tspLocation.pos),
         end: tspLocation.file.getLineAndCharacterOfPosition(tspLocation.end),
       };
-      return { name, scenarioDoc, location };
+      return { name, scenarioDoc, location, tier};
     }),
   };
 }

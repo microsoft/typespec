@@ -8,6 +8,7 @@ using Spector;
  * Test the payload with different media types and different types of the payload itself.
  */
 @scenarioService("/payload/media-type")
+@scenarioTier("core")
 namespace Payload.MediaType;
 
 @route("/string-body")

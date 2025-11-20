@@ -9,6 +9,7 @@ using Spector;
  */
 @route("/server/endpoint/not-defined")
 @service(#{ title: "Testserver without any endpoint" })
+@scenarioTier("core")
 namespace Server.Endpoint.NotDefined;
 
 @scenario

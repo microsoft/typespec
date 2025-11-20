@@ -6,6 +6,7 @@ using Spector;
 
 @doc("Illustrates models with visibility properties.")
 @scenarioService("/type/model/visibility")
+@scenarioTier("core")
 namespace Type.Model.Visibility;
 
 @doc("Output model with visibility properties.")

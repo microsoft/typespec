@@ -8,6 +8,7 @@ using Versioning;
 
 @doc("Illustrates conditional request headers")
 @scenarioService("/special-headers/conditional-request")
+@scenarioTier("core")
 namespace SpecialHeaders.ConditionalRequest;
 
 @scenario

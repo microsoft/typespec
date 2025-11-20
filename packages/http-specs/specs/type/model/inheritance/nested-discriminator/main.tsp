@@ -6,6 +6,7 @@ using Spector;
 
 @doc("Illustrates multiple level inheritance with multiple discriminators.")
 @scenarioService("/type/model/inheritance/nested-discriminator")
+@scenarioTier("core")
 namespace Type.Model.Inheritance.NestedDiscriminator;
 
 @doc("This is base model for polymorphic multiple levels inheritance with a discriminator.")

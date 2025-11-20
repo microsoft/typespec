@@ -6,6 +6,7 @@ using Spector;
 
 @doc("Test for basic parameters cases.")
 @scenarioService("/parameters/basic")
+@scenarioTier("core")
 namespace Parameters.Basic;
 
 @route("/explicit-body")

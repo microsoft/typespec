@@ -6,6 +6,7 @@ using Spector;
 
 @doc("Illustrates various of dictionaries.")
 @scenarioService("/type/dictionary")
+@scenarioTier("core")
 namespace Type.Dictionary;
 
 @doc("Template to have dictionary operations")

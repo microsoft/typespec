@@ -5,6 +5,7 @@ using Http;
 using Spector;
 
 @scenarioService("/type/scalar")
+@scenarioTier("core")
 namespace Type.Scalar;
 
 @route("/string")

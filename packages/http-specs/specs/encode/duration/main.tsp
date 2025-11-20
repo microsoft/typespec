@@ -6,6 +6,7 @@ using Spector;
 
 @doc("Test for encode decorator on duration.")
 @scenarioService("/encode/duration")
+@scenarioTier("core")
 namespace Encode.Duration;
 
 @route("/query")

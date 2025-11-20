@@ -6,6 +6,7 @@ using Spector;
 
 @doc("Test for merge-patch+json content-type")
 @scenarioService("/json-merge-patch")
+@scenarioTier("extended")
 namespace Payload.JsonMergePatch;
 
 @doc("Details about a resource.")

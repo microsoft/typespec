@@ -5,6 +5,7 @@ using Http;
 using Spector;
 
 @scenarioService("/authentication/union")
+@scenarioTier("core")
 @doc("Illustrates clients generated with ApiKey and OAuth2 authentication.")
 @useAuth(ApiKeyAuth<ApiKeyLocation.header, "x-ms-api-key"> | OAuth2Auth<[MyFlow]>)
 namespace Authentication.Union;

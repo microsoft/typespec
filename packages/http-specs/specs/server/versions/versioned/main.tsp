@@ -22,6 +22,7 @@ using Versioning;
   }
 )
 @route("/server/versions/versioned")
+@scenarioTier("core")
 namespace Server.Versions.Versioned;
 
 /**

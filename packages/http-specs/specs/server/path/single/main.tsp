@@ -15,6 +15,7 @@ using Spector;
   }
 )
 @route("/server/path/single")
+@scenarioTier("core")
 namespace Server.Path.Single;
 
 @scenario

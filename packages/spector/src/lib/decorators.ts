@@ -10,6 +10,7 @@ import {
   Operation,
   Program,
 } from "@typespec/compiler";
+import { useStateMap } from "@typespec/compiler/utils";
 import {
   $route,
   $server,
@@ -23,8 +24,20 @@ import {
   ScenarioDecorator,
   ScenarioDocDecorator,
   ScenarioServiceDecorator,
+  ScenarioTierDecorator,
 } from "../../generated-defs/TypeSpec.Spector.js";
-import { SpectorStateKeys } from "./lib.js";
+import { createStateSymbol, SpectorStateKeys } from "./lib.js";
+
+const scenarioTierStateSymbol = createStateSymbol("scenarioTierState");
+type ScenarioTier = "core" | "extended" | "edge";
+const [getScenarioTierState, setScenarioTierState] = useStateMap<
+  Namespace | Interface | Operation,
+  ScenarioTier
+>(scenarioTierStateSymbol);
+
+export const $scenarioTier: ScenarioTierDecorator = (context, target, value) => {
+  setScenarioTierState(context.program, target, value);
+};
 
 export const $scenario: ScenarioDecorator = (context, target, name?) => {
   context.program.stateMap(SpectorStateKeys.Scenario).set(target, name ?? target.name);
@@ -57,6 +70,38 @@ export const $scenarioService: ScenarioServiceDecorator = (context, target, rout
   context.call($route, target, route);
 };
 
+const defaultScenarioTier: ScenarioTier = "extended";
+
+export function getScenarioTier(
+  program: Program,
+  target: Operation | Interface | Namespace | undefined,
+): ScenarioTier {
+  if (target === undefined) {
+    return defaultScenarioTier;
+  }
+
+  const tier = getScenarioTierState(program, target);
+
+  if (tier) {
+    return tier;
+  }
+
+  let parent: Interface | Namespace | undefined;
+  switch (target.kind) {
+    case "Operation":
+      parent = target.interface ?? target.namespace;
+      break;
+    case "Interface":
+      parent = target.namespace;
+      break;
+    case "Namespace":
+      parent = target.namespace;
+      break;
+  }
+
+  return getScenarioTier(program, parent);
+}
+
 export function getScenarioDoc(
   program: Program,
   target: Operation | Interface | Namespace,
@@ -79,6 +124,7 @@ export interface Scenario {
   scenarioDoc: string;
   target: Operation | Interface | Namespace;
   endpoints: ScenarioEndpoint[];
+  tier: ScenarioTier;
 }
 
 export interface ScenarioEndpoint {
@@ -165,6 +211,7 @@ export function listScenarioIn(
   target: Namespace | Interface | Operation,
 ): Scenario[] {
   const scenarioName = getScenarioName(program, target);
+  const scenarioTier = getScenarioTier(program, target);
   if (scenarioName) {
     return [
       {
@@ -172,6 +219,7 @@ export function listScenarioIn(
         scenarioDoc: getScenarioDoc(program, target)!, /// `onValidate` validate against this happening
         name: scenarioName,
         endpoints: getScenarioEndpoints(program, target),
+        tier: scenarioTier,
       },
     ];
   }

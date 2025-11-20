@@ -8,6 +8,7 @@ using Spector;
  * Describe scenarios for discriminated unions.
  */
 @scenarioService("/type/union/discriminated")
+@scenarioTier("extended")
 namespace Type.Union.Discriminated;
 
 // Models for discriminated unions
