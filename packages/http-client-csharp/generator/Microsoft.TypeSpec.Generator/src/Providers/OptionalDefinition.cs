@@ -38,7 +38,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override string BuildName() => "Optional";
 
-        protected override MethodProvider[] BuildMethods()
+        protected internal override MethodProvider[] BuildMethods()
         {
             return
             [

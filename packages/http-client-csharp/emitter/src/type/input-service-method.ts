@@ -48,6 +48,7 @@ export interface InputPagingServiceMetadata {
   nextLink?: InputNextLink;
   continuationToken?: InputContinuationToken;
   itemPropertySegments: string[];
+  pageSizeParameterSegments?: string[];
 }
 
 export interface InputNextLink {

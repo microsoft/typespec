@@ -60,12 +60,12 @@
     "@typespec/versioning": "workspace:^"
   },
   "devDependencies": {
-    "@types/node": "~24.9.1",
+    "@types/node": "~24.10.1",
     "@typespec/internal-build-utils": "workspace:^",
     "@vitest/coverage-v8": "^4.0.4",
     "@vitest/ui": "^4.0.4",
     "cross-env": "~10.1.0",
-    "rimraf": "~6.0.1",
+    "rimraf": "~6.1.2",
     "typescript": "~5.9.2",
     "vitest": "^4.0.4"
   }
