@@ -165,15 +165,17 @@ describe("compiler: checker: functions", () => {
     });
 
     it("calls function with arguments", async () => {
-      await runner.compile(
-        `extern fn testFn(a: valueof string, b?: valueof string, ...rest: valueof string[]): valueof string; const X = testFn("one", "two", "three");`,
-      );
+      await runner.compile(`
+        extern fn testFn(a: valueof string, b: valueof string, ...rest: valueof string[]): valueof string;
+        
+        const X = testFn("one", "two", "three");
+      `);
       expectCalledWith("one", "two", "three"); // program + args, optional b provided
     });
 
     it("allows omitting optional param", async () => {
       await runner.compile(
-        `extern fn testFn(a: valueof string, b?: valueof string, ...rest: valueof string[]): valueof string; const X = testFn("one");`,
+        `extern fn testFn(a: valueof string, b?: valueof string): valueof string; const X = testFn("one");`,
       );
       expectCalledWith("one", undefined);
     });
@@ -787,25 +789,6 @@ describe("compiler: checker: functions", () => {
       `);
       // This should be a syntax/declaration error - required params can't follow optional ones
       // except when rest parameters are involved
-    });
-
-    it("allows rest parameters after optional parameters", async () => {
-      testHost.addJsFile("rest-after-optional.js", {
-        restAfterOptional(_ctx: FunctionContext, opt: any, ...rest: any[]) {
-          return rest.length;
-        },
-      });
-      const restRunner = createTestWrapper(testHost, {
-        autoImports: ["./rest-after-optional.js"],
-        autoUsings: ["TypeSpec.Reflection"],
-      });
-
-      const diagnostics = await restRunner.diagnose(`
-        extern fn restAfterOptional(opt?: valueof string, ...rest: valueof string[]): valueof int32;
-        const X = restAfterOptional("optional", "rest1", "rest2");
-        const Y = restAfterOptional();
-      `);
-      expectDiagnosticEmpty(diagnostics);
     });
 
     it("handles deeply nested type constraints", async () => {

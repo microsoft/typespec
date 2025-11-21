@@ -134,7 +134,6 @@ export function createBinder(program: Program): Binder {
 
     for (const [key, member] of Object.entries(sourceFile.esmExports)) {
       let name: string;
-      let kind: "decorator" | "function";
       if (key === "$flags") {
         const context = getLocationContext(program, sourceFile);
         if (context.type === "library" || context.type === "project") {
@@ -171,7 +170,6 @@ export function createBinder(program: Program): Binder {
         // isn't particularly useful it turns out.
         if (isFunctionName(key)) {
           name = getFunctionName(key);
-          kind = "decorator";
           if (name === "onValidate") {
             const context = getLocationContext(program, sourceFile);
             const metadata =
@@ -184,12 +182,9 @@ export function createBinder(program: Program): Binder {
             // nothing to do here this is loaded as emitter.
             continue;
           }
-        } else {
-          name = key;
-          kind = "function";
+          const nsParts = resolveJSMemberNamespaceParts(rootNs, member);
+          bindFunctionImplementation(nsParts, "decorator", name, member as any, sourceFile);
         }
-        const nsParts = resolveJSMemberNamespaceParts(rootNs, member);
-        bindFunctionImplementation(nsParts, kind, name, member as any, sourceFile);
       }
     }
   }
