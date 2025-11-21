@@ -113,13 +113,22 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       return this.#createDiscriminatedUnionDeclaration(model, name, discriminator, strategy);
     }
 
+    // Check if base model is using discriminated union strategy
+    // If so, don't use allOf (to avoid circular references), inline properties instead
+    const shouldInlineBase =
+      model.baseModel && this.#isBaseUsingDiscriminatedUnion(model.baseModel);
+
     const schema = this.#initializeSchema(model, name, {
       type: "object",
-      properties: this.emitter.emitModelProperties(model),
-      required: this.#requiredModelProperties(model),
+      properties: shouldInlineBase
+        ? this.#getAllModelProperties(model)
+        : this.emitter.emitModelProperties(model),
+      required: shouldInlineBase
+        ? this.#getAllRequiredModelProperties(model)
+        : this.#requiredModelProperties(model),
     });
 
-    if (model.baseModel) {
+    if (model.baseModel && !shouldInlineBase) {
       const allOf = new ArrayBuilder();
       allOf.push(this.emitter.emitTypeReference(model.baseModel));
       setProperty(schema, "allOf", allOf);
@@ -129,6 +138,16 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
     this.#applyConstraints(model, schema);
     return this.#createDeclaration(model, name, schema);
+  }
+
+  #isBaseUsingDiscriminatedUnion(model: Model): boolean {
+    const discriminator = getDiscriminator(this.emitter.getProgram(), model);
+    const strategy = this.emitter.getOptions()["polymorphic-models-strategy"];
+    return (
+      (strategy === "oneOf" || strategy === "anyOf") &&
+      !!discriminator &&
+      model.derivedModels.length > 0
+    );
   }
 
   modelLiteral(model: Model): EmitterOutput<object> {
@@ -185,6 +204,76 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     }
 
     return requiredProps.length > 0 ? requiredProps : undefined;
+  }
+
+  // Get all required properties including inherited ones (for when base uses discriminated union)
+  #getAllRequiredModelProperties(model: Model): string[] | undefined {
+    const requiredProps: string[] = [];
+    const visited = new Set<Model>();
+
+    const collectRequired = (m: Model) => {
+      if (visited.has(m)) return;
+      visited.add(m);
+
+      // Collect from base first
+      if (m.baseModel) {
+        collectRequired(m.baseModel);
+      }
+
+      // Then collect from this model
+      for (const prop of m.properties.values()) {
+        if (!prop.optional && !requiredProps.includes(prop.name)) {
+          requiredProps.push(prop.name);
+        }
+      }
+
+      // Add discriminator property if defined on this model
+      const discriminator = getDiscriminator(this.emitter.getProgram(), m);
+      if (
+        discriminator &&
+        !m.properties.has(discriminator.propertyName) &&
+        !requiredProps.includes(discriminator.propertyName)
+      ) {
+        requiredProps.push(discriminator.propertyName);
+      }
+    };
+
+    collectRequired(model);
+    return requiredProps.length > 0 ? requiredProps : undefined;
+  }
+
+  // Get all properties including inherited ones (for when base uses discriminated union)
+  #getAllModelProperties(model: Model): EmitterOutput<object> {
+    const props = new ObjectBuilder();
+    const visited = new Set<Model>();
+
+    const collectProperties = (m: Model) => {
+      if (visited.has(m)) return;
+      visited.add(m);
+
+      // Collect from base first
+      if (m.baseModel) {
+        collectProperties(m.baseModel);
+      }
+
+      // Then collect from this model (overriding base if needed)
+      for (const [name, prop] of m.properties) {
+        const result = this.emitter.emitModelProperty(prop);
+        setProperty(props, name, result);
+      }
+
+      // Add discriminator property if defined on this model and not already added
+      const discriminator = getDiscriminator(this.emitter.getProgram(), m);
+      if (discriminator && !(discriminator.propertyName in props)) {
+        setProperty(props, discriminator.propertyName, {
+          type: "string",
+          description: `Discriminator property for ${m.name}.`,
+        });
+      }
+    };
+
+    collectProperties(model);
+    return props;
   }
 
   modelProperties(model: Model): EmitterOutput<object> {
@@ -697,11 +786,10 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       variants.push(derivedRef);
     }
 
-    // Include base model properties and the discriminated union
+    // For discriminated unions, emit only the oneOf/anyOf
+    // The derived models reference the base model via allOf, which would create
+    // a circular reference if we included properties here
     const schema = this.#initializeSchema(model, name, {
-      type: "object",
-      properties: this.emitter.emitModelProperties(model),
-      required: this.#requiredModelProperties(model),
       [strategy]: variants,
     });
 
