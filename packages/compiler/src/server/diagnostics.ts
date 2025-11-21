@@ -12,24 +12,23 @@ import {
 } from "../core/diagnostics.js";
 import { getTypeName } from "../core/helpers/type-name-utils.js";
 import type { Program } from "../core/program.js";
-import type { Node, SourceFile, SourceLocation } from "../core/types.js";
+import type { Node, SourceLocation } from "../core/types.js";
 import { Diagnostic } from "../core/types.js";
 import { isDefined } from "../utils/misc.js";
 import { getLocationInYamlScript } from "../yaml/diagnostics.js";
-import { parseYaml } from "../yaml/parser.js";
+import { YamlScript } from "../yaml/types.js";
 import { Config } from "./client-config-provider.js";
 import type { FileService } from "./file-service.js";
 import type { ServerSourceFile } from "./types.js";
 
 /** Convert TypeSpec Diagnostic to Lsp diagnostic. Each TypeSpec diagnostic could produce multiple lsp ones when it involve multiple locations. */
-export async function convertDiagnosticToLsp(
+export function convertDiagnosticToLsp(
   fileService: FileService,
   program: Program,
   document: TextDocument,
   diagnostic: Diagnostic,
   clientConfig?: Config | undefined,
-  readFile: ((path: string) => Promise<SourceFile>) | undefined = undefined,
-): Promise<[VSDiagnostic, TextDocument][]> {
+): [VSDiagnostic, TextDocument][] {
   let root = getVSLocation(
     fileService,
     getSourceLocation(diagnostic.target, { locateId: true }),
@@ -41,15 +40,34 @@ export async function convertDiagnosticToLsp(
       diagnostic.message.includes(emitName),
     );
 
-    const result = await getLocationInTspConfig(
+    const result = getLocationInTspConfig(
       fileService,
       program.compilerOptions.config,
-      readFile,
+      program.compilerOptions.configFile?.file,
       emitterName,
     );
     if (result === undefined) {
-      return [[getDiagnosticInSettings(diagnostic, emitterName, clientConfig), document]];
+      const settingDiagnostics = getDiagnosticInSettings(diagnostic, emitterName, clientConfig);
+      if (settingDiagnostics) {
+        // use the current document to report the diagnostic in settings case
+        return [[settingDiagnostics, document]];
+      } else {
+        // no location found at all, report on the current document
+        return [
+          [
+            createLspDiagnostic({
+              range: VSRange.create(0, 0, 0, 0),
+              message: diagnostic.message + " [No associated source found]",
+              severity: convertSeverity(diagnostic.severity),
+              code: diagnostic.code,
+              relatedInformation: [],
+            }),
+            document,
+          ],
+        ];
+      }
     } else {
+      // use the location in tspconfig as root
       root = result;
     }
   }
@@ -201,19 +219,19 @@ function convertSeverity(severity: "warning" | "error"): DiagnosticSeverity {
   }
 }
 
-async function getLocationInTspConfig(
+function getLocationInTspConfig(
   fileService: FileService,
   configFilePath: string | undefined,
-  readFile: ((path: string) => Promise<SourceFile>) | undefined,
+  yamlScript: YamlScript | undefined,
   emitterName?: string,
-): Promise<VSLocation | undefined> {
-  if (configFilePath && readFile && emitterName && emitterName.length > 0) {
+): VSLocation | undefined {
+  if (configFilePath && yamlScript && emitterName && emitterName.length > 0) {
     const docTspConfig = fileService.getOpenDocument(configFilePath);
     if (!docTspConfig) {
       return undefined;
     }
 
-    const range = await getDiagnosticRangeInTspConfig(configFilePath, readFile, emitterName);
+    const range = getDiagnosticRangeInTspConfig(yamlScript, emitterName);
     if (range === undefined) {
       return undefined;
     }
@@ -225,12 +243,10 @@ async function getLocationInTspConfig(
   return undefined;
 }
 
-export async function getDiagnosticRangeInTspConfig(
-  configFilePath: string,
-  readFile: (path: string) => Promise<SourceFile>,
+export function getDiagnosticRangeInTspConfig(
+  yamlScript: YamlScript,
   emitterName: string,
-): Promise<Range | undefined> {
-  const [yamlScript] = parseYaml(await readFile(configFilePath));
+): Range | undefined {
   const target = getLocationInYamlScript(yamlScript, ["emit", emitterName], "key");
   if (target.pos === 0) {
     return undefined;
@@ -249,20 +265,15 @@ function getDiagnosticInSettings(
   diagnostic: Diagnostic,
   emitterName?: string,
   clientConfig?: Config | undefined,
-): VSDiagnostic {
-  let customMsg = "";
+): VSDiagnostic | undefined {
   if (clientConfig?.lsp?.emit && emitterName && clientConfig.lsp.emit.includes(emitterName)) {
-    customMsg = " [In IDE settings]";
-  } else {
-    customMsg = " [No associated source found]";
+    return createLspDiagnostic({
+      range: VSRange.create(0, 0, 0, 0),
+      message: diagnostic.message + " [From IDE settings]",
+      severity: convertSeverity(diagnostic.severity),
+      code: diagnostic.code,
+      relatedInformation: [],
+    });
   }
-
-  const relatedInformation: DiagnosticRelatedInformation[] = [];
-  return createLspDiagnostic({
-    range: VSRange.create(0, 0, 0, 0),
-    message: diagnostic.message + customMsg,
-    severity: convertSeverity(diagnostic.severity),
-    code: diagnostic.code,
-    relatedInformation,
-  });
+  return undefined;
 }

@@ -242,11 +242,9 @@ export function createCompileService({
       let range: Range | undefined;
       if (err.name === "ExternalError" && err.info.kind === "emitter" && configFilePath) {
         const emitterName = err.info.metadata.name;
-        range = await getDiagnosticRangeInTspConfig(
-          configFilePath,
-          serverHost.compilerHost.readFile,
-          emitterName,
-        );
+        if (config.file) {
+          range = getDiagnosticRangeInTspConfig(config.file, emitterName);
+        }
 
         uri = fileService.getURL(configFilePath);
         if (range === undefined) {
