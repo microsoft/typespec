@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.template;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.ExampleHelperFeature;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
@@ -13,6 +12,7 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.Fluen
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentLiveTestCase;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentLiveTestStep;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentLiveTests;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
 
 public class FluentLiveTestsTemplate {
