@@ -4690,45 +4690,75 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     diagnosticTarget: Node,
   ): DiagnosticResult<Type | Value | null> {
     const constraintIsValue = !!constraint.valueType;
+    const constraintIsType = !!constraint.type;
 
     const collector = createDiagnosticCollector();
 
-    if (constraintIsValue) {
+    switch (true) {
+      case constraintIsValue && constraintIsType: {
+        const tried = tryAssignValue();
+
+        if (tried[0] !== null || entity.entityKind === "Value") {
+          // Succeeded as value or is a value
+          return tried;
+        }
+
+        // Now we are guaranteed a type.
+        const typeEntity = entity.entityKind === "Indeterminate" ? entity.type : entity;
+
+        const assignable = collector.pipe(
+          relation.isTypeAssignableTo(typeEntity, constraint.type, diagnosticTarget),
+        );
+
+        return collector.wrap(assignable ? typeEntity : null);
+      }
+      case constraintIsValue: {
+        const normed = collector.pipe(normalizeValue(entity, constraint, diagnosticTarget));
+
+        // Error should have been reported in normalizeValue
+        if (!normed) return collector.wrap(null);
+
+        const assignable = collector.pipe(
+          relation.isValueOfType(normed, constraint.valueType, diagnosticTarget),
+        );
+
+        return collector.wrap(assignable ? normed : null);
+      }
+      case constraintIsType: {
+        if (entity.entityKind === "Indeterminate") entity = entity.type;
+
+        if (entity.entityKind !== "Type") {
+          collector.add(
+            createDiagnostic({
+              code: "value-in-type",
+              format: { name: getTypeName(entity.type) },
+              target: diagnosticTarget,
+            }),
+          );
+          return collector.wrap(null);
+        }
+
+        const assignable = collector.pipe(
+          relation.isTypeAssignableTo(entity, constraint.type, diagnosticTarget),
+        );
+
+        return collector.wrap(assignable ? entity : null);
+      }
+      default: {
+        compilerAssert(false, "Expected at least one of type or value constraint to be defined.");
+      }
+    }
+
+    function tryAssignValue(): DiagnosticResult<Value | null> {
+      const collector = createDiagnosticCollector();
+
       const normed = collector.pipe(normalizeValue(entity, constraint, diagnosticTarget));
 
-      // Error should have been reported in normalizeValue
-      if (!normed) return collector.wrap(null);
-
-      const assignable = collector.pipe(
-        relation.isValueOfType(normed, constraint.valueType, diagnosticTarget),
-      );
+      const assignable = normed
+        ? collector.pipe(relation.isValueOfType(normed, constraint.valueType!, diagnosticTarget))
+        : false;
 
       return collector.wrap(assignable ? normed : null);
-    } else {
-      // Constraint is a type
-      if (entity.entityKind === "Indeterminate") entity = entity.type;
-
-      if (entity.entityKind !== "Type") {
-        collector.add(
-          createDiagnostic({
-            code: "value-in-type",
-            format: { name: getTypeName(entity.type) },
-            target: diagnosticTarget,
-          }),
-        );
-        return collector.wrap(null);
-      }
-
-      compilerAssert(
-        constraint.type,
-        "Expected type constraint to be defined when known not to be a value constraint.",
-      );
-
-      const assignable = collector.pipe(
-        relation.isTypeAssignableTo(entity, constraint.type, diagnosticTarget),
-      );
-
-      return collector.wrap(assignable ? entity : null);
     }
   }
 
