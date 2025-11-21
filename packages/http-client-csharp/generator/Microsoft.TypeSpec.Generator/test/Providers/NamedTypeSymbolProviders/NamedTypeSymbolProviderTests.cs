@@ -483,7 +483,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             protected override string BuildNamespace() => "Sample.Models";
             protected override TypeSignatureModifiers BuildDeclarationModifiers() => TypeSignatureModifiers.Public | TypeSignatureModifiers.Enum;
 
-            protected override FieldProvider[] BuildFields()
+            protected internal override FieldProvider[] BuildFields()
             {
                 return
                 [
@@ -499,7 +499,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             protected override string BuildNamespace() => "Sample.Models";
             protected override TypeSignatureModifiers BuildDeclarationModifiers() => TypeSignatureModifiers.Public | TypeSignatureModifiers.Enum;
 
-            protected override FieldProvider[] BuildFields()
+            protected internal override FieldProvider[] BuildFields()
             {
                 return
                 [
