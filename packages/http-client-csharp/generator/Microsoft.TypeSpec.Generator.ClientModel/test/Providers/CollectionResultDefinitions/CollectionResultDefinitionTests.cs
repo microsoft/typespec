@@ -73,7 +73,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
                 ["cats"],
                 ["nextPage"],
                 InputResponseLocation.Body,
-                pageSizeParameter,
                 ["pageSize"]);
             var catsProperty = InputFactory.Property("cats", InputFactory.Array(inputModel));
             var nextCatProperty = InputFactory.Property("nextPage", InputPrimitiveType.String);
