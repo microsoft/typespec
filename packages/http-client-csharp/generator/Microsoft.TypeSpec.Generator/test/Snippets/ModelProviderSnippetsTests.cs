@@ -56,7 +56,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Snippets
 
             using CodeWriter writer = new CodeWriter();
             result.Write(writer);
-            Assert.AreEqual("testModel.Inner.Value", writer.ToString(false));
+            Assert.AreEqual("testModel.Inner?.Value", writer.ToString(false));
         }
 
         [Test]
@@ -109,7 +109,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Snippets
 
             using CodeWriter writer = new CodeWriter();
             result.Write(writer);
-            Assert.AreEqual("testModel.Middle.Deep?.Data", writer.ToString(false));
+            Assert.AreEqual("testModel.Middle?.Deep?.Data", writer.ToString(false));
         }
 
         [Test]
@@ -154,7 +154,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Snippets
 
             using CodeWriter writer = new CodeWriter();
             result.Write(writer);
-            Assert.AreEqual("testModel.Inner.Value = \"newValue\"", writer.ToString(false));
+            Assert.AreEqual("testModel.Inner?.Value = \"newValue\"", writer.ToString(false));
         }
 
         [Test]
