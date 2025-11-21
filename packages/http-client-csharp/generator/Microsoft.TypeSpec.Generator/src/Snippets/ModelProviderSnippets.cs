@@ -13,6 +13,16 @@ namespace Microsoft.TypeSpec.Generator.Snippets
     {
         public static ValueExpression GetPropertyExpression(this ModelProvider model, ValueExpression modelVariable, IReadOnlyList<string> propertySegments)
         {
+            return model.BuildPropertyExpression(modelVariable, propertySegments);
+        }
+
+        public static ValueExpression SetPropertyExpression(this ModelProvider model, ValueExpression modelVariable, ValueExpression value, IReadOnlyList<string> propertySegments)
+        {
+            return model.BuildPropertyExpression(modelVariable, propertySegments).Assign(value);
+        }
+
+        private static ValueExpression BuildPropertyExpression(this ModelProvider model, ValueExpression modelVariable, IReadOnlyList<string> propertySegments)
+        {
             TypeProvider currentModel = model;
             ValueExpression getPropertyExpression = modelVariable;
 
@@ -33,30 +43,6 @@ namespace Microsoft.TypeSpec.Generator.Snippets
             }
 
             return getPropertyExpression;
-        }
-
-        public static ValueExpression SetPropertyExpression(this ModelProvider model, ValueExpression modelVariable, ValueExpression value, IReadOnlyList<string> propertySegments)
-        {
-            TypeProvider currentModel = model;
-            ValueExpression setPropertyExpression = modelVariable;
-
-            for (int i = 0; i < propertySegments.Count; i++)
-            {
-                var property = currentModel.Properties.First(p => p.WireInfo?.SerializedName == propertySegments[i]);
-
-                setPropertyExpression = setPropertyExpression.Property(property.Name);
-
-                if (i < propertySegments.Count - 1)
-                {
-                    if (NeedsNullableConditional(property))
-                    {
-                        setPropertyExpression = setPropertyExpression.NullConditional();
-                    }
-                    currentModel = CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[property.Type]!;
-                }
-            }
-
-            return setPropertyExpression.Assign(value);
         }
 
         private static bool NeedsNullableConditional(PropertyProvider property)
