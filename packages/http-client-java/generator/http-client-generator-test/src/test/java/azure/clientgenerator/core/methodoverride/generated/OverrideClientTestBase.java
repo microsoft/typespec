@@ -10,7 +10,9 @@ package azure.clientgenerator.core.methodoverride.generated;
 
 import azure.clientgenerator.core.methodoverride.GroupParametersClient;
 import azure.clientgenerator.core.methodoverride.OverrideClientBuilder;
+import azure.clientgenerator.core.methodoverride.RemoveOptionalParameterClient;
 import azure.clientgenerator.core.methodoverride.ReorderParametersClient;
+import azure.clientgenerator.core.methodoverride.RequireOptionalParameterClient;
 import com.azure.core.http.policy.HttpLogDetailLevel;
 import com.azure.core.http.policy.HttpLogOptions;
 import com.azure.core.test.TestMode;
@@ -21,6 +23,10 @@ class OverrideClientTestBase extends TestProxyTestBase {
     protected ReorderParametersClient reorderParametersClient;
 
     protected GroupParametersClient groupParametersClient;
+
+    protected RequireOptionalParameterClient requireOptionalParameterClient;
+
+    protected RemoveOptionalParameterClient removeOptionalParameterClient;
 
     @Override
     protected void beforeTest() {
@@ -41,6 +47,24 @@ class OverrideClientTestBase extends TestProxyTestBase {
             groupParametersClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         groupParametersClient = groupParametersClientbuilder.buildGroupParametersClient();
+
+        OverrideClientBuilder requireOptionalParameterClientbuilder = new OverrideClientBuilder()
+            .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
+            .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
+        if (getTestMode() == TestMode.RECORD) {
+            requireOptionalParameterClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
+        }
+        requireOptionalParameterClient = requireOptionalParameterClientbuilder.buildRequireOptionalParameterClient();
+
+        OverrideClientBuilder removeOptionalParameterClientbuilder = new OverrideClientBuilder()
+            .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
+            .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
+        if (getTestMode() == TestMode.RECORD) {
+            removeOptionalParameterClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
+        }
+        removeOptionalParameterClient = removeOptionalParameterClientbuilder.buildRemoveOptionalParameterClient();
 
     }
 }

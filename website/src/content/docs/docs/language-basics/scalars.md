@@ -1,5 +1,7 @@
 ---
 title: Scalars
+description: "Language basics - custom scalars"
+llmstxt: true
 ---
 
 Scalars are simple types that don't have any fields. Examples of these include `string`, `int32`, `boolean`, and so on.

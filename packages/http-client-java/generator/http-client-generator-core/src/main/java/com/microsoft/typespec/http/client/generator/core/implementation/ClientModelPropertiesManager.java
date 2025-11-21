@@ -6,10 +6,6 @@ package com.microsoft.typespec.http.client.generator.core.implementation;
 import static com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil.getClientModel;
 
 import com.azure.core.util.CoreUtils;
-import com.azure.json.JsonReader;
-import com.azure.json.JsonSerializable;
-import com.azure.xml.XmlReader;
-import com.azure.xml.XmlSerializable;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
@@ -525,7 +521,7 @@ public final class ClientModelPropertiesManager {
     }
 
     /**
-     * Gets the variable name for {@link JsonReader#getFieldName()} in {@link JsonSerializable#fromJson(JsonReader)}
+     * Gets the variable name for {@code JsonReader#getFieldName()} in {@code JsonSerializable#fromJson(JsonReader)}
      * implementations.
      * <p>
      * This is used instead of a static variable name as deserialization maintains holders for required properties which
@@ -540,7 +536,7 @@ public final class ClientModelPropertiesManager {
     }
 
     /**
-     * Gets the variable name for {@link XmlReader#getElementName()} in {@link XmlSerializable#fromXml(XmlReader)}
+     * Gets the variable name for {@code XmlReader#getElementName()} in {@code XmlSerializable#fromXml(XmlReader)}
      * implementations.
      * <p>
      * This is used instead of a static variable name as deserialization maintains holders for required properties which

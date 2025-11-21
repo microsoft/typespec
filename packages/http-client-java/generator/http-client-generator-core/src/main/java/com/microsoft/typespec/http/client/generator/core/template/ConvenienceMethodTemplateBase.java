@@ -194,8 +194,13 @@ abstract class ConvenienceMethodTemplateBase {
                 && ClientModelUtil.isJsonMergePatchModel(
                     ClientModelUtil.getClientModel(((ClassType) parameterRawType).getName()),
                     JavaSettings.getInstance())) {
+                ClientModel clientModel = ClientModelUtil.getClientModel(((ClassType) parameterRawType).getName());
+                // If it is polymorphic model, we need to enable json merge patch through root parent model
+                ClientModel rootParentModel = ClientModelUtil.getRootParent(clientModel);
+                IType rootParentModelType = rootParentModel.getType();
+
                 return writeParameterConversionExpressionWithJsonMergePatchEnabled(methodBlock,
-                    parameterRawType.toString(), parameterName, expression);
+                    rootParentModelType.toString(), parameterName, expression);
             } else {
                 return expression == null ? parameterName : expression;
             }
@@ -493,15 +498,6 @@ abstract class ConvenienceMethodTemplateBase {
      */
     protected abstract void writeInvocationAndConversion(ClientMethod convenienceMethod, ClientMethod protocolMethod,
         String invocationExpression, JavaBlock methodBlock, Set<GenericType> typeReferenceStaticClasses);
-
-    protected boolean isModelOrBuiltin(IType type) {
-        // TODO: other built-in types
-        return type == ClassType.STRING // string
-            || type == ClassType.OBJECT // unknown
-            || type == ClassType.BIG_DECIMAL // decimal
-            || (type instanceof PrimitiveType && type.asNullable() != ClassType.VOID) // boolean, int, float, etc.
-            || ClientModelUtil.isClientModel(type); // client model
-    }
 
     protected enum SupportedMimeType {
         TEXT, XML, MULTIPART, BINARY, JSON;

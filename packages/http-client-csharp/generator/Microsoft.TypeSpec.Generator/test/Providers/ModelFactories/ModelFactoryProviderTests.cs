@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
@@ -21,7 +22,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         [SetUp]
         public void Setup()
         {
-            _instance = MockHelpers.LoadMockGenerator(inputModelTypes: ModelList).Object;
+            _instance = MockHelpers.LoadMockGenerator(inputNamespaceName: "Sample.Namespace", inputModelTypes: ModelList).Object;
         }
 
         [Test]
@@ -134,6 +135,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         public async Task BackCompatibility_NewModelPropertyAdded()
         {
             _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
                 inputModelTypes: ModelList,
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
 
@@ -164,6 +166,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual("stringProp", parameters[0].Name);
             Assert.AreEqual("modelProp", parameters[1].Name);
             Assert.AreEqual("listProp", parameters[2].Name);
+            foreach (var param in parameters)
+            {
+                Assert.IsNull(param.DefaultValue);
+            }
 
             var currentParameters = currentOverloadMethod!.Signature.Parameters;
             Assert.AreEqual(4, currentParameters.Count);
@@ -171,6 +177,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual("modelProp", currentParameters[1].Name);
             Assert.AreEqual("listProp", currentParameters[2].Name);
             Assert.AreEqual("dictProp", currentParameters[3].Name);
+            foreach (var param in currentParameters)
+            {
+                Assert.IsNotNull(param.DefaultValue);
+            }
 
             Assert.IsTrue(parameters[0].Type.AreNamesEqual(currentParameters[0].Type));
             Assert.IsTrue(parameters[1].Type.AreNamesEqual(currentParameters[1].Type));
@@ -191,6 +201,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         public async Task BackCompatibility_OnlyParamOrderingChanged()
         {
             _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
                 inputModelTypes: ModelList,
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
 
@@ -216,6 +227,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual("stringProp", parameters[1].Name);
             Assert.AreEqual("listProp", parameters[2].Name);
             Assert.AreEqual("dictProp", parameters[3].Name);
+            foreach (var param in parameters)
+            {
+                Assert.IsNotNull(param.DefaultValue);
+            }
 
             var model2BackCompatMethod = factoryMethods
                .First(m => m.Signature.Name == "PublicModel2");
@@ -237,8 +252,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.IsNotNull(body);
             var result = body!.ToDisplayString();
             Assert.AreEqual(
-                "listProp ??= new global::Sample.ChangeTrackingList<string>();\n" +
-                "dictProp ??= new global::Sample.ChangeTrackingDictionary<string, string>();\n\n" +
+                "listProp ??= new global::Sample.Namespace.ChangeTrackingList<string>();\n" +
+                "dictProp ??= new global::Sample.Namespace.ChangeTrackingDictionary<string, string>();\n\n" +
                 "return new global::Sample.Models.PublicModel1(stringProp, modelProp, listProp.ToList(), dictProp, additionalBinaryDataProperties: null);\n",
                 result);
 
@@ -246,8 +261,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.IsNotNull(body);
             result = body!.ToDisplayString();
             Assert.AreEqual(
-                "listProp ??= new global::Sample.ChangeTrackingList<string>();\n" +
-                "dictProp ??= new global::Sample.ChangeTrackingDictionary<string, string>();\n\n" +
+                "listProp ??= new global::Sample.Namespace.ChangeTrackingList<string>();\n" +
+                "dictProp ??= new global::Sample.Namespace.ChangeTrackingDictionary<string, string>();\n\n" +
                 "return new global::Sample.Models.PublicModel2(stringProp, modelProp, listProp.ToList(), dictProp, additionalBinaryDataProperties: null);\n",
                 result);
         }
@@ -256,6 +271,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         public async Task BackCompatibility_NoCurrentOverloadFound()
         {
             _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
                 inputModelTypes: ModelList,
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
 
@@ -277,6 +293,16 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             var parameters = backwardCompatibilityMethod!.Signature.Parameters;
             Assert.AreEqual(1, parameters.Count);
             Assert.AreEqual("stringProp", parameters[0].Name);
+            foreach (var param in parameters)
+            {
+                Assert.IsNull(param.DefaultValue);
+            }
+            var attributes = backwardCompatibilityMethod!.Signature.Attributes;
+            Assert.AreEqual(1, attributes.Count);
+            var printedAttribute = attributes[0].ToDisplayString();
+            Assert.AreEqual(
+                "[global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]\n",
+                printedAttribute);
 
             var currentParameters = currentOverloadMethod!.Signature.Parameters;
             Assert.AreEqual(4, currentParameters.Count);
@@ -284,6 +310,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual("modelProp", currentParameters[1].Name);
             Assert.AreEqual("listProp", currentParameters[2].Name);
             Assert.AreEqual("dictProp", currentParameters[3].Name);
+            foreach (var param in currentParameters)
+            {
+                Assert.IsNotNull(param.DefaultValue);
+            }
 
             Assert.IsTrue(parameters[0].Type.AreNamesEqual(currentParameters[0].Type));
 
@@ -294,6 +324,80 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual(
                 "return new global::Sample.Models.PublicModel1(stringProp, default, default, default, additionalBinaryDataProperties: null);\n",
                 result);
+        }
+
+        [Test]
+        public void ModelWithNestedDiscriminators()
+        {
+            var discriminatorProperty =
+                InputFactory.Property("StringProp", InputPrimitiveType.String, isDiscriminator: true);
+            InputModelProperty[] properties =
+            [
+                discriminatorProperty,
+                InputFactory.Property("ModelProp", InputFactory.Model("Thing")),
+                InputFactory.Property("ListProp", InputFactory.Array(InputPrimitiveType.String)),
+            ];
+            InputModelProperty nestedDiscriminatorProperty =
+                InputFactory.Property("NestedDiscriminator", InputPrimitiveType.String, isDiscriminator: true);
+
+            var grandChildModel = InputFactory.Model(
+                "GrandChildModel",
+                properties: [],
+                discriminatedKind: "nestedPropVal");
+
+            var childModel = InputFactory.Model(
+                "ChildModel",
+                properties: [nestedDiscriminatorProperty],
+                discriminatedKind: "stringPropVal",
+                derivedModels: [grandChildModel],
+                discriminatorProperty: nestedDiscriminatorProperty);
+
+            var baseModel = InputFactory.Model(
+                "BaseModel",
+                properties: properties,
+                discriminatorProperty: discriminatorProperty,
+                derivedModels: [childModel]);
+
+            MockHelpers.LoadMockGenerator(inputModelTypes: [grandChildModel, childModel, baseModel]);
+            var modelFactory = CodeModelGenerator.Instance.OutputLibrary.ModelFactory.Value;
+
+            Assert.IsNotNull(modelFactory);
+            var grandChildMethod = modelFactory.Methods.FirstOrDefault(m => m.Signature.Name == "GrandChildModel");
+            Assert.IsNotNull(grandChildMethod);
+            StringAssert.Contains(
+                "return new global::Sample.Models.GrandChildModel(\"stringPropVal\", modelProp, listProp.ToList(), additionalBinaryDataProperties: null, \"nestedPropVal\")",
+                grandChildMethod!.BodyStatements!.ToDisplayString());
+
+            var childMethod = modelFactory.Methods.FirstOrDefault(m => m.Signature.Name == "ChildModel");
+            Assert.IsNotNull(childMethod);
+            StringAssert.Contains(
+                "return new global::Sample.Models.ChildModel(\"stringPropVal\", modelProp, listProp.ToList(), additionalBinaryDataProperties: null, default)",
+                childMethod!.BodyStatements!.ToDisplayString());
+        }
+
+        [Test]
+        public void RequiredConstantPropertiesAreNotExposedAsParameters()
+        {
+            var inputModel = InputFactory.Model(
+                "MockInputModel",
+                properties:
+                [
+                    InputFactory.Property("prop1", InputFactory.Literal.String("constant", "prop1"), isRequired: true),
+                    InputFactory.Property("prop2", InputPrimitiveType.String, isRequired: true)
+                ]);
+
+            MockHelpers.LoadMockGenerator(
+                inputModelTypes: [inputModel]);
+
+            var modelFactoryProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<ModelFactoryProvider>().SingleOrDefault();
+            Assert.IsNotNull(modelFactoryProvider);
+
+            var factoryMethod = modelFactoryProvider!.Methods.FirstOrDefault(p => p.Signature.Name == "MockInputModel");
+            Assert.IsNotNull(factoryMethod);
+            Assert.AreEqual(1, factoryMethod!.Signature.Parameters.Count);
+            Assert.AreEqual("prop2", factoryMethod.Signature.Parameters[0].Name);
+
+            Assert.AreEqual("return new global::Sample.Models.MockInputModel(\"constant\", prop2, additionalBinaryDataProperties: null);\n", factoryMethod.BodyStatements!.ToDisplayString());
         }
 
         private static InputModelType[] GetTestModels()

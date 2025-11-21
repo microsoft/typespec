@@ -1,6 +1,7 @@
 {
   "name": "Example Thing",
   "requiredUnion": "mockUnion",
+  "requiredNullableLiteralString": null,
   "requiredBadDescription": "This is a description with potentially problematic characters like < or >.",
   "requiredNullableList": null,
   "requiredLiteralString": "accept",

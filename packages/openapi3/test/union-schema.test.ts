@@ -1,9 +1,9 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
-import { worksFor } from "./works-for.js";
+import { supportedVersions, worksFor } from "./works-for.js";
 
-worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) => {
+worksFor(supportedVersions, ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) => {
   describe("discriminated unions", () => {
     it("use object envelope", async () => {
       const res = await openApiFor(
@@ -83,6 +83,117 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) 
             b: "#/components/schemas/B",
           },
         },
+      });
+    });
+
+    it("apply name suffixes to synthetic envelope types", async () => {
+      const res = await openApiFor(
+        `
+        model A {
+          a: string;
+          @visibility(Lifecycle.Read)
+          ro: string;
+        }
+  
+        model B {
+          b: string;
+          @visibility(Lifecycle.Create)
+          co: string;
+        }
+  
+        @discriminated
+        union U {
+          a: A,
+          b: B,
+        }
+
+        @put op update(@body data: U): U;
+        `,
+      );
+
+      // Union schemas
+      deepStrictEqual(res.components.schemas.U, {
+        type: "object",
+        oneOf: [{ $ref: "#/components/schemas/UA" }, { $ref: "#/components/schemas/UB" }],
+        discriminator: {
+          propertyName: "kind",
+          mapping: {
+            a: "#/components/schemas/UA",
+            b: "#/components/schemas/UB",
+          },
+        },
+      });
+      deepStrictEqual(res.components.schemas["UA"], {
+        type: "object",
+        properties: {
+          kind: { type: "string", enum: ["a"] },
+          value: { $ref: "#/components/schemas/A" },
+        },
+        required: ["kind", "value"],
+      });
+      deepStrictEqual(res.components.schemas["UB"], {
+        type: "object",
+        properties: {
+          kind: { type: "string", enum: ["b"] },
+          value: { $ref: "#/components/schemas/B" },
+        },
+        required: ["kind", "value"],
+      });
+
+      deepStrictEqual(res.components.schemas["UCreateOrUpdate"], {
+        type: "object",
+        oneOf: [
+          { $ref: "#/components/schemas/UA" },
+          { $ref: "#/components/schemas/UBCreateOrUpdate" },
+        ],
+        discriminator: {
+          propertyName: "kind",
+          mapping: {
+            a: "#/components/schemas/UA",
+            b: "#/components/schemas/UBCreateOrUpdate",
+          },
+        },
+      });
+      deepStrictEqual(res.components.schemas["UBCreateOrUpdate"], {
+        type: "object",
+        properties: {
+          kind: { type: "string", enum: ["b"] },
+          value: { $ref: "#/components/schemas/BCreateOrUpdate" },
+        },
+        required: ["kind", "value"],
+      });
+
+      // Model schemas
+      deepStrictEqual(res.components.schemas["A"], {
+        type: "object",
+        properties: {
+          a: { type: "string" },
+          ro: { type: "string", readOnly: true },
+        },
+        required: ["a", "ro"],
+      });
+      deepStrictEqual(res.components.schemas["B"], {
+        type: "object",
+        properties: {
+          b: { type: "string" },
+        },
+        required: ["b"],
+      });
+      deepStrictEqual(res.components.schemas["BCreateOrUpdate"], {
+        type: "object",
+        properties: {
+          b: { type: "string" },
+          co: { type: "string" },
+        },
+        required: ["b", "co"],
+      });
+
+      // Routes
+      deepStrictEqual(res.paths["/"].put.requestBody.content["application/json"].schema, {
+        $ref: "#/components/schemas/UCreateOrUpdate",
+      });
+      deepStrictEqual(res.paths["/"].put.responses["200"].content["application/json"].schema, {
+        $ref: "#/components/schemas/U",
       });
     });
   });

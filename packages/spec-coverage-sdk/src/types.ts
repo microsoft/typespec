@@ -1,8 +1,11 @@
 export type ScenarioManifest = {
+  packageName?: string;
+  displayName?: string;
+  /** Repository where scenarios live */
+  repo?: string;
   commit: string;
   version: string;
   scenarios: ScenarioData[];
-  setName: string;
 };
 
 export type ScenarioData = {

@@ -20,6 +20,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
     {
         private const string ModelFactorySuffix = "ModelFactory";
         private const string AdditionalBinaryDataParameterName = "additionalBinaryDataProperties";
+        private const string JsonPatchParameterName = "patch";
 
         private readonly IEnumerable<InputModelType> _models;
 
@@ -28,26 +29,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _models = models;
         }
 
-        protected override string BuildName()
-        {
-            var span = CodeModelGenerator.Instance.Configuration.PackageName.AsSpan();
-            if (span.IndexOf('.') == -1)
-                return string.Concat(CodeModelGenerator.Instance.Configuration.PackageName, ModelFactorySuffix);
-
-            Span<char> dest = stackalloc char[span.Length + ModelFactorySuffix.Length];
-            int j = 0;
-
-            for (int i = 0; i < span.Length; i++)
-            {
-                if (span[i] != '.')
-                {
-                    dest[j] = span[i];
-                    j++;
-                }
-            }
-            ModelFactorySuffix.AsSpan().CopyTo(dest.Slice(j));
-            return dest.Slice(0, j + ModelFactorySuffix.Length).ToString();
-        }
+        protected override string BuildName() => string.Concat(CodeModelGenerator.Instance.TypeFactory.ServiceName, ModelFactorySuffix);
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
 
@@ -80,7 +62,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                var (binaryDataParam, fullConstructor) = GetBinaryDataParamAndFullCtorForFactoryMethod(modelProvider);
+                var (_, fullConstructor) = GetBinaryDataParamAndFullCtorForFactoryMethod(modelProvider);
                 var signature = new MethodSignature(
                     modelProvider.Name,
                     null,
@@ -142,7 +124,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     // If the parameter ordering is the only difference, just use the previous method
                     if (ContainsSameParameters(previousMethod.Signature, currentOverload)
-                        && TryBuildCompatibleMethodForPreviousContract(previousMethod, out MethodProvider? replacedMethod))
+                        && TryBuildCompatibleMethodForPreviousContract(previousMethod, currentOverload, false, out MethodProvider? replacedMethod))
                     {
                         factoryMethods.Add(replacedMethod);
 
@@ -157,23 +139,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         break;
                     }
 
-                    if (TryBuildMethodArgumentsForOverload(previousMethod.Signature, currentOverload, out var arguments))
+                    if (TryBuildCompatibleMethodForPreviousContract(previousMethod, currentOverload, true, out replacedMethod))
                     {
-                        var signature = new MethodSignature(
-                            previousMethod.Signature.Name,
-                            previousMethod.Signature.Description,
-                            previousMethod.Signature.Modifiers,
-                            previousMethod.Signature.ReturnType,
-                            previousMethod.Signature.ReturnDescription,
-                            previousMethod.Signature.Parameters,
-                            Attributes: [new AttributeStatement(typeof(EditorBrowsableAttribute), FrameworkEnumValue(EditorBrowsableState.Never))]);
-
-                        var callToOverload = Return(new InvokeMethodExpression(null, currentOverload, arguments));
-                        factoryMethods.Add(new MethodProvider(
-                            signature,
-                            callToOverload,
-                            this,
-                            previousMethod.XmlDocs));
+                        factoryMethods.Add(replacedMethod);
                         foundCompatibleOverload = true;
                         break;
                     }
@@ -185,7 +153,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
 
                 // If no compatible overload found, try to add the previous method by instantiating the model directly.
-                if (TryBuildCompatibleMethodForPreviousContract(previousMethod, out var builtMethod))
+                if (TryBuildCompatibleMethodForPreviousContract(previousMethod, null, true, out var builtMethod))
                 {
                     factoryMethods.Add(builtMethod);
                 }
@@ -200,6 +168,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private bool TryBuildCompatibleMethodForPreviousContract(
             MethodProvider previousMethod,
+            MethodSignature? currentMethodSignature,
+            bool hideMethod,
             [NotNullWhen(true)] out MethodProvider? builtMethod)
         {
             builtMethod = null;
@@ -231,15 +201,51 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return false;
             }
 
+            if (currentMethodSignature != null && TryBuildMethodArgumentsForOverload(previousMethod.Signature, currentMethodSignature, out var arguments))
+            {
+                var callToOverload = Return(new InvokeMethodExpression(null, currentMethodSignature, arguments));
+                builtMethod = new MethodProvider(
+                    BuildBackCompatMethodSignature(previousMethod.Signature),
+                    callToOverload,
+                    this,
+                    previousMethod.XmlDocs);
+
+                return true;
+            }
+
             MethodBodyStatements body = ConstructMethodBody(previousMethod.Signature, modelToInstantiate);
 
             builtMethod = new MethodProvider(
-                previousMethod.Signature,
+                BuildBackCompatMethodSignature(previousMethod.Signature),
                 body,
                 this,
                 previousMethod.XmlDocs);
 
             return true;
+
+            MethodSignature BuildBackCompatMethodSignature(MethodSignature previousMethodSignature)
+            {
+                if (hideMethod)
+                {
+                    // make all parameter required to avoid ambiguous call sites if necessary
+                    foreach (var param in previousMethodSignature.Parameters)
+                    {
+                        param.DefaultValue = null;
+                    }
+                }
+
+                var attributes = hideMethod
+                    ? [.. previousMethodSignature.Attributes, new AttributeStatement(typeof(EditorBrowsableAttribute), FrameworkEnumValue(EditorBrowsableState.Never))]
+                    : previousMethodSignature.Attributes;
+                return new MethodSignature(
+                    previousMethodSignature.Name,
+                    previousMethodSignature.Description,
+                    previousMethodSignature.Modifiers,
+                    previousMethodSignature.ReturnType,
+                    previousMethodSignature.ReturnDescription,
+                    previousMethodSignature.Parameters,
+                    Attributes: attributes);
+            }
         }
 
         private MethodBodyStatements ConstructMethodBody(MethodSignature signature, ModelProvider modelToInstantiate)
@@ -320,7 +326,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
 
                 var factoryParam = factoryMethodSignature.Parameters.FirstOrDefault(p => p.Name.Equals(ctorParam.Name));
-
+                var defaultExpression = ctorParam.DefaultValue ?? Default;
                 if (factoryParam == null)
                 {
                     // Check if the param's property has an auto-property initializer.
@@ -332,13 +338,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     {
                         expressions.Add(initExpression);
                     }
-                    else if (ctorParam.Property?.IsDiscriminator == true && modelProvider.DiscriminatorValueExpression != null)
+                    else if (ctorParam.Property?.IsDiscriminator == true)
                     {
-                        expressions.Add(modelProvider.DiscriminatorValueExpression);
+                        expressions.Add(GetDiscriminatorExpression(ctorParam.Property, modelProvider) ?? defaultExpression);
                     }
                     else
                     {
-                        expressions.Add(ctorParam.DefaultValue ?? Default);
+                        expressions.Add(defaultExpression);
                     }
                 }
                 else
@@ -359,6 +365,24 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return [.. expressions];
+        }
+
+        private static ValueExpression? GetDiscriminatorExpression(PropertyProvider property, ModelProvider? model)
+        {
+            if (model == null)
+            {
+                return null;
+            }
+
+            // Make sure we are getting the expression for the correct discriminator property as models may have multiple discriminator
+            // from different levels in the hierarchy.
+            // The DiscriminatorValueExpression is based on the direct parent model provider discriminator.
+            if (model.BaseModelProvider?.DiscriminatorProperty == property)
+            {
+                return model.DiscriminatorValueExpression;
+            }
+
+            return GetDiscriminatorExpression(property, model.BaseModelProvider);
         }
 
         private static ModelProvider? GetModelToInstantiateForFactoryMethod(ModelProvider modelProvider)
@@ -430,12 +454,23 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 bool isBinaryDataParam = param.Name.Equals(AdditionalBinaryDataParameterName)
                     || (isCustomConstructor && param.Type.Equals(typeof(IDictionary<string, BinaryData>)));
 
-                if (isBinaryDataParam && !modelProvider.SupportsBinaryDataAdditionalProperties)
+                if ((isBinaryDataParam && !modelProvider.SupportsBinaryDataAdditionalProperties) ||
+                    param.Name.Equals(JsonPatchParameterName) && param.IsIn)
+                {
                     continue;
+                }
 
                 // skip discriminator parameters if the model has a discriminator value as those shouldn't be exposed in the factory methods
                 if (param.Property?.IsDiscriminator == true && modelProvider.DiscriminatorValue != null)
+                {
                     continue;
+                }
+
+                // Skip required literal and enum parameters as they will have default values assigned in the model constructors
+                if (param.Property?.InputProperty is { IsRequired: true, Type: InputLiteralType or InputEnumTypeValue })
+                {
+                    continue;
+                }
 
                 parameters.Add(GetModelFactoryParam(param));
             }
@@ -452,6 +487,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 Default,
                 parameter.IsRef,
                 parameter.IsOut,
+                parameter.IsIn,
                 parameter.IsParams,
                 parameter.Attributes,
                 parameter.Property,

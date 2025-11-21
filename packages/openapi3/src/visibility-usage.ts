@@ -18,6 +18,7 @@ import {
 export interface VisibilityUsageTracker {
   getUsage(type: Type): Set<Visibility> | undefined;
   isUnreachable(type: Type): boolean;
+  manuallyTrack(type: Type, visibility: Set<Visibility>): void;
 }
 
 export type OperationContainer = Namespace | Interface | Operation;
@@ -59,6 +60,12 @@ export function resolveVisibilityUsage(
     },
     isUnreachable: (type: Type) => {
       return !reachableTypes.has(type);
+    },
+    manuallyTrack: (type: Type, visibility: Set<Visibility>) => {
+      for (const vis of visibility) {
+        trackUsageExact(usages, type, vis);
+      }
+      reachableTypes.add(type);
     },
   };
 }

@@ -4,15 +4,14 @@
 package com.microsoft.typespec.http.client.generator.core.extension.plugin;
 
 import com.azure.core.util.CoreUtils;
-import com.azure.json.JsonProviders;
-import com.azure.json.JsonReader;
-import com.azure.json.JsonToken;
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.mapper.azurevnext.AzureVNextMapperFactory;
 import com.microsoft.typespec.http.client.generator.core.mapper.clientcore.ClientCoreMapperFactory;
 import com.microsoft.typespec.http.client.generator.core.template.Templates;
 import com.microsoft.typespec.http.client.generator.core.template.azurevnext.AzureVNextTemplateFactory;
 import com.microsoft.typespec.http.client.generator.core.template.clientcore.ClientCoreTemplateFactory;
+import io.clientcore.core.serialization.json.JsonReader;
+import io.clientcore.core.serialization.json.JsonToken;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1595,7 +1594,7 @@ public class JavaSettings {
                 return null;
             } else if (jsonString.startsWith("[")) {
                 // Array values will need to be parsed.
-                try (JsonReader jsonReader = JsonProviders.createReader(jsonString)) {
+                try (JsonReader jsonReader = JsonReader.fromString(jsonString)) {
                     List<String> settingValueList = jsonReader.readArray(JsonReader::getString);
                     logger.debug("Option, array, {} : {}", settingName, settingValueList);
                     action.accept(settingValueList);

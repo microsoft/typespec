@@ -8,7 +8,9 @@ import {
   createTestHost,
   expectDiagnostics,
   expectTypeEquals,
+  t,
 } from "../../src/testing/index.js";
+import { Tester } from "../tester.js";
 
 describe("compiler: namespaces with blocks", () => {
   const blues = new WeakSet();
@@ -386,6 +388,20 @@ describe("compiler: blockless namespaces", () => {
       Z: Model;
     };
     strictEqual(Z.properties.size, 2, "has two properties");
+  });
+
+  // Regression test for https://github.com/microsoft/typespec/issues/8630
+  it("does stuff", async () => {
+    const { A, B } = await Tester.compile(t.code`
+      namespace Top;
+      
+      namespace A {};
+
+      namespace ${t.namespace("B")} {
+        namespace ${t.namespace("A")} {}
+      };
+    `);
+    expectTypeEquals(A.namespace, B);
   });
 
   it("does lookup correctly", async () => {

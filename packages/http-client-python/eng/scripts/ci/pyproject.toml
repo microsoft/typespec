@@ -1,5 +1,5 @@
 [tool.black]
-exclude = '''
+extend-exclude = '''
 /(
     \.git
   | \.hg

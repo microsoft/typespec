@@ -1,5 +1,5 @@
 import type { JSONSchemaType as AjvJSONSchemaType } from "ajv";
-import type { ModuleResolutionResult } from "../module-resolver/module-resolver.js";
+import type { ModuleResolutionResult } from "../module-resolver/index.js";
 import type { YamlPathTarget, YamlScript } from "../yaml/types.js";
 import type { Numeric } from "./numeric.js";
 import type { Program } from "./program.js";
@@ -59,6 +59,11 @@ export interface BaseType {
   /** Node used to construct this type. If the node is undefined it means the type was dynamically built. With typekit for example. */
   node?: Node;
   instantiationParameters?: Type[];
+
+  /**
+   * If the type is currently being created.
+   */
+  creating?: true;
 
   /**
    * Reflect if a type has been finished(Decorators have been called).

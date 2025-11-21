@@ -1,8 +1,8 @@
 import { deepStrictEqual } from "assert";
 import { it } from "vitest";
-import { worksFor } from "./works-for.js";
+import { supportedVersions, worksFor } from "./works-for.js";
 
-worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
+worksFor(supportedVersions, ({ openApiFor }) => {
   it("will expose all properties on unreferenced models but filter properties on referenced models", async () => {
     const res = await openApiFor(`
       model M {

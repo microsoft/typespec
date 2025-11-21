@@ -18,6 +18,7 @@ import { ResultCode } from "../../types.js";
 import {
   formatDiagnostic,
   getEntrypointTspFile,
+  loadEmitterOptions,
   TraverseMainTspFileInWorkspace,
 } from "../../typespec-utils.js";
 import {
@@ -37,7 +38,6 @@ import {
   getRegisterEmitterTypes,
   PreDefinedEmitterPickItems,
 } from "./emitter.js";
-
 interface EmitQuickPickButton extends QuickInputButton {
   uri: string;
 }
@@ -391,12 +391,16 @@ async function doEmit(
       } else {
         configYaml.set("emit", [emitter.package]);
       }
-      const emitOutputDir = configYaml.getIn(["options", emitter.package, "emitter-output-dir"]);
+
+      const defaultEmitKey = "emitter-output-dir";
+      const emitOutputDir = configYaml.getIn(["options", emitter.package, defaultEmitKey]);
       if (!emitOutputDir) {
         configYaml.setIn(
-          ["options", emitter.package, "emitter-output-dir"],
+          ["options", emitter.package, defaultEmitKey],
           defaultEmitOutputDirInConfig,
         );
+
+        await generateAnnotatedYamlFile(configYaml, emitter.package, baseDir);
       }
     }
     const newYamlContent = configYaml.toString();
@@ -853,4 +857,114 @@ async function isCompilerSupport(client: TspLanguageClient): Promise<boolean> {
     return false;
   }
   return true;
+}
+
+function getConfigEntriesFromEmitterOptions(
+  emitterOptions: Record<string, any>,
+): Record<string, { value: string; comment: string }> {
+  const configEntries: Record<string, { value: string; comment: string }> = {};
+  if (!emitterOptions.properties) {
+    return configEntries;
+  }
+
+  for (const [propertyName, propertySchema] of Object.entries(emitterOptions.properties)) {
+    const {
+      description = "",
+      type,
+      enum: enumValues,
+      default: defaultValue,
+    } = propertySchema as any;
+
+    const commentParts: string[] = [];
+    if (type) {
+      commentParts.push(`Type: ${type}`);
+    }
+    if (Array.isArray(enumValues)) {
+      commentParts.push(`Options: [${enumValues.join(", ")}]`);
+    }
+    if (description) {
+      commentParts.push(`Description: ${description}`);
+    }
+    const comment = commentParts.join(", ");
+
+    let value = defaultValue;
+    if (value === undefined) {
+      // If there is no default value; provide default values according to the following implementations based on the type.
+      switch (type) {
+        case "string":
+          value = `""`;
+          break;
+        case "int":
+        case "number":
+          value = `0`;
+          break;
+        case "object":
+          value = `{}`;
+          break;
+        case "bool":
+        case "boolean":
+          value = `false`;
+          break;
+        case "array":
+          value = `[]`;
+          break;
+      }
+    }
+
+    configEntries[propertyName] = { value, comment };
+  }
+
+  return configEntries;
+}
+
+async function generateAnnotatedYamlFile(
+  configYaml: Document,
+  packageName: string,
+  baseDir: string,
+): Promise<void> {
+  try {
+    const emitterOptions = await loadEmitterOptions(baseDir, packageName);
+    if (emitterOptions === undefined) {
+      logger.debug(
+        `No emitter options schema found for package ${packageName}, skipping annotation generation`,
+      );
+      return;
+    }
+
+    const configEntries = getConfigEntriesFromEmitterOptions(emitterOptions);
+    if (Object.keys(configEntries).length === 0) {
+      logger.debug(`No configuration entries found for ${packageName}`);
+      return;
+    }
+
+    const packageNodeOptions: { name: string; value: string; comment: string }[] = [];
+    for (const [propertyName, propertyConfig] of Object.entries(configEntries)) {
+      const { value, comment } = propertyConfig as { value: any; comment: string };
+      packageNodeOptions.push({ name: propertyName, value, comment });
+    }
+
+    const parentMap = configYaml.getIn(["options", packageName], true) as any;
+    if (parentMap) {
+      const maxNameLength = Math.max(...packageNodeOptions.map((x) => x.name.length));
+      const maxValueLength = Math.max(...packageNodeOptions.map((x) => String(x.value).length));
+      const commentAlignmentSpacing = 10;
+      const totalPadding = maxNameLength + maxValueLength + 3 + commentAlignmentSpacing; // 3 for ": " and space
+
+      parentMap.comment = packageNodeOptions
+        .map((x) => {
+          const nameValuePart = ` ${x.name}: ${x.value}`;
+          const currentLength = nameValuePart.length;
+          const spacesToAdd = totalPadding - currentLength;
+          const whitespacePadding = " ".repeat(totalPadding);
+
+          // First standardize the behavior of the change \n, then insert aligned spaces and inline "#" for the continuation line
+          const processedComment = x.comment.replaceAll(/\r\n|\r|\n/g, `\n${whitespacePadding}# `);
+          return `${nameValuePart}${" ".repeat(spacesToAdd)}# ${processedComment}`;
+        })
+        .join("\n");
+      configYaml.setIn(["options", packageName], parentMap);
+    }
+  } catch (error) {
+    logger.error(`Error generating annotated yaml file content for ${packageName}:`, [error]);
+  }
 }

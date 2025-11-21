@@ -2,9 +2,9 @@ import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
 import { OpenAPI3PathParameter, OpenAPI3QueryParameter } from "../src/types.js";
-import { worksFor } from "./works-for.js";
+import { supportedVersions, worksFor } from "./works-for.js";
 
-worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
+worksFor(supportedVersions, ({ diagnoseOpenApiFor, openApiFor }) => {
   describe("query parameters", () => {
     async function getQueryParam(code: string): Promise<OpenAPI3QueryParameter> {
       const res = await openApiFor(code);

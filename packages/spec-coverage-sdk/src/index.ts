@@ -1,5 +1,4 @@
 export { SpecCoverageClient, SpecCoverageOperations, SpecManifestOperations } from "./client.js";
-export { GeneratorMode } from "./constants.js";
 export {
   CoverageReport,
   GeneratorMetadata,

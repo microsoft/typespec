@@ -10,7 +10,7 @@ using Sample;
 
 namespace Sample.Models
 {
-    public partial class MockInputModel : global::System.ClientModel.Primitives.IJsonModel<global::Sample.Models.MockInputModel>
+    public partial class MockInputModel : global::Sample.Models.BaseModel, global::System.ClientModel.Primitives.IJsonModel<global::Sample.Models.MockInputModel>
     {
         internal MockInputModel()
         {
@@ -99,7 +99,7 @@ namespace Sample.Models
             switch (format)
             {
                 case "J":
-                    using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(data))
+                    using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(data, global::Sample.ModelSerializationExtensions.JsonDocumentOptions))
                     {
                         return global::Sample.Models.MockInputModel.DeserializeMockInputModel(document.RootElement, options);
                     }

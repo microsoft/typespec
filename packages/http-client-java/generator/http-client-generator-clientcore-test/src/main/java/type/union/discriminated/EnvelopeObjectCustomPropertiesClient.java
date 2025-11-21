@@ -43,7 +43,9 @@ public final class EnvelopeObjectCustomPropertiesClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return test discriminated union with custom property names.
+     * The discriminated union should serialize with custom discriminator
+     * and envelope property names.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -60,7 +62,9 @@ public final class EnvelopeObjectCustomPropertiesClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return test discriminated union with custom property names.
+     * The discriminated union should serialize with custom discriminator
+     * and envelope property names.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -73,7 +77,9 @@ public final class EnvelopeObjectCustomPropertiesClient {
      * 
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return test discriminated union with custom property names.
+     * The discriminated union should serialize with custom discriminator
+     * and envelope property names.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -90,7 +96,9 @@ public final class EnvelopeObjectCustomPropertiesClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return test discriminated union with custom property names.
+     * The discriminated union should serialize with custom discriminator
+     * and envelope property names.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -107,7 +115,9 @@ public final class EnvelopeObjectCustomPropertiesClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return test discriminated union with custom property names.
+     * The discriminated union should serialize with custom discriminator
+     * and envelope property names.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)

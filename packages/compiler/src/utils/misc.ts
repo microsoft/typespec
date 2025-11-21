@@ -37,6 +37,10 @@ export function deepClone<T>(value: T): T {
     return value.map(deepClone) as any;
   }
 
+  if (value === null) {
+    return value;
+  }
+
   if (typeof value === "object") {
     const obj: any = {};
     for (const prop in value) {

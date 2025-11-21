@@ -17,10 +17,14 @@ import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import encode.duration.implementation.PropertiesImpl;
 import encode.duration.property.models.DefaultDurationProperty;
+import encode.duration.property.models.Float64MillisecondsDurationProperty;
 import encode.duration.property.models.Float64SecondsDurationProperty;
+import encode.duration.property.models.FloatMillisecondsDurationArrayProperty;
+import encode.duration.property.models.FloatMillisecondsDurationProperty;
 import encode.duration.property.models.FloatSecondsDurationArrayProperty;
 import encode.duration.property.models.FloatSecondsDurationProperty;
 import encode.duration.property.models.ISO8601DurationProperty;
+import encode.duration.property.models.Int32MillisecondsDurationProperty;
 import encode.duration.property.models.Int32SecondsDurationProperty;
 
 /**
@@ -222,6 +226,114 @@ public final class PropertyClient {
     }
 
     /**
+     * The int32Milliseconds operation.
+     * <p><strong>Request Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     value: int (Required)
+     * }
+     * }
+     * </pre>
+     * 
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     value: int (Required)
+     * }
+     * }
+     * </pre>
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the response body along with {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<BinaryData> int32MillisecondsWithResponse(BinaryData body, RequestOptions requestOptions) {
+        return this.serviceClient.int32MillisecondsWithResponse(body, requestOptions);
+    }
+
+    /**
+     * The floatMilliseconds operation.
+     * <p><strong>Request Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     value: double (Required)
+     * }
+     * }
+     * </pre>
+     * 
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     value: double (Required)
+     * }
+     * }
+     * </pre>
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the response body along with {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<BinaryData> floatMillisecondsWithResponse(BinaryData body, RequestOptions requestOptions) {
+        return this.serviceClient.floatMillisecondsWithResponse(body, requestOptions);
+    }
+
+    /**
+     * The float64Milliseconds operation.
+     * <p><strong>Request Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     value: double (Required)
+     * }
+     * }
+     * </pre>
+     * 
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     value: double (Required)
+     * }
+     * }
+     * </pre>
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the response body along with {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<BinaryData> float64MillisecondsWithResponse(BinaryData body, RequestOptions requestOptions) {
+        return this.serviceClient.float64MillisecondsWithResponse(body, requestOptions);
+    }
+
+    /**
      * The floatSecondsArray operation.
      * <p><strong>Request Body Schema</strong></p>
      * 
@@ -259,6 +371,46 @@ public final class PropertyClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> floatSecondsArrayWithResponse(BinaryData body, RequestOptions requestOptions) {
         return this.serviceClient.floatSecondsArrayWithResponse(body, requestOptions);
+    }
+
+    /**
+     * The floatMillisecondsArray operation.
+     * <p><strong>Request Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     value (Required): [
+     *         double (Required)
+     *     ]
+     * }
+     * }
+     * </pre>
+     * 
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     value (Required): [
+     *         double (Required)
+     *     ]
+     * }
+     * }
+     * </pre>
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the response body along with {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<BinaryData> floatMillisecondsArrayWithResponse(BinaryData body, RequestOptions requestOptions) {
+        return this.serviceClient.floatMillisecondsArrayWithResponse(body, requestOptions);
     }
 
     /**
@@ -367,6 +519,69 @@ public final class PropertyClient {
     }
 
     /**
+     * The int32Milliseconds operation.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Int32MillisecondsDurationProperty int32Milliseconds(Int32MillisecondsDurationProperty body) {
+        // Generated convenience method for int32MillisecondsWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return int32MillisecondsWithResponse(BinaryData.fromObject(body), requestOptions).getValue()
+            .toObject(Int32MillisecondsDurationProperty.class);
+    }
+
+    /**
+     * The floatMilliseconds operation.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public FloatMillisecondsDurationProperty floatMilliseconds(FloatMillisecondsDurationProperty body) {
+        // Generated convenience method for floatMillisecondsWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return floatMillisecondsWithResponse(BinaryData.fromObject(body), requestOptions).getValue()
+            .toObject(FloatMillisecondsDurationProperty.class);
+    }
+
+    /**
+     * The float64Milliseconds operation.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Float64MillisecondsDurationProperty float64Milliseconds(Float64MillisecondsDurationProperty body) {
+        // Generated convenience method for float64MillisecondsWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return float64MillisecondsWithResponse(BinaryData.fromObject(body), requestOptions).getValue()
+            .toObject(Float64MillisecondsDurationProperty.class);
+    }
+
+    /**
      * The floatSecondsArray operation.
      * 
      * @param body The body parameter.
@@ -385,5 +600,26 @@ public final class PropertyClient {
         RequestOptions requestOptions = new RequestOptions();
         return floatSecondsArrayWithResponse(BinaryData.fromObject(body), requestOptions).getValue()
             .toObject(FloatSecondsDurationArrayProperty.class);
+    }
+
+    /**
+     * The floatMillisecondsArray operation.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public FloatMillisecondsDurationArrayProperty floatMillisecondsArray(FloatMillisecondsDurationArrayProperty body) {
+        // Generated convenience method for floatMillisecondsArrayWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return floatMillisecondsArrayWithResponse(BinaryData.fromObject(body), requestOptions).getValue()
+            .toObject(FloatMillisecondsDurationArrayProperty.class);
     }
 }

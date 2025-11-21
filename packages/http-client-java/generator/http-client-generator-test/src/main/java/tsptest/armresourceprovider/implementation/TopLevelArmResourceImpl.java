@@ -77,6 +77,10 @@ public final class TopLevelArmResourceImpl
         return this.innerModel().startTimeStamp();
     }
 
+    public Float size() {
+        return this.innerModel().size();
+    }
+
     public ProvisioningState provisioningState() {
         return this.innerModel().provisioningState();
     }

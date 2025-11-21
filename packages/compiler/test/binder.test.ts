@@ -95,6 +95,40 @@ describe("compiler: binder", () => {
       },
     });
   });
+
+  // Regression test for https://github.com/microsoft/typespec/issues/8630
+  it("nested namespace with same name within file namespace", () => {
+    const code = `
+      namespace Top;
+
+      namespace A {}
+      namespace B.A {}
+    `;
+    const script = bindTypeSpec(code);
+    strictEqual(script.namespaces.length, 4);
+    assertBindings("root", script.symbol.exports!, {
+      Top: {
+        declarations: [SyntaxKind.NamespaceStatement],
+        flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
+        exports: {
+          A: {
+            flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
+            exports: {},
+          },
+          B: {
+            flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
+            exports: {
+              A: {
+                declarations: [SyntaxKind.NamespaceStatement],
+                flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
+                exports: {},
+              },
+            },
+          },
+        },
+      },
+    });
+  });
   it("binds namespaces", () => {
     const code = `
       namespace A {

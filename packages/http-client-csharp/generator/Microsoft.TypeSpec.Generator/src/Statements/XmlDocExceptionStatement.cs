@@ -45,13 +45,13 @@ namespace Microsoft.TypeSpec.Generator.Statements
 
             if (Parameters.Count > 0)
             {
-                writer.Append($" <paramref name=\"{Parameters[0].AsExpression().Declaration}\"/>");
+                writer.Append($" <paramref name=\"{Parameters[0].AsVariable().Declaration}\"/>");
                 for (int i = 1; i < Parameters.Count - 1; i++)
                 {
-                    writer.Append($", <paramref name=\"{Parameters[i].AsExpression().Declaration}\"/>");
+                    writer.Append($", <paramref name=\"{Parameters[i].AsVariable().Declaration}\"/>");
                 }
                 if (Parameters.Count > 1)
-                    writer.Append($" or <paramref name=\"{Parameters[Parameters.Count - 1].AsExpression().Declaration}\"/>");
+                    writer.Append($" or <paramref name=\"{Parameters[Parameters.Count - 1].AsVariable().Declaration}\"/>");
             }
 
             writer.WriteLine($" {_reason} </exception>");

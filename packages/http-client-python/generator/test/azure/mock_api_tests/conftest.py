@@ -8,7 +8,7 @@ import subprocess
 import signal
 import pytest
 import re
-from typing import Literal, List
+from typing import Literal
 from pathlib import Path
 
 FILE_FOLDER = Path(__file__).parent
@@ -18,7 +18,7 @@ def start_server_process():
     azure_http_path = Path(os.path.dirname(__file__)) / Path("../../../../node_modules/@azure-tools/azure-http-specs")
     http_path = Path(os.path.dirname(__file__)) / Path("../../../../node_modules/@typespec/http-specs")
     os.chdir(azure_http_path.resolve())
-    cmd = f"tsp-spector serve ./specs  {(http_path / 'specs').resolve()}"
+    cmd = f"npx tsp-spector serve ./specs  {(http_path / 'specs').resolve()}"
     if os.name == "nt":
         return subprocess.Popen(cmd, shell=True)
     return subprocess.Popen(cmd, shell=True, preexec_fn=os.setsid)
@@ -191,7 +191,7 @@ SPECIAL_WORDS = [
 
 
 @pytest.fixture
-def special_words() -> List[str]:
+def special_words() -> list[str]:
     return SPECIAL_WORDS
 
 

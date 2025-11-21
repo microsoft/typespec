@@ -8,7 +8,7 @@ using System.Text.Json;
 
 namespace _Type.Model.Inheritance.SingleDiscriminator
 {
-    public partial class Goose : IJsonModel<Goose>
+    public partial class Goose : Bird, IJsonModel<Goose>
     {
         internal Goose() => throw null;
 

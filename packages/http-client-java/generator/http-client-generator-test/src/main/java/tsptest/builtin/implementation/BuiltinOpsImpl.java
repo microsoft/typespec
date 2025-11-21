@@ -158,6 +158,7 @@ public final class BuiltinOpsImpl {
      *         unknownDateTimeFormat: String (Optional)
      *         unknownBytes: String (Optional)
      *     }
+     *     uuid: String (Required)
      * }
      * }
      * </pre>
@@ -236,6 +237,7 @@ public final class BuiltinOpsImpl {
      *         unknownDateTimeFormat: String (Optional)
      *         unknownBytes: String (Optional)
      *     }
+     *     uuid: String (Required)
      * }
      * }
      * </pre>
@@ -298,6 +300,7 @@ public final class BuiltinOpsImpl {
      *         unknownDateTimeFormat: String (Optional)
      *         unknownBytes: String (Optional)
      *     }
+     *     uuid: String (Required)
      * }
      * }
      * </pre>
@@ -358,6 +361,7 @@ public final class BuiltinOpsImpl {
      *         unknownDateTimeFormat: String (Optional)
      *         unknownBytes: String (Optional)
      *     }
+     *     uuid: String (Required)
      * }
      * }
      * </pre>

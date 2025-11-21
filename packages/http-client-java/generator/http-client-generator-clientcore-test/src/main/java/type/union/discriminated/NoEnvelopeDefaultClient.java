@@ -42,7 +42,9 @@ public final class NoEnvelopeDefaultClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return test discriminated union with inline discriminator (no envelope).
+     * The discriminated union should serialize with discriminator property
+     * injected directly into the variant object.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -58,7 +60,9 @@ public final class NoEnvelopeDefaultClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return test discriminated union with inline discriminator (no envelope).
+     * The discriminated union should serialize with discriminator property
+     * injected directly into the variant object.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -71,7 +75,9 @@ public final class NoEnvelopeDefaultClient {
      * 
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return test discriminated union with inline discriminator (no envelope).
+     * The discriminated union should serialize with discriminator property
+     * injected directly into the variant object.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -88,7 +94,9 @@ public final class NoEnvelopeDefaultClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return test discriminated union with inline discriminator (no envelope).
+     * The discriminated union should serialize with discriminator property
+     * injected directly into the variant object.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -104,7 +112,9 @@ public final class NoEnvelopeDefaultClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return test discriminated union with inline discriminator (no envelope).
+     * The discriminated union should serialize with discriminator property
+     * injected directly into the variant object.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)

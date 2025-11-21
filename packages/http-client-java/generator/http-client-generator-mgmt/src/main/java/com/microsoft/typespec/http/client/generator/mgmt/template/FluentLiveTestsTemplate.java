@@ -7,6 +7,7 @@ import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.ExampleHelperFeature;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.template.example.ModelExampleWriter;
+import com.microsoft.typespec.http.client.generator.mgmt.model.FluentType;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentExampleLiveTestStep;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentLiveTestCase;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentLiveTestStep;
@@ -74,7 +75,7 @@ public class FluentLiveTestsTemplate {
         javaFile.declareImport(liveTests.getManagerType().getFullName());
         javaFile.declareImport("org.junit.jupiter.api.Test", "org.junit.jupiter.api.BeforeEach");
         javaFile.declareImport("com.azure.identity.DefaultAzureCredentialBuilder",
-            "com.azure.core.management.profile.AzureProfile", "com.azure.core.models.AzureCloud");
+            FluentType.AZURE_PROFILE.getFullName(), "com.azure.core.models.AzureCloud");
         javaFile.declareImport("com.azure.core.test.annotation.DoNotRecord", "com.azure.core.test.TestBase");
         javaFile.declareImport("com.azure.core.http.policy.HttpLogOptions",
             "com.azure.core.http.policy.HttpLogDetailLevel");

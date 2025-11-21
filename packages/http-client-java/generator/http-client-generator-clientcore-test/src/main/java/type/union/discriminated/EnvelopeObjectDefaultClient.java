@@ -42,7 +42,9 @@ public final class EnvelopeObjectDefaultClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return test discriminated union with default envelope serialization.
+     * The discriminated union should serialize with "kind" as discriminator
+     * and "value" as envelope property.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -58,7 +60,9 @@ public final class EnvelopeObjectDefaultClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return test discriminated union with default envelope serialization.
+     * The discriminated union should serialize with "kind" as discriminator
+     * and "value" as envelope property.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -71,7 +75,9 @@ public final class EnvelopeObjectDefaultClient {
      * 
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return test discriminated union with default envelope serialization.
+     * The discriminated union should serialize with "kind" as discriminator
+     * and "value" as envelope property.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -88,7 +94,9 @@ public final class EnvelopeObjectDefaultClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return test discriminated union with default envelope serialization.
+     * The discriminated union should serialize with "kind" as discriminator
+     * and "value" as envelope property.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -104,7 +112,9 @@ public final class EnvelopeObjectDefaultClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return test discriminated union with default envelope serialization.
+     * The discriminated union should serialize with "kind" as discriminator
+     * and "value" as envelope property.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)

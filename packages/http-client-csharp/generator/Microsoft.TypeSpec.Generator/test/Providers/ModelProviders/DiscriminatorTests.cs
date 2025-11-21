@@ -87,21 +87,21 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             yield return new TestCaseData(_baseModel, """
                                                       /// <summary>
                                                       /// pet description
-                                                      /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="Cat"/>, <see cref="Dog"/>, and <see cref="AnotherAnimal"/>.
+                                                      /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="Sample.Models.Cat"/>, <see cref="Sample.Models.Dog"/>, and <see cref="Sample.Models.AnotherAnimal"/>.
                                                       /// </summary>
 
                                                       """);
             yield return new TestCaseData(_baseEnumModel, """
                                                           /// <summary>
                                                           /// pet description
-                                                          /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="Cat"/> and <see cref="Dog"/>.
+                                                          /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="Sample.Models.Cat"/> and <see cref="Sample.Models.Dog"/>.
                                                           /// </summary>
 
                                                           """);
             yield return new TestCaseData(_animalModel, """
                                                         /// <summary>
                                                         /// animal description
-                                                        /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="Dinosaur"/>.
+                                                        /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="Sample.Models.Dinosaur"/>.
                                                         /// </summary>
 
                                                         """);

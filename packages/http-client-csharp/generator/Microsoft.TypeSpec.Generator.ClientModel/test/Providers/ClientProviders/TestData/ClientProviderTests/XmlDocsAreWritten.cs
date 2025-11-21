@@ -90,7 +90,7 @@ namespace Sample
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         public virtual global::System.ClientModel.ClientResult Foo(global::System.Threading.CancellationToken cancellationToken = default)
         {
-            return this.Foo(cancellationToken.CanBeCanceled ? new global::System.ClientModel.Primitives.RequestOptions { CancellationToken = cancellationToken } : null);
+            return this.Foo(cancellationToken.ToRequestOptions());
         }
 
         /// <summary> Foo description. </summary>
@@ -98,7 +98,7 @@ namespace Sample
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> FooAsync(global::System.Threading.CancellationToken cancellationToken = default)
         {
-            return await this.FooAsync(cancellationToken.CanBeCanceled ? new global::System.ClientModel.Primitives.RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+            return await this.FooAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
     }
 }

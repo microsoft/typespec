@@ -4,7 +4,7 @@
 # license information.
 # --------------------------------------------------------------------------
 import logging
-from typing import Dict, Any
+from typing import Any
 import yaml
 
 
@@ -20,7 +20,7 @@ _LOGGER = logging.getLogger(__name__)
 class CodeGenerator(Plugin):
 
     @staticmethod
-    def sort_exceptions(yaml_data: Dict[str, Any]) -> None:
+    def sort_exceptions(yaml_data: dict[str, Any]) -> None:
         for client in yaml_data["clients"]:
             for group in client.get("operationGroups", []):
                 for operation in group.get("operations", []):
@@ -37,7 +37,7 @@ class CodeGenerator(Plugin):
                     )
 
     @staticmethod
-    def remove_cloud_errors(yaml_data: Dict[str, Any]) -> None:
+    def remove_cloud_errors(yaml_data: dict[str, Any]) -> None:
         for client in yaml_data["clients"]:
             for group in client.get("operationGroups", []):
                 for operation in group.get("operations", []):
@@ -60,7 +60,7 @@ class CodeGenerator(Plugin):
                     del yaml_data["schemas"]["objects"][i]
                     break
 
-    def get_yaml(self) -> Dict[str, Any]:
+    def get_yaml(self) -> dict[str, Any]:
         # tsp file doesn't have to be relative to output folder
         with open(self.options["tsp_file"], "r", encoding="utf-8-sig") as fd:
             return yaml.safe_load(fd.read())

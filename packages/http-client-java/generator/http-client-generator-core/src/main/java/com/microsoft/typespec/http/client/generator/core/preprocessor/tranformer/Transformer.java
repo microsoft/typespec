@@ -39,6 +39,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -367,6 +368,10 @@ public class Transformer {
                 = new OperationSignature(operation.getOperationGroup().getLanguage().getJava().getName(),
                     operation.getLanguage().getJava().getName());
             if (!operationNextPageOperationMap.containsKey(operationSignature)) {
+                final String nextLinkHttpMethod = (operation.getExtensions().getXmsPageable().getNextLinkVerb() == null)
+                    ? "get"
+                    : operation.getExtensions().getXmsPageable().getNextLinkVerb().value().toLowerCase(Locale.ROOT);
+
                 nextOperation.setOperationGroup(operationGroup);
                 nextOperation.set$key(operationName);
                 nextOperation.setLanguage(new Languages());
@@ -385,7 +390,7 @@ public class Transformer {
                     .getProtocol()
                     .getHttp()
                     .setUri(operation.getRequests().get(0).getProtocol().getHttp().getUri());
-                nextOperation.getRequests().get(0).getProtocol().getHttp().setMethod("get");
+                nextOperation.getRequests().get(0).getProtocol().getHttp().setMethod(nextLinkHttpMethod);
                 nextOperation.getRequests().get(0).setExtensions(operation.getRequests().get(0).getExtensions());
                 nextOperation.getRequests().get(0).setLanguage(operation.getLanguage());
                 Parameter nextLink = new Parameter();
@@ -573,7 +578,9 @@ public class Transformer {
     private void renameType(Metadata schema) {
         Language language = schema.getLanguage().getDefault();
         Language java = addJavaLanguage(schema);
-        java.setName(CodeNamer.getTypeName(language.getName()));
+        if (schema.getLanguage().getJava().getName() == null || schema.getLanguage().getJava().getName().isEmpty()) {
+            java.setName(CodeNamer.getTypeName(language.getName()));
+        }
         java.setSerializedName(language.getSerializedName());
         java.setDescription(language.getDescription());
         schema.getLanguage().setJava(java);
@@ -593,8 +600,8 @@ public class Transformer {
         if (codeModel.getLanguage().getJava().getName() == null
             || codeModel.getLanguage().getJava().getName().isEmpty()) {
             codeModel.getLanguage().getJava().setName(CodeNamer.getClientName(codeModel.getInfo().getTitle()));
-            codeModel.getLanguage().getJava().setDescription(codeModel.getInfo().getDescription());
         }
+        codeModel.getLanguage().getJava().setDescription(codeModel.getInfo().getDescription());
     }
 
     private void renameClient(Metadata client) {
