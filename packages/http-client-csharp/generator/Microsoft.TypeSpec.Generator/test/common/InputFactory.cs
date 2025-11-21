@@ -601,7 +601,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             IReadOnlyList<string> itemSegments,
             IReadOnlyList<string> continuationTokenSegments,
             InputResponseLocation continuationTokenLocation,
-            IReadOnlyList<string> pageSizeParameterSegments)
+            IReadOnlyList<string>? pageSizeParameterSegments = null)
         {
             return new InputPagingServiceMetadata(
                 itemSegments,
