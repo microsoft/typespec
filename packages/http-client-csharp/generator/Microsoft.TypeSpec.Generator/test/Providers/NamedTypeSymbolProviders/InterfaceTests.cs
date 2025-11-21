@@ -68,18 +68,18 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
 
             protected override string BuildName() => "Model";
 
-            protected override CSharpType[] BuildImplements()
+            protected internal override CSharpType[] BuildImplements()
             {
                 return [new CSharpType(typeof(IJsonModel<>), Type)];
             }
 
-            protected override MethodProvider[] BuildMethods()
+            protected internal override MethodProvider[] BuildMethods()
             {
                 var sig = new MethodSignature("Write", $"", MethodSignatureModifiers.None, null, $"", [ new ParameterProvider("writer", $"", typeof(Utf8JsonWriter)), new ParameterProvider("options", $"", typeof(ModelReaderWriterOptions)) ], null, null, null, new CSharpType(typeof(IJsonModel<>), Type));
                 return [new MethodProvider(sig, Snippet.ThrowExpression(Snippet.Null), this, null)];
             }
 
-            protected override PropertyProvider[] BuildProperties()
+            protected internal override PropertyProvider[] BuildProperties()
             {
                 return
                 [

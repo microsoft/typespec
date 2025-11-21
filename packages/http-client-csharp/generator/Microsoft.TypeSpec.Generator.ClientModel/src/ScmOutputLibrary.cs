@@ -43,7 +43,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                 types.Add(clientOptions);
             }
 
-            foreach (var method in client.Methods)
+            // We use the spec view methods so that we include collection definitions even if the user is customizing or suppressing
+            // the methods. They will still be filtered out by the post processor if not needed.
+            foreach (var method in client.SpecView.Methods)
             {
                 if (method is ScmMethodProvider scmMethod && scmMethod.CollectionDefinition != null)
                 {

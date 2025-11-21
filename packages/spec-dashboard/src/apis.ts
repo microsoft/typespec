@@ -65,32 +65,32 @@ function matchesPrefixes(scenarioName: string, prefixes: string[]): boolean {
 
 /**
  * Splits a manifest into multiple tables based on prefix filters
+ * @internal - Exported for testing
  */
-function splitManifestByTables(
+export function splitManifestByTables(
   manifest: ScenarioManifest,
   tableDefinitions: TableDefinition[],
 ): Array<{ manifest: ScenarioManifest; tableName: string }> {
   const packageName = manifest.packageName ?? "";
+  const defaultTableName = manifest.displayName || packageName;
 
   // Find table definitions that apply to this manifest
   const applicableTables = tableDefinitions.filter((table) => table.packageName === packageName);
 
   if (applicableTables.length === 0) {
     // No table definitions for this manifest, return as-is with a default name
-    return [{ manifest, tableName: packageName }];
+    return [{ manifest, tableName: defaultTableName }];
   }
 
   const result: Array<{ manifest: ScenarioManifest; tableName: string }> = [];
   const usedScenarios = new Set<string>();
 
-  // Process each table definition
-  for (const table of applicableTables) {
-    if (!table.prefixes || table.prefixes.length === 0) {
-      // If no prefixes specified, this table gets all scenarios for this package
-      result.push({ manifest, tableName: table.name });
-      return result; // Don't process other tables if one claims all scenarios
-    }
+  // Separate tables with prefixes from catch-all tables (no prefixes)
+  const tablesWithPrefixes = applicableTables.filter((t) => t.prefixes && t.prefixes.length > 0);
+  const catchAllTables = applicableTables.filter((t) => !t.prefixes || t.prefixes.length === 0);
 
+  // Process tables with prefixes first
+  for (const table of tablesWithPrefixes) {
     // Filter scenarios by prefixes
     const filteredScenarios = manifest.scenarios.filter((s: ScenarioData) => {
       if (usedScenarios.has(s.name)) {
@@ -113,7 +113,27 @@ function splitManifestByTables(
     }
   }
 
-  // Handle scenarios that didn't match any prefixes
+  // Process catch-all tables - they only get scenarios not yet assigned
+  for (const table of catchAllTables) {
+    const remainingScenarios = manifest.scenarios.filter(
+      (s: ScenarioData) => !usedScenarios.has(s.name),
+    );
+
+    if (remainingScenarios.length > 0) {
+      // Mark these scenarios as used
+      remainingScenarios.forEach((s) => usedScenarios.add(s.name));
+
+      result.push({
+        manifest: {
+          ...manifest,
+          scenarios: remainingScenarios,
+        },
+        tableName: table.name,
+      });
+    }
+  }
+
+  // Handle scenarios that didn't match any table
   const unmatchedScenarios = manifest.scenarios.filter(
     (s: ScenarioData) => !usedScenarios.has(s.name),
   );
@@ -124,7 +144,7 @@ function splitManifestByTables(
         ...manifest,
         scenarios: unmatchedScenarios,
       },
-      tableName: packageName,
+      tableName: defaultTableName,
     });
   }
 
@@ -158,7 +178,7 @@ export async function getCoverageSummaries(
       // No table definitions, use default behavior
       allManifests.push({
         manifest,
-        tableName: manifest.packageName ?? "",
+        tableName: manifest.displayName || manifest.packageName || "",
       });
     }
   }
