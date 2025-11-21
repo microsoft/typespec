@@ -1093,19 +1093,21 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    * @param node Node.
    * @param mapper Type mapper for template instantiation context.
    * @param instantiateTemplate If templated type should be instantiated if they haven't yet.
+   * @param allowFunctions If functions are allowed as types.
    * @returns Resolved type.
    */
   function checkTypeReference(
     node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
     mapper: TypeMapper | undefined,
     instantiateTemplate = true,
+    allowFunctions = false,
   ): Type {
     const sym = resolveTypeReferenceSym(node, mapper);
     if (!sym) {
       return errorType;
     }
 
-    const type = checkTypeReferenceSymbol(sym, node, mapper, instantiateTemplate);
+    const type = checkTypeReferenceSymbol(sym, node, mapper, instantiateTemplate, allowFunctions);
     return type;
   }
 
@@ -1421,6 +1423,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    * @param node Node
    * @param mapper Type mapper for template instantiation context.
    * @param instantiateTemplates If a templated type should be instantiated if not yet @default true
+   * @param allowFunctions If functions are allowed as types. @default false
    * @returns resolved type.
    */
   function checkTypeReferenceSymbol(
@@ -1428,8 +1431,15 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
     mapper: TypeMapper | undefined,
     instantiateTemplates = true,
+    allowFunctions = false,
   ): Type {
-    const result = checkTypeOrValueReferenceSymbol(sym, node, mapper, instantiateTemplates);
+    const result = checkTypeOrValueReferenceSymbol(
+      sym,
+      node,
+      mapper,
+      instantiateTemplates,
+      allowFunctions,
+    );
     if (result === null || isValue(result)) {
       reportCheckerDiagnostic(createDiagnostic({ code: "value-in-type", target: node }));
       return errorType;
@@ -1445,8 +1455,15 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
     mapper: TypeMapper | undefined,
     instantiateTemplates = true,
+    allowFunctions = false,
   ): Type | Value | IndeterminateEntity | null {
-    const entity = checkTypeOrValueReferenceSymbolWorker(sym, node, mapper, instantiateTemplates);
+    const entity = checkTypeOrValueReferenceSymbolWorker(
+      sym,
+      node,
+      mapper,
+      instantiateTemplates,
+      allowFunctions,
+    );
 
     if (entity !== null && isType(entity) && entity.kind === "TemplateParameter") {
       templateParameterUsageMap.set(entity.node!, true);
@@ -1459,6 +1476,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     node: TypeReferenceNode | MemberExpressionNode | IdentifierNode,
     mapper: TypeMapper | undefined,
     instantiateTemplates = true,
+    allowFunctions = false,
   ): Type | Value | IndeterminateEntity | null {
     if (sym.flags & SymbolFlags.Const) {
       return getValueForNode(sym.declarations[0], mapper);
@@ -1472,13 +1490,13 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return errorType;
     }
 
-    // if (sym.flags & SymbolFlags.Function) {
-    //   reportCheckerDiagnostic(
-    //     createDiagnostic({ code: "invalid-type-ref", messageId: "function", target: sym }),
-    //   );
+    if (!allowFunctions && sym.flags & SymbolFlags.Function) {
+      reportCheckerDiagnostic(
+        createDiagnostic({ code: "invalid-type-ref", messageId: "function", target: node }),
+      );
 
-    //   return errorType;
-    // }
+      return errorType;
+    }
 
     const argumentNodes = node.kind === SyntaxKind.TypeReference ? node.arguments : [];
     const symbolLinks = getSymbolLinks(sym);
@@ -4248,7 +4266,12 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     node: CallExpressionNode,
     mapper: TypeMapper | undefined,
   ): ScalarConstructor | Scalar | FunctionType | null {
-    const target = checkTypeReference(node.target, mapper);
+    const target = checkTypeReference(
+      node.target,
+      mapper,
+      /* instantiateTemplate */ true,
+      /* allowFunctions */ true,
+    );
 
     if (
       target.kind === "Scalar" ||

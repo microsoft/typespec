@@ -901,6 +901,7 @@ describe("compiler: checker: functions", () => {
       testHost.addJsFile("test.js", {
         $functions: {
           "": {
+            testFn() {},
             returnWrongEntityKind(_ctx: FunctionContext) {
               return "string value"; // Returns value when type expected
             },
@@ -1009,6 +1010,21 @@ describe("compiler: checker: functions", () => {
       expectDiagnostics(diagnostics, {
         code: "required-parameter-first",
         message: "A required parameter cannot follow an optional parameter.",
+      });
+    });
+
+    it("cannot be used as a regular type", async () => {
+      const diagnostics = await runner.diagnose(`
+        extern fn testFn(): unknown;
+        
+        model M {
+          prop: testFn;
+        }
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "invalid-type-ref",
+        message: "Can't use a function as a type",
       });
     });
   });
