@@ -224,4 +224,66 @@ describe("splitManifestByTables", () => {
     expect(defaultTable!.manifest.scenarios).toHaveLength(1);
     expect(defaultTable!.manifest.scenarios[0].name).toBe("unique_scenario");
   });
+
+  it("should include emitterNames from table definition", () => {
+    const manifest = createManifest("test-package", "Display Name", ["scenario1"]);
+    const tables: TableDefinition[] = [
+      {
+        name: "Test Table",
+        packageName: "test-package",
+        emitterNames: ["@typespec/emitter-1", "@typespec/emitter-2"],
+      },
+    ];
+
+    const result = splitManifestByTables(manifest, tables);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].emitterNames).toEqual(["@typespec/emitter-1", "@typespec/emitter-2"]);
+  });
+
+  it("should return undefined emitterNames when not specified in table definition", () => {
+    const manifest = createManifest("test-package", "Display Name", ["scenario1"]);
+    const tables: TableDefinition[] = [
+      {
+        name: "Test Table",
+        packageName: "test-package",
+      },
+    ];
+
+    const result = splitManifestByTables(manifest, tables);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].emitterNames).toBeUndefined();
+  });
+
+  it("should handle different emitterNames for different tables", () => {
+    const manifest = createManifest("test-package", "Display Name", [
+      "mgmt_scenario1",
+      "dataplane_scenario1",
+    ]);
+    const tables: TableDefinition[] = [
+      {
+        name: "Management Table",
+        packageName: "test-package",
+        prefixes: ["mgmt_"],
+        emitterNames: ["@azure-tools/typespec-csharp-mgmt"],
+      },
+      {
+        name: "Data Plane Table",
+        packageName: "test-package",
+        prefixes: ["dataplane_"],
+        emitterNames: ["@azure-tools/typespec-csharp"],
+      },
+    ];
+
+    const result = splitManifestByTables(manifest, tables);
+
+    expect(result).toHaveLength(2);
+
+    const mgmtTable = result.find((r) => r.tableName === "Management Table");
+    expect(mgmtTable!.emitterNames).toEqual(["@azure-tools/typespec-csharp-mgmt"]);
+
+    const dataPlaneTable = result.find((r) => r.tableName === "Data Plane Table");
+    expect(dataPlaneTable!.emitterNames).toEqual(["@azure-tools/typespec-csharp"]);
+  });
 });
