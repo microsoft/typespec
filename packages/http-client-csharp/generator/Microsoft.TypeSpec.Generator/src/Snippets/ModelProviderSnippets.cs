@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.Expressions;
+using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Providers;
 
 namespace Microsoft.TypeSpec.Generator.Snippets
@@ -23,7 +24,7 @@ namespace Microsoft.TypeSpec.Generator.Snippets
 
                 if (i < propertySegments.Count - 1)
                 {
-                    if (property.Type.IsNullable)
+                    if (NeedsNullableConditional(property))
                     {
                         getPropertyExpression = getPropertyExpression.NullConditional();
                     }
@@ -47,7 +48,7 @@ namespace Microsoft.TypeSpec.Generator.Snippets
 
                 if (i < propertySegments.Count - 1)
                 {
-                    if (property.Type.IsNullable)
+                    if (NeedsNullableConditional(property))
                     {
                         setPropertyExpression = setPropertyExpression.NullConditional();
                     }
@@ -56,6 +57,11 @@ namespace Microsoft.TypeSpec.Generator.Snippets
             }
 
             return setPropertyExpression.Assign(value);
+        }
+
+        private static bool NeedsNullableConditional(PropertyProvider property)
+        {
+            return !property.Type.IsValueType || property.InputProperty?.Type is InputNullableType;
         }
     }
 }
