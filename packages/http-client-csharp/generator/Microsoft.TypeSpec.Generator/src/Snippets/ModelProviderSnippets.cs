@@ -13,36 +13,36 @@ namespace Microsoft.TypeSpec.Generator.Snippets
     {
         public static ValueExpression GetPropertyExpression(this ModelProvider model, ValueExpression modelVariable, IReadOnlyList<string> propertySegments)
         {
-            return model.BuildPropertyExpression(modelVariable, propertySegments);
+            return model.BuildPropertyAccessExpression(modelVariable, propertySegments);
         }
 
         public static ValueExpression SetPropertyExpression(this ModelProvider model, ValueExpression modelVariable, ValueExpression value, IReadOnlyList<string> propertySegments)
         {
-            return model.BuildPropertyExpression(modelVariable, propertySegments).Assign(value);
+            return model.BuildPropertyAccessExpression(modelVariable, propertySegments).Assign(value);
         }
 
-        private static ValueExpression BuildPropertyExpression(this ModelProvider model, ValueExpression modelVariable, IReadOnlyList<string> propertySegments)
+        private static ValueExpression BuildPropertyAccessExpression(this ModelProvider model, ValueExpression modelVariable, IReadOnlyList<string> propertySegments)
         {
             TypeProvider currentModel = model;
-            ValueExpression getPropertyExpression = modelVariable;
+            ValueExpression propertyAccessExpression = modelVariable;
 
             for (int i = 0; i < propertySegments.Count; i++)
             {
                 var property = currentModel.Properties.First(p => p.WireInfo?.SerializedName == propertySegments[i]);
 
-                getPropertyExpression = getPropertyExpression.Property(property.Name);
+                propertyAccessExpression = propertyAccessExpression.Property(property.Name);
 
                 if (i < propertySegments.Count - 1)
                 {
                     if (NeedsNullableConditional(property))
                     {
-                        getPropertyExpression = getPropertyExpression.NullConditional();
+                        propertyAccessExpression = propertyAccessExpression.NullConditional();
                     }
                     currentModel = CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[property.Type]!;
                 }
             }
 
-            return getPropertyExpression;
+            return propertyAccessExpression;
         }
 
         private static bool NeedsNullableConditional(PropertyProvider property)
