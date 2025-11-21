@@ -6,7 +6,6 @@ import { parse, visitChildren } from "../core/parser.js";
 import { resolvePath } from "../core/path-utils.js";
 import { IdentifierNode, SyntaxKind } from "../core/types.js";
 import { createClientConfigProvider } from "../server/client-config-provider.js";
-import { UPDATE_MANAGER_DEBOUNCE_DELAY_OVERRIDE } from "../server/constants.js";
 import { Server, ServerHost, createServer } from "../server/index.js";
 import { ServerCompileOptions } from "../server/server-compile-manager.js";
 import { createStringMap } from "../utils/misc.js";
@@ -26,8 +25,6 @@ export interface TestServerHost extends ServerHost, TestFileSystem {
 }
 
 export async function createTestServerHost(options?: TestHostOptions & { workspaceDir?: string }) {
-  process.env[UPDATE_MANAGER_DEBOUNCE_DELAY_OVERRIDE] = "0";
-
   const logMessages: string[] = [];
   const documents = createStringMap<TextDocument>(!!options?.caseInsensitiveFileSystem);
   const diagnostics = createStringMap<Diagnostic[]>(!!options?.caseInsensitiveFileSystem);
@@ -115,6 +112,7 @@ export async function createTestServerHost(options?: TestHostOptions & { workspa
 
       return Promise.resolve({ applied: true });
     },
+    updatedManagerDebounceDelay: 0,
   };
 
   const workspaceDir = options?.workspaceDir ?? "./";

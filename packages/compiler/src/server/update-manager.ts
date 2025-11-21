@@ -1,9 +1,6 @@
 import { TextDocumentIdentifier } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import {
-  ENABLE_UPDATE_MANAGER_LOGGING,
-  UPDATE_MANAGER_DEBOUNCE_DELAY_OVERRIDE,
-} from "./constants.js";
+import { ENABLE_UPDATE_MANAGER_LOGGING } from "./constants.js";
 import { ServerLog } from "./types.js";
 
 interface PendingUpdate {
@@ -32,10 +29,8 @@ export class UpdateManager<T = void> {
   #docChangedTimesteps: number[] = [];
   #isStarted = false;
 
-  // Cache for debounce delay from environment variable
-  #cachedDebounceDelay: number | null = null;
-
   private _log: (sl: ServerLog) => void;
+  private getDebounceDelay: () => number;
 
   /**
    *
@@ -45,6 +40,7 @@ export class UpdateManager<T = void> {
   constructor(
     private name: string,
     log: (sl: ServerLog) => void,
+    private updatedManagerDebounceDelay: number | undefined = undefined,
   ) {
     this._log =
       typeof process !== "undefined" &&
@@ -54,6 +50,8 @@ export class UpdateManager<T = void> {
           }
         : () => {};
 
+    this.getDebounceDelay = () => this.updatedManagerDebounceDelay ?? -1;
+    
     this.#scheduleBatchUpdate = debounceThrottle<
       T | undefined,
       TextDocument | TextDocumentIdentifier
@@ -64,29 +62,12 @@ export class UpdateManager<T = void> {
         return await this.#update(Array.from(updates.values()), arg);
       },
       () => (this.#isStarted ? "ready" : "pending"),
-      this.getDebounceDelayFromEnv() === -1
+      this.getDebounceDelay() === -1
         ? this.getAdaptiveDebounceDelay
-        : this.getDebounceDelayFromEnv,
+        : () => this.getDebounceDelay(),
       this._log,
     );
   }
-
-  private getDebounceDelayFromEnv = (): number => {
-    // Return cached value if available
-    if (this.#cachedDebounceDelay !== null) {
-      return this.#cachedDebounceDelay;
-    }
-
-    const delayOverride = process.env[UPDATE_MANAGER_DEBOUNCE_DELAY_OVERRIDE];
-    if (delayOverride !== undefined) {
-      const parsedDelay = parseInt(delayOverride, 0);
-      this.#cachedDebounceDelay = !isNaN(parsedDelay) ? parsedDelay : -1;
-    } else {
-      this.#cachedDebounceDelay = -1;
-    }
-
-    return this.#cachedDebounceDelay;
-  };
 
   /**
    * Callback will only be invoked after start() is called.

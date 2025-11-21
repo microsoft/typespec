@@ -1,61 +1,63 @@
 import { beforeEach, expect, it, vi } from "vitest";
-import { TextDocument } from "vscode-languageserver-textdocument";
-import { UPDATE_MANAGER_DEBOUNCE_DELAY_OVERRIDE } from "../../src/server/constants.js";
 import { UpdateManager } from "../../src/server/update-manager.js";
 
-let updateManager: UpdateManager<void>;
 let mockLog: ReturnType<typeof vi.fn>;
 let mockCallback: ReturnType<typeof vi.fn>;
 
 beforeEach(async () => {
-  // Clear environment variable to test default behavior
-  delete process.env[UPDATE_MANAGER_DEBOUNCE_DELAY_OVERRIDE];
-
   mockLog = vi.fn();
   mockCallback = vi.fn().mockResolvedValue(undefined);
+});
 
-  updateManager = new UpdateManager("test", mockLog);
+it("should use fixed debounce delay of 0ms when specified in constructor", async () => {
+  // Create UpdateManager with fixed delay of 0ms
+  const fixedDelayUpdateManager = new UpdateManager("test-fixed", mockLog, 0);
+  fixedDelayUpdateManager.setCallback(mockCallback);
+  fixedDelayUpdateManager.start();
+
+  // Verify that the fixed delay is correctly set to 0ms
+  const actualDelay = (fixedDelayUpdateManager as any).getDebounceDelay();
+  expect(actualDelay).toBe(0);
+});
+
+it("should return default delay (500ms) on first call to getAdaptiveDebounceDelay", async () => {
+  // Create UpdateManager without fixed delay
+  const adaptiveUpdateManager = new UpdateManager("test-adaptive", mockLog);
+  adaptiveUpdateManager.setCallback(mockCallback);
+  adaptiveUpdateManager.start();
+
+  // When no fixed delay is specified, getDebounceDelay should return -1 (indicating adaptive mode)
+  const debounceDelay = (adaptiveUpdateManager as any).getDebounceDelay();
+  expect(debounceDelay).toBe(-1);
+
+  // Access the getAdaptiveDebounceDelay method to get the actual adaptive delay
+  const getAdaptiveDebounceDelay = (adaptiveUpdateManager as any).getAdaptiveDebounceDelay;
+  const actualDelay = getAdaptiveDebounceDelay();
+
+  // Verify adaptive delay returns the expected value (should be 500ms initially)
+  expect(actualDelay).toBe(500);
+});
+
+it("should return higher delay when there are frequent document changes", async () => {
+  // Create UpdateManager without fixed delay to use adaptive delay
+  const updateManager = new UpdateManager("test-frequent", mockLog);
   updateManager.setCallback(mockCallback);
   updateManager.start();
-});
 
-it("should use environment variable override when set", async () => {
-  // Set environment variable override
-  process.env[UPDATE_MANAGER_DEBOUNCE_DELAY_OVERRIDE] = "100";
+  const mockGetWindowedDocChangedTimesteps = vi.fn(() => {
+    // Return 15 timestamps to simulate moderate typing (frequency >= 10, should trigger 800ms delay)
+    return Array.from({ length: 15 }, (_, i) => Date.now() - i * 100);
+  });
+  (updateManager as any).getWindowedDocChangedTimesteps = mockGetWindowedDocChangedTimesteps;
 
-  // Create new UpdateManager after setting env var
-  const overrideUpdateManager = new UpdateManager("test-override", mockLog);
-  overrideUpdateManager.setCallback(mockCallback);
-  overrideUpdateManager.start();
+  // Access the getAdaptiveDebounceDelay method
+  const getAdaptiveDebounceDelay = (updateManager as any).getAdaptiveDebounceDelay;
+  const adaptiveDelay = getAdaptiveDebounceDelay();
 
-  const document = TextDocument.create("file:///test.tsp", "typespec", 1, "model Test {}");
+  // Verify the mock was called
+  expect(mockGetWindowedDocChangedTimesteps).toHaveBeenCalled();
 
-  // Schedule update - should use the override value (100ms) instead of adaptive delay
-  const promise = overrideUpdateManager.scheduleUpdate(document, "changed");
-
-  expect(promise).toBeInstanceOf(Promise);
-
-  // Clean up
-  delete process.env[UPDATE_MANAGER_DEBOUNCE_DELAY_OVERRIDE];
-});
-
-it("should use adaptive debounce delay when environment variable is not set", async () => {
-  // Ensure no environment variable is set
-  expect(process.env[UPDATE_MANAGER_DEBOUNCE_DELAY_OVERRIDE]).toBeUndefined();
-
-  const document = TextDocument.create("file:///test.tsp", "typespec", 1, "model Test {}");
-
-  // Test with fresh UpdateManager to ensure it uses adaptive delay
-  const freshUpdateManager = new UpdateManager("test-adaptive", mockLog);
-  freshUpdateManager.setCallback(mockCallback);
-  freshUpdateManager.start();
-
-  // Should start with default delay since no recent changes
-  const promise = freshUpdateManager.scheduleUpdate(document, "changed");
-
-  // Verify that promise is created (indicating adaptive delay is being used)
-  expect(promise).toBeInstanceOf(Promise);
-
-  // Verify version was bumped (confirming the update was processed)
-  expect(freshUpdateManager.docChangedVersion).toBe(1);
+  // Should return higher delay (800ms) due to moderate typing frequency (15 >= 10)
+  expect(adaptiveDelay).toBe(800);
+  expect(adaptiveDelay).toBeGreaterThan(500);
 });
