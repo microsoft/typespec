@@ -8,7 +8,6 @@ import {
   Namespace,
   Type,
 } from "../../src/core/types.js";
-import { setTypeSpecNamespace } from "../../src/index.js";
 import {
   BasicTestRunner,
   TestHost,
@@ -41,7 +40,7 @@ describe("compiler: checker: functions", () => {
     let testImpl: any;
     beforeEach(() => {
       testImpl = (ctx: FunctionContext) => undefined;
-      testJs = { testFn: testImpl };
+      testJs = { $functions: { "": { testFn: testImpl } } };
       testHost.addJsFile("test.js", testJs);
       runner = createTestWrapper(testHost, {
         autoImports: ["./test.js"],
@@ -55,19 +54,6 @@ describe("compiler: checker: functions", () => {
           extern fn testFn();
         `);
         expectFunction(runner.program.getGlobalNamespaceType(), "testFn", testImpl);
-      });
-
-      it("in a namespace via direct export", async () => {
-        setTypeSpecNamespace("Foo.Bar", testImpl);
-        await runner.compile(`
-          namespace Foo.Bar { extern fn testFn(); }
-        `);
-        const ns = runner.program
-          .getGlobalNamespaceType()
-          .namespaces.get("Foo")
-          ?.namespaces.get("Bar");
-        ok(ns);
-        expectFunction(ns, "testFn", testImpl);
       });
 
       it("defined at root via $functions map", async () => {
@@ -127,19 +113,23 @@ describe("compiler: checker: functions", () => {
     beforeEach(() => {
       calledArgs = undefined;
       testHost.addJsFile("test.js", {
-        testFn(ctx: FunctionContext, a: any, b: any, ...rest: any[]) {
-          calledArgs = [ctx, a, b, ...rest];
-          return a; // Return first arg
-        },
-        sum(_ctx: FunctionContext, ...addends: number[]) {
-          return addends.reduce((a, b) => a + b, 0);
-        },
-        valFirst(_ctx: FunctionContext, v: any) {
-          return v;
-        },
-        voidFn(ctx: FunctionContext, arg: any) {
-          calledArgs = [ctx, arg];
-          // No return value
+        $functions: {
+          "": {
+            testFn(ctx: FunctionContext, a: any, b: any, ...rest: any[]) {
+              calledArgs = [ctx, a, b, ...rest];
+              return a; // Return first arg
+            },
+            sum(_ctx: FunctionContext, ...addends: number[]) {
+              return addends.reduce((a, b) => a + b, 0);
+            },
+            valFirst(_ctx: FunctionContext, v: any) {
+              return v;
+            },
+            voidFn(ctx: FunctionContext, arg: any) {
+              calledArgs = [ctx, arg];
+              // No return value
+            },
+          },
         },
       });
       runner = createTestWrapper(testHost, {
@@ -276,8 +266,12 @@ describe("compiler: checker: functions", () => {
   describe("referencing result type", () => {
     it("can use function result in alias", async () => {
       testHost.addJsFile("test.js", {
-        makeArray(ctx: FunctionContext, t: Type) {
-          return $(ctx.program).array.create(t);
+        $functions: {
+          "": {
+            makeArray(ctx: FunctionContext, t: Type) {
+              return $(ctx.program).array.create(t);
+            },
+          },
         },
       });
       const runner = createTestWrapper(testHost, {
@@ -312,33 +306,37 @@ describe("compiler: checker: functions", () => {
     beforeEach(() => {
       receivedTypes = [];
       testHost.addJsFile("test.js", {
-        expectModel(_ctx: FunctionContext, model: Type) {
-          receivedTypes.push(model);
-          return model;
-        },
-        expectEnum(_ctx: FunctionContext, enumType: Type) {
-          receivedTypes.push(enumType);
-          return enumType;
-        },
-        expectScalar(_ctx: FunctionContext, scalar: Type) {
-          receivedTypes.push(scalar);
-          return scalar;
-        },
-        expectUnion(_ctx: FunctionContext, union: Type) {
-          receivedTypes.push(union);
-          return union;
-        },
-        expectInterface(_ctx: FunctionContext, iface: Type) {
-          receivedTypes.push(iface);
-          return iface;
-        },
-        expectNamespace(_ctx: FunctionContext, ns: Type) {
-          receivedTypes.push(ns);
-          return ns;
-        },
-        expectOperation(_ctx: FunctionContext, op: Type) {
-          receivedTypes.push(op);
-          return op;
+        $functions: {
+          "": {
+            expectModel(_ctx: FunctionContext, model: Type) {
+              receivedTypes.push(model);
+              return model;
+            },
+            expectEnum(_ctx: FunctionContext, enumType: Type) {
+              receivedTypes.push(enumType);
+              return enumType;
+            },
+            expectScalar(_ctx: FunctionContext, scalar: Type) {
+              receivedTypes.push(scalar);
+              return scalar;
+            },
+            expectUnion(_ctx: FunctionContext, union: Type) {
+              receivedTypes.push(union);
+              return union;
+            },
+            expectInterface(_ctx: FunctionContext, iface: Type) {
+              receivedTypes.push(iface);
+              return iface;
+            },
+            expectNamespace(_ctx: FunctionContext, ns: Type) {
+              receivedTypes.push(ns);
+              return ns;
+            },
+            expectOperation(_ctx: FunctionContext, op: Type) {
+              receivedTypes.push(op);
+              return op;
+            },
+          },
         },
       });
       runner = createTestWrapper(testHost, {
@@ -445,38 +443,42 @@ describe("compiler: checker: functions", () => {
     beforeEach(() => {
       receivedValues = [];
       testHost.addJsFile("test.js", {
-        expectString(ctx: FunctionContext, str: string) {
-          receivedValues.push(str);
-          return str;
-        },
-        expectNumber(ctx: FunctionContext, num: number) {
-          receivedValues.push(num);
-          return num;
-        },
-        expectBoolean(ctx: FunctionContext, bool: boolean) {
-          receivedValues.push(bool);
-          return bool;
-        },
-        expectArray(ctx: FunctionContext, arr: any[]) {
-          receivedValues.push(arr);
-          return arr;
-        },
-        expectObject(ctx: FunctionContext, obj: Record<string, any>) {
-          receivedValues.push(obj);
-          return obj;
-        },
-        returnInvalidJsValue(ctx: FunctionContext) {
-          return Symbol("invalid"); // Invalid JS value that can't be unmarshaled
-        },
-        returnComplexObject(ctx: FunctionContext) {
-          return {
-            nested: { value: 42 },
-            array: [1, "test", true],
-            mixed: null,
-          };
-        },
-        returnIndeterminate(ctx: FunctionContext): IndeterminateEntity {
-          return { entityKind: "Indeterminate", type: $(ctx.program).literal.create(42) };
+        $functions: {
+          "": {
+            expectString(ctx: FunctionContext, str: string) {
+              receivedValues.push(str);
+              return str;
+            },
+            expectNumber(ctx: FunctionContext, num: number) {
+              receivedValues.push(num);
+              return num;
+            },
+            expectBoolean(ctx: FunctionContext, bool: boolean) {
+              receivedValues.push(bool);
+              return bool;
+            },
+            expectArray(ctx: FunctionContext, arr: any[]) {
+              receivedValues.push(arr);
+              return arr;
+            },
+            expectObject(ctx: FunctionContext, obj: Record<string, any>) {
+              receivedValues.push(obj);
+              return obj;
+            },
+            returnInvalidJsValue(ctx: FunctionContext) {
+              return Symbol("invalid"); // Invalid JS value that can't be unmarshaled
+            },
+            returnComplexObject(ctx: FunctionContext) {
+              return {
+                nested: { value: 42 },
+                array: [1, "test", true],
+                mixed: null,
+              };
+            },
+            returnIndeterminate(ctx: FunctionContext): IndeterminateEntity {
+              return { entityKind: "Indeterminate", type: $(ctx.program).literal.create(42) };
+            },
+          },
         },
       });
       runner = createTestWrapper(testHost, {
@@ -589,24 +591,28 @@ describe("compiler: checker: functions", () => {
     beforeEach(() => {
       receivedArgs = [];
       testHost.addJsFile("test.js", {
-        acceptTypeOrValue(_ctx: FunctionContext, arg: any) {
-          receivedArgs.push(arg);
-          return arg;
-        },
-        acceptMultipleTypes(_ctx: FunctionContext, arg: any) {
-          receivedArgs.push(arg);
-          return arg;
-        },
-        acceptMultipleValues(_ctx: FunctionContext, arg: any) {
-          receivedArgs.push(arg);
-          return arg;
-        },
-        returnTypeOrValue(ctx: FunctionContext, returnType: boolean) {
-          if (returnType) {
-            return ctx.program.checker.getStdType("string");
-          } else {
-            return "hello";
-          }
+        $functions: {
+          "": {
+            acceptTypeOrValue(_ctx: FunctionContext, arg: any) {
+              receivedArgs.push(arg);
+              return arg;
+            },
+            acceptMultipleTypes(_ctx: FunctionContext, arg: any) {
+              receivedArgs.push(arg);
+              return arg;
+            },
+            acceptMultipleValues(_ctx: FunctionContext, arg: any) {
+              receivedArgs.push(arg);
+              return arg;
+            },
+            returnTypeOrValue(ctx: FunctionContext, returnType: boolean) {
+              if (returnType) {
+                return ctx.program.checker.getStdType("string");
+              } else {
+                return "hello";
+              }
+            },
+          },
         },
       });
       runner = createTestWrapper(testHost, {
@@ -698,23 +704,27 @@ describe("compiler: checker: functions", () => {
 
     beforeEach(() => {
       testHost.addJsFile("test.js", {
-        returnWrongEntityKind(_ctx: FunctionContext) {
-          return "string value"; // Returns value when type expected
-        },
-        returnWrongValueType(_ctx: FunctionContext) {
-          return 42; // Returns number when string expected
-        },
-        throwError(_ctx: FunctionContext) {
-          throw new Error("JS error");
-        },
-        returnUndefined(_ctx: FunctionContext) {
-          return undefined;
-        },
-        returnNull(_ctx: FunctionContext) {
-          return null;
-        },
-        expectNonOptionalAfterOptional(_ctx: FunctionContext, _opt: any, req: any) {
-          return req;
+        $functions: {
+          "": {
+            returnWrongEntityKind(_ctx: FunctionContext) {
+              return "string value"; // Returns value when type expected
+            },
+            returnWrongValueType(_ctx: FunctionContext) {
+              return 42; // Returns number when string expected
+            },
+            throwError(_ctx: FunctionContext) {
+              throw new Error("JS error");
+            },
+            returnUndefined(_ctx: FunctionContext) {
+              return undefined;
+            },
+            returnNull(_ctx: FunctionContext) {
+              return null;
+            },
+            expectNonOptionalAfterOptional(_ctx: FunctionContext, _opt: any, req: any) {
+              return req;
+            },
+          },
         },
       });
       runner = createTestWrapper(testHost, {
@@ -793,8 +803,12 @@ describe("compiler: checker: functions", () => {
 
     it("handles deeply nested type constraints", async () => {
       testHost.addJsFile("nested.js", {
-        processNestedModel(_ctx: FunctionContext, model: Type) {
-          return model;
+        $functions: {
+          "": {
+            processNestedModel(_ctx: FunctionContext, model: Type) {
+              return model;
+            },
+          },
         },
       });
       const nestedRunner = createTestWrapper(testHost, {
@@ -820,11 +834,15 @@ describe("compiler: checker: functions", () => {
 
     it("validates function return type matches declared constraint", async () => {
       testHost.addJsFile("return-validation.js", {
-        returnString(_ctx: FunctionContext) {
-          return "hello";
-        },
-        returnNumber(_ctx: FunctionContext) {
-          return 42;
+        $functions: {
+          "": {
+            returnString(_ctx: FunctionContext) {
+              return "hello";
+            },
+            returnNumber(_ctx: FunctionContext) {
+              return 42;
+            },
+          },
         },
       });
       const returnRunner = createTestWrapper(testHost, {
@@ -852,9 +870,7 @@ describe("compiler: checker: functions", () => {
     let runner: BasicTestRunner;
 
     beforeEach(() => {
-      testHost.addJsFile("missing-impl.js", {
-        // Intentionally empty - to test default implementations
-      });
+      testHost.addJsFile("missing-impl.js", {});
       runner = createTestWrapper(testHost, {
         autoImports: ["./missing-impl.js"],
         autoUsings: ["TypeSpec.Reflection"],
@@ -897,11 +913,15 @@ describe("compiler: checker: functions", () => {
 
     beforeEach(() => {
       testHost.addJsFile("templates.js", {
-        processGeneric(ctx: FunctionContext, type: Type) {
-          return $(ctx.program).array.create(type);
-        },
-        processConstrainedGeneric(_ctx: FunctionContext, type: Type) {
-          return type;
+        $functions: {
+          "": {
+            processGeneric(ctx: FunctionContext, type: Type) {
+              return $(ctx.program).array.create(type);
+            },
+            processConstrainedGeneric(_ctx: FunctionContext, type: Type) {
+              return type;
+            },
+          },
         },
       });
       runner = createTestWrapper(testHost, {
