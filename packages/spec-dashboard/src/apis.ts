@@ -84,7 +84,8 @@ export function splitManifestByTables(
     return [{ manifest, tableName: defaultTableName, emitterNames: undefined }];
   }
 
-  const result: Array<{ manifest: ScenarioManifest; tableName: string; emitterNames?: string[] }> = [];
+  const result: Array<{ manifest: ScenarioManifest; tableName: string; emitterNames?: string[] }> =
+    [];
   const usedScenarios = new Set<string>();
 
   // Separate tables with prefixes from catch-all tables (no prefixes)
@@ -204,7 +205,7 @@ export async function getCoverageSummaries(
   return allManifests.map(({ manifest, tableName, emitterNames }) => {
     // Use table-specific emitters if provided, otherwise use global emitters
     const effectiveEmitters = emitterNames ?? options.emitterNames;
-    
+
     // Filter reports to only include the emitters for this table
     const filteredReports: Record<string, ResolvedCoverageReport | undefined> = {};
     for (const emitterName of effectiveEmitters) {
