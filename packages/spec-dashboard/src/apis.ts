@@ -108,8 +108,7 @@ export function splitManifestByTables(
     if (isCatchAll) {
       // Catch-all table: only get scenarios not yet assigned AND not matching any prefix
       matchingScenarios = manifest.scenarios.filter(
-        (s: ScenarioData) =>
-          !usedScenarios.has(s.name) && !scenariosMatchingAnyPrefix.has(s.name),
+        (s: ScenarioData) => !usedScenarios.has(s.name) && !scenariosMatchingAnyPrefix.has(s.name),
       );
     } else {
       // Table with prefixes: filter scenarios by prefixes
