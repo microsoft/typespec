@@ -88,49 +88,47 @@ export function splitManifestByTables(
     [];
   const usedScenarios = new Set<string>();
 
-  // Separate tables with prefixes from catch-all tables (no prefixes)
-  const tablesWithPrefixes = applicableTables.filter((t) => t.prefixes && t.prefixes.length > 0);
-  const catchAllTables = applicableTables.filter((t) => !t.prefixes || t.prefixes.length === 0);
-
-  // Process tables with prefixes first
-  for (const table of tablesWithPrefixes) {
-    // Filter scenarios by prefixes
-    const filteredScenarios = manifest.scenarios.filter((s: ScenarioData) => {
-      if (usedScenarios.has(s.name)) {
-        return false; // Already assigned to another table
+  // First, identify which scenarios would match ANY prefix table (to reserve them from catch-all tables)
+  const scenariosMatchingAnyPrefix = new Set<string>();
+  for (const table of applicableTables) {
+    if (table.prefixes && table.prefixes.length > 0) {
+      for (const scenario of manifest.scenarios) {
+        if (matchesPrefixes(scenario.name, table.prefixes)) {
+          scenariosMatchingAnyPrefix.add(scenario.name);
+        }
       }
-      return matchesPrefixes(s.name, table.prefixes!);
-    });
-
-    if (filteredScenarios.length > 0) {
-      // Mark these scenarios as used
-      filteredScenarios.forEach((s) => usedScenarios.add(s.name));
-
-      result.push({
-        manifest: {
-          ...manifest,
-          scenarios: filteredScenarios,
-        },
-        tableName: table.name,
-        emitterNames: table.emitterNames,
-      });
     }
   }
 
-  // Process catch-all tables - they only get scenarios not yet assigned
-  for (const table of catchAllTables) {
-    const remainingScenarios = manifest.scenarios.filter(
-      (s: ScenarioData) => !usedScenarios.has(s.name),
-    );
+  // Now process tables in the order they appear in tableDefinitions
+  for (const table of applicableTables) {
+    const isCatchAll = !table.prefixes || table.prefixes.length === 0;
 
-    if (remainingScenarios.length > 0) {
+    let matchingScenarios: ScenarioData[];
+    if (isCatchAll) {
+      // Catch-all table: only get scenarios not yet assigned AND not matching any prefix
+      matchingScenarios = manifest.scenarios.filter(
+        (s: ScenarioData) =>
+          !usedScenarios.has(s.name) && !scenariosMatchingAnyPrefix.has(s.name),
+      );
+    } else {
+      // Table with prefixes: filter scenarios by prefixes
+      matchingScenarios = manifest.scenarios.filter((s: ScenarioData) => {
+        if (usedScenarios.has(s.name)) {
+          return false; // Already assigned to another table
+        }
+        return matchesPrefixes(s.name, table.prefixes!);
+      });
+    }
+
+    if (matchingScenarios.length > 0) {
       // Mark these scenarios as used
-      remainingScenarios.forEach((s) => usedScenarios.add(s.name));
+      matchingScenarios.forEach((s) => usedScenarios.add(s.name));
 
       result.push({
         manifest: {
           ...manifest,
-          scenarios: remainingScenarios,
+          scenarios: matchingScenarios,
         },
         tableName: table.name,
         emitterNames: table.emitterNames,
