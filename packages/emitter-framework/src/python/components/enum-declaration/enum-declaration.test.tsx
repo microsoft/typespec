@@ -51,7 +51,10 @@ describe("Python Enum Declaration", () => {
         This is a test enum
         """
 
-        ONE = 1  #: This is one
+        ONE = 1
+        """
+        This is one
+        """
         TWO = 2
         THREE = 3
 
@@ -83,7 +86,10 @@ describe("Python Enum Declaration", () => {
         This is an explicit doc
         """
 
-        ONE = 1  #: This is one
+        ONE = 1
+        """
+        This is one
+        """
         TWO = 2
         THREE = 3
 
