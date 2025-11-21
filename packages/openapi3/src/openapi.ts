@@ -13,11 +13,9 @@ import {
   getFormat,
   getMaxItems,
   getMaxLength,
-  getMaxValue,
   getMaxValueExclusive,
   getMinItems,
   getMinLength,
-  getMinValue,
   getMinValueExclusive,
   getNamespaceFullName,
   getPattern,
@@ -71,6 +69,7 @@ import {
   resolveRequestVisibility,
   Visibility,
 } from "@typespec/http";
+import { getStreamMetadata } from "@typespec/http/experimental";
 import {
   getExtensions,
   getExternalDocs,
@@ -90,10 +89,13 @@ import {
   OpenAPI3EmitterOptions,
   OpenAPIVersion,
   OperationIdStrategy,
+  reportDiagnostic,
 } from "./lib.js";
 import { getOpenApiSpecProps } from "./openapi-spec-mappings.js";
 import { OperationIdResolver } from "./operation-id-resolver/operation-id-resolver.js";
 import { getParameterStyle } from "./parameters.js";
+import { getMaxValueAsJson, getMinValueAsJson } from "./range.js";
+import { resolveSSEModule, SSEModule } from "./sse-module.js";
 import { getOpenAPI3StatusCodes } from "./status-codes.js";
 import {
   OpenAPI3Encoding,
@@ -286,6 +288,7 @@ function createOAPIEmitter(
 
   let metadataInfo: MetadataInfo;
   let visibilityUsage: VisibilityUsageTracker;
+  let sseModule: SSEModule | undefined;
 
   // Map model properties that represent shared parameters to their parameter
   // definition that will go in #/components/parameters. Inlined parameters do not go in
@@ -378,11 +381,16 @@ function createOAPIEmitter(
     service: Service,
     allHttpAuthentications: HttpAuth[],
     defaultAuth: AuthenticationReference,
-    optionalDependencies: { jsonSchemaModule?: JsonSchemaModule; xmlModule?: XmlModule },
+    optionalDependencies: {
+      jsonSchemaModule?: JsonSchemaModule;
+      xmlModule?: XmlModule;
+      sseModule?: SSEModule;
+    },
     version?: string,
   ) {
     diagnostics = createDiagnosticCollector();
     currentService = service;
+    sseModule = optionalDependencies.sseModule;
     metadataInfo = createMetadataInfo(program, {
       canonicalVisibility: Visibility.Read,
       canShareProperty: (p) => isReadonlyProperty(program, p),
@@ -711,11 +719,12 @@ function createOAPIEmitter(
 
       const xmlModule = await resolveXmlModule();
       const jsonSchemaModule = await resolveJsonSchemaModule();
+      const sseModule = await resolveSSEModule();
       initializeEmitter(
         service,
         auth.schemes,
         auth.defaultAuth,
-        { xmlModule, jsonSchemaModule },
+        { xmlModule, jsonSchemaModule, sseModule },
         version,
       );
       reportIfNoRoutes(program, httpService.operations);
@@ -955,14 +964,35 @@ function createOAPIEmitter(
     responses: HttpOperationResponse[],
     examples: OperationExamples,
   ): Record<string, Refable<OpenAPI3Response>> {
-    const result: Record<string, Refable<OpenAPI3Response>> = {};
+    const responseMap = new Map<string, HttpOperationResponse[]>();
+
+    // Group responses by status code first. When named unions are expanded into individual
+    // response variants, multiple variants may map to the same status code. We need to collect
+    // all variants for each status code before processing to properly merge content types and
+    // select the appropriate description.
     for (const response of responses) {
       for (const statusCode of diagnostics.pipe(
         getOpenAPI3StatusCodes(program, response.statusCodes, response.type),
       )) {
-        result[statusCode] = getResponseForStatusCode(operation, statusCode, [response], examples);
+        if (responseMap.has(statusCode)) {
+          responseMap.get(statusCode)!.push(response);
+        } else {
+          responseMap.set(statusCode, [response]);
+        }
       }
     }
+
+    // Generate OpenAPI response for each status code
+    const result: Record<string, Refable<OpenAPI3Response>> = {};
+    for (const [statusCode, statusCodeResponses] of responseMap) {
+      result[statusCode] = getResponseForStatusCode(
+        operation,
+        statusCode,
+        statusCodeResponses,
+        examples,
+      );
+    }
+
     return result;
   }
 
@@ -1055,7 +1085,7 @@ function createOAPIEmitter(
       obj.content ??= {};
       for (const contentType of data.body.contentTypes) {
         const contents = getBodyContentEntry(
-          data.body,
+          data,
           Visibility.Read,
           contentType,
           examples.responses[statusCode]?.[contentType],
@@ -1164,14 +1194,48 @@ function createOAPIEmitter(
   }
 
   function getBodyContentEntry(
-    body: HttpPayloadBody,
+    dataOrBody: HttpOperationResponseContent | HttpPayloadBody,
     visibility: Visibility,
     contentType: string,
     examples?: [Example, Type][],
   ): OpenAPI3MediaType {
+    const isResponseContent = "body" in dataOrBody && dataOrBody.body !== undefined;
+    const body: HttpPayloadBody = isResponseContent
+      ? dataOrBody.body!
+      : (dataOrBody as HttpPayloadBody);
+
     const isBinary = isBinaryPayload(body.type, contentType);
     if (isBinary) {
       return { schema: getRawBinarySchema(contentType) } as OpenAPI3MediaType;
+    }
+
+    // Check if this is a stream response (only for responses)
+    if (sseModule && isResponseContent) {
+      // Use getStreamMetadata to check if this is a stream response
+      const streamMetadata = getStreamMetadata(program, dataOrBody as HttpOperationResponseContent);
+      if (streamMetadata) {
+        if (specVersion === "3.1.0" || specVersion === "3.0.0") {
+          // Streams with itemSchema are not supported in OpenAPI 3.0/3.1 - emit warning and continue without itemSchema
+          reportDiagnostic(program, {
+            code: "streams-not-supported",
+            target: body.type,
+          });
+          // Fall through to normal processing without itemSchema
+        } else {
+          // Full stream support for OpenAPI 3.2.0
+          const mediaType: any = {};
+          sseModule.attachSSEItemSchema(
+            program,
+            options,
+            streamMetadata.streamType,
+            mediaType,
+            (type: Type) => callSchemaEmitter(type, visibility, false, "application/json"),
+          );
+          if (Object.keys(mediaType).length > 0) {
+            return mediaType;
+          }
+        }
+      }
     }
 
     const oai3Examples = examples && getExampleOrExamples(program, examples);
@@ -1765,7 +1829,7 @@ function createOAPIEmitter(
       newTarget.maxLength = maxLength;
     }
 
-    const minValue = getMinValue(program, typespecType);
+    const minValue = getMinValueAsJson(program, typespecType);
     if (minValue !== undefined) {
       newTarget.minimum = minValue;
     }
@@ -1776,7 +1840,7 @@ function createOAPIEmitter(
       newTarget.exclusiveMinimum = true;
     }
 
-    const maxValue = getMaxValue(program, typespecType);
+    const maxValue = getMaxValueAsJson(program, typespecType);
     if (maxValue !== undefined) {
       newTarget.maximum = maxValue;
     }

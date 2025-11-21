@@ -164,7 +164,9 @@ const DashboardHeaderRow: FunctionComponent<DashboardHeaderRowProps> = ({ covera
     }
     return [language, getCompletedRatio(coverageSummary.manifest.scenarios, report), report];
   });
-  const tableHeader = <th>{coverageSummary.manifest.displayName ?? "Specs"} </th>;
+  const tableHeader = (
+    <th>{coverageSummary.tableName || coverageSummary.manifest.displayName || "Specs"} </th>
+  );
   return (
     <tr>
       {tableHeader}
@@ -271,7 +273,11 @@ export const GeneratorHeaderCell: FunctionComponent<GeneratorHeaderCellProps> = 
         </div>
         <div
           title="Coverage stats"
-          css={{ gridArea: "status", borderTop: `1px solid ${Colors.borderDefault}`, height: 32 }}
+          css={{
+            gridArea: "status",
+            borderTop: `1px solid ${Colors.borderDefault}`,
+            height: 32,
+          }}
         >
           <ScenarioGroupRatioStatusBox ratio={status} />
         </div>

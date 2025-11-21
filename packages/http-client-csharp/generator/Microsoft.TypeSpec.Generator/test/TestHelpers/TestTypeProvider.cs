@@ -21,9 +21,9 @@ namespace Microsoft.TypeSpec.Generator.Tests
 
         protected override string BuildNamespace() => _namespace;
 
-        protected override PropertyProvider[] BuildProperties() => _properties;
+        protected internal override PropertyProvider[] BuildProperties() => _properties;
 
-        protected override MethodProvider[] BuildMethods() => _methods;
+        protected internal override MethodProvider[] BuildMethods() => _methods;
         protected override TypeProvider[] BuildNestedTypes() => NestedTypesInternal ?? base.BuildNestedTypes();
 
         public static readonly TypeProvider Empty = new TestTypeProvider();

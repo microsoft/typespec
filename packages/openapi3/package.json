@@ -1,6 +1,6 @@
 {
   "name": "@typespec/openapi3",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec library for emitting OpenAPI 3.0 and OpenAPI 3.1 from the TypeSpec REST protocol binding and converting OpenAPI3 to TypeSpec",
   "homepage": "https://typespec.io",
@@ -41,7 +41,8 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "pnpm gen-version && pnpm gen-extern-signature && tsc -p . && pnpm lint-typespec-library",
+    "build": "pnpm gen-version && pnpm gen-extern-signature && pnpm quickbuild && pnpm lint-typespec-library",
+    "quickbuild": "tsc -p .",
     "watch": "tsc -p . --watch",
     "gen-extern-signature": "tspd --enable-experimental gen-extern-signature .",
     "lint-typespec-library": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",
@@ -62,17 +63,20 @@
     "!dist/test/**"
   ],
   "dependencies": {
-    "@scalar/json-magic": "^0.6.1",
-    "@scalar/openapi-parser": "^0.22.3",
+    "@scalar/json-magic": "^0.8.2",
+    "@scalar/openapi-parser": "^0.23.3",
     "@scalar/openapi-types": "^0.5.0",
     "@typespec/asset-emitter": "workspace:^",
     "yaml": "~2.8.0"
   },
   "peerDependencies": {
     "@typespec/compiler": "workspace:^",
+    "@typespec/events": "workspace:^",
     "@typespec/http": "workspace:^",
     "@typespec/json-schema": "workspace:^",
     "@typespec/openapi": "workspace:^",
+    "@typespec/sse": "workspace:^",
+    "@typespec/streams": "workspace:^",
     "@typespec/versioning": "workspace:^"
   },
   "peerDependenciesMeta": {
@@ -84,17 +88,29 @@
     },
     "@typespec/versioning": {
       "optional": true
+    },
+    "@typespec/streams": {
+      "optional": true
+    },
+    "@typespec/events": {
+      "optional": true
+    },
+    "@typespec/sse": {
+      "optional": true
     }
   },
   "devDependencies": {
-    "@types/node": "~24.9.1",
+    "@types/node": "~24.10.1",
     "@types/yargs": "~17.0.33",
     "@typespec/compiler": "workspace:^",
+    "@typespec/events": "workspace:^",
     "@typespec/http": "workspace:^",
     "@typespec/json-schema": "workspace:^",
     "@typespec/library-linter": "workspace:^",
     "@typespec/openapi": "workspace:^",
     "@typespec/rest": "workspace:^",
+    "@typespec/sse": "workspace:^",
+    "@typespec/streams": "workspace:^",
     "@typespec/tspd": "workspace:^",
     "@typespec/versioning": "workspace:^",
     "@typespec/xml": "workspace:^",
@@ -102,7 +118,7 @@
     "@vitest/ui": "^4.0.4",
     "c8": "^10.1.3",
     "cross-env": "~10.1.0",
-    "rimraf": "~6.0.1",
+    "rimraf": "~6.1.2",
     "typescript": "~5.9.2",
     "vitest": "^4.0.4"
   }

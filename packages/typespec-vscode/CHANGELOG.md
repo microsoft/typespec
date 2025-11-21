@@ -1,5 +1,16 @@
 # Change Log - typespec-vscode
 
+## 1.6.0
+
+### Bump dependencies
+
+- [#8823](https://github.com/microsoft/typespec/pull/8823) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8735](https://github.com/microsoft/typespec/pull/8735) Fix `pnpm clean && pnpm build` create diff in vscode package folder
+
+
 ## 1.5.0
 
 ### Features

@@ -1,5 +1,12 @@
 # Change Log - @typespec/openapi
 
+## 1.6.0
+
+### Bump dependencies
+
+- [#8823](https://github.com/microsoft/typespec/pull/8823) Upgrade dependencies
+
+
 ## 1.5.0
 
 No changes, version bump only.

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Text.Json.Serialization;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
@@ -32,7 +33,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         internal const string JsonPatchPropertyName = "Patch";
         internal bool IsDynamicModel { get; }
-        internal bool HasDynamicModelSupport { get; }
         internal Lazy<PropertyProvider?> BaseJsonPatchProperty { get; }
 
         internal bool HasDynamicProperties => _hasDynamicProperties ??= BuildHasDynamicProperties();
@@ -45,7 +45,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         public ScmModelProvider(InputModelType inputModel) : base(inputModel)
         {
             IsDynamicModel = inputModel.IsDynamicModel;
-            HasDynamicModelSupport = ComputeHasDynamicModelSupport();
             BaseJsonPatchProperty = new(GetBaseJsonPatchProperty());
         }
 
@@ -109,14 +108,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     constructor.Update(signature: constructor.Signature);
                     constructor.Update(suppressions: [suppression, .. constructor.Suppressions]);
 
-                    if (RawDataField != null && constructor.BodyStatements != null)
+                    if (constructor.BodyStatements != null)
                     {
                         List<MethodBodyStatement> updatedBody = [];
                         foreach (var statement in constructor.BodyStatements)
                         {
-                            if (statement is ExpressionStatement expressionStatement
-                                && expressionStatement.Expression is AssignmentExpression assignmentExpression
-                                && assignmentExpression.Value == RawDataField.AsParameter == true)
+                            // Remove RawDataField assignment if it exists
+                            if (RawDataField != null &&
+                                statement is ExpressionStatement expressionStatement &&
+                                expressionStatement.Expression is AssignmentExpression assignmentExpression &&
+                                assignmentExpression.Value == RawDataField.AsParameter == true)
                             {
                                 continue;
                             }
@@ -132,6 +133,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                                 updatedBody.Add(JsonPatchField.As<JsonPatch>().SetPropagators(new MemberExpression(null, "PropagateSet"), new MemberExpression(null, "PropagateGet")));
 #pragma warning restore SCME0001
                             }
+                        }
+                        else if (HasDynamicProperties && BaseJsonPatchProperty.Value is not null)
+                        {
+                            // Derived model has dynamic properties but inherits the JsonPatch field from base
+                            // We need to call SetPropagators on the inherited patch field
+#pragma warning disable SCME0001
+                            updatedBody.Add(BaseJsonPatchProperty.Value.As<JsonPatch>().SetPropagators(new MemberExpression(null, "PropagateSet"), new MemberExpression(null, "PropagateGet")));
+#pragma warning restore SCME0001
                         }
 
                         constructor.Update(bodyStatements: updatedBody);
@@ -197,6 +206,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 body: new ExpressionPropertyBody(new VariableExpression(JsonPatchField.Type, JsonPatchField.Declaration, IsRef: isRef)),
                 attributes:
                 [
+                    new AttributeStatement(typeof(JsonIgnoreAttribute)),
                     new AttributeStatement(typeof(EditorBrowsableAttribute), FrameworkEnumValue(EditorBrowsableState.Never)),
                     new AttributeStatement(typeof(ExperimentalAttribute), [Literal(ScmEvaluationTypeDiagnosticId)])
                 ],
@@ -204,26 +214,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 BackingField = JsonPatchField
             };
-        }
-
-        private bool ComputeHasDynamicModelSupport()
-        {
-            if (IsDynamicModel)
-            {
-                return true;
-            }
-
-            var baseModelProvider = BaseModelProvider;
-            while (baseModelProvider != null)
-            {
-                if (baseModelProvider is ScmModelProvider { IsDynamicModel: true })
-                {
-                    return true;
-                }
-                baseModelProvider = baseModelProvider.BaseModelProvider;
-            }
-
-            return false;
         }
 
         private bool ShouldUpdateFullConstructor()
@@ -303,15 +293,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private bool BuildHasDynamicProperties()
         {
-            if (Properties.Any(p =>
+            var propertiesWithWireInfo = CanonicalView.Properties;
+            if (propertiesWithWireInfo.Any(p =>
+                    p.WireInfo?.SerializedName != null &&
                     ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(p.Type, out var provider) &&
                     provider is ScmModelProvider { IsDynamicModel: true }))
             {
                 return true;
             }
 
-            return Properties
-                .Where(p => p.Type.IsCollection)
+            return propertiesWithWireInfo
+                .Where(p => p.Type.IsCollection && p.WireInfo?.SerializedName != null)
                 .Any(p => ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(
                               p.Type.GetNestedElementType(),
                               out var provider) &&

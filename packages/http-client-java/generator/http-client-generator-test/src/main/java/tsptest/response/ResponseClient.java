@@ -377,6 +377,167 @@ public final class ResponseClient {
     }
 
     /**
+     * The getTextBoolean operation.
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * boolean
+     * }
+     * </pre>
+     * 
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return boolean with `true` and `false` values along with {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<BinaryData> getTextBooleanWithResponse(RequestOptions requestOptions) {
+        return this.serviceClient.getTextBooleanWithResponse(requestOptions);
+    }
+
+    /**
+     * The getTextByte operation.
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * int
+     * }
+     * </pre>
+     * 
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return a 8-bit integer along with {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<BinaryData> getTextByteWithResponse(RequestOptions requestOptions) {
+        return this.serviceClient.getTextByteWithResponse(requestOptions);
+    }
+
+    /**
+     * The getTextInt32 operation.
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * int
+     * }
+     * </pre>
+     * 
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return a 32-bit integer along with {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<BinaryData> getTextInt32WithResponse(RequestOptions requestOptions) {
+        return this.serviceClient.getTextInt32WithResponse(requestOptions);
+    }
+
+    /**
+     * The getTextInt64 operation.
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * long
+     * }
+     * </pre>
+     * 
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return a 64-bit integer along with {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<BinaryData> getTextInt64WithResponse(RequestOptions requestOptions) {
+        return this.serviceClient.getTextInt64WithResponse(requestOptions);
+    }
+
+    /**
+     * The getTextFloat32 operation.
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * double
+     * }
+     * </pre>
+     * 
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return a 32 bit floating point number along with {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<BinaryData> getTextFloat32WithResponse(RequestOptions requestOptions) {
+        return this.serviceClient.getTextFloat32WithResponse(requestOptions);
+    }
+
+    /**
+     * The getTextFloat64 operation.
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * double
+     * }
+     * </pre>
+     * 
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return a 64 bit floating point number along with {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<BinaryData> getTextFloat64WithResponse(RequestOptions requestOptions) {
+        return this.serviceClient.getTextFloat64WithResponse(requestOptions);
+    }
+
+    /**
+     * The getTextChar operation.
+     * <p><strong>Response Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * int
+     * }
+     * </pre>
+     * 
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return a 16-bit integer along with {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<BinaryData> getTextCharWithResponse(RequestOptions requestOptions) {
+        return this.serviceClient.getTextCharWithResponse(requestOptions);
+    }
+
+    /**
      * The getBinary operation.
      * 
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -613,6 +774,132 @@ public final class ResponseClient {
         // Generated convenience method for getUnionResponseWithResponse
         RequestOptions requestOptions = new RequestOptions();
         return getUnionResponseWithResponse(accept, requestOptions).getValue();
+    }
+
+    /**
+     * The getTextBoolean operation.
+     * 
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return boolean with `true` and `false` values.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public boolean getTextBoolean() {
+        // Generated convenience method for getTextBooleanWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return Boolean.parseBoolean(getTextBooleanWithResponse(requestOptions).getValue().toString());
+    }
+
+    /**
+     * The getTextByte operation.
+     * 
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a 8-bit integer.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public int getTextByte() {
+        // Generated convenience method for getTextByteWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return Integer.parseInt(getTextByteWithResponse(requestOptions).getValue().toString());
+    }
+
+    /**
+     * The getTextInt32 operation.
+     * 
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a 32-bit integer.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public int getTextInt32() {
+        // Generated convenience method for getTextInt32WithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return Integer.parseInt(getTextInt32WithResponse(requestOptions).getValue().toString());
+    }
+
+    /**
+     * The getTextInt64 operation.
+     * 
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a 64-bit integer.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public long getTextInt64() {
+        // Generated convenience method for getTextInt64WithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return Long.parseLong(getTextInt64WithResponse(requestOptions).getValue().toString());
+    }
+
+    /**
+     * The getTextFloat32 operation.
+     * 
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a 32 bit floating point number.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public double getTextFloat32() {
+        // Generated convenience method for getTextFloat32WithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return Double.parseDouble(getTextFloat32WithResponse(requestOptions).getValue().toString());
+    }
+
+    /**
+     * The getTextFloat64 operation.
+     * 
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a 64 bit floating point number.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public double getTextFloat64() {
+        // Generated convenience method for getTextFloat64WithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return Double.parseDouble(getTextFloat64WithResponse(requestOptions).getValue().toString());
+    }
+
+    /**
+     * The getTextChar operation.
+     * 
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a 16-bit integer.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public int getTextChar() {
+        // Generated convenience method for getTextCharWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return Integer.parseInt(getTextCharWithResponse(requestOptions).getValue().toString());
     }
 
     @Generated
