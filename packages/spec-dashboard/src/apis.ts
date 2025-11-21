@@ -161,13 +161,13 @@ export async function getCoverageSummaries(
 ): Promise<CoverageSummary[]> {
   const coverageClient = getCoverageClient(options);
   const manifestClient = getManifestClient(options);
-  
+
   // First, split manifests to determine which emitters we need
   const manifests = await manifestClient.manifest.get();
-  const allManifests: Array<{ 
-    manifest: ScenarioManifest; 
-    tableName: string; 
-    emitterNames?: string[] 
+  const allManifests: Array<{
+    manifest: ScenarioManifest;
+    tableName: string;
+    emitterNames?: string[];
   }> = [];
 
   for (const manifest of manifests) {
@@ -195,7 +195,7 @@ export async function getCoverageSummaries(
 
   // Load reports for all needed emitters
   const generatorReports = await loadReports(coverageClient, options, Array.from(allEmitterNames));
-  
+
   const reports = Object.values(generatorReports)[0] as Record<
     string,
     ResolvedCoverageReport | undefined
@@ -212,7 +212,7 @@ export async function getCoverageSummaries(
         filteredReports[emitterName] = reports[emitterName];
       }
     }
-    
+
     return {
       manifest,
       generatorReports: processReports(filteredReports, manifest),
