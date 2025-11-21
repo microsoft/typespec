@@ -106,21 +106,30 @@ extern fn process(
 
 ### Type transformation
 
+Functions may be used to transform types in arbitrary ways _without_ modifying an existing type instance. In the
+following example, we declare a function `applyVisibility` that could be used to transform an input Model into an
+output Model based on a `VisibilityFilter` object. We use a template alias to instantiate the new instance, because
+templates _cache_ their instances and always return the same type for the same template arguments.
+
 ```typespec
 // Transform a model based on a filter
 extern fn applyVisibility(input: Model, visibility: valueof VisibilityFilter): Model;
 
-const PUBLIC_FILTER: VisibilityFilter = #{ any: #[Public] };
+const READ_FILTER: VisibilityFilter = #{ any: #[Public] };
 
 // Using a template to call a function can be beneficial because templates cache
 // their instances. A function _never_ caches its results, so each time `applyVisibility`
 // is called, it will run the underlying JavaScript function. By using a template to call
 // the function, it ensures that the function is only called once per unique instance
 // of the template.
-alias PublicModel<M extends Model> = applyVisibility(UserModel, PUBLIC_FILTER);
+alias Read<M extends Model> = applyVisibility(M, READ_FILTER);
 ```
 
 ### Value computation
+
+Functions can also be used to extract complex logic. The following example shows how a function might be used to compute
+a default value for a given type of field. The external function can have arbitrarily complex JavaScript logic, so it
+can utilize any method of computing the result value that it deems appropriate.
 
 ```typespec
 // Compute a default value using some external logic
@@ -138,3 +147,10 @@ model Config {
 - Functions _may_ have side-effects when called; they are not guaranteed to be "pure" functions. Be careful when writing
   functions to avoid manipulating the type graph or storing undesirable state (though there is no rule that will prevent
   you from doing so).
+- Functions are evaluated in the compiler. If you write or utilize computationally intense functions, it will impact
+  compilation times and may affect language server performance.
+
+## Implementing functions in your library
+
+See [Extending TypeSpec - Functions](../extending-typespec/implement-functions.md) for more information about how to add
+a function to your TypeSpec library.

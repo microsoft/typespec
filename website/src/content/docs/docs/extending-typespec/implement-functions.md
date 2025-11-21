@@ -39,7 +39,12 @@ You can mark a function parameter as optional using `?`:
 
 ```tsp
 /**
- * Renames a model, if
+ * Renames a model, if `name` is provided and different from the input model's name.
+ *
+ * @param m the input Model to rename
+ * @param name if set, the name of the output model
+ * @returns `m` if `name` is not set or `m`'s name is equal to `name`, otherwise a new Model instance with the given
+ *          name that is otherwise identical to `m`.
  */
 extern fn rename(m: Reflection.Model, name?: valueof string): Reflection.Model;
 ```
