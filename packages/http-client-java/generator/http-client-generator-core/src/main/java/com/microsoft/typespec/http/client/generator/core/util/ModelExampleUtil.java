@@ -25,6 +25,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examp
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.ObjectNode;
 import io.clientcore.core.utils.Base64Uri;
 import io.clientcore.core.utils.CoreUtils;
+import io.clientcore.core.utils.DateTimeRfc1123;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -34,8 +35,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import io.clientcore.core.utils.DateTimeRfc1123;
 import org.slf4j.Logger;
 
 public class ModelExampleUtil {

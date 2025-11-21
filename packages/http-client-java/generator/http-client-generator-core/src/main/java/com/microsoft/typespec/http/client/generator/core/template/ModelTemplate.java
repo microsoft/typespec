@@ -31,7 +31,6 @@ import com.microsoft.typespec.http.client.generator.core.template.util.ModelTemp
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import io.clientcore.core.utils.CoreUtils;
-
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URL;

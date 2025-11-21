@@ -15,7 +15,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Primi
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import io.clientcore.core.utils.CoreUtils;
-
 import java.util.List;
 import java.util.Set;
 

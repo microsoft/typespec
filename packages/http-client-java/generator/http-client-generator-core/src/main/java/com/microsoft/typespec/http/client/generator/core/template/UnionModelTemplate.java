@@ -12,7 +12,6 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaJav
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaModifier;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import io.clientcore.core.utils.CoreUtils;
-
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -71,8 +70,8 @@ public class UnionModelTemplate implements IJavaTemplate<UnionModel, JavaFile> {
                     = comment -> comment.description("Creates an instance of " + model.getName() + " class.");
 
                 for (ClientModelProperty property : model.getProperties()) {
-                    javadocCommentConsumer = javadocCommentConsumer
-                        .andThen(comment -> comment.param(property.getName(), "the value"));
+                    javadocCommentConsumer
+                        = javadocCommentConsumer.andThen(comment -> comment.param(property.getName(), "the value"));
 
                     if (constructorProperties.length() > 0) {
                         constructorProperties.append(", ");

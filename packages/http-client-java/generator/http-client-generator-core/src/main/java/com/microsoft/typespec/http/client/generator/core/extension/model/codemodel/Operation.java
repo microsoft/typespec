@@ -5,7 +5,6 @@ package com.microsoft.typespec.http.client.generator.core.extension.model.codemo
 
 import com.microsoft.typespec.http.client.generator.core.extension.model.extensionmodel.XmsExtensions;
 import io.clientcore.core.http.models.HttpMethod;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;

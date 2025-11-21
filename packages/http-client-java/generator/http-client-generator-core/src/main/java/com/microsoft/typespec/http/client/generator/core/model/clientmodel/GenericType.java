@@ -4,7 +4,6 @@
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
-
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Set;
@@ -94,10 +93,6 @@ public class GenericType implements IType {
 
     public static GenericType syncPoller(IType pollResultType, IType finalResultType) {
         return genericType(ClassType.SYNC_POLLER, pollResultType, finalResultType);
-    }
-
-    public static GenericType azureVNextPoller(IType pollResultType, IType finalResultType) {
-        return new GenericType("com.azure.v2.core.http.polling", "Poller", pollResultType, finalResultType);
     }
 
     public static GenericType pollResult(IType pollResultType) {
@@ -238,15 +233,13 @@ public class GenericType implements IType {
                         : wireTypeArguments[i].convertFromClientType("el");
                     expression
                         = String.format("%1$s.stream().map(el -> %2$s).collect(java.util.stream.Collectors.toList())",
-                        expression, mapping);
+                            expression, mapping);
                 } else if (this instanceof IterableType) {
                     String mapping = isToClient
                         ? wireTypeArguments[i].convertToClientType("el")
                         : wireTypeArguments[i].convertFromClientType("el");
-                    expression = String.format(
-                        "java.util.stream.StreamSupport.stream(%1$s.spliterator(), false).map"
-                            + "(el -> %2$s).collect(java.util.stream.Collectors.toList())",
-                        expression, mapping);
+                    expression = String.format("java.util.stream.StreamSupport.stream(%1$s.spliterator(), false).map"
+                        + "(el -> %2$s).collect(java.util.stream.Collectors.toList())", expression, mapping);
                 } else if (this instanceof MapType) {
                     String mapping = isToClient
                         ? wireTypeArguments[i].convertToClientType("el")

@@ -114,8 +114,9 @@ public class ServiceClientTemplate implements IJavaTemplate<ServiceClient, JavaF
                     comment.description(String.format("Gets %1$s", serviceClientProperty.getDescription()));
                     comment.methodReturns(String.format("the %1$s value.", serviceClientProperty.getName()));
                 });
-                classBlock.method(serviceClientProperty.getMethodVisibility(), null, String.format("%1$s %2$s()",
-                    serviceClientProperty.getType(), new ModelNamer().modelPropertyGetterName(serviceClientProperty)),
+                classBlock.method(serviceClientProperty.getMethodVisibility(), null,
+                    String.format("%1$s %2$s()", serviceClientProperty.getType(),
+                        new ModelNamer().modelPropertyGetterName(serviceClientProperty)),
                     function -> function.methodReturn("this." + serviceClientProperty.getName()));
 
                 /*
@@ -155,8 +156,9 @@ public class ServiceClientTemplate implements IJavaTemplate<ServiceClient, JavaF
                         methodGroupClient.getVariableType()));
                     comment.methodReturns(String.format("the %1$s object.", methodGroupClient.getVariableType()));
                 });
-                classBlock.publicMethod(String.format("%1$s get%2$s()", methodGroupClient.getVariableType(),
-                    CodeNamer.toPascalCase(methodGroupClient.getVariableName())),
+                classBlock.publicMethod(
+                    String.format("%1$s get%2$s()", methodGroupClient.getVariableType(),
+                        CodeNamer.toPascalCase(methodGroupClient.getVariableName())),
                     function -> function.methodReturn("this." + methodGroupClient.getVariableName()));
             }
 

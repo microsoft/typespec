@@ -8,7 +8,6 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSe
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.CollectionFormat;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
-
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Set;
@@ -258,7 +257,7 @@ public class ProxyMethodParameter extends MethodParameter {
                     imports.add(ClassType.JACKSON_ADAPTER.getFullName());
                 }
             }
-            }
+        }
 //        if (getRequestParameterLocation() == RequestParameterLocation.FormData) {
 //            imports.add(String.format("com.azure.core.annotation.FormParam"));
 //        }

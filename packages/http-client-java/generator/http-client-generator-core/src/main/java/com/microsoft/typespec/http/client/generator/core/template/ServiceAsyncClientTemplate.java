@@ -123,7 +123,8 @@ public class ServiceAsyncClientTemplate implements IJavaTemplate<AsyncSyncClient
                     .filter(clientMethod -> clientMethod.getMethodParameters()
                         .stream()
                         .noneMatch(methodParam -> methodParam.getWireType().contains(ClassType.CONTEXT)))
-                    .forEach(clientMethod -> Templates.getWrapperClientMethodTemplate().write(clientMethod, classBlock));
+                    .forEach(
+                        clientMethod -> Templates.getWrapperClientMethodTemplate().write(clientMethod, classBlock));
             } else {
                 methodGroupClient.getClientMethods()
                     .stream()
@@ -133,7 +134,8 @@ public class ServiceAsyncClientTemplate implements IJavaTemplate<AsyncSyncClient
                     .filter(clientMethod -> clientMethod.getMethodParameters()
                         .stream()
                         .noneMatch(methodParam -> methodParam.getWireType().contains(ClassType.CONTEXT)))
-                    .forEach(clientMethod -> Templates.getWrapperClientMethodTemplate().write(clientMethod, classBlock));
+                    .forEach(
+                        clientMethod -> Templates.getWrapperClientMethodTemplate().write(clientMethod, classBlock));
             }
 
             writeSubClientAccessors(serviceClient, classBlock, true);

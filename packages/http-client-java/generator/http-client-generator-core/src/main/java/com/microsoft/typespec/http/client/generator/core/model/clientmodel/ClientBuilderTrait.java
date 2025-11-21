@@ -5,7 +5,6 @@ package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -130,7 +129,8 @@ public class ClientBuilderTrait {
                 final String pipelineVarName = "pipeline";
                 if (JavaSettings.getInstance().isUseClientLogger()) {
                     function.ifBlock(String.format("this.%1$s != null && %1$s == null", pipelineVarName),
-                        ifBlock -> ifBlock.line("LOGGER.atInfo().log(\"HttpPipeline is being set to 'null' when it was previously configured.\");"));
+                        ifBlock -> ifBlock.line(
+                            "LOGGER.atInfo().log(\"HttpPipeline is being set to 'null' when it was previously configured.\");"));
                 }
                 function.line(String.format("this.%1$s = %2$s;", pipelineVarName, pipelineVarName));
                 function.methodReturn("this");
@@ -312,8 +312,8 @@ public class ClientBuilderTrait {
                 function.line(String.format("this.%1$s = %2$s;", propertyName, propertyName));
                 function.methodReturn("this");
             };
-            ClientBuilderTraitMethod endpointMethod = createTraitMethod(propertyName, propertyName, ClassType.STRING,
-                endpointProperty, endpointMethodImpl);
+            ClientBuilderTraitMethod endpointMethod
+                = createTraitMethod(propertyName, propertyName, ClassType.STRING, endpointProperty, endpointMethodImpl);
 
             endpointClientBuilderTraitMethods.add(endpointMethod);
             ClientBuilderTrait.endpointTrait = endpointTrait;
@@ -341,8 +341,8 @@ public class ClientBuilderTrait {
             function.line(String.format("this.%1$s = %2$s;", propertyName, propertyName));
             function.methodReturn("this");
         };
-        ClientBuilderTraitMethod clientMethod = createTraitMethod("credential", propertyName,
-            ClassType.TOKEN_CREDENTIAL, property, methodImpl);
+        ClientBuilderTraitMethod clientMethod
+            = createTraitMethod("credential", propertyName, ClassType.TOKEN_CREDENTIAL, property, methodImpl);
 
         clientBuilderTraitMethods.add(clientMethod);
         return tokenCredentialTrait;
@@ -366,8 +366,8 @@ public class ClientBuilderTrait {
             function.line(String.format("this.%1$s = %2$s;", propertyName, propertyName));
             function.methodReturn("this");
         };
-        ClientBuilderTraitMethod clientMethod = createTraitMethod("credential", propertyName,
-            ClassType.AZURE_KEY_CREDENTIAL, property, methodImpl);
+        ClientBuilderTraitMethod clientMethod
+            = createTraitMethod("credential", propertyName, ClassType.AZURE_KEY_CREDENTIAL, property, methodImpl);
         importPackages.add(ClassType.AZURE_KEY_CREDENTIAL.getFullName());
 
         clientBuilderTraitMethods.add(clientMethod);
@@ -392,8 +392,8 @@ public class ClientBuilderTrait {
             function.line(String.format("this.%1$s = %2$s;", propertyName, propertyName));
             function.methodReturn("this");
         };
-        ClientBuilderTraitMethod clientMethod = createTraitMethod("credential", propertyName, ClassType.KEY_CREDENTIAL,
-            property, methodImpl);
+        ClientBuilderTraitMethod clientMethod
+            = createTraitMethod("credential", propertyName, ClassType.KEY_CREDENTIAL, property, methodImpl);
         importPackages.add(ClassType.KEY_CREDENTIAL.getFullName());
 
         clientBuilderTraitMethods.add(clientMethod);

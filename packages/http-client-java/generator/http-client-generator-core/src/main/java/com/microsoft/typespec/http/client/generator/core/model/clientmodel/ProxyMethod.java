@@ -10,7 +10,6 @@ import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodNamer;
 import io.clientcore.core.http.models.HttpMethod;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;

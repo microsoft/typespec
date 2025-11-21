@@ -27,8 +27,6 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVis
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import io.clientcore.core.serialization.json.JsonWriter;
-import org.slf4j.Logger;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -42,6 +40,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.slf4j.Logger;
 
 public class ModelExampleWriter {
 
@@ -248,10 +247,8 @@ public class ModelExampleWriter {
                 imports.add(java.util.Arrays.class.getName());
 
                 // Arrays.asList(...)
-                return "Arrays.asList(" + node.getChildNodes()
-                    .stream()
-                    .map(this::accept)
-                    .collect(Collectors.joining(", ")) + ")";
+                return "Arrays.asList("
+                    + node.getChildNodes().stream().map(this::accept).collect(Collectors.joining(", ")) + ")";
             } else if (node instanceof MapNode) {
                 imports.add(java.util.Map.class.getName());
                 imports.add(java.util.HashMap.class.getName());

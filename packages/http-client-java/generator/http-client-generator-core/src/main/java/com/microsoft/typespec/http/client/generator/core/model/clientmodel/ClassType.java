@@ -8,7 +8,6 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSe
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import io.clientcore.core.credentials.oauth.OAuthTokenRequestContext;
 import io.clientcore.core.utils.CoreUtils;
-
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
@@ -35,7 +34,8 @@ public class ClassType implements IType {
         return withClientCoreAndVNextReplacement(azureClass, azureVNextClass, azureVNextClass);
     }
 
-    private static ClassType withClientCoreAndVNextReplacement(String azureClass, String clientCoreClass, String azureVNextClass) {
+    private static ClassType withClientCoreAndVNextReplacement(String azureClass, String clientCoreClass,
+        String azureVNextClass) {
         if (JavaSettings.getInstance().isAzureV2()) {
             return new ClassType.Builder(false).knownClass(azureVNextClass).build();
         } else if (!JavaSettings.getInstance().isAzureV1()) {
@@ -45,13 +45,25 @@ public class ClassType implements IType {
         }
     }
 
-    private static Builder withVNextReplacementBuilder(String azureClass, String clientCoreClass) {
+    private static Builder withClientCoreReplacementBuilder(String azureClass, String clientCoreClass,
+        boolean isSwaggerType) {
         if (JavaSettings.getInstance().isAzureV2()) {
-            return new ClassType.Builder(false).knownClass(clientCoreClass);
+            return new ClassType.Builder(isSwaggerType).knownClass(clientCoreClass);
         } else if (!JavaSettings.getInstance().isAzureV1()) {
-            return new ClassType.Builder(false).knownClass(clientCoreClass);
+            return new ClassType.Builder(isSwaggerType).knownClass(clientCoreClass);
         } else {
-            return new ClassType.Builder(false).knownClass(azureClass);
+            return new ClassType.Builder(isSwaggerType).knownClass(azureClass);
+        }
+    }
+
+    private static Builder withVNextReplacementBuilder(String azureClass, String azureVNextClass,
+        boolean isSwaggerType) {
+        if (JavaSettings.getInstance().isAzureV2()) {
+            return new ClassType.Builder(isSwaggerType).knownClass(azureVNextClass);
+        } else if (!JavaSettings.getInstance().isAzureV1()) {
+            return new ClassType.Builder(isSwaggerType).knownClass(azureClass);
+        } else {
+            return new ClassType.Builder(isSwaggerType).knownClass(azureClass);
         }
     }
 
@@ -62,15 +74,15 @@ public class ClassType implements IType {
         "com.azure.core.client.traits.KeyCredentialTrait", "io.clientcore.core.traits.KeyCredentialTrait");
     public static final ClassType ENDPOINT_TRAIT = withClientCoreReplacement(
         "com.azure.core.client.traits.EndpointTrait", "io.clientcore.core.traits.EndpointTrait");
-    public static final ClassType HTTP_TRAIT = withClientCoreReplacement(
-        "com.azure.core.client.traits.HttpTrait", "io.clientcore.core.traits.HttpTrait");
+    public static final ClassType HTTP_TRAIT
+        = withClientCoreReplacement("com.azure.core.client.traits.HttpTrait", "io.clientcore.core.traits.HttpTrait");
     public static final ClassType CONFIGURATION_TRAIT = withClientCoreReplacement(
         "com.azure.core.client.traits.ConfigurationTrait", "io.clientcore.core.traits.ConfigurationTrait");
     public static final ClassType PROXY_TRAIT
         = new ClassType.Builder(false).packageName("io.clientcore.core.traits").name("ProxyTrait").build();
-    public static final ClassType TOKEN_CREDENTIAL_TRAIT = withClientCoreAndVNextReplacement(
-        "com.azure.core.client.traits.TokenCredentialTrait", "io.clientcore.core.traits.OAuthTokenCredentialTrait",
-        "com.azure.v2.core.traits.TokenCredentialTrait");
+    public static final ClassType TOKEN_CREDENTIAL_TRAIT
+        = withClientCoreAndVNextReplacement("com.azure.core.client.traits.TokenCredentialTrait",
+            "io.clientcore.core.traits.OAuthTokenCredentialTrait", "com.azure.v2.core.traits.TokenCredentialTrait");
 
     // Credentials
     public static final ClassType ACCESS_TOKEN = withClientCoreReplacement("com.azure.core.credential.AccessToken",
@@ -79,8 +91,9 @@ public class ClassType implements IType {
         = new Builder(false).packageName("com.azure.core.credential").name("AccessToken").build();
     public static final ClassType KEY_CREDENTIAL = withClientCoreReplacement("com.azure.core.credential.KeyCredential",
         "io.clientcore.core.credentials.KeyCredential");
-    public static final ClassType TOKEN_CREDENTIAL = withClientCoreAndVNextReplacement("com.azure.core.credential.TokenCredential",
-        "io.clientcore.core.credentials.oauth.OAuthTokenCredential", "com.azure.v2.core.credentials.TokenCredential");
+    public static final ClassType TOKEN_CREDENTIAL = withClientCoreAndVNextReplacement(
+        "com.azure.core.credential.TokenCredential", "io.clientcore.core.credentials.oauth.OAuthTokenCredential",
+        "com.azure.v2.core.credentials.TokenCredential");
     public static final ClassType OAUTH_TOKEN_REQUEST_CONTEXT
         = new Builder(false).knownClass(OAuthTokenRequestContext.class).build();
 
@@ -97,12 +110,12 @@ public class ClassType implements IType {
         = new Builder(false).packageName("com.azure.core.exception").name("ResourceNotFoundException").build();
     public static final ClassType TOO_MANY_REDIRECTS_EXCEPTION
         = new Builder(false).packageName("com.azure.core.exception").name("TooManyRedirectsException").build();
-    public static final ClassType RESPONSE_ERROR = new Builder().packageName("com.azure.core.models")
-        .name("ResponseError")
+    public static final ClassType RESPONSE_ERROR = withVNextReplacementBuilder("com.azure.core.models.ResponseError",
+        "com.azure.v2.core.models.AzureResponseError", true)
         .jsonToken("JsonToken.START_OBJECT")
         .build();
-    public static final ClassType RESPONSE_INNER_ERROR = new Builder().packageName("com.azure.core.models")
-        .name("ResponseInnerError")
+    public static final ClassType RESPONSE_INNER_ERROR = withVNextReplacementBuilder(
+        "com.azure.core.models.ResponseErrorInner", "com.azure.v2.core.models.AzureResponseErrorInner", true)
         .jsonToken("JsonToken.START_OBJECT")
         .build();
 
@@ -111,26 +124,26 @@ public class ClassType implements IType {
         "io.clientcore.core.http.pipeline.HttpPipeline");
     public static final ClassType HTTP_PIPELINE_BUILDER = withClientCoreReplacement(
         "com.azure.core.http.HttpPipelineBuilder", "io.clientcore.core.http.pipeline.HttpPipelineBuilder");
-    public static final ClassType HTTP_CLIENT = withClientCoreReplacement(
-        "com.azure.core.http.HttpClient", "io.clientcore.core.http.client.HttpClient");
+    public static final ClassType HTTP_CLIENT
+        = withClientCoreReplacement("com.azure.core.http.HttpClient", "io.clientcore.core.http.client.HttpClient");
     public static final ClassType HTTP_PIPELINE_POSITION = withClientCoreReplacement(
         "com.azure.core.http.HttpPipelinePosition", "io.clientcore.core.http.pipeline.HttpPipelinePosition");
-    public static final ClassType REQUEST_CONDITIONS = withClientCoreReplacement("com.azure.core.http.RequestConditions",
-        "io.clientcore.core.http.models.HttpRequestConditions");
+    public static final ClassType REQUEST_CONDITIONS = withClientCoreReplacement(
+        "com.azure.core.http.RequestConditions", "io.clientcore.core.http.models.HttpRequestConditions");
     public static final ClassType MATCH_CONDITIONS = withClientCoreReplacement("com.azure.core.http.MatchConditions",
         "io.clientcore.core.http.models.HttpMatchConditions");
-    public static final ClassType PROXY_OPTIONS = withClientCoreReplacement("com.azure.core.http.ProxyOptions",
-        "io.clientcore.core.http.models.ProxyOptions");
-    public static final ClassType HTTP_REQUEST = withClientCoreReplacement("com.azure.core.http.HttpRequest",
-        "io.clientcore.core.http.models.HttpRequest");
-    public static final ClassType HTTP_HEADERS = withClientCoreReplacement("com.azure.core.http.HttpHeaders",
-        "io.clientcore.core.http.models.HttpHeaders");
-    public static final ClassType HTTP_HEADER = withClientCoreReplacement("com.azure.core.http.HttpHeader",
-        "io.clientcore.core.http.models.HttpHeader");
+    public static final ClassType PROXY_OPTIONS
+        = withClientCoreReplacement("com.azure.core.http.ProxyOptions", "io.clientcore.core.http.models.ProxyOptions");
+    public static final ClassType HTTP_REQUEST
+        = withClientCoreReplacement("com.azure.core.http.HttpRequest", "io.clientcore.core.http.models.HttpRequest");
+    public static final ClassType HTTP_HEADERS
+        = withClientCoreReplacement("com.azure.core.http.HttpHeaders", "io.clientcore.core.http.models.HttpHeaders");
+    public static final ClassType HTTP_HEADER
+        = withClientCoreReplacement("com.azure.core.http.HttpHeader", "io.clientcore.core.http.models.HttpHeader");
     public static final ClassType HTTP_HEADER_NAME = withClientCoreReplacement("com.azure.core.http.HttpHeaderName",
         "io.clientcore.core.http.models.HttpHeaderName");
-    public static final ClassType HTTP_RESPONSE = withClientCoreReplacement("com.azure.core.http.HttpResponse",
-        "io.clientcore.core.http.models.HttpResponse");
+    public static final ClassType HTTP_RESPONSE
+        = withClientCoreReplacement("com.azure.core.http.HttpResponse", "io.clientcore.core.http.models.HttpResponse");
 
     public static final ClassType HTTP_PIPELINE_POLICY = withClientCoreReplacement(
         "com.azure.core.http.policy.HttpPipelinePolicy", "io.clientcore.core.http.pipeline.HttpPipelinePolicy");
@@ -140,43 +153,45 @@ public class ClassType implements IType {
         "io.clientcore.core.http.pipeline.HttpRetryOptions");
     public static final ClassType ADD_HEADERS_POLICY = withClientCoreReplacement(
         "com.azure.core.http.policy.AddHeadersPolicy", "io.clientcore.core.http.pipeline.AddHeadersPolicy");
-    public static final ClassType ADD_HEADERS_FROM_CONTEXT_POLICY = new ClassType("com.azure.core.http.policy", "AddHeadersFromContextPolicy");
-    public static final ClassType REQUEST_ID_POLICY = withClientCoreReplacement("com.azure.core.http.policy.RequestIdPolicy",
-        "io.clientcore.core.http.pipeline.RequestIdPolicy");
+    public static final ClassType ADD_HEADERS_FROM_CONTEXT_POLICY
+        = new ClassType("com.azure.core.http.policy", "AddHeadersFromContextPolicy");
+    public static final ClassType REQUEST_ID_POLICY = withClientCoreReplacement(
+        "com.azure.core.http.policy.RequestIdPolicy", "io.clientcore.core.http.pipeline.RequestIdPolicy");
     public static final ClassType RETRY_POLICY = withClientCoreReplacement("com.azure.core.http.policy.RetryPolicy",
         "io.clientcore.core.http.pipeline.HttpRetryPolicy");
-    public static final ClassType ADD_DATE_POLICY = withClientCoreReplacement("com.azure.core.http.policy.AddDatePolicy",
-        "io.clientcore.core.http.pipeline.SetDatePolicy");
+    public static final ClassType ADD_DATE_POLICY = withClientCoreReplacement(
+        "com.azure.core.http.policy.AddDatePolicy", "io.clientcore.core.http.pipeline.SetDatePolicy");
     public static final ClassType HTTP_LOGGING_POLICY = withClientCoreReplacement(
         "com.azure.core.http.policy.HttpLoggingPolicy", "io.clientcore.core.http.pipeline.HttpInstrumentationPolicy");
-    public static final ClassType HTTP_LOG_OPTIONS = withClientCoreReplacement("com.azure.core.http.policy.HttpLogOptions",
-        "io.clientcore.core.http.pipeline.HttpInstrumentationOptions");
+    public static final ClassType HTTP_LOG_OPTIONS = withClientCoreReplacement(
+        "com.azure.core.http.policy.HttpLogOptions", "io.clientcore.core.http.pipeline.HttpInstrumentationOptions");
     public static final ClassType HTTP_LOG_DETAIL_LEVEL
         = withClientCoreReplacement("com.azure.core.http.policy.HttpLogDetailLevel",
-        "io.clientcore.core.http.pipeline.HttpInstrumentationOptions.HttpLogLevel");
-    public static final ClassType USER_AGENT_POLICY = withClientCoreReplacement("com.azure.core.http.policy.UserAgentPolicy",
-        "io.clientcore.core.http.pipeline.UserAgentPolicy");
+            "io.clientcore.core.http.pipeline.HttpInstrumentationOptions.HttpLogLevel");
+    public static final ClassType USER_AGENT_POLICY = withClientCoreReplacement(
+        "com.azure.core.http.policy.UserAgentPolicy", "io.clientcore.core.http.pipeline.UserAgentPolicy");
     public static final ClassType USER_AGENT_OPTIONS
         = new ClassType("io.clientcore.core.http.pipeline", "UserAgentOptions");
-    public static final ClassType REDIRECT_POLICY = withClientCoreReplacement("com.azure.core.http.policy.RedirectPolicy",
-        "io.clientcore.core.http.pipeline.HttpRedirectPolicy");
-    public static final ClassType REDIRECT_OPTIONS = new ClassType("io.clientcore.core.http.pipeline", "HttpRedirectOptions");
+    public static final ClassType REDIRECT_POLICY = withClientCoreReplacement(
+        "com.azure.core.http.policy.RedirectPolicy", "io.clientcore.core.http.pipeline.HttpRedirectPolicy");
+    public static final ClassType REDIRECT_OPTIONS
+        = new ClassType("io.clientcore.core.http.pipeline", "HttpRedirectOptions");
     public static final ClassType AZURE_KEY_CREDENTIAL_POLICY
         = new ClassType("com.azure.core.http.policy", "AzureKeyCredentialPolicy");
     public static final ClassType KEY_CREDENTIAL_POLICY = withClientCoreReplacement(
         "com.azure.core.http.policy.KeyCredentialPolicy", "io.clientcore.core.http.pipeline.KeyCredentialPolicy");
-    public static final ClassType BEARER_TOKEN_POLICY = withClientCoreAndVNextReplacement(
-        "com.azure.core.http.policy.BearerTokenAuthenticationPolicy",
-        "io.clientcore.core.http.pipeline.OAuthBearerTokenAuthenticationPolicy",
-        "com.azure.v2.core.http.pipeline.BearerTokenAuthenticationPolicy");
+    public static final ClassType BEARER_TOKEN_POLICY
+        = withClientCoreAndVNextReplacement("com.azure.core.http.policy.BearerTokenAuthenticationPolicy",
+            "io.clientcore.core.http.pipeline.OAuthBearerTokenAuthenticationPolicy",
+            "com.azure.v2.core.http.pipeline.BearerTokenAuthenticationPolicy");
 
-    public static final ClassType REST_PROXY = withClientCoreReplacement("com.azure.core.http.rest.RestProxy",
-        "io.clientcore.core.http.RestProxy");
+    public static final ClassType REST_PROXY
+        = withClientCoreReplacement("com.azure.core.http.rest.RestProxy", "io.clientcore.core.http.RestProxy");
     public static final ClassType PAGED_ITERABLE = withClientCoreReplacement("com.azure.core.http.rest.PagedIterable",
         "io.clientcore.core.http.paging.PagedIterable");
     public static final ClassType PAGED_FLUX = new ClassType("com.azure.core.http.rest", "PagedFlux");
-    public static final ClassType RESPONSE = withClientCoreReplacement("com.azure.core.http.rest.Response",
-        "io.clientcore.core.http.models.Response");
+    public static final ClassType RESPONSE
+        = withClientCoreReplacement("com.azure.core.http.rest.Response", "io.clientcore.core.http.models.Response");
     public static final ClassType RESPONSE_BASE = new ClassType("com.azure.core.http.rest", "ResponseBase");
     public static final ClassType PAGED_RESPONSE = withClientCoreReplacement("com.azure.core.http.rest.PagedResponse",
         "io.clientcore.core.http.paging.PagedResponse");
@@ -186,30 +201,31 @@ public class ClassType implements IType {
     public static final ClassType REQUEST_OPTIONS = new ClassType("com.azure.core.http.rest", "RequestOptions");
 
     // Models
-    public static final ClassType AZURE_CLOUD = new ClassType("com.azure.core.models", "AzureCloud");
-    public static final ClassType JSON_PATCH_DOCUMENT = withVNextReplacementBuilder(
-        "com.azure.core.models.JsonPatchDocument", "io.clientcore.core.serialization.json.models.JsonPatchDocument")
-        .jsonToken("JsonToken.START_OBJECT")
-        .build();
+    public static final ClassType AZURE_CLOUD = withVNextReplacement("com.azure.core.models.AzureCloud",
+        "com.azure.v2.core.models.AzureCloud");
+    public static final ClassType JSON_PATCH_DOCUMENT
+        = withClientCoreReplacementBuilder("com.azure.core.models.JsonPatchDocument",
+            "io.clientcore.core.serialization.json.models.JsonPatchDocument", true).jsonToken("JsonToken.START_OBJECT")
+                .build();
 
     // Serialization
     public static final ClassType JSON_SERIALIZABLE = withClientCoreReplacement("com.azure.json.JsonSerializable",
         "io.clientcore.core.serialization.json.JsonSerializable");
-    public static final ClassType JSON_WRITER = withClientCoreReplacement("com.azure.json.JsonWriter",
-        "io.clientcore.core.serialization.json.JsonWriter");
-    public static final ClassType JSON_READER = withClientCoreReplacement("com.azure.json.JsonReader",
-        "io.clientcore.core.serialization.json.JsonReader");
-    public static final ClassType JSON_TOKEN = withClientCoreReplacement("com.azure.json.JsonToken",
-        "io.clientcore.core.serialization.json.JsonToken");
+    public static final ClassType JSON_WRITER
+        = withClientCoreReplacement("com.azure.json.JsonWriter", "io.clientcore.core.serialization.json.JsonWriter");
+    public static final ClassType JSON_READER
+        = withClientCoreReplacement("com.azure.json.JsonReader", "io.clientcore.core.serialization.json.JsonReader");
+    public static final ClassType JSON_TOKEN
+        = withClientCoreReplacement("com.azure.json.JsonToken", "io.clientcore.core.serialization.json.JsonToken");
 
     public static final ClassType XML_SERIALIZABLE = withClientCoreReplacement("com.azure.xml.XmlSerializable",
         "io.clientcore.core.serialization.xml.XmlSerializable");
-    public static final ClassType XML_WRITER = withClientCoreReplacement("com.azure.xml.XmlWriter",
-        "io.clientcore.core.serialization.xml.XmlWriter");
-    public static final ClassType XML_READER = withClientCoreReplacement("com.azure.xml.XmlReader",
-        "io.clientcore.core.serialization.xml.XmlReader");
-    public static final ClassType XML_TOKEN = withClientCoreReplacement("com.azure.xml.XmlToken",
-        "io.clientcore.core.serialization.xml.XmlToken");
+    public static final ClassType XML_WRITER
+        = withClientCoreReplacement("com.azure.xml.XmlWriter", "io.clientcore.core.serialization.xml.XmlWriter");
+    public static final ClassType XML_READER
+        = withClientCoreReplacement("com.azure.xml.XmlReader", "io.clientcore.core.serialization.xml.XmlReader");
+    public static final ClassType XML_TOKEN
+        = withClientCoreReplacement("com.azure.xml.XmlToken", "io.clientcore.core.serialization.xml.XmlToken");
 
     public static final ClassType SERIALIZER_ADAPTER
         = new ClassType("com.azure.core.util.serializer", "SerializerAdapter");
@@ -225,27 +241,27 @@ public class ClassType implements IType {
         "com.azure.core.util.serializer.JsonSerializer", "io.clientcore.core.serialization.json.JsonSerializer");
 
     // Utils
-    public static final ClassType CORE_UTILS = withClientCoreReplacement("com.azure.core.util.CoreUtils",
-        "io.clientcore.core.utils.CoreUtils");
+    public static final ClassType CORE_UTILS
+        = withClientCoreReplacement("com.azure.core.util.CoreUtils", "io.clientcore.core.utils.CoreUtils");
     public static final ClassType EXPANDABLE_STRING_ENUM = withClientCoreReplacement(
         "com.azure.core.util.ExpandableStringEnum", "io.clientcore.core.utils.ExpandableEnum");
-    public static final ClassType EXPANDABLE_ENUM = withClientCoreReplacement(
-        "com.azure.core.util.ExpandableEnum", "io.clientcore.core.utils.ExpandableEnum");
+    public static final ClassType EXPANDABLE_ENUM
+        = withClientCoreReplacement("com.azure.core.util.ExpandableEnum", "io.clientcore.core.utils.ExpandableEnum");
     public static final ClassType URL_BUILDER
         = withClientCoreReplacement("com.azure.core.util.UrlBuilder", "io.clientcore.core.utils.UriBuilder");
     public static final ClassType FLUX_UTIL = new ClassType("com.azure.core.util", "FluxUtil");
-    public static final ClassType CONTEXT = withVNextReplacementBuilder("com.azure.core.util.Context",
-        "io.clientcore.core.utils.Context")
-        .defaultValueExpressionConverter(
-            epr -> (JavaSettings.getInstance().isAzureV1() ? "com.azure.core.util." : "io.clientcore.core.utils.")
-                + TemplateUtil.getContextNone())
-        .build();
+    public static final ClassType CONTEXT
+        = withClientCoreReplacementBuilder("com.azure.core.util.Context", "io.clientcore.core.utils.Context", false)
+            .defaultValueExpressionConverter(
+                epr -> (JavaSettings.getInstance().isAzureV1() ? "com.azure.core.util." : "io.clientcore.core.utils.")
+                    + TemplateUtil.getContextNone())
+            .build();
     public static final ClassType CLIENT_OPTIONS = new ClassType("com.azure.core.util", "ClientOptions");
     public static final ClassType BASE_64_UTIL = new ClassType("com.azure.core.util", "Base64Util");
     public static final ClassType CONFIGURATION = withClientCoreReplacement("com.azure.core.util.Configuration",
         "io.clientcore.core.utils.configuration.Configuration");
-    public static final ClassType SERVICE_VERSION
-        = withClientCoreReplacement("com.azure.core.util.ServiceVersion", "io.clientcore.core.http.models.ServiceVersion");
+    public static final ClassType SERVICE_VERSION = withClientCoreReplacement("com.azure.core.util.ServiceVersion",
+        "io.clientcore.core.http.models.ServiceVersion");
 
     public static final ClassType CLIENT_BUILDER_UTIL
         = new ClassType("com.azure.core.util.builder", "ClientBuilderUtil");
@@ -261,60 +277,59 @@ public class ClassType implements IType {
         = new ClassType("com.azure.core.util.polling", "AsyncPollResponse");
     public static final ClassType LONG_RUNNING_OPERATION_STATUS
         = new ClassType("com.azure.core.util.polling", "LongRunningOperationStatus");
-    public static final ClassType SYNC_POLLER = new ClassType("com.azure.core.util.polling", "SyncPoller");
-    public static final ClassType POLLING_STRATEGY_OPTIONS
-        = new ClassType("com.azure.core.util.polling", "PollingStrategyOptions");
+    public static final ClassType SYNC_POLLER = withVNextReplacement("com.azure.core.util.polling.SyncPoller",
+        "com.azure.v2.core.http.polling.Poller");
+    public static final ClassType POLLING_STRATEGY_OPTIONS = withVNextReplacement(
+        "com.azure.core.util.polling.PollingStrategyOptions", "com.azure.v2.core.http.polling.PollingStrategyOptions");
     public static final ClassType POLLER_FLUX = new ClassType("com.azure.core.util.polling", "PollerFlux");
 
     // Complex mapped types
-    public static final ClassType BASE_64_URL = withVNextReplacementBuilder("com.azure.core.util.Base64Url",
-        "io.clientcore.core.utils.Base64Uri")
-        .serializationValueGetterModifier(valueGetter -> "Objects.toString(" + valueGetter + ", null)")
-        .jsonToken("JsonToken.STRING")
-        .jsonDeserializationMethod("getNullable(nonNullReader -> new "
-            + (JavaSettings.getInstance().isAzureV1() ? "Base64Url" : "Base64Uri") + "(nonNullReader.getString()))")
-        .serializationMethodBase("writeString")
-        .xmlElementDeserializationMethod(
-            "getNullableElement(" + (JavaSettings.getInstance().isAzureV1() ? "Base64Url" : "Base64Uri") + "::new)")
-        .xmlAttributeDeserializationTemplate("%s.getNullableAttribute(%s, %s, "
-            + (JavaSettings.getInstance().isAzureV1() ? "Base64Url" : "Base64Uri") + "::new)")
-        .build();
+    public static final ClassType BASE_64_URL
+        = withClientCoreReplacementBuilder("com.azure.core.util.Base64Url", "io.clientcore.core.utils.Base64Uri", true)
+            .serializationValueGetterModifier(valueGetter -> "Objects.toString(" + valueGetter + ", null)")
+            .jsonToken("JsonToken.STRING")
+            .jsonDeserializationMethod("getNullable(nonNullReader -> new "
+                + (JavaSettings.getInstance().isAzureV1() ? "Base64Url" : "Base64Uri") + "(nonNullReader.getString()))")
+            .serializationMethodBase("writeString")
+            .xmlElementDeserializationMethod(
+                "getNullableElement(" + (JavaSettings.getInstance().isAzureV1() ? "Base64Url" : "Base64Uri") + "::new)")
+            .xmlAttributeDeserializationTemplate("%s.getNullableAttribute(%s, %s, "
+                + (JavaSettings.getInstance().isAzureV1() ? "Base64Url" : "Base64Uri") + "::new)")
+            .build();
 
-    public static final ClassType BINARY_DATA = withVNextReplacementBuilder("com.azure.core.util.BinaryData",
-        "io.clientcore.core.models.binarydata.BinaryData")
-        .defaultValueExpressionConverter(
-            defaultValueExpression -> "BinaryData.fromObject(\"" + defaultValueExpression + "\")")
-        // When used as model property, serialization code will not use the "writeUntyped(nullableVar)",
-        // because some backend would fail the request on "null" value.
-        .serializationMethodBase("writeUntyped")
-        .serializationValueGetterModifier(
-            valueGetter -> valueGetter + " == null ? null : " + valueGetter + ".toObject(Object.class)")
-        .jsonDeserializationMethod("getNullable(nonNullReader -> BinaryData.fromObject(nonNullReader.readUntyped()))")
-        .xmlElementDeserializationMethod("getNullableElement(BinaryData::fromObject)")
-        .xmlAttributeDeserializationTemplate("%s.getNullableAttribute(%s, %s, BinaryData::fromObject)")
-        .build();
+    public static final ClassType BINARY_DATA = withClientCoreReplacementBuilder("com.azure.core.util.BinaryData",
+        "io.clientcore.core.models.binarydata.BinaryData", true)
+            .defaultValueExpressionConverter(
+                defaultValueExpression -> "BinaryData.fromObject(\"" + defaultValueExpression + "\")")
+            // When used as model property, serialization code will not use the "writeUntyped(nullableVar)",
+            // because some backend would fail the request on "null" value.
+            .serializationMethodBase("writeUntyped")
+            .serializationValueGetterModifier(
+                valueGetter -> valueGetter + " == null ? null : " + valueGetter + ".toObject(Object.class)")
+            .jsonDeserializationMethod(
+                "getNullable(nonNullReader -> BinaryData.fromObject(nonNullReader.readUntyped()))")
+            .xmlElementDeserializationMethod("getNullableElement(BinaryData::fromObject)")
+            .xmlAttributeDeserializationTemplate("%s.getNullableAttribute(%s, %s, BinaryData::fromObject)")
+            .build();
 
-    public static final ClassType DATE_TIME_RFC_1123 = withVNextReplacementBuilder(
-        "com.azure.core.util.DateTimeRfc1123", "io.clientcore.core.utils.DateTimeRfc1123")
-        .defaultValueExpressionConverter(
-            defaultValueExpression -> "new DateTimeRfc1123(\"" + defaultValueExpression + "\")")
-        .jsonToken("JsonToken.STRING")
-        .serializationValueGetterModifier(valueGetter -> "Objects.toString(" + valueGetter + ", null)")
-        .jsonDeserializationMethod("getNullable(nonNullReader -> new DateTimeRfc1123(nonNullReader.getString()))")
-        .serializationMethodBase("writeString")
-        .xmlElementDeserializationMethod("getNullableElement(DateTimeRfc1123::new)")
-        .xmlAttributeDeserializationTemplate("%s.getNullableAttribute(%s, %s, DateTimeRfc1123::new)")
-        .build();
+    public static final ClassType DATE_TIME_RFC_1123
+        = withClientCoreReplacementBuilder("com.azure.core.util.DateTimeRfc1123", "io.clientcore.core.utils.DateTimeRfc1123", true)
+            .defaultValueExpressionConverter(
+                defaultValueExpression -> "new DateTimeRfc1123(\"" + defaultValueExpression + "\")")
+            .jsonToken("JsonToken.STRING")
+            .serializationValueGetterModifier(valueGetter -> "Objects.toString(" + valueGetter + ", null)")
+            .jsonDeserializationMethod("getNullable(nonNullReader -> new DateTimeRfc1123(nonNullReader.getString()))")
+            .serializationMethodBase("writeString")
+            .xmlElementDeserializationMethod("getNullableElement(DateTimeRfc1123::new)")
+            .xmlAttributeDeserializationTemplate("%s.getNullableAttribute(%s, %s, DateTimeRfc1123::new)")
+            .build();
 
     // Management
     public static final ClassType SYNC_POLLER_FACTORY
         = new ClassType("com.azure.core.management.polling", "SyncPollerFactory");
-    public static final ClassType POLLER_FACTORY
-        = new ClassType("com.azure.core.management.polling", "PollerFactory");
-    public static final ClassType POLL_RESULT
-        = new ClassType("com.azure.core.management.polling", "PollResult");
-    public static final ClassType AZURE_ENVIRONMENT
-        = new ClassType("com.azure.core.management", "AzureEnvironment");
+    public static final ClassType POLLER_FACTORY = new ClassType("com.azure.core.management.polling", "PollerFactory");
+    public static final ClassType POLL_RESULT = new ClassType("com.azure.core.management.polling", "PollResult");
+    public static final ClassType AZURE_ENVIRONMENT = new ClassType("com.azure.core.management", "AzureEnvironment");
 
     // ClientCore only types
     public static final ClassType INSTRUMENTATION

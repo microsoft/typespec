@@ -233,7 +233,7 @@ public final class ClientMethodsReturnDescription {
                         syncReturnType.asNullable());
                     return createReturnValue(returnType, syncReturnType);
                 } else if (settings.isAzureV2()) {
-                    IType returnType = GenericType.azureVNextPoller(pollingDetails.getPollResultType(),
+                    IType returnType = GenericType.syncPoller(pollingDetails.getPollResultType(),
                         pollingDetails.getFinalResultType());
                     return createReturnValue(returnType, pollingDetails.getFinalResultType());
                 } else {

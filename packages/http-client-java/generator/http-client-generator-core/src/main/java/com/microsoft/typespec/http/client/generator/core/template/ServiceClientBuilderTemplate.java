@@ -26,7 +26,6 @@ import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import io.clientcore.core.traits.EndpointTrait;
 import io.clientcore.core.utils.CoreUtils;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -262,11 +261,10 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
                 for (ServiceClientProperty serviceClientProperty : allProperties) {
                     if (serviceClientProperty.getDefaultValueExpression() != null
                         && !(serviceClientProperty.getType() instanceof PrimitiveType)) {
-                        function.line(
-                            String.format("%1$s %2$s = (%3$s != null) ? %4$s : %5$s;", serviceClientProperty.getType(),
-                                getLocalBuildVariableName(serviceClientProperty.getName()),
-                                serviceClientProperty.getName(), serviceClientProperty.getName(),
-                                serviceClientProperty.getDefaultValueExpression()));
+                        function.line(String.format("%1$s %2$s = (%3$s != null) ? %4$s : %5$s;",
+                            serviceClientProperty.getType(), getLocalBuildVariableName(serviceClientProperty.getName()),
+                            serviceClientProperty.getName(), serviceClientProperty.getName(),
+                            serviceClientProperty.getDefaultValueExpression()));
                     }
                 }
 
@@ -311,10 +309,9 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
 
                 if (!settings.isAzureV1() || settings.isAzureV2()) {
                     if (!constructorArgs.isEmpty()) {
-                        function.line(
-                            String.format("%1$s client = new %2$s(%3$s%4$s%5$s);", serviceClient.getClassName(),
-                                serviceClient.getClassName(), "createHttpPipeline()",
-                                writeInstrumentation ? ", instrumentation" : "", constructorArgs));
+                        function.line(String.format("%1$s client = new %2$s(%3$s%4$s%5$s);",
+                            serviceClient.getClassName(), serviceClient.getClassName(), "createHttpPipeline()",
+                            writeInstrumentation ? ", instrumentation" : "", constructorArgs));
                     } else {
                         function.line(String.format("%1$s client = new %1$s(%2$s);", serviceClient.getClassName(),
                             getLocalBuildVariableName("pipeline")));
@@ -403,9 +400,11 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
                 comment.methodReturns(String.format("an instance of %1$s", syncClient.getClassName()));
             });
             addGeneratedAnnotation(classBlock);
-            classBlock.publicMethod(String.format("%1$s %2$s()", syncClient.getClassName(),
-                clientBuilder.getBuilderMethodNameForSyncClient(syncClient)),
-                function -> writeSyncClientBuildMethod(syncClient, asyncClient, function, buildMethodName, wrapServiceClient));
+            classBlock.publicMethod(
+                String.format("%1$s %2$s()", syncClient.getClassName(),
+                    clientBuilder.getBuilderMethodNameForSyncClient(syncClient)),
+                function -> writeSyncClientBuildMethod(syncClient, asyncClient, function, buildMethodName,
+                    wrapServiceClient));
 
             ++syncClientIndex;
         }
@@ -516,9 +515,8 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
     }
 
     protected void addSerializerImport(Set<String> imports, JavaSettings settings) {
-        imports.add(settings.isFluent()
-            ? ClassType.SERIALIZER_FACTORY.getFullName()
-            : ClassType.JACKSON_ADAPTER.getFullName());
+        imports.add(
+            settings.isFluent() ? ClassType.SERIALIZER_FACTORY.getFullName() : ClassType.JACKSON_ADAPTER.getFullName());
     }
 
     protected void addImportForCoreUtils(Set<String> imports) {
@@ -560,8 +558,8 @@ public class ServiceClientBuilderTemplate implements IJavaTemplate<ClientBuilder
     protected void addCreateHttpPipelineMethod(JavaSettings settings, JavaClass classBlock,
         String defaultCredentialScopes, SecurityInfo securityInfo, PipelinePolicyDetails pipelinePolicyDetails) {
         addGeneratedAnnotation(classBlock);
-        classBlock.privateMethod("HttpPipeline createHttpPipeline()", function ->
-            TemplateHelper.createHttpPipelineMethod(settings, defaultCredentialScopes, securityInfo,
+        classBlock.privateMethod("HttpPipeline createHttpPipeline()",
+            function -> TemplateHelper.createHttpPipelineMethod(settings, defaultCredentialScopes, securityInfo,
                 pipelinePolicyDetails, function));
     }
 

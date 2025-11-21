@@ -16,7 +16,6 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaInt
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -59,14 +58,15 @@ public class ProxyTemplate implements IJavaTemplate<Proxy, JavaClass> {
                     interfaceBlock.staticMethod(JavaVisibility.PackagePrivate,
                         restAPI.getName() + " getNewInstance(HttpPipeline pipeline)",
                         javaBlock -> javaBlock.tryBlock(tryBlock -> {
-                            tryBlock.line(
-                                "Class<?> clazz = Class.forName(" + "\"" + JavaSettings.getInstance().getPackage()
+                            tryBlock
+                                .line("Class<?> clazz = Class.forName(" + "\"" + JavaSettings.getInstance().getPackage()
                                     + ".implementation." + restAPI.getName() + "Impl" + "\");");
                             tryBlock.line("return (" + restAPI.getName() + ") clazz.getMethod(\"getNewInstance\", "
                                 + "HttpPipeline.class).invoke(null, pipeline);");
-                        }).catchBlock(
-                            "ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e",
-                            catchBlock -> catchBlock.line("throw new RuntimeException(e);")));
+                        })
+                            .catchBlock(
+                                "ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e",
+                                catchBlock -> catchBlock.line("throw new RuntimeException(e);")));
                 }
 
                 for (ProxyMethod restAPIMethod : restAPI.getMethods()) {
@@ -145,18 +145,23 @@ public class ProxyTemplate implements IJavaTemplate<Proxy, JavaClass> {
             case PATH:
             case QUERY:
             case HEADER:
-                parameterDeclarationBuilder.append(CodeNamer.toPascalCase(location.toString())).append("Param(");
+                parameterDeclarationBuilder.append('@')
+                    .append(CodeNamer.toPascalCase(location.toString()))
+                    .append("Param(");
                 if (location == RequestParameterLocation.QUERY
                     && parameter.getAlreadyEncoded()
                     && parameter.getExplode()) {
-                    parameterDeclarationBuilder.append("value = \"").append(parameter.getRequestParameterName())
+                    parameterDeclarationBuilder.append("value = \"")
+                        .append(parameter.getRequestParameterName())
                         .append("\", encoded = true, multipleQueryParams = true");
                 } else if (location == RequestParameterLocation.QUERY && parameter.getExplode()) {
-                    parameterDeclarationBuilder.append("value = \"").append(parameter.getRequestParameterName())
+                    parameterDeclarationBuilder.append("value = \"")
+                        .append(parameter.getRequestParameterName())
                         .append("\", multipleQueryParams = true");
                 } else if ((location == RequestParameterLocation.PATH || location == RequestParameterLocation.QUERY)
                     && parameter.getAlreadyEncoded()) {
-                    parameterDeclarationBuilder.append("value = \"").append(parameter.getRequestParameterName())
+                    parameterDeclarationBuilder.append("value = \"")
+                        .append(parameter.getRequestParameterName())
                         .append("\", encoded = true");
                 } else if (location == RequestParameterLocation.HEADER
                     && parameter.getHeaderCollectionPrefix() != null
@@ -171,11 +176,13 @@ public class ProxyTemplate implements IJavaTemplate<Proxy, JavaClass> {
 
             case BODY:
                 if ("application/x-www-form-urlencoded".equals(restAPIMethod.getRequestContentType())) {
-                    parameterDeclarationBuilder.append("@FormParam(\"").append(parameter.getRequestParameterName())
+                    parameterDeclarationBuilder.append("@FormParam(\"")
+                        .append(parameter.getRequestParameterName())
                         .append("\") ");
                     break;
                 }
-                parameterDeclarationBuilder.append("@BodyParam(\"").append(restAPIMethod.getRequestContentType())
+                parameterDeclarationBuilder.append("@BodyParam(\"")
+                    .append(restAPIMethod.getRequestContentType())
                     .append("\") ");
                 break;
 

@@ -29,7 +29,6 @@ import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ModelExampleUtil;
 import io.clientcore.core.http.models.HttpMethod;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -113,7 +112,8 @@ public class ClientMethodExampleWriter {
                         // assert headers
                         response.getHttpHeaders().stream().forEach(header -> {
                             String expectedValueStr = ClassType.STRING.defaultValueExpression(header.getValue());
-                            String keyStr = ClassType.STRING.defaultValueExpression(header.getName().getCaseSensitiveName());
+                            String keyStr
+                                = ClassType.STRING.defaultValueExpression(header.getName().getCaseSensitiveName());
                             methodBlock.line(String.format(
                                 "Assertions.assertEquals(%1$s, response.iterableByPage().iterator().next().getHeaders().get(HttpHeaderName.fromString(%2$s)).getValue());",
                                 expectedValueStr, keyStr));

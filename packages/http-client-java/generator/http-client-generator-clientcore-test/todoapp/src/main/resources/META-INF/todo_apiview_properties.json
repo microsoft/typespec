@@ -1,0 +1,31 @@
+{
+  "flavor": "generic", 
+  "CrossLanguageDefinitionId": {
+    "todo.ApiError": "Todo.ApiError",
+    "todo.CreateFormRequestItem": "Todo.TodoItems.createForm.RequestItem.anonymous",
+    "todo.FileAttachmentMultipartRequest": "Todo.FileAttachmentMultipartRequest",
+    "todo.FileDetails": "TypeSpec.Http.File",
+    "todo.Standard4XXResponse": "Todo.Standard4XXResponse",
+    "todo.Standard5XXResponse": "Todo.Standard5XXResponse",
+    "todo.ToDoItemMultipartRequest": "Todo.ToDoItemMultipartRequest",
+    "todo.TodoAttachment": "Todo.TodoAttachment",
+    "todo.TodoClientBuilder": "Todo",
+    "todo.TodoItem": "Todo.TodoItem",
+    "todo.TodoItemStatus": "Todo.TodoItem.status.anonymous",
+    "todo.TodoItemsAttachmentsClient": "Todo.TodoItems.Attachments",
+    "todo.TodoItemsClient": "Todo.TodoItems",
+    "todo.TodoLabelRecord": "Todo.TodoLabelRecord",
+    "todo.User": "Todo.User",
+    "todo.UsersClient": "Todo.Users",
+    "todo.implementation.CreateJsonRequest": "Todo.TodoItems.createJson.Request.anonymous",
+    "todo.todoitems.InvalidTodoItem": "Todo.TodoItems.InvalidTodoItem",
+    "todo.todoitems.NotFoundErrorResponse": "Todo.TodoItems.NotFoundErrorResponse",
+    "todo.todoitems.TodoItemPatch": "Todo.TodoItems.TodoItemPatch",
+    "todo.todoitems.TodoItemPatchStatus": "Todo.TodoItems.TodoItemPatch.status.anonymous",
+    "todo.todoitems.implementation.PageTodoAttachment": "Todo.TodoItems.Page",
+    "todo.todoitems.implementation.TodoPage": "Todo.TodoItems.TodoPage",
+    "todo.users.InvalidUserResponse": "Todo.Users.InvalidUserResponse",
+    "todo.users.UserCreatedResponse": "Todo.Users.UserCreatedResponse",
+    "todo.users.UserExistsResponse": "Todo.Users.UserExistsResponse"
+  }
+}
