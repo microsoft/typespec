@@ -14,6 +14,8 @@ export interface TableDefinition {
   packageName: string;
   /** Prefixes to filter the coverage data. Any scenarios starting with this prefix will be included in this table */
   prefixes?: string[];
+  /** Optional emitter names specific to this table. If not provided, falls back to global emitterNames */
+  emitterNames?: string[];
 }
 
 export interface CoverageFromAzureStorageOptions {
@@ -70,7 +72,7 @@ function matchesPrefixes(scenarioName: string, prefixes: string[]): boolean {
 export function splitManifestByTables(
   manifest: ScenarioManifest,
   tableDefinitions: TableDefinition[],
-): Array<{ manifest: ScenarioManifest; tableName: string }> {
+): Array<{ manifest: ScenarioManifest; tableName: string; emitterNames?: string[] }> {
   const packageName = manifest.packageName ?? "";
   const defaultTableName = manifest.displayName || packageName;
 
@@ -79,10 +81,11 @@ export function splitManifestByTables(
 
   if (applicableTables.length === 0) {
     // No table definitions for this manifest, return as-is with a default name
-    return [{ manifest, tableName: defaultTableName }];
+    return [{ manifest, tableName: defaultTableName, emitterNames: undefined }];
   }
 
-  const result: Array<{ manifest: ScenarioManifest; tableName: string }> = [];
+  const result: Array<{ manifest: ScenarioManifest; tableName: string; emitterNames?: string[] }> =
+    [];
   const usedScenarios = new Set<string>();
 
   // Separate tables with prefixes from catch-all tables (no prefixes)
@@ -109,6 +112,7 @@ export function splitManifestByTables(
           scenarios: filteredScenarios,
         },
         tableName: table.name,
+        emitterNames: table.emitterNames,
       });
     }
   }
@@ -129,6 +133,7 @@ export function splitManifestByTables(
           scenarios: remainingScenarios,
         },
         tableName: table.name,
+        emitterNames: table.emitterNames,
       });
     }
   }
@@ -145,6 +150,7 @@ export function splitManifestByTables(
         scenarios: unmatchedScenarios,
       },
       tableName: defaultTableName,
+      emitterNames: undefined,
     });
   }
 
@@ -156,18 +162,14 @@ export async function getCoverageSummaries(
 ): Promise<CoverageSummary[]> {
   const coverageClient = getCoverageClient(options);
   const manifestClient = getManifestClient(options);
-  const [manifests, generatorReports] = await Promise.all([
-    manifestClient.manifest.get(),
-    loadReports(coverageClient, options),
-  ]);
 
-  const reports = Object.values(generatorReports)[0] as Record<
-    string,
-    ResolvedCoverageReport | undefined
-  >;
-
-  // Split manifests into tables based on configuration
-  const allManifests: Array<{ manifest: ScenarioManifest; tableName: string }> = [];
+  // First, split manifests to determine which emitters we need
+  const manifests = await manifestClient.manifest.get();
+  const allManifests: Array<{
+    manifest: ScenarioManifest;
+    tableName: string;
+    emitterNames?: string[];
+  }> = [];
 
   for (const manifest of manifests) {
     if (options.tables && options.tables.length > 0) {
@@ -179,14 +181,42 @@ export async function getCoverageSummaries(
       allManifests.push({
         manifest,
         tableName: manifest.displayName || manifest.packageName || "",
+        emitterNames: undefined,
       });
     }
   }
 
-  return allManifests.map(({ manifest, tableName }) => {
+  // Collect all unique emitter names needed
+  const allEmitterNames = new Set<string>(options.emitterNames);
+  for (const { emitterNames } of allManifests) {
+    if (emitterNames) {
+      emitterNames.forEach((name) => allEmitterNames.add(name));
+    }
+  }
+
+  // Load reports for all needed emitters
+  const generatorReports = await loadReports(coverageClient, options, Array.from(allEmitterNames));
+
+  const reports = Object.values(generatorReports)[0] as Record<
+    string,
+    ResolvedCoverageReport | undefined
+  >;
+
+  return allManifests.map(({ manifest, tableName, emitterNames }) => {
+    // Use table-specific emitters if provided, otherwise use global emitters
+    const effectiveEmitters = emitterNames ?? options.emitterNames;
+
+    // Filter reports to only include the emitters for this table
+    const filteredReports: Record<string, ResolvedCoverageReport | undefined> = {};
+    for (const emitterName of effectiveEmitters) {
+      if (reports[emitterName]) {
+        filteredReports[emitterName] = reports[emitterName];
+      }
+    }
+
     return {
       manifest,
-      generatorReports: processReports(reports, manifest),
+      generatorReports: processReports(filteredReports, manifest),
       tableName,
     };
   });
@@ -230,6 +260,7 @@ function getSuiteReportForManifest(
 async function loadReports(
   coverageClient: SpecCoverageClient,
   options: CoverageFromAzureStorageOptions,
+  emitterNames: string[],
 ): Promise<{
   [mode: string]: Record<string, ResolvedCoverageReport | undefined>;
 }> {
@@ -237,7 +268,7 @@ async function loadReports(
     (options.modes ?? ["standard"]).map(
       async (mode): Promise<[string, Record<string, ResolvedCoverageReport | undefined>]> => {
         const items = await Promise.all(
-          options.emitterNames.map(
+          emitterNames.map(
             async (emitterName): Promise<[string, ResolvedCoverageReport | undefined]> => {
               try {
                 const report = await coverageClient.coverage.getLatestCoverageFor(
