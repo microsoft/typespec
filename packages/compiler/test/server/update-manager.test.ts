@@ -1,8 +1,21 @@
 import { beforeEach, expect, it, vi } from "vitest";
+import { TextDocument } from "vscode-languageserver-textdocument";
+import { TextDocumentIdentifier } from "vscode-languageserver";
 import { UpdateManager } from "../../src/server/update-manager.js";
+import { ServerLog } from "../../src/server/types.js";
 
-let mockLog: ReturnType<typeof vi.fn>;
-let mockCallback: ReturnType<typeof vi.fn>;
+interface PendingUpdate {
+  latest: TextDocument | TextDocumentIdentifier;
+  latestUpdateTimestamp: number;
+}
+
+type UpdateCallback<T> = (
+  updates: PendingUpdate[],
+  triggeredBy: TextDocument | TextDocumentIdentifier,
+) => Promise<T>;
+
+let mockLog: (sl: ServerLog) => void;
+let mockCallback: UpdateCallback<void>;
 
 beforeEach(async () => {
   mockLog = vi.fn();
