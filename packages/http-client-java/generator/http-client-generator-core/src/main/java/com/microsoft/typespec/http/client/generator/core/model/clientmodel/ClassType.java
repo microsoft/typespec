@@ -111,13 +111,10 @@ public class ClassType implements IType {
     public static final ClassType TOO_MANY_REDIRECTS_EXCEPTION
         = new Builder(false).packageName("com.azure.core.exception").name("TooManyRedirectsException").build();
     public static final ClassType RESPONSE_ERROR = withVNextReplacementBuilder("com.azure.core.models.ResponseError",
-        "com.azure.v2.core.models.AzureResponseError", true)
-        .jsonToken("JsonToken.START_OBJECT")
-        .build();
-    public static final ClassType RESPONSE_INNER_ERROR = withVNextReplacementBuilder(
-        "com.azure.core.models.ResponseErrorInner", "com.azure.v2.core.models.AzureResponseErrorInner", true)
-        .jsonToken("JsonToken.START_OBJECT")
-        .build();
+        "com.azure.v2.core.models.AzureResponseError", true).jsonToken("JsonToken.START_OBJECT").build();
+    public static final ClassType RESPONSE_INNER_ERROR
+        = withVNextReplacementBuilder("com.azure.core.models.ResponseErrorInner",
+            "com.azure.v2.core.models.AzureResponseErrorInner", true).jsonToken("JsonToken.START_OBJECT").build();
 
     // HTTP
     public static final ClassType HTTP_PIPELINE = withClientCoreReplacement("com.azure.core.http.HttpPipeline",
@@ -201,8 +198,8 @@ public class ClassType implements IType {
     public static final ClassType REQUEST_OPTIONS = new ClassType("com.azure.core.http.rest", "RequestOptions");
 
     // Models
-    public static final ClassType AZURE_CLOUD = withVNextReplacement("com.azure.core.models.AzureCloud",
-        "com.azure.v2.core.models.AzureCloud");
+    public static final ClassType AZURE_CLOUD
+        = withVNextReplacement("com.azure.core.models.AzureCloud", "com.azure.v2.core.models.AzureCloud");
     public static final ClassType JSON_PATCH_DOCUMENT
         = withClientCoreReplacementBuilder("com.azure.core.models.JsonPatchDocument",
             "io.clientcore.core.serialization.json.models.JsonPatchDocument", true).jsonToken("JsonToken.START_OBJECT")
@@ -277,15 +274,15 @@ public class ClassType implements IType {
         = new ClassType("com.azure.core.util.polling", "AsyncPollResponse");
     public static final ClassType LONG_RUNNING_OPERATION_STATUS
         = new ClassType("com.azure.core.util.polling", "LongRunningOperationStatus");
-    public static final ClassType SYNC_POLLER = withVNextReplacement("com.azure.core.util.polling.SyncPoller",
-        "com.azure.v2.core.http.polling.Poller");
+    public static final ClassType SYNC_POLLER
+        = withVNextReplacement("com.azure.core.util.polling.SyncPoller", "com.azure.v2.core.http.polling.Poller");
     public static final ClassType POLLING_STRATEGY_OPTIONS = withVNextReplacement(
         "com.azure.core.util.polling.PollingStrategyOptions", "com.azure.v2.core.http.polling.PollingStrategyOptions");
     public static final ClassType POLLER_FLUX = new ClassType("com.azure.core.util.polling", "PollerFlux");
 
     // Complex mapped types
     public static final ClassType BASE_64_URL
-        = withClientCoreReplacementBuilder("com.azure.core.util.Base64Url", "io.clientcore.core.utils.Base64Uri", true)
+        = withClientCoreReplacementBuilder("com.azure.core.util.Base64Url", "io.clientcore.core.utils.Base64Uri", false)
             .serializationValueGetterModifier(valueGetter -> "Objects.toString(" + valueGetter + ", null)")
             .jsonToken("JsonToken.STRING")
             .jsonDeserializationMethod("getNullable(nonNullReader -> new "
@@ -298,7 +295,7 @@ public class ClassType implements IType {
             .build();
 
     public static final ClassType BINARY_DATA = withClientCoreReplacementBuilder("com.azure.core.util.BinaryData",
-        "io.clientcore.core.models.binarydata.BinaryData", true)
+        "io.clientcore.core.models.binarydata.BinaryData", false)
             .defaultValueExpressionConverter(
                 defaultValueExpression -> "BinaryData.fromObject(\"" + defaultValueExpression + "\")")
             // When used as model property, serialization code will not use the "writeUntyped(nullableVar)",
@@ -313,16 +310,18 @@ public class ClassType implements IType {
             .build();
 
     public static final ClassType DATE_TIME_RFC_1123
-        = withClientCoreReplacementBuilder("com.azure.core.util.DateTimeRfc1123", "io.clientcore.core.utils.DateTimeRfc1123", true)
-            .defaultValueExpressionConverter(
-                defaultValueExpression -> "new DateTimeRfc1123(\"" + defaultValueExpression + "\")")
-            .jsonToken("JsonToken.STRING")
-            .serializationValueGetterModifier(valueGetter -> "Objects.toString(" + valueGetter + ", null)")
-            .jsonDeserializationMethod("getNullable(nonNullReader -> new DateTimeRfc1123(nonNullReader.getString()))")
-            .serializationMethodBase("writeString")
-            .xmlElementDeserializationMethod("getNullableElement(DateTimeRfc1123::new)")
-            .xmlAttributeDeserializationTemplate("%s.getNullableAttribute(%s, %s, DateTimeRfc1123::new)")
-            .build();
+        = withClientCoreReplacementBuilder("com.azure.core.util.DateTimeRfc1123",
+            "io.clientcore.core.utils.DateTimeRfc1123", false)
+                .defaultValueExpressionConverter(
+                    defaultValueExpression -> "new DateTimeRfc1123(\"" + defaultValueExpression + "\")")
+                .jsonToken("JsonToken.STRING")
+                .serializationValueGetterModifier(valueGetter -> "Objects.toString(" + valueGetter + ", null)")
+                .jsonDeserializationMethod(
+                    "getNullable(nonNullReader -> new DateTimeRfc1123(nonNullReader.getString()))")
+                .serializationMethodBase("writeString")
+                .xmlElementDeserializationMethod("getNullableElement(DateTimeRfc1123::new)")
+                .xmlAttributeDeserializationTemplate("%s.getNullableAttribute(%s, %s, DateTimeRfc1123::new)")
+                .build();
 
     // Management
     public static final ClassType SYNC_POLLER_FACTORY

@@ -3,9 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
-import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -40,15 +38,6 @@ public class GenericType implements IType {
     }
 
     public GenericType(String packageKeyword, String name, String jsonToken, IType... typeArguments) {
-        if (!JavaSettings.getInstance().isAzureV1()) {
-            if (Objects.equals(packageKeyword + "." + name, ClassType.RESPONSE.getFullName())) {
-                packageKeyword = "io.clientcore.core.http";
-            } else {
-                packageKeyword = packageKeyword.replace(ExternalPackage.AZURE_CORE_PACKAGE_NAME,
-                    ExternalPackage.CLIENTCORE_PACKAGE_NAME);
-            }
-        }
-
         this.name = name;
         this.packageName = packageKeyword;
         this.typeArguments = typeArguments;
