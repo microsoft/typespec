@@ -8,7 +8,7 @@ from pygen.preprocess.python_mappings import PadType
 
 
 def pad_reserved_words(name: str, pad_type: PadType) -> str:
-    return PreProcessPlugin(output_folder="").pad_reserved_words(name, pad_type)
+    return PreProcessPlugin(output_folder="").pad_reserved_words(name, pad_type, {})
 
 
 def test_escaped_reserved_words():
