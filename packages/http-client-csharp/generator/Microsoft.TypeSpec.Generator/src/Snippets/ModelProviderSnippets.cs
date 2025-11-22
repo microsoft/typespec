@@ -16,7 +16,7 @@ namespace Microsoft.TypeSpec.Generator.Snippets
             return model.BuildPropertyAccessExpression(modelVariable, propertySegments);
         }
 
-        public static ValueExpression SetPropertyExpression(this ModelProvider model, ValueExpression modelVariable, ValueExpression value, IReadOnlyList<string> propertySegments)
+        public static AssignmentExpression SetPropertyExpression(this ModelProvider model, ValueExpression modelVariable, ValueExpression value, IReadOnlyList<string> propertySegments)
         {
             return model.BuildPropertyAccessExpression(modelVariable, propertySegments).Assign(value);
         }
