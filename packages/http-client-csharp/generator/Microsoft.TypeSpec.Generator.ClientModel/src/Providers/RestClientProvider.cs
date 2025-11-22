@@ -165,36 +165,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ]);
 
                 // handle reinjected parameters for URI
-                var reinjectedParamsMap = new Dictionary<string, ParameterProvider>();
-
-                // Add parameters from nextLink.ReInjectedParameters
-                if (nextLink.ReInjectedParameters?.Count > 0)
-                {
-                    foreach (var param in nextLink.ReInjectedParameters)
-                    {
-                        var reinjectedParameter = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(param);
-                        if (reinjectedParameter != null && paramMap.TryGetValue(reinjectedParameter.Name, out var paramInSignature))
-                        {
-                            reinjectedParamsMap[param.Name] = paramInSignature;
-                        }
-                    }
-                }
-
-                // Add maxPageSize parameter if PageSizeParameterSegments is specified
-                if (pagingServiceMethod?.PagingMetadata.PageSizeParameterSegments?.Count > 0)
-                {
-                    var pageSizeParameterName = pagingServiceMethod.PagingMetadata.PageSizeParameterSegments.Last();
-                    // Find the parameter in the operation parameters
-                    var pageSizeParameter = operation.Parameters.FirstOrDefault(p => p.Name == pageSizeParameterName);
-                    if (pageSizeParameter != null)
-                    {
-                        var pageSizeParam = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(pageSizeParameter);
-                        if (pageSizeParam != null && paramMap.TryGetValue(pageSizeParam.Name, out var paramInSignature))
-                        {
-                            reinjectedParamsMap[pageSizeParameter.Name] = paramInSignature;
-                        }
-                    }
-                }
+                var reinjectedParamsMap = GetReinjectedParametersMap(nextLink, pagingServiceMethod, operation, paramMap);
 
                 if (reinjectedParamsMap.Count > 0)
                 {
@@ -218,36 +189,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (isNextLinkRequest && nextLink != null)
             {
                 // handle reinjected parameters for headers
-                var reinjectedHeaderParamsMap = new Dictionary<string, ParameterProvider>();
-
-                // Add parameters from nextLink.ReInjectedParameters
-                if (nextLink.ReInjectedParameters?.Count > 0)
-                {
-                    foreach (var param in nextLink.ReInjectedParameters)
-                    {
-                        var reinjectedParameter = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(param);
-                        if (reinjectedParameter != null && paramMap.TryGetValue(reinjectedParameter.Name, out var paramInSignature))
-                        {
-                            reinjectedHeaderParamsMap[param.Name] = paramInSignature;
-                        }
-                    }
-                }
-
-                // Add maxPageSize parameter if PageSizeParameterSegments is specified
-                if (pagingServiceMethod?.PagingMetadata.PageSizeParameterSegments?.Count > 0)
-                {
-                    var pageSizeParameterName = pagingServiceMethod.PagingMetadata.PageSizeParameterSegments.Last();
-                    // Find the parameter in the operation parameters
-                    var pageSizeParameter = operation.Parameters.FirstOrDefault(p => p.Name == pageSizeParameterName);
-                    if (pageSizeParameter != null)
-                    {
-                        var pageSizeParam = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(pageSizeParameter);
-                        if (pageSizeParam != null && paramMap.TryGetValue(pageSizeParam.Name, out var paramInSignature))
-                        {
-                            reinjectedHeaderParamsMap[pageSizeParameter.Name] = paramInSignature;
-                        }
-                    }
-                }
+                var reinjectedHeaderParamsMap = GetReinjectedParametersMap(nextLink, pagingServiceMethod, operation, paramMap);
 
                 if (reinjectedHeaderParamsMap.Count > 0)
                 {
@@ -271,6 +213,47 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ]);
 
             return new MethodBodyStatements(statements);
+        }
+
+        private Dictionary<string, ParameterProvider> GetReinjectedParametersMap(
+            InputNextLink nextLink,
+            InputPagingServiceMethod? pagingServiceMethod,
+            InputOperation operation,
+            Dictionary<string, ParameterProvider> paramMap)
+        {
+            var reinjectedParamsMap = new Dictionary<string, ParameterProvider>();
+
+            // Add parameters from nextLink.ReInjectedParameters
+            if (nextLink.ReInjectedParameters?.Count > 0)
+            {
+                foreach (var param in nextLink.ReInjectedParameters)
+                {
+                    var reinjectedParameter = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(param);
+                    if (reinjectedParameter != null && paramMap.TryGetValue(reinjectedParameter.Name, out var paramInSignature))
+                    {
+                        reinjectedParamsMap[param.Name] = paramInSignature;
+                    }
+                }
+            }
+
+            // Add maxPageSize parameter if PageSizeParameterSegments is specified
+            if (pagingServiceMethod?.PagingMetadata.PageSizeParameterSegments?.Count > 0)
+            {
+                // Last() is safe here because Count > 0
+                var pageSizeParameterName = pagingServiceMethod.PagingMetadata.PageSizeParameterSegments.Last();
+                // Find the parameter in the operation parameters
+                var pageSizeParameter = operation.Parameters.FirstOrDefault(p => p.Name == pageSizeParameterName);
+                if (pageSizeParameter != null)
+                {
+                    var pageSizeParam = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(pageSizeParameter);
+                    if (pageSizeParam != null && paramMap.TryGetValue(pageSizeParam.Name, out var paramInSignature))
+                    {
+                        reinjectedParamsMap[pageSizeParameter.Name] = paramInSignature;
+                    }
+                }
+            }
+
+            return reinjectedParamsMap;
         }
 
         private IReadOnlyList<MethodBodyStatement> GetSetContent(HttpRequestApi request, IReadOnlyList<ParameterProvider> parameters)
