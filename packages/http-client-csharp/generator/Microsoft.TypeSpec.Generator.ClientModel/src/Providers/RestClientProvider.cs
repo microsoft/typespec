@@ -239,7 +239,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Add maxPageSize parameter if PageSizeParameterSegments is specified
             if (pagingServiceMethod?.PagingMetadata.PageSizeParameterSegments?.Count > 0)
             {
-                // Last() is safe here because Count > 0
                 var pageSizeParameterName = pagingServiceMethod.PagingMetadata.PageSizeParameterSegments.Last();
                 // Find the parameter in the operation parameters
                 var pageSizeParameter = operation.Parameters.FirstOrDefault(p => p.Name == pageSizeParameterName);
