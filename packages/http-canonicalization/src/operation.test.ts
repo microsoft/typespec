@@ -1,4 +1,5 @@
-import { t, type TesterInstance } from "@typespec/compiler/testing";
+import type { Model } from "@typespec/compiler";
+import { expectTypeEquals, t, type TesterInstance } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/typekit";
 import { beforeEach, describe, expect, it } from "vitest";
 import { Tester } from "../test/test-host.js";
@@ -80,9 +81,33 @@ describe("Operation parameters", async () => {
     const dateProp = createFooCanonical.requestParameters.properties[0];
     expect(dateProp.kind).toBe("header");
     const scalarType = dateProp.property.type as ScalarHttpCanonicalization;
-    expect(scalarType.wireType === tk.builtin.string).toBe(true);
+    expectTypeEquals(scalarType.wireType, tk.builtin.string);
     expect(scalarType.codec.id).toBe("rfc7231");
     expect(createFooCanonical.requestParameters.properties.length).toBe(2);
+  });
+
+  it("works with merge patch", async () => {
+    const { updateFoo, program } = await runner.compile(t.code`
+      model ${t.model("Foo")} {
+        @visibility(Lifecycle.Read) createdAt: utcDateTime;
+        name: string;
+      }
+
+      @route("/foo")
+      @patch
+      op ${t.op("updateFoo")}(@body body: MergePatchUpdate<Foo>): Foo;
+    `);
+
+    const tk = $(program);
+    const canonicalizer = new HttpCanonicalizer(tk);
+    const updateFooCanonical = canonicalizer.canonicalize(updateFoo);
+    const bodyProp = updateFooCanonical.requestParameters.body!.property!;
+    expect(bodyProp.languageType.name).toBe("body");
+    expect((bodyProp.languageType.type as Model).name).toBe("FooMergePatchUpdate");
+    const body = updateFooCanonical.requestParameters.body!;
+    expect(body.bodyKind).toBe("single");
+    expect(body.type).toBeInstanceOf(ModelHttpCanonicalization);
+    expect((body.type.languageType as Model).name).toBe("FooMergePatchUpdate");
   });
 });
 
@@ -116,7 +141,7 @@ describe("Operation responses", async () => {
     const etagHeader = content.headers!.etag;
     expect(etagHeader).toBeDefined();
     const etagType = etagHeader!.type as ScalarHttpCanonicalization;
-    expect(etagType.wireType === tk.builtin.string).toBe(true);
+    expectTypeEquals(etagType.wireType, tk.builtin.string);
 
     expect(content.body).toBeDefined();
     const body = content.body!;

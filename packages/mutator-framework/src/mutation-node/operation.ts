@@ -1,22 +1,21 @@
-import type { Model, Operation, Type } from "@typespec/compiler";
-import { MutationEdge } from "./mutation-edge.js";
+import type { Interface, Model, Operation, Type } from "@typespec/compiler";
+import { HalfEdge } from "./mutation-edge.js";
 import { MutationNode } from "./mutation-node.js";
+
+export interface OperationConnectOptions {
+  /** Mutation key for the parameters node. Defaults to this node's key. */
+  parameters?: string;
+  /** Mutation key for the return type node. Defaults to this node's key. */
+  returnType?: string;
+}
 
 export class OperationMutationNode extends MutationNode<Operation> {
   readonly kind = "Operation";
 
-  traverse() {
-    const parameterNode = this.subgraph.getNode(this.sourceType.parameters);
-    this.connectParameters(parameterNode);
-
-    const returnTypeNode = this.subgraph.getNode(this.sourceType.returnType);
-    this.connectReturnType(returnTypeNode);
-  }
-
-  connectParameters(baseNode: MutationNode<Model>) {
-    MutationEdge.create(this, baseNode, {
-      onTailMutation: () => {
-        this.mutatedType!.parameters = baseNode.mutatedType;
+  startParametersEdge() {
+    return new HalfEdge<Operation, Model>(this, {
+      onTailMutation: (tail) => {
+        this.mutatedType!.parameters = tail.mutatedType;
       },
       onTailDeletion: () => {
         this.mutatedType.parameters = this.$.model.create({
@@ -33,10 +32,14 @@ export class OperationMutationNode extends MutationNode<Operation> {
     });
   }
 
-  connectReturnType(typeNode: MutationNode<Type>) {
-    MutationEdge.create(this, typeNode, {
-      onTailMutation: () => {
-        this.mutatedType!.returnType = typeNode.mutatedType;
+  connectParameters(baseNode: MutationNode<Model>) {
+    this.startParametersEdge().setTail(baseNode);
+  }
+
+  startReturnTypeEdge() {
+    return new HalfEdge<Operation, Type>(this, {
+      onTailMutation: (tail) => {
+        this.mutatedType!.returnType = tail.mutatedType;
       },
       onTailDeletion: () => {
         this.mutatedType.returnType = this.$.intrinsic.void;
@@ -45,5 +48,28 @@ export class OperationMutationNode extends MutationNode<Operation> {
         this.mutatedType.returnType = newTail.mutatedType;
       },
     });
+  }
+
+  connectReturnType(typeNode: MutationNode<Type>) {
+    this.startReturnTypeEdge().setTail(typeNode);
+  }
+
+  startInterfaceEdge() {
+    return new HalfEdge<Operation, Interface>(this, {
+      onTailMutation: (tail) => {
+        this.mutate();
+        this.mutatedType.interface = tail.mutatedType;
+      },
+      onTailDeletion: () => {
+        this.delete();
+      },
+      onTailReplaced: () => {
+        this.delete();
+      },
+    });
+  }
+
+  connectInterface(interfaceNode: MutationNode<Interface>) {
+    this.startInterfaceEdge().setTail(interfaceNode);
   }
 }

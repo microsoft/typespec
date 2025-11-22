@@ -1,18 +1,22 @@
 import type { MemberType, ModelProperty, Operation } from "@typespec/compiler";
 import {
-  type HttpOperation,
-  type HttpVerb,
   resolveRequestVisibility,
   Visibility,
+  type HttpOperation,
+  type HttpVerb,
 } from "@typespec/http";
 import "@typespec/http/experimental/typekit";
 
-import { OperationMutation } from "@typespec/mutator-framework";
+import {
+  MutationHalfEdge,
+  OperationMutation,
+  type MutationNodeForType,
+} from "@typespec/mutator-framework";
 import type {
   HttpCanonicalization,
   HttpCanonicalizationMutations,
 } from "./http-canonicalization-classes.js";
-import type { HttpCanonicalizer } from "./http-canonicalization.js";
+import type { HttpCanonicalizationInfo, HttpCanonicalizer } from "./http-canonicalization.js";
 import type { ModelPropertyHttpCanonicalization } from "./model-property.js";
 import type { ModelHttpCanonicalization } from "./model.js";
 import { HttpCanonicalizationOptions } from "./options.js";
@@ -331,32 +335,47 @@ export class OperationHttpCanonicalization extends OperationMutation<
    */
   name: string;
 
+  #languageMutationNode: MutationNodeForType<Operation>;
+  #wireMutationNode: MutationNodeForType<Operation>;
+
   /**
-   * Mutation subgraph for language types.
+   * The language mutation node for this operation.
    */
-  get #languageSubgraph() {
-    return this.engine.getLanguageSubgraph(this.options);
+  get languageMutationNode() {
+    return this.#languageMutationNode;
   }
 
   /**
-   * Mutation subgraph for wire types.
+   * The wire mutation node for this operation.
    */
-  get #wireSubgraph() {
-    return this.engine.getWireSubgraph(this.options);
+  get wireMutationNode() {
+    return this.#wireMutationNode;
   }
 
   /**
    * The language type for this operation.
    */
   get languageType() {
-    return this.getMutatedType(this.#languageSubgraph);
+    return this.#languageMutationNode.mutatedType;
   }
 
   /**
    * The wire type for this operation.
    */
   get wireType() {
-    return this.getMutatedType(this.#wireSubgraph);
+    return this.#wireMutationNode.mutatedType;
+  }
+
+  static mutationInfo(
+    engine: HttpCanonicalizer,
+    sourceType: Operation,
+    referenceTypes: MemberType[],
+    options: HttpCanonicalizationOptions,
+  ): HttpCanonicalizationInfo {
+    return {
+      mutationKey: options.mutationKey,
+      codec: null as any, // Operations don't need a codec
+    };
   }
 
   constructor(
@@ -364,8 +383,17 @@ export class OperationHttpCanonicalization extends OperationMutation<
     sourceType: Operation,
     referenceTypes: MemberType[] = [],
     options: HttpCanonicalizationOptions,
+    info: HttpCanonicalizationInfo,
   ) {
-    super(engine, sourceType, referenceTypes, options);
+    super(engine, sourceType, referenceTypes, options, info);
+    this.#languageMutationNode = this.engine.getMutationNode(
+      this.sourceType,
+      info.mutationKey + "-language",
+    );
+    this.#wireMutationNode = this.engine.getMutationNode(
+      this.sourceType,
+      info.mutationKey + "-wire",
+    );
 
     this.#httpOperationInfo = this.engine.$.httpOperation.get(this.sourceType);
     this.uriTemplate = this.#httpOperationInfo.uriTemplate;
@@ -378,6 +406,20 @@ export class OperationHttpCanonicalization extends OperationMutation<
     this.returnTypeVisibility = Visibility.Read;
     this.name = this.sourceType.name;
     this.method = this.#httpOperationInfo.verb;
+  }
+
+  protected startParametersEdge(): MutationHalfEdge {
+    return new MutationHalfEdge(this, (tail) => {
+      this.#languageMutationNode.connectParameters(tail.languageMutationNode);
+      this.#wireMutationNode.connectParameters(tail.wireMutationNode);
+    });
+  }
+
+  protected startReturnTypeEdge(): MutationHalfEdge {
+    return new MutationHalfEdge(this, (tail) => {
+      this.#languageMutationNode.connectReturnType(tail.languageMutationNode);
+      this.#wireMutationNode.connectReturnType(tail.wireMutationNode);
+    });
   }
 
   /**

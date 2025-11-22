@@ -1,7 +1,7 @@
 import { t, type TesterInstance } from "@typespec/compiler/testing";
 import { beforeEach, expect, it } from "vitest";
 import { Tester } from "../../test/test-host.js";
-import { getSubgraph } from "../../test/utils.js";
+import { getEngine } from "../../test/utils.js";
 let runner: TesterInstance;
 beforeEach(async () => {
   runner = await Tester.createInstance();
@@ -15,9 +15,10 @@ it("handles mutation of variants", async () => {
       }
     `);
 
-  const subgraph = getSubgraph(program);
-  const fooNode = subgraph.getNode(Foo);
-  const v1Node = subgraph.getNode(v1);
+  const engine = getEngine(program);
+  const fooNode = engine.getMutationNode(Foo);
+  const v1Node = engine.getMutationNode(v1);
+  fooNode.connectVariant(v1Node);
   v1Node.mutate((clone) => (clone.name = "v1Renamed"));
   expect(v1Node.isMutated).toBe(true);
   expect(fooNode.isMutated).toBe(true);

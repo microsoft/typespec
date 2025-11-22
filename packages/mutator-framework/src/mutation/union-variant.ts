@@ -3,11 +3,12 @@ import type {
   CustomMutationClasses,
   MutationEngine,
   MutationFor,
+  MutationHalfEdge,
   MutationOptions,
 } from "./mutation-engine.js";
-import { Mutation } from "./mutation.js";
+import { Mutation, type MutationInfo } from "./mutation.js";
 
-export class UnionVariantMutation<
+export abstract class UnionVariantMutation<
   TOptions extends MutationOptions,
   TCustomMutations extends CustomMutationClasses,
   TEngine extends MutationEngine<TCustomMutations> = MutationEngine<TCustomMutations>,
@@ -18,13 +19,16 @@ export class UnionVariantMutation<
   constructor(
     engine: TEngine,
     sourceType: UnionVariant,
-    referenceTypes: MemberType[] = [],
+    referenceTypes: MemberType[],
     options: TOptions,
+    info: MutationInfo,
   ) {
-    super(engine, sourceType, referenceTypes, options);
+    super(engine, sourceType, referenceTypes, options, info);
   }
 
   mutate(): void {
-    this.type = this.engine.mutate(this.sourceType.type, this.options);
+    this.type = this.engine.mutate(this.sourceType.type, this.options, this.startTypeEdge());
   }
+
+  protected abstract startTypeEdge(): MutationHalfEdge;
 }
