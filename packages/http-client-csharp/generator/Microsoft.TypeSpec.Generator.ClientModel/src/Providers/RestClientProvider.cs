@@ -165,10 +165,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ]);
 
                 // handle reinjected parameters for URI
+                var reinjectedParamsMap = new Dictionary<string, ParameterProvider>();
+
+                // Add parameters from nextLink.ReInjectedParameters
                 if (nextLink.ReInjectedParameters?.Count > 0)
                 {
-                    // map of the reinjected parameter name to its' corresponding parameter in the method signature
-                    var reinjectedParamsMap = new Dictionary<string, ParameterProvider>(nextLink.ReInjectedParameters.Count);
                     foreach (var param in nextLink.ReInjectedParameters)
                     {
                         var reinjectedParameter = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(param);
@@ -177,11 +178,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             reinjectedParamsMap[param.Name] = paramInSignature;
                         }
                     }
+                }
 
-                    if (reinjectedParamsMap.Count > 0)
+                // Add maxPageSize parameter if PageSizeParameterSegments is specified
+                if (pagingServiceMethod?.PagingMetadata.PageSizeParameterSegments?.Count > 0)
+                {
+                    var pageSizeParameterName = pagingServiceMethod.PagingMetadata.PageSizeParameterSegments.Last();
+                    // Find the parameter in the operation parameters
+                    var pageSizeParameter = operation.Parameters.FirstOrDefault(p => p.Name == pageSizeParameterName);
+                    if (pageSizeParameter != null)
                     {
-                        statements.AddRange(AppendQueryParameters(uri, operation, reinjectedParamsMap));
+                        var pageSizeParam = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(pageSizeParameter);
+                        if (pageSizeParam != null && paramMap.TryGetValue(pageSizeParam.Name, out var paramInSignature))
+                        {
+                            reinjectedParamsMap[pageSizeParameter.Name] = paramInSignature;
+                        }
                     }
+                }
+
+                if (reinjectedParamsMap.Count > 0)
+                {
+                    statements.AddRange(AppendQueryParameters(uri, operation, reinjectedParamsMap));
                 }
             }
             else
