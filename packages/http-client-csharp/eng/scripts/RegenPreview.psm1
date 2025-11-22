@@ -466,7 +466,8 @@ function Filter-LibrariesByGenerator {
     }
 
     # Return as array to ensure Count property is always available
-    return @($filtered.ToArray())
+    # Use comma operator to force single-element arrays to remain as arrays
+    return , @($filtered.ToArray())
 }
 
 function Update-OpenAIGenerator {

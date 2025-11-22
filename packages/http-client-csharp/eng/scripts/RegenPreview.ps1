@@ -412,7 +412,8 @@ function Select-LibrariesToRegenerate {
     Write-Host ""
     
     # Ensure we return an array, even for a single element
-    return @($selectedLibraries)
+    # Use comma operator to force single-element arrays to remain as arrays
+    return , @($selectedLibraries)
 }
 
 # Generate final report
