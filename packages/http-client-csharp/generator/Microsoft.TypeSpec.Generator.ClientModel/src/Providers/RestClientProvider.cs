@@ -100,10 +100,39 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var options = ScmKnownParameters.RequestOptions;
             var parameters = GetMethodParameters(serviceMethod, ScmMethodKind.CreateRequest);
+
             if (isNextLinkRequest)
             {
+                // For next link requests, filter parameters to only include reinjected ones
+                var pagingServiceMethod = serviceMethod as InputPagingServiceMethod;
+                var nextLink = pagingServiceMethod?.PagingMetadata.NextLink;
+                var reinjectedParamNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+                // Add parameters from nextLink.ReInjectedParameters
+                if (nextLink?.ReInjectedParameters != null)
+                {
+                    foreach (var param in nextLink.ReInjectedParameters)
+                    {
+                        reinjectedParamNames.Add(param.Name);
+                    }
+                }
+
+                // Add maxPageSize parameter if PageSizeParameterSegments is specified
+                if (pagingServiceMethod?.PagingMetadata.PageSizeParameterSegments?.Count > 0)
+                {
+                    var pageSizeParameterName = pagingServiceMethod.PagingMetadata.PageSizeParameterSegments.Last();
+                    reinjectedParamNames.Add(pageSizeParameterName);
+                }
+
+                // Only filter if there are reinjected parameters specified
+                if (reinjectedParamNames.Count > 0)
+                {
+                    parameters = parameters.Where(p => reinjectedParamNames.Contains(p.Name)).ToList();
+                }
+
                 parameters = [ScmKnownParameters.NextPage, .. parameters];
             }
+
             var operation = serviceMethod.Operation;
             var methodName = isNextLinkRequest
                 ? $"CreateNext{operation.Name.ToIdentifierName()}Request"

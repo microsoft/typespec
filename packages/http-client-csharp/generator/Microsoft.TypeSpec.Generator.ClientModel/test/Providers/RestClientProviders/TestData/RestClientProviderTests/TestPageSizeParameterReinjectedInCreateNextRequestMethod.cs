@@ -9,17 +9,19 @@ namespace Sample
 {
     public partial class TestClient
     {
-        internal global::System.ClientModel.Primitives.PipelineMessage CreateGetCatsRequest(string p1, int? maxPageSize, global::System.ClientModel.Primitives.RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateGetCatsRequest(string p1, string p2, string h1, int? maxPageSize, global::System.ClientModel.Primitives.RequestOptions options)
         {
             global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendQuery("p1", p1, true);
+            uri.AppendQuery("p2", p2, true);
             if ((maxPageSize != null))
             {
                 uri.AppendQuery("maxPageSize", global::Sample.TypeFormatters.ConvertToString(maxPageSize), true);
             }
             global::System.ClientModel.Primitives.PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
             global::System.ClientModel.Primitives.PipelineRequest request = message.Request;
+            request.Headers.Set("h1", h1);
             request.Headers.Set("Accept", "application/json");
             message.Apply(options);
             return message;

@@ -651,10 +651,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         public void TestPageSizeParameterReinjectedInCreateNextRequestMethod()
         {
             var p1 = InputFactory.QueryParameter("p1", InputPrimitiveType.String, isRequired: true);
+            var p2 = InputFactory.QueryParameter("p2", InputPrimitiveType.String, isRequired: true);
+            var h1 = InputFactory.HeaderParameter("h1", InputPrimitiveType.String, isRequired: true);
             var maxPageSize = InputFactory.QueryParameter("maxPageSize", InputPrimitiveType.Int32, isRequired: false);
             List<InputParameter> parameters =
             [
                 p1,
+                p2,
+                h1,
                 maxPageSize,
                 // Accept header should be included for next link requests
                 InputFactory.HeaderParameter("accept", new InputLiteralType("Accept", "ns", InputPrimitiveType.String, "application/json"), scope: InputParameterScope.Constant, isRequired: true, serializedName: "Accept", defaultValue: new InputConstant("application/json", InputPrimitiveType.String)),
@@ -662,6 +666,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             List<InputMethodParameter> methodParameters =
             [
                 InputFactory.MethodParameter("p1", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Query),
+                InputFactory.MethodParameter("p2", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Query),
+                InputFactory.MethodParameter("h1", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Header),
                 InputFactory.MethodParameter("maxPageSize", InputPrimitiveType.Int32, isRequired: false, location: InputRequestLocation.Query),
                 // Accept header should be included for next link requests
                 InputFactory.MethodParameter("accept", new InputLiteralType("Accept", "ns", InputPrimitiveType.String, "application/json"), scope: InputParameterScope.Constant, isRequired: true, location: InputRequestLocation.Header, serializedName: "Accept", defaultValue: new InputConstant("application/json", InputPrimitiveType.String)),
