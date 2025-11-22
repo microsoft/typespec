@@ -415,8 +415,6 @@ function Filter-LibrariesByGenerator {
     #>
     param(
         [Parameter(Mandatory=$true)]
-        [AllowNull()]
-        [AllowEmptyCollection()]
         [array]$Libraries,
         
         [Parameter(Mandatory=$false)]
@@ -430,11 +428,6 @@ function Filter-LibrariesByGenerator {
     )
 
     $ErrorActionPreference = 'Stop'
-
-    # Handle null or empty libraries
-    if (-not $Libraries) {
-        return @()
-    }
 
     # If no filters specified, return everything as an array
     if (-not $Azure -and -not $Unbranded -and -not $Mgmt) {
@@ -466,8 +459,7 @@ function Filter-LibrariesByGenerator {
     }
 
     # Return as array to ensure Count property is always available
-    # Use comma operator to force single-element arrays to remain as arrays
-    return , @($filtered.ToArray())
+    return @($filtered.ToArray())
 }
 
 function Update-OpenAIGenerator {
