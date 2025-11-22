@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
-import com.azure.core.http.HttpMethod;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.LongRunningMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
@@ -16,6 +15,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Metho
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
+import io.clientcore.core.http.models.HttpMethod;
 
 /**
  * Type that parses and holds long-running polling metadata for an {@link Operation}, and exposes a view of the metadata
@@ -92,8 +92,7 @@ final class PollingMetadata {
     }
 
     /**
-     * Checks whether the poll and final result types are model types (i.e., not {@link com.azure.core.util.BinaryData}
-     * type).
+     * Checks whether the poll and final result types are model types (i.e., not {@link ClassType#BINARY_DATA} type).
      *
      * @return true if the poll and final result types are model types, false otherwise.
      */
@@ -106,7 +105,7 @@ final class PollingMetadata {
 
     /**
      * Gets the view of the polling metadata as {@link MethodPollingDetails} to enable long-running {@link ClientMethod}
-     * with {@link com.azure.core.util.BinaryData} type for poll and final result.
+     * with {@link ClassType#BINARY_DATA} type for poll and final result.
      * <p>
      * the long-running {@link ClientMethod} are the client methods of type
      * {@link ClientMethodType#LongRunningBeginSync},

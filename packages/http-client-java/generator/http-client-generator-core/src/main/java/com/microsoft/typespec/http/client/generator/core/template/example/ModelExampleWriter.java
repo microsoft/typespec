@@ -60,9 +60,7 @@ public class ModelExampleWriter {
         assertionVisitor.accept(exampleNode, modelVariableName);
         imports.addAll(assertionVisitor.imports);
 
-        this.assertionWriter = methodBlock -> {
-            assertionVisitor.assertions.forEach(methodBlock::line);
-        };
+        this.assertionWriter = methodBlock -> assertionVisitor.assertions.forEach(methodBlock::line);
 
         modelInitializationCode = modelInitializationVisitor.accept(exampleNode);
         imports.addAll(modelInitializationVisitor.getImports());
@@ -175,8 +173,8 @@ public class ModelExampleWriter {
          * @param jsonStr the JSON String.
          */
         protected String codeDeserializeJsonString(String jsonStr) {
-            imports.add(com.azure.core.util.serializer.JacksonAdapter.class.getName());
-            imports.add(com.azure.core.util.serializer.SerializerEncoding.class.getName());
+            imports.add(ClassType.JACKSON_ADAPTER.getFullName());
+            imports.add(ClassType.SERIALIZER_ENCODING.getFullName());
 
             return String.format(
                 "JacksonAdapter.createDefaultSerializerAdapter().deserialize(%s, Object.class, SerializerEncoding.JSON)",
@@ -248,13 +246,9 @@ public class ModelExampleWriter {
             } else if (node instanceof ListNode) {
                 imports.add(java.util.Arrays.class.getName());
 
-                StringBuilder builder = new StringBuilder();
                 // Arrays.asList(...)
-                builder.append("Arrays.asList(")
-                    .append(node.getChildNodes().stream().map(this::accept).collect(Collectors.joining(", ")))
-                    .append(")");
-
-                return builder.toString();
+                return "Arrays.asList("
+                    + node.getChildNodes().stream().map(this::accept).collect(Collectors.joining(", ")) + ")";
             } else if (node instanceof MapNode) {
                 imports.add(java.util.Map.class.getName());
                 imports.add(java.util.HashMap.class.getName());
@@ -351,7 +345,7 @@ public class ModelExampleWriter {
                 }
                 return builder.toString();
             } else if (node instanceof BinaryDataNode) {
-                this.imports.add(com.azure.core.util.BinaryData.class.getName());
+                this.imports.add(ClassType.BINARY_DATA.getFullName());
                 this.imports.add(java.nio.charset.StandardCharsets.class.getName());
                 return binaryDataNodeExpression((BinaryDataNode) node);
             }

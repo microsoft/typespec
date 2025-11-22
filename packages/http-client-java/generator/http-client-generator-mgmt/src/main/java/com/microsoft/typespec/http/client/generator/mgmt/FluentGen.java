@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.Javagen;
 import com.microsoft.typespec.http.client.generator.core.extension.jsonrpc.Connection;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
@@ -48,6 +47,7 @@ import com.microsoft.typespec.http.client.generator.mgmt.namer.FluentNamerFactor
 import com.microsoft.typespec.http.client.generator.mgmt.template.FluentTemplateFactory;
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentJavaSettings;
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -127,7 +127,7 @@ public class FluentGen extends Javagen {
             }
             return true;
         } catch (Exception e) {
-            logger.error("Failed to successfully run fluentgen plugin " + e, e);
+            logger.error("Failed to successfully run fluentgen plugin", e);
             // connection.sendError(1, 500, "Error occurred while running fluentgen plugin: " + e.getMessage());
             return false;
         }

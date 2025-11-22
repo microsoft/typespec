@@ -3,9 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.model;
 
-import com.azure.core.management.Region;
-import com.azure.core.management.exception.ManagementException;
-import com.azure.core.management.profile.AzureProfile;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ObjectSchema;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
@@ -22,13 +19,17 @@ public class FluentType {
         = new ClassType.Builder().packageName("com.azure.core.management").name("SubResource").build();
 
     public static final ClassType MANAGEMENT_EXCEPTION
-        = new ClassType.Builder().knownClass(ManagementException.class).build();
+        = new ClassType.Builder().packageName("com.azure.core.management.exception")
+            .name("ManagementException")
+            .build();
     public static final ClassType MANAGEMENT_ERROR
         = new ClassType.Builder().packageName("com.azure.core.management.exception").name("ManagementError").build();
 
-    public static final ClassType AZURE_PROFILE = new ClassType.Builder().knownClass(AzureProfile.class).build();
+    public static final ClassType AZURE_PROFILE
+        = new ClassType.Builder().packageName("com.azure.core.management.profile").name("AzureProfile").build();
 
-    public static final ClassType REGION = new ClassType.Builder().knownClass(Region.class).build();
+    public static final ClassType REGION
+        = new ClassType.Builder().packageName("com.azure.core.management").name("Region").build();
 
     public static final ClassType SYSTEM_DATA
         = new ClassType.Builder().packageName("com.azure.core.management").name("SystemData").build();
@@ -42,17 +43,17 @@ public class FluentType {
     private FluentType() {
     }
 
-    public static GenericType InnerSupportsGet(IType typeArgument) {
+    public static GenericType innerSupportsGet(IType typeArgument) {
         return new GenericType("com.azure.resourcemanager.resources.fluentcore.collection", "InnerSupportsGet",
             typeArgument);
     }
 
-    public static GenericType InnerSupportsList(IType typeArgument) {
+    public static GenericType innerSupportsList(IType typeArgument) {
         return new GenericType("com.azure.resourcemanager.resources.fluentcore.collection", "InnerSupportsListing",
             typeArgument);
     }
 
-    public static GenericType InnerSupportsDelete(IType typeArgument) {
+    public static GenericType innerSupportsDelete(IType typeArgument) {
         return new GenericType("com.azure.resourcemanager.resources.fluentcore.collection", "InnerSupportsDelete",
             typeArgument);
     }

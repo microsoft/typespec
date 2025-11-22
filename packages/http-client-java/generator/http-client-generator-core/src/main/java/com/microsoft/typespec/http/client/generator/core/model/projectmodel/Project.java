@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.projectmodel;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.Javagen;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
@@ -11,6 +10,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ExternalPackage;
 import com.microsoft.typespec.http.client.generator.core.template.TemplateHelper;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
+import io.clientcore.core.utils.CoreUtils;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

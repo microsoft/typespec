@@ -3,9 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.template;
 
-import com.azure.core.credential.AccessToken;
-import com.azure.core.http.HttpMethod;
-import com.azure.core.http.HttpResponse;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
@@ -18,6 +15,7 @@ import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.mgmt.model.FluentType;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.examplemodel.FluentMethodMockUnitTest;
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
+import io.clientcore.core.http.models.HttpMethod;
 import io.clientcore.core.serialization.json.JsonWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -27,8 +25,6 @@ import java.time.OffsetDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 public class FluentMethodMockTestTemplate
     implements IJavaTemplate<FluentMethodMockTestTemplate.ClientMethodInfo, JavaFile> {
@@ -55,12 +51,13 @@ public class FluentMethodMockTestTemplate
 
     @Override
     public void write(ClientMethodInfo info, JavaFile javaFile) {
-        Set<String> imports = new HashSet<>(List.of(AccessToken.class.getName(), ClassType.HTTP_CLIENT.getFullName(),
-            ClassType.HTTP_HEADERS.getFullName(), ClassType.HTTP_REQUEST.getFullName(), HttpResponse.class.getName(),
-            "com.azure.core.test.http.MockHttpResponse", ClassType.AZURE_CLOUD.getFullName(),
-            FluentType.AZURE_PROFILE.getFullName(), "org.junit.jupiter.api.Test", ByteBuffer.class.getName(),
-            Mono.class.getName(), Flux.class.getName(), StandardCharsets.class.getName(),
-            OffsetDateTime.class.getName()));
+        Set<String> imports
+            = new HashSet<>(List.of(ClassType.ACCESS_TOKEN.getFullName(), ClassType.HTTP_CLIENT.getFullName(),
+                ClassType.HTTP_HEADERS.getFullName(), ClassType.HTTP_REQUEST.getFullName(),
+                ClassType.HTTP_RESPONSE.getFullName(), "com.azure.core.test.http.MockHttpResponse",
+                ClassType.AZURE_CLOUD.getFullName(), FluentType.AZURE_PROFILE.getFullName(),
+                "org.junit.jupiter.api.Test", ByteBuffer.class.getName(), ClassType.MONO.getFullName(),
+                ClassType.FLUX.getFullName(), StandardCharsets.class.getName(), OffsetDateTime.class.getName()));
 
         String className = info.className;
         FluentMethodMockUnitTest fluentMethodMockUnitTest = info.fluentMethodMockUnitTest;

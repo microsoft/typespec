@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.extension.plugin;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.mapper.azurevnext.AzureVNextMapperFactory;
 import com.microsoft.typespec.http.client.generator.core.mapper.clientcore.ClientCoreMapperFactory;
@@ -12,6 +11,7 @@ import com.microsoft.typespec.http.client.generator.core.template.azurevnext.Azu
 import com.microsoft.typespec.http.client.generator.core.template.clientcore.ClientCoreTemplateFactory;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonToken;
+import io.clientcore.core.utils.CoreUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;

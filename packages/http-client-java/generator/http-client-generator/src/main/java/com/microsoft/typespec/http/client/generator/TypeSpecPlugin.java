@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.Javagen;
 import com.microsoft.typespec.http.client.generator.core.extension.jsonrpc.Connection;
 import com.microsoft.typespec.http.client.generator.core.extension.model.Message;
@@ -29,6 +28,7 @@ import com.microsoft.typespec.http.client.generator.util.FileUtil;
 import com.microsoft.typespec.http.client.generator.util.MetadataUtil;
 import com.microsoft.typespec.http.client.generator.util.ModelUtil;
 import io.clientcore.core.serialization.json.JsonReader;
+import io.clientcore.core.utils.CoreUtils;
 import io.clientcore.core.utils.IOExceptionCheckedFunction;
 import java.io.OutputStream;
 import java.nio.file.Path;

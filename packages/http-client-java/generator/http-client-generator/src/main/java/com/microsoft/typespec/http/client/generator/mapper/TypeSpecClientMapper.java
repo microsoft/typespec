@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.mapper;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Client;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Header;
@@ -13,6 +12,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ServiceClient;
 import com.microsoft.typespec.http.client.generator.util.ModelUtil;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;

@@ -5,11 +5,11 @@ package com.microsoft.typespec.http.client.generator.core.implementation;
 
 import static com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil.getClientModel;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;

@@ -3,9 +3,9 @@
 
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.HashMap;
 import java.util.Map;
 
