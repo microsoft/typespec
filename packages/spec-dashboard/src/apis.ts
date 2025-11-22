@@ -6,6 +6,7 @@ import {
   ScenarioManifest,
   SpecCoverageClient,
 } from "@typespec/spec-coverage-sdk";
+import { TierConfig } from "./utils/tier-filtering-utils.js";
 
 export interface TableDefinition {
   /** Custom table name */
@@ -27,6 +28,8 @@ export interface CoverageFromAzureStorageOptions {
   readonly modes?: string[];
   /** Optional table definitions to split scenarios into multiple tables */
   readonly tables?: TableDefinition[];
+  /** Optional tier config to filter scenarios by tier */
+  readonly tierConfig?: TierConfig;
 }
 
 export interface GeneratorCoverageSuiteReport extends CoverageReport {
