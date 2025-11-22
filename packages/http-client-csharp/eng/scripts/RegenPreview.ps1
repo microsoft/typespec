@@ -298,7 +298,11 @@ function Get-LibrariesToRegenerate {
 
 # Interactive library selection
 function Select-LibrariesToRegenerate {
-    param([array]$Libraries)
+    param(
+        [AllowNull()]
+        [AllowEmptyCollection()]
+        [array]$Libraries
+    )
     
     # Ensure we have an array
     if (-not $Libraries) {
