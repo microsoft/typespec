@@ -952,7 +952,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     const id = parseIdentifier();
     let constraint: Expression | ValueOfExpressionNode | undefined;
     if (parseOptional(Token.ExtendsKeyword)) {
-      constraint = parseMixedParameterConstraint();
+      constraint = parseMixedConstraint();
     }
     let def: Expression | undefined;
     if (parseOptional(Token.Equals)) {
@@ -971,7 +971,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     if (token() === Token.ValueOfKeyword) {
       return parseValueOfExpression();
     } else if (parseOptional(Token.OpenParen)) {
-      const expr = parseMixedParameterConstraint();
+      const expr = parseMixedConstraint();
       parseExpected(Token.CloseParen);
       return expr;
     }
@@ -979,7 +979,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     return parseIntersectionExpressionOrHigher();
   }
 
-  function parseMixedParameterConstraint(): Expression | ValueOfExpressionNode {
+  function parseMixedConstraint(): Expression | ValueOfExpressionNode {
     const pos = tokenPos();
     parseOptional(Token.Bar);
     const node: Expression = parseValueOfExpressionOrIntersectionOrHigher();
@@ -1227,7 +1227,9 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     const id = parseIdentifier();
     const { items: templateParameters, range: templateParametersRange } =
       parseTemplateParameterList();
+
     parseExpected(Token.Equals);
+
     const value = parseExpression();
     parseExpected(Token.Semicolon);
     return {
@@ -2059,7 +2061,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     const { items: parameters } = parseFunctionParameters();
     let returnType;
     if (parseOptional(Token.Colon)) {
-      returnType = parseExpression();
+      returnType = parseMixedConstraint();
     }
     parseExpected(Token.Semicolon);
     return {
@@ -2108,7 +2110,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     const optional = parseOptional(Token.Question);
     let type;
     if (parseOptional(Token.Colon)) {
-      type = parseMixedParameterConstraint();
+      type = parseMixedConstraint();
     }
     return {
       kind: SyntaxKind.FunctionParameter,
@@ -3303,6 +3305,9 @@ export function getIdentifierContext(id: IdentifierNode): IdentifierContext {
     case SyntaxKind.AugmentDecoratorStatement:
     case SyntaxKind.DecoratorExpression:
       kind = IdentifierKind.Decorator;
+      break;
+    case SyntaxKind.CallExpression:
+      kind = IdentifierKind.Function;
       break;
     case SyntaxKind.UsingStatement:
       kind = IdentifierKind.Using;

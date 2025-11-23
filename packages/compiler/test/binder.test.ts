@@ -421,18 +421,10 @@ describe("compiler: binder", () => {
                 flags: SymbolFlags.Decorator | SymbolFlags.Declaration | SymbolFlags.Implementation,
                 declarations: [SyntaxKind.JsSourceFile],
               },
-              fn2: {
-                flags: SymbolFlags.Function | SymbolFlags.Declaration | SymbolFlags.Implementation,
-                declarations: [SyntaxKind.JsSourceFile],
-              },
             },
           },
           "@myDec": {
             flags: SymbolFlags.Decorator | SymbolFlags.Declaration | SymbolFlags.Implementation,
-            declarations: [SyntaxKind.JsSourceFile],
-          },
-          fn: {
-            flags: SymbolFlags.Function | SymbolFlags.Declaration | SymbolFlags.Implementation,
             declarations: [SyntaxKind.JsSourceFile],
           },
         },
@@ -469,6 +461,39 @@ describe("compiler: binder", () => {
             declarations: [SyntaxKind.JsSourceFile],
           },
         },
+      },
+    });
+  });
+
+  it("binds $functions in JS file", () => {
+    const exports = {
+      $functions: {
+        "Foo.Bar": { myFn2: () => {} },
+        "": { myFn: () => {} },
+      },
+    };
+
+    const sourceFile = bindJs(exports);
+    assertBindings("jsFile", sourceFile.symbol.exports!, {
+      Foo: {
+        flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
+        declarations: [SyntaxKind.JsNamespaceDeclaration],
+        exports: {
+          Bar: {
+            flags: SymbolFlags.Namespace | SymbolFlags.Declaration,
+            declarations: [SyntaxKind.JsNamespaceDeclaration],
+            exports: {
+              myFn2: {
+                flags: SymbolFlags.Function | SymbolFlags.Declaration | SymbolFlags.Implementation,
+                declarations: [SyntaxKind.JsSourceFile],
+              },
+            },
+          },
+        },
+      },
+      myFn: {
+        flags: SymbolFlags.Function | SymbolFlags.Declaration | SymbolFlags.Implementation,
+        declarations: [SyntaxKind.JsSourceFile],
       },
     });
   });
