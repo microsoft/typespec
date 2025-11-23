@@ -232,10 +232,15 @@ describe("discriminated union with polymorphic-models-strategy option", () => {
     deepStrictEqual(petSchema.oneOf[0], { $ref: "Cat.json" });
     deepStrictEqual(petSchema.oneOf[1], { $ref: "Dog.json" });
 
-    // Pet schema should only contain oneOf (no properties to avoid circular refs)
-    strictEqual(petSchema.type, undefined);
-    strictEqual(petSchema.properties, undefined);
-    strictEqual(petSchema.required, undefined);
+    // Pet schema should contain both oneOf and base properties
+    strictEqual(petSchema.type, "object");
+    ok(petSchema.properties, "Pet should have properties");
+    strictEqual(petSchema.properties.name.type, "string", "Pet should have name property");
+    deepStrictEqual(petSchema.properties.kind, {
+      type: "string",
+      description: "Discriminator property for Pet.",
+    });
+    deepStrictEqual(petSchema.required, ["name", "kind"]);
 
     // Should not have discriminator keyword (discriminator is OpenAPI, not JSON Schema)
     strictEqual(petSchema.discriminator, undefined);
@@ -382,10 +387,15 @@ describe("discriminated union with polymorphic-models-strategy option", () => {
     deepStrictEqual(petSchema.anyOf[0], { $ref: "Cat.json" });
     deepStrictEqual(petSchema.anyOf[1], { $ref: "Dog.json" });
 
-    // Pet schema should only contain anyOf (no properties to avoid circular refs)
-    strictEqual(petSchema.type, undefined);
-    strictEqual(petSchema.properties, undefined);
-    strictEqual(petSchema.required, undefined);
+    // Pet schema should contain both anyOf and base properties
+    strictEqual(petSchema.type, "object");
+    ok(petSchema.properties, "Pet should have properties");
+    strictEqual(petSchema.properties.name.type, "string", "Pet should have name property");
+    deepStrictEqual(petSchema.properties.kind, {
+      type: "string",
+      description: "Discriminator property for Pet.",
+    });
+    deepStrictEqual(petSchema.required, ["name", "kind"]);
     strictEqual(petSchema.oneOf, undefined, "Should not have oneOf");
 
     // Should not have discriminator keyword (discriminator is OpenAPI, not JSON Schema)

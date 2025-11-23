@@ -786,10 +786,13 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       variants.push(derivedRef);
     }
 
-    // For discriminated unions, emit only the oneOf/anyOf
-    // The derived models reference the base model via allOf, which would create
-    // a circular reference if we included properties here
+    // For discriminated unions, emit the oneOf/anyOf with base model properties
+    // Since derived models inline properties (not using allOf), we can include
+    // base properties here without creating circular references
     const schema = this.#initializeSchema(model, name, {
+      type: "object",
+      properties: this.emitter.emitModelProperties(model),
+      required: this.#requiredModelProperties(model),
       [strategy]: variants,
     });
 
