@@ -31,7 +31,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected InputOperation Operation { get; }
         protected InputPagingServiceMetadata Paging { get; }
 
-        protected internal FieldProvider? PageSizeRootField { get; }
+        protected internal FieldProvider? PageSizeField { get; }
 
         protected FieldProvider RequestOptionsField => _requestOptionsField ??= RequestFields
             .First(f => f.Name == RequestOptionsFieldName);
@@ -81,7 +81,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var response = Operation.Responses.FirstOrDefault(r => !r.IsErrorResponse);
             ResponseModel = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel((InputModelType)response!.BodyType!)!;
             ResponseModelType = ResponseModel.Type;
-            var pageSizeRoot = Paging.PageSizeParameterSegments.FirstOrDefault();
+
+            // The page size request parameter will always correspond to the last segment. We do not currently support
+            // nested page size parameters that are not HTTP parameters, i.e. just a property in a body.
+            // TODO https://github.com/microsoft/typespec/issues/9069
+            var pageSize = Paging.PageSizeParameterSegments.LastOrDefault();
 
             foreach (var field in RequestFields)
             {
@@ -90,9 +94,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     NextTokenField = field;
                 }
 
-                if (field.AsParameter.Name == pageSizeRoot)
+                if (field.AsParameter.Name == pageSize)
                 {
-                    PageSizeRootField = field;
+                    PageSizeField = field;
                 }
             }
 
