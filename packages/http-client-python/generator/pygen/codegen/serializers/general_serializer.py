@@ -4,7 +4,8 @@
 # license information.
 # --------------------------------------------------------------------------
 import json
-from typing import Any
+import logging
+from typing import Any, Optional
 import re
 import tomli as tomllib
 from packaging.version import parse as parse_version
@@ -18,6 +19,8 @@ from ..models import (
 from ..models.utils import NamespaceType
 from .client_serializer import ClientSerializer, ConfigSerializer
 from .base_serializer import BaseSerializer
+
+_LOGGER = logging.getLogger(__name__)
 
 VERSION_MAP = {
     "msrest": "0.7.1",
@@ -57,20 +60,20 @@ class GeneralSerializer(BaseSerializer):
         m = re.search(r"[>=]=?([\d.]+(?:[a-z]+\d+)?)", s)
         return parse_version(m.group(1)) if m else parse_version("0")
 
-    def _keep_pyproject_fields(self, file_content: str) -> dict:
+    def _keep_pyproject_fields(self, file_content: str, params: dict) -> None:
         # Load the pyproject.toml file if it exists and extract fields to keep.
-        result: dict = {"KEEP_FIELDS": {}}
+        # Mutates params in place.
         try:
             loaded_pyproject_toml = tomllib.loads(file_content)
         except Exception:  # pylint: disable=broad-except
             # If parsing the pyproject.toml fails, we assume the it does not exist or is incorrectly formatted.
-            return result
+            return
 
         # Keep "azure-sdk-build" and "packaging" configuration
         if "tool" in loaded_pyproject_toml and "azure-sdk-build" in loaded_pyproject_toml["tool"]:
-            result["KEEP_FIELDS"]["tool.azure-sdk-build"] = loaded_pyproject_toml["tool"]["azure-sdk-build"]
+            params["KEEP_FIELDS"]["tool.azure-sdk-build"] = loaded_pyproject_toml["tool"]["azure-sdk-build"]
         if "packaging" in loaded_pyproject_toml:
-            result["KEEP_FIELDS"]["packaging"] = loaded_pyproject_toml["packaging"]
+            params["KEEP_FIELDS"]["packaging"] = loaded_pyproject_toml["packaging"]
 
         # Process dependencies
         if "project" in loaded_pyproject_toml:
@@ -78,38 +81,146 @@ class GeneralSerializer(BaseSerializer):
             if "dependencies" in loaded_pyproject_toml["project"]:
                 kept_deps = []
                 for dep in loaded_pyproject_toml["project"]["dependencies"]:
-                    dep_name = re.split(r"[<>=\[]", dep)[0].strip()
-
-                    # Check if dependency is one we track in VERSION_MAP
-                    if dep_name in VERSION_MAP:
-                        # For tracked dependencies, check if the version is higher than our default
-                        default_version = parse_version(VERSION_MAP[dep_name])
-                        dep_version = self._extract_min_dependency(dep)
-                        # If the version is higher than the default, update VERSION_MAP
-                        # with higher min dependency version
-                        if dep_version > default_version:
-                            VERSION_MAP[dep_name] = str(dep_version)
-                    else:
-                        # Keep non-default dependencies
-                        kept_deps.append(dep)
+                    processed_dep = self._process_dependency(dep)
+                    if processed_dep:
+                        kept_deps.append(processed_dep)
 
                 if kept_deps:
-                    result["KEEP_FIELDS"]["project.dependencies"] = kept_deps
+                    params["KEEP_FIELDS"]["project.dependencies"] = kept_deps
 
             # Keep optional dependencies
             if "optional-dependencies" in loaded_pyproject_toml["project"]:
-                result["KEEP_FIELDS"]["project.optional-dependencies"] = loaded_pyproject_toml["project"][
+                params["KEEP_FIELDS"]["project.optional-dependencies"] = loaded_pyproject_toml["project"][
                     "optional-dependencies"
                 ]
 
-        return result
+            # Check for existing keywords and add to the set
+            if "keywords" in loaded_pyproject_toml["project"]:
+                existing_keywords = loaded_pyproject_toml["project"]["keywords"]
+                if existing_keywords:
+                    params["KEEP_FIELDS"]["project.keywords"].update(existing_keywords)
 
-    def serialize_package_file(self, template_name: str, file_content: str, **kwargs: Any) -> str:
+            # Keep project URLs
+            if "urls" in loaded_pyproject_toml["project"]:
+                if "project.urls" not in params["KEEP_FIELDS"]:
+                    params["KEEP_FIELDS"]["project.urls"] = {}
+                params["KEEP_FIELDS"]["project.urls"].update(loaded_pyproject_toml["project"]["urls"])
+
+    def _process_dependency(self, dep: str) -> Optional[str]:
+        """Process a single dependency and return it if it should be kept, None otherwise."""
+        dep_name = re.split(r"[<>=\[]", dep)[0].strip()
+
+        # Check if dependency is one we track in VERSION_MAP
+        if dep_name in VERSION_MAP:
+            # For tracked dependencies, check if the version is higher than our default
+            default_version = parse_version(VERSION_MAP[dep_name])
+            dep_version = self._extract_min_dependency(dep)
+            # If the version is higher than the default, update VERSION_MAP
+            if dep_version > default_version:
+                VERSION_MAP[dep_name] = str(dep_version)
+                _LOGGER.info("Keeping field dependency: %s", dep)
+            # Don't keep tracked dependencies in the dependencies list since they're handled by the template
+            return None
+
+        # Keep non-default dependencies
+        _LOGGER.info("Keeping field dependency: %s", dep)
+        return dep
+
+    def _parse_dependencies(self, deps_str: str) -> list:
+        """Parse the dependencies list from setup.py install_requires."""
+        deps = []
+        for line in deps_str.split('\n'):
+            line = line.strip()
+            if line and not line.startswith('#'):
+                # Remove quotes and trailing comma
+                dep = line.strip(',').strip().strip('"').strip("'")
+                if dep:
+                    processed_dep = self._process_dependency(dep)
+                    if processed_dep:
+                        deps.append(processed_dep)
+        return deps
+
+    def _keep_setuppy_fields(self, setuppy_content: str, params: dict) -> None:
+        """Parse setup.py file to extract fields that should be kept when migrating to pyproject.toml.
+        Mutates params in place."""
+
+        _LOGGER.info("Keeping the following fields from setup.py when generating pyproject.toml.")
+
+        # Extract install_requires (dependencies)
+        install_requires_match = re.search(r'install_requires\s*=\s*\[(.*?)\]', setuppy_content, re.DOTALL)
+        if install_requires_match:
+            deps_str = install_requires_match.group(1)
+            deps = self._parse_dependencies(deps_str)
+
+            if deps:
+                if "project.dependencies" not in params["KEEP_FIELDS"]:
+                    params["KEEP_FIELDS"]["project.dependencies"] = []
+                params["KEEP_FIELDS"]["project.dependencies"].extend(deps)
+
+        # Extract project_urls
+        project_urls_match = re.search(r'project_urls\s*=\s*\{(.*?)\}', setuppy_content, re.DOTALL)
+        if project_urls_match:
+            urls_str = project_urls_match.group(1)
+            # Parse the project_urls dict
+            for line in urls_str.split('\n'):
+                line = line.strip()
+                if line and ':' in line:
+                    # Parse "key": "value" or 'key': 'value' format (allows mixed quotes)
+                    key_val_match = re.search(r'["\']([^"\']+)["\']\s*:\s*["\']([^"\']+)["\']', line)
+                    if key_val_match:
+                        key = key_val_match.group(1)
+                        value = key_val_match.group(2)
+                        # Keep all URLs (even default Azure SDK URLs)
+                        if "project.urls" not in params["KEEP_FIELDS"]:
+                            params["KEEP_FIELDS"]["project.urls"] = {}
+                        # Store the key as-is, template will handle TOML formatting
+                        params["KEEP_FIELDS"]["project.urls"][key] = value
+                        _LOGGER.info("Keeping field project.urls.%s: %s", key, value)
+
+        # Extract keywords
+        keywords_match = re.search(r'keywords\s*=\s*["\']([^"\']+)["\']', setuppy_content)
+        if keywords_match:
+            keywords_str = keywords_match.group(1)
+            # Parse the keywords (comma-separated)
+            keywords = [kw.strip() for kw in keywords_str.split(',')]
+            # Add keywords to the existing set (no filtering)
+            params["KEEP_FIELDS"]["project.keywords"].update(keywords)
+            _LOGGER.info("Keeping field project.keywords: %s", keywords)
+
+        # Check PACKAGE_PPRINT_NAME and warn if different
+        pprint_match = re.search(r'PACKAGE_PPRINT_NAME\s*=\s*["\']([^"\']+)["\']', setuppy_content)
+        if pprint_match:
+            existing_pprint_name = pprint_match.group(1)
+            generated_pprint_name = self.code_model.options.get("package-pprint-name", "")
+            if existing_pprint_name != generated_pprint_name:
+                _LOGGER.warning(
+                    "Generated package-pprint-name '%s' does not match existing "
+                    "PACKAGE_PPRINT_NAME '%s'. Ensure the new package-pprint-name is correct, "
+                    "otherwise change this value in the tspconfig.yaml.",
+                    generated_pprint_name,
+                    existing_pprint_name
+                )
+
+    def serialize_package_file(
+        self, template_name: str, file_content: str, setuppy_file_content: str = "", **kwargs: Any
+    ) -> str:
         template = self.env.get_template(template_name)
 
         # Add fields to keep from an existing pyproject.toml
         if template_name == "pyproject.toml.jinja2":
-            params = self._keep_pyproject_fields(file_content)
+            # Initialize params with default keywords
+            params: dict = {"KEEP_FIELDS": {}}
+            # Add default Azure SDK repository URL if Azure flavor
+            if self.code_model.is_azure_flavor:
+                params["KEEP_FIELDS"]["project.keywords"] = {"azure", "azure sdk"}
+                params["KEEP_FIELDS"]["project.urls"] = {"repository": "https://github.com/Azure/azure-sdk-for-python"}
+
+            # Mutate params with fields from pyproject.toml
+            self._keep_pyproject_fields(file_content, params)
+
+            # If setup.py exists, mutate params with fields from it
+            if setuppy_file_content:
+                self._keep_setuppy_fields(setuppy_file_content, params)
         else:
             params = {}
 
