@@ -35,6 +35,8 @@ export function convertDiagnosticToLsp(
     document,
   );
 
+  let settingDiagnostic: VSDiagnostic | undefined;
+
   if (root === undefined) {
     const emitterName = program.compilerOptions.emit?.find((emitName) =>
       diagnostic.message.includes(emitName),
@@ -47,12 +49,9 @@ export function convertDiagnosticToLsp(
       emitterName,
     );
     if (result === undefined) {
-      const settingDiagnostics = getDiagnosticInSettings(diagnostic, emitterName, clientConfig);
-      if (settingDiagnostics) {
-        // use the current document to report the diagnostic in settings case
-        return [[settingDiagnostics, document]];
-      } else {
-        // no location found at all, report on the current document
+      settingDiagnostic = getDiagnosticInSettings(diagnostic, emitterName, clientConfig);
+      if (settingDiagnostic === undefined) {
+        // no location found at all, a prompt message is displayed at the top of the current document
         return [
           [
             createLspDiagnostic({
@@ -73,6 +72,10 @@ export function convertDiagnosticToLsp(
   }
 
   if (root === undefined || !fileService.upToDate(root.document)) return [];
+  if (settingDiagnostic) {
+    // diagnostic from IDE settings, a prompt message is displayed at the top of the current document
+    return [[settingDiagnostic, root.document]];
+  }
 
   const instantiationNodes = getDiagnosticTemplateInstantitationTrace(diagnostic.target);
   const relatedInformation: DiagnosticRelatedInformation[] = [];
