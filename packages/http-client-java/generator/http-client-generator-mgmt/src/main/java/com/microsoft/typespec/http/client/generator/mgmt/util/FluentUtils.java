@@ -45,7 +45,7 @@ public class FluentUtils {
     private static final Logger LOGGER = new PluginLogger(FluentGen.getPluginInstance(), FluentUtils.class);
 
     private static final Set<String> RESERVED_CLASS_NAMES
-        = Set.of(ClassType.RESPONSE.getFullName(), ClassType.CONTEXT.getFullName());
+        = Set.of(ClassType.RESPONSE.getName(), ClassType.CONTEXT.getName());
 
     private FluentUtils() {
     }

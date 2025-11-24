@@ -60,11 +60,12 @@ public final class ModelTemplateHeaderHelper {
         // HttpHeaderNames for both maps. Then add the few extra azure-core headers here.
         // If HttpHeaderNames are missed from azure-core, they will be handled as unknown headers, which has effectively
         // no difference from this optimization other than code bloat.
+        headerToKnownHttpHeaderName.put("Azure-AsyncOperation", "AZURE_ASYNC_OPERATION");
+        headerToKnownHttpHeaderName.put("retry-after-ms", "RETRY_AFTER_MS");
         headerToKnownHttpHeaderName.put("x-ms-client-id", "X_MS_CLIENT_ID");
         headerToKnownHttpHeaderName.put("x-ms-client-request-id", "X_MS_CLIENT_REQUEST_ID");
         headerToKnownHttpHeaderName.put("x-ms-date", "X_MS_DATE");
         headerToKnownHttpHeaderName.put("x-ms-request-id", "X_MS_REQUEST_ID");
-        headerToKnownHttpHeaderName.put("retry-after-ms", "RETRY_AFTER_MS");
         headerToKnownHttpHeaderName.put("x-ms-retry-after-ms", "X_MS_RETRY_AFTER_MS");
 
         HEADER_TO_KNOWN_HTTPHEADERNAME = Collections.unmodifiableMap(headerToKnownHttpHeaderName);
