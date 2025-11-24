@@ -55,6 +55,7 @@ npm run build
 
 > [!NOTE]
 > This command runs:
+>
 > - `npm run build:emitter` - Builds the TypeScript emitter
 > - `npm run build:generator` - Builds the .NET generator
 > - `npm run extract-api` - Extracts API documentation
@@ -87,34 +88,28 @@ The C# HTTP client package consists of two main components:
 2. **Make your changes** to the codebase
 
 3. **Build your changes**:
-
    - Build everything:
      ```bash
      npm run build
      ```
-   
    - Build emitter only:
      ```bash
      npm run build:emitter
      ```
-   
    - Build generator only:
      ```bash
      npm run build:generator
      ```
 
 4. **Test your changes**:
-
    - Run all tests:
      ```bash
      npm run test
      ```
-   
    - Test emitter only:
      ```bash
      npm run test:emitter
      ```
-   
    - Test generator only:
      ```bash
      npm run test:generator
@@ -133,21 +128,25 @@ The C# HTTP client package consists of two main components:
 The package includes both TypeScript (emitter) and C# (generator) tests:
 
 - Run all tests:
+
   ```bash
   npm run test
   ```
 
 - Run emitter tests only (TypeScript/Vitest):
+
   ```bash
   npm run test:emitter
   ```
 
 - Run generator tests only (.NET):
+
   ```bash
   npm run test:generator
   ```
 
 - Run tests with coverage:
+
   ```bash
   npm run test:ci
   ```
@@ -160,6 +159,7 @@ The package includes both TypeScript (emitter) and C# (generator) tests:
 > [!IMPORTANT]
 > Some tests may require a full workspace build to resolve all dependencies before running successfully.
 > From the repository root:
+>
 > 1. run `pnpm install` to install dependencies.
 > 1. run `pnpm build`
 
@@ -168,11 +168,13 @@ The package includes both TypeScript (emitter) and C# (generator) tests:
 The package uses the Spector test framework for end-to-end testing of generated code:
 
 - Run Spector tests (requires PowerShell):
+
   ```bash
   ./eng/scripts/Test-Spector.ps1
   ```
 
 - Run Spector tests with filter:
+
   ```bash
   ./eng/scripts/Test-Spector.ps1 -filter "specific-test-name"
   ```
@@ -187,11 +189,13 @@ The package uses the Spector test framework for end-to-end testing of generated 
 Generate test projects to validate the emitter and generator:
 
 - Generate all test projects (requires PowerShell):
+
   ```bash
   ./eng/scripts/Generate.ps1
   ```
 
 - Generate specific test project:
+
   ```bash
   ./eng/scripts/Generate.ps1 -filter "project-name"
   ```
