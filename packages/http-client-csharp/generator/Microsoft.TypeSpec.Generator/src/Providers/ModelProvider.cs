@@ -54,6 +54,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private readonly bool _isAbstract;
+        private readonly bool _isMultiLevelDiscriminator;
 
         private readonly CSharpType _additionalBinaryDataPropsFieldType = typeof(IDictionary<string, BinaryData>);
         private readonly Type _additionalPropsUnknownType = typeof(BinaryData);
@@ -68,6 +69,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             _inputModel = inputModel;
             _isAbstract = _inputModel.DiscriminatorProperty is not null && _inputModel.DiscriminatorValue is null;
+            _isMultiLevelDiscriminator = ComputeIsMultiLevelDiscriminator();
 
             if (_inputModel.BaseModel is not null)
             {
@@ -524,12 +526,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return [FullConstructor];
             }
 
-            // Check if this model needs the dual constructor pattern
-            if (ShouldHaveDualConstructorPattern())
-            {
-                return BuildDualConstructorPattern();
-            }
-
             // Build the standard single initialization constructor
             var accessibility = DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract)
                 ? MethodSignatureModifiers.Private | MethodSignatureModifiers.Protected
@@ -551,12 +547,22 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 },
                 this);
 
+            var constructors = new List<ConstructorProvider> { constructor };
+
+            // Add FullConstructor if parameters are different
             if (!constructorParameters.SequenceEqual(FullConstructor.Signature.Parameters))
             {
-                return [constructor, FullConstructor];
+                constructors.Add(FullConstructor);
             }
 
-            return [constructor];
+            // For multi-level discriminators, add one additional private protected constructor
+            if (_isMultiLevelDiscriminator)
+            {
+                var protectedConstructor = BuildProtectedInheritanceConstructor();
+                constructors.Add(protectedConstructor);
+            }
+
+            return [.. constructors];
         }
 
         /// <summary>
@@ -564,10 +570,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// This is needed when the model shares the same discriminator property name as its base model
         /// AND has derived models, indicating it's an intermediate type in a discriminated union hierarchy.
         /// </summary>
-        private bool ShouldHaveDualConstructorPattern()
+        private bool ComputeIsMultiLevelDiscriminator()
         {
             // Only applies to non-abstract models with a base model
-            if (_isAbstract || BaseModelProvider == null)
+            if (_isAbstract || _inputModel.BaseModel == null)
             {
                 return false;
             }
@@ -584,7 +590,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             // Check if base model has a discriminator property with the same name
-            if (BaseModelProvider._inputModel.DiscriminatorProperty == null)
+            if (_inputModel.BaseModel.DiscriminatorProperty == null)
             {
                 return false;
             }
@@ -593,119 +599,30 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // and this model has derived models, it needs the dual constructor pattern
             return string.Equals(
                 _inputModel.DiscriminatorProperty.Name,
-                BaseModelProvider._inputModel.DiscriminatorProperty.Name,
+                _inputModel.BaseModel.DiscriminatorProperty.Name,
                 StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>
-        /// Builds the dual constructor pattern for models that share discriminator properties with their base.
-        /// Creates three constructors:
-        /// 1. Public constructor for external use
-        /// 2. Private protected constructor for derived models to call
-        /// 3. Internal constructor for serialization
+        /// Builds a private protected constructor for multi-level discriminator inheritance.
+        /// This allows derived models to call this constructor with their discriminator value.
         /// </summary>
-        private ConstructorProvider[] BuildDualConstructorPattern()
+        private ConstructorProvider BuildProtectedInheritanceConstructor()
         {
-            // Build public constructor (without discriminator parameter)
-            var (publicParams, publicInitializer) = BuildPublicInstantiationParameters();
-            var publicConstructor = new ConstructorProvider(
-                signature: new ConstructorSignature(
-                    Type,
-                    $"Initializes a new instance of {Type:C}",
-                    MethodSignatureModifiers.Public,
-                    publicParams,
-                    initializer: publicInitializer),
-                bodyStatements: new MethodBodyStatement[]
-                {
-                    GetPropertyInitializers(true, parameters: publicParams)
-                },
-                this);
+            var (parameters, initializer) = BuildConstructorParameters(true, includeDiscriminatorParameter: true);
 
-            // Build private protected constructor (with discriminator parameter)
-            var (protectedParams, protectedInitializer) = BuildPrivateProtectedInheritanceParameters();
-            var protectedConstructor = new ConstructorProvider(
+            return new ConstructorProvider(
                 signature: new ConstructorSignature(
                     Type,
                     $"Initializes a new instance of {Type:C}",
                     MethodSignatureModifiers.Private | MethodSignatureModifiers.Protected,
-                    protectedParams,
-                    initializer: protectedInitializer),
+                    parameters,
+                    initializer: initializer),
                 bodyStatements: new MethodBodyStatement[]
                 {
-                    GetPropertyInitializers(true, parameters: protectedParams)
+                    GetPropertyInitializers(true, parameters: parameters)
                 },
                 this);
-
-            // Internal constructor is the full constructor
-            return [publicConstructor, protectedConstructor, FullConstructor];
-        }
-
-        /// <summary>
-        /// Builds parameters for public instantiation constructor (filters out discriminator).
-        /// </summary>
-        private (IReadOnlyList<ParameterProvider> Parameters, ConstructorInitializer? Initializer) BuildPublicInstantiationParameters()
-        {
-            var (standardParams, _) = BuildConstructorParameters(true);
-
-            var parameters = standardParams.Where(p => p.Property == null || !p.Property.IsDiscriminator).ToList();
-
-            var initializer = CreatePrivateProtectedConstructorCall(parameters);
-
-            return (parameters, initializer);
-        }
-
-        /// <summary>
-        /// Creates a constructor initializer that calls the private protected constructor with discriminator value.
-        /// </summary>
-        private ConstructorInitializer CreatePrivateProtectedConstructorCall(IReadOnlyList<ParameterProvider> parameters)
-        {
-            var discriminatorValue = EnsureDiscriminatorValueExpression();
-            var args = new List<ValueExpression>();
-
-            if (discriminatorValue != null)
-            {
-                args.Add(discriminatorValue);
-            }
-
-            var overriddenProperties = CanonicalView.Properties.Where(p => p.BaseProperty is not null).Select(p => p.BaseProperty!).ToHashSet();
-            args.AddRange(parameters.Select(p => GetExpressionForCtor(p, overriddenProperties, true)));
-
-            return new ConstructorInitializer(false, args.ToArray());
-        }
-
-        /// <summary>
-        /// Builds parameters for private protected inheritance constructor (includes discriminator).
-        /// </summary>
-        private (IReadOnlyList<ParameterProvider> Parameters, ConstructorInitializer? Initializer) BuildPrivateProtectedInheritanceParameters()
-        {
-            var (parameters, standardInitializer) = BuildConstructorParameters(true, includeDiscriminatorParameter: true);
-
-            var initializer = CreateBaseConstructorCallWithDiscriminatorParameter(standardInitializer, parameters.FirstOrDefault());
-
-            return (parameters, initializer);
-        }
-
-        /// <summary>
-        /// Creates a base constructor call that uses the discriminator parameter.
-        /// </summary>
-        private ConstructorInitializer? CreateBaseConstructorCallWithDiscriminatorParameter(
-            ConstructorInitializer? standardInitializer,
-            ParameterProvider? discriminatorParam)
-        {
-            if (BaseModelProvider?.Type is null || standardInitializer is null || discriminatorParam is null)
-                return standardInitializer;
-
-            var originalArgs = standardInitializer.Arguments;
-            if (originalArgs.Count == 0)
-                return standardInitializer;
-
-            var newArgs = new List<ValueExpression>
-            {
-                discriminatorParam.AsVariable()
-            };
-            newArgs.AddRange(originalArgs.Skip(1));
-
-            return new ConstructorInitializer(standardInitializer.IsBase, newArgs);
         }
 
         /// <summary>
@@ -818,7 +735,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 if (baseParameters.Count > 0)
                 {
                     // Check if base model has dual constructor pattern and we should call private protected constructor
-                    if (isPrimaryConstructor && BaseModelProvider.ShouldHaveDualConstructorPattern())
+                    if (isPrimaryConstructor && BaseModelProvider._isMultiLevelDiscriminator)
                     {
                         // Call base model's private protected constructor with discriminator value
                         var args = new List<ValueExpression>();
@@ -853,8 +770,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 ? baseParameters
                 : baseParameters.Where(p =>
                     p.Property is null
-                    || (p.Property.IsDiscriminator && !overriddenProperties.Contains(p.Property) && (!isPrimaryConstructor || includeDiscriminatorParameter))
-                    || (!p.Property.IsDiscriminator && !overriddenProperties.Contains(p.Property))));
+                    || (!overriddenProperties.Contains(p.Property!) && (!p.Property.IsDiscriminator || !isPrimaryConstructor || includeDiscriminatorParameter))));
 
             if (includeDiscriminatorParameter && _inputModel.DiscriminatorProperty != null)
             {
