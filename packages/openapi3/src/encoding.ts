@@ -7,7 +7,12 @@ import type { OpenAPI3Schema, OpenAPISchema3_1 } from "./types.js";
 
 function isParameterStyleEncoding(encoding: string | undefined): boolean {
   if (!encoding) return false;
-  return ["ArrayEncoding.pipeDelimited", "ArrayEncoding.spaceDelimited"].includes(encoding);
+  return [
+    "ArrayEncoding.pipeDelimited",
+    "ArrayEncoding.spaceDelimited",
+    "ArrayEncoding.commaDelimited",
+    "ArrayEncoding.newlineDelimited",
+  ].includes(encoding);
 }
 
 export function applyEncoding(
