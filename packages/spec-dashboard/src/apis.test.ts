@@ -224,4 +224,132 @@ describe("splitManifestByTables", () => {
     expect(defaultTable!.manifest.scenarios).toHaveLength(1);
     expect(defaultTable!.manifest.scenarios[0].name).toBe("unique_scenario");
   });
+
+  it("should include emitterNames from table definition", () => {
+    const manifest = createManifest("test-package", "Display Name", ["scenario1"]);
+    const tables: TableDefinition[] = [
+      {
+        name: "Test Table",
+        packageName: "test-package",
+        emitterNames: ["@typespec/emitter-1", "@typespec/emitter-2"],
+      },
+    ];
+
+    const result = splitManifestByTables(manifest, tables);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].emitterNames).toEqual(["@typespec/emitter-1", "@typespec/emitter-2"]);
+  });
+
+  it("should return undefined emitterNames when not specified in table definition", () => {
+    const manifest = createManifest("test-package", "Display Name", ["scenario1"]);
+    const tables: TableDefinition[] = [
+      {
+        name: "Test Table",
+        packageName: "test-package",
+      },
+    ];
+
+    const result = splitManifestByTables(manifest, tables);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].emitterNames).toBeUndefined();
+  });
+
+  it("should handle different emitterNames for different tables", () => {
+    const manifest = createManifest("test-package", "Display Name", [
+      "mgmt_scenario1",
+      "dataplane_scenario1",
+    ]);
+    const tables: TableDefinition[] = [
+      {
+        name: "Management Table",
+        packageName: "test-package",
+        prefixes: ["mgmt_"],
+        emitterNames: ["@azure-tools/typespec-csharp-mgmt"],
+      },
+      {
+        name: "Data Plane Table",
+        packageName: "test-package",
+        prefixes: ["dataplane_"],
+        emitterNames: ["@azure-tools/typespec-csharp"],
+      },
+    ];
+
+    const result = splitManifestByTables(manifest, tables);
+
+    expect(result).toHaveLength(2);
+
+    const mgmtTable = result.find((r) => r.tableName === "Management Table");
+    expect(mgmtTable!.emitterNames).toEqual(["@azure-tools/typespec-csharp-mgmt"]);
+
+    const dataPlaneTable = result.find((r) => r.tableName === "Data Plane Table");
+    expect(dataPlaneTable!.emitterNames).toEqual(["@azure-tools/typespec-csharp"]);
+  });
+
+  it("should preserve order of tableDefinitions in the result", () => {
+    const manifest = createManifest("test-package", "Display Name", [
+      "prefix1_scenario1",
+      "prefix2_scenario1",
+      "prefix3_scenario1",
+    ]);
+    const tables: TableDefinition[] = [
+      {
+        name: "Third Table",
+        packageName: "test-package",
+        prefixes: ["prefix3_"],
+      },
+      {
+        name: "First Table",
+        packageName: "test-package",
+        prefixes: ["prefix1_"],
+      },
+      {
+        name: "Second Table",
+        packageName: "test-package",
+        prefixes: ["prefix2_"],
+      },
+    ];
+
+    const result = splitManifestByTables(manifest, tables);
+
+    expect(result).toHaveLength(3);
+    // Results should be in the same order as tableDefinitions
+    expect(result[0].tableName).toBe("Third Table");
+    expect(result[1].tableName).toBe("First Table");
+    expect(result[2].tableName).toBe("Second Table");
+  });
+
+  it("should preserve order when mixing tables with prefixes and catch-all tables", () => {
+    const manifest = createManifest("test-package", "Display Name", [
+      "prefix1_scenario1",
+      "prefix2_scenario1",
+      "other_scenario",
+    ]);
+    const tables: TableDefinition[] = [
+      {
+        name: "Second Table (Prefix2)",
+        packageName: "test-package",
+        prefixes: ["prefix2_"],
+      },
+      {
+        name: "First Table (Catch-All)",
+        packageName: "test-package",
+        // No prefixes - catch-all table
+      },
+      {
+        name: "Third Table (Prefix1)",
+        packageName: "test-package",
+        prefixes: ["prefix1_"],
+      },
+    ];
+
+    const result = splitManifestByTables(manifest, tables);
+
+    expect(result).toHaveLength(3);
+    // Results should be in the same order as tableDefinitions, not grouped by type
+    expect(result[0].tableName).toBe("Second Table (Prefix2)");
+    expect(result[1].tableName).toBe("First Table (Catch-All)");
+    expect(result[2].tableName).toBe("Third Table (Prefix1)");
+  });
 });
