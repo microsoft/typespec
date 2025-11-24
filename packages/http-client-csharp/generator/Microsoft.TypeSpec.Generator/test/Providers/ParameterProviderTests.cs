@@ -179,5 +179,48 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.IsNotNull(parameter);
             Assert.AreEqual(expectedValidation, parameter!.Validation);
         }
+
+        [TestCase("test-param", "testParam")]
+        [TestCase("TestParam", "testParam")]
+        [TestCase("test_param", "testParam")]
+        [TestCase("test.param", "testParam")]
+        [TestCase("test param", "testParam")]
+        [TestCase("TESTPARAM", "testparam")]
+        [TestCase("test-Param-Name", "testParamName")]
+        [TestCase("Test_Param_Name", "testParamName")]
+        [TestCase("123param", "_123param")]
+        [TestCase("test123param", "test123param")]
+        [TestCase("@param", "param")]
+        [TestCase("$param", "param")]
+        public void NameIsConvertedToValidCamelCaseIdentifier(string inputName, string expectedName)
+        {
+            MockHelpers.LoadMockGenerator();
+            var inputParameter = InputFactory.BodyParameter(inputName, InputPrimitiveType.String, isRequired: true);
+            var parameter = CodeModelGenerator.Instance.TypeFactory.CreateParameter(inputParameter);
+
+            Assert.IsNotNull(parameter);
+            Assert.AreEqual(expectedName, parameter!.Name);
+        }
+
+        [TestCase("test-param", "testParam")]
+        [TestCase("TestParam", "testParam")]
+        [TestCase("test_param", "testParam")]
+        [TestCase("test.param", "testParam")]
+        [TestCase("test param", "testParam")]
+        [TestCase("TESTPARAM", "testparam")]
+        [TestCase("test-Param-Name", "testParamName")]
+        [TestCase("Test_Param_Name", "testParamName")]
+        [TestCase("123param", "_123param")]
+        [TestCase("test123param", "test123param")]
+        [TestCase("@param", "param")]
+        [TestCase("$param", "param")]
+        public void NameIsConvertedToValidCamelCaseIdentifierPublicConstructor(string inputName, string expectedName)
+        {
+            MockHelpers.LoadMockGenerator();
+            var parameter = new ParameterProvider(inputName, $"Description", new CSharpType(typeof(string)));
+
+            Assert.IsNotNull(parameter);
+            Assert.AreEqual(expectedName, parameter!.Name);
+        }
     }
 }

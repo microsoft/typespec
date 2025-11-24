@@ -54,7 +54,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// <param name="inputParameter">The <see cref="InputParameter"/> to convert.</param>
         public ParameterProvider(InputParameter inputParameter)
         {
-            Name = inputParameter.Name;
+            Name = inputParameter.Name.ToIdentifierName(useCamelCase: true);
             Description = DocHelpers.GetFormattableDescription(inputParameter.Summary, inputParameter.Doc) ?? FormattableStringHelpers.Empty;
             var type = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputParameter.Type) ?? throw new InvalidOperationException($"Failed to create CSharpType for {inputParameter.Type}");
             if (!inputParameter.IsRequired)
@@ -92,7 +92,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             Debug.Assert(!(property is not null && field is not null), "A parameter cannot be both a property and a field");
 
-            Name = name;
+            Name = name.ToIdentifierName(useCamelCase: true);
             Type = type;
             Description = description;
             IsRef = isRef;
