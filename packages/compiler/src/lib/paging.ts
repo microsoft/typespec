@@ -26,7 +26,7 @@ import type {
 } from "../core/types.js";
 import { createStateSymbol } from "../lib/utils.js";
 import { DuplicateTracker, useStateSet } from "../utils/index.js";
-import { isNumericType, isStringType } from "./decorators.js";
+import { isNumericType } from "./decorators.js";
 
 export const [
   /**
