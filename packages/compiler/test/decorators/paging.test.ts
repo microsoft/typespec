@@ -213,3 +213,80 @@ describe("collect nested paging properties", () => {
     expect(pathString).toBe("results.items");
   });
 });
+
+describe("@continuationToken supports nullable and optional properties", () => {
+  it("accepts nullable string type (string | null)", async () => {
+    const diagnostics = await runner.diagnose(`
+      @list op list(): {
+        @pageItems items: string[];
+        @continuationToken token: string | null;
+      };
+    `);
+    expectDiagnosticEmpty(diagnostics);
+  });
+
+  it("accepts optional string type", async () => {
+    const diagnostics = await runner.diagnose(`
+      @list op list(): {
+        @pageItems items: string[];
+        @continuationToken token?: string;
+      };
+    `);
+    expectDiagnosticEmpty(diagnostics);
+  });
+
+  it("accepts nullable optional string type", async () => {
+    const diagnostics = await runner.diagnose(`
+      @list op list(): {
+        @pageItems items: string[];
+        @continuationToken token?: string | null;
+      };
+    `);
+    expectDiagnosticEmpty(diagnostics);
+  });
+
+  it("accepts non-string types", async () => {
+    const diagnostics = await runner.diagnose(`
+      @list op list(): {
+        @pageItems items: string[];
+        @continuationToken token: int32;
+      };
+    `);
+    expectDiagnosticEmpty(diagnostics);
+  });
+
+  it("collects nullable continuation token in input", async () => {
+    const { list, token } = (await runner.compile(`
+      @list @test op list(
+        @continuationToken @test token: string | null
+      ): { @pageItems items: string[] };
+    `)) as { list: Operation; token: ModelProperty };
+
+    const paging = ignoreDiagnostics(getPagingOperation(runner.program, list));
+    expect(paging?.input.continuationToken?.property).toBe(token);
+  });
+
+  it("collects nullable continuation token in output", async () => {
+    const { list, token } = (await runner.compile(`
+      @list @test op list(): {
+        @pageItems items: string[];
+        @continuationToken @test token: string | null;
+      };
+    `)) as { list: Operation; token: ModelProperty };
+
+    const paging = ignoreDiagnostics(getPagingOperation(runner.program, list));
+    expect(paging?.output.continuationToken?.property).toBe(token);
+  });
+
+  it("collects optional continuation token", async () => {
+    const { list, token } = (await runner.compile(`
+      @list @test op list(): {
+        @pageItems items: string[];
+        @continuationToken @test token?: string;
+      };
+    `)) as { list: Operation; token: ModelProperty };
+
+    const paging = ignoreDiagnostics(getPagingOperation(runner.program, list));
+    expect(paging?.output.continuationToken?.property).toBe(token);
+  });
+});

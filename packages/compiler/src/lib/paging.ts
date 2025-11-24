@@ -109,18 +109,7 @@ export const [
   markContinuationTokenProperty,
   /** {@inheritdoc ContinuationTokenDecorator} */
   continuationTokenDecorator,
-] = createMarkerDecorator<ContinuationTokenDecorator>("continuationToken", (context, target) => {
-  if (!isStringType(context.program, target.type)) {
-    reportDiagnostic(context.program, {
-      code: "decorator-wrong-target",
-      messageId: "withExpected",
-      format: { decorator: "continuationToken", expected: "string", to: getTypeName(target.type) },
-      target: context.decoratorTarget,
-    });
-    return false;
-  }
-  return true;
-});
+] = createMarkerDecorator<ContinuationTokenDecorator>("continuationToken");
 
 export const [
   /**
