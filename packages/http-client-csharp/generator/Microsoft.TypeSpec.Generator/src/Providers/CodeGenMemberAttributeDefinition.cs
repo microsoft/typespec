@@ -23,7 +23,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected override TypeSignatureModifiers BuildDeclarationModifiers() =>
             TypeSignatureModifiers.Internal | TypeSignatureModifiers.Class;
 
-        protected override CSharpType[] BuildImplements() => [new CodeGenTypeAttributeDefinition().Type];
+        protected internal override CSharpType[] BuildImplements() => [new CodeGenTypeAttributeDefinition().Type];
 
         protected override IReadOnlyList<AttributeStatement> BuildAttributes()
         {
@@ -33,7 +33,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     FrameworkEnumValue(AttributeTargets.Property),
                     FrameworkEnumValue(AttributeTargets.Field)))];
         }
-        protected override ConstructorProvider[] BuildConstructors()
+        protected internal override ConstructorProvider[] BuildConstructors()
         {
             var parameter = new ParameterProvider("originalName", $"The original name of the member.", typeof(string));
 

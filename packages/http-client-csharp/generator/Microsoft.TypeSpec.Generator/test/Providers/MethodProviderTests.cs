@@ -165,7 +165,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
             public static readonly TypeProvider Empty = new TestTypeProvider();
 
-            protected override MethodProvider[] BuildMethods()
+            protected internal override MethodProvider[] BuildMethods()
             {
                 return [new MethodProvider(
                     new MethodSignature(
