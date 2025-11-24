@@ -1,8 +1,8 @@
 ---
 # Change versionKind to one of: internal, fix, dependencies, feature, deprecation, breaking
-changeKind: fix
+changeKind: feature
 packages:
   - "@typespec/compiler"
 ---
 
-Syntax highlighting does not correctly recognize parameter name with hyphen
+Add support for escaping param like tags(`@param`, `@prop`, etc.) identifier with backtick in doc comments to allow special characters
