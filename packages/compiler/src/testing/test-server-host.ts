@@ -112,7 +112,7 @@ export async function createTestServerHost(options?: TestHostOptions & { workspa
 
       return Promise.resolve({ applied: true });
     },
-    getDebounceDelay: () => 0,
+    getDocumentUpdateDebounceDelay: () => 0,
   };
 
   const workspaceDir = options?.workspaceDir ?? "./";

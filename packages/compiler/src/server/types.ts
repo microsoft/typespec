@@ -69,7 +69,7 @@ export interface ServerHost {
   readonly applyEdit: (
     paramOrEdit: ApplyWorkspaceEditParams | WorkspaceEdit,
   ) => Promise<ApplyWorkspaceEditResult>;
-  readonly getDebounceDelay?: () => number;
+  readonly getDocumentUpdateDebounceDelay?: () => number;
 }
 
 export interface CompileResult {

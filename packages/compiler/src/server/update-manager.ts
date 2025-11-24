@@ -30,6 +30,7 @@ export class UpdateManager<T = void> {
   #isStarted = false;
 
   private _log: (sl: ServerLog) => void;
+  private getDebounceDelay: () => number;
 
   /**
    *
@@ -39,7 +40,7 @@ export class UpdateManager<T = void> {
   constructor(
     private name: string,
     log: (sl: ServerLog) => void,
-    private getDebounceDelay?: () => number,
+    getDebounceDelay?: () => number,
   ) {
     this._log =
       typeof process !== "undefined" &&
@@ -48,6 +49,9 @@ export class UpdateManager<T = void> {
             log({ ...sl, message: `#FromUpdateManager(${this.name}): ${sl.message}` });
           }
         : () => {};
+
+    // Set the debounce delay function once during construction
+    this.getDebounceDelay = getDebounceDelay ?? this.getAdaptiveDebounceDelay;
 
     this.#scheduleBatchUpdate = debounceThrottle<
       T | undefined,
@@ -70,10 +74,7 @@ export class UpdateManager<T = void> {
    * @returns The debounce delay in milliseconds
    */
   public getCurrentDebounceDelay = (): number => {
-    if (this.getDebounceDelay) {
-      return this.getDebounceDelay();
-    }
-    return this.getAdaptiveDebounceDelay();
+    return this.getDebounceDelay();
   };
 
   /**
