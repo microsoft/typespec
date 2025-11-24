@@ -616,9 +616,7 @@ describe("Python Class from interface", () => {
     expect(getOutput(program, [<ClassDeclaration type={WidgetOperations} />])).toRenderTo(`
       from abc import ABC
       from abc import abstractmethod
-      from dataclasses import dataclass
 
-      @dataclass(kw_only=True)
       class WidgetOperations(ABC):
         @abstractmethod
         def get_name(self, id: str) -> str:
@@ -655,7 +653,6 @@ describe("Python Class from interface", () => {
         name: str
 
 
-      @dataclass(kw_only=True)
       class WidgetOperations(ABC):
         @abstractmethod
         def get_name(self, foo: Foo) -> str:
@@ -704,7 +701,6 @@ describe("Python Class from interface", () => {
       from dataclasses import dataclass
       from typing import Literal
 
-      @dataclass(kw_only=True)
       class WidgetOperations(ABC):
         """
         Operations for Widget
@@ -758,7 +754,6 @@ describe("Python Class from interface", () => {
       from dataclasses import dataclass
       from typing import Literal
 
-      @dataclass(kw_only=True)
       class WidgetOperations(ABC):
         @abstractmethod
         def get_name(self, id: str) -> Widget:
@@ -766,7 +761,6 @@ describe("Python Class from interface", () => {
 
 
 
-      @dataclass(kw_only=True)
       class WidgetOperationsExtended(ABC):
         @abstractmethod
         def get_name(self, id: str) -> Widget:
@@ -945,9 +939,7 @@ describe("Python Class overrides", () => {
     expect(getOutput(program, [<ClassDeclaration type={WidgetOperations} />])).toRenderTo(`
       from abc import ABC
       from abc import abstractmethod
-      from dataclasses import dataclass
 
-      @dataclass(kw_only=True)
       class WidgetOperations(ABC):
         @abstractmethod
         def get_name(self, id: str) -> str:
@@ -968,9 +960,7 @@ describe("Python Class overrides", () => {
       .toRenderTo(`
       from abc import ABC
       from abc import abstractmethod
-      from dataclasses import dataclass
 
-      @dataclass(kw_only=True)
       class WidgetOperations(ABC):
         @abstractmethod
         def get_name(self, id: str) -> str:
@@ -991,9 +981,7 @@ describe("Python Class overrides", () => {
       .toRenderTo(`
       from abc import ABC
       from abc import abstractmethod
-      from dataclasses import dataclass
 
-      @dataclass(kw_only=True)
       class WidgetOperations(ABC):
         @classmethod
         @abstractmethod
@@ -1015,9 +1003,7 @@ describe("Python Class overrides", () => {
       .toRenderTo(`
       from abc import ABC
       from abc import abstractmethod
-      from dataclasses import dataclass
 
-      @dataclass(kw_only=True)
       class WidgetOperations(ABC):
         @staticmethod
         @abstractmethod
@@ -1178,13 +1164,11 @@ describe("Python Class overrides", () => {
     expect(getOutput(program, [<ClassDeclaration type={Repository} />])).toRenderTo(`
       from abc import ABC
       from abc import abstractmethod
-      from dataclasses import dataclass
       from typing import Generic
       from typing import TypeVar
 
       T = TypeVar("T")
 
-      @dataclass(kw_only=True)
       class Repository(Generic[T], ABC):
         @abstractmethod
         def get(self, id: str) -> T:
@@ -1218,13 +1202,11 @@ describe("Python Class overrides", () => {
     ).toRenderTo(`
       from abc import ABC
       from abc import abstractmethod
-      from dataclasses import dataclass
       from typing import Generic
       from typing import TypeVar
 
       T = TypeVar("T")
 
-      @dataclass(kw_only=True)
       class Repository(Generic[T], ABC):
         @abstractmethod
         def get(self, id: str) -> T:
@@ -1236,7 +1218,6 @@ describe("Python Class overrides", () => {
 
 
 
-      @dataclass(kw_only=True)
       class StringRepository(ABC):
         @abstractmethod
         def get(self, id: str) -> str:
