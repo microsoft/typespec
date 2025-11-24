@@ -1967,9 +1967,6 @@ importers:
       '@typespec/spec-coverage-sdk':
         specifier: workspace:^
         version: link:../spec-coverage-sdk
-      micromatch:
-        specifier: ^4.0.8
-        version: 4.0.8
       react:
         specifier: ~18.3.1
         version: 18.3.1
