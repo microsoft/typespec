@@ -1,5 +1,6 @@
 import { Tester } from "#test/test-host.js";
 import { getProgram } from "#test/utils.js";
+import * as py from "@alloy-js/python";
 import { t } from "@typespec/compiler/testing";
 import { describe, expect, it } from "vitest";
 import { ClassDeclaration } from "../../../../src/python/components/class-declaration/class-declaration.js";
@@ -89,7 +90,7 @@ describe("interface methods with a `type` prop", () => {
     `);
   });
 
-  it("can append extra parameters with raw params provided", async () => {
+  it("can append extra keyword-only parameters", async () => {
     const { program, getName } = await Tester.compile(t.code`
       @test op ${t.op("getName")}(id: string): string;
     `);
@@ -97,23 +98,19 @@ describe("interface methods with a `type` prop", () => {
     expect(
       getOutput(program, [
         <ClassDeclaration name="basicInterface">
-          <Method
-            type={getName}
-            parametersMode="append"
-            parameters={[{ name: "foo", type: "string" }]}
-          />
+          <Method type={getName} parameters={[{ name: "foo", type: "string" }]} />
         </ClassDeclaration>,
       ]),
     ).toRenderTo(`
       class BasicInterface:
-        def get_name(self, id: str, foo: str) -> str:
+        def get_name(self, id: str, *, foo: str) -> str:
           pass
 
 
       `);
   });
 
-  it("can prepend extra parameters with raw params provided", async () => {
+  it("can add extra keyword-only parameters", async () => {
     const { program, getName } = await Tester.compile(t.code`
       @test op ${t.op("getName")}(id: string): string;
     `);
@@ -121,16 +118,12 @@ describe("interface methods with a `type` prop", () => {
     expect(
       getOutput(program, [
         <ClassDeclaration name="basicInterface">
-          <Method
-            type={getName}
-            parametersMode="prepend"
-            parameters={[{ name: "foo", type: "string" }]}
-          />
+          <Method type={getName} parameters={[{ name: "foo", type: "string" }]} />
         </ClassDeclaration>,
       ]),
     ).toRenderTo(`
       class BasicInterface:
-        def get_name(self, foo: str, id: str) -> str:
+        def get_name(self, id: str, *, foo: str) -> str:
           pass
 
 
@@ -147,7 +140,7 @@ describe("interface methods with a `type` prop", () => {
         <ClassDeclaration name="basicInterface">
           <Method
             type={getName}
-            parametersMode="replace"
+            replaceParameters={true}
             parameters={[
               { name: "foo", type: "string" },
               { name: "bar", type: "number" },
@@ -157,7 +150,34 @@ describe("interface methods with a `type` prop", () => {
       ]),
     ).toRenderTo(`
       class BasicInterface:
-        def get_name(self, foo: str, bar: float) -> str:
+        def get_name(self, *, foo: str, bar: float) -> str:
+          pass
+
+
+      `);
+  });
+
+  it("can replace parameters with params having defaults (requires * marker)", async () => {
+    const { program, getName } = await Tester.compile(t.code`
+      @test op ${t.op("getName")}(id: string): string;
+    `);
+
+    expect(
+      getOutput(program, [
+        <ClassDeclaration name="basicInterface">
+          <Method
+            type={getName}
+            replaceParameters={true}
+            parameters={[
+              { name: "foo", type: "string", default: <py.Atom jsValue={"default"} /> },
+              { name: "bar", type: "number", default: <py.Atom jsValue={42} /> },
+            ]}
+          />
+        </ClassDeclaration>,
+      ]),
+    ).toRenderTo(`
+      class BasicInterface:
+        def get_name(self, *, foo: str = "default", bar: float = 42) -> str:
           pass
 
 

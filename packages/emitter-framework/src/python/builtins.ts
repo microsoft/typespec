@@ -38,7 +38,6 @@ export const typingModule = createModule({
       "Protocol",
       "TypeAlias",
       "TypeVar",
-      "Tuple",
     ],
   },
 });

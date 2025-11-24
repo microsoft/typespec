@@ -13,9 +13,10 @@ export interface MethodPropsWithType extends Omit<py.MethodDeclarationBaseProps,
   type: Operation;
   name?: string;
   doc?: Children;
-  parametersMode?: "prepend" | "append" | "replace";
   methodType?: "method" | "class" | "static";
   abstract?: boolean;
+  /** If true, parameters replaces operation parameters instead of adding to them as keyword-only */
+  replaceParameters?: boolean;
 }
 
 export type MethodProps = MethodPropsWithType | py.MethodDeclarationBaseProps;
@@ -74,7 +75,7 @@ export function Method(props: Readonly<MethodProps>) {
   const returnType = props.returnType ?? <TypeExpression type={getReturnType(efProps.type)} />;
   const allParameters = buildParameterDescriptors(efProps.type.parameters, {
     params: props.parameters,
-    mode: props.parametersMode,
+    replaceParameters: props.replaceParameters,
   });
 
   return (

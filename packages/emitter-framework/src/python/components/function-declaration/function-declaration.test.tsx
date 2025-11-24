@@ -6,7 +6,7 @@ import { describe, expect, it } from "vitest";
 import { FunctionDeclaration } from "./function-declaration.js";
 
 describe("Python Function Declaration", () => {
-  it("creates a function", async () => {
+  it("creates a function with single positional param", async () => {
     const { program, getName } = await Tester.compile(t.code`
       op ${t.op("getName")}(id: string): string;
     `);
@@ -43,7 +43,7 @@ describe("Python Function Declaration", () => {
       `);
   });
 
-  it("creates a function appending extra parameters with raw params provided", async () => {
+  it("creates a function with additional keyword-only parameters", async () => {
     const { program, createPerson } = await Tester.compile(t.code`
       op ${t.op("createPerson")}(id: string): string;
     `);
@@ -59,27 +59,23 @@ describe("Python Function Declaration", () => {
         />,
       ]),
     ).toRenderTo(`
-      def create_person(name: str, age: float, id: str) -> str:
+      def create_person(id: str, *, name: str, age: float) -> str:
         pass
       
       `);
   });
 
-  it("creates a function prepending extra parameters with raw params provided", async () => {
+  it("creates a function with additional keyword-only parameters (string shorthand)", async () => {
     const { program, createPerson } = await Tester.compile(t.code`
       op ${t.op("createPerson")}(id: string): string;
     `);
 
     expect(
       getOutput(program, [
-        <FunctionDeclaration
-          type={createPerson}
-          parameters={["name", "age"]}
-          parametersMode="prepend"
-        />,
+        <FunctionDeclaration type={createPerson} parameters={["name", "age"]} />,
       ]),
     ).toRenderTo(`
-      def create_person(name, age, id: str) -> str:
+      def create_person(id: str, *, name, age) -> str:
         pass
       
       `);
@@ -95,11 +91,34 @@ describe("Python Function Declaration", () => {
         <FunctionDeclaration
           type={createPerson}
           parameters={["name", "age"]}
-          parametersMode="replace"
+          replaceParameters={true}
         />,
       ]),
     ).toRenderTo(`
-      def create_person(name, age) -> str:
+      def create_person(*, name, age) -> str:
+        pass
+      
+      `);
+  });
+
+  it("creates a function replacing parameters with params having defaults (requires * marker)", async () => {
+    const { program, createPerson } = await Tester.compile(t.code`
+      op ${t.op("createPerson")}(id: string): string;
+    `);
+
+    expect(
+      getOutput(program, [
+        <FunctionDeclaration
+          type={createPerson}
+          parameters={[
+            { name: "name", type: "str", default: <py.Atom jsValue={"alice"} /> },
+            { name: "age", type: "int", default: <py.Atom jsValue={30} /> },
+          ]}
+          replaceParameters={true}
+        />,
+      ]),
+    ).toRenderTo(`
+      def create_person(*, name: str = "alice", age: int = 30) -> str:
         pass
       
       `);
@@ -107,7 +126,7 @@ describe("Python Function Declaration", () => {
 
   it("creates a function with defaults in raw parameter descriptors", async () => {
     const { program, createPerson } = await Tester.compile(t.code`
-      op ${t.op("createPerson")}(id: string): string;
+      op ${t.op("createPerson")}(id: string, locale: string = "en-US"): string;
     `);
 
     expect(
@@ -118,11 +137,10 @@ describe("Python Function Declaration", () => {
             { name: "limit", type: "int", default: <py.Atom jsValue={10} /> },
             { name: "verbose", type: "bool", default: <py.Atom jsValue={true} /> },
           ]}
-          parametersMode="prepend"
         />,
       ]),
     ).toRenderTo(`
-      def create_person(limit: int = 10, verbose: bool = True, id: str) -> str:
+      def create_person(id: str, *, locale: str = "en-US", limit: int = 10, verbose: bool = True) -> str:
         pass
       
       `);
@@ -158,7 +176,7 @@ describe("Python Function Declaration", () => {
 
     expect(getOutput(program, [<FunctionDeclaration type={createPerson} parametersModel={Foo} />]))
       .toRenderTo(`
-      def create_person(required_name: str = "alice", optional_age: int = None) -> str:
+      def create_person(*, required_name: str = "alice", optional_age: int = None) -> str:
         pass
       
       `);
@@ -369,6 +387,198 @@ describe("Python Function Declaration", () => {
 
     expect(getOutput(program, [<FunctionDeclaration type={get} />])).toRenderTo(`
       def get() -> int | str:
+        pass
+      
+      `);
+  });
+
+  it("creates a function with only keyword-only parameters (requires * marker for params with defaults)", async () => {
+    const { program, createPerson } = await Tester.compile(t.code`
+      op ${t.op("createPerson")}(name: string = "alice", age: int32 = 30): string;
+    `);
+
+    expect(getOutput(program, [<FunctionDeclaration type={createPerson} />])).toRenderTo(`
+      def create_person(*, name: str = "alice", age: int = 30) -> str:
+        pass
+      
+      `);
+  });
+
+  it("creates a function with operation params positional and additional params keyword-only", async () => {
+    const { program, createPerson } = await Tester.compile(t.code`
+      op ${t.op("createPerson")}(id: string, locale: string = "en-US"): string;
+    `);
+
+    expect(
+      getOutput(program, [
+        <FunctionDeclaration
+          type={createPerson}
+          parameters={[
+            { name: "version", type: "int" },
+            { name: "debug", type: "bool", default: <py.Atom jsValue={false} /> },
+          ]}
+        />,
+      ]),
+    ).toRenderTo(`
+      def create_person(id: str, *, version: int, locale: str = "en-US", debug: bool = False) -> str:
+        pass
+      
+      `);
+  });
+
+  it("creates a function with TSP params in wrong order (default before required) - reorders correctly", async () => {
+    const { program, createPerson } = await Tester.compile(t.code`
+      op ${t.op("createPerson")}(locale: string = "en-US", id: string): string;
+    `);
+
+    expect(getOutput(program, [<FunctionDeclaration type={createPerson} />])).toRenderTo(`
+      def create_person(id: str, *, locale: str = "en-US") -> str:
+        pass
+      
+      `);
+  });
+
+  it("creates a function with only positional params when adding params to empty operation", async () => {
+    const { program, ping } = await Tester.compile(t.code`
+      op ${t.op("ping")}(): string;
+    `);
+
+    expect(getOutput(program, [<FunctionDeclaration type={ping} parameters={["name", "age"]} />]))
+      .toRenderTo(`
+      def ping(name, age) -> str:
+        pass
+      
+      `);
+  });
+
+  it("creates a function with multiple positional params", async () => {
+    const { program, createPerson } = await Tester.compile(t.code`
+      op ${t.op("createPerson")}(id: string, name: string, age: int32): string;
+    `);
+
+    expect(getOutput(program, [<FunctionDeclaration type={createPerson} />])).toRenderTo(`
+      def create_person(id: str, name: str, age: int) -> str:
+        pass
+      
+      `);
+  });
+
+  it("creates a function adding keyword-only params to operation with only positional params", async () => {
+    const { program, createPerson } = await Tester.compile(t.code`
+      op ${t.op("createPerson")}(id: string, name: string): string;
+    `);
+
+    expect(
+      getOutput(program, [
+        <FunctionDeclaration
+          type={createPerson}
+          parameters={[
+            "email",
+            { name: "notify", type: "bool", default: <py.Atom jsValue={false} /> },
+          ]}
+        />,
+      ]),
+    ).toRenderTo(`
+      def create_person(id: str, name: str, *, email, notify: bool = False) -> str:
+        pass
+      
+      `);
+  });
+
+  it("creates a function with multiple params with defaults (all keyword-only)", async () => {
+    const { program, search } = await Tester.compile(t.code`
+      op ${t.op("search")}(
+        limit: int32 = 10,
+        offset: int32 = 0,
+        sortBy: string = "name"
+      ): string;
+    `);
+
+    expect(getOutput(program, [<FunctionDeclaration type={search} />])).toRenderTo(`
+      def search(*, limit: int = 10, offset: int = 0, sort_by: str = "name") -> str:
+        pass
+      
+      `);
+  });
+
+  it("creates a function adding params without defaults to operation with only defaults", async () => {
+    const { program, search } = await Tester.compile(t.code`
+      op ${t.op("search")}(limit: int32 = 10, offset: int32 = 0): string;
+    `);
+
+    expect(getOutput(program, [<FunctionDeclaration type={search} parameters={["query"]} />]))
+      .toRenderTo(`
+      def search(*, query, limit: int = 10, offset: int = 0) -> str:
+        pass
+      
+      `);
+  });
+
+  it("creates a function with complex parameter mix", async () => {
+    const { program, complexOp } = await Tester.compile(t.code`
+      op ${t.op("complexOp")}(
+        required1: string,
+        required2: int32,
+        optional1: string = "default",
+        optional2: int32 = 42
+      ): string;
+    `);
+
+    expect(
+      getOutput(program, [
+        <FunctionDeclaration
+          type={complexOp}
+          parameters={[
+            "additionalRequired",
+            { name: "additionalOptional", type: "bool", default: <py.Atom jsValue={true} /> },
+          ]}
+        />,
+      ]),
+    ).toRenderTo(`
+      def complex_op(required1: str, required2: int, *, additional_required, optional1: str = "default", optional2: int = 42, additional_optional: bool = True) -> str:
+        pass
+      
+      `);
+  });
+
+  it("creates a function with single positional param and additional keyword-only", async () => {
+    const { program, getUser } = await Tester.compile(t.code`
+      op ${t.op("getUser")}(id: string): string;
+    `);
+
+    expect(
+      getOutput(program, [
+        <FunctionDeclaration
+          type={getUser}
+          parameters={[
+            { name: "includeDeleted", type: "bool", default: <py.Atom jsValue={false} /> },
+          ]}
+        />,
+      ]),
+    ).toRenderTo(`
+      def get_user(id: str, *, include_deleted: bool = False) -> str:
+        pass
+      
+      `);
+  });
+
+  it("creates a function adding only params with defaults to empty operation", async () => {
+    const { program, ping } = await Tester.compile(t.code`
+      op ${t.op("ping")}(): string;
+    `);
+
+    expect(
+      getOutput(program, [
+        <FunctionDeclaration
+          type={ping}
+          parameters={[
+            { name: "timeout", type: "int", default: <py.Atom jsValue={30} /> },
+            { name: "retries", type: "int", default: <py.Atom jsValue={3} /> },
+          ]}
+        />,
+      ]),
+    ).toRenderTo(`
+      def ping(*, timeout: int = 30, retries: int = 3) -> str:
         pass
       
       `);

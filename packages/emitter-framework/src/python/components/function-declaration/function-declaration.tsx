@@ -10,8 +10,9 @@ export interface FunctionDeclarationPropsWithType
   extends Omit<py.FunctionDeclarationProps, "name"> {
   type: Operation;
   name?: string;
-  parametersMode?: "prepend" | "append" | "replace";
   parametersModel?: Model;
+  /** If true, parameters replaces operation parameters instead of adding to them as keyword-only */
+  replaceParameters?: boolean;
 }
 
 export type FunctionDeclarationProps =
@@ -24,10 +25,11 @@ export type FunctionDeclarationProps =
  * provided will take precedence.
  *
  * Behavior notes:
- * - `parametersModel`: When provided, it REPLACES the function parameters, ignoring
- *   `parameters` and `parametersMode`.
+ * - `parametersModel`: When provided, it replaces the function parameters, ignoring
+ *   the `parameters` option.
  * - Model-derived parameters include default values when present on the model, and
  *   emit `= None` for optional parameters without an explicit default.
+ * - Additional parameters (from `parameters` prop) are always keyword-only.
  */
 export function FunctionDeclaration(props: FunctionDeclarationProps) {
   const { $ } = useTsp();
@@ -43,15 +45,15 @@ export function FunctionDeclaration(props: FunctionDeclarationProps) {
     : py.usePythonNamePolicy().getName(props.type.name, "function");
 
   const returnType = props.returnType ?? <TypeExpression type={props.type.returnType} />;
-  let allParameters: py.ParameterDescriptor[] | undefined;
+  let allParameters: (py.ParameterDescriptor | string)[] | undefined;
   if (props.parametersModel) {
     // When a parametersModel is provided, it always replaces parameters,
-    // ignoring parametersMode and extra parameters.
+    // ignoring extra parameters.
     allParameters = buildParameterDescriptors(props.parametersModel) ?? [];
   } else {
     allParameters = buildParameterDescriptors(props.type.parameters, {
       params: props.parameters,
-      mode: props.parametersMode,
+      replaceParameters: props.replaceParameters,
     });
   }
   const rawDoc = props.doc ?? $.type.getDoc(props.type);

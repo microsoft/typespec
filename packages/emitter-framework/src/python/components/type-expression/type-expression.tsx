@@ -55,7 +55,7 @@ export function TypeExpression(props: TypeExpressionProps) {
     case "Tuple":
       return (
         <>
-          {typingModule["."]["Tuple"]}[
+          tuple[
           <For each={type.values} comma space>
             {(element) => <TypeExpression type={element} />}
           </For>
@@ -203,7 +203,6 @@ const intrinsicNameToPythonType = new Map<string, string | null>([
 const pythonTypeToImport = new Map<string, any>([
   ["Any", typingModule["."]["Any"]],
   ["Never", typingModule["."]["Never"]],
-  ["Tuple", typingModule["."]["Tuple"]],
   ["datetime", datetimeModule["."]["datetime"]],
   ["Decimal", decimalModule["."]["Decimal"]],
 ]);

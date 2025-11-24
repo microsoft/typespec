@@ -61,15 +61,13 @@ describe("map scalar to Python types", () => {
 });
 
 describe("map tuple to Python types", () => {
-  it("[int32, int32] => Tuple[int, int]", async () => {
+  it("[int32, int32] => tuple[int, int]", async () => {
     const { program, Tuple } = await Tester.compile(t.code`
       alias ${t.type("Tuple")} = [int32, int32];
     `);
 
     expect(getOutput(program, [<TypeExpression type={Tuple} />])).toRenderTo(d`
-      from typing import Tuple
-
-      Tuple[int, int]
+      tuple[int, int]
     `);
   });
 });
@@ -101,7 +99,7 @@ describe("map operation (function type) to typing.Callable", () => {
 });
 
 describe("correctly solves a ModelProperty to Python types", () => {
-  it("[int32, int32] => Tuple[int, int]", async () => {
+  it("[int32, int32] => tuple[int, int]", async () => {
     const { program, tupleProperty } = await Tester.compile(t.code`
       model Test {
         ${t.modelProperty("tupleProperty")}: [int32, int32];
@@ -109,9 +107,7 @@ describe("correctly solves a ModelProperty to Python types", () => {
     `);
 
     expect(getOutput(program, [<TypeExpression type={tupleProperty} />])).toRenderTo(d`
-      from typing import Tuple
-
-      Tuple[int, int]
+      tuple[int, int]
     `);
   });
 });

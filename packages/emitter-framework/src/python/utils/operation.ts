@@ -23,35 +23,77 @@ export function getReturnType(
 
 export interface BuildParameterDescriptorsOptions {
   params?: (py.ParameterDescriptor | string)[];
-  mode?: "prepend" | "append" | "replace";
   suffixRefkey?: Refkey;
+  /** If true, params replaces operation parameters instead of adding to them */
+  replaceParameters?: boolean;
 }
 
 /**
  * Build a parameter descriptor array from a TypeSpec Model.
+ *
+ * Parameter ordering (unless replaceParameters is true):
+ * - Operation params without defaults: positional (e.g., URL path params)
+ * - "*" marker (if any keyword-only params exist)
+ * - Operation params with defaults: keyword-only (e.g., query params)
+ * - Additional params: keyword-only
  */
 export function buildParameterDescriptors(
   type: Model,
   options: BuildParameterDescriptorsOptions = {},
-): py.ParameterDescriptor[] | undefined {
+): (py.ParameterDescriptor | string)[] | undefined {
   const { $ } = useTsp();
   const suffixRefkey = options.suffixRefkey ?? refkey();
-  const optionsParams = normalizeParameters(options.params ?? []);
+  const optionsParams: py.ParameterDescriptor[] = normalizeParameters(options.params ?? []);
 
-  if (options.mode === "replace") {
-    return optionsParams;
+  // If replaceParameters is true, ignore operation params and just return options params
+  // All replacement parameters are keyword-only (following "additional parameters are keyword-only" principle)
+  if (options.replaceParameters) {
+    const withoutDefaults = optionsParams.filter((p) => p.default === undefined);
+    const withDefaults = optionsParams.filter((p) => p.default !== undefined);
+
+    // Always add "*" marker since all replacement params should be keyword-only
+    const allParams: (py.ParameterDescriptor | string)[] =
+      optionsParams.length > 0 ? ["*", ...withoutDefaults, ...withDefaults] : [];
+
+    return allParams;
   }
 
   const modelProperties = $.model.getProperties(type);
-  const operationParams = [...modelProperties.values()].map((m) =>
+  const operationParams: py.ParameterDescriptor[] = [...modelProperties.values()].map((m) =>
     buildParameterDescriptor(m, suffixRefkey),
   );
 
-  // Merge parameters based on location
-  const allParams =
-    options.mode === "append"
-      ? operationParams.concat(optionsParams)
-      : optionsParams.concat(operationParams);
+  // Split operation params: params without defaults are positional, params with defaults are keyword-only
+  const opParamsWithoutDefaults = operationParams.filter((p) => p.default === undefined);
+  const opParamsWithDefaults = operationParams.filter((p) => p.default !== undefined);
+
+  // Reorder additional params: params without defaults before params with defaults
+  const optionsWithoutDefaults = optionsParams.filter((p) => p.default === undefined);
+  const optionsWithDefaults = optionsParams.filter((p) => p.default !== undefined);
+
+  // Build final parameter list:
+  // - Operation params without defaults: positional (e.g., URL path params)
+  // - "*" marker (if there are keyword-only params)
+  // - Operation params with defaults: keyword-only (e.g., query params with defaults)
+  // - Additional params: keyword-only
+
+  // If there are no operation params at all, treat additional params without defaults as positional
+  const hasOperationParams = operationParams.length > 0;
+
+  const positionalParams = hasOperationParams
+    ? opParamsWithoutDefaults
+    : [...opParamsWithoutDefaults, ...optionsWithoutDefaults];
+
+  const keywordOnlyParams = hasOperationParams
+    ? [...optionsWithoutDefaults, ...opParamsWithDefaults, ...optionsWithDefaults]
+    : [...opParamsWithDefaults, ...optionsWithDefaults];
+
+  // Add "*" marker if we have keyword-only params
+  // This enforces that params with defaults are truly keyword-only
+  const allParams: (py.ParameterDescriptor | string)[] =
+    keywordOnlyParams.length > 0
+      ? [...positionalParams, "*", ...keywordOnlyParams]
+      : [...positionalParams];
 
   return allParams;
 }
@@ -95,8 +137,8 @@ const rawTypeMap = {
 };
 
 /**
- * Convert a parameter descriptor array, string array, or undefined to
- * a parameter descriptor array.
+ * Convert a parameter descriptor array to normalized parameter descriptors.
+ * String parameter names are converted to basic parameter descriptors.
  */
 function normalizeParameters(
   params: (py.ParameterDescriptor | string)[],
@@ -105,6 +147,7 @@ function normalizeParameters(
 
   return params.map((param) => {
     if (typeof param === "string") {
+      // Convert string names to parameter descriptors
       return { name: param };
     }
     if (typeof (param as any).type === "string") {
