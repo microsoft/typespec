@@ -131,54 +131,71 @@ The C# HTTP client package consists of two main components:
 
 The package includes both TypeScript (emitter) and C# (generator) tests:
 
-```bash
-# Run all tests
-npm run test
+- Run all tests:
+  ```bash
+  npm run test
+  ```
 
-# Run emitter tests only (TypeScript/Vitest)
-npm run test:emitter
+- Run emitter tests only (TypeScript/Vitest):
+  ```bash
+  npm run test:emitter
+  ```
 
-# Run generator tests only (.NET)
-npm run test:generator
+- Run generator tests only (.NET):
+  ```bash
+  npm run test:generator
+  ```
 
-# Run tests with coverage
-npm run test:ci
+- Run tests with coverage:
+  ```bash
+  npm run test:ci
+  ```
 
-# Run tests with UI (emitter only)
-npm run test:ui
-```
+- Run tests with UI (emitter only):
+  ```bash
+  npm run test:ui
+  ```
 
-> **Note**: Some tests may require a full workspace build (`pnpm build` from repository root) to resolve all dependencies before running successfully.
+> [!IMPORTANT]
+> Some tests may require a full workspace build (`pnpm build` from repository root) to resolve all dependencies before running successfully.
 
 ### Integration Testing with Spector
 
 The package uses the Spector test framework for end-to-end testing of generated code:
 
-```bash
-# Run Spector tests (requires PowerShell)
-./eng/scripts/Test-Spector.ps1
+- Run Spector tests (requires PowerShell):
+  ```bash
+  ./eng/scripts/Test-Spector.ps1
+  ```
 
-# Run Spector tests with filter
-./eng/scripts/Test-Spector.ps1 -filter "specific-test-name"
+- Run Spector tests with filter:
+  ```bash
+  ./eng/scripts/Test-Spector.ps1 -filter "specific-test-name"
+  ```
 
-# Get Spector test coverage
-./eng/scripts/Get-Spector-Coverage.ps1
-```
+- Get Spector test coverage:
+  ```bash
+  ./eng/scripts/Get-Spector-Coverage.ps1
+  ```
 
 ### Test Project Generation
 
 Generate test projects to validate the emitter and generator:
 
-```bash
-# Generate all test projects (requires PowerShell)
-./eng/scripts/Generate.ps1
+- Generate all test projects (requires PowerShell):
+  ```bash
+  ./eng/scripts/Generate.ps1
+  ```
 
-# Generate specific test project
-./eng/scripts/Generate.ps1 -filter "project-name"
+- Generate specific test project:
+  ```bash
+  ./eng/scripts/Generate.ps1 -filter "project-name"
+  ```
 
-# Generate with stubbed mode disabled
-./eng/scripts/Generate.ps1 -Stubbed $false
-```
+- Generate with stubbed mode disabled:
+  ```bash
+  ./eng/scripts/Generate.ps1 -Stubbed $false
+  ```
 
 ## Code Generation
 
