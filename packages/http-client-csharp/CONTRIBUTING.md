@@ -77,11 +77,9 @@ The C# HTTP client package consists of two main components:
 
 ### Making Changes
 
-1. **Create a fork** of the repository and clone it:
+1. **Create a feature branch** for your changes:
 
    ```bash
-   git clone https://github.com/YOUR_USERNAME/typespec.git
-   cd typespec
    git checkout -b feature/your-feature-name
    ```
 
@@ -89,29 +87,37 @@ The C# HTTP client package consists of two main components:
 
 3. **Build your changes**:
 
-   ```bash
-   # Build emitter only
-   npm run build:emitter
+   - Build everything:
+     ```bash
+     npm run build
+     ```
    
-   # Build generator only
-   npm run build:generator
+   - Build emitter only:
+     ```bash
+     npm run build:emitter
+     ```
    
-   # Build everything
-   npm run build
-   ```
+   - Build generator only:
+     ```bash
+     npm run build:generator
+     ```
 
 4. **Test your changes**:
 
-   ```bash
-   # Test emitter only
-   npm run test:emitter
+   - Run all tests:
+     ```bash
+     npm run test
+     ```
    
-   # Test generator only
-   npm run test:generator
+   - Test emitter only:
+     ```bash
+     npm run test:emitter
+     ```
    
-   # Test everything
-   npm run test
-   ```
+   - Test generator only:
+     ```bash
+     npm run test:generator
+     ```
 
 ### Code Style and Linting
 
