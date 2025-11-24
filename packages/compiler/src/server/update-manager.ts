@@ -30,7 +30,6 @@ export class UpdateManager<T = void> {
   #isStarted = false;
 
   private _log: (sl: ServerLog) => void;
-  private getDebounceDelay: () => number;
 
   /**
    *
@@ -40,7 +39,7 @@ export class UpdateManager<T = void> {
   constructor(
     private name: string,
     log: (sl: ServerLog) => void,
-    private updatedManagerDebounceDelay: number | undefined = undefined,
+    private getDebounceDelay?: () => number,
   ) {
     this._log =
       typeof process !== "undefined" &&
@@ -50,8 +49,6 @@ export class UpdateManager<T = void> {
           }
         : () => {};
 
-    this.getDebounceDelay = () => this.updatedManagerDebounceDelay ?? -1;
-    
     this.#scheduleBatchUpdate = debounceThrottle<
       T | undefined,
       TextDocument | TextDocumentIdentifier
@@ -62,12 +59,22 @@ export class UpdateManager<T = void> {
         return await this.#update(Array.from(updates.values()), arg);
       },
       () => (this.#isStarted ? "ready" : "pending"),
-      this.getDebounceDelay() === -1
-        ? this.getAdaptiveDebounceDelay
-        : () => this.getDebounceDelay(),
+      this.getCurrentDebounceDelay,
       this._log,
     );
   }
+
+  /**
+   * Centralized function to get the current debounce delay.
+   * This is the function that both production code and tests should use.
+   * @returns The debounce delay in milliseconds
+   */
+  public getCurrentDebounceDelay = (): number => {
+    if (this.getDebounceDelay) {
+      return this.getDebounceDelay();
+    }
+    return this.getAdaptiveDebounceDelay();
+  };
 
   /**
    * Callback will only be invoked after start() is called.
