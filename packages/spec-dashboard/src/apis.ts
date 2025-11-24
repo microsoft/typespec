@@ -29,7 +29,7 @@ export interface CoverageFromAzureStorageOptions {
   /** Optional table definitions to split scenarios into multiple tables */
   readonly tables?: TableDefinition[];
   /** Optional tier config to filter scenarios by tier */
-  readonly tierConfig?: TierConfig;
+  readonly tiers?: TierConfig;
 }
 
 export interface GeneratorCoverageSuiteReport extends CoverageReport {

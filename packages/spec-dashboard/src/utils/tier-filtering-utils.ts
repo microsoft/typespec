@@ -11,7 +11,7 @@ export interface TierConfig {
  */
 export interface CompiledTierConfig {
   exact: Map<string, string>;
-  prefixes: { tier: string; prefix: string }[];
+  patterns: { tier: string; regex: RegExp }[];
   defaultTier: string;
 }
 
@@ -20,7 +20,7 @@ export interface CompiledTierConfig {
  */
 export function compileTierConfig(config: TierConfig): CompiledTierConfig {
   const exact = new Map<string, string>();
-  const prefixes: { tier: string; prefix: string }[] = [];
+  const patterns: { tier: string; regex: RegExp }[] = [];
 
   const { tiers, default: defaultTier } = config;
 
@@ -28,31 +28,33 @@ export function compileTierConfig(config: TierConfig): CompiledTierConfig {
     throw new Error(`Invalid tierConfig.default: "${defaultTier}" not found in tiers`);
   }
 
-  for (const [tier, patterns] of Object.entries(tiers)) {
-    for (const pattern of patterns) {
+  for (const [tier, patternList] of Object.entries(tiers)) {
+    for (const pattern of patternList) {
       if (pattern.includes("*")) {
-        const prefix = pattern.slice(0, pattern.indexOf("*"));
-        prefixes.push({ tier, prefix });
+        const regexPattern = pattern
+          .replace(/[.+?^${}()|[\]\\]/g, "\\$&") // escape regex special chars
+          .replace(/\*/g, ".*"); // replace * with .*
+        patterns.push({ tier, regex: new RegExp(`^${regexPattern}$`) });
       } else {
         exact.set(pattern, tier);
       }
     }
   }
 
-  return { exact, prefixes, defaultTier };
+  return { exact, patterns, defaultTier };
 }
 
 /**
  * Classifies a scenario name into a tier using the compiled tier config.
  */
 export function classifyScenario(name: string, config: CompiledTierConfig): string {
-  const { exact, prefixes, defaultTier } = config;
+  const { exact, patterns, defaultTier } = config;
 
   const tier = exact.get(name);
   if (tier) return tier;
 
-  for (const { tier, prefix } of prefixes) {
-    if (name.startsWith(prefix)) return tier;
+  for (const { tier, regex } of patterns) {
+    if (regex.test(name)) return tier;
   }
 
   return defaultTier; // fallback
