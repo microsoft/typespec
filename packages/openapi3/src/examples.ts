@@ -373,6 +373,10 @@ function getQueryParameterValue(
       return getParameterDelimitedValue(program, originalValue, property, " ");
     case "pipeDelimited":
       return getParameterDelimitedValue(program, originalValue, property, "|");
+    case "commaDelimited":
+      return getParameterDelimitedValue(program, originalValue, property, ",");
+    case "newlineDelimited":
+      return getParameterDelimitedValue(program, originalValue, property, "\n");
   }
 }
 
@@ -518,7 +522,7 @@ function getParameterDelimitedValue(
   program: Program,
   originalValue: Value,
   property: Extract<HttpParameterProperties, { kind: "query" }>,
-  delimiter: " " | "|",
+  delimiter: " " | "|" | "," | "\n",
 ): Value | undefined {
   const { explode, name } = property.options;
   // Serialization is undefined for explode=true
