@@ -27,33 +27,36 @@ Before you begin, ensure you have the following installed:
 
 ## Getting Started
 
-### 1. Clone the Repository
+### 1. Fork and Clone the Repository
+
+First, create a fork of the repository on GitHub, then clone your fork:
 
 ```bash
-git clone https://github.com/microsoft/typespec.git
-cd typespec/packages/http-client-csharp
+git clone https://github.com/YOUR_USERNAME/typespec.git
 ```
+
+Replace `YOUR_USERNAME` with your GitHub username.
 
 ### 2. Install Dependencies
 
-From the repository root:
+Navigate to the project directory and install the package dependencies:
 
 ```bash
+cd packages/http-client-csharp
 npm ci
 ```
 
 ### 3. Build the C# Package
 
 ```bash
-cd packages/http-client-csharp
 npm run build
 ```
 
-This command runs:
-
-- `npm run build:emitter` - Builds the TypeScript emitter
-- `npm run build:generator` - Builds the .NET generator
-- `npm run extract-api` - Extracts API documentation
+> [!NOTE]
+> This command runs:
+> - `npm run build:emitter` - Builds the TypeScript emitter
+> - `npm run build:generator` - Builds the .NET generator
+> - `npm run extract-api` - Extracts API documentation
 
 ### 4. Verify Installation
 
