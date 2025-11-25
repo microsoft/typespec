@@ -152,9 +152,9 @@ public abstract class ResourceOperation {
         collectionMethods.sort((m1, m2) -> {
             int count1 = m1.getInnerClientMethod().getParameters().size();
             int count2 = m2.getInnerClientMethod().getParameters().size();
-            return Integer.compare(count2, count1);
+            return -Integer.compare(count1, count2);
         });
-        return collectionMethods.reversed().get(0).getInnerClientMethod();
+        return collectionMethods.get(0).getInnerClientMethod();
     }
 
     public ClientMethodParameter getBodyParameter() {
