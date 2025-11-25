@@ -131,7 +131,7 @@ public abstract class ResourceOperation {
     }
 
     private List<MethodParameter> getParametersByLocation(Set<RequestParameterLocation> parameterLocations) {
-        ClientMethod clientMethod = getMethodReferencesOfFullParameters().iterator().next().getInnerClientMethod();
+        ClientMethod clientMethod = getClientMethodOfFullParameters();
         Map<String, ProxyMethodParameter> proxyMethodParameterByClientParameterName = clientMethod.getProxyMethod()
             .getParameters()
             .stream()
@@ -143,6 +143,18 @@ public abstract class ResourceOperation {
             .filter(p -> proxyMethodParameterByClientParameterName.containsKey(p.getName()))
             .map(p -> new MethodParameter(proxyMethodParameterByClientParameterName.get(p.getName()), p))
             .collect(Collectors.toList());
+    }
+
+    private ClientMethod getClientMethodOfFullParameters() {
+        List<FluentCollectionMethod> collectionMethods = getMethodReferencesOfFullParameters();
+        // take the client method with longest parameters
+        // it should be the client method of full parameters
+        collectionMethods.sort((m1, m2) -> {
+            int count1 = m1.getInnerClientMethod().getParameters().size();
+            int count2 = m2.getInnerClientMethod().getParameters().size();
+            return Integer.compare(count2, count1);
+        });
+        return collectionMethods.reversed().get(0).getInnerClientMethod();
     }
 
     public ClientMethodParameter getBodyParameter() {
