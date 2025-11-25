@@ -107,9 +107,6 @@ $generateScript = {
     $tspOptions += " --option ""@typespec/http-client-java.generate-tests=false"""
     # add customization code
     $tspOptions += " --option ""@typespec/http-client-java.customization-class=../../customization/src/main/java/KeyVaultCustomization.java"""
-  } elseif ($tspFile -match "tsp[\\/]arm-versioned.tsp") {
-    # enable advanced versioning for resiliency test
-    $tspOptions += " --option ""@typespec/http-client-java.advanced-versioning=true"""
   } elseif ($tspFile -match "tsp[\\/]subclient.tsp") {
     $tspOptions += " --option ""@typespec/http-client-java.enable-subclient=true"""
     # test for include-api-view-properties

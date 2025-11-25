@@ -26,11 +26,6 @@ public final class TopLevelArmResourcesImpl implements TopLevelArmResources {
         this.serviceManager = serviceManager;
     }
 
-    public PagedIterable<TopLevelArmResource> list(String parameter, Context context) {
-        PagedIterable<TopLevelArmResourceInner> inner = this.serviceClient().list(parameter, context);
-        return ResourceManagerUtils.mapPage(inner, inner1 -> new TopLevelArmResourceImpl(inner1, this.manager()));
-    }
-
     public PagedIterable<TopLevelArmResource> list() {
         PagedIterable<TopLevelArmResourceInner> inner = this.serviceClient().list();
         return ResourceManagerUtils.mapPage(inner, inner1 -> new TopLevelArmResourceImpl(inner1, this.manager()));
@@ -39,12 +34,6 @@ public final class TopLevelArmResourcesImpl implements TopLevelArmResources {
     public PagedIterable<TopLevelArmResource> list(String parameter, String newParameter, Context context) {
         PagedIterable<TopLevelArmResourceInner> inner = this.serviceClient().list(parameter, newParameter, context);
         return ResourceManagerUtils.mapPage(inner, inner1 -> new TopLevelArmResourceImpl(inner1, this.manager()));
-    }
-
-    public Response<Void> actionWithResponse(String resourceGroupName, String topLevelArmResourcePropertiesName,
-        String parameter, Context context) {
-        return this.serviceClient()
-            .actionWithResponse(resourceGroupName, topLevelArmResourcePropertiesName, parameter, context);
     }
 
     public Response<Void> actionWithResponse(String resourceGroupName, String topLevelArmResourcePropertiesName,
