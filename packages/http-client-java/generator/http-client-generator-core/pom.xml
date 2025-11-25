@@ -22,45 +22,20 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.azure</groupId>
-      <artifactId>azure-core</artifactId>
-      <version>1.57.0</version>
-      <exclusions>
-        <exclusion>
-          <groupId>com.azure</groupId>
-          <artifactId>azure-json</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.azure</groupId>
-          <artifactId>azure-xml</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.fasterxml.jackson.core</groupId>
-          <artifactId>jackson-annotations</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.fasterxml.jackson.core</groupId>
-          <artifactId>jackson-core</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.fasterxml.jackson.core</groupId>
-          <artifactId>jackson-databind</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.fasterxml.jackson.datatype</groupId>
-          <artifactId>jackson-datatype-jsr310</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
       <groupId>io.clientcore</groupId>
       <artifactId>core</artifactId>
       <version>1.0.0-beta.11</version>
     </dependency>
     <dependency>
       <groupId>com.azure</groupId>
-      <artifactId>azure-json</artifactId>
-      <version>1.5.0</version>
+      <artifactId>azure-core</artifactId>
+      <version>1.57.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.projectreactor</groupId>
+      <artifactId>reactor-core</artifactId>
+      <version>3.7.11</version>
       <scope>test</scope>
     </dependency>
     <dependency>
