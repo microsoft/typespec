@@ -182,7 +182,7 @@ describe("Python Function Declaration", () => {
       `);
   });
 
-  it("creates a function that replaces parameters with parametersModel even when extras and mode are provided", async () => {
+  it("creates a function that replaces parameters with parametersModel even when extras are provided", async () => {
     const { program, createPerson, Foo } = await Tester.compile(t.code`
       op ${t.op("createPerson")}(id: string): string;
 
@@ -194,12 +194,7 @@ describe("Python Function Declaration", () => {
 
     expect(
       getOutput(program, [
-        <FunctionDeclaration
-          type={createPerson}
-          parametersModel={Foo}
-          parameters={["extra"]}
-          parametersMode="append"
-        />,
+        <FunctionDeclaration type={createPerson} parametersModel={Foo} parameters={["extra"]} />,
       ]),
     ).toRenderTo(`
       def create_person(name: str, age: int) -> str:
