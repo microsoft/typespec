@@ -94,7 +94,7 @@ public final class TopLevelArmResourceImpl
         this.innerObject = serviceManager.serviceClient()
             .getTopLevelArmResources()
             .createOrUpdate(resourceGroupName, topLevelArmResourcePropertiesName, this.innerModel(), createParameter,
-                createNewParameter, Context.NONE);
+                Context.NONE);
         return this;
     }
 
@@ -102,7 +102,7 @@ public final class TopLevelArmResourceImpl
         this.innerObject = serviceManager.serviceClient()
             .getTopLevelArmResources()
             .createOrUpdate(resourceGroupName, topLevelArmResourcePropertiesName, this.innerModel(), createParameter,
-                createNewParameter, context);
+                context);
         return this;
     }
 
@@ -124,7 +124,7 @@ public final class TopLevelArmResourceImpl
         this.innerObject = serviceManager.serviceClient()
             .getTopLevelArmResources()
             .createOrUpdate(resourceGroupName, topLevelArmResourcePropertiesName, this.innerModel(), updateParameter,
-                updateNewParameter, Context.NONE);
+                Context.NONE);
         return this;
     }
 
@@ -132,7 +132,7 @@ public final class TopLevelArmResourceImpl
         this.innerObject = serviceManager.serviceClient()
             .getTopLevelArmResources()
             .createOrUpdate(resourceGroupName, topLevelArmResourcePropertiesName, this.innerModel(), updateParameter,
-                updateNewParameter, context);
+                context);
         return this;
     }
 
@@ -143,6 +143,11 @@ public final class TopLevelArmResourceImpl
         this.resourceGroupName = ResourceManagerUtils.getValueFromIdByName(innerObject.id(), "resourceGroups");
         this.topLevelArmResourcePropertiesName
             = ResourceManagerUtils.getValueFromIdByName(innerObject.id(), "topLevelArmResources");
+    }
+
+    public Response<Void> actionWithResponse(String parameter, Context context) {
+        return serviceManager.topLevelArmResources()
+            .actionWithResponse(resourceGroupName, topLevelArmResourcePropertiesName, parameter, context);
     }
 
     public Response<Void> actionWithResponse(String parameter, String newParameter, Context context) {
