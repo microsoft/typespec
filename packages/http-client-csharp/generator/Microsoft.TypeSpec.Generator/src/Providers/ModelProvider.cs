@@ -697,14 +697,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private (IReadOnlyList<ParameterProvider> Parameters, ConstructorInitializer? Initializer) BuildConstructorParameters(
-            bool isPrimaryConstructor, bool includeDiscriminatorParameter = false)
+            bool isInitializationConstructor, bool includeDiscriminatorParameter = false)
         {
             var baseParameters = new List<ParameterProvider>();
             var constructorParameters = new List<ParameterProvider>();
             IEnumerable<PropertyProvider> baseProperties = [];
             IEnumerable<FieldProvider> baseFields = [];
 
-            if (isPrimaryConstructor)
+            if (isInitializationConstructor)
             {
                 baseProperties = GetAllBasePropertiesForConstructorInitialization();
                 baseFields = GetAllBaseFieldsForConstructorInitialization();
@@ -719,13 +719,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // add the base parameters, if any
             foreach (var property in baseProperties)
             {
-                AddInitializationParameterForCtor(baseParameters, Type.IsStruct, isPrimaryConstructor, property);
+                AddInitializationParameterForCtor(baseParameters, Type.IsStruct, isInitializationConstructor, property);
             }
 
             // add the base fields, if any
             foreach (var field in baseFields)
             {
-                AddInitializationParameterForCtor(baseParameters, Type.IsStruct, isPrimaryConstructor, field: field);
+                AddInitializationParameterForCtor(baseParameters, Type.IsStruct, isInitializationConstructor, field: field);
             }
 
             // construct the initializer using the parameters from base signature
@@ -735,18 +735,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 if (baseParameters.Count > 0)
                 {
                     // Check if base model has dual constructor pattern and we should call private protected constructor
-                    if (isPrimaryConstructor && BaseModelProvider._isMultiLevelDiscriminator)
+                    if (isInitializationConstructor && BaseModelProvider._isMultiLevelDiscriminator)
                     {
                         // Call base model's private protected constructor with discriminator value
                         var args = new List<ValueExpression>();
                         args.Add(Literal(_inputModel.DiscriminatorValue ?? ""));
-                        args.AddRange(baseParameters.Select(p => GetExpressionForCtor(p, overriddenProperties, isPrimaryConstructor)));
+                        args.AddRange(baseParameters.Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor)));
                         constructorInitializer = new ConstructorInitializer(true, args);
                     }
                     else
                     {
                         // Standard base constructor call
-                        constructorInitializer = new ConstructorInitializer(true, [.. baseParameters.Select(p => GetExpressionForCtor(p, overriddenProperties, isPrimaryConstructor))]);
+                        constructorInitializer = new ConstructorInitializer(true, [.. baseParameters.Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor))]);
                     }
                 }
                 else
@@ -758,19 +758,19 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             foreach (var property in CanonicalView.Properties)
             {
-                AddInitializationParameterForCtor(constructorParameters, Type.IsStruct, isPrimaryConstructor, property);
+                AddInitializationParameterForCtor(constructorParameters, Type.IsStruct, isInitializationConstructor, property);
             }
 
             foreach (var field in CanonicalView.Fields)
             {
-                AddInitializationParameterForCtor(constructorParameters, Type.IsStruct, isPrimaryConstructor, field: field);
+                AddInitializationParameterForCtor(constructorParameters, Type.IsStruct, isInitializationConstructor, field: field);
             }
 
             constructorParameters.InsertRange(0, _inputModel.IsUnknownDiscriminatorModel
                 ? baseParameters
                 : baseParameters.Where(p =>
                     p.Property is null
-                    || (!overriddenProperties.Contains(p.Property!) && (!p.Property.IsDiscriminator || !isPrimaryConstructor || includeDiscriminatorParameter))));
+                    || (!overriddenProperties.Contains(p.Property!) && (!p.Property.IsDiscriminator || !isInitializationConstructor || includeDiscriminatorParameter))));
 
             if (includeDiscriminatorParameter && _inputModel.DiscriminatorProperty != null)
             {
@@ -781,7 +781,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 constructorParameters.Insert(0, discriminatorParam);
             }
 
-            if (!isPrimaryConstructor)
+            if (!isInitializationConstructor)
             {
                 foreach (var property in AdditionalPropertyProperties)
                 {
