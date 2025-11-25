@@ -319,9 +319,11 @@ export function ClassDeclaration(props: ClassDeclarationProps) {
   // Array-based models (e.g., model Foo is Array<T>) use regular classes, not dataclasses,
   // since Array models in TypeSpec can't have properties, so they behave more like a class
   // that inherits from a list.
-  // Similarly, interfaces should use regular classes (ABC) not dataclasses
+  // Similarly, interfaces should use regular classes (ABC) not dataclasses, since interfaces
+  // only define abstract methods, not fields.
   const isArrayModel = $.model.is(props.type) && $.array.is(props.type);
-  const useDataclass = !isArrayModel && !abstract;
+  const isInterface = props.type.kind === "Interface";
+  const useDataclass = !isArrayModel && !isInterface;
 
   const classBody = createClassBody($, props, abstract);
   const ClassComponent = useDataclass ? py.DataclassDeclaration : py.ClassDeclaration;

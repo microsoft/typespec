@@ -1312,4 +1312,25 @@ describe("Python Class overrides", () => {
 
       `);
   });
+
+  it("creates an abstract dataclass when abstract prop is true with a model", async () => {
+    const { program, BaseEntity } = await Tester.compile(t.code`
+    model ${t.model("BaseEntity")} {
+      id: string;
+      createdAt: string;
+    }
+    `);
+
+    expect(getOutput(program, [<ClassDeclaration type={BaseEntity} abstract={true} />]))
+      .toRenderTo(`
+      from abc import ABC
+      from dataclasses import dataclass
+
+      @dataclass(kw_only=True)
+      class BaseEntity(ABC):
+        id: str
+        created_at: str
+
+      `);
+  });
 });
