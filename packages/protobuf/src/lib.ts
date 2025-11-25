@@ -26,6 +26,14 @@ export interface ProtobufEmitterOptions {
    * in an interface decoarated with `@service` will be emitted.
    */
   "omit-unreachable-types"?: boolean;
+
+  /**
+   * Emit optional fields.
+   *
+   * When enabled, fields marked as optional in TypeSpec (using `?` or `@optional`) will be emitted with the
+   * `optional` keyword in proto3. By default, optional fields are not marked as such in the output.
+   */
+  "emit-optional"?: boolean;
 }
 
 const EmitterOptionsSchema: JSONSchemaType<ProtobufEmitterOptions> = {
@@ -43,6 +51,12 @@ const EmitterOptionsSchema: JSONSchemaType<ProtobufEmitterOptions> = {
       nullable: true,
       description:
         "By default, the emitter will create `message` declarations for any models in a namespace decorated with `@package` that have an `@field` decorator on every property. If this option is set to true, this behavior will be disabled, and only messages that are explicitly decorated with `@message` or that are reachable from a service operation will be emitted.",
+    },
+    "emit-optional": {
+      type: "boolean",
+      nullable: true,
+      description:
+        "When enabled, fields marked as optional in TypeSpec (using `?` or `@optional`) will be emitted with the `optional` keyword in proto3. By default, optional fields are not marked as such in the output.",
     },
   },
   required: [],

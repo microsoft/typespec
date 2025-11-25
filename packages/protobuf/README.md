@@ -54,6 +54,39 @@ If set to `true`, this emitter will not write any files. It will still validate 
 
 By default, the emitter will create `message` declarations for any models in a namespace decorated with `@package` that have an `@field` decorator on every property. If this option is set to true, this behavior will be disabled, and only messages that are explicitly decorated with `@message` or that are reachable from a service operation will be emitted.
 
+### `emit-optional`
+
+**Type:** `boolean`
+
+**Default:** `false`
+
+When enabled, fields marked as optional in TypeSpec (using `?` syntax or `@optional` decorator) will be emitted with the `optional` keyword in proto3. By default, optional fields are not marked as such in the output.
+
+Example:
+
+```typespec
+model Message {
+  @field(1) requiredField: string;
+  @field(2) optionalField?: int32;
+}
+```
+
+With `emit-optional: false` (default):
+```protobuf
+message Message {
+  string requiredField = 1;
+  int32 optionalField = 2;
+}
+```
+
+With `emit-optional: true`:
+```protobuf
+message Message {
+  string requiredField = 1;
+  optional int32 optionalField = 2;
+}
+```
+
 ## Decorators
 
 ### TypeSpec.Protobuf

@@ -833,6 +833,11 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
     // Determine if the property type is an array
     if (isArray(property.type)) field.repeated = true;
 
+    // Determine if the property is optional (when emit-optional option is enabled)
+    if (emitterOptions["emit-optional"] && property.optional) {
+      field.optional = true;
+    }
+
     return field;
   }
 

@@ -178,7 +178,7 @@ function writeVariant(decl: ProtoEnumVariantDeclaration, indentLevel: number): I
 }
 
 function writeField(decl: ProtoFieldDeclaration, indentLevel: number): Iterable<string> {
-  const prefix = decl.repeated ? "repeated " : "";
+  const prefix = decl.repeated ? "repeated " : decl.optional ? "optional " : "";
   const output = prefix + `${writeType(decl.type)} ${decl.name} = ${decl.index};`;
 
   return writeDocumentationCommentFlexible(decl, output, indentLevel);
