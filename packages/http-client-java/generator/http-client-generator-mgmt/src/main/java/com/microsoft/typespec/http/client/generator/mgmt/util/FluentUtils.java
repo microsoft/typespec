@@ -68,6 +68,12 @@ public class FluentUtils {
         JavaSettings settings = JavaSettings.getInstance();
         String modelName = innerModelClassName.substring(0, innerModelClassName.length() - "Inner".length());
         if (RESERVED_CLASS_NAMES.contains(modelName)) {
+            /*
+             * Intention for the naming here is to avoid below code when using the Resource interface:
+             *
+             * Response resource = collection.getById("id");
+             * Response<ActionResult> response = resource.actionWithResponse(Context.NONE);
+             */
             modelName += "Model";
         }
         return new ClassType.Builder().packageName(settings.getPackage(settings.getModelsSubpackage()))
