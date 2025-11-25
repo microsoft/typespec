@@ -197,7 +197,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// Builds the fields for the model by adding the raw data field.
         /// </summary>
         /// <returns>The list of <see cref="FieldProvider"/> for the model.</returns>
-        protected override FieldProvider[] BuildFields()
+        protected internal override FieldProvider[] BuildFields()
         {
             List<FieldProvider> fields = [];
             if (RawDataField != null)
@@ -416,7 +416,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
         }
 
-        protected override PropertyProvider[] BuildProperties()
+        protected internal override PropertyProvider[] BuildProperties()
         {
             var propertiesCount = _inputModel.Properties.Count;
             var properties = new List<PropertyProvider>(propertiesCount + 1);
@@ -515,7 +515,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return baseNullable ? derivedProperty.Type is InputNullableType : derivedProperty.Type is not InputNullableType;
         }
 
-        protected override ConstructorProvider[] BuildConstructors()
+        protected internal override ConstructorProvider[] BuildConstructors()
         {
             if (_inputModel.IsUnknownDiscriminatorModel)
             {

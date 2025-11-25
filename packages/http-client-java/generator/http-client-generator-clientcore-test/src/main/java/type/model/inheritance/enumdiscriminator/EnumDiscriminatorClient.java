@@ -40,7 +40,7 @@ public final class EnumDiscriminatorClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return test extensible enum type for discriminator.
+     * @return test extensible enum type for discriminator along with {@link Response}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -71,7 +71,7 @@ public final class EnumDiscriminatorClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -102,7 +102,7 @@ public final class EnumDiscriminatorClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a model omitting the discriminator.
+     * @return a model omitting the discriminator along with {@link Response}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -132,7 +132,7 @@ public final class EnumDiscriminatorClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a model containing discriminator value never defined.
+     * @return a model containing discriminator value never defined along with {@link Response}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -162,7 +162,7 @@ public final class EnumDiscriminatorClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return test fixed enum type for discriminator.
+     * @return test fixed enum type for discriminator along with {@link Response}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -192,7 +192,7 @@ public final class EnumDiscriminatorClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -222,7 +222,7 @@ public final class EnumDiscriminatorClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a model omitting the discriminator.
+     * @return a model omitting the discriminator along with {@link Response}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -252,7 +252,7 @@ public final class EnumDiscriminatorClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a model containing discriminator value never defined.
+     * @return a model containing discriminator value never defined along with {@link Response}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)

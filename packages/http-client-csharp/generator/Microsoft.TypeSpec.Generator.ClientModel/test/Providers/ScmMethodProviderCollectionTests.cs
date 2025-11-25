@@ -1097,5 +1097,41 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var createRequestMethod = (ScmMethodProvider)client!.RestClient.GetCreateRequestMethod(inputOperation);
             Assert.AreEqual(ScmMethodKind.CreateRequest, createRequestMethod.Kind);
         }
+
+        [Test]
+        public async Task CollectionResultDefinitionAddedEvenWhenPagingMethodsCustomized()
+        {
+            var pagingMetadata = InputFactory.PagingMetadata(
+                ["items"],
+                null,
+                null);
+            var inputModel = InputFactory.Model("cat", properties:
+            [
+                InputFactory.Property("color", InputPrimitiveType.String, isRequired: true),
+            ]);
+
+            var response = InputFactory.OperationResponse(
+                [200],
+                InputFactory.Model(
+                    "page",
+                    properties: [InputFactory.Property("cats", InputFactory.Array(inputModel))]));
+            var operation = InputFactory.Operation("getCats", responses: [response]);
+            var inputServiceMethod = InputFactory.PagingServiceMethod("Test", operation, pagingMetadata: pagingMetadata);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                inputModels: () => [inputModel],
+                clients: () => [inputClient]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            // Verify CollectionResultDefinition is still added even though methods are customized
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
+                t => t is CollectionResultDefinition);
+            Assert.IsNotNull(collectionResultDefinition, "CollectionResultDefinition should be added even when paging methods are customized");
+        }
+
     }
 }

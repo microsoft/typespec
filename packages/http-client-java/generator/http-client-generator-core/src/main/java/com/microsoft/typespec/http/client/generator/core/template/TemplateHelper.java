@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.Javagen;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Scheme;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
@@ -13,6 +12,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Pipel
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.SecurityInfo;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
 import io.clientcore.core.serialization.json.JsonWriter;
+import io.clientcore.core.utils.CoreUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
