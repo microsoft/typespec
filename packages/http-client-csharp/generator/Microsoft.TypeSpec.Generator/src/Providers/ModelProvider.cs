@@ -644,7 +644,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 this);
         }
 
-        private IEnumerable<PropertyProvider> GetAllBasePropertiesForConstructorInitialization()
+        private IEnumerable<PropertyProvider> GetAllBasePropertiesForConstructorInitialization(bool includeAllHierarchyDiscriminator = false)
         {
             var properties = new Stack<List<PropertyProvider>>();
             var modelProvider = BaseModelProvider;
@@ -656,9 +656,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     if (property.IsDiscriminator)
                     {
-                        // In the case of nested discriminators, we only need to include the direct base discriminator property,
-                        // as this is the only one that will be initialized in this model's constructor.
-                        if (isDirectBase)
+                        // In the case of nested discriminators, include discriminator property based on the parameter
+                        if (isDirectBase || includeAllHierarchyDiscriminator)
                         {
                             properties.Peek().Add(property);
                         }
@@ -704,7 +703,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             if (isInitializationConstructor)
             {
-                baseProperties = GetAllBasePropertiesForConstructorInitialization();
+                baseProperties = GetAllBasePropertiesForConstructorInitialization(includeDiscriminatorParameter);
                 baseFields = GetAllBaseFieldsForConstructorInitialization();
             }
             else if (BaseModelProvider?.FullConstructor.Signature != null)
@@ -738,7 +737,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         // Call base model's private protected constructor with discriminator value
                         var args = new List<ValueExpression>();
                         args.Add(Literal(_inputModel.DiscriminatorValue ?? ""));
-                        args.AddRange(baseParameters.Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor)));
+                        var filteredParams = baseParameters.Where(p => p.Property is null || !p.Property.IsDiscriminator).ToList();
+                        args.AddRange(filteredParams.Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor)));
                         constructorInitializer = new ConstructorInitializer(true, args);
                     }
                     else
@@ -770,8 +770,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     p.Property is null
                     || (!overriddenProperties.Contains(p.Property!) && (!p.Property.IsDiscriminator || !isInitializationConstructor || includeDiscriminatorParameter))));
 
+            // Replace any discriminator property parameters with the standard discriminatorValue parameter
             if (includeDiscriminatorParameter && _inputModel.DiscriminatorProperty != null)
             {
+                // Remove any discriminator property parameters from the hierarchy
+                var discriminatorParams = constructorParameters.Where(p => p.Property?.IsDiscriminator == true).ToList();
+                foreach (var param in discriminatorParams)
+                {
+                    constructorParameters.Remove(param);
+                }
+
+                // Add the standard discriminatorValue parameter at the beginning
                 var discriminatorParam = new ParameterProvider(
                     DiscriminatorParameterName,
                     $"{DiscriminatorParameterDescription}",
