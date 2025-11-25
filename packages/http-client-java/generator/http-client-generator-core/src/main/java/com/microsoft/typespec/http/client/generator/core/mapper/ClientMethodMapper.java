@@ -362,17 +362,20 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         final List<ClientMethodParameter> parameters = baseMethod.getParameters();
         if (!isProtocolMethod) {
             if (parameters.stream().anyMatch(p -> p.getVersioning() != null && p.getVersioning().getAdded() != null)) {
+                // versioning of @added exists
                 final List<List<ClientMethodParameter>> signatures = findOverloadedSignatures(parameters);
                 for (List<ClientMethodParameter> overloadedParameters : signatures) {
                     if (JavaSettings.getInstance().isDataPlaneClient()
                         && (clientMethodType != ClientMethodType.SimpleSyncRestResponse
                             && clientMethodType != ClientMethodType.SimpleAsyncRestResponse)) {
+                        // For DPG
                         final ClientMethod overloadedMethod
                             = baseMethod.newBuilder().parameters(overloadedParameters).build();
                         methods.add(overloadedMethod);
                     } else if (!JavaSettings.getInstance().isDataPlaneClient()
                         && (clientMethodType != ClientMethodType.SimpleAsync
                             && clientMethodType != ClientMethodType.SimpleSync)) {
+                        // For non-DPG, overload on simple op / pageable op / LRO (with Context)
                         ClientMethod.Builder overloadedMethodBuilder
                             = baseMethod.newBuilder().parameters(overloadedParameters);
                         if (methodPageDetailsWithContext != null) {
@@ -474,6 +477,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             methods.add(singlePageMethod);
         }
 
+        // Pageable op '[Operation]SinglePage' overloads for versioning
         createOverloadForVersioning(methods, singlePageMethod, methodWithContextVisibility, null, isProtocolMethod);
 
         // Generate '[Operation]SinglePage' overload with all parameters and Context.
@@ -528,7 +532,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         if (settings.getSyncMethods() != SyncMethodsGeneration.NONE) {
             // generate the overload, if "sync-methods != NONE"
             methods.add(pagingMethod);
-            // overload for versioning
+            // Pageable op '[Operation]' overloads for versioning
             createOverloadForVersioning(methods, pagingMethod, methodWithContextVisibility,
                 methodPageDetailsWithContext, isProtocolMethod);
         }
@@ -597,6 +601,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             .build();
         methods.add(withResponseMethod);
 
+        // LRO '[Operation]WithResponse' overloads for versioning
         createOverloadForVersioning(methods, withResponseMethod, methodWithContextVisibility, null, isProtocolMethod);
 
         addClientMethodWithContext(methods, withResponseMethod, methodWithContextVisibility, isProtocolMethod);
@@ -639,6 +644,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             .build();
         methods.add(withResponseSyncMethod);
 
+        // LRO '[Operation]' overloads for versioning
         createOverloadForVersioning(methods, withResponseSyncMethod, NOT_VISIBLE, null, isProtocolMethod);
 
         addClientMethodWithContext(methods, withResponseSyncMethod, NOT_VISIBLE, isProtocolMethod);
@@ -792,7 +798,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             .methodVisibility(methodVisibility)
             .build();
 
-        // overload for versioning
+        // Simple op '[Operation]WithResponse' overloads for versioning
         createOverloadForVersioning(methods, withResponseMethod, methodWithContextVisibility, null, isProtocolMethod);
 
         // Always generate an overload of WithResponse with non-required parameters without Context. It is only for sync
@@ -838,7 +844,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             .build();
         methods.add(simpleMethod);
 
-        // overload for versioning
+        // Simple op '[Operation]' overloads for versioning
         createOverloadForVersioning(methods, simpleMethod, methodWithContextVisibility, null, isProtocolMethod);
 
         if (generateRequiredOnlyParametersOverload) {
