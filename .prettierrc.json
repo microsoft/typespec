@@ -9,8 +9,8 @@
   "plugins": [
     "./packages/prettier-plugin-typespec/dist/index.js",
     "./node_modules/prettier-plugin-organize-imports/index.js",
-    "prettier-plugin-astro",
-    "prettier-plugin-sh"
+    "prettier-plugin-sh",
+    "prettier-plugin-astro"
   ],
   "overrides": [
     {
