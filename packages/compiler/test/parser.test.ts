@@ -1117,6 +1117,92 @@ describe("compiler: parser", () => {
       });
     });
 
+    describe("DocCodeSpan as identifier", () => {
+      parseEach(
+        [
+          [
+            `
+            /**
+             * @param \`param-with-hyphens\` Description for param with hyphens
+             * @template \`T-with-hyphen\` Template with hyphens
+             * @prop \`property-name\` Property with hyphens
+             */
+            op testCodeSpanIdentifiers<T>(param: string): T;
+            `,
+            (script) => {
+              const docs = script.statements[0].docs;
+              strictEqual(docs?.length, 1);
+              strictEqual(docs[0].tags.length, 3);
+
+              const [paramTag, templateTag, propTag] = docs[0].tags;
+
+              // @param tag with code span identifier
+              strictEqual(paramTag.kind, SyntaxKind.DocParamTag);
+              strictEqual(paramTag.tagName.sv, "param");
+              strictEqual(paramTag.paramName.sv, "`param-with-hyphens`");
+              strictEqual(paramTag.content[0].text, "Description for param with hyphens");
+
+              // @template tag with code span identifier
+              strictEqual(templateTag.kind, SyntaxKind.DocTemplateTag);
+              strictEqual(templateTag.tagName.sv, "template");
+              strictEqual(templateTag.paramName.sv, "`T-with-hyphen`");
+              strictEqual(templateTag.content[0].text, "Template with hyphens");
+
+              // @prop tag with code span identifier
+              strictEqual(propTag.kind, SyntaxKind.DocPropTag);
+              strictEqual(propTag.tagName.sv, "prop");
+              strictEqual(propTag.propName.sv, "`property-name`");
+              strictEqual(propTag.content[0].text, "Property with hyphens");
+            },
+          ],
+          [
+            `
+            /**
+             * @param \`complex_param-name.with$special\` Complex parameter name
+             */
+            op testComplexCodeSpan(param: string): void;
+            `,
+            (script) => {
+              const docs = script.statements[0].docs;
+              strictEqual(docs?.length, 1);
+              strictEqual(docs[0].tags.length, 1);
+
+              const paramTag = docs[0].tags[0];
+              strictEqual(paramTag.kind, SyntaxKind.DocParamTag);
+              strictEqual(paramTag.paramName.sv, "`complex_param-name.with$special`");
+              strictEqual(paramTag.content[0].text, "Complex parameter name");
+            },
+          ],
+          [
+            `
+            /**
+             * @param \`simpleParam\` A simple parameter using code span
+             * @param regularParam A regular parameter name
+             */
+            op mixedIdentifiers(param: string): void;
+            `,
+            (script) => {
+              const docs = script.statements[0].docs;
+              strictEqual(docs?.length, 1);
+              strictEqual(docs[0].tags.length, 2);
+
+              const [codeSpanParam, regularParam] = docs[0].tags;
+
+              // Code span parameter
+              strictEqual(codeSpanParam.kind, SyntaxKind.DocParamTag);
+              strictEqual(codeSpanParam.paramName.sv, "`simpleParam`");
+              strictEqual(codeSpanParam.content[0].text, "A simple parameter using code span");
+
+              // Regular parameter
+              strictEqual(regularParam.kind, SyntaxKind.DocParamTag);
+              strictEqual(regularParam.paramName.sv, "regularParam");
+              strictEqual(regularParam.content[0].text, "A regular parameter name");
+            },
+          ],
+        ],
+        { docs: true },
+      );
+    });
     parseErrorEach(
       [
         [

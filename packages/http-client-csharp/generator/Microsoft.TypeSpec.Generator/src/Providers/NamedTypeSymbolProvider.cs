@@ -103,7 +103,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             };
         }
 
-        protected override FieldProvider[] BuildFields()
+        protected internal override FieldProvider[] BuildFields()
         {
             List<FieldProvider> fields = new List<FieldProvider>();
             foreach (var fieldSymbol in _namedTypeSymbol.GetMembers().OfType<IFieldSymbol>())
@@ -133,7 +133,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return [.. fields];
         }
 
-        protected override PropertyProvider[] BuildProperties()
+        protected internal override PropertyProvider[] BuildProperties()
         {
             List<PropertyProvider> properties = new List<PropertyProvider>();
             foreach (var propertySymbol in _namedTypeSymbol.GetMembers().OfType<IPropertySymbol>())
@@ -220,7 +220,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return originalName;
         }
 
-        protected override ConstructorProvider[] BuildConstructors()
+        protected internal override ConstructorProvider[] BuildConstructors()
         {
             List<ConstructorProvider> constructors = new List<ConstructorProvider>();
             foreach (var constructorSymbol in _namedTypeSymbol.Constructors)
@@ -240,7 +240,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return [.. constructors];
         }
 
-        protected override MethodProvider[] BuildMethods()
+        protected internal override MethodProvider[] BuildMethods()
         {
             List<MethodProvider> methods = new List<MethodProvider>();
             foreach (var methodSymbol in _namedTypeSymbol.GetMembers().OfType<IMethodSymbol>())

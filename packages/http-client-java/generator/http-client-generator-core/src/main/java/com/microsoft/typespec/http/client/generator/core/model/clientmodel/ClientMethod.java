@@ -3,10 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
-import com.azure.core.http.rest.SimpleResponse;
-import com.azure.core.util.CoreUtils;
-import com.azure.core.util.UrlBuilder;
-import com.azure.core.util.serializer.TypeReference;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.implementation.OperationInstrumentationInfo;
@@ -14,6 +10,7 @@ import com.microsoft.typespec.http.client.generator.core.mapper.CollectionUtil;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
+import io.clientcore.core.utils.CoreUtils;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
@@ -469,7 +466,7 @@ public class ClientMethod {
             // for some processing on RequestOptions (get/set header)
 
             // for query parameter modification in RequestOptions (UrlBuilder.parse)
-            imports.add(UrlBuilder.class.getName());
+            imports.add(ClassType.URL_BUILDER.getFullName());
             imports.add("io.clientcore.core.utils.UriBuilder");
         }
 
@@ -499,11 +496,11 @@ public class ClientMethod {
                 && !proxyMethod.isSync()
                 && (CoreUtils.isNullOrEmpty(parameters)
                     || parameters.get(parameters.size() - 1) != ClientMethodParameter.CONTEXT_PARAMETER)) {
-                imports.add("com.azure.core.util.FluxUtil");
+                imports.add(ClassType.FLUX_UTIL.getFullName());
             }
 
             if (getMethodPageDetails() != null) {
-                imports.add("com.azure.core.http.rest.PagedResponseBase");
+                imports.add(ClassType.PAGED_RESPONSE_BASE.getFullName());
 
                 if (settings.isDataPlaneClient()) {
                     imports.add("java.util.List");
@@ -518,13 +515,13 @@ public class ClientMethod {
                         .getTypeArguments()[0] instanceof GenericType) {
                         // pageable LRO
                         if (settings.isStreamStyleSerialization()) {
-                            imports.add(TypeReference.class.getName());
+                            imports.add(ClassType.TYPE_REFERENCE.getFullName());
                         } else {
                             imports.add("com.fasterxml.jackson.core.type.TypeReference");
                         }
                     }
                 } else {
-                    imports.add(TypeReference.class.getName());
+                    imports.add(ClassType.TYPE_REFERENCE.getFullName());
                     if (!JavaSettings.getInstance().isAzureV1()) {
                         imports.add(Type.class.getName());
                         imports.add(ParameterizedType.class.getName());
@@ -570,7 +567,7 @@ public class ClientMethod {
             }
 
             if (type == ClientMethodType.SendRequestAsync || type == ClientMethodType.SendRequestSync) {
-                imports.add(SimpleResponse.class.getName());
+                imports.add(ClassType.SIMPLE_RESPONSE.getFullName());
                 ClassType.BINARY_DATA.addImportsTo(imports, false);
                 ClassType.HTTP_REQUEST.addImportsTo(imports, false);
             }
@@ -578,7 +575,7 @@ public class ClientMethod {
             if (settings.isSyncStackEnabled() && settings.isFluent()) {
                 boolean isLroPageable = (type == ClientMethodType.PagingSyncSinglePage
                     && proxyMethod != null
-                    && GenericType.Response(ClassType.BINARY_DATA).equals(proxyMethod.getReturnType().getClientType()));
+                    && GenericType.response(ClassType.BINARY_DATA).equals(proxyMethod.getReturnType().getClientType()));
                 if (type == ClientMethodType.LongRunningBeginSync || isLroPageable) {
                     ClassType.SYNC_POLLER_FACTORY.addImportsTo(imports, false);
                 }
@@ -595,7 +592,7 @@ public class ClientMethod {
             .type(ClientMethodType.SendRequestAsync)
             .parameters(ClientMethodParameter.HTTP_REQUEST_PARAMETER)
             .returnValue(new ReturnValue("the response body on successful completion of {@link Mono}",
-                GenericType.Mono(GenericType.Response(ClassType.BINARY_DATA))))
+                GenericType.mono(GenericType.response(ClassType.BINARY_DATA))))
             .build();
     }
 
@@ -608,7 +605,7 @@ public class ClientMethod {
             .type(ClientMethodType.SendRequestSync)
             .parameters(ClientMethodParameter.HTTP_REQUEST_PARAMETER, ClientMethodParameter.CONTEXT_PARAMETER)
             .returnValue(new ReturnValue("the response body along with {@link Response}",
-                GenericType.Response(ClassType.BINARY_DATA)))
+                GenericType.response(ClassType.BINARY_DATA)))
             .build();
     }
 
