@@ -543,7 +543,7 @@ namespace Microsoft.TypeSpec.Generator
                     var document = project.GetDocument(declarationNode.SyntaxTree);
                     if (document == null)
                         continue;
-                    if (IsPublic(declarationNode) && await IsRootDocument(document))
+                    if (await IsRootDocument(document))
                     {
                         result.Add(symbol);
                         break;
@@ -554,8 +554,6 @@ namespace Microsoft.TypeSpec.Generator
 
             return result;
         }
-
-        private bool IsPublic(BaseTypeDeclarationSyntax declarationNode) => declarationNode.Modifiers.Any(SyntaxKind.PublicKeyword);
 
         protected virtual async Task<bool> IsRootDocument(Document document)
         {
