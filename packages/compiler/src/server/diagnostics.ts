@@ -16,6 +16,7 @@ import type { Node, SourceLocation } from "../core/types.js";
 import { Diagnostic } from "../core/types.js";
 import { isDefined } from "../utils/misc.js";
 import { getLocationInYamlScript } from "../yaml/diagnostics.js";
+import { parseYaml } from "../yaml/parser.js";
 import { YamlScript } from "../yaml/types.js";
 import { Config } from "./client-config-provider.js";
 import type { FileService } from "./file-service.js";
@@ -35,47 +36,26 @@ export function convertDiagnosticToLsp(
     document,
   );
 
-  let settingDiagnostic: VSDiagnostic | undefined;
-
+  let message = diagnostic.message;
   if (root === undefined) {
     const emitterName = program.compilerOptions.emit?.find((emitName) =>
       diagnostic.message.includes(emitName),
     );
+    const ZERO_RANGE = VSRange.create(0, 0, 0, 0);
+    root = getLocationInTspConfig(fileService, program.compilerOptions.config, emitterName) || {
+      range: ZERO_RANGE,
+      document,
+    };
 
-    const result = getLocationInTspConfig(
-      fileService,
-      program.compilerOptions.config,
-      program.compilerOptions.configFile?.file,
-      emitterName,
-    );
-    if (result === undefined) {
-      settingDiagnostic = getDiagnosticInSettings(diagnostic, emitterName, clientConfig);
-      if (settingDiagnostic === undefined) {
-        // no location found at all, a prompt message is displayed at the top of the current document
-        return [
-          [
-            createLspDiagnostic({
-              range: VSRange.create(0, 0, 0, 0),
-              message: diagnostic.message + " [No associated source found]",
-              severity: convertSeverity(diagnostic.severity),
-              code: diagnostic.code,
-              relatedInformation: [],
-            }),
-            document,
-          ],
-        ];
-      }
-    } else {
-      // use the location in tspconfig as root
-      root = result;
+    if (root !== undefined && root.range === ZERO_RANGE) {
+      message +=
+        clientConfig?.lsp?.emit && emitterName && clientConfig.lsp.emit.includes(emitterName)
+          ? " [From IDE settings]"
+          : " [No associated location]";
     }
   }
 
   if (root === undefined || !fileService.upToDate(root.document)) return [];
-  if (settingDiagnostic) {
-    // diagnostic from IDE settings, a prompt message is displayed at the top of the current document
-    return [[settingDiagnostic, root.document]];
-  }
 
   const instantiationNodes = getDiagnosticTemplateInstantitationTrace(diagnostic.target);
   const relatedInformation: DiagnosticRelatedInformation[] = [];
@@ -119,7 +99,7 @@ export function convertDiagnosticToLsp(
   const rootDiagnostic: [VSDiagnostic, TextDocument] = [
     createLspDiagnostic({
       range: root.range,
-      message: diagnostic.message,
+      message,
       severity: convertSeverity(diagnostic.severity),
       code: diagnostic.code,
       relatedInformation,
@@ -225,15 +205,14 @@ function convertSeverity(severity: "warning" | "error"): DiagnosticSeverity {
 function getLocationInTspConfig(
   fileService: FileService,
   configFilePath: string | undefined,
-  yamlScript: YamlScript | undefined,
   emitterName?: string,
 ): VSLocation | undefined {
-  if (configFilePath && yamlScript && emitterName && emitterName.length > 0) {
+  if (configFilePath && emitterName && emitterName.length > 0) {
     const docTspConfig = fileService.getOpenDocument(configFilePath);
     if (!docTspConfig) {
       return undefined;
     }
-
+    const [yamlScript] = parseYaml(docTspConfig.getText());
     const range = getDiagnosticRangeInTspConfig(yamlScript, emitterName);
     if (range === undefined) {
       return undefined;
@@ -262,21 +241,4 @@ export function getDiagnosticRangeInTspConfig(
     lineAndChar.line,
     lineAndChar.character + emitterName.length,
   );
-}
-
-function getDiagnosticInSettings(
-  diagnostic: Diagnostic,
-  emitterName?: string,
-  clientConfig?: Config | undefined,
-): VSDiagnostic | undefined {
-  if (clientConfig?.lsp?.emit && emitterName && clientConfig.lsp.emit.includes(emitterName)) {
-    return createLspDiagnostic({
-      range: VSRange.create(0, 0, 0, 0),
-      message: diagnostic.message + " [From IDE settings]",
-      severity: convertSeverity(diagnostic.severity),
-      code: diagnostic.code,
-      relatedInformation: [],
-    });
-  }
-  return undefined;
 }
