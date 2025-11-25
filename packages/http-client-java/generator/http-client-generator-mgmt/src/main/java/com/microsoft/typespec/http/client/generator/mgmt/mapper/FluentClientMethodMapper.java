@@ -135,6 +135,10 @@ public class FluentClientMethodMapper extends ClientMethodMapper {
             .build();
         methods.add(lroGetFinalResultMethod);
 
+        // LRO '[Operation]' sync or async method overloads with versioning (for management).
+        createOverloadForVersioning(methods, lroGetFinalResultMethod, methodWithContextVisibility, null,
+            isProtocolMethod);
+
         if (generateRequiredOnlyParametersOverload) {
             final ClientMethod lroGetFinalResultMethodWithRequiredOnlyParameters = lroGetFinalResultMethod.newBuilder()
                 .onlyRequiredParameters(true)

@@ -355,7 +355,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         }
     }
 
-    private void createOverloadForVersioning(List<ClientMethod> methods, ClientMethod baseMethod,
+    protected void createOverloadForVersioning(List<ClientMethod> methods, ClientMethod baseMethod,
         JavaVisibility methodWithContextVisibility, MethodPageDetails methodPageDetailsWithContext,
         boolean isProtocolMethod) {
         final ClientMethodType clientMethodType = baseMethod.getType();
