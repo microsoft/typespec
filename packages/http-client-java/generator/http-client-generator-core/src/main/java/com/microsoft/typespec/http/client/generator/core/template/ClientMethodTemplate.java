@@ -115,28 +115,18 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
      * @param clientMethod The client method.
      */
     protected static void addOptionalVariables(JavaBlock function, ClientMethod clientMethod) {
-        final List<ProxyMethodParameter> proxyMethodParameters = clientMethod.getProxyMethod().getParameters();
-        List<com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.MethodParameter> methodParameters
-            = MethodUtil.getParameters(clientMethod, false);
+        if (!clientMethod.getOnlyRequiredParameters()) {
+            return;
+        }
 
-        for (ProxyMethodParameter parameter : proxyMethodParameters) {
-            boolean optionalOmitted = !parameter.isRequired() && parameter.getClientType() != ClassType.CONTEXT;
-            if (optionalOmitted) {
-                boolean parameterInClientMethodSignature = methodParameters.stream()
-                    .filter(p -> p.getProxyMethodParameter() == parameter)
-                    .findFirst()
-                    .map(p -> p.getClientMethodParameter())
-                    .isPresent();
-                // if the parameter is defined in client method signature,
-                // it does not need to be instantiated in local variable.
-                optionalOmitted = !parameterInClientMethodSignature;
+        for (ClientMethodParameter parameter : clientMethod.getMethodParameters()) {
+            if (parameter.isRequired()) {
+                // Parameter is required and will be part of the method signature.
+                continue;
             }
-
-            if (optionalOmitted) {
-                final String defaultValue = parameterDefaultValueExpression(parameter);
-                function.line("final %s %s = %s;", parameter.getClientType(), parameter.getName(),
-                    defaultValue == null ? "null" : defaultValue);
-            }
+            final String defaultValue = parameterDefaultValueExpression(parameter);
+            function.line("final %s %s = %s;", parameter.getClientType(), parameter.getName(),
+                defaultValue == null ? "null" : defaultValue);
         }
     }
 
