@@ -365,17 +365,13 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                 // versioning of @added exists
                 final List<List<ClientMethodParameter>> signatures = findOverloadedSignatures(parameters);
                 for (List<ClientMethodParameter> overloadedParameters : signatures) {
-                    if (JavaSettings.getInstance().isDataPlaneClient()
-                        && (clientMethodType != ClientMethodType.SimpleSyncRestResponse
-                            && clientMethodType != ClientMethodType.SimpleAsyncRestResponse)) {
-                        // For DPG
+                    if (JavaSettings.getInstance().isDataPlaneClient()) {
+                        // DPG
                         final ClientMethod overloadedMethod
                             = baseMethod.newBuilder().parameters(overloadedParameters).build();
                         methods.add(overloadedMethod);
-                    } else if (!JavaSettings.getInstance().isDataPlaneClient()
-                        && (clientMethodType != ClientMethodType.SimpleAsync
-                            && clientMethodType != ClientMethodType.SimpleSync)) {
-                        // For non-DPG, overload on simple op / pageable op / LRO (with Context)
+                    } else {
+                        // non-DPG
                         ClientMethod.Builder overloadedMethodBuilder
                             = baseMethod.newBuilder().parameters(overloadedParameters);
                         if (methodPageDetailsWithContext != null) {
