@@ -79,7 +79,11 @@ public final class TopLevelArmResourceImpl
 
     private String createParameter;
 
+    private String createNewParameter;
+
     private String updateParameter;
+
+    private String updateNewParameter;
 
     public TopLevelArmResourceImpl withExistingResourceGroup(String resourceGroupName) {
         this.resourceGroupName = resourceGroupName;
@@ -107,10 +111,12 @@ public final class TopLevelArmResourceImpl
         this.serviceManager = serviceManager;
         this.topLevelArmResourcePropertiesName = name;
         this.createParameter = null;
+        this.createNewParameter = null;
     }
 
     public TopLevelArmResourceImpl update() {
         this.updateParameter = null;
+        this.updateNewParameter = null;
         return this;
     }
 
@@ -179,6 +185,16 @@ public final class TopLevelArmResourceImpl
             return this;
         } else {
             this.updateParameter = parameter;
+            return this;
+        }
+    }
+
+    public TopLevelArmResourceImpl withNewParameter(String newParameter) {
+        if (isInCreateMode()) {
+            this.createNewParameter = newParameter;
+            return this;
+        } else {
+            this.updateNewParameter = newParameter;
             return this;
         }
     }
