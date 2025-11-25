@@ -3,8 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.mapper.clientcore;
 
-import com.azure.core.http.HttpMethod;
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.Javagen;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Parameter;
@@ -30,6 +28,8 @@ import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
 import com.microsoft.typespec.http.client.generator.core.util.XmsExampleWrapper;
+import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -346,9 +346,9 @@ public class ClientCoreProxyMethodMapper extends ProxyMethodMapper {
         if (isProtocolMethod) {
             IType singleValueType;
             if (responseBodyType.equals(PrimitiveType.VOID)) {
-                singleValueType = GenericType.Response(ClassType.VOID);
+                singleValueType = GenericType.response(ClassType.VOID);
             } else {
-                singleValueType = GenericType.Response(responseBodyType);
+                singleValueType = GenericType.response(responseBodyType);
             }
             return createSingleValueAsyncReturnType(singleValueType);
         } else if (operation.getExtensions() != null
@@ -367,7 +367,7 @@ public class ClientCoreProxyMethodMapper extends ProxyMethodMapper {
                 if (responseBodyType == ClassType.INPUT_STREAM) {
                     responseBodyType = GenericType.FLUX_BYTE_BUFFER;
                 }
-                IType genericResponseType = GenericType.RestResponse(
+                IType genericResponseType = GenericType.restResponse(
                     Mappers.getSchemaMapper().map(Mappers.getClientMapper().parseHeader(operation, settings)),
                     responseBodyType);
 
@@ -375,7 +375,7 @@ public class ClientCoreProxyMethodMapper extends ProxyMethodMapper {
                     if (responseBodyType == GenericType.FLUX_BYTE_BUFFER) {
                         return createStreamContentAsyncReturnType();
                     }
-                    genericResponseType = GenericType.Response(responseBodyType);
+                    genericResponseType = GenericType.response(responseBodyType);
                 }
                 return createSingleValueAsyncReturnType(genericResponseType);
             } else {
@@ -390,31 +390,31 @@ public class ClientCoreProxyMethodMapper extends ProxyMethodMapper {
                 && responseBodyType.equals(ClassType.BINARY_DATA)) || responseBodyType.equals(ClassType.INPUT_STREAM)) {
                 return createStreamContentAsyncReturnType();
             } else if (responseBodyType.equals(PrimitiveType.VOID)) {
-                IType singleValueType = GenericType.Response(ClassType.VOID);
+                IType singleValueType = GenericType.response(ClassType.VOID);
                 return createSingleValueAsyncReturnType(singleValueType);
             } else {
-                IType singleValueType = GenericType.Response(responseBodyType);
+                IType singleValueType = GenericType.response(responseBodyType);
                 return createSingleValueAsyncReturnType(singleValueType);
             }
         }
     }
 
     protected IType createSingleValueAsyncReturnType(IType singleValueType) {
-        return GenericType.Mono(singleValueType);
+        return GenericType.mono(singleValueType);
     }
 
     protected IType createClientResponseAsyncReturnType(ClassType clientResponseClassType) {
-        return GenericType.Mono(clientResponseClassType);
+        return GenericType.mono(clientResponseClassType);
     }
 
     protected IType createStreamContentAsyncReturnType() {
         IType singleValueType = ClassType.STREAM_RESPONSE;
-        return GenericType.Mono(singleValueType);
+        return GenericType.mono(singleValueType);
     }
 
     protected IType createBinaryContentAsyncReturnType() {
-        IType returnType = GenericType.Response(GenericType.FLUX_BYTE_BUFFER);    // raw response for LRO
-        return GenericType.Mono(returnType);
+        IType returnType = GenericType.response(GenericType.FLUX_BYTE_BUFFER);    // raw response for LRO
+        return GenericType.mono(returnType);
     }
 
     protected ProxyMethod.Builder createProxyMethodBuilder() {
@@ -668,18 +668,6 @@ public class ClientCoreProxyMethodMapper extends ProxyMethodMapper {
         defaultMapping.put(409, ClassType.RESOURCE_MODIFIED_EXCEPTION);
 
         return defaultMapping;
-    }
-
-    /**
-     * Gets the default HTTP response exception type.
-     * <p>
-     * The returned exception type is used as the default HTTP exception when both the Swagger doesn't define an HTTP
-     * exception type and {@link JavaSettings} doesn't contain {@link JavaSettings#getDefaultHttpExceptionType()}.
-     *
-     * @return The default HTTP response exception type.
-     */
-    protected ClassType getHttpResponseExceptionType() {
-        return ClassType.HTTP_RESPONSE_EXCEPTION;
     }
 
     /**

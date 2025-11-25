@@ -3,10 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
-import com.azure.core.annotation.ReturnType;
-import com.azure.core.http.HttpHeaderName;
-import com.azure.core.util.CoreUtils;
-import com.azure.core.util.serializer.CollectionFormat;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ArrayType;
@@ -36,9 +32,13 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaJav
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
+import com.microsoft.typespec.http.client.generator.core.util.CollectionFormat;
 import com.microsoft.typespec.http.client.generator.core.util.MethodNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
+import io.clientcore.core.annotations.ReturnType;
+import io.clientcore.core.http.models.HttpHeaderName;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -1124,13 +1124,13 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             function.line("return %s(%s)", clientMethod.getProxyMethod().getSimpleAsyncRestResponseMethodName(),
                 clientMethod.getArgumentList());
             function.indent(() -> {
-                if (GenericType.Flux(ClassType.BYTE_BUFFER).equals(clientMethod.getReturnValue().getType())) {
+                if (GenericType.flux(ClassType.BYTE_BUFFER).equals(clientMethod.getReturnValue().getType())) {
                     // Previously this used StreamResponse::getValue, but it isn't guaranteed that the return is
                     // StreamResponse, instead use Response::getValue as StreamResponse is just a fancier
                     // Response<Flux<ByteBuffer>>.
                     function.text(".flatMapMany(fluxByteBufferResponse -> fluxByteBufferResponse.getValue());");
-                } else if (!GenericType.Mono(ClassType.VOID).equals(clientMethod.getReturnValue().getType())
-                    && !GenericType.Flux(ClassType.VOID).equals(clientMethod.getReturnValue().getType())) {
+                } else if (!GenericType.mono(ClassType.VOID).equals(clientMethod.getReturnValue().getType())
+                    && !GenericType.flux(ClassType.VOID).equals(clientMethod.getReturnValue().getType())) {
                     function.text(".flatMap(res -> Mono.justOrEmpty(res.getValue()));");
                 } else {
                     function.text(".flatMap(ignored -> Mono.empty());");
