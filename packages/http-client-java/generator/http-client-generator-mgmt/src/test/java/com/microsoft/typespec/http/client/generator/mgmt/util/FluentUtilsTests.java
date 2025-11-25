@@ -58,5 +58,7 @@ public class FluentUtilsTests {
         final String innerSuffix = "Inner";
         Assertions.assertEquals("ContextModel",
             FluentUtils.resourceModelInterfaceClassType("Context" + innerSuffix).getName());
+        Assertions.assertEquals("ResponseModel",
+            FluentUtils.resourceModelInterfaceClassType("Response" + innerSuffix).getName());
     }
 }
