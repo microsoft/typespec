@@ -29,7 +29,7 @@ it("should use fixed debounce delay of 0ms when specified in constructor", async
   fixedDelayUpdateManager.start();
 
   // Verify that the centralized function returns the fixed delay of 0ms
-  const actualDelay = fixedDelayUpdateManager.getCurrentDebounceDelay();
+  const actualDelay = fixedDelayUpdateManager.getDebounceDelay();
   expect(actualDelay).toBe(0);
 });
 
@@ -40,7 +40,7 @@ it("should return default delay (500ms) on first call when using adaptive delay"
   adaptiveUpdateManager.start();
 
   // Use the centralized function to get the current debounce delay
-  const actualDelay = adaptiveUpdateManager.getCurrentDebounceDelay();
+  const actualDelay = adaptiveUpdateManager.getDebounceDelay();
 
   // Verify adaptive delay returns the expected value (should be 500ms initially)
   expect(actualDelay).toBe(500);
@@ -59,7 +59,7 @@ it("should return higher delay when there are frequent document changes", async 
   (updateManager as any).getWindowedDocChangedTimesteps = mockGetWindowedDocChangedTimesteps;
 
   // Use the centralized function to get the current debounce delay
-  const adaptiveDelay = updateManager.getCurrentDebounceDelay();
+  const adaptiveDelay = updateManager.getDebounceDelay();
 
   // Verify the mock was called
   expect(mockGetWindowedDocChangedTimesteps).toHaveBeenCalled();

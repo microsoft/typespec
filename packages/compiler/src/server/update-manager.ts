@@ -30,7 +30,7 @@ export class UpdateManager<T = void> {
   #isStarted = false;
 
   private _log: (sl: ServerLog) => void;
-  private getDebounceDelay: () => number;
+  public readonly getDebounceDelay: () => number;
 
   /**
    *
@@ -63,19 +63,10 @@ export class UpdateManager<T = void> {
         return await this.#update(Array.from(updates.values()), arg);
       },
       () => (this.#isStarted ? "ready" : "pending"),
-      this.getCurrentDebounceDelay,
+      this.getDebounceDelay,
       this._log,
     );
   }
-
-  /**
-   * Centralized function to get the current debounce delay.
-   * This is the function that both production code and tests should use.
-   * @returns The debounce delay in milliseconds
-   */
-  public getCurrentDebounceDelay = (): number => {
-    return this.getDebounceDelay();
-  };
 
   /**
    * Callback will only be invoked after start() is called.
