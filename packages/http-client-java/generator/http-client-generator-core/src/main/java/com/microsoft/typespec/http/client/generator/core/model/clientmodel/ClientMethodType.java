@@ -23,8 +23,6 @@ public enum ClientMethodType {
      * Mono&lt;PagedResponseBase&lt;H,T&gt;&gt;.
      */
     PagingAsyncSinglePage(2, true, false, false),
-    SimulatedPagingSync(3, false, false, true), // unused
-    SimulatedPagingAsync(4, false, false, false), // unused
     /**
      * represents long-running method that returns T where T is the final result of the LRO.
      */
