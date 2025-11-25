@@ -597,10 +597,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             // If both models have discriminator properties with the same name,
             // and this model has derived models, it needs the dual constructor pattern
-            return string.Equals(
-                _inputModel.DiscriminatorProperty.Name,
-                _inputModel.BaseModel.DiscriminatorProperty.Name,
-                StringComparison.OrdinalIgnoreCase);
+            return _inputModel.DiscriminatorProperty.Name ==
+                _inputModel.BaseModel.DiscriminatorProperty.Name;
         }
 
         /// <summary>
