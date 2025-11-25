@@ -147,8 +147,8 @@ public interface TopLevelArmResource {
          * The stage of the TopLevelArmResource definition which contains all the minimum required properties for the
          * resource to be created, but also allows for any other optional properties to be specified.
          */
-        interface WithCreate extends DefinitionStages.WithTags, DefinitionStages.WithProperties,
-            DefinitionStages.WithParameter, DefinitionStages.WithNewParameter {
+        interface WithCreate
+            extends DefinitionStages.WithTags, DefinitionStages.WithProperties, DefinitionStages.WithParameter {
             /**
              * Executes the create request.
              * 
@@ -203,19 +203,6 @@ public interface TopLevelArmResource {
              */
             WithCreate withParameter(String parameter);
         }
-
-        /**
-         * The stage of the TopLevelArmResource definition allowing to specify newParameter.
-         */
-        interface WithNewParameter {
-            /**
-             * Specifies the newParameter property: The newParameter parameter.
-             * 
-             * @param newParameter The newParameter parameter.
-             * @return the next definition stage.
-             */
-            WithCreate withNewParameter(String newParameter);
-        }
     }
 
     /**
@@ -228,8 +215,7 @@ public interface TopLevelArmResource {
     /**
      * The template for TopLevelArmResource update.
      */
-    interface Update extends UpdateStages.WithTags, UpdateStages.WithProperties, UpdateStages.WithParameter,
-        UpdateStages.WithNewParameter {
+    interface Update extends UpdateStages.WithTags, UpdateStages.WithProperties, UpdateStages.WithParameter {
         /**
          * Executes the update request.
          * 
@@ -287,19 +273,6 @@ public interface TopLevelArmResource {
              * @return the next definition stage.
              */
             Update withParameter(String parameter);
-        }
-
-        /**
-         * The stage of the TopLevelArmResource update allowing to specify newParameter.
-         */
-        interface WithNewParameter {
-            /**
-             * Specifies the newParameter property: The newParameter parameter.
-             * 
-             * @param newParameter The newParameter parameter.
-             * @return the next definition stage.
-             */
-            Update withNewParameter(String newParameter);
         }
     }
 

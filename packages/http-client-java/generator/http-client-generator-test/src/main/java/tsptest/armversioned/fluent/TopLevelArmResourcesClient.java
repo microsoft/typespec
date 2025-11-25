@@ -78,6 +78,23 @@ public interface TopLevelArmResourcesClient {
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
      * @param resource Resource create parameters.
+     * @param parameter The parameter parameter.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return concrete tracked resource types can be created by aliasing this type using a specific property type.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    TopLevelArmResourceInner createOrUpdate(String resourceGroupName, String topLevelArmResourcePropertiesName,
+        TopLevelArmResourceInner resource, String parameter, Context context);
+
+    /**
+     * Create a TopLevelArmResource.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
+     * @param resource Resource create parameters.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
