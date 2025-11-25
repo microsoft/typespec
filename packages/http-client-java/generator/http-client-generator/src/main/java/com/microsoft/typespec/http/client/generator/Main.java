@@ -3,8 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator;
 
-import com.azure.core.util.Configuration;
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.AnnotatedPropertyUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModelCustomConstructor;
@@ -22,6 +20,8 @@ import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import com.microsoft.typespec.http.client.generator.model.EmitterOptions;
 import com.microsoft.typespec.http.client.generator.util.FileUtil;
 import io.clientcore.core.serialization.json.JsonReader;
+import io.clientcore.core.utils.CoreUtils;
+import io.clientcore.core.utils.configuration.Configuration;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
