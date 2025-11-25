@@ -474,6 +474,8 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             methods.add(singlePageMethod);
         }
 
+        createOverloadForVersioning(methods, singlePageMethod, methodWithContextVisibility, null, isProtocolMethod);
+
         // Generate '[Operation]SinglePage' overload with all parameters and Context.
         addClientMethodWithContext(methods, singlePageMethod, methodWithContextVisibility, isProtocolMethod);
     }
@@ -594,6 +596,9 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             .hasWithContextOverload(methodWithContextVisibility != NOT_GENERATE)
             .build();
         methods.add(withResponseMethod);
+
+        createOverloadForVersioning(methods, withResponseMethod, methodWithContextVisibility, null, isProtocolMethod);
+
         addClientMethodWithContext(methods, withResponseMethod, methodWithContextVisibility, isProtocolMethod);
     }
 
@@ -633,6 +638,9 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             .methodVisibility(NOT_VISIBLE)
             .build();
         methods.add(withResponseSyncMethod);
+
+        createOverloadForVersioning(methods, withResponseSyncMethod, NOT_VISIBLE, null, isProtocolMethod);
+
         addClientMethodWithContext(methods, withResponseSyncMethod, NOT_VISIBLE, isProtocolMethod);
     }
 
