@@ -95,7 +95,7 @@ try {
     }
     
     # Set the sparse checkout patterns - only the directories we need
-    git sparse-checkout set eng/packages/http-client-csharp eng sdk/core/Azure.Core/src/Shared
+    git sparse-checkout set eng/packages/http-client-csharp eng sdk/core/Azure.Core/src/Shared sdk/core/Azure.Core.TestFramework/src
     if ($LASTEXITCODE -ne 0) {
         throw "Failed to set sparse checkout patterns"
     }
