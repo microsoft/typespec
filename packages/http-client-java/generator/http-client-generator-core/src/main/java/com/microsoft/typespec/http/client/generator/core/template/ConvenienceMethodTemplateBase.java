@@ -3,10 +3,14 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
-import com.azure.core.util.FluxUtil;
-import com.azure.core.util.serializer.CollectionFormat;
-import com.azure.core.util.serializer.JacksonAdapter;
-import com.azure.core.util.serializer.TypeReference;
+import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.BOOLEAN;
+import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.BYTE;
+import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.CHAR;
+import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.DOUBLE;
+import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.FLOAT;
+import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.INT;
+import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.LONG;
+
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Annotation;
@@ -36,6 +40,7 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVis
 import com.microsoft.typespec.http.client.generator.core.template.util.ModelTemplateHeaderHelper;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
+import com.microsoft.typespec.http.client.generator.core.util.CollectionFormat;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import java.lang.reflect.ParameterizedType;
@@ -337,9 +342,7 @@ abstract class ConvenienceMethodTemplateBase {
                 String targetParameterName = targetParameter.getName();
                 String targetParameterObjectName = targetParameterName + "Obj";
                 for (ParameterMapping mapping : transformation.getMappings()) {
-                    String parameterName = mapping.getInParameter().getName();
-
-                    String inputPath = parameterName;
+                    String inputPath = mapping.getInParameter().getName();
                     boolean propertyRequired = mapping.getInParameter().isRequired();
                     if (mapping.getInParameterProperty() != null) {
                         inputPath = String.format("%s.%s()", mapping.getInParameter().getName(),
@@ -416,12 +419,12 @@ abstract class ConvenienceMethodTemplateBase {
         ClassType.REQUEST_CONTEXT.addImportsTo((imports), false);
         imports.add(Collectors.class.getName());
         imports.add(Objects.class.getName());
-        imports.add(FluxUtil.class.getName());
+        imports.add(ClassType.FLUX_UTIL.getFullName());
 
         // collection format
-        imports.add(JacksonAdapter.class.getName());
-        imports.add(CollectionFormat.class.getName());
-        imports.add(TypeReference.class.getName());
+        imports.add(ClassType.JACKSON_ADAPTER.getFullName());
+        imports.add(ClassType.COLLECTION_FORMAT.getFullName());
+        imports.add(ClassType.TYPE_REFERENCE.getFullName());
         if (!JavaSettings.getInstance().isAzureV1() || JavaSettings.getInstance().isAzureV2()) {
             imports.add(Type.class.getName());
             imports.add(ParameterizedType.class.getName());
@@ -922,5 +925,33 @@ abstract class ConvenienceMethodTemplateBase {
                 return name;
             }
         }
+    }
+
+    /**
+     * Helper method to wrap handling of mime type text for primitive types.
+     *
+     * @param baseHandling The base handling for mime type text.
+     * @param type The primitive type.
+     * @return The wrapped handling for primitive type using mime type text.
+     * @throws IllegalStateException If the primitive type doesn't have a conversion.
+     */
+    static String wrapPrimitiveMimeTypeText(String baseHandling, PrimitiveType type) {
+        // Dealing with a primitive type that needs to be converted.
+        if (type == BOOLEAN) {
+            return "Boolean.parseBoolean(" + baseHandling + ")";
+        } else if (type == BYTE) {
+            return "Byte.parseByte(" + baseHandling + ")";
+        } else if (type == INT) {
+            return "Integer.parseInt(" + baseHandling + ")";
+        } else if (type == LONG) {
+            return "Long.parseLong(" + baseHandling + ")";
+        } else if (type == FLOAT) {
+            return "Float.parseFloat(" + baseHandling + ")";
+        } else if (type == DOUBLE) {
+            return "Double.parseDouble(" + baseHandling + ")";
+        } else if (type == CHAR) {
+            return baseHandling + ".charAt(0)";
+        }
+        throw new IllegalStateException("Unexpected primitive type " + type);
     }
 }

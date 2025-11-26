@@ -3,9 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
-import com.azure.core.http.rest.PagedIterable;
-import com.azure.core.http.rest.ResponseBase;
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ArrayType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
@@ -16,8 +13,10 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Conve
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -190,7 +189,7 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
         IType type = method.getReturnValue().getType();
         if (type instanceof GenericType
             && (ClassType.RESPONSE.getName().equals(((GenericType) type).getName())
-                || (PagedIterable.class.getSimpleName().equals(((GenericType) type).getName())))) {
+                || (ClassType.PAGED_ITERABLE.getName().equals(((GenericType) type).getName())))) {
             type = ((GenericType) type).getTypeArguments()[0];
         } else if (isResponseBase(type)) {
             // TODO: ResponseBase is not in use, hence it may have bug
@@ -200,7 +199,7 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
     }
 
     private boolean isResponseBase(IType type) {
-        return type instanceof GenericType && ResponseBase.class.getSimpleName().equals(((GenericType) type).getName());
+        return type instanceof GenericType && ClassType.RESPONSE_BASE.getName().equals(((GenericType) type).getName());
     }
 
     private String expressionConvertFromBinaryData(IType responseBodyType, IType rawType, String invocationExpression,
@@ -209,7 +208,12 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
         // TODO (weidxu): support XML etc.
         switch (mimeType) {
             case TEXT:
-                return String.format("%s.toString()", invocationExpression);
+                String basicText = invocationExpression + ".toString()";
+                if (!rawType.isNullable()) {
+                    // Dealing with a primitive type that needs to be converted.
+                    return wrapPrimitiveMimeTypeText(basicText, (PrimitiveType) rawType);
+                }
+                return basicText;
 
             case BINARY:
                 return invocationExpression;
@@ -232,11 +236,10 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
                 } else if (responseBodyType == ArrayType.BYTE_ARRAY) {
                     // byte[]
                     if (rawType == ClassType.BASE_64_URL) {
-                        return String.format(
-                            "%1$s.toObject(" + ClassType.BASE_64_URL.getName() + ".class).decodedBytes()",
-                            invocationExpression);
+                        return invocationExpression + ".toObject(" + ClassType.BASE_64_URL.getName()
+                            + ".class).decodedBytes()";
                     } else {
-                        return String.format("%1$s.toObject(byte[].class)", invocationExpression);
+                        return invocationExpression + ".toObject(byte[].class)";
                     }
                 } else {
                     // default, treat as class

@@ -57,7 +57,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override string BuildName() => "Argument";
 
-        protected override MethodProvider[] BuildMethods()
+        protected internal override MethodProvider[] BuildMethods()
         {
             return
             [

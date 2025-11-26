@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.transformer;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ArraySchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ChoiceSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
@@ -22,6 +21,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.Plugin
 import com.microsoft.typespec.http.client.generator.core.preprocessor.namer.CodeNamer;
 import com.microsoft.typespec.http.client.generator.mgmt.FluentNamer;
 import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -281,30 +281,27 @@ public class SchemaNameNormalization {
         final String postfix = "Schema";
         final String requestBody = "Requestbody";
 
-        codeModel.getOperationGroups().forEach(og -> {
-            og.getOperations().forEach(operation -> {
-                operation.getRequests().forEach(request -> {
-                    Optional<Schema> bodySchemaOpt = request.getParameters()
-                        .stream()
-                        .filter(p -> p.getSchema() != null
-                            && p.getProtocol() != null
-                            && p.getProtocol().getHttp() != null
-                            && p.getProtocol().getHttp().getIn() == RequestParameterLocation.BODY)
-                        .map(Value::getSchema)
-                        .findFirst();
-                    if (bodySchemaOpt.isPresent()) {
-                        Schema schema = bodySchemaOpt.get();
-                        String name = Utils.getDefaultName(schema);
-                        if (name.startsWith(prefix) && name.endsWith(postfix) && name.contains(requestBody)) {
-                            String newName = Utils.getDefaultName(og) + Utils.getDefaultName(operation) + "RequestBody";
-                            newName = rename(newName, names);
-                            schema.getLanguage().getDefault().setName(newName);
-                            LOGGER.warn("Rename schema default name, from '{}' to '{}'", name, newName);
-                        }
+        codeModel.getOperationGroups()
+            .forEach(og -> og.getOperations().forEach(operation -> operation.getRequests().forEach(request -> {
+                Optional<Schema> bodySchemaOpt = request.getParameters()
+                    .stream()
+                    .filter(p -> p.getSchema() != null
+                        && p.getProtocol() != null
+                        && p.getProtocol().getHttp() != null
+                        && p.getProtocol().getHttp().getIn() == RequestParameterLocation.BODY)
+                    .map(Value::getSchema)
+                    .findFirst();
+                if (bodySchemaOpt.isPresent()) {
+                    Schema schema = bodySchemaOpt.get();
+                    String name = Utils.getDefaultName(schema);
+                    if (name.startsWith(prefix) && name.endsWith(postfix) && name.contains(requestBody)) {
+                        String newName = Utils.getDefaultName(og) + Utils.getDefaultName(operation) + "RequestBody";
+                        newName = rename(newName, names);
+                        schema.getLanguage().getDefault().setName(newName);
+                        LOGGER.warn("Rename schema default name, from '{}' to '{}'", name, newName);
                     }
-                });
-            });
-        });
+                }
+            })));
 
         return codeModel;
     }
@@ -371,9 +368,7 @@ public class SchemaNameNormalization {
                 .flatMap(o -> o.getResponses().stream())
                 .filter(r -> r.getProtocol().getHttp().getHeaders() != null)
                 .flatMap(r -> r.getProtocol().getHttp().getHeaders().stream())
-                .forEach(h -> {
-                    overrideName(h);
-                });
+                .forEach(this::overrideName);
         }
         return codeModel;
     }
