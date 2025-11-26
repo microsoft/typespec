@@ -1,0 +1,41 @@
+{
+  "name": "@typespec/mcp",
+  "version": "0.1.0",
+  "description": "",
+  "exports": {
+    ".": {
+      "import": "./dist/src/index.js",
+      "typespec": "./lib/main.tsp"
+    },
+    "./testing": {
+      "import": "./dist/testing/index.js"
+    },
+    "./typekit": {
+      "import": "./dist/src/typekit/index.js"
+    }
+  },
+  "imports": {
+    "#test/*": "./test/*"
+  },
+  "peerDependencies": {
+    "@typespec/compiler": "workspace:^"
+  },
+  "scripts": {
+    "build": "pnpm gen-extern-signature && pnpm build-tsc",
+    "gen-extern-signature": "tspd --enable-experimental gen-extern-signature .",
+    "build-tsc": "tsc -p .",
+    "watch-tsc": "tsc -p . --watch",
+    "watch": "pnpm watch-tsc",
+    "test": "vitest run",
+    "format": "prettier . --write"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "type": "module",
+  "devDependencies": {
+    "@types/node": "~24.10.1",
+    "@typespec/compiler": "workspace:^",
+    "@typespec/tspd": "workspace:^"
+  }
+}
