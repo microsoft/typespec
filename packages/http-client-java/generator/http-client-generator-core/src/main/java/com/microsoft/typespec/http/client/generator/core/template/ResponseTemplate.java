@@ -29,9 +29,9 @@ public class ResponseTemplate implements IJavaTemplate<ClientResponse, JavaFile>
         JavaSettings settings = JavaSettings.getInstance();
 
         Set<String> imports = new HashSet<>();
-        imports.add("com.azure.core.http.HttpRequest");
-        imports.add("com.azure.core.http.HttpHeaders");
-        IType restResponseType = GenericType.RestResponse(response.getHeadersType(), response.getBodyType());
+        imports.add(ClassType.HTTP_REQUEST.getFullName());
+        imports.add(ClassType.HTTP_HEADERS.getFullName());
+        IType restResponseType = GenericType.restResponse(response.getHeadersType(), response.getBodyType());
         restResponseType.addImportsTo(imports, true);
 
         boolean isStreamResponse = response.getBodyType().equals(GenericType.FLUX_BYTE_BUFFER);

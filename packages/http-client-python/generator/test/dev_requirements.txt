@@ -2,3 +2,7 @@
 aiohttp
 pytest-asyncio==0.14.0
 requests==2.32.2
+sphinx==8.2.0
+sphinx_rtd_theme==3.0.2
+myst_parser==4.0.1
+sphinxcontrib-jquery==4.1

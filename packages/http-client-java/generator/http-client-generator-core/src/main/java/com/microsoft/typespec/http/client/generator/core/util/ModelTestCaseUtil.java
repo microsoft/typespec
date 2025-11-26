@@ -3,8 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.util;
 
-import com.azure.core.util.CoreUtils;
-import com.azure.core.util.DateTimeRfc1123;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientEnumValue;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
@@ -13,6 +11,8 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumT
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IterableType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
+import io.clientcore.core.utils.CoreUtils;
+import io.clientcore.core.utils.DateTimeRfc1123;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;

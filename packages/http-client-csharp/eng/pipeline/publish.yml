@@ -95,6 +95,8 @@ extends:
                 inputs:
                   version: "22.x"
 
+              - task: NuGetAuthenticate@1
+
               - download: current
                 displayName: Download pipeline artifacts
 

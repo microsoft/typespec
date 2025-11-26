@@ -1,0 +1,8 @@
+emit:
+  - "@typespec/openapi3"
+  - "@typespec/http-client-js"
+options:
+  "@typespec/openapi3":
+    emitter-output-dir: "{output-dir}/{emitter-name}"
+  "@typespec/http-client-js":
+    emitter-output-dir: "{output-dir}/{emitter-name}"

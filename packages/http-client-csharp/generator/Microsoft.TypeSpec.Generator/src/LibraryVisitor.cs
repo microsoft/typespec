@@ -17,12 +17,6 @@ namespace Microsoft.TypeSpec.Generator
     {
         protected internal virtual void VisitLibrary(OutputLibrary library)
         {
-            // Ensure all types are built before visiting them
-            foreach (var type in library.TypeProviders)
-            {
-                type.EnsureBuilt();
-            }
-
             var types = new List<TypeProvider>();
             foreach (var typeProvider in library.TypeProviders)
             {
@@ -100,7 +94,15 @@ namespace Microsoft.TypeSpec.Generator
                     }
                 }
 
-                type.Update(methods, constructors, properties, fields, serializations, nestedTypes);
+                // Update the type with the potentially modified members, filtering out customized members
+                // after the visitors have been applied so that the filtering is done against the final version.
+                type.Update(
+                    type.FilterCustomizedMethods(methods),
+                    type.FilterCustomizedConstructors(constructors),
+                    type.FilterCustomizedProperties(properties),
+                    type.FilterCustomizedFields(fields),
+                    serializations,
+                    nestedTypes);
                 type = PostVisitType(type);
             }
             return type;
@@ -204,6 +206,11 @@ namespace Microsoft.TypeSpec.Generator
         }
 
         protected internal virtual MethodBodyStatement? VisitIfElseStatement(IfElseStatement statement, MethodProvider method)
+        {
+            return statement;
+        }
+
+        protected internal virtual MethodBodyStatement? VisitIfElsePreprocessorStatement(IfElsePreprocessorStatement statement, MethodProvider method)
         {
             return statement;
         }

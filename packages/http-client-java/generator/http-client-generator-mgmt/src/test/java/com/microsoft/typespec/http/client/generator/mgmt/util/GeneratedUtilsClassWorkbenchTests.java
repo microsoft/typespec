@@ -3,7 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.util;
 
-import com.azure.core.util.CoreUtils;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -55,7 +55,7 @@ public class GeneratedUtilsClassWorkbenchTests {
                             segments.add(idSegment);
                             idItrReverted.forEachRemaining(segments::add);
                             Collections.reverse(segments);
-                            if (segments.size() > 0 && segments.get(0).isEmpty()) {
+                            if (!segments.isEmpty() && segments.get(0).isEmpty()) {
                                 segments.remove(0);
                             }
                             return String.join("/", segments);

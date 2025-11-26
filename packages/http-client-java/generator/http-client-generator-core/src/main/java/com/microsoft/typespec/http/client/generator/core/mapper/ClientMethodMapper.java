@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ConvenienceApi;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Request;
@@ -26,6 +25,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Retur
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.MethodNamer;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

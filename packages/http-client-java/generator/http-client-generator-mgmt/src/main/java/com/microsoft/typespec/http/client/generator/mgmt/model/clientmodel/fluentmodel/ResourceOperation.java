@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
@@ -23,6 +22,7 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.Fluen
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceModel;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method.FluentMethod;
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;

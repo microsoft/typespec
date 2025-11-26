@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.mapper;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.mapper.ProxyMethodMapper;
@@ -12,6 +11,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Proxy
 import com.microsoft.typespec.http.client.generator.mgmt.model.FluentType;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentStatic;
 import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.List;
 import java.util.Objects;
 

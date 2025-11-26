@@ -3,14 +3,13 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
-import com.azure.core.http.ContentType;
-import com.azure.core.http.HttpMethod;
 import com.microsoft.typespec.http.client.generator.core.extension.base.util.HttpExceptionType;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.mapper.CollectionUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodNamer;
+import io.clientcore.core.http.models.HttpMethod;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -378,8 +377,8 @@ public class ProxyMethod {
     private IType mapToSyncType(IType type) {
         if (type == GenericType.FLUX_BYTE_BUFFER) {
             return JavaSettings.getInstance().isInputStreamForBinary()
-                ? GenericType.Response(ClassType.INPUT_STREAM)
-                : GenericType.Response(ClassType.BINARY_DATA);
+                ? GenericType.response(ClassType.INPUT_STREAM)
+                : GenericType.response(ClassType.BINARY_DATA);
         }
 
         if (type instanceof GenericType) {
@@ -389,34 +388,34 @@ public class ProxyMethod {
                     GenericType innerGenericType = (GenericType) genericType.getTypeArguments()[0];
                     if (innerGenericType.getName().equals("ResponseBase")
                         && innerGenericType.getTypeArguments()[1] == GenericType.FLUX_BYTE_BUFFER) {
-                        return GenericType.RestResponse(innerGenericType.getTypeArguments()[0],
+                        return GenericType.restResponse(innerGenericType.getTypeArguments()[0],
                             JavaSettings.getInstance().isInputStreamForBinary()
                                 ? ClassType.INPUT_STREAM
                                 : ClassType.BINARY_DATA);
                     } else if ((innerGenericType.getName().equals("Response")
                         && innerGenericType.getTypeArguments()[0] == GenericType.FLUX_BYTE_BUFFER)) {
                         return JavaSettings.getInstance().isInputStreamForBinary()
-                            ? GenericType.Response(ClassType.INPUT_STREAM)
-                            : GenericType.Response(ClassType.BINARY_DATA);
+                            ? GenericType.response(ClassType.INPUT_STREAM)
+                            : GenericType.response(ClassType.BINARY_DATA);
                     }
                 }
 
                 if (genericType.getTypeArguments()[0] == ClassType.STREAM_RESPONSE) {
                     return JavaSettings.getInstance().isInputStreamForBinary()
-                        ? GenericType.Response(ClassType.INPUT_STREAM)
-                        : GenericType.Response(ClassType.BINARY_DATA);
+                        ? GenericType.response(ClassType.INPUT_STREAM)
+                        : GenericType.response(ClassType.BINARY_DATA);
                 }
                 return genericType.getTypeArguments()[0];
             }
             if (genericType.getName().equals("PagedFlux")) {
                 IType pageType = genericType.getTypeArguments()[0];
-                return GenericType.PagedIterable(pageType);
+                return GenericType.pagedIterable(pageType);
             }
             if (genericType.getName().equals("PollerFlux")) {
                 IType[] typeArguments = genericType.getTypeArguments();
                 IType pollType = typeArguments[0];
                 IType resultType = typeArguments[1];
-                return GenericType.SyncPoller(pollType, resultType);
+                return GenericType.syncPoller(pollType, resultType);
             }
         }
         return type;
@@ -478,7 +477,7 @@ public class ProxyMethod {
 
             returnType.addImportsTo(imports, includeImplementationImports);
 
-            if (ContentType.APPLICATION_X_WWW_FORM_URLENCODED.equals(this.requestContentType)) {
+            if ("application/x-www-form-urlencoded".equals(this.requestContentType)) {
                 Annotation.FORM_PARAM.addImportsTo(imports);
             }
 

@@ -3,7 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.javamodel;
 
-import com.azure.core.util.CoreUtils;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;

@@ -1,31 +1,57 @@
-import { isWhiteSpace } from "../charcode.js";
-import { defineCodeFix, getSourceLocation } from "../diagnostics.js";
-import type { DiagnosticTarget, SourceLocation } from "../types.js";
+import { defineCodeFix, getNodeForTarget, getSourceLocation } from "../diagnostics.js";
+import {
+  SyntaxKind,
+  type CodeFix,
+  type DiagnosticTarget,
+  type Node,
+  type SourceLocation,
+} from "../types.js";
+import { findLineStartAndIndent } from "./utils.js";
 
-export function createSuppressCodeFix(diagnosticTarget: DiagnosticTarget, warningCode: string) {
+export function createSuppressCodeFix(
+  diagnosticTarget: DiagnosticTarget,
+  warningCode: string,
+  suppressionMessage: string = "",
+): CodeFix {
   return defineCodeFix({
     id: "suppress",
     label: `Suppress warning: "${warningCode}"`,
     fix: (context) => {
-      const location = getSourceLocation(diagnosticTarget);
+      const location = findSuppressTarget(diagnosticTarget);
+      if (!location) {
+        return undefined;
+      }
       const { lineStart, indent } = findLineStartAndIndent(location);
       const updatedLocation = { ...location, pos: lineStart };
-      return context.prependText(updatedLocation, `${indent}#suppress "${warningCode}" ""\n`);
+      return context.prependText(
+        updatedLocation,
+        `${indent}#suppress "${warningCode}" "${suppressionMessage}"\n`,
+      );
     },
   });
 }
 
-function findLineStartAndIndent(location: SourceLocation): { lineStart: number; indent: string } {
-  const text = location.file.text;
-  let pos = location.pos;
-  let indent = 0;
-  while (pos > 0 && text[pos - 1] !== "\n") {
-    if (isWhiteSpace(text.charCodeAt(pos - 1))) {
-      indent++;
-    } else {
-      indent = 0;
-    }
-    pos--;
+function findSuppressTarget(target: DiagnosticTarget): SourceLocation | undefined {
+  if ("file" in target) {
+    return target;
   }
-  return { lineStart: pos, indent: location.file.text.slice(pos, pos + indent) };
+
+  const nodeTarget = getNodeForTarget(target);
+  if (!nodeTarget) return undefined;
+
+  const node = findSuppressNode(nodeTarget);
+  return getSourceLocation(node);
+}
+
+/** Find the node where the suppression should be applied */
+function findSuppressNode(node: Node): Node {
+  switch (node.kind) {
+    case SyntaxKind.Identifier:
+    case SyntaxKind.TypeReference:
+    case SyntaxKind.UnionExpression:
+    case SyntaxKind.ModelExpression:
+      return findSuppressNode(node.parent!);
+    default:
+      return node;
+  }
 }

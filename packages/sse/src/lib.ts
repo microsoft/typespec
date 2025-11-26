@@ -7,7 +7,14 @@ export const $lib = createTypeSpecLibrary({
       severity: "error",
       messages: {
         default:
-          "A field marked as '@terminalEvent' must be a member of a type decorated with '@TpeSpec.Events.events'.",
+          "A field marked as '@terminalEvent' must be a member of a type decorated with '@TypeSpec.Events.events'.",
+      },
+    },
+    "sse-stream-union-not-events": {
+      severity: "error",
+      messages: {
+        default:
+          "SSEStream type parameter must be a union decorated with '@TypeSpec.Events.events'.",
       },
     },
   },

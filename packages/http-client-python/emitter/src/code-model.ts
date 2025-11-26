@@ -18,6 +18,7 @@ import {
 } from "@azure-tools/typespec-client-generator-core";
 import { ignoreDiagnostics } from "@typespec/compiler";
 import {
+  ReferredByOperationTypes,
   emitBasicHttpMethod,
   emitLroHttpMethod,
   emitLroPagingHttpMethod,
@@ -228,14 +229,31 @@ function emitClient<TServiceOperation extends SdkServiceOperation>(
   if (client.clientInitialization) {
     context.__endpointPathParameters = [];
   }
-  const parameters =
-    client.clientInitialization?.parameters
-      .map((x) => emitMethodParameter(context, x))
-      .reduce((a, b) => [...a, ...b]) ?? [];
 
-  const endpointParameter = client.clientInitialization?.parameters.find(
-    (x) => x.kind === "endpoint",
-  ) as SdkEndpointParameter | undefined;
+  // get all init parameters including children clients
+  const initParameters: (SdkEndpointParameter | SdkCredentialParameter | SdkMethodParameter)[] = [];
+  const paramNames = new Set<string>();
+  function collectParameters(client: SdkClientType<TServiceOperation>) {
+    if (client.clientInitialization?.parameters) {
+      for (const param of client.clientInitialization.parameters) {
+        if (!paramNames.has(param.name)) {
+          initParameters.push(param);
+          paramNames.add(param.name);
+        }
+      }
+    }
+    for (const child of client.children ?? []) {
+      collectParameters(child);
+    }
+  }
+  collectParameters(client);
+
+  const parameters =
+    initParameters.map((x) => emitMethodParameter(context, x)).reduce((a, b) => [...a, ...b]) ?? [];
+
+  const endpointParameter = initParameters.find((x) => x.kind === "endpoint") as
+    | SdkEndpointParameter
+    | undefined;
   const operationGroups = emitOperationGroups(context, client, client, "");
   let url: string | undefined;
   if (endpointParameter?.type.kind === "union") {
@@ -317,6 +335,17 @@ export function emitCodeModel(sdkContext: PythonSdkContext) {
     }
     getType(sdkContext, sdkEnum);
   }
+
+  // clear usage when a model is only used by paging
+  for (const type of typesMap.values()) {
+    if (
+      type["type"] === "model" &&
+      type["referredByOperationType"] === ReferredByOperationTypes.PagingOnly
+    ) {
+      type["usage"] = UsageFlags.None;
+    }
+  }
+
   codeModel["types"] = [
     ...typesMap.values(),
     ...Object.values(KnownTypes),

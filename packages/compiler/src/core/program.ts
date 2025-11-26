@@ -3,13 +3,12 @@ import { EmitterOptions } from "../config/types.js";
 import { validateEncodedNamesConflicts } from "../lib/encoded-names.js";
 import { validatePagingOperations } from "../lib/paging.js";
 import { MANIFEST } from "../manifest.js";
+import { ResolveModuleError, resolveModule } from "../module-resolver/module-resolver.js";
 import {
   ModuleResolutionResult,
-  ResolveModuleError,
   ResolveModuleHost,
   ResolvedModule,
-  resolveModule,
-} from "../module-resolver/module-resolver.js";
+} from "../module-resolver/types.js";
 import { PackageJson } from "../types/package-json.js";
 import { findProjectRoot } from "../utils/io.js";
 import { deepEquals, isDefined, mapEquals, mutate } from "../utils/misc.js";
@@ -30,7 +29,8 @@ import {
 import { createLogger } from "./logger/index.js";
 import { createTracer } from "./logger/tracer.js";
 import { createDiagnostic } from "./messages.js";
-import { createResolver } from "./name-resolver.js";
+import { NameResolver, createResolver } from "./name-resolver.js";
+import { Numeric } from "./numeric.js";
 import { CompilerOptions } from "./options.js";
 import { parse, parseStandaloneTypeReference } from "./parser.js";
 import { getDirectoryPath, joinPaths, resolvePath } from "./path-utils.js";
@@ -82,7 +82,7 @@ export interface Program {
   jsSourceFiles: Map<string, JsSourceFileNode>;
 
   /** @internal */
-  literalTypes: Map<string | number | boolean, LiteralType>;
+  literalTypes: Map<string | number | boolean | Numeric, LiteralType>;
   host: CompilerHost;
   tracer: Tracer;
   trace(area: string, message: string): void;
@@ -91,6 +91,9 @@ export interface Program {
    * API are not subject to the same stability guarantees see See https://typespec.io/docs/handbook/breaking-change-policy/
    */
   checker: Checker;
+  /** @internal */
+  resolver: NameResolver;
+
   emitters: EmitterRef[];
   readonly diagnostics: readonly Diagnostic[];
   /** @internal */
@@ -223,6 +226,7 @@ async function createProgram(
   const resolvedMain = await resolveTypeSpecEntrypoint(host, mainFile, reportDiagnostic);
   const program: Program = {
     checker: undefined!,
+    resolver: undefined!,
     compilerOptions: resolveOptions(options),
     sourceFiles: new Map(),
     jsSourceFiles: new Map(),
@@ -290,11 +294,11 @@ async function createProgram(
   // let GC reclaim old program, we do not reuse it beyond this point.
   oldProgram = undefined;
 
-  const resolver = createResolver(program);
+  const resolver = (program.resolver = createResolver(program));
   runtimeStats.resolver = time(() => resolver.resolveProgram());
 
   const linter = createLinter(program, (name) => loadLibrary(basedir, name));
-  linter.registerLinterLibrary(builtInLinterLibraryName, createBuiltInLinterLibrary(resolver));
+  linter.registerLinterLibrary(builtInLinterLibraryName, createBuiltInLinterLibrary());
   if (options.linterRuleSet) {
     program.reportDiagnostics(await linter.extendRuleSet(options.linterRuleSet));
   }
@@ -321,7 +325,7 @@ async function createProgram(
   }
 
   // Linter stage
-  const lintResult = linter.lint();
+  const lintResult = await linter.lint();
   runtimeStats.linter = lintResult.stats.runtime;
   program.reportDiagnostics(lintResult.diagnostics);
 

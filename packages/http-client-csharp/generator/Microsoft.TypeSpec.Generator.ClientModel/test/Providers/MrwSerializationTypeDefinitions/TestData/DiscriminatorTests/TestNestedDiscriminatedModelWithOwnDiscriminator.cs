@@ -9,7 +9,7 @@ using Sample;
 
 namespace Sample.Models
 {
-    public partial class Tree : global::System.ClientModel.Primitives.IJsonModel<global::Sample.Models.Tree>
+    public partial class Tree : global::Sample.Models.Plant, global::System.ClientModel.Primitives.IJsonModel<global::Sample.Models.Tree>
     {
         internal Tree()
         {
@@ -86,7 +86,7 @@ namespace Sample.Models
             switch (format)
             {
                 case "J":
-                    using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(data))
+                    using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(data, global::Sample.ModelSerializationExtensions.JsonDocumentOptions))
                     {
                         return global::Sample.Models.Tree.DeserializeTree(document.RootElement, options);
                     }

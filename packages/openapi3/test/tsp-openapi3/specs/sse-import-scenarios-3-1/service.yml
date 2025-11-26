@@ -1,0 +1,143 @@
+openapi: 3.1.0
+info:
+  title: SSE Import Scenarios
+  version: 0.0.0
+components:
+  schemas:
+    UserConnect:
+      type: object
+      required: [username]
+      properties:
+        username:
+          type: string
+    UserMessage:
+      type: object
+      required: [text]
+      properties:
+        text:
+          type: string
+    ChannelEventsNoTerminal:
+      type: object
+      properties:
+        event:
+          type: string
+        data:
+          type: string
+      required: [event]
+      # Define event types and specific schemas for the corresponding data
+      oneOf:
+        - properties:
+            event:
+              const: userconnect
+            data:
+              contentMediaType: application/json
+              contentSchema:
+                $ref: "#/components/schemas/UserConnect"
+        - properties:
+            event:
+              const: usermessage
+            data:
+              contentMediaType: application/json
+              contentSchema:
+                $ref: "#/components/schemas/UserMessage"
+    ChannelEventsWithTerminal:
+      type: object
+      properties:
+        event:
+          type: string
+        data:
+          type: string
+      required: [event]
+      # Define event types and specific schemas for the corresponding data
+      oneOf:
+        - properties:
+            data:
+              contentMediaType: text/plain
+              const: "[done]"
+          x-ms-sse-terminal-event: true
+        - properties:
+            event:
+              const: userconnect
+            data:
+              contentMediaType: application/json
+              contentSchema:
+                $ref: "#/components/schemas/UserConnect"
+        - properties:
+            event:
+              const: usermessage
+            data:
+              contentMediaType: application/json
+              contentSchema:
+                $ref: "#/components/schemas/UserMessage"
+    ChannelEventWithCustomContentType:
+      type: object
+      properties:
+        event:
+          type: string
+        data:
+          type: string
+      required: [event]
+      oneOf:
+        - properties:
+            event:
+              const: binary
+            data:
+              contentMediaType: application/octet-stream
+              contentSchema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: string
+                    format: byte
+paths:
+  /channel/no-terminal:
+    get:
+      operationId: subscribeToChannelNoTerminal
+      responses:
+        "200":
+          description: A request body to add a stream of typed data.
+          content:
+            text/event-stream:
+              itemSchema:
+                $ref: "#/components/schemas/ChannelEventsNoTerminal"
+  /channel/no-terminal-post:
+    post:
+      operationId: subscribeToChannelNoTerminal
+      requestBody:
+        description: Request body for subscribing to a channel without terminal event.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                channelId:
+                  type: string
+      responses:
+        "200":
+          description: A request body to add a stream of typed data.
+          content:
+            text/event-stream:
+              itemSchema:
+                $ref: "#/components/schemas/ChannelEventsNoTerminal"
+  /channel/with-terminal:
+    get:
+      operationId: subscribeToChannelWithTerminal
+      responses:
+        "200":
+          description: A request body to add a stream of typed data.
+          content:
+            text/event-stream:
+              itemSchema:
+                $ref: "#/components/schemas/ChannelEventsWithTerminal"
+  /data/custom-content-type:
+    get:
+      operationId: subscribeToDataStream
+      responses:
+        "200":
+          description: A data stream with custom content types.
+          content:
+            text/event-stream:
+              itemSchema:
+                $ref: "#/components/schemas/ChannelEventWithCustomContentType"

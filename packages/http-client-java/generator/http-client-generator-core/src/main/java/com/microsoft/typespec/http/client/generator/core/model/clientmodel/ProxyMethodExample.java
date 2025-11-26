@@ -3,13 +3,12 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
-import com.azure.core.http.HttpHeaderName;
-import com.azure.core.http.HttpHeaders;
-import com.azure.core.util.CoreUtils;
-import com.azure.json.JsonProviders;
-import com.azure.json.JsonWriter;
 import com.microsoft.typespec.http.client.generator.core.Javagen;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
+import io.clientcore.core.http.models.HttpHeaderName;
+import io.clientcore.core.http.models.HttpHeaders;
+import io.clientcore.core.serialization.json.JsonWriter;
+import io.clientcore.core.utils.CoreUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -68,7 +67,7 @@ public class ProxyMethodExample {
 
         public String getJsonString() {
             try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                JsonWriter jsonWriter = JsonProviders.createWriter(outputStream)) {
+                JsonWriter jsonWriter = JsonWriter.toStream(outputStream)) {
                 jsonWriter.writeUntyped(objectValue).flush();
                 return outputStream.toString(StandardCharsets.UTF_8);
             } catch (IOException e) {
@@ -127,7 +126,7 @@ public class ProxyMethodExample {
         public String getJson(Object obj) {
             if (obj != null) {
                 try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                    JsonWriter jsonWriter = JsonProviders.createWriter(outputStream)) {
+                    JsonWriter jsonWriter = JsonWriter.toStream(outputStream)) {
                     jsonWriter.writeUntyped(obj).flush();
                     return outputStream.toString(StandardCharsets.UTF_8);
                 } catch (IOException e) {

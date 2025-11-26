@@ -89,7 +89,7 @@ public final class ModelWithEncodedNamesValuesImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return uses encodedName instead of Xml.Name which is functionally equivalent.
+     * @return uses encodedName instead of Xml.Name which is functionally equivalent along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ModelWithEncodedNames> getWithResponse(RequestContext requestContext) {
@@ -108,7 +108,7 @@ public final class ModelWithEncodedNamesValuesImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(ModelWithEncodedNames input, RequestContext requestContext) {

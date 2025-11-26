@@ -6,9 +6,9 @@ using System.ClientModel.Primitives;
 
 namespace _Type.Model.Inheritance.NotDiscriminated
 {
-    [ModelReaderWriterBuildable(typeof(Siamese))]
     [ModelReaderWriterBuildable(typeof(Cat))]
     [ModelReaderWriterBuildable(typeof(Pet))]
+    [ModelReaderWriterBuildable(typeof(Siamese))]
     public partial class _TypeModelInheritanceNotDiscriminatedContext : ModelReaderWriterContext
     {
     }

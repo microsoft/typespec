@@ -45,7 +45,7 @@ namespace Sample
 
             _endpoint = endpoint;
             _queryParam = queryParam;
-            Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>(), Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>(), Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>());
+            Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>(), new global::System.ClientModel.Primitives.PipelinePolicy[] { new global::System.ClientModel.Primitives.UserAgentPolicy(typeof(global::Sample.TestClient).Assembly) }, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>());
         }
 
         /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
@@ -90,7 +90,7 @@ namespace Sample
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         public virtual global::System.ClientModel.ClientResult Foo(global::System.Threading.CancellationToken cancellationToken = default)
         {
-            return this.Foo(cancellationToken.CanBeCanceled ? new global::System.ClientModel.Primitives.RequestOptions { CancellationToken = cancellationToken } : null);
+            return this.Foo(cancellationToken.ToRequestOptions());
         }
 
         /// <summary> Foo description. </summary>
@@ -98,7 +98,7 @@ namespace Sample
         /// <exception cref="global::System.ClientModel.ClientResultException"> Service returned a non-success status code. </exception>
         public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> FooAsync(global::System.Threading.CancellationToken cancellationToken = default)
         {
-            return await this.FooAsync(cancellationToken.CanBeCanceled ? new global::System.ClientModel.Primitives.RequestOptions { CancellationToken = cancellationToken } : null).ConfigureAwait(false);
+            return await this.FooAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
     }
 }

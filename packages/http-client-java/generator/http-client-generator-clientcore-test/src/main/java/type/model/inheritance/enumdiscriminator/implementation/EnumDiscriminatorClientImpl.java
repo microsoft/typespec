@@ -176,7 +176,7 @@ public final class EnumDiscriminatorClientImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return test extensible enum type for discriminator.
+     * @return test extensible enum type for discriminator along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Dog> getExtensibleModelWithResponse(RequestContext requestContext) {
@@ -195,7 +195,7 @@ public final class EnumDiscriminatorClientImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putExtensibleModelWithResponse(Dog input, RequestContext requestContext) {
@@ -213,7 +213,7 @@ public final class EnumDiscriminatorClientImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a model omitting the discriminator.
+     * @return a model omitting the discriminator along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Dog> getExtensibleModelMissingDiscriminatorWithResponse(RequestContext requestContext) {
@@ -232,7 +232,7 @@ public final class EnumDiscriminatorClientImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a model containing discriminator value never defined.
+     * @return a model containing discriminator value never defined along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Dog> getExtensibleModelWrongDiscriminatorWithResponse(RequestContext requestContext) {
@@ -251,7 +251,7 @@ public final class EnumDiscriminatorClientImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return test fixed enum type for discriminator.
+     * @return test fixed enum type for discriminator along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Snake> getFixedModelWithResponse(RequestContext requestContext) {
@@ -270,7 +270,7 @@ public final class EnumDiscriminatorClientImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putFixedModelWithResponse(Snake input, RequestContext requestContext) {
@@ -288,7 +288,7 @@ public final class EnumDiscriminatorClientImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a model omitting the discriminator.
+     * @return a model omitting the discriminator along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Snake> getFixedModelMissingDiscriminatorWithResponse(RequestContext requestContext) {
@@ -307,7 +307,7 @@ public final class EnumDiscriminatorClientImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a model containing discriminator value never defined.
+     * @return a model containing discriminator value never defined along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Snake> getFixedModelWrongDiscriminatorWithResponse(RequestContext requestContext) {

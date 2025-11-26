@@ -3,12 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.template.example;
 
-import com.azure.core.http.ContentType;
-import com.azure.core.http.rest.PagedIterable;
-import com.azure.core.http.rest.Response;
-import com.azure.core.util.polling.LongRunningOperationStatus;
-import com.azure.core.util.polling.SyncPoller;
-import com.azure.core.util.serializer.CollectionFormat;
 import com.microsoft.typespec.http.client.generator.core.Javagen;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
@@ -29,6 +23,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Proxy
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ServiceClient;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
+import com.microsoft.typespec.http.client.generator.core.util.CollectionFormat;
 import com.microsoft.typespec.http.client.generator.core.util.ModelExampleUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import java.util.ArrayList;
@@ -76,7 +71,7 @@ public class ProtocolExampleWriter {
 
         // assertion
         imports.add("org.junit.jupiter.api.Assertions");
-        imports.add(LongRunningOperationStatus.class.getName());
+        imports.add(ClassType.LONG_RUNNING_OPERATION_STATUS.getFullName());
         ClassType.HTTP_HEADER_NAME.addImportsTo(imports, false);
 
         // method invocation
@@ -243,7 +238,7 @@ public class ProtocolExampleWriter {
                 IType returnType = method.getReturnValue().getType();
                 if (returnType instanceof GenericType) {
                     GenericType responseType = (GenericType) returnType;
-                    if (Response.class.getSimpleName().equals(responseType.getName())) {
+                    if (ClassType.RESPONSE.getName().equals(responseType.getName())) {
                         // Response<>
 
                         // assert status code
@@ -252,14 +247,15 @@ public class ProtocolExampleWriter {
                         // assert headers
                         response.getHttpHeaders().stream().forEach(header -> {
                             String expectedValueStr = ClassType.STRING.defaultValueExpression(header.getValue());
-                            String keyStr = ClassType.STRING.defaultValueExpression(header.getName());
+                            String keyStr
+                                = ClassType.STRING.defaultValueExpression(header.getName().getCaseSensitiveName());
                             methodBlock.line(String.format(
                                 "Assertions.assertEquals(%1$s, response.getHeaders().get(HttpHeaderName.fromString(%2$s)).getValue());",
                                 expectedValueStr, keyStr));
                         });
                         // assert JSON body
                         if (method.getProxyMethod().getResponseContentTypes() != null
-                            && method.getProxyMethod().getResponseContentTypes().contains(ContentType.APPLICATION_JSON)
+                            && method.getProxyMethod().getResponseContentTypes().contains("application/json")
                             && responseType.getTypeArguments().length > 0
                             && responseType.getTypeArguments()[0] == ClassType.BINARY_DATA) {
                             String expectedJsonStr = ClassType.STRING.defaultValueExpression(response.getJsonBody());
@@ -267,7 +263,7 @@ public class ProtocolExampleWriter {
                                 "Assertions.assertEquals(BinaryData.fromString(%1$s).toObject(Object.class), response.getValue().toObject(Object.class));",
                                 expectedJsonStr));
                         }
-                    } else if (SyncPoller.class.getSimpleName().equals(responseType.getName())) {
+                    } else if (ClassType.SYNC_POLLER.getName().equals(responseType.getName())) {
                         // SyncPoller<>
 
                         if (response.getStatusCode() / 100 == 2) {
@@ -276,7 +272,7 @@ public class ProtocolExampleWriter {
                             methodBlock.line(
                                 "Assertions.assertEquals(LongRunningOperationStatus.SUCCESSFULLY_COMPLETED, response.waitForCompletion().getStatus());");
                         }
-                    } else if (PagedIterable.class.getSimpleName().equals(responseType.getName())) {
+                    } else if (ClassType.PAGED_ITERABLE.getName().equals(responseType.getName())) {
                         // PagedIterable<>
 
                         // assert status code
@@ -286,14 +282,15 @@ public class ProtocolExampleWriter {
                         // assert headers
                         response.getHttpHeaders().stream().forEach(header -> {
                             String expectedValueStr = ClassType.STRING.defaultValueExpression(header.getValue());
-                            String keyStr = ClassType.STRING.defaultValueExpression(header.getName());
+                            String keyStr
+                                = ClassType.STRING.defaultValueExpression(header.getName().getCaseSensitiveName());
                             methodBlock.line(String.format(
                                 "Assertions.assertEquals(%1$s, response.iterableByPage().iterator().next().getHeaders().get(HttpHeaderName.fromString(%2$s)).getValue());",
                                 expectedValueStr, keyStr));
                         });
                         // assert JSON of first item, or assert count=0
                         if (method.getProxyMethod().getResponseContentTypes() != null
-                            && method.getProxyMethod().getResponseContentTypes().contains(ContentType.APPLICATION_JSON)
+                            && method.getProxyMethod().getResponseContentTypes().contains("application/json")
                             && responseType.getTypeArguments().length > 0
                             && responseType.getTypeArguments()[0] == ClassType.BINARY_DATA
                             && method.getMethodPageDetails() != null

@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.javamodel;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlugin;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
@@ -44,6 +43,7 @@ import com.microsoft.typespec.http.client.generator.core.util.ClassNameUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ConstantStringTooLongException;
 import com.microsoft.typespec.http.client.generator.core.util.PossibleCredentialException;
+import io.clientcore.core.utils.CoreUtils;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -370,8 +370,9 @@ public class JavaPackage {
         addJavaFile(javaFile);
     }
 
-    public void addTypeSpecMetadata(TypeSpecMetadata typeSpecMetadata) {
-        String filePath = "src/main/resources/META-INF/" + typeSpecMetadata.getArtifactId() + "_metadata.json";
+    public void addTypeSpecMetadata(TypeSpecMetadata typeSpecMetadata, String suffix) {
+        String filePath = "src/main/resources/META-INF/" + typeSpecMetadata.getArtifactId() + "_metadata"
+            + (suffix == null ? "" : "_" + suffix) + ".json";
         try {
             TextFile textFile = new TextFile(filePath, typeSpecMetadata.toJsonString());
             this.checkDuplicateFile(textFile.getFilePath());

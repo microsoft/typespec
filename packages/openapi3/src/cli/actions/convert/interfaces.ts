@@ -1,12 +1,42 @@
 import { Contact, License } from "@typespec/openapi";
-import { OpenAPI3Encoding, OpenAPI3Responses, OpenAPI3Schema, Refable } from "../../../types.js";
+import {
+  OpenAPI3Encoding,
+  OpenAPI3Responses,
+  Refable,
+  SupportedOpenAPISchema,
+} from "../../../types.js";
 
 export interface TypeSpecProgram {
   serviceInfo: TypeSpecServiceInfo;
   namespaces: Record<string, TypeSpecNamespace>;
   types: TypeSpecDataTypes[];
+  tags: TypeSpecTagMetadata[];
   augmentations: TypeSpecAugmentation[];
   operations: TypeSpecOperation[];
+  servers: TypeSpecServer[];
+}
+
+export interface TypeSpecServer {
+  url: string;
+  description?: string;
+  variables?: Record<string, TypeSpecServerVariable>;
+}
+
+export interface TypeSpecServerVariable {
+  default: string;
+  description?: string;
+  enum?: string[];
+}
+
+export interface TypeSpecTagMetadata {
+  name: string;
+  description?: string;
+  externalDocs?: TypeSpecExternalDocs;
+}
+
+export interface TypeSpecExternalDocs {
+  url: string;
+  description?: string;
 }
 
 export interface TypeSpecDeclaration {
@@ -14,6 +44,7 @@ export interface TypeSpecDeclaration {
   doc?: string;
   decorators: TypeSpecDecorator[];
   scope: string[];
+  fixmes?: string[];
 }
 
 export interface TypeSpecNamespace {
@@ -61,7 +92,7 @@ export interface TypeSpecModel extends TypeSpecDeclaration {
   kind: "model";
 
   properties: TypeSpecModelProperty[];
-  additionalProperties?: Refable<OpenAPI3Schema>;
+  additionalProperties?: Refable<SupportedOpenAPISchema>;
   /**
    * Note: Only one of `extends` or `is` should be specified.
    */
@@ -73,9 +104,18 @@ export interface TypeSpecModel extends TypeSpecDeclaration {
   /**
    * Defaults to 'object'
    */
-  type?: OpenAPI3Schema["type"];
+  type?: SupportedOpenAPISchema["type"];
 
   spread?: string[];
+
+  /**
+   * Whether the model is referenced as a multipart request body and needs to be emitted as a set of http parts
+   */
+  isModelReferencedAsMultipartRequestBody?: boolean;
+  /**
+   * The encoding information to use, if any, for the multipart request body.
+   */
+  encoding?: Record<string, OpenAPI3Encoding>;
 }
 
 export interface TypeSpecAlias extends Pick<TypeSpecDeclaration, "name" | "doc" | "scope"> {
@@ -85,17 +125,17 @@ export interface TypeSpecAlias extends Pick<TypeSpecDeclaration, "name" | "doc" 
 
 export interface TypeSpecEnum extends TypeSpecDeclaration {
   kind: "enum";
-  schema: OpenAPI3Schema;
+  schema: SupportedOpenAPISchema;
 }
 
 export interface TypeSpecUnion extends TypeSpecDeclaration {
   kind: "union";
-  schema: OpenAPI3Schema;
+  schema: SupportedOpenAPISchema;
 }
 
 export interface TypeSpecScalar extends TypeSpecDeclaration {
   kind: "scalar";
-  schema: OpenAPI3Schema;
+  schema: SupportedOpenAPISchema;
 }
 
 export interface TypeSpecModelProperty {
@@ -108,7 +148,7 @@ export interface TypeSpecModelProperty {
    * Example: location decorators for parameters
    */
   decorators: TypeSpecDecorator[];
-  schema: Refable<OpenAPI3Schema>;
+  schema: Refable<SupportedOpenAPISchema>;
 }
 
 export interface TypeSpecOperation extends TypeSpecDeclaration {
@@ -125,7 +165,7 @@ export interface TypeSpecOperationParameter {
   doc?: string;
   decorators: TypeSpecDecorator[];
   isOptional: boolean;
-  schema: Refable<OpenAPI3Schema>;
+  schema: Refable<SupportedOpenAPISchema>;
 }
 
 export interface TypeSpecRequestBody {
@@ -133,5 +173,5 @@ export interface TypeSpecRequestBody {
   doc?: string;
   isOptional: boolean;
   encoding?: Record<string, OpenAPI3Encoding>;
-  schema?: Refable<OpenAPI3Schema>;
+  schema?: Refable<SupportedOpenAPISchema>;
 }

@@ -11,6 +11,7 @@ import {
   type SourceFile,
   type SourceFileScope,
   TypeEmitter,
+  setProperty,
 } from "@typespec/asset-emitter";
 import {
   type BooleanLiteral,
@@ -35,6 +36,7 @@ import {
   explainStringTemplateNotSerializable,
   getDeprecated,
   getDirectoryPath,
+  getDiscriminator,
   getDoc,
   getExamples,
   getFormat,
@@ -84,18 +86,33 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
   #applyModelIndexer(schema: ObjectBuilder<unknown>, model: Model) {
     if (model.indexer) {
-      schema.set("unevaluatedProperties", this.emitter.emitTypeReference(model.indexer.value));
+      setProperty(
+        schema,
+        "unevaluatedProperties",
+        this.emitter.emitTypeReference(model.indexer.value),
+      );
       return;
     }
     if (!this.emitter.getOptions()["seal-object-schemas"]) return;
 
     const derivedModels = model.derivedModels.filter(includeDerivedModel);
     if (!derivedModels.length) {
-      schema.set("unevaluatedProperties", { not: {} });
+      setProperty(schema, "unevaluatedProperties", { not: {} });
     }
   }
 
   modelDeclaration(model: Model, name: string): EmitterOutput<object> {
+    // Check if this should emit as a discriminated union
+    const discriminator = getDiscriminator(this.emitter.getProgram(), model);
+    const strategy = this.emitter.getOptions()["polymorphic-models-strategy"];
+    if (
+      (strategy === "oneOf" || strategy === "anyOf") &&
+      discriminator &&
+      model.derivedModels.length > 0
+    ) {
+      return this.#createDiscriminatedUnionDeclaration(model, name, discriminator, strategy);
+    }
+
     const schema = this.#initializeSchema(model, name, {
       type: "object",
       properties: this.emitter.emitModelProperties(model),
@@ -105,7 +122,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     if (model.baseModel) {
       const allOf = new ArrayBuilder();
       allOf.push(this.emitter.emitTypeReference(model.baseModel));
-      schema.set("allOf", allOf);
+      setProperty(schema, "allOf", allOf);
     }
 
     this.#applyModelIndexer(schema, model);
@@ -161,6 +178,12 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       }
     }
 
+    // Add discriminator property to required if model has @discriminator decorator and property is not already defined
+    const discriminator = getDiscriminator(this.emitter.getProgram(), model);
+    if (discriminator && !model.properties.has(discriminator.propertyName)) {
+      requiredProps.push(discriminator.propertyName);
+    }
+
     return requiredProps.length > 0 ? requiredProps : undefined;
   }
 
@@ -169,7 +192,16 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
     for (const [name, prop] of model.properties) {
       const result = this.emitter.emitModelProperty(prop);
-      props.set(name, result);
+      setProperty(props, name, result);
+    }
+
+    // Add discriminator property if model has @discriminator decorator and property is not already defined
+    const discriminator = getDiscriminator(this.emitter.getProgram(), model);
+    if (discriminator && !(discriminator.propertyName in props)) {
+      setProperty(props, discriminator.propertyName, {
+        type: "string",
+        description: `Discriminator property for ${model.name}.`,
+      });
     }
 
     return props;
@@ -521,7 +553,8 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
     const program = this.emitter.getProgram();
     const examples = getExamples(program, type);
     if (examples.length > 0) {
-      target.set(
+      setProperty(
+        target,
         "examples",
         examples.map((x) => serializeValueAsJson(program, x.value, type)),
       );
@@ -544,7 +577,7 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       if (constraintType) {
         const ref = this.emitter.emitTypeReference(constraintType);
         compilerAssert(ref.kind === "code", "Unexpected non-code result from emit reference");
-        schema.set(key, ref.value);
+        setProperty(schema, key, ref.value);
       }
     };
     if (type.kind !== "UnionVariant") {
@@ -589,15 +622,15 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
       for (const item of prefixItems.values) {
         prefixItemsSchema.push(this.emitter.emitTypeReference(item));
       }
-      schema.set("prefixItems", prefixItemsSchema);
+      setProperty(schema, "prefixItems", prefixItemsSchema);
     }
 
     const extensions = getExtensions(this.emitter.getProgram(), type);
     for (const { key, value } of extensions) {
       if (this.#isTypeLike(value)) {
-        schema.set(key, this.emitter.emitTypeReference(value));
+        setProperty(schema, key, this.emitter.emitTypeReference(value));
       } else {
-        schema.set(key, value);
+        setProperty(schema, key, value);
       }
     }
   }
@@ -645,6 +678,35 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
   #isStdType(type: Type) {
     return this.emitter.getProgram().checker.isStdType(type);
+  }
+
+  #createDiscriminatedUnionDeclaration(
+    model: Model,
+    name: string,
+    discriminator: { propertyName: string },
+    strategy: "oneOf" | "anyOf",
+  ): EmitterOutput<object> {
+    const variants = new ArrayBuilder<Record<string, unknown>>();
+
+    // Collect all derived models
+    for (const derived of model.derivedModels) {
+      if (!includeDerivedModel(derived)) continue;
+
+      // Add reference to each derived model
+      const derivedRef = this.emitter.emitTypeReference(derived);
+      variants.push(derivedRef);
+    }
+
+    // Include base model properties and the discriminated union
+    const schema = this.#initializeSchema(model, name, {
+      type: "object",
+      properties: this.emitter.emitModelProperties(model),
+      required: this.#requiredModelProperties(model),
+      [strategy]: variants,
+    });
+
+    this.#applyConstraints(model, schema);
+    return this.#createDeclaration(model, name, schema);
   }
 
   intrinsic(intrinsic: IntrinsicType, name: string): EmitterOutput<object> {

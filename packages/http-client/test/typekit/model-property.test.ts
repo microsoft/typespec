@@ -1,27 +1,27 @@
-import { Namespace, StringValue } from "@typespec/compiler";
-import type { BasicTestRunner } from "@typespec/compiler/testing";
+import { StringValue } from "@typespec/compiler";
+import { t, TesterInstance } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/typekit";
 import { ok } from "assert";
 import { beforeEach, describe, expect, it } from "vitest";
 import "../../src/typekit/index.js";
-import { createTypespecHttpClientLibraryTestRunner } from "../test-host.js";
+import { Tester } from "../test-host.js";
 
-let runner: BasicTestRunner;
+let runner: TesterInstance;
 
 beforeEach(async () => {
-  runner = await createTypespecHttpClientLibraryTestRunner();
+  runner = await Tester.createInstance();
 });
 
 describe("getCredentialAuth", () => {
   it("should return the correct http scheme", async () => {
-    const { DemoService } = (await runner.compile(`
+    const { DemoService, program } = await runner.compile(t.code`
       @service(#{
         title: "Widget Service",
       })
       @useAuth(ApiKeyAuth<ApiKeyLocation.header, "x-ms-api-key">)
-      @test namespace DemoService;
-      `)) as { DemoService: Namespace };
-    const tk = $(runner.program);
+      @test namespace ${t.namespace("DemoService")};
+      `);
+    const tk = $(program);
 
     const client = tk.client.getClient(DemoService);
     const constructor = tk.client.getConstructor(client);
@@ -37,7 +37,7 @@ describe("getCredentialAuth", () => {
   });
 
   it("should return the correct http schemes", async () => {
-    const { DemoService } = (await runner.compile(`
+    const { DemoService, program } = await runner.compile(t.code`
       @service(#{
         title: "Widget Service",
       })
@@ -46,9 +46,9 @@ describe("getCredentialAuth", () => {
         authorizationUrl: "https://login.microsoftonline.com/common/oauth2/authorize";
         scopes: ["https://security.microsoft.com/.default"];
       }]>)
-      @test namespace DemoService;
-      `)) as { DemoService: Namespace };
-    const tk = $(runner.program);
+      @test namespace ${t.namespace("DemoService")};
+      `);
+    const tk = $(program);
 
     const client = tk.client.getClient(DemoService);
     const constructor = tk.client.getConstructor(client);
@@ -68,13 +68,13 @@ describe("getCredentialAuth", () => {
 describe("isOnClient", () => {
   describe("endpoint", () => {
     it("no servers", async () => {
-      const { DemoService } = (await runner.compile(`
+      const { DemoService, program } = await runner.compile(t.code`
         @service(#{
           title: "Widget Service",
         })
-        @test namespace DemoService;
-        `)) as { DemoService: Namespace };
-      const tk = $(runner.program);
+        @test namespace ${t.namespace("DemoService")};
+        `);
+      const tk = $(program);
 
       const client = tk.clientLibrary.listClients(DemoService)[0];
       const constructor = tk.client.getConstructor(client);
@@ -84,14 +84,14 @@ describe("isOnClient", () => {
       expect(tk.modelProperty.isOnClient(client, params[0])).toBe(true);
     });
     it("one server, no params", async () => {
-      const { DemoService } = (await runner.compile(`
+      const { DemoService, program } = await runner.compile(t.code`
         @server("https://example.com", "The service endpoint")
         @service(#{
           title: "Widget Service",
         })
-        @test namespace DemoService;
-        `)) as { DemoService: Namespace };
-      const tk = $(runner.program);
+        @test namespace ${t.namespace("DemoService")};
+        `);
+      const tk = $(program);
 
       const client = tk.clientLibrary.listClients(DemoService)[0];
       const constructor = tk.client.getConstructor(client);
@@ -101,14 +101,14 @@ describe("isOnClient", () => {
       expect(tk.modelProperty.isOnClient(client, params[0])).toBe(true);
     });
     it("one server with parameter", async () => {
-      const { DemoService } = (await runner.compile(`
+      const { DemoService, program } = await runner.compile(t.code`
         @server("https://example.com/{name}/foo", "My service url", { name: string })
         @service(#{
           title: "Widget Service",
         })
-        @test namespace DemoService;
-        `)) as { DemoService: Namespace };
-      const tk = $(runner.program);
+        @test namespace ${t.namespace("DemoService")};
+        `);
+      const tk = $(program);
 
       const client = tk.clientLibrary.listClients(DemoService)[0];
       const constructor = tk.client.getConstructor(client);
@@ -132,14 +132,14 @@ describe("isOnClient", () => {
   });
   describe("credential", () => {
     it("apikey", async () => {
-      const { DemoService } = (await runner.compile(`
+      const { DemoService, program } = await runner.compile(t.code`
         @service(#{
           title: "Widget Service",
         })
         @useAuth(ApiKeyAuth<ApiKeyLocation.header, "x-ms-api-key">)
-        @test namespace DemoService;
-        `)) as { DemoService: Namespace };
-      const tk = $(runner.program);
+        @test namespace ${t.namespace("DemoService")};
+        `);
+      const tk = $(program);
 
       const client = tk.client.getClient(DemoService);
       const constructor = tk.client.getConstructor(client);
@@ -151,7 +151,7 @@ describe("isOnClient", () => {
       expect(tk.modelProperty.isOnClient(client, credential)).toBe(true);
     });
     it("bearer", async () => {
-      const { DemoService } = (await runner.compile(`
+      const { DemoService, program } = await runner.compile(t.code`
         @service(#{
           title: "Widget Service",
         })
@@ -160,9 +160,9 @@ describe("isOnClient", () => {
           authorizationUrl: "https://login.microsoftonline.com/common/oauth2/authorize";
           scopes: ["https://security.microsoft.com/.default"];
         }]>)
-        @test namespace DemoService;
-        `)) as { DemoService: Namespace };
-      const tk = $(runner.program);
+        @test namespace ${t.namespace("DemoService")};
+        `);
+      const tk = $(program);
 
       const client = tk.clientLibrary.listClients(DemoService)[0];
       const constructor = tk.client.getConstructor(client);
@@ -179,14 +179,14 @@ describe("isOnClient", () => {
 
 describe("isCredential", () => {
   it("apikey", async () => {
-    const { DemoService } = (await runner.compile(`
+    const { DemoService, program } = await runner.compile(t.code`
       @service(#{
         title: "Widget Service",
       })
       @useAuth(ApiKeyAuth<ApiKeyLocation.header, "x-ms-api-key">)
-      @test namespace DemoService;
-      `)) as { DemoService: Namespace };
-    const tk = $(runner.program);
+      @test namespace ${t.namespace("DemoService")};
+      `);
+    const tk = $(program);
 
     const client = tk.clientLibrary.listClients(DemoService)[0];
     const constructor = tk.client.getConstructor(client);
@@ -198,7 +198,7 @@ describe("isCredential", () => {
     expect(tk.modelProperty.isCredential(credential)).toBe(true);
   });
   it("bearer", async () => {
-    const { DemoService } = (await runner.compile(`
+    const { DemoService, program } = await runner.compile(t.code`
       @service(#{
         title: "Widget Service",
       })
@@ -207,9 +207,9 @@ describe("isCredential", () => {
         authorizationUrl: "https://login.microsoftonline.com/common/oauth2/authorize";
         scopes: ["https://security.microsoft.com/.default"];
       }]>)
-      @test namespace DemoService;
-      `)) as { DemoService: Namespace };
-    const tk = $(runner.program);
+      @test namespace ${t.namespace("DemoService")};
+      `);
+    const tk = $(program);
 
     const client = tk.clientLibrary.listClients(DemoService)[0];
     const constructor = tk.client.getConstructor(client);

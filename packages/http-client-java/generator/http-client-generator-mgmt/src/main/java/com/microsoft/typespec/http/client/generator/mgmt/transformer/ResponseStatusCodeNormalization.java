@@ -3,12 +3,12 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.transformer;
 
-import com.azure.core.http.HttpMethod;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Response;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
 import com.microsoft.typespec.http.client.generator.mgmt.FluentNamer;
 import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
+import io.clientcore.core.http.models.HttpMethod;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;

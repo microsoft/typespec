@@ -22,24 +22,21 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.azure</groupId>
-      <artifactId>azure-core</artifactId>
-      <version>1.55.4</version>
-    </dependency>
-    <dependency>
       <groupId>io.clientcore</groupId>
       <artifactId>core</artifactId>
-      <version>1.0.0-beta.10</version>
+      <version>1.0.0-beta.11</version>
     </dependency>
     <dependency>
       <groupId>com.azure</groupId>
-      <artifactId>azure-json</artifactId>
-      <version>1.5.0</version>
+      <artifactId>azure-core</artifactId>
+      <version>1.57.0</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.azure</groupId>
-      <artifactId>azure-xml</artifactId>
-      <version>1.2.0</version>
+      <groupId>io.projectreactor</groupId>
+      <artifactId>reactor-core</artifactId>
+      <version>3.7.11</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.yaml</groupId>
@@ -62,6 +59,13 @@
       <artifactId>google-java-format</artifactId>
       <version>1.24.0</version>
     </dependency>
+    <!-- 3.27.0 aligns with the version used when Spotless uses Eclipse 4.21 / 4.21.0. -->
+    <!-- In the future when this is upgraded it might slightly change code formatting. -->
+    <dependency>
+      <groupId>org.eclipse.jdt</groupId>
+      <artifactId>org.eclipse.jdt.core</artifactId>
+      <version>3.27.0</version>
+    </dependency>
     <dependency>
       <groupId>org.atteo</groupId>
       <artifactId>evo-inflector</artifactId>
@@ -75,13 +79,13 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
-      <version>5.11.2</version>
+      <version>5.13.4</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
-      <version>5.11.2</version>
+      <version>5.13.4</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

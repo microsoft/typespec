@@ -99,7 +99,7 @@ public final class DecimalTypesImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a decimal number with any length and precision.
+     * @return a decimal number with any length and precision along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BigDecimal> responseBodyWithResponse(RequestContext requestContext) {
@@ -118,7 +118,7 @@ public final class DecimalTypesImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> requestBodyWithResponse(BigDecimal body, RequestContext requestContext) {
@@ -137,7 +137,7 @@ public final class DecimalTypesImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> requestParameterWithResponse(BigDecimal value, RequestContext requestContext) {

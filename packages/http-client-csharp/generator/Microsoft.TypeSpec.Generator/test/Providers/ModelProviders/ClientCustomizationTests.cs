@@ -370,9 +370,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             protected override string BuildName() => "MockInputClient";
 
-            protected override MethodProvider[] BuildMethods() => MethodProviders;
+            protected internal override MethodProvider[] BuildMethods() => MethodProviders;
 
-            protected override ConstructorProvider[] BuildConstructors() => ConstructorProviders;
+            protected internal override ConstructorProvider[] BuildConstructors() => ConstructorProviders;
         }
 
         private class FooTypeProvider : TypeProvider

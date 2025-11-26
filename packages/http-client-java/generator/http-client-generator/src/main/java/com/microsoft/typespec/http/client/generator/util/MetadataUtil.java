@@ -3,9 +3,9 @@
 
 package com.microsoft.typespec.http.client.generator.util;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Client;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
+import io.clientcore.core.utils.CoreUtils;
 
 public class MetadataUtil {
 

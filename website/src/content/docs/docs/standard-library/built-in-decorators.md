@@ -1,5 +1,6 @@
 ---
 title: "Built-in Decorators"
+description: "Decorators exported by TypeSpec"
 toc_min_heading_level: 2
 toc_max_heading_level: 3
 ---
@@ -608,17 +609,17 @@ scalar Username extends string;
 
 Specify the maximum value this numeric type should be.
 ```typespec
-@maxValue(value: valueof numeric)
+@maxValue(value: valueof numeric | utcDateTime | offsetDateTime | plainDate | plainTime | duration)
 ```
 
 #### Target
 
-`numeric | ModelProperty`
+`numeric | utcDateTime | offsetDateTime | plainDate | plainTime | duration | ModelProperty`
 
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | [valueof `numeric`](#numeric) | Maximum value |
+| value | `valueof numeric \| utcDateTime \| offsetDateTime \| plainDate \| plainTime \| duration` | Maximum value |
 
 #### Examples
 
@@ -633,17 +634,17 @@ scalar Age is int32;
 Specify the maximum value this numeric type should be, exclusive of the given
 value.
 ```typespec
-@maxValueExclusive(value: valueof numeric)
+@maxValueExclusive(value: valueof numeric | utcDateTime | offsetDateTime | plainDate | plainTime | duration)
 ```
 
 #### Target
 
-`numeric | ModelProperty`
+`numeric | utcDateTime | offsetDateTime | plainDate | plainTime | duration | ModelProperty`
 
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | [valueof `numeric`](#numeric) | Maximum value |
+| value | `valueof numeric \| utcDateTime \| offsetDateTime \| plainDate \| plainTime \| duration` | Maximum value |
 
 #### Examples
 
@@ -745,17 +746,17 @@ scalar Username extends string;
 
 Specify the minimum value this numeric type should be.
 ```typespec
-@minValue(value: valueof numeric)
+@minValue(value: valueof numeric | utcDateTime | offsetDateTime | plainDate | plainTime | duration)
 ```
 
 #### Target
 
-`numeric | ModelProperty`
+`numeric | utcDateTime | offsetDateTime | plainDate | plainTime | duration | ModelProperty`
 
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | [valueof `numeric`](#numeric) | Minimum value |
+| value | `valueof numeric \| utcDateTime \| offsetDateTime \| plainDate \| plainTime \| duration` | Minimum value |
 
 #### Examples
 
@@ -770,17 +771,17 @@ scalar Age is int32;
 Specify the minimum value this numeric type should be, exclusive of the given
 value.
 ```typespec
-@minValueExclusive(value: valueof numeric)
+@minValueExclusive(value: valueof numeric | utcDateTime | offsetDateTime | plainDate | plainTime | duration)
 ```
 
 #### Target
 
-`numeric | ModelProperty`
+`numeric | utcDateTime | offsetDateTime | plainDate | plainTime | duration | ModelProperty`
 
 #### Parameters
 | Name | Type | Description |
 |------|------|-------------|
-| value | [valueof `numeric`](#numeric) | Minimum value |
+| value | `valueof numeric \| utcDateTime \| offsetDateTime \| plainDate \| plainTime \| duration` | Minimum value |
 
 #### Examples
 
@@ -1135,14 +1136,14 @@ It is invalid to call this decorator with no visibility modifiers.
 
 ### `@secret` {#@secret}
 
-Mark this string as a secret value that should be treated carefully to avoid exposure
+Mark this value as a secret value that should be treated carefully to avoid exposure
 ```typespec
 @secret
 ```
 
 #### Target
 
-`string | ModelProperty`
+`Scalar | ModelProperty | Model | Union | Enum`
 
 #### Parameters
 None
@@ -1182,13 +1183,6 @@ namespace PetStore;
 
 ```typespec
 @service(#{title: "Pet store"})
-namespace PetStore;
-```
-
-##### Setting service version
-
-```typespec
-@service(#{version: "1.0"})
 namespace PetStore;
 ```
 

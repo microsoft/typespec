@@ -230,16 +230,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.AreEqual(expected, builder.ToUri().ToString());
         }
 
-        [TestCase("http://localhost", new byte[] { 104, 101, 108, 108, 111 }, "U", true, "http://localhost/aGVsbG8")]
-        [TestCase("http://localhost", new byte[] { 104, 101, 108, 108, 111 }, "D", true, "http://localhost/aGVsbG8%3D")]
-        [TestCase("http://localhost", new byte[] { 104, 101, 108, 108, 111 }, "U", false, "http://localhost/aGVsbG8")]
-        [TestCase("http://localhost", new byte[] { 104, 101, 108, 108, 111 }, "D", false, "http://localhost/aGVsbG8=")]
-        public void AppendPath_ByteArray(string endpoint, byte[] value, string format, bool escape, string expected)
+        [TestCase("http://localhost", new byte[] { 104, 101, 108, 108, 111 }, SerializationFormat.Bytes_Base64Url, true, "http://localhost/aGVsbG8")]
+        [TestCase("http://localhost", new byte[] { 104, 101, 108, 108, 111 }, SerializationFormat.Bytes_Base64, true, "http://localhost/aGVsbG8%3D")]
+        [TestCase("http://localhost", new byte[] { 104, 101, 108, 108, 111 }, SerializationFormat.Bytes_Base64Url, false, "http://localhost/aGVsbG8")]
+        [TestCase("http://localhost", new byte[] { 104, 101, 108, 108, 111 }, SerializationFormat.Bytes_Base64, false, "http://localhost/aGVsbG8=")]
+        public void AppendPath_ByteArray(string endpoint, byte[] value, int format, bool escape, string expected)
         {
             var builder = new ClientUriBuilder();
             builder.Reset(new Uri(endpoint));
 
-            builder.AppendPath(value, format, escape);
+            builder.AppendPath(value, (SerializationFormat)format, escape);
 
             Assert.AreEqual(expected, builder.ToUri().ToString());
         }
@@ -251,7 +251,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var builder = new ClientUriBuilder();
             builder.Reset(new Uri(endpoint));
 
-            builder.AppendPathDelimited(value, delimiter, null, escape);
+            builder.AppendPathDelimited(value, delimiter, SerializationFormat.Default, escape);
 
             Assert.AreEqual(expected, builder.ToUri().ToString());
         }
@@ -263,46 +263,52 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var builder = new ClientUriBuilder();
             builder.Reset(new Uri(endpoint));
 
-            builder.AppendPathDelimited(value, delimiter, null, escape);
+            builder.AppendPathDelimited(value, delimiter, SerializationFormat.Default, escape);
 
             Assert.AreEqual(expected, builder.ToUri().ToString());
         }
 
 
-        [TestCase("http://localhost", "6/30/1905 1:14:00 PM +00:00", "D", true, "http://localhost/1905-06-30")]
-        [TestCase("http://localhost", "6/30/1905 1:14:00 PM +00:00", "U", true, "http://localhost/-2035622760")]
-        [TestCase("http://localhost", "6/30/1905 1:14:00 PM +00:00", "O", true, "http://localhost/1905-06-30T13%3A14%3A00.0000000Z")]
-        [TestCase("http://localhost", "6/30/1905 1:14:00 PM +00:00", "o", true, "http://localhost/1905-06-30T13%3A14%3A00.0000000Z")]
-        [TestCase("http://localhost", "6/30/1905 1:14:00 PM +00:00", "R", true, "http://localhost/Fri%2C 30 Jun 1905 13%3A14%3A00 GMT")] // TODO -- why spaces are not escaped?
-        [TestCase("http://localhost", "6/30/1905 1:14:00 PM +00:00", "D", false, "http://localhost/1905-06-30")]
-        [TestCase("http://localhost", "6/30/1905 1:14:00 PM +00:00", "U", false, "http://localhost/-2035622760")]
-        [TestCase("http://localhost", "6/30/1905 1:14:00 PM +00:00", "O", false, "http://localhost/1905-06-30T13:14:00.0000000Z")]
-        [TestCase("http://localhost", "6/30/1905 1:14:00 PM +00:00", "o", false, "http://localhost/1905-06-30T13:14:00.0000000Z")]
-        [TestCase("http://localhost", "6/30/1905 1:14:00 PM +00:00", "R", false, "http://localhost/Fri, 30 Jun 1905 13:14:00 GMT")]
-        public void AppendPath_DateTimeOffset(string endpoint, string value, string format, bool escape, string expected)
+        [TestCase("http://localhost", "6/30/1905 1:14:00 PM +00:00", SerializationFormat.Date_ISO8601, true, "http://localhost/1905-06-30")]
+        [TestCase("http://localhost", "6/30/1905 1:14:00 PM +00:00", SerializationFormat.DateTime_Unix, true, "http://localhost/-2035622760")]
+        [TestCase("http://localhost", "6/30/1905 1:14:00 PM +00:00", SerializationFormat.DateTime_ISO8601, true, "http://localhost/1905-06-30T13%3A14%3A00.0000000Z")]
+        [TestCase("http://localhost", "6/30/1905 1:14:00 PM +00:00", SerializationFormat.DateTime_RFC1123, true, "http://localhost/Fri%2C 30 Jun 1905 13%3A14%3A00 GMT")] // TODO -- why spaces are not escaped?
+        [TestCase("http://localhost", "6/30/1905 1:14:00 PM +00:00", SerializationFormat.DateTime_RFC7231, true, "http://localhost/Fri%2C 30 Jun 1905 13%3A14%3A00 GMT")] // TODO -- why spaces are not escaped?
+        [TestCase("http://localhost", "6/30/1905 1:14:00 PM +00:00", SerializationFormat.Date_ISO8601, false, "http://localhost/1905-06-30")]
+        [TestCase("http://localhost", "6/30/1905 1:14:00 PM +00:00", SerializationFormat.DateTime_Unix, false, "http://localhost/-2035622760")]
+        [TestCase("http://localhost", "6/30/1905 1:14:00 PM +00:00", SerializationFormat.DateTime_ISO8601, false, "http://localhost/1905-06-30T13:14:00.0000000Z")]
+        [TestCase("http://localhost", "6/30/1905 1:14:00 PM +00:00", SerializationFormat.DateTime_RFC1123, false, "http://localhost/Fri, 30 Jun 1905 13:14:00 GMT")]
+        [TestCase("http://localhost", "6/30/1905 1:14:00 PM +00:00", SerializationFormat.DateTime_RFC7231, false, "http://localhost/Fri, 30 Jun 1905 13:14:00 GMT")]
+        public void AppendPath_DateTimeOffset(string endpoint, string value, int format, bool escape, string expected)
         {
             var builder = new ClientUriBuilder();
             builder.Reset(new Uri(endpoint));
 
             var dateTimeOffset = DateTimeOffset.Parse(value);
-            builder.AppendPath(dateTimeOffset, format, escape);
+            builder.AppendPath(dateTimeOffset, (SerializationFormat)format, escape);
 
             Assert.AreEqual(expected, builder.ToUri().ToString());
         }
 
-        [TestCase("http://localhost", "02:15:00", "P", true, "http://localhost/PT2H15M")]
-        [TestCase("http://localhost", "02:15:00", "", true, "http://localhost/02%3A15%3A00")]
+        [TestCase("http://localhost", "02:15:00", SerializationFormat.Duration_ISO8601, true, "http://localhost/PT2H15M")]
+        [TestCase("http://localhost", "02:15:00", 0, true, "http://localhost/PT2H15M")]
         [TestCase("http://localhost", "02:15:00", null, true, "http://localhost/PT2H15M")]
-        [TestCase("http://localhost", "02:15:00", "P", false, "http://localhost/PT2H15M")]
-        [TestCase("http://localhost", "02:15:00", "", false, "http://localhost/02:15:00")]
+        [TestCase("http://localhost", "02:15:00", SerializationFormat.Duration_ISO8601, false, "http://localhost/PT2H15M")]
         [TestCase("http://localhost", "02:15:00", null, false, "http://localhost/PT2H15M")]
-        public void AppendPath_TimeSpan(string endpoint, string value, string format, bool escape, string expected)
+        [TestCase("http://localhost", "02:15:00", SerializationFormat.Duration_Constant, false, "http://localhost/02:15:00")]
+        [TestCase("http://localhost", "02:15:00", SerializationFormat.Duration_Seconds, false, "http://localhost/8100")]
+        [TestCase("http://localhost", "02:15:00.5798", SerializationFormat.Duration_Seconds_Double, false, "http://localhost/8100.5798")]
+        [TestCase("http://localhost", "02:15:00.5798", SerializationFormat.Duration_Seconds_Float, false, "http://localhost/8100.5798")]
+        [TestCase("http://localhost", "02:15:00.5798", SerializationFormat.Duration_Milliseconds, false, "http://localhost/8100580")]
+        [TestCase("http://localhost", "02:15:00.5798", SerializationFormat.Duration_Milliseconds_Double, false, "http://localhost/8100579.8")]
+        [TestCase("http://localhost", "02:15:00.5798", SerializationFormat.Duration_Milliseconds_Float, false, "http://localhost/8100579.8")]
+        public void AppendPath_TimeSpan(string endpoint, string value, int format, bool escape, string expected)
         {
             var builder = new ClientUriBuilder();
             builder.Reset(new Uri(endpoint));
 
             var timeSpan = TimeSpan.Parse(value);
-            builder.AppendPath(timeSpan, format, escape);
+            builder.AppendPath(timeSpan, (SerializationFormat)format, escape);
 
             Assert.AreEqual(expected, builder.ToUri().ToString());
         }
@@ -390,54 +396,59 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.AreEqual(expected, builder.ToUri().ToString());
         }
 
-        [TestCase("http://localhost", new byte[] { 104, 101, 108, 108, 111 }, "U", true, "http://localhost/?query=aGVsbG8")]
-        [TestCase("http://localhost", new byte[] { 104, 101, 108, 108, 111 }, "D", true, "http://localhost/?query=aGVsbG8%3D")]
-        [TestCase("http://localhost", new byte[] { 104, 101, 108, 108, 111 }, "U", false, "http://localhost/?query=aGVsbG8")]
-        [TestCase("http://localhost", new byte[] { 104, 101, 108, 108, 111 }, "D", false, "http://localhost/?query=aGVsbG8=")]
-        public void AppendQuery_ByteArray(string endpoint, byte[] value, string format, bool escape, string expected)
+        [TestCase("http://localhost", new byte[] { 104, 101, 108, 108, 111 }, SerializationFormat.Bytes_Base64Url, true, "http://localhost/?query=aGVsbG8")]
+        [TestCase("http://localhost", new byte[] { 104, 101, 108, 108, 111 }, SerializationFormat.Bytes_Base64, true, "http://localhost/?query=aGVsbG8%3D")]
+        [TestCase("http://localhost", new byte[] { 104, 101, 108, 108, 111 }, SerializationFormat.Bytes_Base64Url, false, "http://localhost/?query=aGVsbG8")]
+        [TestCase("http://localhost", new byte[] { 104, 101, 108, 108, 111 }, SerializationFormat.Bytes_Base64, false, "http://localhost/?query=aGVsbG8=")]
+        public void AppendQuery_ByteArray(string endpoint, byte[] value, int format, bool escape, string expected)
         {
             var builder = new ClientUriBuilder();
             builder.Reset(new Uri(endpoint));
 
-            builder.AppendQuery("query", value, format, escape);
+            builder.AppendQuery("query", value, (SerializationFormat)format, escape);
 
             Assert.AreEqual(expected, builder.ToUri().ToString());
         }
 
-        [TestCase("http://localhost", "6/30/1905 1:14:00 PM +00:00", "D", true, "http://localhost/?query=1905-06-30")]
-        [TestCase("http://localhost", "6/30/1905 1:14:00 PM +00:00", "U", true, "http://localhost/?query=-2035622760")]
-        [TestCase("http://localhost", "6/30/1905 1:14:00 PM +00:00", "O", true, "http://localhost/?query=1905-06-30T13%3A14%3A00.0000000Z")]
-        [TestCase("http://localhost", "6/30/1905 1:14:00 PM +00:00", "o", true, "http://localhost/?query=1905-06-30T13%3A14%3A00.0000000Z")]
-        [TestCase("http://localhost", "6/30/1905 1:14:00 PM +00:00", "R", true, "http://localhost/?query=Fri%2C 30 Jun 1905 13%3A14%3A00 GMT")] // TODO -- why spaces are not escaped?
-        [TestCase("http://localhost", "6/30/1905 1:14:00 PM +00:00", "D", false, "http://localhost/?query=1905-06-30")]
-        [TestCase("http://localhost", "6/30/1905 1:14:00 PM +00:00", "U", false, "http://localhost/?query=-2035622760")]
-        [TestCase("http://localhost", "6/30/1905 1:14:00 PM +00:00", "O", false, "http://localhost/?query=1905-06-30T13:14:00.0000000Z")]
-        [TestCase("http://localhost", "6/30/1905 1:14:00 PM +00:00", "o", false, "http://localhost/?query=1905-06-30T13:14:00.0000000Z")]
-        [TestCase("http://localhost", "6/30/1905 1:14:00 PM +00:00", "R", false, "http://localhost/?query=Fri, 30 Jun 1905 13:14:00 GMT")]
-        public void AppendQuery_DateTimeOffset(string endpoint, string value, string format, bool escape, string expected)
+        [TestCase("http://localhost", "6/30/1905 1:14:00 PM +00:00", SerializationFormat.Date_ISO8601, true, "http://localhost/?query=1905-06-30")]
+        [TestCase("http://localhost", "6/30/1905 1:14:00 PM +00:00", SerializationFormat.DateTime_Unix, true, "http://localhost/?query=-2035622760")]
+        [TestCase("http://localhost", "6/30/1905 1:14:00 PM +00:00", SerializationFormat.DateTime_ISO8601, true, "http://localhost/?query=1905-06-30T13%3A14%3A00.0000000Z")]
+        [TestCase("http://localhost", "6/30/1905 1:14:00 PM +00:00", SerializationFormat.DateTime_RFC3339, true, "http://localhost/?query=1905-06-30T13%3A14%3A00.0000000Z")]
+        [TestCase("http://localhost", "6/30/1905 1:14:00 PM +00:00", SerializationFormat.DateTime_RFC7231, true, "http://localhost/?query=Fri%2C 30 Jun 1905 13%3A14%3A00 GMT")] // TODO -- why spaces are not escaped?
+        [TestCase("http://localhost", "6/30/1905 1:14:00 PM +00:00", SerializationFormat.Date_ISO8601, false, "http://localhost/?query=1905-06-30")]
+        [TestCase("http://localhost", "6/30/1905 1:14:00 PM +00:00", SerializationFormat.DateTime_Unix, false, "http://localhost/?query=-2035622760")]
+        [TestCase("http://localhost", "6/30/1905 1:14:00 PM +00:00", SerializationFormat.DateTime_ISO8601, false, "http://localhost/?query=1905-06-30T13:14:00.0000000Z")]
+        [TestCase("http://localhost", "6/30/1905 1:14:00 PM +00:00", SerializationFormat.DateTime_RFC3339, false, "http://localhost/?query=1905-06-30T13:14:00.0000000Z")]
+        [TestCase("http://localhost", "6/30/1905 1:14:00 PM +00:00", SerializationFormat.DateTime_RFC7231, false, "http://localhost/?query=Fri, 30 Jun 1905 13:14:00 GMT")]
+        public void AppendQuery_DateTimeOffset(string endpoint, string value, int format, bool escape, string expected)
         {
             var builder = new ClientUriBuilder();
             builder.Reset(new Uri(endpoint));
 
             var dateTimeOffset = DateTimeOffset.Parse(value);
-            builder.AppendQuery("query", dateTimeOffset, format, escape);
+            builder.AppendQuery("query", dateTimeOffset, (SerializationFormat)format, escape);
 
             Assert.AreEqual(expected, builder.ToUri().ToString());
         }
 
-        [TestCase("http://localhost", "02:15:00", "P", true, "http://localhost/?query=PT2H15M")]
-        [TestCase("http://localhost", "02:15:00", "", true, "http://localhost/?query=02%3A15%3A00")]
-        [TestCase("http://localhost", "02:15:00", null, true, "http://localhost/?query=PT2H15M")]
-        [TestCase("http://localhost", "02:15:00", "P", false, "http://localhost/?query=PT2H15M")]
-        [TestCase("http://localhost", "02:15:00", "", false, "http://localhost/?query=02:15:00")]
-        [TestCase("http://localhost", "02:15:00", null, false, "http://localhost/?query=PT2H15M")]
-        public void AppendQuery_TimeSpan(string endpoint, string value, string format, bool escape, string expected)
+        [TestCase("http://localhost", "02:15:00", SerializationFormat.Duration_ISO8601, true, "http://localhost/?query=PT2H15M")]
+        [TestCase("http://localhost", "02:15:00", SerializationFormat.Default, true, "http://localhost/?query=PT2H15M")]
+        [TestCase("http://localhost", "02:15:00", SerializationFormat.Duration_ISO8601, false, "http://localhost/?query=PT2H15M")]
+        [TestCase("http://localhost", "02:15:00", SerializationFormat.Default, false, "http://localhost/?query=PT2H15M")]
+        [TestCase("http://localhost", "02:15:00", SerializationFormat.Duration_Constant, false, "http://localhost/?query=02:15:00")]
+        [TestCase("http://localhost", "02:15:00", SerializationFormat.Duration_Seconds, false, "http://localhost/?query=8100")]
+        [TestCase("http://localhost", "02:15:00.5798", SerializationFormat.Duration_Seconds_Double, false, "http://localhost/?query=8100.5798")]
+        [TestCase("http://localhost", "02:15:00.5798", SerializationFormat.Duration_Seconds_Float, false, "http://localhost/?query=8100.5798")]
+        [TestCase("http://localhost", "02:15:00.5798", SerializationFormat.Duration_Milliseconds, false, "http://localhost/?query=8100580")]
+        [TestCase("http://localhost", "02:15:00.5798", SerializationFormat.Duration_Milliseconds_Double, false, "http://localhost/?query=8100579.8")]
+        [TestCase("http://localhost", "02:15:00.5798", SerializationFormat.Duration_Milliseconds_Float, false, "http://localhost/?query=8100579.8")]
+        public void AppendQuery_TimeSpan(string endpoint, string value, int format, bool escape, string expected)
         {
             var builder = new ClientUriBuilder();
             builder.Reset(new Uri(endpoint));
 
             var timeSpan = TimeSpan.Parse(value);
-            builder.AppendQuery("query", timeSpan, format, escape);
+            builder.AppendQuery("query", timeSpan, (SerializationFormat)format, escape);
 
             Assert.AreEqual(expected, builder.ToUri().ToString());
         }
@@ -466,7 +477,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var builder = new ClientUriBuilder();
             builder.Reset(new Uri(endpoint));
 
-            builder.AppendQueryDelimited("query", value, delimiter, null, escape);
+            builder.AppendQueryDelimited("query", value, delimiter, SerializationFormat.Default, escape);
 
             Assert.AreEqual(expected, builder.ToUri().ToString());
         }

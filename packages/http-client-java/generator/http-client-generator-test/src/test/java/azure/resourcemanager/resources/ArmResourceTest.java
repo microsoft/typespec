@@ -16,6 +16,13 @@ import azure.resourcemanager.resources.models.SingletonTrackedResource;
 import azure.resourcemanager.resources.models.SingletonTrackedResourceProperties;
 import azure.resourcemanager.resources.models.TopLevelTrackedResource;
 import azure.resourcemanager.resources.models.TopLevelTrackedResourceProperties;
+import com.azure.core.http.HttpPipelineCallContext;
+import com.azure.core.http.HttpPipelineNextPolicy;
+import com.azure.core.http.HttpPipelineNextSyncPolicy;
+import com.azure.core.http.HttpPipelinePosition;
+import com.azure.core.http.HttpRequest;
+import com.azure.core.http.HttpResponse;
+import com.azure.core.http.policy.HttpPipelinePolicy;
 import com.azure.core.management.Region;
 import com.azure.core.util.Context;
 import java.util.List;
@@ -23,6 +30,7 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.utils.ArmUtils;
+import reactor.core.publisher.Mono;
 
 public class ArmResourceTest {
     private static final String TOP_LEVEL_TRACKED_RESOURCE_ID
@@ -57,14 +65,39 @@ public class ArmResourceTest {
     private static final String EXTENSION_RESOURCE_TYPE = "Azure.ResourceManager.Resources/extensionsResources";
     private static final String EXTENSION_RESOURCE_BASE_ID
         = "/providers/Azure.ResourceManager.Resources/extensionsResources/extension";
-    private final ResourcesManager manager
-        = ResourcesManager.authenticate(ArmUtils.createTestHttpPipeline(), ArmUtils.getAzureProfile());
+    private final ResourcesManager manager = ResourcesManager
+        .authenticate(ArmUtils.createTestHttpPipeline(List.of(NORMALIZE_URL_POLICY)), ArmUtils.getAzureProfile());
     private final static ExtensionsResourceProperties CREATE_PROPERTIES
         = new ExtensionsResourceProperties().withDescription(RESOURCE_DESCRIPTION_VALID);
     private final static ExtensionsResourceProperties UPDATE_PROPERTIES
         = new ExtensionsResourceProperties().withDescription(RESOURCE_DESCRIPTION_VALID2);
     private ExtensionsResource extensionResource;
     private List<ExtensionsResource> extensionResources;
+
+    private static final HttpPipelinePolicy NORMALIZE_URL_POLICY = new HttpPipelinePolicy() {
+        @Override
+        public Mono<HttpResponse> process(HttpPipelineCallContext context, HttpPipelineNextPolicy next) {
+            normalizeUrl(context.getHttpRequest());
+            return next.process();
+        }
+
+        @Override
+        public HttpResponse processSync(HttpPipelineCallContext context, HttpPipelineNextSyncPolicy next) {
+            normalizeUrl(context.getHttpRequest());
+            return next.processSync();
+        }
+
+        @Override
+        public HttpPipelinePosition getPipelinePosition() {
+            return HttpPipelinePosition.PER_CALL;
+        }
+
+        private void normalizeUrl(HttpRequest httpRequest) {
+            String url = httpRequest.getUrl().toString();
+            url = url.replace("//", "/").replace(":/", "://");
+            httpRequest.setUrl(url);
+        }
+    };
 
     @Test
     public void testTenantExtensionResources() {
@@ -105,16 +138,15 @@ public class ArmResourceTest {
         properties = extensionResource.properties();
         Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID, properties.description());
         Assertions.assertEquals(ProvisioningState.SUCCEEDED, properties.provisioningState());
-        // IllegalArgument Parameter resourceUri is required and cannot be null.
-        // // Update
-        // extensionResource.update().withProperties(updateProperties).apply();
-        // Assertions.assertEquals(EXTENSION_RESOURCE_BASE_ID, extensionResource.id());
-        // Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
-        // Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
-        // Assertions.assertNotNull(extensionResource.properties());
-        // updateProperties = extensionResource.properties();
-        // Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID2, updateProperties.description());
-        // Assertions.assertEquals(ProvisioningState.SUCCEEDED, updateProperties.provisioningState());
+        // Update
+        extensionResource.update().withProperties(UPDATE_PROPERTIES).apply();
+        Assertions.assertEquals(EXTENSION_RESOURCE_BASE_ID, extensionResource.id());
+        Assertions.assertEquals(EXTENSION_RESOURCE_NAME, extensionResource.name());
+        Assertions.assertEquals(EXTENSION_RESOURCE_TYPE, extensionResource.type());
+        Assertions.assertNotNull(extensionResource.properties());
+        ExtensionsResourceProperties updateProperties = extensionResource.properties();
+        Assertions.assertEquals(RESOURCE_DESCRIPTION_VALID2, updateProperties.description());
+        Assertions.assertEquals(ProvisioningState.SUCCEEDED, updateProperties.provisioningState());
         // Delete
         manager.extensionsResources()
             .deleteByResourceGroup(EXTENSION_RESOURCE_TENANT_SCOPE_URI, EXTENSION_RESOURCE_NAME);

@@ -2390,6 +2390,10 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     if (token() === Token.Identifier) {
       sv = tokenValue();
       nextToken();
+    } else if (token() === Token.DocCodeSpan) {
+      // Support DocCodeSpan as identifier
+      sv = tokenValue();
+      nextToken();
     } else {
       sv = "";
       warning({ code: "doc-invalid-identifier", messageId });

@@ -16,6 +16,9 @@ export enum SchemaContext {
   /** Schema is used for internal API, or dev purpose. Not exposed to user. */
   Internal = "internal",
 
+  /** Schema is from external library. */
+  External = "external",
+
   /** Schema is used from the pageable operation. This usage does not propagate. */
   Paged = "paged",
 

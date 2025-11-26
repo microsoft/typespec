@@ -3,47 +3,34 @@
 
 package com.microsoft.typespec.http.client.generator.core.util;
 
-import com.microsoft.typespec.http.client.generator.core.Javagen;
-import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 public class TypeUtil {
-
-    private static final PluginLogger LOGGER = new PluginLogger(Javagen.getPluginInstance(), TypeUtil.class);
-
-    private static final ConcurrentMap<String, Optional<Class<?>>> TYPE_CLASS_MAP = new ConcurrentHashMap<>();
 
     private TypeUtil() {
     }
 
     /**
-     * Whether the given type is GenericType and is subclass of either of the given classes.
-     * 
+     * Whether the given type is Response, or one of its subclasses.
+     *
      * @param type the type to check
-     * @param parentClasses classes to match either one
-     * @return whether the given type is GenericType and is subclass of either of the given classes
+     * @return whether the given type is Response, or one of its subclasses.
      */
-    public static boolean isGenericTypeClassSubclassOf(IType type, Class<?>... parentClasses) {
-        if (!(type instanceof GenericType) || parentClasses == null || parentClasses.length == 0)
+    public static boolean isResponse(IType type) {
+        if (!(type instanceof GenericType)) {
             return false;
-        Class<?> genericClass = getGenericClass((GenericType) type);
-        return genericClass != null && Arrays.stream(parentClasses).anyMatch(p -> p.isAssignableFrom(genericClass));
+        }
+
+        GenericType genericType = (GenericType) type;
+        String fullName = genericType.getPackage() + "." + genericType.getName();
+        return ClassType.RESPONSE.getFullName().equals(fullName)
+            || ClassType.RESPONSE_BASE.getFullName().equals(fullName)
+            || ClassType.PAGED_RESPONSE.getFullName().equals(fullName)
+            || ClassType.PAGED_RESPONSE_BASE.getFullName().equals(fullName)
+            || ClassType.SIMPLE_RESPONSE.getFullName().equals(fullName)
+            || ClassType.STREAM_RESPONSE.getFullName().equals(fullName);
     }
 
-    private static Class<?> getGenericClass(GenericType type) {
-        String className = type.getPackage() + "." + type.getName();
-        return TYPE_CLASS_MAP.computeIfAbsent(className, key -> {
-            try {
-                return Optional.of(Class.forName(key));
-            } catch (ClassNotFoundException e) {
-                LOGGER.warn("class {} not found, skip subclass checking.", key);
-                return Optional.empty();
-            }
-        }).orElse(null);
-    }
 }

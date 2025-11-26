@@ -350,7 +350,7 @@ public class ClientModelProperty implements ClientModelPropertyAccess {
     }
 
     protected void addJsonFlattenAnnotationImport(Set<String> imports) {
-        imports.add("com.azure.core.annotation.JsonFlatten");
+        imports.add(Annotation.JSON_FLATTEN.getFullName());
     }
 
     /**

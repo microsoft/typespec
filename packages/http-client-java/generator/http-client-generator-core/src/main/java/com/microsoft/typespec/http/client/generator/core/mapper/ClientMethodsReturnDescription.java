@@ -3,8 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
-import com.azure.core.http.HttpMethod;
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ObjectSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Property;
@@ -24,6 +22,8 @@ import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ReturnTypeJavaDocAssembler;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
+import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -229,25 +229,25 @@ public final class ClientMethodsReturnDescription {
         switch (methodType) {
             case LongRunningBeginSync:
                 if (settings.isFluent()) {
-                    final IType returnType = GenericType.SyncPoller(GenericType.PollResult(syncReturnType.asNullable()),
+                    final IType returnType = GenericType.syncPoller(GenericType.pollResult(syncReturnType.asNullable()),
                         syncReturnType.asNullable());
                     return createReturnValue(returnType, syncReturnType);
                 } else if (settings.isAzureV2()) {
-                    IType returnType = GenericType.AzureVNextPoller(pollingDetails.getPollResultType(),
+                    IType returnType = GenericType.syncPoller(pollingDetails.getPollResultType(),
                         pollingDetails.getFinalResultType());
                     return createReturnValue(returnType, pollingDetails.getFinalResultType());
                 } else {
-                    IType returnType = GenericType.SyncPoller(pollingDetails.getPollResultType(),
+                    IType returnType = GenericType.syncPoller(pollingDetails.getPollResultType(),
                         pollingDetails.getFinalResultType());
                     return createReturnValue(returnType, pollingDetails.getFinalResultType());
                 }
             case LongRunningBeginAsync:
                 if (settings.isFluent()) {
-                    IType returnType = GenericType.PollerFlux(GenericType.PollResult(syncReturnType.asNullable()),
+                    IType returnType = GenericType.pollerFlux(GenericType.pollResult(syncReturnType.asNullable()),
                         syncReturnType.asNullable());
                     return createReturnValue(returnType, syncReturnType);
                 } else {
-                    IType returnType = GenericType.PollerFlux(pollingDetails.getPollResultType(),
+                    IType returnType = GenericType.pollerFlux(pollingDetails.getPollResultType(),
                         pollingDetails.getFinalResultType());
                     return createReturnValue(returnType, pollingDetails.getFinalResultType());
                 }
@@ -312,19 +312,19 @@ public final class ClientMethodsReturnDescription {
         }
 
         if (isProtocolMethod && settings.isAzureV1()) {
-            IType asyncRestResponseReturnType = mono(GenericType.PagedResponse(ClassType.BINARY_DATA));
-            IType asyncReturnType = GenericType.PagedFlux(ClassType.BINARY_DATA);
-            IType syncReturnType = GenericType.PagedIterable(ClassType.BINARY_DATA);
-            IType syncReturnWithResponse = GenericType.PagedResponse(ClassType.BINARY_DATA);
+            IType asyncRestResponseReturnType = mono(GenericType.pagedResponse(ClassType.BINARY_DATA));
+            IType asyncReturnType = GenericType.pagedFlux(ClassType.BINARY_DATA);
+            IType syncReturnType = GenericType.pagedIterable(ClassType.BINARY_DATA);
+            IType syncReturnWithResponse = GenericType.pagedResponse(ClassType.BINARY_DATA);
             return new ClientMethodsReturnDescription(operation, asyncRestResponseReturnType, asyncReturnType,
                 syncReturnType, syncReturnWithResponse);
         }
 
         // unbranded paging methods would use the model as return type, instead of BinaryData.
-        IType asyncRestResponseReturnType = mono(GenericType.PagedResponse(elementType));
-        IType asyncReturnType = GenericType.PagedFlux(elementType);
-        IType syncReturnType = GenericType.PagedIterable(elementType);
-        IType syncReturnWithResponse = GenericType.PagedResponse(elementType);
+        IType asyncRestResponseReturnType = mono(GenericType.pagedResponse(elementType));
+        IType asyncReturnType = GenericType.pagedFlux(elementType);
+        IType syncReturnType = GenericType.pagedIterable(elementType);
+        IType syncReturnWithResponse = GenericType.pagedResponse(elementType);
         return new ClientMethodsReturnDescription(operation, asyncRestResponseReturnType, asyncReturnType,
             syncReturnType, syncReturnWithResponse);
     }
@@ -369,13 +369,13 @@ public final class ClientMethodsReturnDescription {
     }
 
     /**
-     * Creates a {@link reactor.core.publisher.Mono} type wrapping the given type.
+     * Creates a {@code reactor.core.publisher.Mono} type wrapping the given type.
      *
      * @param type the type to wrap.
      * @return the Mono type wrapping the given type.
      */
     private static IType mono(IType type) {
-        return GenericType.Mono(type);
+        return GenericType.mono(type);
     }
 
     /**
