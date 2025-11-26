@@ -5,6 +5,8 @@ trigger:
   paths:
     include:
       - packages/http-client-csharp/
+    exclude:
+      - packages/http-client-csharp/eng/
 
 pr: none
 
