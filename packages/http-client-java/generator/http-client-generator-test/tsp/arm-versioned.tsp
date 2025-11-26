@@ -49,7 +49,7 @@ interface TopLevelArmResources {
   listBySubscription is ArmListBySubscription<TopLevelArmResource, Parameters = OpParameters>;
   listByResourceGroup is ArmResourceListByParent<TopLevelArmResource, Parameters = OpParameters>;
   get is ArmResourceRead<TopLevelArmResource, Parameters = OpParameters>;
-  delete is ArmResourceDeleteWithoutOkAsync<TopLevelArmResource, Parameters = OpParameters>;
+  delete is ArmResourceDeleteSync<TopLevelArmResource, Parameters = OpParameters>;
   action is ArmResourceActionSync<
     TopLevelArmResource,
     Request = void,
