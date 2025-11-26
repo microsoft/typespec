@@ -199,6 +199,21 @@ public final class TopLevelArmResourcesImpl implements TopLevelArmResources {
             context);
     }
 
+    public Response<Void> deleteByIdWithResponse(String id, String parameter, Context context) {
+        String resourceGroupName = ResourceManagerUtils.getValueFromIdByName(id, "resourceGroups");
+        if (resourceGroupName == null) {
+            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
+                String.format("The resource ID '%s' is not valid. Missing path segment 'resourceGroups'.", id)));
+        }
+        String topLevelArmResourcePropertiesName
+            = ResourceManagerUtils.getValueFromIdByName(id, "topLevelArmResources");
+        if (topLevelArmResourcePropertiesName == null) {
+            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
+                String.format("The resource ID '%s' is not valid. Missing path segment 'topLevelArmResources'.", id)));
+        }
+        return this.deleteWithResponse(resourceGroupName, topLevelArmResourcePropertiesName, parameter, context);
+    }
+
     private TopLevelArmResourcesClient serviceClient() {
         return this.innerClient;
     }

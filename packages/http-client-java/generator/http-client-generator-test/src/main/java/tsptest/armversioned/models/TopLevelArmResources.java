@@ -263,6 +263,19 @@ public interface TopLevelArmResources {
     Response<Void> deleteByIdWithResponse(String id, String parameter, String newParameter, Context context);
 
     /**
+     * Delete a TopLevelArmResource.
+     * 
+     * @param id the resource ID.
+     * @param parameter The parameter parameter.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    Response<Void> deleteByIdWithResponse(String id, String parameter, Context context);
+
+    /**
      * Begins definition for a new TopLevelArmResource resource.
      * 
      * @param name resource name.
