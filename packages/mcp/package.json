@@ -26,8 +26,7 @@
     "build-tsc": "tsc -p .",
     "watch-tsc": "tsc -p . --watch",
     "watch": "pnpm watch-tsc",
-    "test": "vitest run",
-    "format": "prettier . --write"
+    "test": "vitest run"
   },
   "keywords": [],
   "author": "",
