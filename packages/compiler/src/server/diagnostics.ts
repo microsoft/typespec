@@ -41,17 +41,16 @@ export function convertDiagnosticToLsp(
     const emitterName = program.compilerOptions.emit?.find((emitName) =>
       diagnostic.message.includes(emitName),
     );
-    const ZERO_RANGE = VSRange.create(0, 0, 0, 0);
-    root = getLocationInTspConfig(fileService, program.compilerOptions.config, emitterName) || {
-      range: ZERO_RANGE,
-      document,
-    };
-
-    if (root !== undefined && root.range === ZERO_RANGE) {
+    root = getLocationInTspConfig(fileService, program.compilerOptions.config, emitterName);
+    if (root === undefined) {
       message +=
         clientConfig?.lsp?.emit && emitterName && clientConfig.lsp.emit.includes(emitterName)
           ? " [From IDE settings]"
           : " [No associated location]";
+      root = {
+        range: VSRange.create(0, 0, 0, 0),
+        document,
+      };
     }
   }
 
