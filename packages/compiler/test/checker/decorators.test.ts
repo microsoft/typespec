@@ -3,7 +3,9 @@ import { beforeEach, describe, it } from "vitest";
 import { numericRanges } from "../../src/core/numeric-ranges.js";
 import { Numeric } from "../../src/core/numeric.js";
 import {
+  DecoratorContext,
   DecoratorFunction,
+  Model,
   Namespace,
   PackageFlags,
   setTypeSpecNamespace,
@@ -14,7 +16,9 @@ import {
   createTestHost,
   createTestWrapper,
   expectDiagnostics,
+  mockFile,
 } from "../../src/testing/index.js";
+import { Tester } from "../tester.js";
 
 describe("compiler: checker: decorators", () => {
   let testHost: TestHost;
@@ -544,5 +548,90 @@ describe("compiler: checker: decorators", () => {
 
     await testHost.diagnose("test.tsp");
     ok(result, "expected Foo to be blue in isBlue decorator");
+  });
+});
+
+describe("validators", () => {
+  async function testerForDecorator(fn: DecoratorFunction) {
+    return await Tester.files({
+      "dec.tsp": `
+        import "./dec.js";
+        namespace MyLibrary;
+        extern dec myDecorator(target: unknown);
+      `,
+      "dec.js": mockFile.js({
+        $decorators: {
+          MyLibrary: {
+            myDecorator: fn,
+          },
+        },
+      }),
+    })
+      .import("./dec.tsp")
+      .using("MyLibrary");
+  }
+
+  it("postSelf apply validator after checking the type", async () => {
+    const order: string[] = [];
+    const tester = await testerForDecorator((_: DecoratorContext, target: Model) => {
+      order.push(`apply(${target.name})`);
+      return {
+        kind: "postSelf",
+        validator: () => {
+          order.push(`validate(${target.name})`);
+          return [];
+        },
+      };
+    });
+    await tester.compile(`
+      @myDecorator
+      @myDecorator
+      model A {}  
+      @myDecorator
+      @myDecorator
+      model B {}  
+    `);
+    deepStrictEqual(order, [
+      `apply(A)`,
+      `apply(A)`,
+      `validate(A)`,
+      `validate(A)`,
+      `apply(B)`,
+      `apply(B)`,
+      `validate(B)`,
+      `validate(B)`,
+    ]);
+  });
+
+  it("post apply validator after checking every type", async () => {
+    const order: string[] = [];
+    const tester = await testerForDecorator((_: DecoratorContext, target: Model) => {
+      order.push(`apply(${target.name})`);
+      return {
+        kind: "post",
+        validator: () => {
+          order.push(`validate(${target.name})`);
+          return [];
+        },
+      };
+    });
+    await tester.compile(`
+      @myDecorator
+      @myDecorator
+      model A {}  
+      @myDecorator
+      @myDecorator
+      model B {}  
+    `);
+    deepStrictEqual(order, [
+      `apply(A)`,
+      `apply(A)`,
+      `apply(B)`,
+      `apply(B)`,
+      `validate(A)`,
+      `validate(A)`,
+      `validate(B)`,
+      `validate(B)`,
+    ]);
   });
 });
