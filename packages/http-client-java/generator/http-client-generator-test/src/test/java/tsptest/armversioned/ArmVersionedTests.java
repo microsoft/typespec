@@ -20,6 +20,8 @@ public class ArmVersionedTests {
         // this API exists in all versions
         manager.topLevelArmResources().list();
 
+        manager.topLevelArmResources().listByResourceGroup("resourceGroup");
+
         manager.topLevelArmResources().action("resourceGroup", "resourceName");
 
         manager.serviceClient()
@@ -33,8 +35,16 @@ public class ArmVersionedTests {
 
         resource.update().apply();
 
+        manager.topLevelArmResources().deleteById("id");
+
+        resource.refresh();
+        
+
         // API in 2024-12-01
         manager.topLevelArmResources().list("parameter", "newParameter", Context.NONE);
+
+        manager.topLevelArmResources().listByResourceGroup("resourceGroup", "parameter", "newParameter", Context.NONE);
+
         manager.topLevelArmResources()
             .actionWithResponse("resourceGroup", "resourceName", "parameter", "newParameter", Context.NONE);
 
@@ -46,14 +56,20 @@ public class ArmVersionedTests {
             .withRegion(Region.US_WEST3)
             .withExistingResourceGroup("resourceGroup")
             .withParameter("parameter")
+            .withNewParameter("newParameter")
             .create();
 
-        resource.update().withParameter("parameter").apply();
+        resource.update().withParameter("parameter").withNewParameter("newParameter").apply();
+
+        manager.topLevelArmResources().deleteByIdWithResponse("id", "parameter", "newParameter", Context.NONE);
 
         // API in 2023-12-01
         // this op will be generated, if tspconfig has "advanced-versioning" option
         // REST API allow adding optional parameter to operation
         manager.topLevelArmResources().list("parameter", Context.NONE);
+
+        manager.topLevelArmResources().listByResourceGroup("resourceGroup", "parameter", Context.NONE);
+
         manager.topLevelArmResources().actionWithResponse("resourceGroup", "resourceName", "parameter", Context.NONE);
 
         manager.serviceClient()
@@ -64,9 +80,10 @@ public class ArmVersionedTests {
             .withRegion(Region.US_WEST3)
             .withExistingResourceGroup("resourceGroup")
             .withParameter("parameter")
-            .withNewParameter("newParameter")
             .create();
 
-        resource.update().withParameter("parameter").withNewParameter("newParameter").apply();
+        resource.update().withParameter("parameter").apply();
+
+        manager.topLevelArmResources().deleteByIdWithResponse("id", "parameter", Context.NONE);
     }
 }
