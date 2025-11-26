@@ -48,9 +48,25 @@ export interface DecoratorApplication {
   node?: DecoratorExpressionNode | AugmentDecoratorStatementNode;
 }
 
+/**
+ * Signature for a decorator JS implementation function.
+ * Use `@typespec/tspd` to generate an accurate signature from the `extern dec`
+ */
 export interface DecoratorFunction {
-  (program: DecoratorContext, target: any, ...customArgs: any[]): void;
+  (program: DecoratorContext, target: any, ...customArgs: any[]): DecoratorPostValidator | void;
   namespace?: string;
+}
+
+export interface DecoratorPostValidator {
+  /**
+   * When should this validator run.
+   * "postSelf": After all decorators are run on the same type. Useful if trying to validate this decorator is compatible with other decorators without relying on the order they are applied.
+   * "post": After everything is checked in the program. Useful when trying to get an overall view of the program.
+   */
+  readonly kind: "postSelf" | "post";
+
+  /** Validator implementation. This function will be run according to the kind defined above. */
+  readonly validator: () => readonly Diagnostic[];
 }
 
 export interface BaseType {
