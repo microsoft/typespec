@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.template;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
@@ -18,6 +17,7 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.examp
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.examplemodel.FluentResourceCreateExample;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.examplemodel.FluentResourceUpdateExample;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.examplemodel.ParameterExample;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -198,8 +198,8 @@ public class FluentExampleTemplate {
 
         @Override
         protected String codeDeserializeJsonString(String jsonStr) {
-            imports.add("com.azure.core.management.serializer.SerializerFactory");
-            imports.add("com.azure.core.util.serializer.SerializerEncoding");
+            imports.add(ClassType.SERIALIZER_FACTORY.getFullName());
+            imports.add(ClassType.SERIALIZER_ENCODING.getFullName());
             imports.add(java.io.IOException.class.getName());
 
             return String.format(

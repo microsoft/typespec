@@ -2065,8 +2065,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         }
       }
     }
-    for (const [_, option] of modelOptions) {
-      intersection.sourceModels.push({ usage: "intersection", model: option });
+    for (const [optionNode, option] of modelOptions) {
+      intersection.sourceModels.push({ usage: "intersection", model: option, node: optionNode });
       const allProps = walkPropertiesInherited(option);
       for (const prop of allProps) {
         if (properties.has(prop.name)) {
@@ -3634,7 +3634,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       () => {
         if (isBase) {
           type.sourceModel = isBase;
-          type.sourceModels.push({ usage: "is", model: isBase });
+          type.sourceModels.push({ usage: "is", model: isBase, node: node.is });
           decorators.push(...isBase.decorators);
           if (isBase.indexer) {
             type.indexer = isBase.indexer;
@@ -4734,7 +4734,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return [[], undefined];
     }
 
-    parentModel.sourceModels.push({ usage: "spread", model: targetType });
+    parentModel.sourceModels.push({ usage: "spread", model: targetType, node: targetNode });
 
     const props: ModelProperty[] = [];
     // copy each property

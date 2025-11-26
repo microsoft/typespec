@@ -238,7 +238,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
             Assert.IsTrue(fields.Any(f => f.Name == "_foo"));
         }
 
-
         private static void CreatePagingOperation(InputResponseLocation responseLocation, bool isNested = false)
         {
             var inputModel = InputFactory.Model("cat", properties:

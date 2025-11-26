@@ -95,7 +95,7 @@ public final class EnvelopeObjectCustomPropertiesImpl {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return test discriminated union with custom property names.
      * The discriminated union should serialize with custom discriminator
-     * and envelope property names.
+     * and envelope property names along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> getWithResponse(String petType, RequestContext requestContext) {
@@ -116,7 +116,7 @@ public final class EnvelopeObjectCustomPropertiesImpl {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return test discriminated union with custom property names.
      * The discriminated union should serialize with custom discriminator
-     * and envelope property names.
+     * and envelope property names along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> putWithResponse(BinaryData input, RequestContext requestContext) {

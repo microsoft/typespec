@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
-import com.azure.core.http.HttpMethod;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Language;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Languages;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
@@ -19,6 +18,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Versioning;
+import io.clientcore.core.http.models.HttpMethod;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -96,11 +96,11 @@ public class ClientMethodMapperTests {
 
         // Mono<Void>
         baseType = PrimitiveType.VOID;
-        returnType = GenericType.Mono(baseType);
+        returnType = GenericType.mono(baseType);
         description = ClientMethodsReturnDescription.returnTypeJavaDoc(operation, returnType, baseType);
         Assertions.assertEquals(expectedDescription, description);        // Mono<Boolean>
         baseType = PrimitiveType.BOOLEAN;
-        returnType = GenericType.Mono(baseType);
+        returnType = GenericType.mono(baseType);
         description = ClientMethodsReturnDescription.returnTypeJavaDoc(operation, returnType, baseType);
         Assertions.assertEquals(expectedDescription, description);
         // Response
@@ -108,11 +108,11 @@ public class ClientMethodMapperTests {
         expectedDescription = String.format("%s along with {@link Response}", operationDesc);
         // Response<Void>
         baseType = PrimitiveType.VOID;
-        returnType = GenericType.Response(baseType);
+        returnType = GenericType.response(baseType);
         description = ClientMethodsReturnDescription.returnTypeJavaDoc(operation, returnType, baseType);
         Assertions.assertEquals(expectedDescription, description);        // Response<Boolean>
         baseType = PrimitiveType.BOOLEAN;
-        returnType = GenericType.Response(baseType);
+        returnType = GenericType.response(baseType);
         description = ClientMethodsReturnDescription.returnTypeJavaDoc(operation, returnType, baseType);
         Assertions.assertEquals(expectedDescription, description);
 
@@ -122,17 +122,17 @@ public class ClientMethodMapperTests {
         expectedDescription = String.format("%s on successful completion of {@link Mono}", responseSchemaDesc);
         // Mono<Void>
         baseType = PrimitiveType.VOID;
-        returnType = GenericType.Mono(baseType);
+        returnType = GenericType.mono(baseType);
         description = ClientMethodsReturnDescription.returnTypeJavaDoc(operation, returnType, baseType);
         // Mono<Boolean>
         Assertions.assertEquals(expectedDescription, description);
         baseType = PrimitiveType.BOOLEAN;
-        returnType = GenericType.Mono(baseType);
+        returnType = GenericType.mono(baseType);
         description = ClientMethodsReturnDescription.returnTypeJavaDoc(operation, returnType, baseType);
         // Mono<T>
         Assertions.assertEquals(expectedDescription, description);
-        baseType = GenericType.Response(ClassType.STRING);
-        returnType = GenericType.Mono(baseType);
+        baseType = GenericType.response(ClassType.STRING);
+        returnType = GenericType.mono(baseType);
         description = ClientMethodsReturnDescription.returnTypeJavaDoc(operation, returnType, baseType);
         expectedDescription
             = "desc from response schema along with {@link Response} on successful completion of {@link Mono}";
@@ -143,17 +143,17 @@ public class ClientMethodMapperTests {
         expectedDescription = String.format("%s along with {@link Response}", responseSchemaDesc);
         // Response<Void>
         baseType = PrimitiveType.VOID;
-        returnType = GenericType.Response(baseType);
+        returnType = GenericType.response(baseType);
         description = ClientMethodsReturnDescription.returnTypeJavaDoc(operation, returnType, baseType);
         Assertions.assertEquals(expectedDescription, description);
         // Response<Boolean>
         baseType = PrimitiveType.BOOLEAN;
-        returnType = GenericType.Response(baseType);
+        returnType = GenericType.response(baseType);
         description = ClientMethodsReturnDescription.returnTypeJavaDoc(operation, returnType, baseType);
         Assertions.assertEquals(expectedDescription, description);
         // Response<T>
-        baseType = GenericType.Mono(ClassType.STRING);
-        returnType = GenericType.Response(baseType);
+        baseType = GenericType.mono(ClassType.STRING);
+        returnType = GenericType.response(baseType);
         description = ClientMethodsReturnDescription.returnTypeJavaDoc(operation, returnType, baseType);
         Assertions.assertEquals(expectedDescription, description);
 
@@ -162,19 +162,19 @@ public class ClientMethodMapperTests {
         operation = operationWithNoDesc();
         // Mono<Void>
         baseType = PrimitiveType.VOID;
-        returnType = GenericType.Mono(baseType);
+        returnType = GenericType.mono(baseType);
         description = ClientMethodsReturnDescription.returnTypeJavaDoc(operation, returnType, baseType);
         expectedDescription = "A {@link Mono} that completes when a successful response is received";
         Assertions.assertEquals(expectedDescription, description);
         // Mono<Boolean>
         baseType = PrimitiveType.BOOLEAN;
-        returnType = GenericType.Mono(baseType);
+        returnType = GenericType.mono(baseType);
         description = ClientMethodsReturnDescription.returnTypeJavaDoc(operation, returnType, baseType);
         expectedDescription = String.format("%s on successful completion of {@link Mono}", "whether resource exists");
         Assertions.assertEquals(expectedDescription, description);
         // Mono<Response>
-        baseType = GenericType.Response(ClassType.STRING);
-        returnType = GenericType.Mono(baseType);
+        baseType = GenericType.response(ClassType.STRING);
+        returnType = GenericType.mono(baseType);
         description = ClientMethodsReturnDescription.returnTypeJavaDoc(operation, returnType, baseType);
         expectedDescription = "the response body along with {@link Response} on successful completion of {@link Mono}";
         Assertions.assertEquals(expectedDescription, description);
@@ -183,19 +183,19 @@ public class ClientMethodMapperTests {
         operation = operationWithNoDesc();
         // Response<Void>
         baseType = PrimitiveType.VOID;
-        returnType = GenericType.Response(baseType);
+        returnType = GenericType.response(baseType);
         description = ClientMethodsReturnDescription.returnTypeJavaDoc(operation, returnType, baseType);
         expectedDescription = "the {@link Response}";
         Assertions.assertEquals(expectedDescription, description);
         // Response<Boolean>
         baseType = PrimitiveType.BOOLEAN;
-        returnType = GenericType.Response(baseType);
+        returnType = GenericType.response(baseType);
         description = ClientMethodsReturnDescription.returnTypeJavaDoc(operation, returnType, baseType);
         expectedDescription = String.format("%s along with {@link Response}", "whether resource exists");
         Assertions.assertEquals(expectedDescription, description);
         // Response<T>
         baseType = ClassType.STRING;
-        returnType = GenericType.Response(baseType);
+        returnType = GenericType.response(baseType);
         description = ClientMethodsReturnDescription.returnTypeJavaDoc(operation, returnType, baseType);
         expectedDescription = "the response body along with {@link Response}";
         Assertions.assertEquals(expectedDescription, description);

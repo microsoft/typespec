@@ -3,9 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
-import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -13,7 +11,7 @@ import java.util.stream.Collectors;
  * A generic type that is used by the client.
  */
 public class GenericType implements IType {
-    public static final GenericType FLUX_BYTE_BUFFER = Flux(ClassType.BYTE_BUFFER);
+    public static final GenericType FLUX_BYTE_BUFFER = flux(ClassType.BYTE_BUFFER);
     /**
      * The main non-generic type of this generic type.
      */
@@ -40,87 +38,58 @@ public class GenericType implements IType {
     }
 
     public GenericType(String packageKeyword, String name, String jsonToken, IType... typeArguments) {
-        if (!JavaSettings.getInstance().isAzureV1()) {
-            if (Objects.equals(packageKeyword + "." + name, com.azure.core.http.rest.Response.class.getName())) {
-                packageKeyword = "io.clientcore.core.http";
-            } else {
-                packageKeyword = packageKeyword.replace(ExternalPackage.AZURE_CORE_PACKAGE_NAME,
-                    ExternalPackage.CLIENTCORE_PACKAGE_NAME);
-            }
-        }
-
         this.name = name;
         this.packageName = packageKeyword;
         this.typeArguments = typeArguments;
         this.jsonToken = jsonToken;
     }
 
-    public static GenericType Flux(IType typeArgument) {
-        return new GenericType("reactor.core.publisher", "Flux", typeArgument);
+    public static GenericType flux(IType typeArgument) {
+        return genericType(ClassType.FLUX, typeArgument);
     }
 
-    public static GenericType Mono(IType typeArgument) {
-        return new GenericType("reactor.core.publisher", "Mono", typeArgument);
+    public static GenericType mono(IType typeArgument) {
+        return genericType(ClassType.MONO, typeArgument);
     }
 
-    public static GenericType OperationStatus(IType typeArgument) {
-        return new GenericType("com.microsoft.azure.v3", "OperationStatus", typeArgument);
+    public static GenericType response(IType bodyType) {
+        return genericType(ClassType.RESPONSE, bodyType);
     }
 
-    public static GenericType Page(IType elementType) {
-        return new GenericType("com.microsoft.azure.v3", "Page", elementType);
+    public static GenericType restResponse(IType headersType, IType bodyType) {
+        return genericType(ClassType.RESPONSE_BASE, headersType, bodyType);
     }
 
-    public static GenericType PagedList(IType elementType) {
-        return new GenericType("com.microsoft.azure.v3", "PagedList", elementType);
+    public static GenericType pagedResponse(IType bodyType) {
+        return genericType(ClassType.PAGED_RESPONSE, bodyType);
     }
 
-    public static GenericType Response(IType bodyType) {
-        return new GenericType(ClassType.RESPONSE.getPackage(), ClassType.RESPONSE.getName(), bodyType);
+    public static GenericType pagedFlux(IType bodyType) {
+        return genericType(ClassType.PAGED_FLUX, bodyType);
     }
 
-    public static GenericType RestResponse(IType headersType, IType bodyType) {
-        return new GenericType("com.azure.core.http.rest", "ResponseBase", headersType, bodyType);
+    public static GenericType pagedIterable(IType bodyType) {
+        return genericType(ClassType.PAGED_ITERABLE, bodyType);
     }
 
-    public static GenericType PagedResponse(IType bodyType) {
-        if (JavaSettings.getInstance().isAzureV1()) {
-            return new GenericType("com.azure.core.http.rest", "PagedResponse", bodyType);
-        } else {
-            return new GenericType("io.clientcore.core.http.paging", "PagedResponse", bodyType);
-        }
+    public static GenericType function(IType inputType, IType outputType) {
+        return genericType(ClassType.FUNCTION, inputType, outputType);
     }
 
-    public static GenericType PagedFlux(IType bodyType) {
-        return new GenericType("com.azure.core.http.rest", "PagedFlux", bodyType);
+    public static GenericType pollerFlux(IType pollResultType, IType finalResultType) {
+        return genericType(ClassType.POLLER_FLUX, pollResultType, finalResultType);
     }
 
-    public static GenericType PagedIterable(IType bodyType) {
-        if (JavaSettings.getInstance().isAzureV1()) {
-            return new GenericType("com.azure.core.http.rest", "PagedIterable", bodyType);
-        } else {
-            return new GenericType("io.clientcore.core.http.paging", "PagedIterable", bodyType);
-        }
+    public static GenericType syncPoller(IType pollResultType, IType finalResultType) {
+        return genericType(ClassType.SYNC_POLLER, pollResultType, finalResultType);
     }
 
-    public static GenericType Function(IType inputType, IType outputType) {
-        return new GenericType("java.util", "Function", inputType, outputType);
+    public static GenericType pollResult(IType pollResultType) {
+        return genericType(ClassType.POLL_RESULT, pollResultType);
     }
 
-    public static GenericType PollerFlux(IType pollResultType, IType finalResultType) {
-        return new GenericType("com.azure.core.util.polling", "PollerFlux", pollResultType, finalResultType);
-    }
-
-    public static GenericType SyncPoller(IType pollResultType, IType finalResultType) {
-        return new GenericType("com.azure.core.util.polling", "SyncPoller", pollResultType, finalResultType);
-    }
-
-    public static GenericType AzureVNextPoller(IType pollResultType, IType finalResultType) {
-        return new GenericType("com.azure.v2.core.http.polling", "Poller", pollResultType, finalResultType);
-    }
-
-    public static GenericType PollResult(IType pollResultType) {
-        return new GenericType("com.azure.core.management.polling", "PollResult", pollResultType);
+    private static GenericType genericType(ClassType wrapper, IType... types) {
+        return new GenericType(wrapper.getPackage(), wrapper.getName(), types);
     }
 
     public final String getName() {
@@ -230,45 +199,14 @@ public class GenericType implements IType {
     }
 
     public final String convertToClientType(String expression) {
-        if (this == getClientType()) {
-            return expression;
-        }
-
-        IType[] wireTypeArguments = getTypeArguments();
-        IType[] clientTypeArguments = Arrays.stream(wireTypeArguments).map(IType::getClientType).toArray(IType[]::new);
-
-        for (int i = 0; i < clientTypeArguments.length; ++i) {
-            if (clientTypeArguments[i] != wireTypeArguments[i]) {
-                if (this instanceof ListType) {
-                    expression
-                        = String.format("%1$s.stream().map(el -> %2$s).collect(java.util.stream.Collectors.toList())",
-                            expression, wireTypeArguments[i].convertToClientType("el"));
-                } else if (this instanceof IterableType) {
-                    expression = String.format(
-                        "java.util.stream.StreamSupport.stream(%1$s.spliterator(), false).map"
-                            + "(el -> %2$s).collect(java.util.stream.Collectors.toList())",
-                        expression, wireTypeArguments[i].convertToClientType("el"));
-                } else if (this instanceof MapType) {
-                    // Key is always String in Swagger 2
-                    expression = String.format(
-                        "%1$s.entrySet().stream().collect(java.util.stream.Collectors.toMap(Map.Entry::getKey, el -> %2$s))",
-                        expression, wireTypeArguments[i].convertToClientType("el.getValue()"));
-                } else if (this.getPackage().equals("io.reactivex")) {
-                    expression = String.format("%1$s.map(el => %2$s)", expression,
-                        wireTypeArguments[0].convertToClientType("el"));
-                } else {
-                    throw new UnsupportedOperationException(
-                        String.format("Instance %1$s of generic type %2$s not supported for conversion to client type.",
-                            expression, toString()));
-                }
-                break;
-            }
-        }
-
-        return expression;
+        return convert(expression, true);
     }
 
     public final String convertFromClientType(String expression) {
+        return convert(expression, false);
+    }
+
+    private String convert(String expression, boolean isToClient) {
         if (this == getClientType()) {
             return expression;
         }
@@ -279,26 +217,30 @@ public class GenericType implements IType {
         for (int i = 0; i < clientTypeArguments.length; ++i) {
             if (clientTypeArguments[i] != wireTypeArguments[i]) {
                 if (this instanceof ListType) {
+                    String mapping = isToClient
+                        ? wireTypeArguments[i].convertToClientType("el")
+                        : wireTypeArguments[i].convertFromClientType("el");
                     expression
                         = String.format("%1$s.stream().map(el -> %2$s).collect(java.util.stream.Collectors.toList())",
-                            expression, wireTypeArguments[i].convertFromClientType("el"));
+                            expression, mapping);
                 } else if (this instanceof IterableType) {
-                    expression = String.format(
-                        "java.util.stream.StreamSupport.stream(%1$s.spliterator(), false).map"
-                            + "(el -> %2$s).collect(java.util.stream.Collectors.toList())",
-                        expression, wireTypeArguments[i].convertFromClientType("el"));
+                    String mapping = isToClient
+                        ? wireTypeArguments[i].convertToClientType("el")
+                        : wireTypeArguments[i].convertFromClientType("el");
+                    expression = String.format("java.util.stream.StreamSupport.stream(%1$s.spliterator(), false).map"
+                        + "(el -> %2$s).collect(java.util.stream.Collectors.toList())", expression, mapping);
                 } else if (this instanceof MapType) {
+                    String mapping = isToClient
+                        ? wireTypeArguments[i].convertToClientType("el")
+                        : wireTypeArguments[i].convertFromClientType("el");
                     // Key is always String in Swagger 2
                     expression = String.format(
                         "%1$s.entrySet().stream().collect(java.util.stream.Collectors.toMap(Map.Entry::getKey, el -> %2$s))",
-                        expression, wireTypeArguments[i].convertFromClientType("el.getValue()"));
-                } else if (this.getPackage().equals("io.reactivex")) {
-                    expression = String.format("%1$s.map(el => %2$s)", expression,
-                        wireTypeArguments[0].convertFromClientType("el"));
+                        expression, mapping);
                 } else {
                     throw new UnsupportedOperationException(String.format(
-                        "Instance %1$s of generic type %2$s not supported for conversion from client type.", expression,
-                        toString()));
+                        "Instance %1$s of generic type %2$s not supported for conversion %3$s client type.", expression,
+                        this, isToClient ? "to" : "from"));
                 }
                 break;
             }

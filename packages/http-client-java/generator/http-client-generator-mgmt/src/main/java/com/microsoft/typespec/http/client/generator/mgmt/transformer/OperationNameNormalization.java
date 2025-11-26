@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.transformer;
 
-import com.azure.core.http.HttpMethod;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ArraySchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ObjectSchema;
@@ -16,6 +15,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.Plugin
 import com.microsoft.typespec.http.client.generator.mgmt.FluentNamer;
 import com.microsoft.typespec.http.client.generator.mgmt.model.WellKnownMethodName;
 import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
+import io.clientcore.core.http.models.HttpMethod;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;

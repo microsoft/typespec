@@ -1,15 +1,30 @@
 import { Card, CardHeader, Text } from "@fluentui/react-components";
-import { FunctionComponent } from "react";
+import { FunctionComponent, useState } from "react";
 import { CoverageSummary } from "../apis.js";
+import { useTierFiltering } from "../hooks/use-tier-filtering.js";
+import { TierConfig } from "../utils/tier-filtering-utils.js";
 import { DashboardTable } from "./dashboard-table.js";
 import { InfoEntry, InfoReport } from "./info-table.js";
+import { TierFilterDropdown } from "./tier-filter.js";
 
 export interface DashboardProps {
   coverageSummaries: CoverageSummary[];
+  scenarioTierConfig?: TierConfig;
 }
 
-export const Dashboard: FunctionComponent<DashboardProps> = ({ coverageSummaries }) => {
-  const summaryTables = coverageSummaries.map((coverageSummary, i) => (
+export const Dashboard: FunctionComponent<DashboardProps> = ({
+  coverageSummaries,
+  scenarioTierConfig,
+}) => {
+  const [selectedTier, setSelectedTier] = useState<string | undefined>(undefined);
+
+  const { filteredSummaries, allTiers } = useTierFiltering(
+    coverageSummaries,
+    scenarioTierConfig,
+    selectedTier,
+  );
+
+  const summaryTables = filteredSummaries.map((coverageSummary, i) => (
     <div key={i} css={{ margin: 5 }}>
       <DashboardTable coverageSummary={coverageSummary} />
     </div>
@@ -23,6 +38,11 @@ export const Dashboard: FunctionComponent<DashboardProps> = ({ coverageSummaries
 
   return (
     <div>
+      <TierFilterDropdown
+        allTiers={allTiers}
+        selectedTier={selectedTier}
+        setSelectedTier={setSelectedTier}
+      />
       <div css={{ display: "flex" }}>{specsCardTable}</div>
       <div css={{ height: 30 }}></div>
       {summaryTables}
@@ -34,7 +54,7 @@ const CadlRanchSpecsCard: FunctionComponent<{
   coverageSummary: CoverageSummary;
 }> = ({ coverageSummary }) => {
   const commitLink = `${coverageSummary.manifest.repo}/commit/${coverageSummary.manifest.commit}`;
-  const heading = coverageSummary.manifest.displayName;
+  const heading = coverageSummary.tableName || coverageSummary.manifest.displayName;
   const packageName = coverageSummary.manifest.packageName;
 
   return (
