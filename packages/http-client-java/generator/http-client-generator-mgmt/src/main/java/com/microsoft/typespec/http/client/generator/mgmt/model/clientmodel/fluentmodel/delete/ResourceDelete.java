@@ -4,8 +4,8 @@
 package com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.delete;
 
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.MethodParameter;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.template.prototype.MethodTemplate;
 import com.microsoft.typespec.http.client.generator.mgmt.FluentGen;
 import com.microsoft.typespec.http.client.generator.mgmt.model.arm.UrlPathSegments;
@@ -15,11 +15,12 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.Fluen
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.ResourceOperation;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method.CollectionMethodOperationByIdTemplate;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.method.FluentMethod;
+import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 
 public class ResourceDelete extends ResourceOperation {
@@ -45,23 +46,32 @@ public class ResourceDelete extends ResourceOperation {
 
     public List<MethodTemplate> getDeleteByIdCollectionMethods() {
         List<MethodTemplate> methods = new ArrayList<>();
-        List<ClientMethodParameter> parameters = new ArrayList<>();
-        Optional<FluentCollectionMethod> methodOpt = this.findMethod(true, parameters);
-        if (methodOpt.isPresent()) {
-            FluentCollectionMethod collectionMethod = methodOpt.get();
+        List<FluentCollectionMethod> collectionMethods = this.findMethodsWithContext();
+        if (!collectionMethods.isEmpty()) {
+            FluentCollectionMethod oneCollectionMethod = collectionMethods.iterator().next();
 
-            String name = getDeleteByIdMethodName(collectionMethod.getMethodName());
+            String name = getDeleteByIdMethodName(oneCollectionMethod.getMethodName());
             if (!hasConflictingMethod(name)) {
                 List<MethodParameter> pathParameters = this.getPathParameters();
-
                 methods.add(new CollectionMethodOperationByIdTemplate(resourceModel, name, pathParameters,
-                    urlPathSegments, false, getResourceLocalVariables(), collectionMethod).getMethodTemplate());
+                    urlPathSegments, false, getResourceLocalVariables(), oneCollectionMethod).getMethodTemplate());
 
-                methods.add(new CollectionMethodOperationByIdTemplate(resourceModel, name, pathParameters,
-                    urlPathSegments, true, getResourceLocalVariables(), collectionMethod).getMethodTemplate());
+                for (FluentCollectionMethod collectionMethod : collectionMethods) {
+                    methods.add(new CollectionMethodOperationByIdTemplate(resourceModel, name, pathParameters,
+                        urlPathSegments, true, getResourceLocalVariables(), collectionMethod).getMethodTemplate());
+                }
             }
         }
         return methods;
+    }
+
+    protected List<FluentCollectionMethod> findMethodsWithContext() {
+        return this.getMethodReferencesOfFullParameters()
+            .stream()
+            .filter(m -> m.getInnerClientMethod().getParameters().stream().anyMatch(FluentUtils::isContextParameter))
+            // fluent method implementation calls client interface API, thus we need the method to be public
+            .filter(method -> JavaVisibility.Public == method.getInnerClientMethod().getMethodVisibility())
+            .collect(Collectors.toList());
     }
 
     private static String getDeleteByIdMethodName(String methodName) {

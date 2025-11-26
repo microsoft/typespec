@@ -35,10 +35,10 @@ public class ArmVersionedTests {
 
         resource.update().apply();
 
+        manager.topLevelArmResources().delete("resourceGroup", "resourceName");
         manager.topLevelArmResources().deleteById("id");
 
         resource.refresh();
-        
 
         // API in 2024-12-01
         manager.topLevelArmResources().list("parameter", "newParameter", Context.NONE);
@@ -61,6 +61,8 @@ public class ArmVersionedTests {
 
         resource.update().withParameter("parameter").withNewParameter("newParameter").apply();
 
+        manager.topLevelArmResources()
+            .deleteWithResponse("resourceGroup", "resourceName", "parameter", "newParameter", Context.NONE);
         manager.topLevelArmResources().deleteByIdWithResponse("id", "parameter", "newParameter", Context.NONE);
 
         // API in 2023-12-01
@@ -84,6 +86,7 @@ public class ArmVersionedTests {
 
         resource.update().withParameter("parameter").apply();
 
+        manager.topLevelArmResources().deleteWithResponse("resourceGroup", "resourceName", "parameter", Context.NONE);
         manager.topLevelArmResources().deleteByIdWithResponse("id", "parameter", Context.NONE);
     }
 }
