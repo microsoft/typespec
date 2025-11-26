@@ -6,6 +6,7 @@ package tsptest.armversioned.implementation;
 
 import com.azure.core.http.rest.PagedIterable;
 import com.azure.core.http.rest.Response;
+import com.azure.core.http.rest.SimpleResponse;
 import com.azure.core.util.Context;
 import com.azure.core.util.logging.ClientLogger;
 import tsptest.armversioned.fluent.TopLevelArmResourcesClient;
@@ -41,6 +42,75 @@ public final class TopLevelArmResourcesImpl implements TopLevelArmResources {
         return ResourceManagerUtils.mapPage(inner, inner1 -> new TopLevelArmResourceImpl(inner1, this.manager()));
     }
 
+    public PagedIterable<TopLevelArmResource> listByResourceGroup(String resourceGroupName, String parameter,
+        Context context) {
+        PagedIterable<TopLevelArmResourceInner> inner
+            = this.serviceClient().listByResourceGroup(resourceGroupName, parameter, context);
+        return ResourceManagerUtils.mapPage(inner, inner1 -> new TopLevelArmResourceImpl(inner1, this.manager()));
+    }
+
+    public PagedIterable<TopLevelArmResource> listByResourceGroup(String resourceGroupName) {
+        PagedIterable<TopLevelArmResourceInner> inner = this.serviceClient().listByResourceGroup(resourceGroupName);
+        return ResourceManagerUtils.mapPage(inner, inner1 -> new TopLevelArmResourceImpl(inner1, this.manager()));
+    }
+
+    public PagedIterable<TopLevelArmResource> listByResourceGroup(String resourceGroupName, String parameter,
+        String newParameter, Context context) {
+        PagedIterable<TopLevelArmResourceInner> inner
+            = this.serviceClient().listByResourceGroup(resourceGroupName, parameter, newParameter, context);
+        return ResourceManagerUtils.mapPage(inner, inner1 -> new TopLevelArmResourceImpl(inner1, this.manager()));
+    }
+
+    public Response<TopLevelArmResource> getByResourceGroupWithResponse(String resourceGroupName,
+        String topLevelArmResourcePropertiesName, String parameter, Context context) {
+        Response<TopLevelArmResourceInner> inner = this.serviceClient()
+            .getByResourceGroupWithResponse(resourceGroupName, topLevelArmResourcePropertiesName, parameter, context);
+        if (inner != null) {
+            return new SimpleResponse<>(inner.getRequest(), inner.getStatusCode(), inner.getHeaders(),
+                new TopLevelArmResourceImpl(inner.getValue(), this.manager()));
+        } else {
+            return null;
+        }
+    }
+
+    public Response<TopLevelArmResource> getByResourceGroupWithResponse(String resourceGroupName,
+        String topLevelArmResourcePropertiesName, String parameter, String newParameter, Context context) {
+        Response<TopLevelArmResourceInner> inner = this.serviceClient()
+            .getByResourceGroupWithResponse(resourceGroupName, topLevelArmResourcePropertiesName, parameter,
+                newParameter, context);
+        if (inner != null) {
+            return new SimpleResponse<>(inner.getRequest(), inner.getStatusCode(), inner.getHeaders(),
+                new TopLevelArmResourceImpl(inner.getValue(), this.manager()));
+        } else {
+            return null;
+        }
+    }
+
+    public TopLevelArmResource getByResourceGroup(String resourceGroupName, String topLevelArmResourcePropertiesName) {
+        TopLevelArmResourceInner inner
+            = this.serviceClient().getByResourceGroup(resourceGroupName, topLevelArmResourcePropertiesName);
+        if (inner != null) {
+            return new TopLevelArmResourceImpl(inner, this.manager());
+        } else {
+            return null;
+        }
+    }
+
+    public void delete(String resourceGroupName, String topLevelArmResourcePropertiesName, String parameter,
+        Context context) {
+        this.serviceClient().delete(resourceGroupName, topLevelArmResourcePropertiesName, parameter, context);
+    }
+
+    public void delete(String resourceGroupName, String topLevelArmResourcePropertiesName) {
+        this.serviceClient().delete(resourceGroupName, topLevelArmResourcePropertiesName);
+    }
+
+    public void delete(String resourceGroupName, String topLevelArmResourcePropertiesName, String parameter,
+        String newParameter, Context context) {
+        this.serviceClient()
+            .delete(resourceGroupName, topLevelArmResourcePropertiesName, parameter, newParameter, context);
+    }
+
     public Response<Void> actionWithResponse(String resourceGroupName, String topLevelArmResourcePropertiesName,
         String parameter, Context context) {
         return this.serviceClient()
@@ -55,6 +125,76 @@ public final class TopLevelArmResourcesImpl implements TopLevelArmResources {
 
     public void action(String resourceGroupName, String topLevelArmResourcePropertiesName) {
         this.serviceClient().action(resourceGroupName, topLevelArmResourcePropertiesName);
+    }
+
+    public TopLevelArmResource getById(String id) {
+        String resourceGroupName = ResourceManagerUtils.getValueFromIdByName(id, "resourceGroups");
+        if (resourceGroupName == null) {
+            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
+                String.format("The resource ID '%s' is not valid. Missing path segment 'resourceGroups'.", id)));
+        }
+        String topLevelArmResourcePropertiesName
+            = ResourceManagerUtils.getValueFromIdByName(id, "topLevelArmResources");
+        if (topLevelArmResourcePropertiesName == null) {
+            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
+                String.format("The resource ID '%s' is not valid. Missing path segment 'topLevelArmResources'.", id)));
+        }
+        String localParameter = null;
+        String localNewParameter = null;
+        return this
+            .getByResourceGroupWithResponse(resourceGroupName, topLevelArmResourcePropertiesName, localParameter,
+                localNewParameter, Context.NONE)
+            .getValue();
+    }
+
+    public Response<TopLevelArmResource> getByIdWithResponse(String id, String parameter, String newParameter,
+        Context context) {
+        String resourceGroupName = ResourceManagerUtils.getValueFromIdByName(id, "resourceGroups");
+        if (resourceGroupName == null) {
+            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
+                String.format("The resource ID '%s' is not valid. Missing path segment 'resourceGroups'.", id)));
+        }
+        String topLevelArmResourcePropertiesName
+            = ResourceManagerUtils.getValueFromIdByName(id, "topLevelArmResources");
+        if (topLevelArmResourcePropertiesName == null) {
+            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
+                String.format("The resource ID '%s' is not valid. Missing path segment 'topLevelArmResources'.", id)));
+        }
+        return this.getByResourceGroupWithResponse(resourceGroupName, topLevelArmResourcePropertiesName, parameter,
+            newParameter, context);
+    }
+
+    public void deleteById(String id) {
+        String resourceGroupName = ResourceManagerUtils.getValueFromIdByName(id, "resourceGroups");
+        if (resourceGroupName == null) {
+            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
+                String.format("The resource ID '%s' is not valid. Missing path segment 'resourceGroups'.", id)));
+        }
+        String topLevelArmResourcePropertiesName
+            = ResourceManagerUtils.getValueFromIdByName(id, "topLevelArmResources");
+        if (topLevelArmResourcePropertiesName == null) {
+            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
+                String.format("The resource ID '%s' is not valid. Missing path segment 'topLevelArmResources'.", id)));
+        }
+        String localParameter = null;
+        String localNewParameter = null;
+        this.delete(resourceGroupName, topLevelArmResourcePropertiesName, localParameter, localNewParameter,
+            Context.NONE);
+    }
+
+    public void deleteByIdWithResponse(String id, String parameter, String newParameter, Context context) {
+        String resourceGroupName = ResourceManagerUtils.getValueFromIdByName(id, "resourceGroups");
+        if (resourceGroupName == null) {
+            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
+                String.format("The resource ID '%s' is not valid. Missing path segment 'resourceGroups'.", id)));
+        }
+        String topLevelArmResourcePropertiesName
+            = ResourceManagerUtils.getValueFromIdByName(id, "topLevelArmResources");
+        if (topLevelArmResourcePropertiesName == null) {
+            throw LOGGER.logExceptionAsError(new IllegalArgumentException(
+                String.format("The resource ID '%s' is not valid. Missing path segment 'topLevelArmResources'.", id)));
+        }
+        this.delete(resourceGroupName, topLevelArmResourcePropertiesName, parameter, newParameter, context);
     }
 
     private TopLevelArmResourcesClient serviceClient() {

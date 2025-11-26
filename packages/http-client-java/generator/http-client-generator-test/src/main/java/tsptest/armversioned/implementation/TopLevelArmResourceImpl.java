@@ -94,7 +94,7 @@ public final class TopLevelArmResourceImpl
         this.innerObject = serviceManager.serviceClient()
             .getTopLevelArmResources()
             .createOrUpdate(resourceGroupName, topLevelArmResourcePropertiesName, this.innerModel(), createParameter,
-                Context.NONE);
+                createNewParameter, Context.NONE);
         return this;
     }
 
@@ -102,7 +102,7 @@ public final class TopLevelArmResourceImpl
         this.innerObject = serviceManager.serviceClient()
             .getTopLevelArmResources()
             .createOrUpdate(resourceGroupName, topLevelArmResourcePropertiesName, this.innerModel(), createParameter,
-                context);
+                createNewParameter, context);
         return this;
     }
 
@@ -124,7 +124,7 @@ public final class TopLevelArmResourceImpl
         this.innerObject = serviceManager.serviceClient()
             .getTopLevelArmResources()
             .createOrUpdate(resourceGroupName, topLevelArmResourcePropertiesName, this.innerModel(), updateParameter,
-                Context.NONE);
+                updateNewParameter, Context.NONE);
         return this;
     }
 
@@ -132,7 +132,7 @@ public final class TopLevelArmResourceImpl
         this.innerObject = serviceManager.serviceClient()
             .getTopLevelArmResources()
             .createOrUpdate(resourceGroupName, topLevelArmResourcePropertiesName, this.innerModel(), updateParameter,
-                context);
+                updateNewParameter, context);
         return this;
     }
 
@@ -143,6 +143,28 @@ public final class TopLevelArmResourceImpl
         this.resourceGroupName = ResourceManagerUtils.getValueFromIdByName(innerObject.id(), "resourceGroups");
         this.topLevelArmResourcePropertiesName
             = ResourceManagerUtils.getValueFromIdByName(innerObject.id(), "topLevelArmResources");
+    }
+
+    public TopLevelArmResource refresh() {
+        String localParameter = null;
+        String localNewParameter = null;
+        this.innerObject = serviceManager.serviceClient()
+            .getTopLevelArmResources()
+            .getByResourceGroupWithResponse(resourceGroupName, topLevelArmResourcePropertiesName, localParameter,
+                localNewParameter, Context.NONE)
+            .getValue();
+        return this;
+    }
+
+    public TopLevelArmResource refresh(Context context) {
+        String localParameter = null;
+        String localNewParameter = null;
+        this.innerObject = serviceManager.serviceClient()
+            .getTopLevelArmResources()
+            .getByResourceGroupWithResponse(resourceGroupName, topLevelArmResourcePropertiesName, localParameter,
+                localNewParameter, context)
+            .getValue();
+        return this;
     }
 
     public Response<Void> actionWithResponse(String parameter, Context context) {
