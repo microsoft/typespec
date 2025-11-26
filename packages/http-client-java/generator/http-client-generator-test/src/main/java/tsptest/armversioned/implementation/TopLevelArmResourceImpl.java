@@ -167,6 +167,11 @@ public final class TopLevelArmResourceImpl
         return this;
     }
 
+    public Response<Void> actionWithResponse(String parameter, Context context) {
+        return serviceManager.topLevelArmResources()
+            .actionWithResponse(resourceGroupName, topLevelArmResourcePropertiesName, parameter, context);
+    }
+
     public Response<Void> actionWithResponse(String parameter, String newParameter, Context context) {
         return serviceManager.topLevelArmResources()
             .actionWithResponse(resourceGroupName, topLevelArmResourcePropertiesName, parameter, newParameter, context);
