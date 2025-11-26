@@ -52,11 +52,14 @@ public class ResourceDelete extends ResourceOperation {
 
             String name = getDeleteByIdMethodName(oneCollectionMethod.getMethodName());
             if (!hasConflictingMethod(name)) {
+                // deleteById without Context
                 List<MethodParameter> pathParameters = this.getPathParameters();
                 methods.add(new CollectionMethodOperationByIdTemplate(resourceModel, name, pathParameters,
                     urlPathSegments, false, getResourceLocalVariables(), oneCollectionMethod).getMethodTemplate());
 
                 for (FluentCollectionMethod collectionMethod : collectionMethods) {
+                    // deleteByIdWithResponse with Context
+                    // There can be multiple such methods, due to overload from versioning (optional parameter @added)
                     methods.add(new CollectionMethodOperationByIdTemplate(resourceModel, name, pathParameters,
                         urlPathSegments, true, getResourceLocalVariables(), collectionMethod).getMethodTemplate());
                 }
