@@ -88,7 +88,7 @@ public class ClassType implements IType {
     public static final ClassType ACCESS_TOKEN = withClientCoreReplacement("com.azure.core.credential.AccessToken",
         "io.clientcore.core.credentials.oauth.AccessToken");
     public static final ClassType AZURE_KEY_CREDENTIAL
-        = new Builder(false).packageName("com.azure.core.credential").name("AccessToken").build();
+        = new Builder(false).packageName("com.azure.core.credential").name("AzureKeyCredential").build();
     public static final ClassType KEY_CREDENTIAL = withClientCoreReplacement("com.azure.core.credential.KeyCredential",
         "io.clientcore.core.credentials.KeyCredential");
     public static final ClassType TOKEN_CREDENTIAL = withClientCoreAndVNextReplacement(

@@ -105,7 +105,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
                 ]);
             InputModelType catModel = InputFactory.Model(
                 "cat",
-                discriminatedKind: "cat",
                 properties:
                 [
                     InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
