@@ -77,7 +77,6 @@ describe("Python Class from model", () => {
     );
   });
 
-  // TODO: Change this test, as this isn't valid Python
   it("creates a class with non-default values followed by default values", async () => {
     const { program, Widget } = await Tester.compile(t.code`
 

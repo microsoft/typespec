@@ -92,4 +92,19 @@ describe("Python Declaration equivalency to Type Alias", () => {
       });
     });
   });
+
+  describe("Type Alias Declaration for Operation (Callable)", () => {
+    it("creates a type alias for an operation type reference", async () => {
+      const { program, Handler } = await Tester.compile(t.code`
+        op handleRequest(id: string): string;
+        alias ${t.type("Handler")} = handleRequest;
+      `);
+
+      expect(getOutput(program, [<TypeAliasDeclaration type={Handler} />])).toRenderTo(`
+        from typing import Callable
+        from typing import TypeAlias
+
+        handle_request: TypeAlias = Callable[[str], str]`);
+    });
+  });
 });

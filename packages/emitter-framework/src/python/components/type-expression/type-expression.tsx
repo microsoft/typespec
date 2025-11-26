@@ -113,8 +113,6 @@ export function TypeExpression(props: TypeExpressionProps) {
     case "TemplateParameter":
       return code`${String((type.node as TemplateParameterDeclarationNode).id.sv)}`;
 
-    // TODO: Models will be implemented separately
-    // return <InterfaceExpression type={type} />;
     case "Operation": {
       // Render function types as typing.Callable[[ArgTypes...], ReturnType]
       // If parameters cannot be enumerated, fall back to Callable[..., ReturnType]

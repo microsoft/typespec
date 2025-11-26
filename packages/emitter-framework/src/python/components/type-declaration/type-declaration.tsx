@@ -19,7 +19,6 @@ export function TypeDeclaration(props: TypeDeclarationProps) {
   switch (type.kind) {
     case "Enum":
       return <EnumDeclaration doc={doc} type={type} {...restProps} />;
-    // TODO: Handle models, interfaces and operations
     default:
       // All other kinds map to a Python type alias using TypeExpression
       return <TypeAliasDeclaration doc={doc} type={type} {...restProps} />;

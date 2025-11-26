@@ -38,19 +38,8 @@ export function TypeAliasDeclaration(props: TypedAliasDeclarationProps) {
   } else {
     name = py.usePythonNamePolicy().getName(originalName, "variable");
   }
-  // TODO: See how we will handle this kind of scenario:
-  // type Foo {
-  //   bar(id: String): BarResponse
-  //
-  // Bar = Callable[[string], BarResponse]
-  // class Foo:
-  //   bar: Bar
-  //
-  // Maybe this won't done by this emitter, but we might want that eventually to be done by some emitter.
-  //
+
   return (
-    // TODO: See if there's a need to make py.VariableDeclaration consider props.children
-    // (it doesn't at this moment, and there isn't a scenario where we need it)
     <py.VariableDeclaration
       doc={doc}
       name={name}

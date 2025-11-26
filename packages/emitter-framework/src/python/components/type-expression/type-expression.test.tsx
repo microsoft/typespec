@@ -47,14 +47,30 @@ describe("map Typespec types to Python built-in types", () => {
   });
 });
 
-// TODO: Add extra test for when we have Scalar types defined and with references
 describe("map scalar to Python types", () => {
-  it("Email => Email", async () => {
+  it("Email => str (scalars are inlined to base type)", async () => {
     const { program, Email } = await Tester.compile(t.code`
       scalar ${t.scalar("Email")} extends string;
     `);
 
     expect(getOutput(program, [<TypeExpression type={Email} />])).toRenderTo(d`
+      str
+    `);
+  });
+
+  it("PhoneNumber => str (scalar in model property is inlined)", async () => {
+    const { program, _ } = await Tester.compile(t.code`
+      scalar PhoneNumber extends string;
+      
+      model ${t.model("Widget")} {
+        phone: PhoneNumber;
+      }
+    `);
+
+    const phoneProperty = program.resolveTypeReference("Widget")[0]!;
+    const phoneProp = (phoneProperty as any).properties.get("phone");
+
+    expect(getOutput(program, [<TypeExpression type={phoneProp.type} />])).toRenderTo(d`
       str
     `);
   });
