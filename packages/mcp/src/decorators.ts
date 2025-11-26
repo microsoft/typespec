@@ -16,7 +16,7 @@ import {
   type ReadonlyDecorator,
   type ResourceDecorator,
   type ToolDecorator,
-} from "../generated-defs/MCP.js";
+} from "../generated-defs/TypeSpec.MCP.js";
 import { stateKeys } from "./lib.js";
 
 function createMarkerDecorator<T extends DecoratorFunction>(
@@ -76,7 +76,7 @@ export const $mcpServer: McpServerDecorator = (
 };
 
 export interface Resource {
-  uri: string;
+  readonly uri?: string;
 }
 
 export const [getResource, setResource] = useStateMap<Operation, Resource>(stateKeys.resource);
@@ -86,6 +86,6 @@ export const $resource: ResourceDecorator = (
   uri?: string,
 ) => {
   setResource(context.program, target, {
-    uri: uri ?? "",
+    uri,
   });
 };

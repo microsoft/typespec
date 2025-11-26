@@ -2,9 +2,9 @@
 // doesn't have the right name.
 
 import { $decorators } from "@typespec/mcp";
-import type { MCPDecorators } from "./MCP.js";
+import type { TypeSpecMCPDecorators } from "./TypeSpec.MCP.js";
 
 /**
  * An error here would mean that the exported decorator is not using the same signature. Make sure to have export const $decName: DecNameDecorator = (...) => ...
  */
-const _: MCPDecorators = $decorators["MCP"];
+const _: TypeSpecMCPDecorators = $decorators["TypeSpec.MCP"];

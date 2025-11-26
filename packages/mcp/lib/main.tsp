@@ -1,6 +1,6 @@
 import "../dist/src/tsp-index.js";
 
-namespace MCP;
+namespace TypeSpec.MCP;
 
 /**
  * Declare an operation that is an MCP Tool.

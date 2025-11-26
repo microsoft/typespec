@@ -6,6 +6,6 @@ export type SerializeAsTextDecorator = (
   type: Type,
 ) => void;
 
-export type MCPPrivateDecorators = {
+export type TypeSpecMCPPrivateDecorators = {
   serializeAsText: SerializeAsTextDecorator;
 };

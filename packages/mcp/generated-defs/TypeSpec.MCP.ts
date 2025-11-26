@@ -73,7 +73,7 @@ export type McpServerDecorator = (
   options?: McpServerOptions,
 ) => void;
 
-export type MCPDecorators = {
+export type TypeSpecMCPDecorators = {
   tool: ToolDecorator;
   readonly: ReadonlyDecorator;
   nondestructive: NondestructiveDecorator;

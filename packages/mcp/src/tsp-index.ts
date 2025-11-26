@@ -1,5 +1,5 @@
-import type { MCPDecorators } from "../generated-defs/MCP.js";
-import type { MCPPrivateDecorators } from "../generated-defs/MCP.Private.js";
+import type { TypeSpecMCPDecorators } from "../generated-defs/TypeSpec.MCP.js";
+import type { TypeSpecMCPPrivateDecorators } from "../generated-defs/TypeSpec.MCP.Private.js";
 import {
   $mcpServer,
   $resource,
@@ -13,7 +13,7 @@ import {
 
 /** @internal */
 export const $decorators = {
-  MCP: {
+  "TypeSpec.MCP": {
     mcpServer: $mcpServer,
     tool: toolDecorator,
     resource: $resource,
@@ -21,8 +21,8 @@ export const $decorators = {
     nondestructive: nondestructiveDecorator,
     idempotent: idempotentDecorator,
     closedWorld: closedWorldDecorator,
-  } satisfies MCPDecorators,
-  "MCP.Private": {
+  } satisfies TypeSpecMCPDecorators,
+  "TypeSpec.MCP.Private": {
     serializeAsText: $serializeAsText,
-  } satisfies MCPPrivateDecorators,
+  } satisfies TypeSpecMCPPrivateDecorators,
 };
