@@ -19,8 +19,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
     public class ModelProvider : TypeProvider
     {
         private const string AdditionalBinaryDataPropsFieldDescription = "Keeps track of any properties unknown to the library.";
-        private const string DiscriminatorParameterName = "discriminatorValue";
-        private const string DiscriminatorParameterDescription = "The discriminator property.";
         private readonly InputModelType _inputModel;
         // Note the description cannot be built from the constructor as it would lead to a circular dependency between the base
         // and derived models resulting in a stack overflow.
@@ -769,24 +767,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 : baseParameters.Where(p =>
                     p.Property is null
                     || (!overriddenProperties.Contains(p.Property!) && (!p.Property.IsDiscriminator || !isInitializationConstructor || includeDiscriminatorParameter))));
-
-            // Replace any discriminator property parameters with the standard discriminatorValue parameter
-            if (includeDiscriminatorParameter && _inputModel.DiscriminatorProperty != null)
-            {
-                // Remove any discriminator property parameters from the hierarchy
-                var discriminatorParams = constructorParameters.Where(p => p.Property?.IsDiscriminator == true).ToList();
-                foreach (var param in discriminatorParams)
-                {
-                    constructorParameters.Remove(param);
-                }
-
-                // Add the standard discriminatorValue parameter at the beginning
-                var discriminatorParam = new ParameterProvider(
-                    DiscriminatorParameterName,
-                    $"{DiscriminatorParameterDescription}",
-                    new CSharpType(typeof(string)));
-                constructorParameters.Insert(0, discriminatorParam);
-            }
 
             if (!isInitializationConstructor)
             {

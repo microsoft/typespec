@@ -1536,7 +1536,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             // Cat's protected constructor should have: discriminator + species + name + meows
             var catProtectedParams = catProtectedConstructor.Signature.Parameters;
             Assert.AreEqual(4, catProtectedParams.Count);
-            Assert.AreEqual("discriminatorValue", catProtectedParams[0].Name);
+            Assert.AreEqual("kind", catProtectedParams[0].Name);
             Assert.AreEqual(typeof(string), catProtectedParams[0].Type.FrameworkType);
             Assert.AreEqual("species", catProtectedParams[1].Name);
             Assert.AreEqual("name", catProtectedParams[2].Name);
