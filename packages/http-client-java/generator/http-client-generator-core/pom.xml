@@ -134,6 +134,7 @@
     </dependency>
     <dependency>
       <groupId>org.eclipse.platform</groupId>
+      <!-- cSpell:ignore osgi -->
       <artifactId>org.eclipse.osgi</artifactId>
       <version>3.17.0</version>
     </dependency>
@@ -147,7 +148,6 @@
       <artifactId>org.eclipse.core.commands</artifactId>
       <version>3.10.100</version>
     </dependency>
-
 
     <dependency>
       <groupId>org.atteo</groupId>
