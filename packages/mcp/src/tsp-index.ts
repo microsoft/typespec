@@ -13,7 +13,7 @@ import {
 
 /** @internal */
 export const $decorators = {
-  "MCP": {
+  MCP: {
     mcpServer: $mcpServer,
     tool: toolDecorator,
     resource: $resource,

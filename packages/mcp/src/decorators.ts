@@ -1,4 +1,11 @@
-import type { DecoratorContext, DecoratorFunction, Interface, Namespace, Operation, Type } from "@typespec/compiler";
+import type {
+  DecoratorContext,
+  DecoratorFunction,
+  Interface,
+  Namespace,
+  Operation,
+  Type,
+} from "@typespec/compiler";
 import { useStateMap, useStateSet } from "@typespec/compiler/utils";
 import {
   type ClosedWorldDecorator,
@@ -27,18 +34,17 @@ function createMarkerDecorator<T extends DecoratorFunction>(
   return [is, mark, decorator as T] as const;
 }
 
-export const [isTool, markTool, toolDecorator] = createMarkerDecorator<ToolDecorator>(stateKeys.tool);
-export const [isReadonly, markReadonly, readonlyDecorator] = createMarkerDecorator<ReadonlyDecorator>(
-  stateKeys.readonly,
+export const [isTool, markTool, toolDecorator] = createMarkerDecorator<ToolDecorator>(
+  stateKeys.tool,
 );
+export const [isReadonly, markReadonly, readonlyDecorator] =
+  createMarkerDecorator<ReadonlyDecorator>(stateKeys.readonly);
 export const [isNondestructive, markNondestructive, nondestructiveDecorator] =
   createMarkerDecorator<NondestructiveDecorator>(stateKeys.nondestructive);
-export const [isIdempotent, markIdempotent, idempotentDecorator] = createMarkerDecorator<IdempotentDecorator>(
-  stateKeys.idempotent,
-);
-export const [isClosedWorld, markClosedWorld, closedWorldDecorator] = createMarkerDecorator<ClosedWorldDecorator>(
-  stateKeys.closedWorld,
-);
+export const [isIdempotent, markIdempotent, idempotentDecorator] =
+  createMarkerDecorator<IdempotentDecorator>(stateKeys.idempotent);
+export const [isClosedWorld, markClosedWorld, closedWorldDecorator] =
+  createMarkerDecorator<ClosedWorldDecorator>(stateKeys.closedWorld);
 
 export const [getSerializeAsText, setSerializeAsText] = useStateMap<Type, { dataType: Type }>(
   stateKeys.serializeAsText,
@@ -54,7 +60,9 @@ export interface McpServer extends McpServerOptions {
   container: Namespace | Interface;
 }
 
-export const [getMcpServer, setMcpServer] = useStateMap<Namespace | Interface, McpServer>(stateKeys.mcpServer);
+export const [getMcpServer, setMcpServer] = useStateMap<Namespace | Interface, McpServer>(
+  stateKeys.mcpServer,
+);
 
 export const $mcpServer: McpServerDecorator = (
   context: DecoratorContext,
@@ -72,7 +80,11 @@ export interface Resource {
 }
 
 export const [getResource, setResource] = useStateMap<Operation, Resource>(stateKeys.resource);
-export const $resource: ResourceDecorator = (context: DecoratorContext, target: Operation, uri?: string) => {
+export const $resource: ResourceDecorator = (
+  context: DecoratorContext,
+  target: Operation,
+  uri?: string,
+) => {
   setResource(context.program, target, {
     uri: uri ?? "",
   });

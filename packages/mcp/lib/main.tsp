@@ -42,7 +42,10 @@ model McpServerOptions {
  * Declare a namespace or interface as an MCP Server and provide server
  * metadata.
  */
-extern dec mcpServer(target: Reflection.Namespace | Reflection.Interface, options?: valueof McpServerOptions);
+extern dec mcpServer(
+  target: Reflection.Namespace | Reflection.Interface,
+  options?: valueof McpServerOptions
+);
 
 namespace Private {
   extern dec serializeAsText(target: Reflection.Model, type: unknown);
