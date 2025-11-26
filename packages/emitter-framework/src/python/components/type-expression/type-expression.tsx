@@ -40,7 +40,6 @@ export function TypeExpression(props: TypeExpressionProps) {
     );
   }
 
-  // TODO: Make sure this is an exhaustive switch, including EnumMember and such
   switch (type.kind) {
     case "Scalar": // Custom types based on primitives (Intrinsics)
     case "Intrinsic": // Language primitives like `string`, `number`, etc.
@@ -70,6 +69,7 @@ export function TypeExpression(props: TypeExpressionProps) {
         { joiner: " | " },
       );
     }
+    case "UnionVariant":
     case "ModelProperty":
       return <TypeExpression type={type.type} />;
     case "Model":

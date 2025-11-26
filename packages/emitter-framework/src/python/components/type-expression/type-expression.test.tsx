@@ -111,3 +111,110 @@ describe("correctly solves a ModelProperty to Python types", () => {
     `);
   });
 });
+
+describe("handles UnionVariant types", () => {
+  it("renders string union variant as string literal", async () => {
+    const { program } = await Tester.compile(t.code`
+      union Color {
+        red: "red",
+        blue: "blue",
+      }
+      
+      model Widget {
+        color: Color.red;
+      }
+    `);
+
+    const Widget = program.resolveTypeReference("Widget")[0]! as any;
+    const colorProperty = Widget.properties.get("color");
+
+    expect(getOutput(program, [<TypeExpression type={colorProperty.type} />])).toRenderTo(d`
+      "red"
+    `);
+  });
+
+  it("renders integer union variant as integer literal", async () => {
+    const { program } = await Tester.compile(t.code`
+      union Status {
+        active: 1,
+        inactive: 0,
+      }
+      
+      model Widget {
+        status: Status.active;
+      }
+    `);
+
+    const Widget = program.resolveTypeReference("Widget")[0]! as any;
+    const statusProperty = Widget.properties.get("status");
+
+    expect(getOutput(program, [<TypeExpression type={statusProperty.type} />])).toRenderTo(d`
+      1
+    `);
+  });
+
+  it("unwraps union variant to reveal the inner type", async () => {
+    const { program } = await Tester.compile(t.code`
+      union Status {
+        active: string,
+        inactive: int32,
+      }
+      
+      model Widget {
+        status: Status.inactive;
+      }
+    `);
+
+    const Widget = program.resolveTypeReference("Widget")[0]! as any;
+    const statusProperty = Widget.properties.get("status");
+
+    // The UnionVariant should unwrap to reveal int32, not the union itself
+    expect(statusProperty.type.kind).toBe("UnionVariant");
+    expect(getOutput(program, [<TypeExpression type={statusProperty.type} />])).toRenderTo(d`
+      int
+    `);
+  });
+
+  it("handles union variant in function return type", async () => {
+    const { program } = await Tester.compile(t.code`
+      union Result {
+        success: "success",
+        failure: "failure",
+      }
+      
+      op getResult(): Result.success;
+    `);
+
+    const getResult = program.resolveTypeReference("getResult")[0]! as any;
+    const returnType = getResult.returnType;
+
+    expect(getOutput(program, [<TypeExpression type={returnType} />])).toRenderTo(d`
+      "success"
+    `);
+  });
+
+  it("handles nested union variant types", async () => {
+    const { program } = await Tester.compile(t.code`
+      union Inner {
+        a: string,
+        b: int32,
+      }
+      
+      union Outer {
+        x: Inner.a,
+        y: Inner.b,
+      }
+      
+      model Widget {
+        value: Outer.x;
+      }
+    `);
+
+    const Widget = program.resolveTypeReference("Widget")[0]! as any;
+    const valueProperty = Widget.properties.get("value");
+
+    expect(getOutput(program, [<TypeExpression type={valueProperty.type} />])).toRenderTo(d`
+      str
+    `);
+  });
+});
