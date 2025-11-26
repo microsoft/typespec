@@ -1,6 +1,6 @@
 import type {
   DecoratorContext,
-  DecoratorPostValidator,
+  DecoratorValidatorCallback,
   Enum,
   ModelProperty,
   Type,
@@ -33,7 +33,7 @@ export type NameDecorator = (
   context: DecoratorContext,
   target: Type,
   name: string,
-) => DecoratorPostValidator | void;
+) => DecoratorValidatorCallback | void;
 
 /**
  * Specify that the target property should be encoded as an XML attribute instead of node.
@@ -67,7 +67,7 @@ export type NameDecorator = (
 export type AttributeDecorator = (
   context: DecoratorContext,
   target: ModelProperty,
-) => DecoratorPostValidator | void;
+) => DecoratorValidatorCallback | void;
 
 /**
  * Specify that the target property shouldn't create a wrapper node. This can be used to flatten list nodes into the model node or to include raw text in the model node.
@@ -137,7 +137,7 @@ export type AttributeDecorator = (
 export type UnwrappedDecorator = (
   context: DecoratorContext,
   target: ModelProperty,
-) => DecoratorPostValidator | void;
+) => DecoratorValidatorCallback | void;
 
 /**
  * Specify the XML namespace for this element. It can be used in 2 different ways:
@@ -180,7 +180,7 @@ export type NsDecorator = (
   target: Type,
   ns: Type,
   prefix?: string,
-) => DecoratorPostValidator | void;
+) => DecoratorValidatorCallback | void;
 
 /**
  * Mark an enum as declaring XML namespaces. See `@ns`
@@ -188,7 +188,7 @@ export type NsDecorator = (
 export type NsDeclarationsDecorator = (
   context: DecoratorContext,
   target: Enum,
-) => DecoratorPostValidator | void;
+) => DecoratorValidatorCallback | void;
 
 export type TypeSpecXmlDecorators = {
   name: NameDecorator;

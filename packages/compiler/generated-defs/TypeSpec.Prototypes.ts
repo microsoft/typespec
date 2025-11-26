@@ -1,9 +1,9 @@
-import type { DecoratorContext, DecoratorPostValidator, Type } from "../src/index.js";
+import type { DecoratorContext, DecoratorValidatorCallback, Type } from "../src/index.js";
 
 export type GetterDecorator = (
   context: DecoratorContext,
   target: Type,
-) => DecoratorPostValidator | void;
+) => DecoratorValidatorCallback | void;
 
 export type TypeSpecPrototypesDecorators = {
   getter: GetterDecorator;

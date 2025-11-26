@@ -1,4 +1,4 @@
-import type { DecoratorContext, DecoratorPostValidator, Model, Type } from "@typespec/compiler";
+import type { DecoratorContext, DecoratorValidatorCallback, Model, Type } from "@typespec/compiler";
 
 /**
  * Specify that a model represents a stream protocol type whose data is described
@@ -22,7 +22,7 @@ export type StreamOfDecorator = (
   context: DecoratorContext,
   target: Model,
   type: Type,
-) => DecoratorPostValidator | void;
+) => DecoratorValidatorCallback | void;
 
 export type TypeSpecStreamsDecorators = {
   streamOf: StreamOfDecorator;

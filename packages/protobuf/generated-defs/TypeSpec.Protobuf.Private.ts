@@ -1,16 +1,16 @@
-import type { DecoratorContext, DecoratorPostValidator, Model, Type } from "@typespec/compiler";
+import type { DecoratorContext, DecoratorValidatorCallback, Model, Type } from "@typespec/compiler";
 
 export type ExternRefDecorator = (
   context: DecoratorContext,
   target: Model,
   path: Type,
   name: Type,
-) => DecoratorPostValidator | void;
+) => DecoratorValidatorCallback | void;
 
 export type _mapDecorator = (
   context: DecoratorContext,
   target: Model,
-) => DecoratorPostValidator | void;
+) => DecoratorValidatorCallback | void;
 
 export type TypeSpecProtobufPrivateDecorators = {
   externRef: ExternRefDecorator;

@@ -1,6 +1,6 @@
 import type {
   DecoratorContext,
-  DecoratorPostValidator,
+  DecoratorValidatorCallback,
   Interface,
   ModelProperty,
   Namespace,
@@ -21,7 +21,7 @@ import type {
 export type MessageDecorator = (
   context: DecoratorContext,
   target: Type,
-) => DecoratorPostValidator | void;
+) => DecoratorValidatorCallback | void;
 
 /**
  * Defines the field index of a model property for conversion to a Protobuf
@@ -56,7 +56,7 @@ export type FieldDecorator = (
   context: DecoratorContext,
   target: ModelProperty,
   index: number,
-) => DecoratorPostValidator | void;
+) => DecoratorValidatorCallback | void;
 
 /**
  * Reserve a field index, range, or name. If a field definition collides with a reservation, the emitter will produce
@@ -94,7 +94,7 @@ export type ReserveDecorator = (
   context: DecoratorContext,
   target: Type,
   ...reservations: (string | unknown | number)[]
-) => DecoratorPostValidator | void;
+) => DecoratorValidatorCallback | void;
 
 /**
  * Declares that a TypeSpec interface constitutes a Protobuf service. The contents of the interface will be converted to
@@ -103,7 +103,7 @@ export type ReserveDecorator = (
 export type ServiceDecorator = (
   context: DecoratorContext,
   target: Interface,
-) => DecoratorPostValidator | void;
+) => DecoratorValidatorCallback | void;
 
 /**
  * Declares that a TypeSpec namespace constitutes a Protobuf package. The contents of the namespace will be emitted to a
@@ -115,7 +115,7 @@ export type PackageDecorator = (
   context: DecoratorContext,
   target: Namespace,
   details?: Type,
-) => DecoratorPostValidator | void;
+) => DecoratorValidatorCallback | void;
 
 /**
  * Set the streaming mode of an operation. See [StreamMode](./data-types#TypeSpec.Protobuf.StreamMode) for more information.
@@ -136,7 +136,7 @@ export type StreamDecorator = (
   context: DecoratorContext,
   target: Operation,
   mode: Type,
-) => DecoratorPostValidator | void;
+) => DecoratorValidatorCallback | void;
 
 export type TypeSpecProtobufDecorators = {
   message: MessageDecorator;

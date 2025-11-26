@@ -1,4 +1,8 @@
-import type { DecoratorContext, DecoratorPostValidator, UnionVariant } from "@typespec/compiler";
+import type {
+  DecoratorContext,
+  DecoratorValidatorCallback,
+  UnionVariant,
+} from "@typespec/compiler";
 
 /**
  * Indicates that the presence of this event is a terminal event,
@@ -7,7 +11,7 @@ import type { DecoratorContext, DecoratorPostValidator, UnionVariant } from "@ty
 export type TerminalEventDecorator = (
   context: DecoratorContext,
   target: UnionVariant,
-) => DecoratorPostValidator | void;
+) => DecoratorValidatorCallback | void;
 
 export type TypeSpecSSEDecorators = {
   terminalEvent: TerminalEventDecorator;

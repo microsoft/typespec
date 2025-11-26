@@ -1,4 +1,4 @@
-import type { DecoratorContext, DecoratorPostValidator, Type } from "@typespec/compiler";
+import type { DecoratorContext, DecoratorValidatorCallback, Type } from "@typespec/compiler";
 
 export interface FeatureLifecycleOptions {
   readonly emitterScope?: string;
@@ -8,7 +8,7 @@ export type ExperimentalDecorator = (
   context: DecoratorContext,
   target: Type,
   options?: FeatureLifecycleOptions,
-) => DecoratorPostValidator | void;
+) => DecoratorValidatorCallback | void;
 
 export type TypeSpecHttpClientDecorators = {
   experimental: ExperimentalDecorator;

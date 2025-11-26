@@ -60,7 +60,7 @@ export function DecoratorSignatureType(props: Readonly<DecoratorSignatureProps>)
     >
       <ts.FunctionType
         parameters={parameters}
-        returnType={code`${typespecCompiler.DecoratorPostValidator} | void`}
+        returnType={code`${typespecCompiler.DecoratorValidatorCallback} | void`}
       />
     </ts.TypeDeclaration>
   );

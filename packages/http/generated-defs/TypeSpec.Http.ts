@@ -1,6 +1,6 @@
 import type {
   DecoratorContext,
-  DecoratorPostValidator,
+  DecoratorValidatorCallback,
   Interface,
   ModelProperty,
   Namespace,
@@ -50,7 +50,7 @@ export interface PatchOptions {
 export type StatusCodeDecorator = (
   context: DecoratorContext,
   target: ModelProperty,
-) => DecoratorPostValidator | void;
+) => DecoratorValidatorCallback | void;
 
 /**
  * Explicitly specify that this property type will be exactly the HTTP body.
@@ -67,7 +67,7 @@ export type StatusCodeDecorator = (
 export type BodyDecorator = (
   context: DecoratorContext,
   target: ModelProperty,
-) => DecoratorPostValidator | void;
+) => DecoratorValidatorCallback | void;
 
 /**
  * Specify this property is to be sent or received as an HTTP header.
@@ -90,7 +90,7 @@ export type HeaderDecorator = (
   context: DecoratorContext,
   target: ModelProperty,
   headerNameOrOptions?: string | HeaderOptions,
-) => DecoratorPostValidator | void;
+) => DecoratorValidatorCallback | void;
 
 /**
  * Specify this property is to be sent or received in the cookie.
@@ -113,7 +113,7 @@ export type CookieDecorator = (
   context: DecoratorContext,
   target: ModelProperty,
   cookieNameOrOptions?: string | CookieOptions,
-) => DecoratorPostValidator | void;
+) => DecoratorValidatorCallback | void;
 
 /**
  * Specify this property is to be sent as a query parameter.
@@ -129,7 +129,7 @@ export type QueryDecorator = (
   context: DecoratorContext,
   target: ModelProperty,
   queryNameOrOptions?: string | QueryOptions,
-) => DecoratorPostValidator | void;
+) => DecoratorValidatorCallback | void;
 
 /**
  * Explicitly specify that this property is to be interpolated as a path parameter.
@@ -145,7 +145,7 @@ export type PathDecorator = (
   context: DecoratorContext,
   target: ModelProperty,
   paramNameOrOptions?: string | PathOptions,
-) => DecoratorPostValidator | void;
+) => DecoratorValidatorCallback | void;
 
 /**
  * Specify that the body resolution should be resolved from that property.
@@ -161,7 +161,7 @@ export type PathDecorator = (
 export type BodyRootDecorator = (
   context: DecoratorContext,
   target: ModelProperty,
-) => DecoratorPostValidator | void;
+) => DecoratorValidatorCallback | void;
 
 /**
  * Specify that this property shouldn't be included in the HTTP body.
@@ -175,7 +175,7 @@ export type BodyRootDecorator = (
 export type BodyIgnoreDecorator = (
   context: DecoratorContext,
   target: ModelProperty,
-) => DecoratorPostValidator | void;
+) => DecoratorValidatorCallback | void;
 
 /**
  *
@@ -195,7 +195,7 @@ export type BodyIgnoreDecorator = (
 export type MultipartBodyDecorator = (
   context: DecoratorContext,
   target: ModelProperty,
-) => DecoratorPostValidator | void;
+) => DecoratorValidatorCallback | void;
 
 /**
  * Specify the HTTP verb for the target operation to be `GET`.
@@ -208,7 +208,7 @@ export type MultipartBodyDecorator = (
 export type GetDecorator = (
   context: DecoratorContext,
   target: Operation,
-) => DecoratorPostValidator | void;
+) => DecoratorValidatorCallback | void;
 
 /**
  * Specify the HTTP verb for the target operation to be `PUT`.
@@ -221,7 +221,7 @@ export type GetDecorator = (
 export type PutDecorator = (
   context: DecoratorContext,
   target: Operation,
-) => DecoratorPostValidator | void;
+) => DecoratorValidatorCallback | void;
 
 /**
  * Specify the HTTP verb for the target operation to be `POST`.
@@ -234,7 +234,7 @@ export type PutDecorator = (
 export type PostDecorator = (
   context: DecoratorContext,
   target: Operation,
-) => DecoratorPostValidator | void;
+) => DecoratorValidatorCallback | void;
 
 /**
  * Specify the HTTP verb for the target operation to be `PATCH`.
@@ -256,7 +256,7 @@ export type PatchDecorator = (
   context: DecoratorContext,
   target: Operation,
   options?: PatchOptions,
-) => DecoratorPostValidator | void;
+) => DecoratorValidatorCallback | void;
 
 /**
  * Specify the HTTP verb for the target operation to be `DELETE`.
@@ -269,7 +269,7 @@ export type PatchDecorator = (
 export type DeleteDecorator = (
   context: DecoratorContext,
   target: Operation,
-) => DecoratorPostValidator | void;
+) => DecoratorValidatorCallback | void;
 
 /**
  * Specify the HTTP verb for the target operation to be `HEAD`.
@@ -282,7 +282,7 @@ export type DeleteDecorator = (
 export type HeadDecorator = (
   context: DecoratorContext,
   target: Operation,
-) => DecoratorPostValidator | void;
+) => DecoratorValidatorCallback | void;
 
 /**
  * Specify an endpoint for this service. Multiple `@server` decorators can be used to specify multiple endpoints.
@@ -327,7 +327,7 @@ export type ServerDecorator = (
   url: string,
   description?: string,
   parameters?: Type,
-) => DecoratorPostValidator | void;
+) => DecoratorValidatorCallback | void;
 
 /**
  * Specify authentication for a whole service or specific methods. See the [documentation in the Http library](https://typespec.io/docs/libraries/http/authentication) for full details.
@@ -344,7 +344,7 @@ export type UseAuthDecorator = (
   context: DecoratorContext,
   target: Namespace | Interface | Operation,
   auth: Type,
-) => DecoratorPostValidator | void;
+) => DecoratorValidatorCallback | void;
 
 /**
  * Defines the relative route URI template for the target operation as defined by [RFC 6570](https://datatracker.ietf.org/doc/html/rfc6570#section-3.2.3)
@@ -371,7 +371,7 @@ export type RouteDecorator = (
   context: DecoratorContext,
   target: Namespace | Interface | Operation,
   path: string,
-) => DecoratorPostValidator | void;
+) => DecoratorValidatorCallback | void;
 
 /**
  * `@sharedRoute` marks the operation as sharing a route path with other operations.
@@ -390,7 +390,7 @@ export type RouteDecorator = (
 export type SharedRouteDecorator = (
   context: DecoratorContext,
   target: Operation,
-) => DecoratorPostValidator | void;
+) => DecoratorValidatorCallback | void;
 
 export type TypeSpecHttpDecorators = {
   statusCode: StatusCodeDecorator;

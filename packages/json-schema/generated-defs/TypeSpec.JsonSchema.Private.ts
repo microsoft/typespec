@@ -1,10 +1,10 @@
-import type { DecoratorContext, DecoratorPostValidator, Model, Type } from "@typespec/compiler";
+import type { DecoratorContext, DecoratorValidatorCallback, Model, Type } from "@typespec/compiler";
 
 export type ValidatesRawJsonDecorator = (
   context: DecoratorContext,
   target: Model,
   value: Type,
-) => DecoratorPostValidator | void;
+) => DecoratorValidatorCallback | void;
 
 export type TypeSpecJsonSchemaPrivateDecorators = {
   validatesRawJson: ValidatesRawJsonDecorator;

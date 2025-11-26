@@ -56,7 +56,7 @@ import {
   DecoratorContext,
   DecoratorDeclarationStatementNode,
   DecoratorExpressionNode,
-  DecoratorPostValidator,
+  DecoratorValidatorCallback,
   Diagnostic,
   DiagnosticTarget,
   DocContent,
@@ -369,7 +369,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    * Key is the SymId of a node. It can be retrieved with getNodeSymId(node)
    */
   const pendingResolutions = new PendingResolutions();
-  const postCheckValidators: DecoratorPostValidator[] = [];
+  const postCheckValidators: DecoratorValidatorCallback[] = [];
 
   const typespecNamespaceBinding = resolver.symbols.global.exports!.get("TypeSpec");
   if (typespecNamespaceBinding) {
@@ -5970,15 +5970,15 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function applyDecoratorsToType(typeDef: Type & { decorators: DecoratorApplication[] }) {
-    const postSelfValidators: DecoratorPostValidator[] = [];
+    const postSelfValidators: DecoratorValidatorCallback[] = [];
     for (const decApp of typeDef.decorators) {
       const validator = applyDecoratorToType(program, decApp, typeDef);
       if (validator) {
-        switch (validator.kind) {
-          case "postSelf":
+        switch (validator.when) {
+          case "onFinish":
             postSelfValidators.push(validator);
             break;
-          case "post":
+          case "onGraphFinish":
             postCheckValidators.push(validator);
             break;
         }
@@ -5988,7 +5988,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   /** Run a list of post validator */
-  function runPostValidators(validators: DecoratorPostValidator[]) {
+  function runPostValidators(validators: DecoratorValidatorCallback[]) {
     for (const validator of validators) {
       program.reportDiagnostics(validator.validator());
     }
@@ -6699,7 +6699,7 @@ function applyDecoratorToType(
   program: Program,
   decApp: DecoratorApplication,
   target: Type,
-): DecoratorPostValidator | void {
+): DecoratorValidatorCallback | void {
   compilerAssert("decorators" in target, "Cannot apply decorator to non-decoratable type", target);
 
   for (const arg of decApp.args) {
