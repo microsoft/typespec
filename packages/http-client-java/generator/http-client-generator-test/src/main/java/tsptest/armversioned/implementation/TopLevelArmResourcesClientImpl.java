@@ -154,9 +154,9 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
 
         @Headers({ "Accept: application/json;q=0.9", "Content-Type: application/json" })
         @Delete("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmVersioned/topLevelArmResources/{topLevelArmResourcePropertiesName}")
-        @ExpectedResponses({ 202, 204 })
+        @ExpectedResponses({ 200, 204 })
         @UnexpectedResponseExceptionType(ManagementException.class)
-        Mono<Response<Flux<ByteBuffer>>> delete(@HostParam("endpoint") String endpoint,
+        Mono<Response<Void>> delete(@HostParam("endpoint") String endpoint,
             @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
             @PathParam("resourceGroupName") String resourceGroupName,
             @PathParam("topLevelArmResourcePropertiesName") String topLevelArmResourcePropertiesName,
@@ -165,10 +165,10 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
 
         @Headers({ "Accept: application/json;q=0.9", "Content-Type: application/json" })
         @Delete("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmVersioned/topLevelArmResources/{topLevelArmResourcePropertiesName}")
-        @ExpectedResponses({ 202, 204 })
+        @ExpectedResponses({ 200, 204 })
         @UnexpectedResponseExceptionType(ManagementException.class)
-        Response<BinaryData> deleteSync(@HostParam("endpoint") String endpoint,
-            @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
+        Response<Void> deleteSync(@HostParam("endpoint") String endpoint, @QueryParam("api-version") String apiVersion,
+            @PathParam("subscriptionId") String subscriptionId,
             @PathParam("resourceGroupName") String resourceGroupName,
             @PathParam("topLevelArmResourcePropertiesName") String topLevelArmResourcePropertiesName,
             @QueryParam("parameter") String parameter, @QueryParam("newParameter") String newParameter,
@@ -1044,7 +1044,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Response<Flux<ByteBuffer>>> deleteWithResponseAsync(String resourceGroupName,
+    private Mono<Response<Void>> deleteWithResponseAsync(String resourceGroupName,
         String topLevelArmResourcePropertiesName, String parameter, String newParameter) {
         return FluxUtil
             .withContext(context -> service.delete(this.client.getEndpoint(), this.client.getApiVersion(),
@@ -1058,19 +1058,17 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
-     * @param parameter The parameter parameter.
-     * @param newParameter The newParameter parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body along with {@link Response}.
+     * @return A {@link Mono} that completes when a successful response is received.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Response<BinaryData> deleteWithResponse(String resourceGroupName, String topLevelArmResourcePropertiesName,
-        String parameter, String newParameter) {
-        return service.deleteSync(this.client.getEndpoint(), this.client.getApiVersion(),
-            this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourcePropertiesName, parameter,
-            newParameter, Context.NONE);
+    private Mono<Void> deleteAsync(String resourceGroupName, String topLevelArmResourcePropertiesName) {
+        final String parameter = null;
+        final String newParameter = null;
+        return deleteWithResponseAsync(resourceGroupName, topLevelArmResourcePropertiesName, parameter, newParameter)
+            .flatMap(ignored -> Mono.empty());
     }
 
     /**
@@ -1083,10 +1081,10 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body along with {@link Response}.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Response<BinaryData> deleteWithResponse(String resourceGroupName, String topLevelArmResourcePropertiesName,
+    public Response<Void> deleteWithResponse(String resourceGroupName, String topLevelArmResourcePropertiesName,
         String parameter, Context context) {
         final String newParameter = null;
         return service.deleteSync(this.client.getEndpoint(), this.client.getApiVersion(),
@@ -1105,191 +1103,14 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body along with {@link Response}.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Response<BinaryData> deleteWithResponse(String resourceGroupName, String topLevelArmResourcePropertiesName,
+    public Response<Void> deleteWithResponse(String resourceGroupName, String topLevelArmResourcePropertiesName,
         String parameter, String newParameter, Context context) {
         return service.deleteSync(this.client.getEndpoint(), this.client.getApiVersion(),
             this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourcePropertiesName, parameter,
             newParameter, context);
-    }
-
-    /**
-     * Delete a TopLevelArmResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
-     * @param parameter The parameter parameter.
-     * @param newParameter The newParameter parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link PollerFlux} for polling of long-running operation.
-     */
-    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    private PollerFlux<PollResult<Void>, Void> beginDeleteAsync(String resourceGroupName,
-        String topLevelArmResourcePropertiesName, String parameter, String newParameter) {
-        Mono<Response<Flux<ByteBuffer>>> mono
-            = deleteWithResponseAsync(resourceGroupName, topLevelArmResourcePropertiesName, parameter, newParameter);
-        return this.client.<Void, Void>getLroResult(mono, this.client.getHttpPipeline(), Void.class, Void.class,
-            this.client.getContext());
-    }
-
-    /**
-     * Delete a TopLevelArmResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link PollerFlux} for polling of long-running operation.
-     */
-    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    private PollerFlux<PollResult<Void>, Void> beginDeleteAsync(String resourceGroupName,
-        String topLevelArmResourcePropertiesName) {
-        final String parameter = null;
-        final String newParameter = null;
-        Mono<Response<Flux<ByteBuffer>>> mono
-            = deleteWithResponseAsync(resourceGroupName, topLevelArmResourcePropertiesName, parameter, newParameter);
-        return this.client.<Void, Void>getLroResult(mono, this.client.getHttpPipeline(), Void.class, Void.class,
-            this.client.getContext());
-    }
-
-    /**
-     * Delete a TopLevelArmResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
-     * @param parameter The parameter parameter.
-     * @param newParameter The newParameter parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of long-running operation.
-     */
-    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    public SyncPoller<PollResult<Void>, Void> beginDelete(String resourceGroupName,
-        String topLevelArmResourcePropertiesName, String parameter, String newParameter) {
-        Response<BinaryData> response
-            = deleteWithResponse(resourceGroupName, topLevelArmResourcePropertiesName, parameter, newParameter);
-        return this.client.<Void, Void>getLroResult(response, Void.class, Void.class, Context.NONE);
-    }
-
-    /**
-     * Delete a TopLevelArmResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
-     * @param parameter The parameter parameter.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of long-running operation.
-     */
-    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    public SyncPoller<PollResult<Void>, Void> beginDelete(String resourceGroupName,
-        String topLevelArmResourcePropertiesName, String parameter, Context context) {
-        Response<BinaryData> response
-            = deleteWithResponse(resourceGroupName, topLevelArmResourcePropertiesName, parameter, context);
-        return this.client.<Void, Void>getLroResult(response, Void.class, Void.class, context);
-    }
-
-    /**
-     * Delete a TopLevelArmResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of long-running operation.
-     */
-    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    public SyncPoller<PollResult<Void>, Void> beginDelete(String resourceGroupName,
-        String topLevelArmResourcePropertiesName) {
-        final String parameter = null;
-        final String newParameter = null;
-        Response<BinaryData> response
-            = deleteWithResponse(resourceGroupName, topLevelArmResourcePropertiesName, parameter, newParameter);
-        return this.client.<Void, Void>getLroResult(response, Void.class, Void.class, Context.NONE);
-    }
-
-    /**
-     * Delete a TopLevelArmResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
-     * @param parameter The parameter parameter.
-     * @param newParameter The newParameter parameter.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of long-running operation.
-     */
-    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    public SyncPoller<PollResult<Void>, Void> beginDelete(String resourceGroupName,
-        String topLevelArmResourcePropertiesName, String parameter, String newParameter, Context context) {
-        Response<BinaryData> response = deleteWithResponse(resourceGroupName, topLevelArmResourcePropertiesName,
-            parameter, newParameter, context);
-        return this.client.<Void, Void>getLroResult(response, Void.class, Void.class, context);
-    }
-
-    /**
-     * Delete a TopLevelArmResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
-     * @param parameter The parameter parameter.
-     * @param newParameter The newParameter parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return A {@link Mono} that completes when a successful response is received.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Void> deleteAsync(String resourceGroupName, String topLevelArmResourcePropertiesName, String parameter,
-        String newParameter) {
-        return beginDeleteAsync(resourceGroupName, topLevelArmResourcePropertiesName, parameter, newParameter).last()
-            .flatMap(this.client::getLroFinalResultOrError);
-    }
-
-    /**
-     * Delete a TopLevelArmResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return A {@link Mono} that completes when a successful response is received.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<Void> deleteAsync(String resourceGroupName, String topLevelArmResourcePropertiesName) {
-        final String parameter = null;
-        final String newParameter = null;
-        return beginDeleteAsync(resourceGroupName, topLevelArmResourcePropertiesName, parameter, newParameter).last()
-            .flatMap(this.client::getLroFinalResultOrError);
-    }
-
-    /**
-     * Delete a TopLevelArmResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
-     * @param parameter The parameter parameter.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void delete(String resourceGroupName, String topLevelArmResourcePropertiesName, String parameter,
-        Context context) {
-        beginDelete(resourceGroupName, topLevelArmResourcePropertiesName, parameter, context).getFinalResult();
     }
 
     /**
@@ -1305,26 +1126,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     public void delete(String resourceGroupName, String topLevelArmResourcePropertiesName) {
         final String parameter = null;
         final String newParameter = null;
-        beginDelete(resourceGroupName, topLevelArmResourcePropertiesName, parameter, newParameter).getFinalResult();
-    }
-
-    /**
-     * Delete a TopLevelArmResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
-     * @param parameter The parameter parameter.
-     * @param newParameter The newParameter parameter.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public void delete(String resourceGroupName, String topLevelArmResourcePropertiesName, String parameter,
-        String newParameter, Context context) {
-        beginDelete(resourceGroupName, topLevelArmResourcePropertiesName, parameter, newParameter, context)
-            .getFinalResult();
+        deleteWithResponse(resourceGroupName, topLevelArmResourcePropertiesName, parameter, newParameter, Context.NONE);
     }
 
     /**

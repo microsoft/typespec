@@ -96,19 +96,20 @@ public final class TopLevelArmResourcesImpl implements TopLevelArmResources {
         }
     }
 
-    public void delete(String resourceGroupName, String topLevelArmResourcePropertiesName, String parameter,
-        Context context) {
-        this.serviceClient().delete(resourceGroupName, topLevelArmResourcePropertiesName, parameter, context);
+    public Response<Void> deleteWithResponse(String resourceGroupName, String topLevelArmResourcePropertiesName,
+        String parameter, Context context) {
+        return this.serviceClient()
+            .deleteWithResponse(resourceGroupName, topLevelArmResourcePropertiesName, parameter, context);
+    }
+
+    public Response<Void> deleteWithResponse(String resourceGroupName, String topLevelArmResourcePropertiesName,
+        String parameter, String newParameter, Context context) {
+        return this.serviceClient()
+            .deleteWithResponse(resourceGroupName, topLevelArmResourcePropertiesName, parameter, newParameter, context);
     }
 
     public void delete(String resourceGroupName, String topLevelArmResourcePropertiesName) {
         this.serviceClient().delete(resourceGroupName, topLevelArmResourcePropertiesName);
-    }
-
-    public void delete(String resourceGroupName, String topLevelArmResourcePropertiesName, String parameter,
-        String newParameter, Context context) {
-        this.serviceClient()
-            .delete(resourceGroupName, topLevelArmResourcePropertiesName, parameter, newParameter, context);
     }
 
     public Response<Void> actionWithResponse(String resourceGroupName, String topLevelArmResourcePropertiesName,
@@ -178,11 +179,11 @@ public final class TopLevelArmResourcesImpl implements TopLevelArmResources {
         }
         String localParameter = null;
         String localNewParameter = null;
-        this.delete(resourceGroupName, topLevelArmResourcePropertiesName, localParameter, localNewParameter,
+        this.deleteWithResponse(resourceGroupName, topLevelArmResourcePropertiesName, localParameter, localNewParameter,
             Context.NONE);
     }
 
-    public void deleteByIdWithResponse(String id, String parameter, String newParameter, Context context) {
+    public Response<Void> deleteByIdWithResponse(String id, String parameter, String newParameter, Context context) {
         String resourceGroupName = ResourceManagerUtils.getValueFromIdByName(id, "resourceGroups");
         if (resourceGroupName == null) {
             throw LOGGER.logExceptionAsError(new IllegalArgumentException(
@@ -194,7 +195,8 @@ public final class TopLevelArmResourcesImpl implements TopLevelArmResources {
             throw LOGGER.logExceptionAsError(new IllegalArgumentException(
                 String.format("The resource ID '%s' is not valid. Missing path segment 'topLevelArmResources'.", id)));
         }
-        this.delete(resourceGroupName, topLevelArmResourcePropertiesName, parameter, newParameter, context);
+        return this.deleteWithResponse(resourceGroupName, topLevelArmResourcePropertiesName, parameter, newParameter,
+            context);
     }
 
     private TopLevelArmResourcesClient serviceClient() {

@@ -138,19 +138,10 @@ public interface TopLevelArmResources {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
      */
-    void delete(String resourceGroupName, String topLevelArmResourcePropertiesName, String parameter, Context context);
-
-    /**
-     * Delete a TopLevelArmResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    void delete(String resourceGroupName, String topLevelArmResourcePropertiesName);
+    Response<Void> deleteWithResponse(String resourceGroupName, String topLevelArmResourcePropertiesName,
+        String parameter, Context context);
 
     /**
      * Delete a TopLevelArmResource.
@@ -163,9 +154,21 @@ public interface TopLevelArmResources {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
      */
-    void delete(String resourceGroupName, String topLevelArmResourcePropertiesName, String parameter,
-        String newParameter, Context context);
+    Response<Void> deleteWithResponse(String resourceGroupName, String topLevelArmResourcePropertiesName,
+        String parameter, String newParameter, Context context);
+
+    /**
+     * Delete a TopLevelArmResource.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    void delete(String resourceGroupName, String topLevelArmResourcePropertiesName);
 
     /**
      * A synchronous resource action.
@@ -255,8 +258,9 @@ public interface TopLevelArmResources {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
      */
-    void deleteByIdWithResponse(String id, String parameter, String newParameter, Context context);
+    Response<Void> deleteByIdWithResponse(String id, String parameter, String newParameter, Context context);
 
     /**
      * Begins definition for a new TopLevelArmResource resource.
