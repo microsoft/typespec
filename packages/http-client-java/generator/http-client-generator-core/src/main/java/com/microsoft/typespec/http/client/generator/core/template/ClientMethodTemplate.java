@@ -169,10 +169,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             boolean optionalOmitted = !parameter.isRequired() && parameter.getClientType() != ClassType.CONTEXT;
             if (optionalOmitted) {
                 boolean parameterInClientMethodSignature = methodParameters.stream()
-                    .filter(p -> p.getProxyMethodParameter() == parameter)
-                    .findFirst()
-                    .map(p -> p.getClientMethodParameter())
-                    .isPresent();
+                    .anyMatch(p -> p.getProxyMethodParameter() == parameter);
                 // if the parameter is defined in client method signature,
                 // it does not need to be instantiated in local variable.
                 optionalOmitted = !parameterInClientMethodSignature;
