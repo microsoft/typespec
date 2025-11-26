@@ -1,5 +1,6 @@
 import type {
   DecoratorContext,
+  DecoratorPostValidator,
   Enum,
   EnumMember,
   Interface,
@@ -32,7 +33,7 @@ export type VersionedDecorator = (
   context: DecoratorContext,
   target: Namespace,
   versions: Enum,
-) => void;
+) => DecoratorPostValidator | void;
 
 /**
  * Identifies that a namespace or a given versioning enum member relies upon a versioned package.
@@ -63,7 +64,7 @@ export type UseDependencyDecorator = (
   context: DecoratorContext,
   target: EnumMember | Namespace,
   ...versionRecords: EnumMember[]
-) => void;
+) => DecoratorPostValidator | void;
 
 /**
  * Identifies when the target was added.
@@ -98,7 +99,7 @@ export type AddedDecorator = (
     | Scalar
     | Interface,
   version: EnumMember,
-) => void;
+) => DecoratorPostValidator | void;
 
 /**
  * Identifies when the target was removed.
@@ -133,7 +134,7 @@ export type RemovedDecorator = (
     | Scalar
     | Interface,
   version: EnumMember,
-) => void;
+) => DecoratorPostValidator | void;
 
 /**
  * Identifies when the target has been renamed.
@@ -160,7 +161,7 @@ export type RenamedFromDecorator = (
     | Interface,
   version: EnumMember,
   oldName: string,
-) => void;
+) => DecoratorPostValidator | void;
 
 /**
  * Identifies when a target was made optional.
@@ -179,7 +180,7 @@ export type MadeOptionalDecorator = (
   context: DecoratorContext,
   target: ModelProperty,
   version: EnumMember,
-) => void;
+) => DecoratorPostValidator | void;
 
 /**
  * Identifies when a target was made required.
@@ -198,7 +199,7 @@ export type MadeRequiredDecorator = (
   context: DecoratorContext,
   target: ModelProperty,
   version: EnumMember,
-) => void;
+) => DecoratorPostValidator | void;
 
 /**
  * Identifies when the target type changed.
@@ -211,7 +212,7 @@ export type TypeChangedFromDecorator = (
   target: ModelProperty,
   version: EnumMember,
   oldType: Type,
-) => void;
+) => DecoratorPostValidator | void;
 
 /**
  * Identifies when the target type changed.
@@ -224,7 +225,7 @@ export type ReturnTypeChangedFromDecorator = (
   target: Operation,
   version: EnumMember,
   oldType: Type,
-) => void;
+) => DecoratorPostValidator | void;
 
 export type TypeSpecVersioningDecorators = {
   versioned: VersionedDecorator;

@@ -1,4 +1,10 @@
-import type { DecoratorContext, Enum, ModelProperty, Type } from "@typespec/compiler";
+import type {
+  DecoratorContext,
+  DecoratorPostValidator,
+  Enum,
+  ModelProperty,
+  Type,
+} from "@typespec/compiler";
 
 /**
  * Provide the name of the XML element or attribute. This means the same thing as
@@ -23,7 +29,11 @@ import type { DecoratorContext, Enum, ModelProperty, Type } from "@typespec/comp
  * </XmlBook>
  * ```
  */
-export type NameDecorator = (context: DecoratorContext, target: Type, name: string) => void;
+export type NameDecorator = (
+  context: DecoratorContext,
+  target: Type,
+  name: string,
+) => DecoratorPostValidator | void;
 
 /**
  * Specify that the target property should be encoded as an XML attribute instead of node.
@@ -54,7 +64,10 @@ export type NameDecorator = (context: DecoratorContext, target: Type, name: stri
  * </Blob>
  * ```
  */
-export type AttributeDecorator = (context: DecoratorContext, target: ModelProperty) => void;
+export type AttributeDecorator = (
+  context: DecoratorContext,
+  target: ModelProperty,
+) => DecoratorPostValidator | void;
 
 /**
  * Specify that the target property shouldn't create a wrapper node. This can be used to flatten list nodes into the model node or to include raw text in the model node.
@@ -121,7 +134,10 @@ export type AttributeDecorator = (context: DecoratorContext, target: ModelProper
  * </BlobName>
  * ```
  */
-export type UnwrappedDecorator = (context: DecoratorContext, target: ModelProperty) => void;
+export type UnwrappedDecorator = (
+  context: DecoratorContext,
+  target: ModelProperty,
+) => DecoratorPostValidator | void;
 
 /**
  * Specify the XML namespace for this element. It can be used in 2 different ways:
@@ -164,12 +180,15 @@ export type NsDecorator = (
   target: Type,
   ns: Type,
   prefix?: string,
-) => void;
+) => DecoratorPostValidator | void;
 
 /**
  * Mark an enum as declaring XML namespaces. See `@ns`
  */
-export type NsDeclarationsDecorator = (context: DecoratorContext, target: Enum) => void;
+export type NsDeclarationsDecorator = (
+  context: DecoratorContext,
+  target: Enum,
+) => DecoratorPostValidator | void;
 
 export type TypeSpecXmlDecorators = {
   name: NameDecorator;

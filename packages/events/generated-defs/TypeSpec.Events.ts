@@ -1,4 +1,10 @@
-import type { DecoratorContext, ModelProperty, Union, UnionVariant } from "@typespec/compiler";
+import type {
+  DecoratorContext,
+  DecoratorPostValidator,
+  ModelProperty,
+  Union,
+  UnionVariant,
+} from "@typespec/compiler";
 
 /**
  * Specify that this union describes a set of events.
@@ -13,7 +19,10 @@ import type { DecoratorContext, ModelProperty, Union, UnionVariant } from "@type
  * }
  * ```
  */
-export type EventsDecorator = (context: DecoratorContext, target: Union) => void;
+export type EventsDecorator = (
+  context: DecoratorContext,
+  target: Union,
+) => DecoratorPostValidator | void;
 
 /**
  * Specifies the content type of the event envelope, event body, or event payload.
@@ -41,7 +50,7 @@ export type ContentTypeDecorator = (
   context: DecoratorContext,
   target: UnionVariant | ModelProperty,
   contentType: string,
-) => void;
+) => DecoratorPostValidator | void;
 
 /**
  * Identifies the payload of an event.
@@ -54,7 +63,10 @@ export type ContentTypeDecorator = (
  * }
  * ```
  */
-export type DataDecorator = (context: DecoratorContext, target: ModelProperty) => void;
+export type DataDecorator = (
+  context: DecoratorContext,
+  target: ModelProperty,
+) => DecoratorPostValidator | void;
 
 export type TypeSpecEventsDecorators = {
   events: EventsDecorator;

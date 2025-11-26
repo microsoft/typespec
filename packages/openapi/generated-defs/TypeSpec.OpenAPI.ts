@@ -1,4 +1,11 @@
-import type { DecoratorContext, Model, Namespace, Operation, Type } from "@typespec/compiler";
+import type {
+  DecoratorContext,
+  DecoratorPostValidator,
+  Model,
+  Namespace,
+  Operation,
+  Type,
+} from "@typespec/compiler";
 
 export interface AdditionalInfo {
   readonly [key: string]: unknown;
@@ -49,7 +56,7 @@ export type OperationIdDecorator = (
   context: DecoratorContext,
   target: Operation,
   operationId: string,
-) => void;
+) => DecoratorPostValidator | void;
 
 /**
  * Attach some custom data to the OpenAPI element generated from this type.
@@ -68,7 +75,7 @@ export type ExtensionDecorator = (
   target: Type,
   key: string,
   value: unknown,
-) => void;
+) => DecoratorPostValidator | void;
 
 /**
  * Specify that this model is to be treated as the OpenAPI `default` response.
@@ -82,7 +89,10 @@ export type ExtensionDecorator = (
  * op listPets(): Pet[] | PetStoreResponse;
  * ```
  */
-export type DefaultResponseDecorator = (context: DecoratorContext, target: Model) => void;
+export type DefaultResponseDecorator = (
+  context: DecoratorContext,
+  target: Model,
+) => DecoratorPostValidator | void;
 
 /**
  * Specify the OpenAPI `externalDocs` property for this type.
@@ -100,7 +110,7 @@ export type ExternalDocsDecorator = (
   target: Type,
   url: string,
   description?: string,
-) => void;
+) => DecoratorPostValidator | void;
 
 /**
  * Specify OpenAPI additional information.
@@ -112,7 +122,7 @@ export type InfoDecorator = (
   context: DecoratorContext,
   target: Namespace,
   additionalInfo: AdditionalInfo,
-) => void;
+) => DecoratorPostValidator | void;
 
 /**
  * Specify OpenAPI additional information.
@@ -131,7 +141,7 @@ export type TagMetadataDecorator = (
   target: Namespace,
   name: string,
   tagMetadata: TagMetadata,
-) => void;
+) => DecoratorPostValidator | void;
 
 export type TypeSpecOpenAPIDecorators = {
   operationId: OperationIdDecorator;

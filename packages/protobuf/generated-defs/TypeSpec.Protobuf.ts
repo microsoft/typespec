@@ -1,5 +1,6 @@
 import type {
   DecoratorContext,
+  DecoratorPostValidator,
   Interface,
   ModelProperty,
   Namespace,
@@ -17,7 +18,10 @@ import type {
  *
  * This decorator will force the emitter to check and emit a model.
  */
-export type MessageDecorator = (context: DecoratorContext, target: Type) => void;
+export type MessageDecorator = (
+  context: DecoratorContext,
+  target: Type,
+) => DecoratorPostValidator | void;
 
 /**
  * Defines the field index of a model property for conversion to a Protobuf
@@ -52,7 +56,7 @@ export type FieldDecorator = (
   context: DecoratorContext,
   target: ModelProperty,
   index: number,
-) => void;
+) => DecoratorPostValidator | void;
 
 /**
  * Reserve a field index, range, or name. If a field definition collides with a reservation, the emitter will produce
@@ -90,13 +94,16 @@ export type ReserveDecorator = (
   context: DecoratorContext,
   target: Type,
   ...reservations: (string | unknown | number)[]
-) => void;
+) => DecoratorPostValidator | void;
 
 /**
  * Declares that a TypeSpec interface constitutes a Protobuf service. The contents of the interface will be converted to
  * a `service` declaration in the resulting Protobuf file.
  */
-export type ServiceDecorator = (context: DecoratorContext, target: Interface) => void;
+export type ServiceDecorator = (
+  context: DecoratorContext,
+  target: Interface,
+) => DecoratorPostValidator | void;
 
 /**
  * Declares that a TypeSpec namespace constitutes a Protobuf package. The contents of the namespace will be emitted to a
@@ -108,7 +115,7 @@ export type PackageDecorator = (
   context: DecoratorContext,
   target: Namespace,
   details?: Type,
-) => void;
+) => DecoratorPostValidator | void;
 
 /**
  * Set the streaming mode of an operation. See [StreamMode](./data-types#TypeSpec.Protobuf.StreamMode) for more information.
@@ -125,7 +132,11 @@ export type PackageDecorator = (
  * op connectToMessageService(...Message): Message;
  * ```
  */
-export type StreamDecorator = (context: DecoratorContext, target: Operation, mode: Type) => void;
+export type StreamDecorator = (
+  context: DecoratorContext,
+  target: Operation,
+  mode: Type,
+) => DecoratorPostValidator | void;
 
 export type TypeSpecProtobufDecorators = {
   message: MessageDecorator;

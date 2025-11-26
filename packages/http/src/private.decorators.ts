@@ -20,6 +20,16 @@ import {
   HttpPartOptions,
   PlainDataDecorator,
 } from "../generated-defs/TypeSpec.Http.Private.js";
+import {
+  getCookieParamOptions,
+  getHeaderFieldOptions,
+  getPathOptions,
+  getQueryOptions,
+  isBody,
+  isBodyRoot,
+  isMultipartBodyProperty,
+  isStatusCode,
+} from "./decorators.js";
 import { HttpStateKeys, reportDiagnostic } from "./lib.js";
 import { HttpOperationFileBody } from "./types.js";
 
@@ -151,7 +161,72 @@ export const $httpFile: HttpFileDecorator = (context: DecoratorContext, target: 
 
     return undefined;
   }
+
+  return {
+    kind: "post",
+    validator: () => {
+      validateHttpFileModel(context.program, target);
+      return [];
+    },
+  };
 };
+
+function validateHttpFileModel(program: Program, model: Model) {
+  for (const prop of model.properties.values()) {
+    switch (prop.name) {
+      case "contentType":
+      case "contents": {
+        // Check if these properties have any HTTP metadata and if so, report an error
+        const annotations = {
+          header: getHeaderFieldOptions(program, prop),
+          cookie: getCookieParamOptions(program, prop),
+          query: getQueryOptions(program, prop),
+          path: getPathOptions(program, prop),
+          body: isBody(program, prop),
+          bodyRoot: isBodyRoot(program, prop),
+          multipartBody: isMultipartBodyProperty(program, prop),
+          statusCode: isStatusCode(program, prop),
+        };
+
+        reportDisallowed(prop, annotations);
+        break;
+      }
+      case "filename": {
+        const annotations = {
+          body: isBody(program, prop),
+          bodyRoot: isBodyRoot(program, prop),
+          multipartBody: isMultipartBodyProperty(program, prop),
+          statusCode: isStatusCode(program, prop),
+          cookie: getCookieParamOptions(program, prop),
+        };
+
+        reportDisallowed(prop, annotations);
+        break;
+      }
+      default:
+        reportDiagnostic(program, {
+          code: "http-file-extra-property",
+          format: { propName: prop.name },
+          target: prop,
+        });
+    }
+  }
+  for (const child of model.derivedModels) {
+    validateHttpFileModel(program, child);
+  }
+
+  function reportDisallowed(target: ModelProperty, annotations: Record<string, unknown>) {
+    const metadataEntries = Object.entries(annotations).filter((e) => !!e[1]);
+
+    for (const [metadataType] of metadataEntries) {
+      reportDiagnostic(program, {
+        code: "http-file-disallowed-metadata",
+        format: { propName: target.name, metadataType },
+        target: target,
+      });
+    }
+  }
+}
 
 /**
  * Check if the given type is an `HttpFile`

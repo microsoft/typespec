@@ -1,5 +1,6 @@
 import type {
   DecoratorContext,
+  DecoratorPostValidator,
   Interface,
   Model,
   Namespace,
@@ -15,7 +16,7 @@ export type ScenarioServiceDecorator = (
   target: Namespace,
   route: string,
   options?: Type,
-) => void;
+) => DecoratorPostValidator | void;
 
 /**
  * Mark an operation, interface or namespace as a scenario. All containing operations will be part of the same scenario.
@@ -24,7 +25,7 @@ export type ScenarioDecorator = (
   context: DecoratorContext,
   target: Namespace | Interface | Operation,
   name?: string,
-) => void;
+) => DecoratorPostValidator | void;
 
 /**
  * Specify documentation on how to implement this scenario.
@@ -37,7 +38,7 @@ export type ScenarioDocDecorator = (
   target: Namespace | Interface | Operation,
   doc: string,
   formatArgs?: Model,
-) => void;
+) => DecoratorPostValidator | void;
 
 export type TypeSpecSpectorDecorators = {
   scenarioService: ScenarioServiceDecorator;

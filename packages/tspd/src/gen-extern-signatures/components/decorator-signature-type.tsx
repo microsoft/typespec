@@ -1,4 +1,4 @@
-import { For, join, List, Refkey, refkey } from "@alloy-js/core";
+import { code, For, join, List, Refkey, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import {
   getSourceLocation,
@@ -58,7 +58,10 @@ export function DecoratorSignatureType(props: Readonly<DecoratorSignatureProps>)
       name={props.signature.typeName}
       doc={getDocComment(props.signature.decorator)}
     >
-      <ts.FunctionType parameters={parameters} />
+      <ts.FunctionType
+        parameters={parameters}
+        returnType={code`${typespecCompiler.DecoratorPostValidator} | void`}
+      />
     </ts.TypeDeclaration>
   );
 }

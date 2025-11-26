@@ -1,5 +1,6 @@
 import type {
   DecoratorContext,
+  DecoratorPostValidator,
   ModelProperty,
   Namespace,
   Numeric,
@@ -21,7 +22,7 @@ export type JsonSchemaDecorator = (
   context: DecoratorContext,
   target: Type,
   baseUri?: string,
-) => void;
+) => DecoratorPostValidator | void;
 
 /**
  * Set the base URI for any schemas emitted from types within this namespace.
@@ -32,7 +33,7 @@ export type BaseUriDecorator = (
   context: DecoratorContext,
   target: Namespace,
   baseUri: string,
-) => void;
+) => DecoratorPostValidator | void;
 
 /**
  * Specify the JSON Schema id. If this model or a parent namespace has a base URI,
@@ -42,12 +43,19 @@ export type BaseUriDecorator = (
  *
  * @param id The id of the JSON schema for this declaration.
  */
-export type IdDecorator = (context: DecoratorContext, target: Type, id: string) => void;
+export type IdDecorator = (
+  context: DecoratorContext,
+  target: Type,
+  id: string,
+) => DecoratorPostValidator | void;
 
 /**
  * Specify that `oneOf` should be used instead of `anyOf` for that union.
  */
-export type OneOfDecorator = (context: DecoratorContext, target: Union | ModelProperty) => void;
+export type OneOfDecorator = (
+  context: DecoratorContext,
+  target: Union | ModelProperty,
+) => DecoratorPostValidator | void;
 
 /**
  * Specify that the numeric type must be a multiple of some numeric value.
@@ -58,7 +66,7 @@ export type MultipleOfDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
   value: Numeric,
-) => void;
+) => DecoratorPostValidator | void;
 
 /**
  * Specify that the array must contain at least one instance of the provided type.
@@ -70,7 +78,7 @@ export type ContainsDecorator = (
   context: DecoratorContext,
   target: Type | ModelProperty,
   value: Type,
-) => void;
+) => DecoratorPostValidator | void;
 
 /**
  * Used in conjunction with the `@contains` decorator,
@@ -82,7 +90,7 @@ export type MinContainsDecorator = (
   context: DecoratorContext,
   target: Type | ModelProperty,
   value: number,
-) => void;
+) => DecoratorPostValidator | void;
 
 /**
  * Used in conjunction with the `@contains` decorator,
@@ -94,7 +102,7 @@ export type MaxContainsDecorator = (
   context: DecoratorContext,
   target: Type | ModelProperty,
   value: number,
-) => void;
+) => DecoratorPostValidator | void;
 
 /**
  * Specify that every item in the array must be unique.
@@ -102,7 +110,7 @@ export type MaxContainsDecorator = (
 export type UniqueItemsDecorator = (
   context: DecoratorContext,
   target: Type | ModelProperty,
-) => void;
+) => DecoratorPostValidator | void;
 
 /**
  * Specify the minimum number of properties this object can have.
@@ -113,7 +121,7 @@ export type MinPropertiesDecorator = (
   context: DecoratorContext,
   target: Type | ModelProperty,
   value: number,
-) => void;
+) => DecoratorPostValidator | void;
 
 /**
  * Specify the maximum number of properties this object can have.
@@ -124,7 +132,7 @@ export type MaxPropertiesDecorator = (
   context: DecoratorContext,
   target: Type | ModelProperty,
   value: number,
-) => void;
+) => DecoratorPostValidator | void;
 
 /**
  * Specify the encoding used for the contents of a string.
@@ -137,7 +145,7 @@ export type ContentEncodingDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
   value: string,
-) => void;
+) => DecoratorPostValidator | void;
 
 /**
  * Specify that the target array must begin with the provided types.
@@ -148,7 +156,7 @@ export type PrefixItemsDecorator = (
   context: DecoratorContext,
   target: Type | ModelProperty,
   value: Type,
-) => void;
+) => DecoratorPostValidator | void;
 
 /**
  * Specify the content type of content stored in a string.
@@ -159,7 +167,7 @@ export type ContentMediaTypeDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
   value: string,
-) => void;
+) => DecoratorPostValidator | void;
 
 /**
  * Specify the schema for the contents of a string when interpreted according to the content's
@@ -171,7 +179,7 @@ export type ContentSchemaDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
   value: Type,
-) => void;
+) => DecoratorPostValidator | void;
 
 /**
  * Specify a custom property to add to the emitted schema. This is useful for adding custom keywords
@@ -197,7 +205,7 @@ export type ExtensionDecorator = (
   target: Type,
   key: string,
   value: Type | unknown,
-) => void;
+) => DecoratorPostValidator | void;
 
 export type TypeSpecJsonSchemaDecorators = {
   jsonSchema: JsonSchemaDecorator;
