@@ -322,18 +322,6 @@ public interface TopLevelArmResource {
      * A synchronous resource action.
      * 
      * @param parameter The parameter parameter.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link Response}.
-     */
-    Response<Void> actionWithResponse(String parameter, Context context);
-
-    /**
-     * A synchronous resource action.
-     * 
-     * @param parameter The parameter parameter.
      * @param newParameter The newParameter parameter.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -342,6 +330,18 @@ public interface TopLevelArmResource {
      * @return the {@link Response}.
      */
     Response<Void> actionWithResponse(String parameter, String newParameter, Context context);
+
+    /**
+     * A synchronous resource action.
+     * 
+     * @param parameter The parameter parameter.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    Response<Void> actionWithResponse(String parameter, Context context);
 
     /**
      * A synchronous resource action.

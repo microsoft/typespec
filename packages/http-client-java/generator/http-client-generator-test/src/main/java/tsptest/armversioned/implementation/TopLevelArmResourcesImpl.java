@@ -27,11 +27,6 @@ public final class TopLevelArmResourcesImpl implements TopLevelArmResources {
         this.serviceManager = serviceManager;
     }
 
-    public PagedIterable<TopLevelArmResource> list(String parameter, Context context) {
-        PagedIterable<TopLevelArmResourceInner> inner = this.serviceClient().list(parameter, context);
-        return ResourceManagerUtils.mapPage(inner, inner1 -> new TopLevelArmResourceImpl(inner1, this.manager()));
-    }
-
     public PagedIterable<TopLevelArmResource> list() {
         PagedIterable<TopLevelArmResourceInner> inner = this.serviceClient().list();
         return ResourceManagerUtils.mapPage(inner, inner1 -> new TopLevelArmResourceImpl(inner1, this.manager()));
@@ -42,10 +37,8 @@ public final class TopLevelArmResourcesImpl implements TopLevelArmResources {
         return ResourceManagerUtils.mapPage(inner, inner1 -> new TopLevelArmResourceImpl(inner1, this.manager()));
     }
 
-    public PagedIterable<TopLevelArmResource> listByResourceGroup(String resourceGroupName, String parameter,
-        Context context) {
-        PagedIterable<TopLevelArmResourceInner> inner
-            = this.serviceClient().listByResourceGroup(resourceGroupName, parameter, context);
+    public PagedIterable<TopLevelArmResource> list(String parameter, Context context) {
+        PagedIterable<TopLevelArmResourceInner> inner = this.serviceClient().list(parameter, context);
         return ResourceManagerUtils.mapPage(inner, inner1 -> new TopLevelArmResourceImpl(inner1, this.manager()));
     }
 
@@ -61,10 +54,18 @@ public final class TopLevelArmResourcesImpl implements TopLevelArmResources {
         return ResourceManagerUtils.mapPage(inner, inner1 -> new TopLevelArmResourceImpl(inner1, this.manager()));
     }
 
+    public PagedIterable<TopLevelArmResource> listByResourceGroup(String resourceGroupName, String parameter,
+        Context context) {
+        PagedIterable<TopLevelArmResourceInner> inner
+            = this.serviceClient().listByResourceGroup(resourceGroupName, parameter, context);
+        return ResourceManagerUtils.mapPage(inner, inner1 -> new TopLevelArmResourceImpl(inner1, this.manager()));
+    }
+
     public Response<TopLevelArmResource> getByResourceGroupWithResponse(String resourceGroupName,
-        String topLevelArmResourcePropertiesName, String parameter, Context context) {
+        String topLevelArmResourcePropertiesName, String parameter, String newParameter, Context context) {
         Response<TopLevelArmResourceInner> inner = this.serviceClient()
-            .getByResourceGroupWithResponse(resourceGroupName, topLevelArmResourcePropertiesName, parameter, context);
+            .getByResourceGroupWithResponse(resourceGroupName, topLevelArmResourcePropertiesName, parameter,
+                newParameter, context);
         if (inner != null) {
             return new SimpleResponse<>(inner.getRequest(), inner.getStatusCode(), inner.getHeaders(),
                 new TopLevelArmResourceImpl(inner.getValue(), this.manager()));
@@ -74,10 +75,9 @@ public final class TopLevelArmResourcesImpl implements TopLevelArmResources {
     }
 
     public Response<TopLevelArmResource> getByResourceGroupWithResponse(String resourceGroupName,
-        String topLevelArmResourcePropertiesName, String parameter, String newParameter, Context context) {
+        String topLevelArmResourcePropertiesName, String parameter, Context context) {
         Response<TopLevelArmResourceInner> inner = this.serviceClient()
-            .getByResourceGroupWithResponse(resourceGroupName, topLevelArmResourcePropertiesName, parameter,
-                newParameter, context);
+            .getByResourceGroupWithResponse(resourceGroupName, topLevelArmResourcePropertiesName, parameter, context);
         if (inner != null) {
             return new SimpleResponse<>(inner.getRequest(), inner.getStatusCode(), inner.getHeaders(),
                 new TopLevelArmResourceImpl(inner.getValue(), this.manager()));
@@ -97,15 +97,15 @@ public final class TopLevelArmResourcesImpl implements TopLevelArmResources {
     }
 
     public Response<Void> deleteWithResponse(String resourceGroupName, String topLevelArmResourcePropertiesName,
-        String parameter, Context context) {
-        return this.serviceClient()
-            .deleteWithResponse(resourceGroupName, topLevelArmResourcePropertiesName, parameter, context);
-    }
-
-    public Response<Void> deleteWithResponse(String resourceGroupName, String topLevelArmResourcePropertiesName,
         String parameter, String newParameter, Context context) {
         return this.serviceClient()
             .deleteWithResponse(resourceGroupName, topLevelArmResourcePropertiesName, parameter, newParameter, context);
+    }
+
+    public Response<Void> deleteWithResponse(String resourceGroupName, String topLevelArmResourcePropertiesName,
+        String parameter, Context context) {
+        return this.serviceClient()
+            .deleteWithResponse(resourceGroupName, topLevelArmResourcePropertiesName, parameter, context);
     }
 
     public void delete(String resourceGroupName, String topLevelArmResourcePropertiesName) {
@@ -113,15 +113,15 @@ public final class TopLevelArmResourcesImpl implements TopLevelArmResources {
     }
 
     public Response<Void> actionWithResponse(String resourceGroupName, String topLevelArmResourcePropertiesName,
-        String parameter, Context context) {
-        return this.serviceClient()
-            .actionWithResponse(resourceGroupName, topLevelArmResourcePropertiesName, parameter, context);
-    }
-
-    public Response<Void> actionWithResponse(String resourceGroupName, String topLevelArmResourcePropertiesName,
         String parameter, String newParameter, Context context) {
         return this.serviceClient()
             .actionWithResponse(resourceGroupName, topLevelArmResourcePropertiesName, parameter, newParameter, context);
+    }
+
+    public Response<Void> actionWithResponse(String resourceGroupName, String topLevelArmResourcePropertiesName,
+        String parameter, Context context) {
+        return this.serviceClient()
+            .actionWithResponse(resourceGroupName, topLevelArmResourcePropertiesName, parameter, context);
     }
 
     public void action(String resourceGroupName, String topLevelArmResourcePropertiesName) {

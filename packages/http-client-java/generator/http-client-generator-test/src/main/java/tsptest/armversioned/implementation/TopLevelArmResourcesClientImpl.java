@@ -288,6 +288,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
      * @param resource Resource create parameters.
      * @param parameter The parameter parameter.
+     * @param newParameter The newParameter parameter.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
@@ -298,8 +299,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Response<BinaryData> createOrUpdateWithResponse(String resourceGroupName,
         String topLevelArmResourcePropertiesName, TopLevelArmResourceInner resource, String parameter,
-        Context context) {
-        final String newParameter = null;
+        String newParameter, Context context) {
         final String contentType = "application/json";
         final String accept = "application/json";
         return service.createOrUpdateSync(this.client.getEndpoint(), this.client.getApiVersion(),
@@ -314,7 +314,6 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
      * @param resource Resource create parameters.
      * @param parameter The parameter parameter.
-     * @param newParameter The newParameter parameter.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
@@ -325,7 +324,8 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Response<BinaryData> createOrUpdateWithResponse(String resourceGroupName,
         String topLevelArmResourcePropertiesName, TopLevelArmResourceInner resource, String parameter,
-        String newParameter, Context context) {
+        Context context) {
+        final String newParameter = null;
         final String contentType = "application/json";
         final String accept = "application/json";
         return service.createOrUpdateSync(this.client.getEndpoint(), this.client.getApiVersion(),
@@ -404,30 +404,6 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
             resource, parameter, newParameter);
         return this.client.<TopLevelArmResourceInner, TopLevelArmResourceInner>getLroResult(response,
             TopLevelArmResourceInner.class, TopLevelArmResourceInner.class, Context.NONE);
-    }
-
-    /**
-     * Create a TopLevelArmResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
-     * @param resource Resource create parameters.
-     * @param parameter The parameter parameter.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the {@link SyncPoller} for polling of concrete tracked resource types can be created by aliasing this
-     * type using a specific property type.
-     */
-    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    public SyncPoller<PollResult<TopLevelArmResourceInner>, TopLevelArmResourceInner> beginCreateOrUpdate(
-        String resourceGroupName, String topLevelArmResourcePropertiesName, TopLevelArmResourceInner resource,
-        String parameter, Context context) {
-        Response<BinaryData> response = createOrUpdateWithResponse(resourceGroupName, topLevelArmResourcePropertiesName,
-            resource, parameter, context);
-        return this.client.<TopLevelArmResourceInner, TopLevelArmResourceInner>getLroResult(response,
-            TopLevelArmResourceInner.class, TopLevelArmResourceInner.class, context);
     }
 
     /**
@@ -485,6 +461,30 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
      * @param resource Resource create parameters.
      * @param parameter The parameter parameter.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link SyncPoller} for polling of concrete tracked resource types can be created by aliasing this
+     * type using a specific property type.
+     */
+    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
+    public SyncPoller<PollResult<TopLevelArmResourceInner>, TopLevelArmResourceInner> beginCreateOrUpdate(
+        String resourceGroupName, String topLevelArmResourcePropertiesName, TopLevelArmResourceInner resource,
+        String parameter, Context context) {
+        Response<BinaryData> response = createOrUpdateWithResponse(resourceGroupName, topLevelArmResourcePropertiesName,
+            resource, parameter, context);
+        return this.client.<TopLevelArmResourceInner, TopLevelArmResourceInner>getLroResult(response,
+            TopLevelArmResourceInner.class, TopLevelArmResourceInner.class, context);
+    }
+
+    /**
+     * Create a TopLevelArmResource.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
+     * @param resource Resource create parameters.
+     * @param parameter The parameter parameter.
      * @param newParameter The newParameter parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
@@ -527,26 +527,6 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
      * @param resource Resource create parameters.
-     * @param parameter The parameter parameter.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return concrete tracked resource types can be created by aliasing this type using a specific property type.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public TopLevelArmResourceInner createOrUpdate(String resourceGroupName, String topLevelArmResourcePropertiesName,
-        TopLevelArmResourceInner resource, String parameter, Context context) {
-        return beginCreateOrUpdate(resourceGroupName, topLevelArmResourcePropertiesName, resource, parameter, context)
-            .getFinalResult();
-    }
-
-    /**
-     * Create a TopLevelArmResource.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
-     * @param resource Resource create parameters.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
@@ -580,6 +560,26 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         TopLevelArmResourceInner resource, String parameter, String newParameter, Context context) {
         return beginCreateOrUpdate(resourceGroupName, topLevelArmResourcePropertiesName, resource, parameter,
             newParameter, context).getFinalResult();
+    }
+
+    /**
+     * Create a TopLevelArmResource.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
+     * @param resource Resource create parameters.
+     * @param parameter The parameter parameter.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return concrete tracked resource types can be created by aliasing this type using a specific property type.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public TopLevelArmResourceInner createOrUpdate(String resourceGroupName, String topLevelArmResourcePropertiesName,
+        TopLevelArmResourceInner resource, String parameter, Context context) {
+        return beginCreateOrUpdate(resourceGroupName, topLevelArmResourcePropertiesName, resource, parameter, context)
+            .getFinalResult();
     }
 
     /**
@@ -659,26 +659,6 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      * List TopLevelArmResource resources by subscription ID.
      * 
      * @param parameter The parameter parameter.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response of a TopLevelArmResource list operation along with {@link PagedResponse}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    private PagedResponse<TopLevelArmResourceInner> listSinglePage(String parameter, Context context) {
-        final String newParameter = null;
-        final String accept = "application/json";
-        Response<TopLevelArmResourceListResult> res = service.listSync(this.client.getEndpoint(),
-            this.client.getApiVersion(), this.client.getSubscriptionId(), parameter, newParameter, accept, context);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
-            res.getValue().nextLink(), null);
-    }
-
-    /**
-     * List TopLevelArmResource resources by subscription ID.
-     * 
-     * @param parameter The parameter parameter.
      * @param newParameter The newParameter parameter.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -704,12 +684,16 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response of a TopLevelArmResource list operation as paginated response with {@link PagedIterable}.
+     * @return the response of a TopLevelArmResource list operation along with {@link PagedResponse}.
      */
-    @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<TopLevelArmResourceInner> list(String parameter, Context context) {
-        return new PagedIterable<>(() -> listSinglePage(parameter, context),
-            nextLink -> listBySubscriptionNextSinglePage(nextLink, context));
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    private PagedResponse<TopLevelArmResourceInner> listSinglePage(String parameter, Context context) {
+        final String newParameter = null;
+        final String accept = "application/json";
+        Response<TopLevelArmResourceListResult> res = service.listSync(this.client.getEndpoint(),
+            this.client.getApiVersion(), this.client.getSubscriptionId(), parameter, newParameter, accept, context);
+        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
+            res.getValue().nextLink(), null);
     }
 
     /**
@@ -741,6 +725,22 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<TopLevelArmResourceInner> list(String parameter, String newParameter, Context context) {
         return new PagedIterable<>(() -> listSinglePage(parameter, newParameter, context),
+            nextLink -> listBySubscriptionNextSinglePage(nextLink, context));
+    }
+
+    /**
+     * List TopLevelArmResource resources by subscription ID.
+     * 
+     * @param parameter The parameter parameter.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response of a TopLevelArmResource list operation as paginated response with {@link PagedIterable}.
+     */
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<TopLevelArmResourceInner> list(String parameter, Context context) {
+        return new PagedIterable<>(() -> listSinglePage(parameter, context),
             nextLink -> listBySubscriptionNextSinglePage(nextLink, context));
     }
 
@@ -830,29 +830,6 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      * 
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param parameter The parameter parameter.
-     * @param context The context to associate with this operation.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ManagementException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response of a TopLevelArmResource list operation along with {@link PagedResponse}.
-     */
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    private PagedResponse<TopLevelArmResourceInner> listByResourceGroupSinglePage(String resourceGroupName,
-        String parameter, Context context) {
-        final String newParameter = null;
-        final String accept = "application/json";
-        Response<TopLevelArmResourceListResult> res
-            = service.listByResourceGroupSync(this.client.getEndpoint(), this.client.getApiVersion(),
-                this.client.getSubscriptionId(), resourceGroupName, parameter, newParameter, accept, context);
-        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
-            res.getValue().nextLink(), null);
-    }
-
-    /**
-     * List TopLevelArmResource resources by resource group.
-     * 
-     * @param resourceGroupName The name of the resource group. The name is case insensitive.
-     * @param parameter The parameter parameter.
      * @param newParameter The newParameter parameter.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -880,13 +857,18 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response of a TopLevelArmResource list operation as paginated response with {@link PagedIterable}.
+     * @return the response of a TopLevelArmResource list operation along with {@link PagedResponse}.
      */
-    @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<TopLevelArmResourceInner> listByResourceGroup(String resourceGroupName, String parameter,
-        Context context) {
-        return new PagedIterable<>(() -> listByResourceGroupSinglePage(resourceGroupName, parameter, context),
-            nextLink -> listByResourceGroupNextSinglePage(nextLink, context));
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    private PagedResponse<TopLevelArmResourceInner> listByResourceGroupSinglePage(String resourceGroupName,
+        String parameter, Context context) {
+        final String newParameter = null;
+        final String accept = "application/json";
+        Response<TopLevelArmResourceListResult> res
+            = service.listByResourceGroupSync(this.client.getEndpoint(), this.client.getApiVersion(),
+                this.client.getSubscriptionId(), resourceGroupName, parameter, newParameter, accept, context);
+        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
+            res.getValue().nextLink(), null);
     }
 
     /**
@@ -923,6 +905,24 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
         String newParameter, Context context) {
         return new PagedIterable<>(
             () -> listByResourceGroupSinglePage(resourceGroupName, parameter, newParameter, context),
+            nextLink -> listByResourceGroupNextSinglePage(nextLink, context));
+    }
+
+    /**
+     * List TopLevelArmResource resources by resource group.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param parameter The parameter parameter.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response of a TopLevelArmResource list operation as paginated response with {@link PagedIterable}.
+     */
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<TopLevelArmResourceInner> listByResourceGroup(String resourceGroupName, String parameter,
+        Context context) {
+        return new PagedIterable<>(() -> listByResourceGroupSinglePage(resourceGroupName, parameter, context),
             nextLink -> listByResourceGroupNextSinglePage(nextLink, context));
     }
 
@@ -974,6 +974,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
      * @param parameter The parameter parameter.
+     * @param newParameter The newParameter parameter.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
@@ -982,8 +983,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<TopLevelArmResourceInner> getByResourceGroupWithResponse(String resourceGroupName,
-        String topLevelArmResourcePropertiesName, String parameter, Context context) {
-        final String newParameter = null;
+        String topLevelArmResourcePropertiesName, String parameter, String newParameter, Context context) {
         final String accept = "application/json";
         return service.getByResourceGroupSync(this.client.getEndpoint(), this.client.getApiVersion(),
             this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourcePropertiesName, parameter,
@@ -996,7 +996,6 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
      * @param parameter The parameter parameter.
-     * @param newParameter The newParameter parameter.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
@@ -1005,7 +1004,8 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<TopLevelArmResourceInner> getByResourceGroupWithResponse(String resourceGroupName,
-        String topLevelArmResourcePropertiesName, String parameter, String newParameter, Context context) {
+        String topLevelArmResourcePropertiesName, String parameter, Context context) {
+        final String newParameter = null;
         final String accept = "application/json";
         return service.getByResourceGroupSync(this.client.getEndpoint(), this.client.getApiVersion(),
             this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourcePropertiesName, parameter,
@@ -1077,6 +1077,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
      * @param parameter The parameter parameter.
+     * @param newParameter The newParameter parameter.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
@@ -1085,8 +1086,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> deleteWithResponse(String resourceGroupName, String topLevelArmResourcePropertiesName,
-        String parameter, Context context) {
-        final String newParameter = null;
+        String parameter, String newParameter, Context context) {
         return service.deleteSync(this.client.getEndpoint(), this.client.getApiVersion(),
             this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourcePropertiesName, parameter,
             newParameter, context);
@@ -1098,7 +1098,6 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
      * @param parameter The parameter parameter.
-     * @param newParameter The newParameter parameter.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
@@ -1107,7 +1106,8 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> deleteWithResponse(String resourceGroupName, String topLevelArmResourcePropertiesName,
-        String parameter, String newParameter, Context context) {
+        String parameter, Context context) {
+        final String newParameter = null;
         return service.deleteSync(this.client.getEndpoint(), this.client.getApiVersion(),
             this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourcePropertiesName, parameter,
             newParameter, context);
@@ -1175,6 +1175,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
      * @param parameter The parameter parameter.
+     * @param newParameter The newParameter parameter.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
@@ -1183,8 +1184,7 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> actionWithResponse(String resourceGroupName, String topLevelArmResourcePropertiesName,
-        String parameter, Context context) {
-        final String newParameter = null;
+        String parameter, String newParameter, Context context) {
         return service.actionSync(this.client.getEndpoint(), this.client.getApiVersion(),
             this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourcePropertiesName, parameter,
             newParameter, context);
@@ -1196,7 +1196,6 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      * @param resourceGroupName The name of the resource group. The name is case insensitive.
      * @param topLevelArmResourcePropertiesName The name of the TopLevelArmResourceProperties.
      * @param parameter The parameter parameter.
-     * @param newParameter The newParameter parameter.
      * @param context The context to associate with this operation.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ManagementException thrown if the request is rejected by server.
@@ -1205,7 +1204,8 @@ public final class TopLevelArmResourcesClientImpl implements TopLevelArmResource
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> actionWithResponse(String resourceGroupName, String topLevelArmResourcePropertiesName,
-        String parameter, String newParameter, Context context) {
+        String parameter, Context context) {
+        final String newParameter = null;
         return service.actionSync(this.client.getEndpoint(), this.client.getApiVersion(),
             this.client.getSubscriptionId(), resourceGroupName, topLevelArmResourcePropertiesName, parameter,
             newParameter, context);
