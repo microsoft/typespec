@@ -15,6 +15,7 @@ import {
 import { NodeHost } from "../core/node-host.js";
 import { typespecVersion } from "../manifest.js";
 import { createClientConfigProvider } from "./client-config-provider.js";
+import { ENABLE_LM_LOGGING } from "./constants.js";
 import { createServer } from "./serverlib.js";
 import { CustomRequestName, Server, ServerHost, ServerLog } from "./types.js";
 
@@ -152,6 +153,54 @@ function main() {
   documents.onDidChangeContent(profile(s.checkChange));
   documents.onDidClose(profile(s.documentClosed));
   documents.onDidOpen(profile(s.documentOpened));
+
+  let chatCompleteRequestId = 0;
+  const lmProvider = {
+    chatComplete: async (
+      messages: { role: "user" | "assist"; message: string }[],
+      modelName: string,
+    ): Promise<string | undefined> => {
+      const start = new Date();
+      const id = chatCompleteRequestId++;
+      const lmLogEnabled =
+        typeof process !== "undefined" &&
+        process?.env?.[ENABLE_LM_LOGGING]?.toLowerCase() === "true";
+      const lmLog = (log: ServerLog) => {
+        if (lmLogEnabled || log.level === "error" || log.level === "warning") {
+          host.log({
+            ...log,
+            message: `[ChatComplete #${id}] ${log.message}`,
+          });
+        }
+      };
+
+      lmLog({
+        level: "debug",
+        message: `[${start.toISOString()}] start sending custom/chatCompletion event`,
+      });
+      try {
+        return await connection.sendRequest("custom/chatCompletion", {
+          messages,
+          modelName,
+          id: id.toString(),
+        });
+      } catch (e) {
+        lmLog({
+          level: "error",
+          message: `chatComplete failed with error: ${inspect(e)}`,
+        });
+        return undefined;
+      } finally {
+        const end = new Date();
+        lmLog({
+          level: "debug",
+          message: `[${end.toISOString()}] custom/chatCompletion event finished in ${end.getTime() - start.getTime()} ms`,
+        });
+      }
+    },
+  };
+
+  (globalThis as any).TspExLmProvider = lmProvider;
 
   documents.listen(connection);
   connection.listen();

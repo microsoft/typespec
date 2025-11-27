@@ -16,6 +16,7 @@ import {
   TextDocumentIdentifier,
 } from "vscode-languageclient/node.js";
 import { TspConfigFileName } from "./const.js";
+import { sendLmChatRequest } from "./lm/language-model.js";
 import logger from "./log/logger.js";
 import telemetryClient from "./telemetry/telemetry-client.js";
 import { resolveTypeSpecServer } from "./tsp-executable-resolver.js";
@@ -269,6 +270,11 @@ export class TspLanguageClient {
     const name = "TypeSpec";
     const id = "typespec";
     const lc = new LanguageClient(id, name, { run: exe, debug: exe }, options);
+
+    lc.onRequest("custom/chatCompletion", (params) =>
+      sendLmChatRequest(params.messages, params.modelName, params.id),
+    );
+
     return new TspLanguageClient(lc, exe);
   }
 
