@@ -166,18 +166,19 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
 
             // If the parameter isn't required and the client method only uses required parameters, optional
             // parameters are omitted and will need to instantiated in the method.
-            boolean optionalOmitted = !parameter.isRequired() && parameter.getClientType() != ClassType.CONTEXT;
-            if (optionalOmitted) {
+            boolean optionalParameterToInitialize
+                = !parameter.isRequired() && parameter.getClientType() != ClassType.CONTEXT;
+            if (optionalParameterToInitialize) {
                 boolean parameterInClientMethodSignature
                     = methodParameters.stream().anyMatch(p -> p.getProxyMethodParameter() == parameter);
                 // if the parameter is defined in client method signature,
                 // it does not need to be instantiated in local variable.
-                optionalOmitted = !parameterInClientMethodSignature;
+                optionalParameterToInitialize = !parameterInClientMethodSignature;
             }
 
             // Optional variables and constants are always null if their wire type and client type differ and applying
             // conversions between the types is ignored.
-            boolean alwaysNull = parameterWireType != parameterClientType && optionalOmitted;
+            boolean alwaysNull = parameterWireType != parameterClientType && optionalParameterToInitialize;
 
             // Constants should be included if the parameter is a constant, and it's either required or optional
             // constants aren't generated as enums.
@@ -187,7 +188,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             // Client methods only add local variable instantiations when the parameter isn't passed by the caller,
             // isn't always null, is an optional parameter that was omitted or is a constant that is either required
             // or AutoRest isn't generating with optional constant as enums.
-            if (!alwaysNull && (optionalOmitted || includeConstant)) {
+            if (!alwaysNull && (optionalParameterToInitialize || includeConstant)) {
                 final String defaultValue = parameterDefaultValueExpression(parameter);
                 function.line("final %s %s = %s;", parameterClientType, parameter.getParameterReference(),
                     defaultValue == null ? "null" : defaultValue);
