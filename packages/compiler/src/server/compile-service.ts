@@ -16,6 +16,7 @@ import { parse } from "../core/parser.js";
 import { getBaseFileName, getDirectoryPath } from "../core/path-utils.js";
 import type { CompilerHost, TypeSpecScriptNode } from "../core/types.js";
 import { deepClone, distinctArray } from "../utils/misc.js";
+import { parseYaml } from "../yaml/parser.js";
 import { ClientConfigProvider } from "./client-config-provider.js";
 import { serverOptions } from "./constants.js";
 import { getDiagnosticRangeInTspConfig } from "./diagnostics.js";
@@ -243,7 +244,8 @@ export function createCompileService({
       if (err.name === "ExternalError" && err.info.kind === "emitter" && configFilePath) {
         const emitterName = err.info.metadata.name;
         if (config.file) {
-          range = getDiagnosticRangeInTspConfig(config.file, emitterName);
+          const [yamlScript] = parseYaml(config.file.file.text);
+          range = getDiagnosticRangeInTspConfig(yamlScript, emitterName);
         }
 
         uri = fileService.getURL(configFilePath);
