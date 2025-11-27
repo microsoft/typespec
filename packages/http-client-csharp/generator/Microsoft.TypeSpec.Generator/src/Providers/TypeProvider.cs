@@ -19,6 +19,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private Lazy<TypeProvider?> _customCodeView;
         private Lazy<TypeProvider?> _lastContractView;
         private Lazy<CanonicalTypeProvider> _canonicalView;
+        private Lazy<TypeProvider> _specView;
         private readonly InputType? _inputType;
 
         protected TypeProvider(InputType? inputType = default)
@@ -26,6 +27,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _customCodeView = new(() => BuildCustomCodeView());
             _canonicalView = new(BuildCanonicalView);
             _lastContractView = new(() => BuildLastContractView());
+            _specView = new(BuildSpecView);
             _inputType = inputType;
         }
 
@@ -49,8 +51,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 generatedTypeName ?? CustomCodeView?.Name ?? BuildName(),
                 DeclaringTypeProvider?.Type.Name);
 
+        private protected virtual TypeProvider BuildSpecView() => new SpecTypeProvider(this);
+
         public TypeProvider? CustomCodeView => _customCodeView.Value;
         public TypeProvider? LastContractView => _lastContractView.Value;
+        public TypeProvider SpecView => _specView.Value;
 
         private IReadOnlyList<PropertyProvider> BuildAllCustomProperties()
         {
@@ -198,6 +203,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected virtual CSharpType? BuildBaseType() => null;
 
+        private protected virtual bool FilterCustomizedMembers => true;
+
         public CSharpType? BaseType => _baseType ??= BuildBaseType() ?? CustomCodeView?.BaseType;
         private CSharpType? _baseType;
 
@@ -215,17 +222,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private IReadOnlyList<PropertyProvider>? _properties;
 
-        public IReadOnlyList<PropertyProvider> Properties => _properties ??= FilterCustomizedProperties(BuildProperties());
+        public IReadOnlyList<PropertyProvider> Properties => _properties ??= FilterCustomizedMembers ? FilterCustomizedProperties(BuildProperties()) : BuildProperties();
 
         private IReadOnlyList<MethodProvider>? _methods;
-        public IReadOnlyList<MethodProvider> Methods => _methods ??= FilterCustomizedMethods(BuildMethods());
+        public IReadOnlyList<MethodProvider> Methods => _methods ??= FilterCustomizedMembers ? FilterCustomizedMethods(BuildMethods()) : BuildMethods();
 
         private IReadOnlyList<ConstructorProvider>? _constructors;
 
-        public IReadOnlyList<ConstructorProvider> Constructors => _constructors ??= FilterCustomizedConstructors(BuildConstructors());
+        public IReadOnlyList<ConstructorProvider> Constructors => _constructors ??= FilterCustomizedMembers ? FilterCustomizedConstructors(BuildConstructors()) : BuildConstructors();
 
         private IReadOnlyList<FieldProvider>? _fields;
-        public IReadOnlyList<FieldProvider> Fields => _fields ??= FilterCustomizedFields(BuildFields());
+        public IReadOnlyList<FieldProvider> Fields => _fields ??= FilterCustomizedMembers ? FilterCustomizedFields(BuildFields()) : BuildFields();
 
         private IReadOnlyList<TypeProvider>? _nestedTypes;
         public IReadOnlyList<TypeProvider> NestedTypes => _nestedTypes ??= BuildNestedTypesInternal();
@@ -257,7 +264,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected virtual CSharpType[] GetTypeArguments() => [];
 
-        internal virtual PropertyProvider[] FilterCustomizedProperties(IEnumerable<PropertyProvider> specProperties)
+        internal PropertyProvider[] FilterCustomizedProperties(IEnumerable<PropertyProvider> specProperties)
         {
             var properties = new List<PropertyProvider>();
             var customProperties = new HashSet<string>();
@@ -291,7 +298,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return [..properties];
         }
 
-        internal virtual FieldProvider[] FilterCustomizedFields(IEnumerable<FieldProvider> specFields)
+        internal FieldProvider[] FilterCustomizedFields(IEnumerable<FieldProvider> specFields)
         {
             var fields = new List<FieldProvider>();
             var customFields = new HashSet<string>();
@@ -316,7 +323,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return [.. fields];
         }
 
-        internal virtual MethodProvider[] FilterCustomizedMethods(IEnumerable<MethodProvider> specMethods)
+        internal MethodProvider[] FilterCustomizedMethods(IEnumerable<MethodProvider> specMethods)
         {
             var methods = new List<MethodProvider>();
             foreach (var method in specMethods)
@@ -330,7 +337,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return [..methods];
         }
 
-        internal virtual ConstructorProvider[] FilterCustomizedConstructors(IEnumerable<ConstructorProvider> specConstructors)
+        internal ConstructorProvider[] FilterCustomizedConstructors(IEnumerable<ConstructorProvider> specConstructors)
         {
             var constructors = new List<ConstructorProvider>();
             foreach (var constructor in specConstructors)
@@ -358,15 +365,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return [.. nestedTypes];
         }
 
-        protected virtual PropertyProvider[] BuildProperties() => [];
+        protected internal virtual PropertyProvider[] BuildProperties() => [];
 
-        protected virtual FieldProvider[] BuildFields() => [];
+        protected internal virtual FieldProvider[] BuildFields() => [];
 
-        protected virtual CSharpType[] BuildImplements() => [];
+        protected internal virtual CSharpType[] BuildImplements() => [];
 
-        protected virtual MethodProvider[] BuildMethods() => [];
+        protected internal virtual MethodProvider[] BuildMethods() => [];
 
-        protected virtual ConstructorProvider[] BuildConstructors() => [];
+        protected internal virtual ConstructorProvider[] BuildConstructors() => [];
 
         protected virtual TypeProvider[] BuildNestedTypes() => [];
 
@@ -509,6 +516,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // Reset the custom code view to reflect the new namespace
                 _customCodeView = new(BuildCustomCodeView(Type.Name, @namespace));
                 _lastContractView = new(BuildLastContractView(Type.Name, @namespace));
+                _declarationModifiers = BuildDeclarationModifiersInternal(); // recalculate declaration modifiers
                 Type.Update(@namespace: _customCodeView.Value?.Type.Namespace ?? @namespace);
             }
 

@@ -3,11 +3,13 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
-import com.azure.core.util.CoreUtils;
+import static com.microsoft.typespec.http.client.generator.core.util.Constants.NEW_LINE;
+
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.AutorestSettings;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.projectmodel.Project;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,8 +22,6 @@ import org.yaml.snakeyaml.Yaml;
 public class SwaggerReadmeTemplate {
 
     private final StringBuilder builder = new StringBuilder();
-
-    private static final String NEW_LINE = System.lineSeparator();
 
     private static final Pattern MARKDOWN_YAML_BLOCK
         = Pattern.compile("```\\s?(?:yaml|YAML).*?\\n(.*?)```", Pattern.DOTALL);
@@ -99,10 +99,9 @@ public class SwaggerReadmeTemplate {
     private static Map<String, Object> removeDefaultOptions(Map<String, Object> objectNode) {
         Map<String, Object> filteredNode = new LinkedHashMap<>();
 
-        objectNode.entrySet().forEach(e -> {
-            String key = e.getKey();
-            if (!(DEFAULT_OPTIONS.containsKey(key) && Objects.equals(e.getValue(), DEFAULT_OPTIONS.get(key)))) {
-                filteredNode.put(e.getKey(), e.getValue());
+        objectNode.forEach((key, value) -> {
+            if (!(DEFAULT_OPTIONS.containsKey(key) && Objects.equals(value, DEFAULT_OPTIONS.get(key)))) {
+                filteredNode.put(key, value);
             }
         });
 
@@ -123,11 +122,9 @@ public class SwaggerReadmeTemplate {
                 Object yamlObj = yaml.load(yamlStr);
                 if (yamlObj instanceof Map) {
                     Map<String, Object> yamlMap = (Map<String, Object>) yamlObj;
-                    yamlMap.entrySet().forEach(e -> {
-                        if (e.getValue() instanceof String
-                            || e.getValue() instanceof Boolean
-                            || e.getValue() instanceof Integer) {
-                            defaultOptions.put(e.getKey(), e.getValue());
+                    yamlMap.forEach((key, value) -> {
+                        if (value instanceof String || value instanceof Boolean || value instanceof Integer) {
+                            defaultOptions.put(key, value);
                         }
                     });
                 }

@@ -3,8 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.util;
 
-import com.azure.core.http.rest.PagedIterable;
-import com.azure.core.http.rest.Response;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
@@ -20,7 +18,7 @@ public class TypeConversionUtils {
 
     /**
      * Get expression that converts the response of client method to the response of the collection method.
-     *
+     * <p>
      * It converts innerModel to implementation of resource model.
      * It transfers the conversion along chain of generic types.
      * It converts list and map to immutable.
@@ -61,7 +59,7 @@ public class TypeConversionUtils {
                     variableName, nestedPropertyName, conversionExpression(type.getValueType(), valuePropertyName));
         } else if (clientType instanceof GenericType) {
             GenericType type = (GenericType) clientType;
-            if (PagedIterable.class.getSimpleName().equals(type.getName())) {
+            if (ClassType.PAGED_ITERABLE.getName().equals(type.getName())) {
                 IType valueType = type.getTypeArguments()[0];
                 if (valueType instanceof ClassType) {
                     String nestedPropertyName = nextPropertyName(variableName);
@@ -69,7 +67,7 @@ public class TypeConversionUtils {
                         ModelNaming.CLASS_RESOURCE_MANAGER_UTILS, variableName, nestedPropertyName,
                         getModelImplName((ClassType) valueType), nestedPropertyName, ModelNaming.METHOD_MANAGER);
                 }
-            } else if (Response.class.getSimpleName().equals(type.getName())) {
+            } else if (ClassType.RESPONSE.getName().equals(type.getName())) {
                 IType valueType = type.getTypeArguments()[0];
                 if (valueType instanceof ClassType || valueType instanceof GenericType) {
                     String valuePropertyName = variableName + ".getValue()";
@@ -112,7 +110,7 @@ public class TypeConversionUtils {
         boolean ret = false;
         if (clientType instanceof GenericType) {
             GenericType type = (GenericType) clientType;
-            if (PagedIterable.class.getSimpleName().equals(type.getName())) {
+            if (ClassType.PAGED_ITERABLE.getName().equals(type.getName())) {
                 ret = true;
             }
         }
