@@ -448,6 +448,15 @@ public class ClientMethod {
     }
 
     /**
+     * Get the overloaded client method associated with this ClientMethod.
+     * 
+     * @return the overloaded client method.
+     */
+    public ClientMethod getOverloadedClientMethod() {
+        return overloadedClientMethod;
+    }
+
+    /**
      * Add this ClientMethod's imports to the provided set of imports.
      *
      * @param imports The set of imports to add to.

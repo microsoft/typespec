@@ -39,6 +39,8 @@ import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.http.models.HttpHeaderName;
 import io.clientcore.core.utils.CoreUtils;
+
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -142,6 +144,10 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         final List<ProxyMethodParameter> proxyMethodParameters = clientMethod.getProxyMethod().getParameters();
         List<com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.MethodParameter> methodParameters
             = MethodUtil.getParameters(clientMethod, false);
+        List<com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.MethodParameter> overloadedMethodParameters
+            = clientMethod.getOverloadedClientMethod() == null
+                ? Collections.emptyList()
+                : MethodUtil.getParameters(clientMethod.getOverloadedClientMethod(), false);
         for (ProxyMethodParameter parameter : proxyMethodParameters) {
             if (parameter.isFromClient()) {
                 // parameter is scoped to the client, hence no local variable instantiation for it.
@@ -164,16 +170,19 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 parameterWireType = ClassType.STRING;
             }
 
-            // If the parameter isn't required and the client method only uses required parameters, optional
-            // parameters are omitted and will need to instantiated in the method.
-            boolean optionalParameterToInitialize
-                = !parameter.isRequired() && parameter.getClientType() != ClassType.CONTEXT;
-            if (optionalParameterToInitialize) {
+            // If the parameter isn't required and the client method only uses required parameters,
+            // optional parameters will need to be locally instantiated in the method.
+            boolean optionalParameterToInitialize = !parameter.isRequired() && clientMethod.getOnlyRequiredParameters();
+            if (!parameter.isRequired() && clientMethod.getOverloadedClientMethod() != null) {
+                // for overload client method for versioning
                 boolean parameterInClientMethodSignature
                     = methodParameters.stream().anyMatch(p -> p.getProxyMethodParameter() == parameter);
+                boolean parameterInOverloadedClientMethodSignature
+                    = overloadedMethodParameters.stream().anyMatch(p -> p.getProxyMethodParameter() == parameter);
                 // if the parameter is defined in client method signature,
                 // it does not need to be instantiated in local variable.
-                optionalParameterToInitialize = !parameterInClientMethodSignature;
+                optionalParameterToInitialize
+                    = !parameterInClientMethodSignature && parameterInOverloadedClientMethodSignature;
             }
 
             // Optional variables and constants are always null if their wire type and client type differ and applying
