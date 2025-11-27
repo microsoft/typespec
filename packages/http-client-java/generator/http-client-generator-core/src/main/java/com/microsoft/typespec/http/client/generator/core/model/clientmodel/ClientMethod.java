@@ -115,6 +115,8 @@ public class ClientMethod {
     private final String argumentList;
     private final OperationInstrumentationInfo instrumentationInfo;
 
+    private final ClientMethod overloadedClientMethod;
+
     public ClientMethod.Builder newBuilder() {
         return new ClientMethod.Builder().description(description)
             .returnValue(returnValue)
@@ -137,7 +139,8 @@ public class ClientMethod {
             .methodDocumentation(externalDocumentation)
             .operationInstrumentationInfo(instrumentationInfo)
             .setCrossLanguageDefinitionId(crossLanguageDefinitionId)
-            .hasWithContextOverload(hasWithContextOverload);
+            .hasWithContextOverload(hasWithContextOverload)
+            .overloadedClientMethod(overloadedClientMethod);
     }
 
     /**
@@ -171,7 +174,7 @@ public class ClientMethod {
         JavaVisibility methodVisibilityInWrapperClient, ImplementationDetails implementationDetails,
         MethodPollingDetails methodPollingDetails, ExternalDocumentation externalDocumentation,
         String crossLanguageDefinitionId, boolean hasWithContextOverload,
-        OperationInstrumentationInfo instrumentationInfo) {
+        OperationInstrumentationInfo instrumentationInfo, ClientMethod overloadedClientMethod) {
         this.description = description;
         this.returnValue = returnValue;
         this.name = name;
@@ -216,6 +219,7 @@ public class ClientMethod {
         this.argumentList
             = getMethodParameters().stream().map(ClientMethodParameter::getName).collect(Collectors.joining(", "));
         this.instrumentationInfo = instrumentationInfo;
+        this.overloadedClientMethod = overloadedClientMethod;
     }
 
     @Override
@@ -633,6 +637,7 @@ public class ClientMethod {
         protected boolean hasWithContextOverload;
         protected boolean hidePageableParams;
         protected OperationInstrumentationInfo instrumentationInfo;
+        protected ClientMethod overloadedClientMethod;
 
         public Builder setCrossLanguageDefinitionId(String crossLanguageDefinitionId) {
             this.crossLanguageDefinitionId = crossLanguageDefinitionId;
@@ -883,6 +888,17 @@ public class ClientMethod {
         }
 
         /**
+         * Sets the overloaded client method associated with this ClientMethod.
+         *
+         * @param overloadedClientMethod the overloaded client method
+         * @return the Builder itself
+         */
+        public Builder overloadedClientMethod(ClientMethod overloadedClientMethod) {
+            this.overloadedClientMethod = overloadedClientMethod;
+            return this;
+        }
+
+        /**
          * @return an immutable ClientMethod instance with the configurations on this builder.
          */
         public ClientMethod build() {
@@ -891,7 +907,8 @@ public class ClientMethod {
                 clientReference, CollectionUtil.toImmutableList(requiredNullableParameterExpressions),
                 isGroupedParameterRequired, groupedParameterTypeName, methodPageDetails, parameterTransformations,
                 methodVisibility, methodVisibilityInWrapperClient, implementationDetails, methodPollingDetails,
-                externalDocumentation, crossLanguageDefinitionId, hasWithContextOverload, instrumentationInfo);
+                externalDocumentation, crossLanguageDefinitionId, hasWithContextOverload, instrumentationInfo,
+                overloadedClientMethod);
         }
     }
 }
