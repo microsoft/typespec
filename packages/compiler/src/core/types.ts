@@ -15,7 +15,6 @@ Value extends StringValue ? string
   : Value extends EnumValue ? EnumMember
   : Value extends NullValue ? null
   : Value extends ScalarValue ? Value
-  : Value extends UnknownValue ? null
   : Value
 
 /**
@@ -136,8 +135,7 @@ export type Type =
   | TemplateParameter
   | Tuple
   | Union
-  | UnionVariant
-  | FunctionType;
+  | UnionVariant;
 
 export type StdTypes = {
   // Models
@@ -331,7 +329,7 @@ export type Value =
   | ArrayValue
   | EnumValue
   | NullValue
-  | UnknownValue;
+  | FunctionValue;
 
 /** @internal */
 export type ValueWithTemplate = Value | TemplateValue;
@@ -397,9 +395,6 @@ export interface EnumValue extends BaseValue {
 export interface NullValue extends BaseValue {
   valueKind: "NullValue";
   value: null;
-}
-export interface UnknownValue extends BaseValue {
-  valueKind: "UnknownValue";
 }
 
 /**
@@ -596,7 +591,7 @@ export interface Namespace extends BaseType, DecoratedType {
    *
    * Order is implementation-defined and may change.
    */
-  functionDeclarations: Map<string, FunctionType>;
+  functionDeclarations: Map<string, FunctionValue>;
 }
 
 export type LiteralType = StringLiteral | NumericLiteral | BooleanLiteral;
@@ -711,8 +706,8 @@ export interface Decorator extends BaseType {
 /**
  * A function (`fn`) declared in the TypeSpec program.
  */
-export interface FunctionType extends BaseType {
-  kind: "Function";
+export interface FunctionValue extends BaseValue {
+  valueKind: "Function";
   node?: FunctionDeclarationStatementNode;
   /**
    * The function's name as declared in the TypeSpec source.
@@ -2212,9 +2207,18 @@ type ListenerForType<T extends Type> = T extends Type
 
 export type TypeListeners = UnionToIntersection<ListenerForType<Type>>;
 
+type ValueListener<V> = (context: V) => ListenerFlow | undefined | void;
+type exitValueListener<T extends string | number | symbol> = T extends string ? `exit${T}` : T;
+type ListenerForValue<V extends Value> = V extends Value
+  ? { [k in Uncapitalize<V["valueKind"]> | exitValueListener<V["valueKind"]>]?: ValueListener<V> }
+  : never;
+
+export type ValueListeners = UnionToIntersection<ListenerForValue<Value>>;
+
 export type SemanticNodeListener = {
   root?: (context: Program) => void | undefined;
-} & TypeListeners;
+} & TypeListeners &
+  ValueListeners;
 
 export type DiagnosticReportWithoutTarget<
   T extends { [code: string]: DiagnosticMessages },

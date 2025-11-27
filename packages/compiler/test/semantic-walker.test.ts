@@ -7,7 +7,7 @@ import {
   navigateType,
   navigateTypesInNamespace,
 } from "../src/core/semantic-walker.js";
-import { FunctionType } from "../src/core/types.js";
+import { FunctionValue } from "../src/core/types.js";
 import {
   Enum,
   Interface,
@@ -51,7 +51,7 @@ describe("compiler: semantic walker", () => {
       namespaces: [] as Namespace[],
       exitNamespaces: [] as Namespace[],
       operations: [] as Operation[],
-      functions: [] as FunctionType[],
+      functions: [] as FunctionValue[],
       exitOperations: [] as Operation[],
       tuples: [] as Tuple[],
       exitTuples: [] as Tuple[],

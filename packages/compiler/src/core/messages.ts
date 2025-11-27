@@ -545,7 +545,7 @@ const diagnostics = {
     messages: {
       default: "Function implementation returned an invalid result.",
       "invalid-value": paramMessage`Function implementation returned invalid JS value '${"value"}'.`,
-      unassignable: paramMessage`Implementation of function '${"name"}' returned ${"entityKind"} '${"return"}', which is not assignable to the declared return type '${"type"}'.`,
+      unassignable: paramMessage`Implementation of '${"name"}' returned ${"entityKind"} '${"return"}', which is not assignable to the declared return type '${"type"}'.`,
     },
   },
   "missing-implementation": {

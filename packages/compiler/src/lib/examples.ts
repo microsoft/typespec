@@ -61,13 +61,15 @@ export function serializeValueAsJson(
       return serializeObjectValueAsJson(program, value, type, diagnosticTarget);
     case "ScalarValue":
       return serializeScalarValueAsJson(program, value, type, encodeAs);
-    case "UnknownValue":
+    case "Function": {
+      // TODO/witemple improve diagnostic for unserializable values
       reportDiagnostic(program, {
         code: "unknown-value",
         messageId: "in-json",
         target: diagnosticTarget ?? value,
       });
       return null;
+    }
   }
 }
 

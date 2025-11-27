@@ -3,7 +3,7 @@ import { isTemplateDeclaration } from "./type-utils.js";
 import {
   Decorator,
   Enum,
-  FunctionType,
+  FunctionValue,
   Interface,
   ListenerFlow,
   Model,
@@ -21,6 +21,7 @@ import {
   TypeListeners,
   Union,
   UnionVariant,
+  Value,
 } from "./types.js";
 
 export interface NavigationOptions {
@@ -209,7 +210,7 @@ function navigateNamespaceType(namespace: Namespace, context: NavigationContext)
   context.emit("exitNamespace", namespace);
 }
 
-function checkVisited(visited: Set<any>, item: Type) {
+function checkVisited(visited: Set<any>, item: Type | Value) {
   if (visited.has(item)) {
     return true;
   }
@@ -399,59 +400,65 @@ function navigateScalarConstructor(type: ScalarConstructor, context: NavigationC
   if (context.emit("scalarConstructor", type) === ListenerFlow.NoRecursion) return;
 }
 
-function navigateFunctionDeclaration(type: FunctionType, context: NavigationContext) {
+function navigateFunctionDeclaration(type: FunctionValue, context: NavigationContext) {
   if (checkVisited(context.visited, type)) {
     return;
   }
   if (context.emit("function", type) === ListenerFlow.NoRecursion) return;
 }
 
-function navigateTypeInternal(type: Type, context: NavigationContext) {
-  switch (type.kind) {
-    case "Model":
-      return navigateModelType(type, context);
-    case "Scalar":
-      return navigateScalarType(type, context);
-    case "ModelProperty":
-      return navigateModelTypeProperty(type, context);
-    case "Namespace":
-      return navigateNamespaceType(type, context);
-    case "Interface":
-      return navigateInterfaceType(type, context);
-    case "Enum":
-      return navigateEnumType(type, context);
-    case "Operation":
-      return navigateOperationType(type, context);
-    case "Union":
-      return navigateUnionType(type, context);
-    case "UnionVariant":
-      return navigateUnionTypeVariant(type, context);
-    case "Tuple":
-      return navigateTupleType(type, context);
-    case "StringTemplate":
-      return navigateStringTemplate(type, context);
-    case "StringTemplateSpan":
-      return navigateStringTemplateSpan(type, context);
-    case "TemplateParameter":
-      return navigateTemplateParameter(type, context);
-    case "Decorator":
-      return navigateDecoratorDeclaration(type, context);
-    case "ScalarConstructor":
-      return navigateScalarConstructor(type, context);
-    case "Function":
-      return navigateFunctionDeclaration(type, context);
-    case "FunctionParameter":
-    case "Boolean":
-    case "EnumMember":
-    case "Intrinsic":
-    case "Number":
-    case "String":
-      return;
-    default:
-      // Dummy const to ensure we handle all types.
-      // If you get an error here, add a case for the new type you added
-      const _assertNever: never = type;
-      return;
+function navigateTypeInternal(entity: Type | Value, context: NavigationContext) {
+  if (entity.entityKind === "Type") {
+    switch (entity.kind) {
+      case "Model":
+        return navigateModelType(entity, context);
+      case "Scalar":
+        return navigateScalarType(entity, context);
+      case "ModelProperty":
+        return navigateModelTypeProperty(entity, context);
+      case "Namespace":
+        return navigateNamespaceType(entity, context);
+      case "Interface":
+        return navigateInterfaceType(entity, context);
+      case "Enum":
+        return navigateEnumType(entity, context);
+      case "Operation":
+        return navigateOperationType(entity, context);
+      case "Union":
+        return navigateUnionType(entity, context);
+      case "UnionVariant":
+        return navigateUnionTypeVariant(entity, context);
+      case "Tuple":
+        return navigateTupleType(entity, context);
+      case "StringTemplate":
+        return navigateStringTemplate(entity, context);
+      case "StringTemplateSpan":
+        return navigateStringTemplateSpan(entity, context);
+      case "TemplateParameter":
+        return navigateTemplateParameter(entity, context);
+      case "Decorator":
+        return navigateDecoratorDeclaration(entity, context);
+      case "ScalarConstructor":
+        return navigateScalarConstructor(entity, context);
+      case "FunctionParameter":
+      case "Boolean":
+      case "EnumMember":
+      case "Intrinsic":
+      case "Number":
+      case "String":
+        return;
+      default:
+        // Dummy const to ensure we handle all types.
+        // If you get an error here, add a case for the new type you added
+        const _assertNever: never = entity;
+        return;
+    }
+  } else {
+    if (entity.valueKind === "Function") {
+      return navigateFunctionDeclaration(entity, context);
+    }
+
+    return;
   }
 }
 

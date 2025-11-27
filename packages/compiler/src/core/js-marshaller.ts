@@ -11,14 +11,12 @@ import type {
   ObjectValuePropertyDescriptor,
   Scalar,
   Type,
-  UnknownValue,
   Value,
 } from "./types.js";
 
 export function marshalTypeForJs<T extends Value>(
   value: T,
   valueConstraint: Type | undefined,
-  onUnknown: (value: UnknownValue) => void,
 ): MarshalledValue<T> {
   switch (value.valueKind) {
     case "BooleanValue":
@@ -27,18 +25,20 @@ export function marshalTypeForJs<T extends Value>(
     case "NumericValue":
       return numericValueToJs(value, valueConstraint) as any;
     case "ObjectValue":
-      return objectValueToJs(value, onUnknown) as any;
+      return objectValueToJs(value) as any;
     case "ArrayValue":
-      return arrayValueToJs(value, onUnknown) as any;
-    case "EnumValue":
-      return value as any;
+      return arrayValueToJs(value) as any;
     case "NullValue":
       return null as any;
     case "ScalarValue":
+    case "EnumValue":
+    case "Function":
       return value as any;
-    case "UnknownValue":
-      onUnknown(value);
-      return null as any;
+    default:
+      compilerAssert(
+        false,
+        `Cannot marshal value of kind '${(value satisfies never as Value).valueKind}' to JS.`,
+      );
   }
 }
 
@@ -83,25 +83,22 @@ function numericValueToJs(type: NumericValue, valueConstraint: Type | undefined)
   return type.value;
 }
 
-function objectValueToJs(
-  type: ObjectValue,
-  onUnknown: (value: UnknownValue) => void,
-): Record<string, unknown> {
+function objectValueToJs(type: ObjectValue): Record<string, unknown> {
   const result: Record<string, unknown> = {};
   for (const [key, value] of type.properties) {
-    result[key] = marshalTypeForJs(value.value, undefined, onUnknown);
+    result[key] = marshalTypeForJs(value.value, undefined);
   }
   return result;
 }
-function arrayValueToJs(type: ArrayValue, onUnknown: (value: UnknownValue) => void) {
-  return type.values.map((x) => marshalTypeForJs(x, undefined, onUnknown));
+function arrayValueToJs(type: ArrayValue) {
+  return type.values.map((x) => marshalTypeForJs(x, undefined));
 }
 
 export function unmarshalJsToValue(
   program: Program,
   value: unknown,
   onInvalid: (value: unknown) => void,
-): Value {
+): Value | null {
   if (
     typeof value === "object" &&
     value !== null &&
@@ -152,8 +149,11 @@ export function unmarshalJsToValue(
 
     for (const item of value) {
       const itemValue = unmarshalJsToValue(program, item, onInvalid);
-      values.push(itemValue);
-      uniqueTypes.add(itemValue.type);
+
+      if (itemValue) {
+        values.push(itemValue);
+        uniqueTypes.add(itemValue.type);
+      }
     }
 
     return {
@@ -165,7 +165,10 @@ export function unmarshalJsToValue(
   } else if (typeof value === "object" && !("entityKind" in value)) {
     const properties: Map<string, ObjectValuePropertyDescriptor> = new Map();
     for (const [key, val] of Object.entries(value)) {
-      properties.set(key, { name: key, value: unmarshalJsToValue(program, val, onInvalid) });
+      const propertyValue = unmarshalJsToValue(program, val, onInvalid);
+      if (propertyValue) {
+        properties.set(key, { name: key, value: propertyValue });
+      }
     }
     return {
       entityKind: "Value",
@@ -182,10 +185,6 @@ export function unmarshalJsToValue(
     };
   } else {
     onInvalid(value);
-    return {
-      entityKind: "Value",
-      valueKind: "UnknownValue",
-      type: program.checker.neverType,
-    };
+    return null;
   }
 }

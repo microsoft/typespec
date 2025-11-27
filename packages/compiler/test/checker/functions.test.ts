@@ -209,7 +209,7 @@ describe("compiler: checker: functions", () => {
       expectDiagnostics(diagnostics, {
         code: "function-return",
         message:
-          "Implementation of function 'voidFn' returned value 'null', which is not assignable to the declared return type 'unknown'.",
+          "Implementation of 'fn voidFn' returned value 'null', which is not assignable to the declared return type 'unknown'.",
       });
       expectCalledWith("test");
     });
@@ -272,7 +272,7 @@ describe("compiler: checker: functions", () => {
       });
 
       strictEqual(p.type.kind, "Intrinsic");
-      strictEqual(p.type.name, "unknown");
+      strictEqual(p.type.name, "ErrorType");
     });
 
     it("errors if argument type mismatch (value)", async () => {
@@ -327,6 +327,24 @@ describe("compiler: checker: functions", () => {
         strictEqual(calledArgs?.[i].kind, "String");
         strictEqual(calledArgs?.[i].value, expectedLiterals[i - 1]);
       }
+    });
+
+    it("calls function bound to const", async () => {
+      const [{ p }, diagnostics] = (await runner.compileAndDiagnose(`
+        extern fn sum(...addends: valueof int32[]): valueof int32;
+
+        const f = sum;
+
+        model Observer {
+          @test p: int32 = f(1, 2, 3);
+        }
+      `)) as [{ p: ModelProperty }, Diagnostic[]];
+
+      expectDiagnosticEmpty(diagnostics);
+
+      strictEqual(p.defaultValue?.entityKind, "Value");
+      strictEqual(p.defaultValue.valueKind, "NumericValue");
+      strictEqual(p.defaultValue.value.asNumber(), 6);
     });
   });
 
@@ -938,7 +956,7 @@ describe("compiler: checker: functions", () => {
       expectDiagnostics(diagnostics, {
         code: "function-return",
         message:
-          "Implementation of function 'returnWrongEntityKind' returned value '\"string value\"', which is not assignable to the declared return type 'unknown'.",
+          "Implementation of 'fn returnWrongEntityKind' returned value '\"string value\"', which is not assignable to the declared return type 'unknown'.",
       });
     });
 
@@ -951,7 +969,7 @@ describe("compiler: checker: functions", () => {
       expectDiagnostics(diagnostics, {
         code: "function-return",
         message:
-          "Implementation of function 'returnWrongValueType' returned value '42', which is not assignable to the declared return type 'valueof string'.",
+          "Implementation of 'fn returnWrongValueType' returned value '42', which is not assignable to the declared return type 'valueof string'.",
       });
     });
 
@@ -1023,8 +1041,8 @@ describe("compiler: checker: functions", () => {
       `);
 
       expectDiagnostics(diagnostics, {
-        code: "invalid-type-ref",
-        message: "Can't use a function as a type",
+        code: "value-in-type",
+        message: "A value cannot be used as a type.",
       });
     });
   });
