@@ -1,6 +1,10 @@
-import type { Decorator } from "../../../compiler/src/core/types.js";
+import type { Decorator, FunctionType } from "../../../compiler/src/core/types.js";
+
+export type EntitySignature = DecoratorSignature | FunctionSignature;
 
 export interface DecoratorSignature {
+  kind: Decorator["kind"];
+
   /** Decorator name ()`@example `@foo`) */
   name: string;
 
@@ -11,4 +15,16 @@ export interface DecoratorSignature {
   typeName: string;
 
   decorator: Decorator;
+}
+
+export interface FunctionSignature {
+  kind: FunctionType["kind"];
+
+  /** Function name */
+  name: string;
+
+  /** TypeScript type name (@example `FooFunction`) */
+  typeName: string;
+
+  tspFunction: FunctionType;
 }

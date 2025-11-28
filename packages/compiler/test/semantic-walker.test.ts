@@ -7,6 +7,7 @@ import {
   navigateType,
   navigateTypesInNamespace,
 } from "../src/core/semantic-walker.js";
+import { FunctionType } from "../src/core/types.js";
 import {
   Enum,
   Interface,
@@ -50,6 +51,7 @@ describe("compiler: semantic walker", () => {
       namespaces: [] as Namespace[],
       exitNamespaces: [] as Namespace[],
       operations: [] as Operation[],
+      functions: [] as FunctionType[],
       exitOperations: [] as Operation[],
       tuples: [] as Tuple[],
       exitTuples: [] as Tuple[],
@@ -71,6 +73,10 @@ describe("compiler: semantic walker", () => {
       operation: (x) => {
         result.operations.push(x);
         return customListener?.operation?.(x);
+      },
+      function: (x) => {
+        result.functions.push(x);
+        return customListener?.function?.(x);
       },
       exitOperation: (x) => {
         result.exitOperations.push(x);
@@ -141,7 +147,14 @@ describe("compiler: semantic walker", () => {
     customListener?: SemanticNodeListener,
     options?: NavigationOptions,
   ) {
-    host.addTypeSpecFile("main.tsp", typespec);
+    host.addJsFile("main.js", {
+      $functions: {
+        Extern: {
+          foo() {},
+        },
+      },
+    });
+    host.addTypeSpecFile("main.tsp", `import "./main.js";\n\n${typespec}`);
 
     await host.compile("main.tsp", { nostdlib: true });
 
@@ -691,6 +704,17 @@ describe("compiler: semantic walker", () => {
       `);
 
       expect(results.models).toHaveLength(2);
+    });
+
+    it("include functions", async () => {
+      const results = await runNavigator(`
+        namespace Extern;
+
+        extern fn foo(): string;
+      `);
+
+      expect(results.functions).toHaveLength(1);
+      expect(results.functions[0].name).toBe("foo");
     });
   });
 });
