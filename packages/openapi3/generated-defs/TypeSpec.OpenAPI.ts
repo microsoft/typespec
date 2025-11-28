@@ -1,9 +1,18 @@
-import type { DecoratorContext, Model, ModelProperty, Union } from "@typespec/compiler";
+import type {
+  DecoratorContext,
+  DecoratorValidatorCallback,
+  Model,
+  ModelProperty,
+  Union,
+} from "@typespec/compiler";
 
 /**
  * Specify that `oneOf` should be used instead of `anyOf` for that union.
  */
-export type OneOfDecorator = (context: DecoratorContext, target: Union | ModelProperty) => void;
+export type OneOfDecorator = (
+  context: DecoratorContext,
+  target: Union | ModelProperty,
+) => DecoratorValidatorCallback | void;
 
 /**
  * Specify an external reference that should be used inside of emitting this type.
@@ -14,7 +23,7 @@ export type UseRefDecorator = (
   context: DecoratorContext,
   target: Model | ModelProperty,
   ref: string,
-) => void;
+) => DecoratorValidatorCallback | void;
 
 export type TypeSpecOpenAPIDecorators = {
   oneOf: OneOfDecorator;

@@ -1,5 +1,6 @@
 import type {
   DecoratorContext,
+  DecoratorValidatorCallback,
   Model,
   ModelProperty,
   Operation,
@@ -11,31 +12,31 @@ export type ResourceLocationDecorator = (
   context: DecoratorContext,
   target: Scalar,
   resourceType: Model,
-) => void;
+) => DecoratorValidatorCallback | void;
 
 export type ValidateHasKeyDecorator = (
   context: DecoratorContext,
   target: Type,
   value: Type,
-) => void;
+) => DecoratorValidatorCallback | void;
 
 export type ValidateIsErrorDecorator = (
   context: DecoratorContext,
   target: Type,
   value: Type,
-) => void;
+) => DecoratorValidatorCallback | void;
 
 export type ActionSegmentDecorator = (
   context: DecoratorContext,
   target: Operation,
   value: string,
-) => void;
+) => DecoratorValidatorCallback | void;
 
 export type ResourceTypeForKeyParamDecorator = (
   context: DecoratorContext,
   entity: ModelProperty,
   resourceType: Model,
-) => void;
+) => DecoratorValidatorCallback | void;
 
 export type TypeSpecRestPrivateDecorators = {
   resourceLocation: ResourceLocationDecorator;

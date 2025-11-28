@@ -322,6 +322,7 @@ export type {
   DecoratorContext,
   DecoratorFunction,
   DecoratorImplementations,
+  DecoratorValidatorCallback,
   DeprecatedDirective,
   Diagnostic,
   DiagnosticCreator,
