@@ -408,6 +408,9 @@ class OperationBase(  # pylint: disable=too-many-public-methods,too-many-instanc
         file_import.merge(self.get_request_builder_import(self.request_builder, async_mode, serialize_namespace))
         if self.overloads:
             file_import.add_submodule_import("typing", "overload", ImportType.STDLIB)
+            for overload in self.overloads:
+                if overload.parameters.has_body:
+                    file_import.merge(overload.parameters.body_parameter.type.imports(**kwargs))
         if self.code_model.options["models-mode"] == "dpg":
             relative_path = self.code_model.get_relative_import_path(
                 serialize_namespace, module_name="_utils.model_base"
