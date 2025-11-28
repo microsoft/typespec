@@ -38,7 +38,7 @@ keywords = ["azure", "azure sdk"]
 {% endif %}
 
 dependencies = [
-    {% if code_model.is_legacy %}
+    {% if code_model.is_legacy and not code_model.need_utils_serialization %}
     "msrest>={{ VERSION_MAP['msrest'] }}",
     {% else %}
     "isodate>={{ VERSION_MAP['isodate'] }}",
