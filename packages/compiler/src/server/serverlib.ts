@@ -521,15 +521,16 @@ export function createServer(
       return;
     }
 
+    // Add this method to resolve timing issues between renamed files and `fs.stat`
+    // to prevent `fs.stat` from getting the files before modification.
+    // Currently the test requires a delay of 300ms
+    await new Promise((resolve) => setTimeout(resolve, 300));
+
     // There will be no event triggered if the renamed file is not opened in vscode, also even when it's opened
     // there will be only closed and opened event triggered for the old and new file url, so send fire the update
     // explicitly here to make sure the change is not missed.
     void updateManager.scheduleUpdate({ uri: fileService.getURL(mainFile) }, "renamed");
 
-    // Add this method to resolve timing issues between renamed files and `fs.stat`
-    // to prevent `fs.stat` from getting the files before modification.
-    // Currently the test requires a delay of 300ms
-    await new Promise((resolve) => setTimeout(resolve, 300));
     const result = await compileInCoreMode({ uri: fileService.getURL(mainFile) });
     if (!result) {
       log({
