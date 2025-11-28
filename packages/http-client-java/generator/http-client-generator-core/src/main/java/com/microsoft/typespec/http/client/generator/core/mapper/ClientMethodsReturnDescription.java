@@ -229,9 +229,9 @@ public final class ClientMethodsReturnDescription {
         switch (methodType) {
             case LongRunningBeginSync:
                 if (settings.isFluent()) {
-                    final IType returnType = GenericType.syncPoller(GenericType.pollResult(syncReturnType.asNullable()),
-                        syncReturnType.asNullable());
-                    return createReturnValue(returnType, syncReturnType);
+                    IType resultType = getPollAndFinalTypeForFluent(pollingDetails);
+                    final IType returnType = GenericType.syncPoller(GenericType.pollResult(resultType), resultType);
+                    return createReturnValue(returnType, resultType);
                 } else if (settings.isAzureV2()) {
                     IType returnType = GenericType.syncPoller(pollingDetails.getPollResultType(),
                         pollingDetails.getFinalResultType());
@@ -243,18 +243,39 @@ public final class ClientMethodsReturnDescription {
                 }
             case LongRunningBeginAsync:
                 if (settings.isFluent()) {
-                    IType returnType = GenericType.pollerFlux(GenericType.pollResult(syncReturnType.asNullable()),
-                        syncReturnType.asNullable());
-                    return createReturnValue(returnType, syncReturnType);
+                    IType resultType = getPollAndFinalTypeForFluent(pollingDetails);
+                    IType returnType = GenericType.pollerFlux(GenericType.pollResult(resultType), resultType);
+                    return createReturnValue(returnType, resultType);
                 } else {
                     IType returnType = GenericType.pollerFlux(pollingDetails.getPollResultType(),
                         pollingDetails.getFinalResultType());
                     return createReturnValue(returnType, pollingDetails.getFinalResultType());
                 }
+            case LongRunningSync: {
+                IType resultType = getPollAndFinalTypeForFluent(pollingDetails);
+                return createReturnValue(resultType, resultType);
+            }
+
+            case LongRunningAsync: {
+                IType resultType = getPollAndFinalTypeForFluent(pollingDetails);
+                return createReturnValue(mono(resultType), resultType);
+            }
+
             default:
                 throw new IllegalArgumentException("Unsupported method type: " + methodType
                     + ". Use 'getReturnValue(ClientMethodType)' for non-'LongRunningBegin' method types.");
         }
+    }
+
+    private IType getPollAndFinalTypeForFluent(MethodPollingDetails pollingDetails) {
+        // TODO (weidxu): we may use "pollingDetails.getFinalResultType()" as 1st choice
+        IType resultType = syncReturnType.asNullable();
+        if (resultType == ClassType.VOID) {
+            if (pollingDetails.getFinalResultType() != ClassType.VOID) {
+                resultType = pollingDetails.getFinalResultType();
+            }
+        }
+        return resultType;
     }
 
     /**

@@ -8,6 +8,7 @@ import com.microsoft.typespec.http.client.generator.core.mapper.ClientMethodMapp
 import com.microsoft.typespec.http.client.generator.core.mapper.ClientMethodsReturnDescription;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodPollingDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentStatic;
@@ -124,9 +125,10 @@ public class FluentClientMethodMapper extends ClientMethodMapper {
             = methodVisibility(clientMethodType, MethodOverloadType.OVERLOAD_MINIMUM, false, isProtocolMethod);
         final JavaVisibility methodWithContextVisibility
             = methodVisibility(clientMethodType, defaultOverloadType, true, isProtocolMethod);
+        final MethodPollingDetails methodPollingDetails = baseMethod.getMethodPollingDetails();
 
         final ClientMethod lroGetFinalResultMethod = baseMethod.newBuilder()
-            .returnValue(methodsReturnDescription.getReturnValue(clientMethodType))
+            .returnValue(methodsReturnDescription.getReturnValue(clientMethodType, methodPollingDetails))
             .name(methodName)
             .onlyRequiredParameters(false)
             .type(clientMethodType)
