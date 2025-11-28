@@ -244,6 +244,7 @@ function addPagingInformation(
     nextLinkIsNested:
       method.pagingMetadata.nextLinkSegments && method.pagingMetadata.nextLinkSegments.length > 1,
     nextLinkReInjectedParameters,
+    nextLinkVerb: method.pagingMetadata.nextLinkVerb,
     itemType,
     description: method.doc ?? "",
     summary: method.summary,
