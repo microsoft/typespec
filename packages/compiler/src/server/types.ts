@@ -69,6 +69,11 @@ export interface ServerHost {
   readonly applyEdit: (
     paramOrEdit: ApplyWorkspaceEditParams | WorkspaceEdit,
   ) => Promise<ApplyWorkspaceEditResult>;
+  /**
+   * This debounce delay function is designed to reduce the running time of the test and should not be overridden during normal use.
+   * @returns debounce delay in milliseconds
+   * @internal
+   */
   readonly getDocumentUpdateDebounceDelay?: () => number;
 }
 
