@@ -141,12 +141,16 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
     protected static void addOptionalAndConstantVariables(JavaBlock function, ClientMethod clientMethod,
         JavaSettings settings) {
         final List<ProxyMethodParameter> proxyMethodParameters = clientMethod.getProxyMethod().getParameters();
+
+        // for client method that overload another method (of full parameters)
+        // clientMethod.getOverloadedClientMethod()
         List<com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.MethodParameter> methodParameters
             = MethodUtil.getParameters(clientMethod, false);
         List<com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.MethodParameter> overloadedMethodParameters
             = clientMethod.getOverloadedClientMethod() == null
                 ? Collections.emptyList()
                 : MethodUtil.getParameters(clientMethod.getOverloadedClientMethod(), false);
+
         for (ProxyMethodParameter parameter : proxyMethodParameters) {
             if (parameter.isFromClient()) {
                 // parameter is scoped to the client, hence no local variable instantiation for it.
@@ -173,13 +177,14 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             // optional parameters will need to be locally instantiated in the method.
             boolean optionalParameterToInitialize = !parameter.isRequired() && clientMethod.getOnlyRequiredParameters();
             if (!parameter.isRequired() && clientMethod.getOverloadedClientMethod() != null) {
-                // for overload client method for versioning
+                // for overload client method for versioning of "@added"
                 boolean parameterInClientMethodSignature
                     = methodParameters.stream().anyMatch(p -> p.getProxyMethodParameter() == parameter);
                 boolean parameterInOverloadedClientMethodSignature
                     = overloadedMethodParameters.stream().anyMatch(p -> p.getProxyMethodParameter() == parameter);
-                // if the parameter is defined in client method signature,
-                // it does not need to be instantiated in local variable.
+                // if the parameter is not defined in this client method,
+                // but it is defined in the overloaded client method (the one with full parameters),
+                // we would need to treat it as optional parameter and locally initialize it in this client method.
                 optionalParameterToInitialize
                     = !parameterInClientMethodSignature && parameterInOverloadedClientMethodSignature;
             }
