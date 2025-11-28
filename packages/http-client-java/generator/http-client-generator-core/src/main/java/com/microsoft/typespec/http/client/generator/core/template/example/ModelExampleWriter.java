@@ -123,8 +123,11 @@ public class ModelExampleWriter {
                 IType wireType = ((LiteralNode) node).getWireType();
 
                 addEqualsAssertion(
-                    wireType
-                        .convertToClientType(wireType.defaultValueExpression(((LiteralNode) node).getLiteralsValue())),
+                    wireType.convertToClientType(node.getObjectValue() == null
+                        ? wireType.defaultValueExpression()
+                        : wireType.defaultValueExpression(
+                            // We are already using wireType, thus wire value should be used, instead of client value.
+                            String.valueOf(node.getObjectValue()))),
                     getterCode, node.getClientType().asNullable() == ClassType.BOOLEAN);
             } else if (node instanceof ObjectNode) {
                 // additionalProperties
