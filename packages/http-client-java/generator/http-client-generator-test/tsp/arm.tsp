@@ -261,6 +261,17 @@ model NginxConfigurationRequest {
 
 model ChildResourceListResult is Azure.Core.Page<ChildResource>;
 
+@resource("resourceLroNoBody")
+model ResourceLroNoBody is TrackedResource<ResourceLroNoBodyProperties> {
+  ...ResourceNameParameter<ResourceLroNoBody>;
+}
+
+model ResourceLroNoBodyProperties {
+  @visibility(Lifecycle.Read)
+  @doc("The status of the last operation.")
+  provisioningState?: ProvisioningState;
+}
+
 //----------------------- Paths -----------------------
 @armResourceOperations
 interface ChildResourcesInterface
@@ -369,6 +380,19 @@ interface ImmutableResourceModel {
   >;
 }
 
+// LRO without body in response
+@armResourceOperations
+interface LroNoBody {
+  @put
+  createOrUpdate is Azure.ResourceManager.Legacy.CreateOrReplaceAsync<
+    ResourceLroNoBody,
+    Request = ResourceLroNoBody,
+    Response = ArmAcceptedLroResponse<LroHeaders = ArmCombinedLroHeaders<FinalResult = ResourceLroNoBody> &
+      Azure.Core.Foundations.RetryAfterHeader>
+  >;
+}
+
+// client configure
 @@clientName(TspTest.ArmResourceProvider, "ArmClient");
 @@clientName(ManagedMaintenanceWindowStatusContent, "ManagedMaintenanceWindowStatus");
 @@clientName(ModelInterfaceDifferentName, "ModelInterfaceSameName");
