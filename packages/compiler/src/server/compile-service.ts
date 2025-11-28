@@ -241,6 +241,7 @@ export function createCompileService({
 
       let uri = document.uri;
       let range: Range | undefined;
+      let externalErrorMessage = "External compiler error!";
       if (err.name === "ExternalError" && err.info.kind === "emitter" && configFilePath) {
         const emitterName = err.info.metadata.name;
         if (config.file) {
@@ -251,14 +252,11 @@ export function createCompileService({
         if (range === undefined) {
           const clientConfigEmit = clientConfigsProvider?.config?.lsp?.emit;
           if (clientConfigEmit && clientConfigEmit.includes(emitterName)) {
-            log({
-              level: "debug",
-              message: `The emitter '${emitterName}' causing the external error is enabled in IDE settings.`,
-            });
+            externalErrorMessage += ` [From emitter '${emitterName}' enabled in IDE settings]`;
           } else {
             log({
               level: "debug",
-              message: `The emitter '${emitterName}' causing the external error has no associated location.`,
+              message: `Unexpected situation, can't find emitter '${emitterName}' in either config file '${configFilePath}' or IDE settings`,
             });
           }
         } else {
@@ -266,6 +264,7 @@ export function createCompileService({
         }
       }
 
+      externalErrorMessage += "\n";
       serverHost.sendDiagnostics({
         uri,
         diagnostics: [
@@ -274,7 +273,7 @@ export function createCompileService({
             range: range ?? Range.create(0, 0, 0, 0),
             message:
               (err.name === "ExternalError"
-                ? "External compiler error!\n"
+                ? externalErrorMessage
                 : `Internal compiler error!\nFile issue at https://github.com/microsoft/typespec\n\n`) +
               err.stack,
           },
