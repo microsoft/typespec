@@ -229,7 +229,7 @@ public final class ClientMethodsReturnDescription {
         switch (methodType) {
             case LongRunningBeginSync:
                 if (settings.isFluent()) {
-                    IType resultType = getPollAndFinalTypeForFluent(pollingDetails);
+                    IType resultType = getPollAndFinalTypeForFluent(pollingDetails, true);
                     final IType returnType = GenericType.syncPoller(GenericType.pollResult(resultType), resultType);
                     return createReturnValue(returnType, resultType);
                 } else if (settings.isAzureV2()) {
@@ -243,7 +243,7 @@ public final class ClientMethodsReturnDescription {
                 }
             case LongRunningBeginAsync:
                 if (settings.isFluent()) {
-                    IType resultType = getPollAndFinalTypeForFluent(pollingDetails);
+                    IType resultType = getPollAndFinalTypeForFluent(pollingDetails, true);
                     IType returnType = GenericType.pollerFlux(GenericType.pollResult(resultType), resultType);
                     return createReturnValue(returnType, resultType);
                 } else {
@@ -252,12 +252,12 @@ public final class ClientMethodsReturnDescription {
                     return createReturnValue(returnType, pollingDetails.getFinalResultType());
                 }
             case LongRunningSync: {
-                IType resultType = getPollAndFinalTypeForFluent(pollingDetails);
+                IType resultType = getPollAndFinalTypeForFluent(pollingDetails, false);
                 return createReturnValue(resultType, resultType);
             }
 
             case LongRunningAsync: {
-                IType resultType = getPollAndFinalTypeForFluent(pollingDetails);
+                IType resultType = getPollAndFinalTypeForFluent(pollingDetails, true);
                 return createReturnValue(mono(resultType), resultType);
             }
 
@@ -267,15 +267,17 @@ public final class ClientMethodsReturnDescription {
         }
     }
 
-    private IType getPollAndFinalTypeForFluent(MethodPollingDetails pollingDetails) {
+    private IType getPollAndFinalTypeForFluent(MethodPollingDetails pollingDetails, boolean useNullableType) {
         // TODO (weidxu): we may use "pollingDetails.getFinalResultType()" as 1st choice
-        IType resultType = syncReturnType.asNullable();
-        if (resultType == ClassType.VOID) {
-            if (pollingDetails.getFinalResultType() != ClassType.VOID) {
+        IType resultType = syncReturnType;
+        if (resultType == ClassType.VOID || resultType == PrimitiveType.VOID) {
+            // no body in response, check final result from MethodPollingDetails
+            if (pollingDetails.getFinalResultType() != ClassType.VOID
+                && pollingDetails.getFinalResultType() != PrimitiveType.VOID) {
                 resultType = pollingDetails.getFinalResultType();
             }
         }
-        return resultType;
+        return useNullableType ? resultType.asNullable() : resultType;
     }
 
     /**
