@@ -14,7 +14,7 @@ public class LiteralNode extends ExampleNode {
     private String literalsValue;
 
     public LiteralNode(IType clientType, Object objectValue) {
-        this(clientType, null, objectValue);
+        this(clientType, clientType, objectValue);
     }
 
     public LiteralNode(IType clientType, IType wireType, Object objectValue) {
