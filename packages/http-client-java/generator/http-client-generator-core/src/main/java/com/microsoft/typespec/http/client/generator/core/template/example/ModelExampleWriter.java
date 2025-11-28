@@ -120,8 +120,11 @@ public class ModelExampleWriter {
         public void accept(ExampleNode node, String getterCode) {
             if (node instanceof LiteralNode) {
                 node.getClientType().addImportsTo(imports, false);
+                IType wireType = ((LiteralNode) node).getWireType();
 
-                addEqualsAssertion(node.getClientType().defaultValueExpression(((LiteralNode) node).getLiteralsValue()),
+                addEqualsAssertion(
+                    wireType
+                        .convertToClientType(wireType.defaultValueExpression(((LiteralNode) node).getLiteralsValue())),
                     getterCode, node.getClientType().asNullable() == ClassType.BOOLEAN);
             } else if (node instanceof ObjectNode) {
                 // additionalProperties

@@ -204,7 +204,7 @@ public class ModelExampleUtil {
      */
     private static ExampleNode defaultNode(IType clientType, IType wireType, Object exampleValue) {
         ExampleNode node;
-        LiteralNode literalNode = new LiteralNode(clientType, exampleValue);
+        LiteralNode literalNode = new LiteralNode(clientType, wireType, exampleValue);
         node = literalNode;
 
         if (exampleValue != null) {
@@ -292,7 +292,8 @@ public class ModelExampleUtil {
             if (ClassType.CONTEXT.equals(methodParameter.getClientMethodParameter().getClientType())) {
                 node = new LiteralNode(ClassType.CONTEXT, "").setLiteralsValue("");
             } else {
-                node = new LiteralNode(methodParameter.getClientMethodParameter().getClientType(), null);
+                node = new LiteralNode(methodParameter.getClientMethodParameter().getClientType(),
+                    methodParameter.getClientMethodParameter().getWireType(), null);
             }
         } else {
             node = parseNodeFromMethodParameter(methodParameter, exampleValue);
