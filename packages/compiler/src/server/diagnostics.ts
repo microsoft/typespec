@@ -43,6 +43,9 @@ export function convertDiagnosticToLsp(
     );
     root = getLocationInTspConfig(fileService, program.compilerOptions.config, emitterName);
     if (root === undefined) {
+      // If the emitter is enabled from clientConfig (i.e. vscode settings), append "[From IDE settings]" to the message,
+      // otherwise append [No associated location] because we can't figure out the related source location.
+      // Both will be shown in the top of current active doc because vscode requires a location when reporting diagnostics.
       message +=
         clientConfig?.lsp?.emit && emitterName && clientConfig.lsp.emit.includes(emitterName)
           ? " [From IDE settings]"

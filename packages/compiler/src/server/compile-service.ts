@@ -248,12 +248,21 @@ export function createCompileService({
           range = getDiagnosticRangeInTspConfig(yamlScript, emitterName);
         }
 
-        uri = fileService.getURL(configFilePath);
         if (range === undefined) {
-          log({
-            level: "debug",
-            message: `Unexpected situation, can't find emitter '${emitterName}' in config file '${configFilePath}'`,
-          });
+          const clientConfigEmit = clientConfigsProvider?.config?.lsp?.emit;
+          if (clientConfigEmit && clientConfigEmit.includes(emitterName)) {
+            log({
+              level: "debug",
+              message: `The emitter '${emitterName}' causing the external error is enabled in IDE settings.`,
+            });
+          } else {
+            log({
+              level: "debug",
+              message: `The emitter '${emitterName}' causing the external error has no associated location.`,
+            });
+          }
+        } else {
+          uri = fileService.getURL(configFilePath);
         }
       }
 
