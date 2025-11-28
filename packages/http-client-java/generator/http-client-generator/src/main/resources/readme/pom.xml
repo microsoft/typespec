@@ -50,7 +50,7 @@
                 <importOrder/>
                 <eclipse>
                   <version>4.21</version>
-                  <file>eclipse-format-azure-sdk-for-java.xml</file>
+                  <file>../eclipse-format-azure-sdk-for-java.xml</file>
                 </eclipse>
               </java>
             </configuration>

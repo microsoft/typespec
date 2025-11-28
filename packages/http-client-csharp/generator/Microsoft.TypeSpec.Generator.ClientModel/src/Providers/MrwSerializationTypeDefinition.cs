@@ -216,19 +216,36 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodProvider BuildExplicitFromClientResult()
         {
-            var result = new ParameterProvider("result", $"The {ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseType:C} to deserialize the {Type:C} from.", ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseType);
-            var modifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static | MethodSignatureModifiers.Explicit | MethodSignatureModifiers.Operator;
+            var result = new ParameterProvider(
+                ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ResponseParameterName,
+                $"The {ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseType:C} to deserialize the {Type:C} from.",
+                ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseType);
+            var modifiers = MethodSignatureModifiers.Public | MethodSignatureModifiers.Static |
+                            MethodSignatureModifiers.Explicit | MethodSignatureModifiers.Operator;
             // using PipelineResponse response = result.GetRawResponse();
-            var responseDeclaration = UsingDeclare("response", ScmCodeModelGenerator.Instance.TypeFactory.HttpResponseApi.HttpResponseType, result.ToApi<ClientResponseApi>().GetRawResponse(), out var response);
+            var response = result.ToApi<ClientResponseApi>();
+            MethodBodyStatement responseDeclaration;
+
+            // if the GetRawResponse is a no-op we don't need to declare a new variable
+            if (response.Original == response.GetRawResponse().Original)
+            {
+                responseDeclaration = MethodBodyStatement.Empty;
+            }
+            else
+            {
+                responseDeclaration = Declare("response", ScmCodeModelGenerator.Instance.TypeFactory.HttpResponseApi.HttpResponseType, result.ToApi<ClientResponseApi>().GetRawResponse(), out var responseVar);
+                response = responseVar.ToApi<ClientResponseApi>();
+            }
+
             MethodBodyStatement[] methodBody;
 
-            if (_model is ScmModelProvider { HasDynamicModelSupport: true })
+            if (_model is ScmModelProvider { IsDynamicModel: true })
             {
                 methodBody =
                 [
                     responseDeclaration,
                     Declare("data", typeof(BinaryData), response.Property(nameof(HttpResponseApi.Content)), out var dataVariable),
-                    UsingDeclare("document", typeof(JsonDocument), dataVariable.As<BinaryData>().Parse(), out var docVariable),
+                    UsingDeclare("document", typeof(JsonDocument), dataVariable.As<BinaryData>().Parse(ModelSerializationExtensionsSnippets.JsonDocumentOptions), out var docVariable),
                     Return(GetDeserializationMethodInvocationForType(_model, docVariable.As<JsonDocument>().RootElement(), dataVariable))
                 ];
             }
@@ -237,7 +254,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 methodBody =
                 [
                     responseDeclaration,
-                    UsingDeclare("document", typeof(JsonDocument), response.Property(nameof(HttpResponseApi.Content)).As<BinaryData>().Parse(), out var docVariable),
+                    UsingDeclare("document", typeof(JsonDocument), response.Property(nameof(HttpResponseApi.Content)).As<BinaryData>().Parse(ModelSerializationExtensionsSnippets.JsonDocumentOptions), out var docVariable),
                     Return(GetDeserializationMethodInvocationForType(_model, docVariable.As<JsonDocument>().RootElement()))
                 ];
             }
@@ -492,7 +509,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var methodName = $"Deserialize{_model.Name}";
             var signatureModifiers = MethodSignatureModifiers.Internal | MethodSignatureModifiers.Static;
-            List<ParameterProvider> parameters = _model is ScmModelProvider { HasDynamicModelSupport: true }
+            List<ParameterProvider> parameters = _model is ScmModelProvider { IsDynamicModel: true }
                 ? [_jsonElementDeserializationParam, _dataParameter, _serializationOptionsParameter]
                 : [_jsonElementDeserializationParam, _serializationOptionsParameter];
 
@@ -749,7 +766,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         propertyDeclarationStatements.Add(Declare(variableRef, new DictionaryExpression(property.Type, New.Instance(property.Type.PropertyInitializationType))));
                     }
                     else if (property.Name.Equals(ScmModelProvider.JsonPatchPropertyName) &&
-                        _model is ScmModelProvider { HasDynamicModelSupport: true })
+                        _model is ScmModelProvider { IsDynamicModel: true })
                     {
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
                         var patchAssignment = New.Instance<JsonPatch>(
@@ -816,7 +833,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ModelReaderWriterOptionsSnippets.JsonFormat,
                 new MethodBodyStatement[]
                 {
-                    new UsingScopeStatement(typeof(JsonDocument), "document", JsonDocumentSnippets.Parse(_dataParameter), out var jsonDocumentVar)
+                    new UsingScopeStatement(typeof(JsonDocument), "document", JsonDocumentSnippets.Parse(_dataParameter, ModelSerializationExtensionsSnippets.JsonDocumentOptions), out var jsonDocumentVar)
                     {
                         Return(GetDeserializationMethodInvocationForType(
                             typeForDeserialize,

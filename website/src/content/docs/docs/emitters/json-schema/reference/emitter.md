@@ -76,3 +76,13 @@ When true, emit all references as json schema files, even if the referenced type
 If true, then for models emitted as object schemas we default `unevaluatedProperties` to `{ not: {} }`,
 if not explicitly specified elsewhere.
 Default: `false`
+
+### `polymorphic-models-strategy`
+
+**Type:** `"ignore" | "oneOf" | "anyOf"`
+
+Strategy for emitting models with the @discriminator decorator:
+
+- ignore: Emit as regular object schema (default)
+- oneOf: Emit a oneOf schema with references to all derived models (closed union)
+- anyOf: Emit an anyOf schema with references to all derived models (open union)

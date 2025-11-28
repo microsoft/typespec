@@ -62,17 +62,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return [_tKey, _tValue];
         }
 
-        protected override FieldProvider[] BuildFields()
+        protected internal override FieldProvider[] BuildFields()
         {
             return [_innerDictionaryField];
         }
 
-        protected override CSharpType[] BuildImplements()
+        protected internal override CSharpType[] BuildImplements()
         {
             return [_IDictionary, _IReadOnlyDictionary];
         }
 
-        protected override ConstructorProvider[] BuildConstructors()
+        protected internal override ConstructorProvider[] BuildConstructors()
         {
             return
             [
@@ -123,7 +123,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return new ConstructorProvider(signature, Array.Empty<MethodBodyStatement>(), this);
         }
 
-        protected override PropertyProvider[] BuildProperties()
+        protected internal override PropertyProvider[] BuildProperties()
         {
             return new PropertyProvider[]
             {
@@ -227,7 +227,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return new MethodSignature(name, null, modifiers, returnType, null, parameters ?? Array.Empty<ParameterProvider>(), ExplicitInterface: explicitImpl);
         }
 
-        protected override MethodProvider[] BuildMethods()
+        protected internal override MethodProvider[] BuildMethods()
         {
             return new MethodProvider[]
             {

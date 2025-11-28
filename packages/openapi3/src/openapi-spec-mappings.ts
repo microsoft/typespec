@@ -17,6 +17,7 @@ import {
 import { ResolvedOpenAPI3EmitterOptions } from "./openapi.js";
 import { createSchemaEmitter3_0 } from "./schema-emitter-3-0.js";
 import { createSchemaEmitter3_1 } from "./schema-emitter-3-1.js";
+import { SSEModule } from "./sse-module.js";
 import { OpenAPI3Schema, OpenAPISchema3_1, SupportedOpenAPIDocuments } from "./types.js";
 import { VisibilityUsageTracker } from "./visibility-usage.js";
 import { XmlModule } from "./xml-module.js";
@@ -27,7 +28,11 @@ export type CreateSchemaEmitter = (props: {
   metadataInfo: MetadataInfo;
   visibilityUsage: VisibilityUsageTracker;
   options: ResolvedOpenAPI3EmitterOptions;
-  optionalDependencies: { jsonSchemaModule?: JsonSchemaModule; xmlModule?: XmlModule };
+  optionalDependencies: {
+    jsonSchemaModule?: JsonSchemaModule;
+    xmlModule?: XmlModule;
+    sseModule?: SSEModule;
+  };
 }) => AssetEmitter<OpenAPI3Schema | OpenAPISchema3_1, OpenAPI3EmitterOptions>;
 
 export interface OpenApiSpecSpecificProps {
@@ -66,6 +71,16 @@ export function getOpenApiSpecProps(specVersion: OpenAPIVersion): OpenApiSpecSpe
         isRawBinarySchema: isRawBinarySchema3_0,
       };
     case "3.1.0":
+      return {
+        applyEncoding: applyEncoding3_1,
+        createRootDoc(program, serviceType, serviceVersion) {
+          return createRoot(program, serviceType, specVersion, serviceVersion);
+        },
+        createSchemaEmitter: createSchemaEmitter3_1,
+        getRawBinarySchema: getRawBinarySchema3_1,
+        isRawBinarySchema: isRawBinarySchema3_1,
+      };
+    case "3.2.0":
       return {
         applyEncoding: applyEncoding3_1,
         createRootDoc(program, serviceType, serviceVersion) {

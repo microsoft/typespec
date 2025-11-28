@@ -1,7 +1,7 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { describe, expect, it } from "vitest";
 import { OpenAPI3Document } from "../src/types.js";
-import { worksFor } from "./works-for.js";
+import { supportedVersions, worksFor } from "./works-for.js";
 
 interface DiagnosticCheck {
   expectedDiagInvalidKey: string;
@@ -236,7 +236,7 @@ const testCases: Case[] = [
   },
 ];
 
-worksFor(["3.0.0", "3.1.0"], async (specHelpers) => {
+worksFor(supportedVersions, async (specHelpers) => {
   describe("Invalid component key", () => {
     it.each(testCases)(
       "$title should report diagnostics and replace by valid key",

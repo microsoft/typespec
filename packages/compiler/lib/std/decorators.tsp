@@ -196,6 +196,15 @@ extern dec minLength(target: string | ModelProperty, value: valueof integer);
  */
 extern dec maxLength(target: string | ModelProperty, value: valueof integer);
 
+/** Types that can have range limits */
+alias RangeLimitableTypes =
+  | numeric
+  | utcDateTime
+  | offsetDateTime
+  | plainDate
+  | plainTime
+  | duration;
+
 /**
  * Specify the minimum number of items this array should have.
  * @param value Minimum number
@@ -230,7 +239,10 @@ extern dec maxItems(target: unknown[] | ModelProperty, value: valueof integer);
  * scalar Age is int32;
  * ```
  */
-extern dec minValue(target: numeric | ModelProperty, value: valueof numeric);
+extern dec minValue(
+  target: RangeLimitableTypes | ModelProperty,
+  value: valueof RangeLimitableTypes
+);
 
 /**
  * Specify the maximum value this numeric type should be.
@@ -242,7 +254,10 @@ extern dec minValue(target: numeric | ModelProperty, value: valueof numeric);
  * scalar Age is int32;
  * ```
  */
-extern dec maxValue(target: numeric | ModelProperty, value: valueof numeric);
+extern dec maxValue(
+  target: RangeLimitableTypes | ModelProperty,
+  value: valueof RangeLimitableTypes
+);
 
 /**
  * Specify the minimum value this numeric type should be, exclusive of the given
@@ -255,7 +270,10 @@ extern dec maxValue(target: numeric | ModelProperty, value: valueof numeric);
  * scalar distance is float64;
  * ```
  */
-extern dec minValueExclusive(target: numeric | ModelProperty, value: valueof numeric);
+extern dec minValueExclusive(
+  target: RangeLimitableTypes | ModelProperty,
+  value: valueof RangeLimitableTypes
+);
 
 /**
  * Specify the maximum value this numeric type should be, exclusive of the given
@@ -268,7 +286,10 @@ extern dec minValueExclusive(target: numeric | ModelProperty, value: valueof num
  * scalar distance is float64;
  * ```
  */
-extern dec maxValueExclusive(target: numeric | ModelProperty, value: valueof numeric);
+extern dec maxValueExclusive(
+  target: RangeLimitableTypes | ModelProperty,
+  value: valueof RangeLimitableTypes
+);
 
 /**
  * Mark this value as a secret value that should be treated carefully to avoid exposure
@@ -510,11 +531,37 @@ enum BytesKnownEncoding {
  * Encoding for serializing arrays
  */
 enum ArrayEncoding {
-  /** Each values of the array is separated by a | */
+  /**
+   * Each value of the array is separated by a pipe character (|).
+   * Values can only contain | if the underlying protocol supports encoding them.
+   * - json -> error
+   * - http -> %7C
+   */
   pipeDelimited,
 
-  /** Each values of the array is separated by a <space> */
+  /**
+   * Each value of the array is separated by a space character.
+   * Values can only contain spaces if the underlying protocol supports encoding them.
+   * - json -> error
+   * - http -> %20
+   */
   spaceDelimited,
+
+  /**
+   * Each value of the array is separated by a comma (,).
+   * Values can only contain commas if the underlying protocol supports encoding them.
+   * - json -> error
+   * - http -> %2C
+   */
+  commaDelimited,
+
+  /**
+   * Each value of the array is separated by a newline character (\n).
+   * Values can only contain newlines if the underlying protocol supports encoding them.
+   * - json -> error
+   * - http -> %0A
+   */
+  newlineDelimited,
 }
 
 /**

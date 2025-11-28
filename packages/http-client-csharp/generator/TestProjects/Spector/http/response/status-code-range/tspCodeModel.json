@@ -314,6 +314,7 @@
           "crossLanguageDefinitionId": "Response.StatusCodeRange.endpoint"
         }
       ],
+      "initializedBy": 1,
       "decorators": [],
       "crossLanguageDefinitionId": "Response.StatusCodeRange",
       "apiVersions": []

@@ -1,8 +1,10 @@
+import { readdirSync } from "fs";
 import { rm } from "fs/promises";
-import fs from "node:fs";
+import fs, { rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { Locator, Page } from "playwright";
-import { CaseScreenshot, retry } from "./utils";
+import { RunOptions, runOrExit } from "../../../../internal-build-utils/dist/src/index.js";
+import { CaseScreenshot, npxCmd, repoRoot, retry, tempDir } from "./utils";
 
 /**
  * Waits for the specified text to appear on the page before proceeding.
@@ -135,4 +137,89 @@ export function readTspConfigFile(folderName: string) {
 export function restoreTspConfigFile(folderName: string, lines: string) {
   const filePath = path.join(folderName, "tspconfig.yaml");
   fs.writeFileSync(filePath, lines, "utf-8");
+}
+
+/**
+ * Pack those packages in the repoRoot needed for testing and prepare to be linked
+ * @returns packages path map
+ */
+export async function packPackages() {
+  await runOrExit("pnpm", ["-w", "pack:all"], { cwd: repoRoot, stdio: "ignore" });
+  const outputFolder = path.join(repoRoot, "/temp/artifacts");
+  const files = readdirSync(outputFolder);
+
+  function resolvePackage(start: string, notStart?: string): string {
+    const pkgName = files.find(
+      (x: string) => x.startsWith(start) && (!notStart || !x.startsWith(notStart)),
+    );
+    if (pkgName === undefined) {
+      throw new Error(`Cannot resolve package starting with "${start}"`);
+    }
+    return path.join(outputFolder, pkgName);
+  }
+
+  return {
+    "@typespec/compiler": resolvePackage("typespec-compiler-"),
+    "@typespec/openapi3": resolvePackage("typespec-openapi3-"),
+    "@typespec/http": resolvePackage("typespec-http-"),
+    "@typespec/http-client": resolvePackage("typespec-http-client-", "typespec-http-client-js-"),
+    "@typespec/http-client-js": resolvePackage("typespec-http-client-js-"),
+    "@typespec/streams": resolvePackage("typespec-streams-"),
+    "@typespec/rest": resolvePackage("typespec-rest-"),
+    "@typespec/emitter-framework": resolvePackage("typespec-emitter-framework-"),
+    "@typespec/openapi": resolvePackage("typespec-openapi-"),
+    "@typespec/asset-emitter": resolvePackage("typespec-asset-emitter-"),
+  };
+}
+
+/**
+ * Install those packages needed for testing in the EmitTypespecProject folder
+ * @param packages packages path map
+ */
+export async function packagesInstall(packages: { [x: string]: string }, testType: string) {
+  let testCurrentDir: string;
+  if (testType === "Emit") {
+    testCurrentDir = path.join(tempDir, "EmitTypespecProject");
+    const outputDir = path.join(testCurrentDir, "tsp-output");
+    rmSync(outputDir, { recursive: true, force: true });
+  } else if (testType === "Import") {
+    testCurrentDir = path.join(tempDir, "ImportTypespecProjectOpenApi3");
+  } else if (testType === "Preview") {
+    testCurrentDir = path.join(tempDir, "PreviewTypespecProject");
+  } else {
+    throw new Error(`Unknown testType: ${testType}`);
+  }
+  const packageJson = {
+    name: "@typespec/e2e-test-typespec-vscode",
+    dependencies: {
+      "@typespec/compiler": packages["@typespec/compiler"],
+      "@typespec/http": packages["@typespec/http"],
+      "@typespec/openapi3": packages["@typespec/openapi3"],
+      "@typespec/http-client-js": packages["@typespec/http-client-js"],
+      "@typespec/streams": packages["@typespec/streams"],
+      "@typespec/rest": packages["@typespec/rest"],
+      "@typespec/emitter-framework": packages["@typespec/emitter-framework"],
+      "@typespec/openapi": packages["@typespec/openapi"],
+      "@typespec/asset-emitter": packages["@typespec/asset-emitter"],
+    },
+    private: true,
+    overrides: {
+      // override to make sure to use local http-client package, otherwise it will be installed from npm registry and may
+      // cause issues from different version (i.e. multiple version alloy libraries being complained)
+      "@typespec/http-client": packages["@typespec/http-client"],
+    },
+  };
+  writeFileSync(path.join(testCurrentDir, "package.json"), JSON.stringify(packageJson, null, 2));
+
+  await runTypeSpec(packages["@typespec/compiler"], ["install"], { cwd: testCurrentDir });
+}
+
+/**
+ * Run typespec with npx
+ * @param compilerTgz The path to the TypeSpec compiler package tarball.
+ * @param args The arguments to pass to the TypeSpec compiler.
+ * @param options Additional options for running the command.
+ */
+export async function runTypeSpec(compilerTgz: string, args: any, options: RunOptions | undefined) {
+  await runOrExit(npxCmd, ["-y", "-p", compilerTgz, "tsp", ...args], { ...options });
 }

@@ -1,7 +1,7 @@
 import { createTypeSpecLibrary, JSONSchemaType, paramMessage } from "@typespec/compiler";
 
 export type FileType = "yaml" | "json";
-export type OpenAPIVersion = "3.0.0" | "3.1.0";
+export type OpenAPIVersion = "3.0.0" | "3.1.0" | "3.2.0";
 export type ExperimentalParameterExamplesStrategy = "data" | "serialized";
 export interface OpenAPI3EmitterOptions {
   /**
@@ -44,7 +44,7 @@ export interface OpenAPI3EmitterOptions {
    * If more than one version is specified, then the output file
    * will be created inside a directory matching each specification version.
    *
-   * @default ["v3.0"]
+   * @default ["3.0.0"]
    * @internal
    */
   "openapi-versions"?: OpenAPIVersion[];
@@ -167,16 +167,18 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
       ].join("\n"),
     },
     "openapi-versions": {
+      title: "OpenAPI Versions",
       type: "array",
       items: {
         type: "string",
-        enum: ["3.0.0", "3.1.0"],
+        enum: ["3.0.0", "3.1.0", "3.2.0"],
         nullable: true,
         description: "The versions of OpenAPI to emit. Defaults to `[3.0.0]`",
       },
       nullable: true,
       uniqueItems: true,
       minItems: 1,
+      default: ["3.0.0"],
     },
     "new-line": {
       type: "string",
@@ -395,6 +397,13 @@ export const $lib = createTypeSpecLibrary({
       severity: "warning",
       messages: {
         default: paramMessage`Invalid key '${"value"}' used in a fixed field of the Component object. Only alphanumerics, dot (.), hyphen (-), and underscore (_) characters are allowed in keys.`,
+      },
+    },
+    "streams-not-supported": {
+      severity: "warning",
+      messages: {
+        default:
+          "Streams with itemSchema are only fully supported in OpenAPI 3.2.0 or above. The response will be emitted without itemSchema. Consider using OpenAPI 3.2.0 for full stream support.",
       },
     },
   },

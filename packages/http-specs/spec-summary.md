@@ -71,6 +71,40 @@ Expects header 'x-ms-api-key': 'valid-key'
 
 Expects header 'authorization': 'Bearer https://security.microsoft.com/.default'
 
+### Documentation_Lists_bulletPointsOp
+
+- Endpoint: `get /documentation/lists/bullet-points/op`
+
+Test simple bullet points in documentation.
+Expected behavior: Should render properly formatted bullet lists.
+
+### Documentation_Lists_numbered
+
+- Endpoint: `get /documentation/lists/numbered`
+
+Test numbered lists.
+Expected behavior: Should render numbered list properly.
+
+### Documentation_TextFormatting_boldText
+
+- Endpoint: `get /documentation/text-formatting/bold`
+
+Expected behavior: Text between \*\* should render as bold.
+
+### Documentation_TextFormatting_combinedFormatting
+
+- Endpoint: `get /documentation/text-formatting/combined`
+
+Test combined bold and italic formatting.
+Expected behavior: Should handle nested and combined formatting.
+
+### Documentation_TextFormatting_italicText
+
+- Endpoint: `get /documentation/text-formatting/italic`
+
+Test italic text formatting using _single asterisks_.
+Expected behavior: Text between \* should render as italic.
+
 ### Encode_Bytes_Header_base64
 
 - Endpoint: `get /encode/bytes/header/base64`
@@ -3363,6 +3397,29 @@ Expected header parameters:
 - Endpoint: `post /special-headers/repeatability/immediateSuccess`
 
 Check we recognize Repeatability-Request-ID and Repeatability-First-Sent.
+
+### SpecialWords_ModelProperties_dictMethods
+
+- Endpoint: `get /special-words/model-properties/dict-methods`
+
+Verify that model properties can use names that are Python dict methods. These names (keys, items, values, etc.) may conflict with Python's dict class methods.
+
+Send
+
+```json
+{
+  "keys": "ok",
+  "items": "ok",
+  "values": "ok",
+  "popitem": "ok",
+  "clear": "ok",
+  "update": "ok",
+  "setdefault": "ok",
+  "pop": "ok",
+  "get": "ok",
+  "copy": "ok"
+}
+```
 
 ### SpecialWords_ModelProperties_sameAsModel
 

@@ -8,7 +8,7 @@ export function generateDocs(doc: string): string {
   if (doc.includes("*/")) {
     return `@doc(${stringLiteral(doc)})`;
   }
-  const split = splitNewlines(doc.replaceAll("@", "\\@"));
+  const split = splitNewlines(doc.replaceAll("@", "\\@").replaceAll("${", "\\${"));
   if (split.length === 1) {
     return `/** ${split[0]} */`;
   }

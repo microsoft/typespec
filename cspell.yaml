@@ -11,6 +11,9 @@ words:
   - alzimmer
   - amqp
   - AQID
+  - Arize
+  - arizeaiobservabilityeval
+  - Ablack
   - arraya
   - astimezone
   - astro
@@ -33,6 +36,8 @@ words:
   - cadl
   - cadleditor
   - cadleng
+  - Cblack
+  - Cbrown
   - cadlplayground
   - canonicalizer
   - clsx
@@ -156,11 +161,13 @@ words:
   - myname
   - mypy
   - nanos
+  - ncpu
   - nexted
   - nihao
   - nint
   - NODEFS
   - noformat
+  - nologo
   - noopener
   - noreferrer
   - nosec
@@ -226,8 +233,8 @@ words:
   - rtype
   - rushx
   - safeint
-  - sdkcore
   - SCME
+  - sdkcore
   - segmentof
   - serde
   - setuppy
@@ -289,6 +296,7 @@ words:
   - wday
   - weidxu
   - westus
+  - WHATWG
   - WINDOWSARMVMIMAGE
   - WINDOWSVMIMAGE
   - xiangyan

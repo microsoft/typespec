@@ -6882,7 +6882,8 @@
                 "next"
               ],
               "responseLocation": "Body"
-            }
+            },
+            "pageSizeParameterSegments": []
           }
         },
         {
@@ -6983,7 +6984,8 @@
                 "next"
               ],
               "responseLocation": "Body"
-            }
+            },
+            "pageSizeParameterSegments": []
           }
         },
         {
@@ -7128,7 +7130,8 @@
                 "nextToken"
               ],
               "responseLocation": "Body"
-            }
+            },
+            "pageSizeParameterSegments": []
           }
         },
         {
@@ -7285,7 +7288,8 @@
                 "next-token"
               ],
               "responseLocation": "Header"
-            }
+            },
+            "pageSizeParameterSegments": []
           }
         },
         {
@@ -7380,7 +7384,8 @@
           "pagingMetadata": {
             "itemPropertySegments": [
               "items"
-            ]
+            ],
+            "pageSizeParameterSegments": []
           }
         },
         {
@@ -7724,8 +7729,39 @@
           "skipUrlEncoding": false,
           "readOnly": false,
           "crossLanguageDefinitionId": "SampleTypeSpec.sampleTypeSpecUrl"
+        },
+        {
+          "$id": "561",
+          "kind": "method",
+          "name": "apiVersion",
+          "serializedName": "apiVersion",
+          "type": {
+            "$id": "562",
+            "kind": "string",
+            "name": "string",
+            "crossLanguageDefinitionId": "TypeSpec.string",
+            "decorators": []
+          },
+          "location": "",
+          "isApiVersion": true,
+          "defaultValue": {
+            "type": {
+              "$id": "563",
+              "kind": "string",
+              "name": "string",
+              "crossLanguageDefinitionId": "TypeSpec.string"
+            },
+            "value": "2024-08-16-preview"
+          },
+          "optional": false,
+          "scope": "Method",
+          "crossLanguageDefinitionId": "SampleTypeSpec.WithApiVersion.apiVersion",
+          "readOnly": false,
+          "access": "public",
+          "decorators": []
         }
       ],
+      "initializedBy": 1,
       "decorators": [],
       "crossLanguageDefinitionId": "SampleTypeSpec",
       "apiVersions": [

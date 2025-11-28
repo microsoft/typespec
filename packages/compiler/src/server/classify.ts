@@ -190,6 +190,7 @@ export function getSemanticTokens(ast: TypeSpecScriptNode): SemanticToken[] {
       case Token.DocText:
       case Token.Star:
       case Token.Identifier:
+      case Token.DocCodeSpan:
         return SemanticTokenKind.Comment;
       case Token.At:
         return defer;
@@ -201,6 +202,10 @@ export function getSemanticTokens(ast: TypeSpecScriptNode): SemanticToken[] {
   function classifyNode(node: Node) {
     switch (node.kind) {
       case SyntaxKind.DirectiveExpression:
+        const hashToken = tokens.get(node.target.pos - 1);
+        if (hashToken) {
+          hashToken.kind = SemanticTokenKind.Keyword;
+        }
         classify(node.target, SemanticTokenKind.Keyword);
         break;
       case SyntaxKind.TemplateParameterDeclaration:

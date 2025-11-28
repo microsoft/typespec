@@ -23,7 +23,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected override TypeSignatureModifiers BuildDeclarationModifiers() =>
             TypeSignatureModifiers.Internal | TypeSignatureModifiers.Class;
 
-        protected override CSharpType[] BuildImplements() => [typeof(Attribute)];
+        protected internal override CSharpType[] BuildImplements() => [typeof(Attribute)];
 
         protected override IReadOnlyList<AttributeStatement> BuildAttributes()
         {
@@ -38,7 +38,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 ])];
         }
 
-        protected override PropertyProvider[] BuildProperties() =>
+        protected internal override PropertyProvider[] BuildProperties() =>
         [
             new PropertyProvider(
                 $"Gets or sets the property name which these hooks should apply to.",
@@ -51,7 +51,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 $"Gets or sets the serialization name of the property.",
                 MethodSignatureModifiers.Public,
                 typeof(string),
-                "PropertySerializationName",
+                "SerializationName",
                 new AutoPropertyBody(true),
                 this),
             new PropertyProvider(
@@ -70,10 +70,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 this)
         ];
 
-        protected override ConstructorProvider[] BuildConstructors()
+        protected internal override ConstructorProvider[] BuildConstructors()
         {
             var propertyNameParameter = new ParameterProvider("propertyName", $"The property name which these hooks apply to.", typeof(string));
-            var propertySerializationNameParameter = new ParameterProvider("propertySerializationName", $"The serialization name of the property.", typeof(string));
+            var serializationNameParameter = new ParameterProvider("serializationName", $"The serialization name of the property.", typeof(string));
             return
             [
                 new ConstructorProvider(
@@ -81,11 +81,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     This.Property("PropertyName").Assign(propertyNameParameter).Terminate(),
                     this),
                 new ConstructorProvider(
-                    new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, [propertyNameParameter, propertySerializationNameParameter]),
+                    new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, [propertyNameParameter, serializationNameParameter]),
                     new[]
                     {
                         This.Property("PropertyName").Assign(propertyNameParameter).Terminate(),
-                        This.Property("PropertySerializationName").Assign(propertySerializationNameParameter).Terminate()
+                        This.Property("SerializationName").Assign(serializationNameParameter).Terminate()
                     },
                     this)
             ];

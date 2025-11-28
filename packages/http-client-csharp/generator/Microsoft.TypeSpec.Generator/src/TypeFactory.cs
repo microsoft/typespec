@@ -406,6 +406,35 @@ namespace Microsoft.TypeSpec.Generator
         private string? _primaryNamespace;
         public string PrimaryNamespace => _primaryNamespace ??= GetCleanNameSpace(CodeModelGenerator.Instance.InputLibrary.InputNamespace.Name);
 
+        public string ServiceName => _serviceName ??= BuildServiceName();
+        private string? _serviceName;
+
+        /// <summary>
+        /// Builds the service name which is used as the base name for various types.
+        /// </summary>
+        protected virtual string BuildServiceName()
+        {
+            var span = CodeModelGenerator.Instance.InputLibrary.InputNamespace.Name;
+            if (span.IndexOf('.') == -1)
+            {
+                return CodeModelGenerator.Instance.InputLibrary.InputNamespace.Name;
+            }
+
+            Span<char> dest = stackalloc char[span.Length];
+            int j = 0;
+
+            for (int i = 0; i < span.Length; i++)
+            {
+                if (span[i] != '.')
+                {
+                    dest[j] = span[i];
+                    j++;
+                }
+            }
+
+            return dest[..j].ToString();
+        }
+
         public string GetCleanNameSpace(string clientNamespace)
         {
             Span<char> dest = stackalloc char[clientNamespace.Length + GetSegmentCount(clientNamespace)];
@@ -415,25 +444,27 @@ namespace Microsoft.TypeSpec.Generator
             while (nextDot != -1)
             {
                 var segment = source.Slice(0, nextDot);
-                if (IsSpecialSegment(segment))
+                var segmentStr = segment.ToString();
+                var cleanedSegment = segmentStr.ToIdentifierName();
+                if (IsSpecialSegment(cleanedSegment))
                 {
-                    dest[destIndex] = '_';
-                    destIndex++;
+                    cleanedSegment = "_" + cleanedSegment;
                 }
-                segment.CopyTo(dest.Slice(destIndex));
-                destIndex += segment.Length;
+                cleanedSegment.AsSpan().CopyTo(dest.Slice(destIndex));
+                destIndex += cleanedSegment.Length;
                 dest[destIndex] = '.';
                 destIndex++;
                 source = source.Slice(nextDot + 1);
                 nextDot = source.IndexOf('.');
             }
-            if (IsSpecialSegment(source))
+            var lastSegmentStr = source.ToString();
+            var cleanedLastSegment = lastSegmentStr.ToIdentifierName();
+            if (IsSpecialSegment(cleanedLastSegment))
             {
-                dest[destIndex] = '_';
-                destIndex++;
+                cleanedLastSegment = "_" + cleanedLastSegment;
             }
-            source.CopyTo(dest.Slice(destIndex));
-            destIndex += source.Length;
+            cleanedLastSegment.AsSpan().CopyTo(dest.Slice(destIndex));
+            destIndex += cleanedLastSegment.Length;
             return dest.Slice(0, destIndex).ToString();
         }
 
@@ -449,6 +480,8 @@ namespace Microsoft.TypeSpec.Generator
             }
             return false;
         }
+
+        private bool IsSpecialSegment(string segment) => IsSpecialSegment(segment.AsSpan());
 
         private static int GetSegmentCount(string clientNamespace)
         {

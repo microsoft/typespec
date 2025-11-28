@@ -19,6 +19,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private Lazy<TypeProvider?> _customCodeView;
         private Lazy<TypeProvider?> _lastContractView;
         private Lazy<CanonicalTypeProvider> _canonicalView;
+        private Lazy<TypeProvider> _specView;
         private readonly InputType? _inputType;
 
         protected TypeProvider(InputType? inputType = default)
@@ -26,6 +27,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _customCodeView = new(() => BuildCustomCodeView());
             _canonicalView = new(BuildCanonicalView);
             _lastContractView = new(() => BuildLastContractView());
+            _specView = new(BuildSpecView);
             _inputType = inputType;
         }
 
@@ -49,8 +51,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 generatedTypeName ?? CustomCodeView?.Name ?? BuildName(),
                 DeclaringTypeProvider?.Type.Name);
 
+        private protected virtual TypeProvider BuildSpecView() => new SpecTypeProvider(this);
+
         public TypeProvider? CustomCodeView => _customCodeView.Value;
         public TypeProvider? LastContractView => _lastContractView.Value;
+        public TypeProvider SpecView => _specView.Value;
 
         private IReadOnlyList<PropertyProvider> BuildAllCustomProperties()
         {
@@ -198,6 +203,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected virtual CSharpType? BuildBaseType() => null;
 
+        private protected virtual bool FilterCustomizedMembers => true;
+
         public CSharpType? BaseType => _baseType ??= BuildBaseType() ?? CustomCodeView?.BaseType;
         private CSharpType? _baseType;
 
@@ -215,17 +222,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private IReadOnlyList<PropertyProvider>? _properties;
 
-        public IReadOnlyList<PropertyProvider> Properties => _properties ??= FilterCustomizedProperties(BuildProperties());
+        public IReadOnlyList<PropertyProvider> Properties => _properties ??= FilterCustomizedMembers ? FilterCustomizedProperties(BuildProperties()) : BuildProperties();
 
         private IReadOnlyList<MethodProvider>? _methods;
-        public IReadOnlyList<MethodProvider> Methods => _methods ??= BuildMethodsInternal();
+        public IReadOnlyList<MethodProvider> Methods => _methods ??= FilterCustomizedMembers ? FilterCustomizedMethods(BuildMethods()) : BuildMethods();
 
         private IReadOnlyList<ConstructorProvider>? _constructors;
 
-        public IReadOnlyList<ConstructorProvider> Constructors => _constructors ??= BuildConstructorsInternal();
+        public IReadOnlyList<ConstructorProvider> Constructors => _constructors ??= FilterCustomizedMembers ? FilterCustomizedConstructors(BuildConstructors()) : BuildConstructors();
 
         private IReadOnlyList<FieldProvider>? _fields;
-        public IReadOnlyList<FieldProvider> Fields => _fields ??= FilterCustomizedFields(BuildFields());
+        public IReadOnlyList<FieldProvider> Fields => _fields ??= FilterCustomizedMembers ? FilterCustomizedFields(BuildFields()) : BuildFields();
 
         private IReadOnlyList<TypeProvider>? _nestedTypes;
         public IReadOnlyList<TypeProvider> NestedTypes => _nestedTypes ??= BuildNestedTypesInternal();
@@ -257,7 +264,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected virtual CSharpType[] GetTypeArguments() => [];
 
-        private protected virtual PropertyProvider[] FilterCustomizedProperties(PropertyProvider[] specProperties)
+        internal PropertyProvider[] FilterCustomizedProperties(IEnumerable<PropertyProvider> specProperties)
         {
             var properties = new List<PropertyProvider>();
             var customProperties = new HashSet<string>();
@@ -291,7 +298,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return [..properties];
         }
 
-        private protected virtual FieldProvider[] FilterCustomizedFields(FieldProvider[] specFields)
+        internal FieldProvider[] FilterCustomizedFields(IEnumerable<FieldProvider> specFields)
         {
             var fields = new List<FieldProvider>();
             var customFields = new HashSet<string>();
@@ -316,10 +323,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return [.. fields];
         }
 
-        private MethodProvider[] BuildMethodsInternal()
+        internal MethodProvider[] FilterCustomizedMethods(IEnumerable<MethodProvider> specMethods)
         {
             var methods = new List<MethodProvider>();
-            foreach (var method in BuildMethods())
+            foreach (var method in specMethods)
             {
                 if (ShouldGenerate(method))
                 {
@@ -330,10 +337,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return [..methods];
         }
 
-        private ConstructorProvider[] BuildConstructorsInternal()
+        internal ConstructorProvider[] FilterCustomizedConstructors(IEnumerable<ConstructorProvider> specConstructors)
         {
             var constructors = new List<ConstructorProvider>();
-            foreach (var constructor in BuildConstructors())
+            foreach (var constructor in specConstructors)
             {
                 if (ShouldGenerate(constructor))
                 {
@@ -341,7 +348,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
             }
 
-            return constructors.ToArray();
+            return [..constructors];
         }
 
         private TypeProvider[] BuildNestedTypesInternal()
@@ -358,15 +365,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return [.. nestedTypes];
         }
 
-        protected virtual PropertyProvider[] BuildProperties() => [];
+        protected internal virtual PropertyProvider[] BuildProperties() => [];
 
-        protected virtual FieldProvider[] BuildFields() => [];
+        protected internal virtual FieldProvider[] BuildFields() => [];
 
-        protected virtual CSharpType[] BuildImplements() => [];
+        protected internal virtual CSharpType[] BuildImplements() => [];
 
-        protected virtual MethodProvider[] BuildMethods() => [];
+        protected internal virtual MethodProvider[] BuildMethods() => [];
 
-        protected virtual ConstructorProvider[] BuildConstructors() => [];
+        protected internal virtual ConstructorProvider[] BuildConstructors() => [];
 
         protected virtual TypeProvider[] BuildNestedTypes() => [];
 
@@ -509,6 +516,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // Reset the custom code view to reflect the new namespace
                 _customCodeView = new(BuildCustomCodeView(Type.Name, @namespace));
                 _lastContractView = new(BuildLastContractView(Type.Name, @namespace));
+                _declarationModifiers = BuildDeclarationModifiersInternal(); // recalculate declaration modifiers
                 Type.Update(@namespace: _customCodeView.Value?.Type.Namespace ?? @namespace);
             }
 
@@ -683,6 +691,40 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (customMethod.Parameters.Count != method.Parameters.Count || GetFullMethodName(customMethod) != GetFullMethodName(method))
             {
                 return false;
+            }
+
+            // For operators, we need to also check the return type and operator type (explicit vs implicit)
+            // since operators can have the same "name" (the target type) but different signatures
+            if (customMethod.Modifiers.HasFlag(MethodSignatureModifiers.Operator))
+            {
+                // Check if both are operators and of the same type (explicit or implicit)
+                if (!method.Modifiers.HasFlag(MethodSignatureModifiers.Operator))
+                {
+                    return false;
+                }
+
+                // Check explicit vs implicit - both flags must match
+                bool customIsExplicit = customMethod.Modifiers.HasFlag(MethodSignatureModifiers.Explicit);
+                bool methodIsExplicit = method.Modifiers.HasFlag(MethodSignatureModifiers.Explicit);
+                bool customIsImplicit = customMethod.Modifiers.HasFlag(MethodSignatureModifiers.Implicit);
+                bool methodIsImplicit = method.Modifiers.HasFlag(MethodSignatureModifiers.Implicit);
+                if (customIsExplicit != methodIsExplicit || customIsImplicit != methodIsImplicit)
+                {
+                    return false;
+                }
+
+                // For operators, the return type is crucial for matching
+                if (customMethod.ReturnType != null && method.ReturnType != null)
+                {
+                    if (!IsNameMatch(customMethod.ReturnType, method.ReturnType))
+                    {
+                        return false;
+                    }
+                }
+                else if (customMethod.ReturnType != method.ReturnType) // One is null, the other is not
+                {
+                    return false;
+                }
             }
 
             for (int i = 0; i < customMethod.Parameters.Count; i++)

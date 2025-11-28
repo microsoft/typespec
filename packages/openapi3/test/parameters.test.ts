@@ -2,9 +2,9 @@ import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
 import { OpenAPI3PathParameter, OpenAPI3QueryParameter } from "../src/types.js";
-import { worksFor } from "./works-for.js";
+import { supportedVersions, worksFor } from "./works-for.js";
 
-worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
+worksFor(supportedVersions, ({ diagnoseOpenApiFor, openApiFor }) => {
   describe("query parameters", () => {
     async function getQueryParam(code: string): Promise<OpenAPI3QueryParameter> {
       const res = await openApiFor(code);
@@ -35,6 +35,8 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
     it.each([
       { encoding: "ArrayEncoding.pipeDelimited", style: "pipeDelimited" },
       { encoding: "ArrayEncoding.spaceDelimited", style: "spaceDelimited" },
+      { encoding: "ArrayEncoding.commaDelimited", style: "commaDelimited" },
+      { encoding: "ArrayEncoding.newlineDelimited", style: "newlineDelimited" },
     ])("can set style to $style with @encode($encoding)", async ({ encoding, style }) => {
       const param = await getQueryParam(
         `op test(@query @encode(${encoding}) myParam: string[]): void;`,

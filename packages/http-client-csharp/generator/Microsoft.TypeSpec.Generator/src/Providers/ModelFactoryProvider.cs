@@ -29,26 +29,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _models = models;
         }
 
-        protected override string BuildName()
-        {
-            var span = CodeModelGenerator.Instance.Configuration.PackageName.AsSpan();
-            if (span.IndexOf('.') == -1)
-                return string.Concat(CodeModelGenerator.Instance.Configuration.PackageName, ModelFactorySuffix);
-
-            Span<char> dest = stackalloc char[span.Length + ModelFactorySuffix.Length];
-            int j = 0;
-
-            for (int i = 0; i < span.Length; i++)
-            {
-                if (span[i] != '.')
-                {
-                    dest[j] = span[i];
-                    j++;
-                }
-            }
-            ModelFactorySuffix.AsSpan().CopyTo(dest.Slice(j));
-            return dest.Slice(0, j + ModelFactorySuffix.Length).ToString();
-        }
+        protected override string BuildName() => string.Concat(CodeModelGenerator.Instance.TypeFactory.ServiceName, ModelFactorySuffix);
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
 
@@ -65,7 +46,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return docs;
         }
 
-        protected override MethodProvider[] BuildMethods()
+        protected internal override MethodProvider[] BuildMethods()
         {
             var methods = new List<MethodProvider>(_models.Count());
             foreach (var model in _models)

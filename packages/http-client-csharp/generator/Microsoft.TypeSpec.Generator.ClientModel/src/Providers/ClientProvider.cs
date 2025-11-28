@@ -92,7 +92,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _inputAuth = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Auth;
             _endpointParameter = BuildClientEndpointParameter();
             _publicCtorDescription = $"Initializes a new instance of {Name}.";
-            ClientOptions = _inputClient.Parent is null ? new ClientOptionsProvider(_inputClient, this) : null;
+            ClientOptions = _inputClient.Parent is null ? ClientOptionsProvider.CreateClientOptionsProvider(_inputClient, this) : null;
             ClientOptionsParameter = ClientOptions != null ? ScmKnownParameters.ClientOptions(ClientOptions.Type) : null;
 
             var apiKey = _inputAuth?.ApiKey;
@@ -570,18 +570,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             // handle pipeline property
+            var userAgentPolicy = This.ToApi<ClientPipelineApi>().UserAgentPolicy(Type);
+
+            List<ValueExpression> perRetryPoliciesList = [];
+            if (userAgentPolicy != null)
+            {
+                perRetryPoliciesList.Add(userAgentPolicy);
+            }
+
             ValueExpression perRetryPolicies;
             switch (authFields)
             {
                 case ApiKeyFields keyAuthFields:
                     ValueExpression? keyPrefixExpression = keyAuthFields.AuthorizationApiKeyPrefixField != null ? (ValueExpression)keyAuthFields.AuthorizationApiKeyPrefixField : null;
-                    perRetryPolicies = New.Array(ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType, isInline: true, This.ToApi<ClientPipelineApi>().KeyAuthorizationPolicy(keyAuthFields.AuthField, keyAuthFields.AuthorizationHeaderField, keyPrefixExpression));
+                    perRetryPoliciesList.Add(This.ToApi<ClientPipelineApi>().KeyAuthorizationPolicy(keyAuthFields.AuthField, keyAuthFields.AuthorizationHeaderField, keyPrefixExpression));
+                    perRetryPolicies = New.Array(ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType, isInline: true, [.. perRetryPoliciesList]);
                     break;
                 case OAuth2Fields oauth2AuthFields:
-                    perRetryPolicies = New.Array(ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType, isInline: true, This.ToApi<ClientPipelineApi>().TokenAuthorizationPolicy(oauth2AuthFields.AuthField, oauth2AuthFields.AuthorizationScopesField));
+                    perRetryPoliciesList.Add(This.ToApi<ClientPipelineApi>().TokenAuthorizationPolicy(oauth2AuthFields.AuthField, oauth2AuthFields.AuthorizationScopesField));
+                    perRetryPolicies = New.Array(ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType, isInline: true, [.. perRetryPoliciesList]);
                     break;
                 default:
-                    perRetryPolicies = New.Array(ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType);
+                    perRetryPolicies = New.Array(ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.PipelinePolicyType, isInline: true, [.. perRetryPoliciesList]);
                     break;
             }
 
@@ -705,7 +715,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     Return(
                         Static(typeof(Volatile)).Invoke(nameof(Volatile.Read), cachedClientFieldVar)
                         .NullCoalesce(interlockedCompareExchange.NullCoalesce(subClient._clientCachingField))),
-                    this);
+                    this,
+                    ScmMethodKind.Convenience);
                 methods.Add(factoryMethod);
             }
 

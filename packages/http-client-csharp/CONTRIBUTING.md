@@ -9,6 +9,7 @@ Welcome! This guide will help you set up your development environment and contri
 - [Development Workflow](#development-workflow)
 - [Testing](#testing)
 - [Code Generation](#code-generation)
+- [Validating Changes Against the Azure Generator](#validating-changes-against-the-azure-generator)
 - [Creating Pull Requests](#creating-pull-requests)
 - [Getting Help](#getting-help)
 - [Code of Conduct](#code-of-conduct)
@@ -26,33 +27,37 @@ Before you begin, ensure you have the following installed:
 
 ## Getting Started
 
-### 1. Clone the Repository
+### 1. Fork and Clone the Repository
+
+First, create a fork of the repository on GitHub, then clone your fork:
 
 ```bash
-git clone https://github.com/microsoft/typespec.git
-cd typespec/packages/http-client-csharp
+git clone https://github.com/YOUR_USERNAME/typespec.git
 ```
+
+Replace `YOUR_USERNAME` with your GitHub username.
 
 ### 2. Install Dependencies
 
-From the repository root:
+Navigate to the project directory and install the package dependencies:
 
 ```bash
+cd packages/http-client-csharp
 npm ci
 ```
 
 ### 3. Build the C# Package
 
 ```bash
-cd packages/http-client-csharp
 npm run build
 ```
 
-This command runs:
-
-- `npm run build:emitter` - Builds the TypeScript emitter
-- `npm run build:generator` - Builds the .NET generator
-- `npm run extract-api` - Extracts API documentation
+> [!NOTE]
+> This command runs:
+>
+> - `npm run build:emitter` - Builds the TypeScript emitter
+> - `npm run build:generator` - Builds the .NET generator
+> - `npm run extract-api` - Extracts API documentation
 
 ### 4. Verify Installation
 
@@ -73,41 +78,41 @@ The C# HTTP client package consists of two main components:
 
 ### Making Changes
 
-1. **Create a fork** of the repository and clone it:
+1. **Create a feature branch** for your changes:
 
    ```bash
-   git clone https://github.com/YOUR_USERNAME/typespec.git
-   cd typespec
    git checkout -b feature/your-feature-name
    ```
 
 2. **Make your changes** to the codebase
 
 3. **Build your changes**:
-
-   ```bash
-   # Build emitter only
-   npm run build:emitter
-   
-   # Build generator only
-   npm run build:generator
-   
-   # Build everything
-   npm run build
-   ```
+   - Build everything:
+     ```bash
+     npm run build
+     ```
+   - Build emitter only:
+     ```bash
+     npm run build:emitter
+     ```
+   - Build generator only:
+     ```bash
+     npm run build:generator
+     ```
 
 4. **Test your changes**:
-
-   ```bash
-   # Test emitter only
-   npm run test:emitter
-   
-   # Test generator only
-   npm run test:generator
-   
-   # Test everything
-   npm run test
-   ```
+   - Run all tests:
+     ```bash
+     npm run test
+     ```
+   - Test emitter only:
+     ```bash
+     npm run test:emitter
+     ```
+   - Test generator only:
+     ```bash
+     npm run test:generator
+     ```
 
 ### Code Style and Linting
 
@@ -121,54 +126,76 @@ The C# HTTP client package consists of two main components:
 
 The package includes both TypeScript (emitter) and C# (generator) tests:
 
-```bash
-# Run all tests
-npm run test
+- Run all tests:
 
-# Run emitter tests only (TypeScript/Vitest)
-npm run test:emitter
+  ```bash
+  npm run test
+  ```
 
-# Run generator tests only (.NET)
-npm run test:generator
+- Run emitter tests only (TypeScript/Vitest):
 
-# Run tests with coverage
-npm run test:ci
+  ```bash
+  npm run test:emitter
+  ```
 
-# Run tests with UI (emitter only)
-npm run test:ui
-```
+- Run generator tests only (.NET):
 
-> **Note**: Some tests may require a full workspace build (`pnpm build` from repository root) to resolve all dependencies before running successfully.
+  ```bash
+  npm run test:generator
+  ```
+
+- Run tests with coverage:
+
+  ```bash
+  npm run test:ci
+  ```
+
+- Run tests with UI (emitter only):
+  ```bash
+  npm run test:ui
+  ```
 
 ### Integration Testing with Spector
 
 The package uses the Spector test framework for end-to-end testing of generated code:
 
-```bash
-# Run Spector tests (requires PowerShell)
-./eng/scripts/Test-Spector.ps1
+- Run Spector tests (requires PowerShell):
 
-# Run Spector tests with filter
-./eng/scripts/Test-Spector.ps1 -filter "specific-test-name"
+  ```bash
+  ./eng/scripts/Test-Spector.ps1
+  ```
 
-# Get Spector test coverage
-./eng/scripts/Get-Spector-Coverage.ps1
-```
+- Run Spector tests with filter:
+
+  ```bash
+  ./eng/scripts/Test-Spector.ps1 -filter "specific-test-name"
+  ```
+
+- Get Spector test coverage:
+  ```bash
+  ./eng/scripts/Get-Spector-Coverage.ps1
+  ```
 
 ### Test Project Generation
 
 Generate test projects to validate the emitter and generator:
 
-```bash
-# Generate all test projects (requires PowerShell)
-./eng/scripts/Generate.ps1
+- Generate all test projects (requires PowerShell):
 
-# Generate specific test project
-./eng/scripts/Generate.ps1 -filter "project-name"
+  ```bash
+  ./eng/scripts/Generate.ps1
+  ```
 
-# Generate with stubbed mode disabled
-./eng/scripts/Generate.ps1 -Stubbed $false
-```
+- Generate specific test project:
+
+  ```bash
+  ./eng/scripts/Generate.ps1 -filter "project-name"
+  ```
+
+- Generate with stubbed mode disabled:
+  ```bash
+  ./eng/scripts/Generate.ps1 -Stubbed $false
+  ```
 
 ## Code Generation
 
@@ -176,11 +203,86 @@ Generate test projects to validate the emitter and generator:
 
 To regenerate test projects after making changes:
 
-1. **Generate projects**:
+```bash
+./eng/scripts/Generate.ps1
+```
+
+### Regenerating Azure Libraries
+
+To regenerate Azure libraries using your local changes:
+
+```bash
+./eng/scripts/RegenPreview.ps1 <path-to-clone-of-azure-sdk-for-net>
+```
+
+This will regenerate all the Azure libraries and allow you to view any potential diffs your changes may cause. For more information on the script's usage, see [RegenPreview](./eng/scripts/docs/RegenPreview.md).
+
+## Validating Changes Against the Azure Generator
+
+When making changes to the TypeSpec HTTP Client C# package that contain API breaking changes, it can be helpful to validate these changes against the Azure generator that depends on this package. This validation serves two important purposes:
+
+1. **Breaking Change Awareness**: Understand the full impact of your changes on downstream consumers
+2. **Preparation for Azure Generator Updates**: Identify and prepare the necessary changes that the Azure Generator will need to accommodate your breaking changes
+
+Once breaking changes are merged and a new official generator version is published, the Azure generator will be blocked from releasing until it has been updated to absorb these breaking changes. By validating your changes early, you can help minimize disruption to the Azure SDK release cycle.
+
+Follow these steps to test your changes:
+
+### 1. Create a Fork of azure-sdk-for-net
+
+Create a fork of the [azure-sdk-for-net repository](https://github.com/Azure/azure-sdk-for-net):
+
+1. Navigate to https://github.com/Azure/azure-sdk-for-net
+2. Click the "Fork" button to create your own fork
+3. Clone your fork locally:
 
    ```bash
-   ./eng/scripts/Generate.ps1
+   git clone https://github.com/YOUR_USERNAME/azure-sdk-for-net.git
+   cd azure-sdk-for-net
    ```
+
+### 2. Publish Generator Dev Artifacts
+
+Run the generator publish pipeline to create dev artifacts from your changes:
+
+1. Navigate to the [Generator Publish Pipeline](https://dev.azure.com/azure-sdk/internal/_build?definitionId=6871)
+2. Click "Run pipeline"
+3. In the source branch field, provide your PR reference in the format `refs/pull/123/merge` (replace `123` with your actual PR number)
+4. Run the pipeline - this will publish the generator dev artifacts to the dotnet dev nuget feed
+
+### 3. Update Package Versions in Azure Generator
+
+In your azure-sdk-for-net fork, update the generator package versions to use your dev artifacts:
+
+1. Navigate to the azure generator directory in your fork
+2. Run the BumpMTG script with your PR ID:
+
+   ```powershell
+   .\eng\scripts\BumpMTG.ps1 123
+   ```
+
+   Replace `123` with the PR ID you used in step 2.
+
+This script will update the NuGet package versions of the generator to point to your dev artifacts.
+
+### 4. Build the Azure Generator
+
+Build the azure generator with your updated dependencies:
+
+```bash
+npm ci && npm run clean && npm run build
+```
+
+### 5. Validate Your Changes
+
+Now you can validate your changes by:
+
+- **Running tests**: Execute the test suite to ensure no regressions
+- **Regenerating test libraries**: Use the generator to regenerate existing test libraries and verify the output
+- **Testing new features**: If you added new functionality, test it with relevant TypeSpec definitions
+- **Checking integration**: Ensure the integration between your changes and the Azure generator works as expected
+
+This validation process helps ensure that your changes to the generator are compatible with the downstream Azure generator. If breaking changes are expected, you can prepare the required changes to the Azure Generator ahead of time to reduce the time it will take to fix and upgrade the Azure Generator once your changes merge and are consumed by the Azure Generator.
 
 ## Creating Pull Requests
 

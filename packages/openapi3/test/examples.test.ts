@@ -1,7 +1,8 @@
+import { ok } from "assert/strict";
 import { describe, expect, it } from "vitest";
 import { OpenAPI3Document, OpenAPI3Parameter, OpenAPI3RequestBody } from "../src/types.js";
 import { openApiFor } from "./test-host.js";
-import { worksFor } from "./works-for.js";
+import { supportedVersions, worksFor } from "./works-for.js";
 
 describe("schema examples", () => {
   it("apply example on model", async () => {
@@ -53,7 +54,7 @@ describe("schema examples", () => {
   });
 });
 
-worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
+worksFor(supportedVersions, ({ openApiFor }) => {
   it("set example on the request body", async () => {
     const res: OpenAPI3Document = await openApiFor(
       `
@@ -115,7 +116,12 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
       op getPet(): {name: string, age: int32};
       `,
     );
-    expect(res.paths["/"].get?.responses[200].content["application/json"].example).toEqual({
+    ok(res.paths["/"].get);
+    ok(res.paths["/"].get.responses);
+    ok("200" in res.paths["/"].get.responses);
+    ok("content" in res.paths["/"].get.responses["200"]);
+    ok(res.paths["/"].get.responses["200"].content);
+    expect(res.paths["/"].get?.responses["200"].content["application/json"].example).toEqual({
       name: "Fluffy",
       age: 2,
     });
@@ -141,13 +147,21 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
         };
         `,
       );
-      expect(res.paths["/"].get?.responses[200].content["application/json"].examples).toEqual({
+      ok(res.paths["/"].get);
+      ok(res.paths["/"].get.responses);
+      ok("200" in res.paths["/"].get.responses);
+      ok("content" in res.paths["/"].get.responses["200"]);
+      ok(res.paths["/"].get.responses["200"].content);
+      expect(res.paths["/"].get?.responses["200"].content["application/json"].examples).toEqual({
         Ok: {
           summary: "Ok",
           value: { name: "Fluffy", age: 2 },
         },
       });
-      expect(res.paths["/"].get?.responses[404].content["application/json"].examples).toEqual({
+      ok("404" in res.paths["/"].get.responses);
+      ok("content" in res.paths["/"].get.responses["404"]);
+      ok(res.paths["/"].get.responses["404"].content);
+      expect(res.paths["/"].get?.responses["404"].content["application/json"].examples).toEqual({
         "Not found": {
           summary: "Not found",
           value: {
@@ -178,12 +192,20 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
 
         `,
       );
-      expect(res.paths["/"].get?.responses[200].content["application/json"].examples).toEqual({
+      ok(res.paths["/"].get);
+      ok(res.paths["/"].get.responses);
+      ok("200" in res.paths["/"].get.responses);
+      ok("content" in res.paths["/"].get.responses["200"]);
+      ok(res.paths["/"].get.responses["200"].content);
+      expect(res.paths["/"].get?.responses["200"].content["application/json"].examples).toEqual({
         Ok: {
           summary: "Ok",
           value: { data: "Ok" },
         },
       });
+      ok("4XX" in res.paths["/"].get.responses);
+      ok("content" in res.paths["/"].get.responses["4XX"]);
+      ok(res.paths["/"].get.responses["4XX"].content);
       expect(res.paths["/"].get?.responses["4XX"].content["application/json"].examples).toEqual({
         "Not found": {
           summary: "Not found",
@@ -209,7 +231,12 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
       op getPet(): {@body pet: {name: string, age: int32}};
       `,
     );
-    expect(res.paths["/"].get?.responses[200].content["application/json"].example).toEqual({
+    ok(res.paths["/"].get);
+    ok(res.paths["/"].get.responses);
+    ok("200" in res.paths["/"].get.responses);
+    ok("content" in res.paths["/"].get.responses["200"]);
+    ok(res.paths["/"].get.responses["200"].content);
+    expect(res.paths["/"].get?.responses["200"].content["application/json"].example).toEqual({
       name: "Fluffy",
       age: 2,
     });
@@ -229,7 +256,12 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
       op getPet(): {@bodyRoot pet: {name: string, age: int32}};
       `,
     );
-    expect(res.paths["/"].get?.responses[200].content["application/json"].example).toEqual({
+    ok(res.paths["/"].get);
+    ok(res.paths["/"].get.responses);
+    ok("200" in res.paths["/"].get.responses);
+    ok("content" in res.paths["/"].get.responses["200"]);
+    ok(res.paths["/"].get.responses["200"].content);
+    expect(res.paths["/"].get?.responses["200"].content["application/json"].example).toEqual({
       name: "Fluffy",
       age: 2,
     });
@@ -404,6 +436,78 @@ worksFor(["3.0.0", "3.1.0"], ({ openApiFor }) => {
       {
         desc: "pipeDelimited (object) explode: true",
         param: `@query(#{ explode: true }) @encode(ArrayEncoding.pipeDelimited) color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: undefined,
+      },
+      {
+        desc: "commaDelimited (undefined)",
+        param: `@query @encode(ArrayEncoding.commaDelimited) color: string | null`,
+        paramExample: `null`,
+        expectedExample: undefined,
+      },
+      {
+        desc: "commaDelimited (string)",
+        param: `@query @encode(ArrayEncoding.commaDelimited) color: string`,
+        paramExample: `"blue"`,
+        expectedExample: undefined,
+      },
+      {
+        desc: "commaDelimited (array) explode: false",
+        param: `@query @encode(ArrayEncoding.commaDelimited) color: string[]`,
+        paramExample: `#["blue", "black", "brown"]`,
+        expectedExample: "color=blue%2Cblack%2Cbrown",
+      },
+      {
+        desc: "commaDelimited (array) explode: true",
+        param: `@query(#{ explode: true }) @encode(ArrayEncoding.commaDelimited) color: string[]`,
+        paramExample: `#["blue", "black", "brown"]`,
+        expectedExample: undefined,
+      },
+      {
+        desc: "commaDelimited (object) explode: false",
+        param: `@query @encode(ArrayEncoding.commaDelimited) color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: "color=R%2C100%2CG%2C200%2CB%2C150",
+      },
+      {
+        desc: "commaDelimited (object) explode: true",
+        param: `@query(#{ explode: true }) @encode(ArrayEncoding.commaDelimited) color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: undefined,
+      },
+      {
+        desc: "newlineDelimited (undefined)",
+        param: `@query @encode(ArrayEncoding.newlineDelimited) color: string | null`,
+        paramExample: `null`,
+        expectedExample: undefined,
+      },
+      {
+        desc: "newlineDelimited (string)",
+        param: `@query @encode(ArrayEncoding.newlineDelimited) color: string`,
+        paramExample: `"blue"`,
+        expectedExample: undefined,
+      },
+      {
+        desc: "newlineDelimited (array) explode: false",
+        param: `@query @encode(ArrayEncoding.newlineDelimited) color: string[]`,
+        paramExample: `#["blue", "black", "brown"]`,
+        expectedExample: "color=blue%0Ablack%0Abrown",
+      },
+      {
+        desc: "newlineDelimited (array) explode: true",
+        param: `@query(#{ explode: true }) @encode(ArrayEncoding.newlineDelimited) color: string[]`,
+        paramExample: `#["blue", "black", "brown"]`,
+        expectedExample: undefined,
+      },
+      {
+        desc: "newlineDelimited (object) explode: false",
+        param: `@query @encode(ArrayEncoding.newlineDelimited) color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: "color=R%0A100%0AG%0A200%0AB%0A150",
+      },
+      {
+        desc: "newlineDelimited (object) explode: true",
+        param: `@query(#{ explode: true }) @encode(ArrayEncoding.newlineDelimited) color: Record<int32>`,
         paramExample: `#{R: 100, G: 200, B: 150}`,
         expectedExample: undefined,
       },
