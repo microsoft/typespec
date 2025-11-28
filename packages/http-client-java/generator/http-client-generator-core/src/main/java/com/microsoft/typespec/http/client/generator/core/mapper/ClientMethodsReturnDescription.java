@@ -272,7 +272,8 @@ public final class ClientMethodsReturnDescription {
         IType resultType = syncReturnType;
         if (resultType == ClassType.VOID || resultType == PrimitiveType.VOID) {
             // no body in response, check final result from MethodPollingDetails
-            if (pollingDetails.getFinalResultType() != ClassType.VOID
+            if (pollingDetails != null
+                && pollingDetails.getFinalResultType() != ClassType.VOID
                 && pollingDetails.getFinalResultType() != PrimitiveType.VOID) {
                 resultType = pollingDetails.getFinalResultType();
             }
