@@ -287,7 +287,6 @@ model ResultData {
   prop2: string;
 }
 
-
 model Builtin {
   boolean: boolean;
   string: string;
