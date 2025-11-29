@@ -105,6 +105,90 @@ Expected behavior: Should handle nested and combined formatting.
 Test italic text formatting using _single asterisks_.
 Expected behavior: Text between \* should render as italic.
 
+### Encode_Array_Property_commaDelimited
+
+- Endpoint: `post /encode/array/property/comma-delimited`
+
+Test operation with request and response model contains a string array property with commaDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue,red,green"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue,red,green"
+}
+```
+
+### Encode_Array_Property_newlineDelimited
+
+- Endpoint: `post /encode/array/property/newline-delimited`
+
+Test operation with request and response model contains a string array property with newlineDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue\nred\ngreen"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue\nred\ngreen"
+}
+```
+
+### Encode_Array_Property_pipeDelimited
+
+- Endpoint: `post /encode/array/property/pipe-delimited`
+
+Test operation with request and response model contains a string array property with pipeDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue|red|green"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue|red|green"
+}
+```
+
+### Encode_Array_Property_spaceDelimited
+
+- Endpoint: `post /encode/array/property/space-delimited`
+
+Test operation with request and response model contains a string array property with spaceDelimited encode.
+Expected request body:
+
+```json
+{
+  "value": "blue red green"
+}
+```
+
+Expected response body:
+
+```json
+{
+  "value": "blue red green"
+}
+```
+
 ### Encode_Bytes_Header_base64
 
 - Endpoint: `get /encode/bytes/header/base64`
