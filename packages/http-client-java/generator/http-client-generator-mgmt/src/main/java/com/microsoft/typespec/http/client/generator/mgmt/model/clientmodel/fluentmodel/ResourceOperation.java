@@ -166,11 +166,21 @@ public abstract class ResourceOperation {
         return this.getResourceLocalVariables().getLocalVariablesMap().values();
     }
 
+    /**
+     * Gets the method references, filter out those with only required parameters.
+     *
+     * @return the method references returns is sorted by the number of parameters in descending order.
+     */
     protected List<FluentCollectionMethod> getMethodReferencesOfFullParameters() {
         // method references of full parameters (include optional parameters)
         return this.getMethodReferences()
             .stream()
             .filter(m -> !m.getInnerClientMethod().getOnlyRequiredParameters())
+            .sorted((m1, m2) -> {
+                int count1 = m1.getInnerClientMethod().getParameters().size();
+                int count2 = m2.getInnerClientMethod().getParameters().size();
+                return -Integer.compare(count1, count2);
+            })
             .collect(Collectors.toList());
     }
 
