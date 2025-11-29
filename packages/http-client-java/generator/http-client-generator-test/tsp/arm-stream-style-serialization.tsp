@@ -108,6 +108,7 @@ model TopLevelArmResource is TrackedResource<TopLevelArmResourceProperties> {
 @doc("Top Level Arm Resource Properties.")
 model TopLevelArmResourceProperties {
   description?: string;
+  builtin: Builtin;
 }
 
 @error
@@ -284,6 +285,61 @@ model ResultData {
 
   @visibility(Lifecycle.Read)
   prop2: string;
+}
+
+model Builtin {
+  boolean: boolean;
+  string: string;
+  bytes: bytes;
+  int: int32;
+  safeint: safeint;
+  decimal: decimal;
+  long: int64;
+  float: float32;
+  double: float64;
+  duration: duration;
+  date: plainDate;
+  dateTime: utcDateTime;
+  stringList: string[];
+  bytesDict: Record<bytes>;
+  url: url;
+  nullableFloatDict: Record<float64 | null>;
+  encoded: Encoded;
+  uuid: Azure.Core.uuid;
+}
+
+@encode(DurationKnownEncoding.seconds, float32)
+scalar myDuration extends duration;
+
+model Encoded {
+  @encode(DurationKnownEncoding.seconds, int32)
+  timeInSeconds?: duration;
+
+  timeInSecondsFraction?: myDuration;
+
+  @encode(DateTimeKnownEncoding.rfc3339)
+  dateTime?: utcDateTime;
+
+  @encode(DateTimeKnownEncoding.rfc7231)
+  dateTimeRfc7231?: utcDateTime;
+
+  @encode(DateTimeKnownEncoding.unixTimestamp, int64)
+  unixTimestamp?: utcDateTime;
+
+  @encode(BytesKnownEncoding.base64)
+  base64?: bytes;
+
+  @encode(BytesKnownEncoding.base64url)
+  base64url?: bytes;
+
+  @encode("unknown-duration")
+  unknownDurationFormat?: duration;
+
+  @encode("unknown-datetime")
+  unknownDateTimeFormat?: utcDateTime;
+
+  @encode("unknown-bytes")
+  unknownBytes?: bytes;
 }
 
 @@flattenProperty(Fish.properties);
