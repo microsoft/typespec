@@ -66,6 +66,12 @@
     "tsptest.armresourceprovider.fluent.ImmutableResourceModelsClient.createOrUpdate": "TspTest.ArmResourceProvider.ImmutableResourceModel.createOrUpdate",
     "tsptest.armresourceprovider.fluent.ImmutableResourceModelsClient.createOrUpdateAsync": "TspTest.ArmResourceProvider.ImmutableResourceModel.createOrUpdate",
     "tsptest.armresourceprovider.fluent.ImmutableResourceModelsClient.createOrUpdateWithResponseAsync": "TspTest.ArmResourceProvider.ImmutableResourceModel.createOrUpdate",
+    "tsptest.armresourceprovider.fluent.LroNoBodiesClient": "TspTest.ArmResourceProvider.LroNoBody",
+    "tsptest.armresourceprovider.fluent.LroNoBodiesClient.beginCreateOrUpdate": "TspTest.ArmResourceProvider.LroNoBody.createOrUpdate",
+    "tsptest.armresourceprovider.fluent.LroNoBodiesClient.beginCreateOrUpdateAsync": "TspTest.ArmResourceProvider.LroNoBody.createOrUpdate",
+    "tsptest.armresourceprovider.fluent.LroNoBodiesClient.createOrUpdate": "TspTest.ArmResourceProvider.LroNoBody.createOrUpdate",
+    "tsptest.armresourceprovider.fluent.LroNoBodiesClient.createOrUpdateAsync": "TspTest.ArmResourceProvider.LroNoBody.createOrUpdate",
+    "tsptest.armresourceprovider.fluent.LroNoBodiesClient.createOrUpdateWithResponseAsync": "TspTest.ArmResourceProvider.LroNoBody.createOrUpdate",
     "tsptest.armresourceprovider.fluent.ManagedMaintenanceWindowStatusOperationsClient": "TspTest.ArmResourceProvider.ManagedMaintenanceWindowStatus",
     "tsptest.armresourceprovider.fluent.ManagedMaintenanceWindowStatusOperationsClient.beginDelete": "TspTest.ArmResourceProvider.ManagedMaintenanceWindowStatus.delete",
     "tsptest.armresourceprovider.fluent.ManagedMaintenanceWindowStatusOperationsClient.beginDeleteAsync": "TspTest.ArmResourceProvider.ManagedMaintenanceWindowStatus.delete",
@@ -126,6 +132,7 @@
     "tsptest.armresourceprovider.fluent.models.ModelInterfaceDifferentNameProperties": "TspTest.ArmResourceProvider.ModelInterfaceDifferentNameProperties",
     "tsptest.armresourceprovider.fluent.models.ModelInterfaceSameNameInner": "TspTest.ArmResourceProvider.ModelInterfaceDifferentName",
     "tsptest.armresourceprovider.fluent.models.OperationInner": "Azure.ResourceManager.CommonTypes.Operation",
+    "tsptest.armresourceprovider.fluent.models.ResourceLroNoBodyProperties": "TspTest.ArmResourceProvider.ResourceLroNoBodyProperties",
     "tsptest.armresourceprovider.fluent.models.ResultInner": "TspTest.ArmResourceProvider.Result",
     "tsptest.armresourceprovider.fluent.models.TopLevelArmResourceInner": "TspTest.ArmResourceProvider.TopLevelArmResource",
     "tsptest.armresourceprovider.fluent.models.TopLevelArmResourceProperties": "TspTest.ArmResourceProvider.TopLevelArmResourceProperties",
@@ -154,6 +161,7 @@
     "tsptest.armresourceprovider.models.Origin": "Azure.ResourceManager.CommonTypes.Origin",
     "tsptest.armresourceprovider.models.PriorityModel": "TspTest.ArmResourceProvider.PriorityModel",
     "tsptest.armresourceprovider.models.ProvisioningState": "TspTest.ArmResourceProvider.ProvisioningState",
+    "tsptest.armresourceprovider.models.ResourceLroNoBody": "TspTest.ArmResourceProvider.ResourceLroNoBody",
     "tsptest.armresourceprovider.models.TopLevelArmResourceUpdate": "Azure.ResourceManager.Foundations.ResourceUpdateModel",
     "tsptest.armresourceprovider.models.UserAssignedIdentity": "Azure.ResourceManager.CommonTypes.UserAssignedIdentity"
   }
