@@ -355,9 +355,19 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
         }
     }
 
+    /**
+     * Creates overload client methods, on versioning with "@added" parameterrs
+     *
+     * @param methods the list of client methods to add to
+     * @param baseMethod the base method with full parameters, it does not contain SDK parameters like Context
+     * @param overloadedMethod the overloaded method to be associated with the created overload client methods
+     * @param methodVisibility the visibility of the overload client methods
+     * @param methodPageDetails the page details of the overload client methods, can be {@code null}
+     * @param isProtocolMethod whether the operation is a protocol method
+     */
     protected void createOverloadForVersioning(List<ClientMethod> methods, ClientMethod baseMethod,
-        ClientMethod overloadedMethod, JavaVisibility methodWithContextVisibility,
-        MethodPageDetails methodPageDetailsWithContext, boolean isProtocolMethod) {
+        ClientMethod overloadedMethod, JavaVisibility methodVisibility, MethodPageDetails methodPageDetails,
+        boolean isProtocolMethod) {
         final List<ClientMethodParameter> parameters = baseMethod.getParameters();
         if (!isProtocolMethod) {
             if (parameters.stream().anyMatch(p -> p.getVersioning() != null && p.getVersioning().getAdded() != null)) {
@@ -376,13 +386,11 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                         ClientMethod.Builder overloadedMethodBuilder = baseMethod.newBuilder()
                             .overloadedClientMethod(overloadedMethod)
                             .parameters(overloadedParameters);
-                        if (methodPageDetailsWithContext != null) {
-                            overloadedMethodBuilder
-                                = overloadedMethodBuilder.methodPageDetails(methodPageDetailsWithContext);
+                        if (methodPageDetails != null) {
+                            overloadedMethodBuilder = overloadedMethodBuilder.methodPageDetails(methodPageDetails);
                         }
                         final ClientMethod overloadMethod = overloadedMethodBuilder.build();
-                        addClientMethodWithContext(methods, overloadMethod, methodWithContextVisibility,
-                            isProtocolMethod);
+                        addClientMethodWithContext(methods, overloadMethod, methodVisibility, isProtocolMethod);
                     }
                 }
             }

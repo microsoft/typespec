@@ -176,6 +176,10 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             // If the parameter isn't required and the client method only uses required parameters,
             // optional parameters will need to be locally instantiated in the method.
             boolean optionalParameterToInitialize = !parameter.isRequired() && clientMethod.getOnlyRequiredParameters();
+
+            // For overload client method for versioning of "@added".
+            // In this case, the client method with required and optional parameters may not be the method with full
+            // parameters. And we need to refine the value of "optionalParameterToInitialize".
             if (!parameter.isRequired() && clientMethod.getOverloadedClientMethod() != null) {
                 // for overload client method for versioning of "@added"
                 boolean parameterInClientMethodSignature
