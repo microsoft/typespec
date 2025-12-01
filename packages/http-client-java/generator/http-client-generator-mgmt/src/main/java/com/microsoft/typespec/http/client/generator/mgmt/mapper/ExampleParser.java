@@ -534,7 +534,7 @@ public class ExampleParser {
         ProxyMethodExample.ParameterValue parameterValue = ModelExampleUtil.findParameter(example, serializedName);
         ExampleNode node;
         if (parameterValue == null) {
-            node = new LiteralNode(modelProperty.getClientType(), modelProperty.getWireType(), null);
+            node = new LiteralNode(modelProperty.getClientType(), null);
         } else {
             List<String> jsonPropertyNames = modelProperty.getSerializedNames();
 
@@ -544,7 +544,7 @@ public class ExampleParser {
                 node = ModelExampleUtil.parseNode(modelProperty.getClientType(), modelProperty.getWireType(),
                     childObjectValue);
             } else {
-                node = new LiteralNode(modelProperty.getClientType(), modelProperty.getWireType(), null);
+                node = new LiteralNode(modelProperty.getClientType(), null);
             }
         }
         return node;

@@ -27,7 +27,7 @@ import io.clientcore.core.utils.Base64Uri;
 import io.clientcore.core.utils.CoreUtils;
 import io.clientcore.core.utils.DateTimeRfc1123;
 import java.time.Instant;
-import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -204,7 +204,7 @@ public class ModelExampleUtil {
      */
     private static ExampleNode defaultNode(IType clientType, IType wireType, Object exampleValue) {
         ExampleNode node;
-        LiteralNode literalNode = new LiteralNode(clientType, wireType, exampleValue);
+        LiteralNode literalNode = new LiteralNode(clientType, exampleValue);
         node = literalNode;
 
         if (exampleValue != null) {
@@ -232,8 +232,8 @@ public class ModelExampleUtil {
             literalValue = new DateTimeRfc1123(literalValue).getDateTime().toString();
         } else if (wireType == ClassType.BASE_64_URL) {
             literalValue = new Base64Uri(literalValue).toString();
-        } else if (wireType == PrimitiveType.UNIX_TIME_LONG) {
-            literalValue = OffsetDateTime.from(Instant.ofEpochSecond(Long.parseLong(literalValue))).toString();
+        } else if (wireType == PrimitiveType.UNIX_TIME_LONG.asNullable()) {
+            literalValue = Instant.ofEpochSecond(Long.parseLong(literalValue)).atOffset(ZoneOffset.UTC).toString();
         }
         return literalValue;
     }
@@ -292,8 +292,7 @@ public class ModelExampleUtil {
             if (ClassType.CONTEXT.equals(methodParameter.getClientMethodParameter().getClientType())) {
                 node = new LiteralNode(ClassType.CONTEXT, "").setLiteralsValue("");
             } else {
-                node = new LiteralNode(methodParameter.getClientMethodParameter().getClientType(),
-                    methodParameter.getClientMethodParameter().getWireType(), null);
+                node = new LiteralNode(methodParameter.getClientMethodParameter().getClientType(), null);
             }
         } else {
             node = parseNodeFromMethodParameter(methodParameter, exampleValue);
