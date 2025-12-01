@@ -169,19 +169,11 @@ namespace Microsoft.TypeSpec.Generator.Input
                     MarkModelsAsDynamicRecursive(discriminatedModel, visited);
                 }
 
-                // Mark the base model as dynamic
+                // Mark the base discriminated model as dynamic
                 var baseModel = modelType.BaseModel;
                 if (baseModel?.DiscriminatorProperty != null || baseModel?.DiscriminatorValue != null)
                 {
                     MarkModelsAsDynamicRecursive(baseModel, visited);
-                }
-
-                if (baseModel?.DiscriminatedSubtypes != null)
-                {
-                    foreach (var derivedModel in baseModel.DiscriminatedSubtypes.Values)
-                    {
-                        MarkModelsAsDynamicRecursive(derivedModel, visited);
-                    }
                 }
 
                 foreach (var property in modelType.Properties)
