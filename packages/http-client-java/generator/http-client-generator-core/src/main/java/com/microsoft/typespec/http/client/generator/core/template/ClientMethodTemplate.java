@@ -39,6 +39,7 @@ import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.http.models.HttpHeaderName;
 import io.clientcore.core.utils.CoreUtils;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -140,6 +141,16 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
     protected static void addOptionalAndConstantVariables(JavaBlock function, ClientMethod clientMethod,
         JavaSettings settings) {
         final List<ProxyMethodParameter> proxyMethodParameters = clientMethod.getProxyMethod().getParameters();
+
+        // for client method that overload another method (of full parameters)
+        // clientMethod.getOverloadedClientMethod()
+        List<com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.MethodParameter> methodParameters
+            = MethodUtil.getParameters(clientMethod, false);
+        List<com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.MethodParameter> overloadedMethodParameters
+            = clientMethod.getOverloadedClientMethod() == null
+                ? Collections.emptyList()
+                : MethodUtil.getParameters(clientMethod.getOverloadedClientMethod(), false);
+
         for (ProxyMethodParameter parameter : proxyMethodParameters) {
             if (parameter.isFromClient()) {
                 // parameter is scoped to the client, hence no local variable instantiation for it.
@@ -162,13 +173,29 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 parameterWireType = ClassType.STRING;
             }
 
-            // If the parameter isn't required and the client method only uses required parameters, optional
-            // parameters are omitted and will need to instantiated in the method.
-            boolean optionalOmitted = clientMethod.getOnlyRequiredParameters() && !parameter.isRequired();
+            // If the parameter isn't required and the client method only uses required parameters,
+            // optional parameters will need to be locally instantiated in the method.
+            boolean optionalParameterToInitialize = !parameter.isRequired() && clientMethod.getOnlyRequiredParameters();
+
+            // For overload client method for versioning of "@added".
+            // In this case, the client method with required and optional parameters may not be the method with full
+            // parameters. And we need to refine the value of "optionalParameterToInitialize".
+            if (!parameter.isRequired() && clientMethod.getOverloadedClientMethod() != null) {
+                // for overload client method for versioning of "@added"
+                boolean parameterInClientMethodSignature
+                    = methodParameters.stream().anyMatch(p -> p.getProxyMethodParameter() == parameter);
+                boolean parameterInOverloadedClientMethodSignature
+                    = overloadedMethodParameters.stream().anyMatch(p -> p.getProxyMethodParameter() == parameter);
+                // if the parameter is not defined in this client method,
+                // but it is defined in the overloaded client method (the one with full parameters),
+                // we would need to treat it as optional parameter and locally initialize it in this client method.
+                optionalParameterToInitialize
+                    = !parameterInClientMethodSignature && parameterInOverloadedClientMethodSignature;
+            }
 
             // Optional variables and constants are always null if their wire type and client type differ and applying
             // conversions between the types is ignored.
-            boolean alwaysNull = parameterWireType != parameterClientType && optionalOmitted;
+            boolean alwaysNull = parameterWireType != parameterClientType && optionalParameterToInitialize;
 
             // Constants should be included if the parameter is a constant, and it's either required or optional
             // constants aren't generated as enums.
@@ -178,7 +205,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             // Client methods only add local variable instantiations when the parameter isn't passed by the caller,
             // isn't always null, is an optional parameter that was omitted or is a constant that is either required
             // or AutoRest isn't generating with optional constant as enums.
-            if (!alwaysNull && (optionalOmitted || includeConstant)) {
+            if (!alwaysNull && (optionalParameterToInitialize || includeConstant)) {
                 final String defaultValue = parameterDefaultValueExpression(parameter);
                 function.line("final %s %s = %s;", parameterClientType, parameter.getParameterReference(),
                     defaultValue == null ? "null" : defaultValue);
