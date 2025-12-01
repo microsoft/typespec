@@ -24,8 +24,8 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Servi
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.CollectionFormat;
-import com.microsoft.typespec.http.client.generator.core.util.ModelExampleUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
+import com.microsoft.typespec.http.client.generator.core.util.WireTypeClientTypeConverter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -122,7 +122,7 @@ public class ProtocolExampleWriter {
                                 = proxyMethodParameter.getRequestParameterLocation() == RequestParameterLocation.QUERY
                                     ? parameterValue.getUnescapedQueryValue().toString()
                                     : parameterValue.getObjectValue().toString();
-                            exampleValue = ModelExampleUtil
+                            exampleValue = WireTypeClientTypeConverter
                                 .convertLiteralToClientValue(proxyMethodParameter.getWireType(), exampleValue);
                             params.set(parameterIndex,
                                 proxyMethodParameter.getClientType().defaultValueExpression(exampleValue));
