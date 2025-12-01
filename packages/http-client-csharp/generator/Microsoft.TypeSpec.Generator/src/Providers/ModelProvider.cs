@@ -62,6 +62,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private ModelProvider? _baseModelProvider;
         private ConstructorProvider? _fullConstructor;
         internal PropertyProvider? DiscriminatorProperty { get; private set; }
+        private ValueExpression DiscriminatorLiteral => Literal(_inputModel.DiscriminatorValue ?? "");
 
         public ModelProvider(InputModelType inputModel) : base(inputModel)
         {
@@ -735,7 +736,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         // Call base model's private protected constructor with discriminator value
                         var args = new List<ValueExpression>();
 
-                        // For multi-level inheritance: pass through discriminator if available, otherwise use own value
+                        // For multi-level inheritance: pass through discriminator parameter if available, otherwise use own value
                         if (includeDiscriminatorParameter)
                         {
                             var discriminatorProperty = BaseModelProvider?.CanonicalView.Properties.FirstOrDefault(p => p.IsDiscriminator);
@@ -759,13 +760,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                             else
                             {
                                 // Fallback: use our own discriminator value
-                                args.Add(Literal(_inputModel.DiscriminatorValue ?? ""));
+                                args.Add(DiscriminatorLiteral);
                             }
                         }
                         else
                         {
                             // For public constructor: use our own discriminator value
-                            args.Add(Literal(_inputModel.DiscriminatorValue ?? ""));
+                            args.Add(DiscriminatorLiteral);
                         }
 
                         var filteredParams = baseParameters.Where(p => p.Property is null || !p.Property.IsDiscriminator).ToList();
@@ -779,7 +780,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         {
                             // Call base model's private protected constructor with our discriminator value
                             var args = new List<ValueExpression>();
-                            args.Add(Literal(_inputModel.DiscriminatorValue ?? ""));
+                            args.Add(DiscriminatorLiteral);
 
                             var filteredParams = baseParameters.Where(p => p.Property is null || !p.Property.IsDiscriminator).ToList();
                             args.AddRange(filteredParams.Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor)));
@@ -877,7 +878,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     }
 
                     // fallback to the default value
-                    return Literal(_inputModel.DiscriminatorValue);
+                    return DiscriminatorLiteral;
                 }
             }
             return null;
@@ -925,7 +926,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 if (type.IsStruct)
                 {
                     /* kind != default ? kind : "unknown" */
-                    return new TernaryConditionalExpression(discriminatorExpression.NotEqual(Default), discriminatorExpression, Literal(_inputModel.DiscriminatorValue));
+                    return new TernaryConditionalExpression(discriminatorExpression.NotEqual(Default), discriminatorExpression, DiscriminatorLiteral);
                 }
                 else
                 {
@@ -935,7 +936,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             else
             {
                 /* kind ?? "unknown" */
-                return discriminatorExpression.NullCoalesce(Literal(_inputModel.DiscriminatorValue));
+                return discriminatorExpression.NullCoalesce(DiscriminatorLiteral);
             }
         }
 
