@@ -3,9 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
-import com.azure.core.util.CoreUtils;
-import com.azure.core.util.logging.ClientLogger;
-import com.azure.core.util.serializer.JacksonAdapter;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.implementation.ClientModelPropertiesManager;
 import com.microsoft.typespec.http.client.generator.core.implementation.PolymorphicDiscriminatorHandler;
@@ -33,6 +30,7 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVis
 import com.microsoft.typespec.http.client.generator.core.template.util.ModelTemplateHeaderHelper;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
+import io.clientcore.core.utils.CoreUtils;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URL;
@@ -439,12 +437,12 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
             imports.add(URL.class.getName());
             imports.add(IOException.class.getName());
             imports.add(UncheckedIOException.class.getName());
-            imports.add(ClientLogger.class.getName());
+            imports.add(ClassType.CLIENT_LOGGER.getFullName());
 
             // JacksonAdapter will be removed in the future once model types are converted to using stream-style
             // serialization. For now, it's needed to handle the rare scenario where the strong type is a non-Java
             // base type.
-            imports.add(JacksonAdapter.class.getName());
+            imports.add(ClassType.JACKSON_ADAPTER.getFullName());
         }
 
         String lastParentName = model.getName();
@@ -1001,9 +999,7 @@ public class ModelTemplate implements IJavaTemplate<ClientModel, JavaFile> {
             }
 
             classBlock.privateConstructor(model.getName() + "(" + constructorPropertiesAsWireType + ")",
-                constructor -> {
-                    constructor.line("this(" + constructorPropertiesInvokePublicConstructor + ");");
-                });
+                constructor -> constructor.line("this(" + constructorPropertiesInvokePublicConstructor + ");"));
         }
     }
 

@@ -31,6 +31,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected InputOperation Operation { get; }
         protected InputPagingServiceMetadata Paging { get; }
 
+        protected internal FieldProvider? PageSizeField { get; }
+
         protected FieldProvider RequestOptionsField => _requestOptionsField ??= RequestFields
             .First(f => f.Name == RequestOptionsFieldName);
         private FieldProvider? _requestOptionsField;
@@ -80,11 +82,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ResponseModel = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel((InputModelType)response!.BodyType!)!;
             ResponseModelType = ResponseModel.Type;
 
+            // The page size request parameter will always correspond to the last segment. We do not currently support
+            // nested page size parameters that are not HTTP parameters, i.e. just a property in a body.
+            // TODO https://github.com/microsoft/typespec/issues/9069
+            var pageSize = Paging.PageSizeParameterSegments.LastOrDefault();
+
             foreach (var field in RequestFields)
             {
                 if (field.AsParameter.Name == Paging.ContinuationToken?.Parameter.Name)
                 {
                     NextTokenField = field;
+                }
+
+                if (field.AsParameter.Name == pageSize)
+                {
+                    PageSizeField = field;
                 }
             }
 
@@ -192,27 +204,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected ValueExpression BuildGetPropertyExpression(IReadOnlyList<string> segments, ValueExpression responseModel)
         {
-            TypeProvider model = ResponseModel;
-            ValueExpression getPropertyExpression = responseModel;
-
-            for (int i = 0; i < segments.Count; i++)
-            {
-                var property = model.Properties.First(p => p.WireInfo?.SerializedName == segments[i]);
-
-                if (i > 0)
-                {
-                    getPropertyExpression = getPropertyExpression.NullConditional();
-                }
-
-                getPropertyExpression = getPropertyExpression.Property(property.Name);
-
-                if (i < segments.Count - 1)
-                {
-                    model = ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[property.Type]!;
-                }
-            }
-
-            return getPropertyExpression;
+            return ResponseModel.GetPropertyExpression(responseModel, segments);
         }
 
         private MethodBodyStatement[] BuildConstructorBody(ParameterProvider clientParameter)

@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.template.azurevnext;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Pom;
 import com.microsoft.typespec.http.client.generator.core.model.projectmodel.Project;
@@ -11,7 +10,8 @@ import com.microsoft.typespec.http.client.generator.core.model.xmlmodel.XmlBlock
 import com.microsoft.typespec.http.client.generator.core.model.xmlmodel.XmlFile;
 import com.microsoft.typespec.http.client.generator.core.template.PomTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.TemplateHelper;
-import java.util.Arrays;
+import com.microsoft.typespec.http.client.generator.core.util.Constants;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -30,11 +30,10 @@ public class AzureVNextPomTemplate extends PomTemplate {
 
         // copyright
         if (!CoreUtils.isNullOrEmpty(settings.getFileHeaderText())) {
-            xmlFile.blockComment(xmlLineComment -> {
-                xmlLineComment.line(Arrays.stream(settings.getFileHeaderText().split(System.lineSeparator()))
-                    .map(line -> " ~ " + line)
-                    .collect(Collectors.joining(System.lineSeparator())));
-            });
+            xmlFile.blockComment(xmlLineComment -> xmlLineComment.line(settings.getFileHeaderText()
+                .lines()
+                .map(line -> " ~ " + line)
+                .collect(Collectors.joining(Constants.NEW_LINE))));
         }
 
         Map<String, String> projectAnnotations = new HashMap<>();
@@ -75,13 +74,11 @@ public class AzureVNextPomTemplate extends PomTemplate {
 
             projectBlock.line();
 
-            projectBlock.block("licenses", licensesBlock -> {
-                licensesBlock.block("license", licenseBlock -> {
-                    licenseBlock.tag("name", "The MIT License (MIT)");
-                    licenseBlock.tag("url", "http://opensource.org/licenses/MIT");
-                    licenseBlock.tag("distribution", "repo");
-                });
-            });
+            projectBlock.block("licenses", licensesBlock -> licensesBlock.block("license", licenseBlock -> {
+                licenseBlock.tag("name", "The MIT License (MIT)");
+                licenseBlock.tag("url", "http://opensource.org/licenses/MIT");
+                licenseBlock.tag("distribution", "repo");
+            }));
 
             projectBlock.line();
 
@@ -92,12 +89,10 @@ public class AzureVNextPomTemplate extends PomTemplate {
                 scmBlock.tag("tag", "HEAD");
             });
 
-            projectBlock.block("developers", developersBlock -> {
-                developersBlock.block("developer", developerBlock -> {
-                    developerBlock.tag("id", "microsoft");
-                    developerBlock.tag("name", "Microsoft");
-                });
-            });
+            projectBlock.block("developers", developersBlock -> developersBlock.block("developer", developerBlock -> {
+                developerBlock.tag("id", "microsoft");
+                developerBlock.tag("name", "Microsoft");
+            }));
 
             projectBlock.block("properties", propertiesBlock -> {
                 propertiesBlock.tag("project.build.sourceEncoding", "UTF-8");
@@ -147,24 +142,6 @@ public class AzureVNextPomTemplate extends PomTemplate {
     }
 
     /**
-     * Extension for writing jacoco configuration.
-     *
-     * @param propertiesBlock the "properties" xml block.
-     */
-    protected void writeJacoco(XmlBlock propertiesBlock) {
-        // NOOP for data-plane
-    }
-
-    /**
-     * Extension for writing revapi configuration.
-     *
-     * @param propertiesBlock the "properties" xml block.
-     */
-    protected void writeRevapi(XmlBlock propertiesBlock, Pom pom) {
-        // NOOP for data-plane
-    }
-
-    /**
      * Extension for writing Spotless configuration.
      *
      * @param propertiesBlock The {@code <properties></properties>} XML block within the {@code pom.xml}.
@@ -182,11 +159,8 @@ public class AzureVNextPomTemplate extends PomTemplate {
      */
     protected void writeBuildBlock(XmlBlock projectBlock, Pom pom) {
         if (pom.isRequireCompilerPlugins()) {
-            projectBlock.block("build", buildBlock -> {
-                buildBlock.block("plugins", pluginsBlock -> {
-                    writePlugins(projectBlock);
-                });
-            });
+            projectBlock.block("build",
+                buildBlock -> buildBlock.block("plugins", pluginsBlock -> writePlugins(projectBlock)));
         }
     }
 
@@ -202,52 +176,44 @@ public class AzureVNextPomTemplate extends PomTemplate {
             pluginBlock.tag("artifactId", "maven-compiler-plugin");
             pluginBlock.tag("version", "3.13.0");
 
-            pluginBlock.block("executions", executionsBlock -> {
-                executionsBlock.block("execution", executionBlock -> {
-                    executionBlock.tag("id", "run-annotation-processing");
-                    executionBlock.tag("phase", "generate-sources");
-                    executionBlock.block("goals", goalsBlock -> {
-                        goalsBlock.tag("goal", "compile");
-                    });
+            pluginBlock.block("executions", executionsBlock -> executionsBlock.block("execution", executionBlock -> {
+                executionBlock.tag("id", "run-annotation-processing");
+                executionBlock.tag("phase", "generate-sources");
+                executionBlock.block("goals", goalsBlock -> goalsBlock.tag("goal", "compile"));
 
-                    executionBlock.block("configuration", configurationBlock -> {
-                        configurationBlock.tag("source", "1.8");
-                        configurationBlock.tag("target", "1.8");
-                        configurationBlock.tag("release", "8");
-                        configurationBlock.tag("proc", "only");
-                        configurationBlock.tag("generatedSourcesDirectory",
-                            "${project.build.directory}/generated-sources/");
-                        configurationBlock.block("annotationProcessorPaths", annotationProcessorPathsBlock -> {
-                            annotationProcessorPathsBlock.block("annotationProcessorPath", pathBlock -> {
+                executionBlock.block("configuration", configurationBlock -> {
+                    configurationBlock.tag("source", "1.8");
+                    configurationBlock.tag("target", "1.8");
+                    configurationBlock.tag("release", "8");
+                    configurationBlock.tag("proc", "only");
+                    configurationBlock.tag("generatedSourcesDirectory",
+                        "${project.build.directory}/generated-sources/");
+                    configurationBlock.block("annotationProcessorPaths",
+                        annotationProcessorPathsBlock -> annotationProcessorPathsBlock.block("annotationProcessorPath",
+                            pathBlock -> {
                                 pathBlock.tag("groupId", "io.clientcore");
                                 pathBlock.tag("artifactId", "annotation-processor");
                                 pathBlock.tagWithInlineComment("version", "1.0.0-beta.4",
                                     "{x-version-update;io.clientcore:annotation-processor;dependency}");
-                            });
-                        });
-                        configurationBlock.block("annotationProcessors", annotationProcessorsBlock -> {
-                            annotationProcessorsBlock.tag("annotationProcessor",
-                                "io.clientcore.annotation.processor.AnnotationProcessor");
-                        });
-                        configurationBlock.block("compilerArgs", compilerArgsBlock -> {
-                            compilerArgsBlock.tag("arg", "-Xlint:-options");
-                        });
-                        configurationBlock.block("excludes", excludesBlock -> {
-                            excludesBlock.tag("exclude", "module-info.java");
-                        });
-                    });
-
+                            }));
+                    configurationBlock.block("annotationProcessors",
+                        annotationProcessorsBlock -> annotationProcessorsBlock.tag("annotationProcessor",
+                            "io.clientcore.annotation.processor.AnnotationProcessor"));
+                    configurationBlock.block("compilerArgs",
+                        compilerArgsBlock -> compilerArgsBlock.tag("arg", "-Xlint:-options"));
+                    configurationBlock.block("excludes",
+                        excludesBlock -> excludesBlock.tag("exclude", "module-info.java"));
                 });
-            });
 
-            pluginsBlock.block("dependencies", dependenciesBlock -> {
-                dependenciesBlock.block("dependency", dependencyBlock -> {
+            }));
+
+            pluginsBlock.block("dependencies",
+                dependenciesBlock -> dependenciesBlock.block("dependency", dependencyBlock -> {
                     dependencyBlock.tag("groupId", "io.clientcore");
                     dependencyBlock.tag("artifactId", "annotation-processor");
                     dependencyBlock.tagWithInlineComment("version", "1.0.0-beta.3",
                         "{x-version-update;io.clientcore:annotation-processor;dependency}");
-                });
-            });
+                }));
         });
     }
 }

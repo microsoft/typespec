@@ -95,7 +95,7 @@ public final class EnvelopeObjectDefaultsImpl {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return test discriminated union with default envelope serialization.
      * The discriminated union should serialize with "kind" as discriminator
-     * and "value" as envelope property.
+     * and "value" as envelope property along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> getWithResponse(String kind, RequestContext requestContext) {
@@ -116,7 +116,7 @@ public final class EnvelopeObjectDefaultsImpl {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return test discriminated union with default envelope serialization.
      * The discriminated union should serialize with "kind" as discriminator
-     * and "value" as envelope property.
+     * and "value" as envelope property along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> putWithResponse(BinaryData input, RequestContext requestContext) {

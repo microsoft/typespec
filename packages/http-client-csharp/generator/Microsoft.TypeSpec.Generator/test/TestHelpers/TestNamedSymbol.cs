@@ -53,7 +53,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             _initializeEnumProperty = initializeEnumProperty;
         }
 
-        protected override FieldProvider[] BuildFields()
+        protected internal override FieldProvider[] BuildFields()
         {
             return
             [
@@ -68,7 +68,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             ];
         }
 
-        protected override PropertyProvider[] BuildProperties()
+        protected internal override PropertyProvider[] BuildProperties()
         {
             if (_propertyType == null)
             {
@@ -89,7 +89,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
 
             ValueExpression? initializer = null;
             CSharpType propertyType = new CSharpType(_propertyType);
-            
+
             // If initializeEnumProperty is true and the property type is an enum, create an enum member initializer
             if (_initializeEnumProperty && _propertyType.IsEnum)
             {
@@ -125,7 +125,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             ];
         }
 
-        protected override ConstructorProvider[] BuildConstructors()
+        protected internal override ConstructorProvider[] BuildConstructors()
         {
             var intParam = new ParameterProvider("intParam", $"intParam", new CSharpType(typeof(int)));
 
@@ -139,7 +139,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             ];
         }
 
-        protected override MethodProvider[] BuildMethods()
+        protected internal override MethodProvider[] BuildMethods()
         {
             List<ParameterProvider> parameters = new();
             var parameterType = _parameterType ?? typeof(int);

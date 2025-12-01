@@ -19,6 +19,14 @@ export type FileType = "yaml" | "json";
 export type Int64Strategy = "string" | "number";
 
 /**
+ * Strategy for handling models with the discriminator decorator.
+ * - ignore: Emit as regular object schema (default)
+ * - oneOf: Emit a oneOf schema with references to all derived models (closed union)
+ * - anyOf: Emit an anyOf schema with references to all derived models (open union)
+ */
+export type PolymorphicModelsStrategy = "ignore" | "oneOf" | "anyOf";
+
+/**
  * Json schema emitter options
  */
 export interface JSONSchemaEmitterOptions {
@@ -62,6 +70,15 @@ export interface JSONSchemaEmitterOptions {
    * @defaultValue false
    */
   "seal-object-schemas"?: boolean;
+
+  /**
+   * Strategy for emitting models with the discriminator decorator.
+   * - ignore: Emit as regular object schema (default)
+   * - oneOf: Emit a oneOf schema with references to all derived models (closed union)
+   * - anyOf: Emit an anyOf schema with references to all derived models (open union)
+   * @defaultValue "ignore"
+   */
+  "polymorphic-models-strategy"?: PolymorphicModelsStrategy;
 }
 
 /**
@@ -112,6 +129,18 @@ export const EmitterOptionsSchema: JSONSchemaType<JSONSchemaEmitterOptions> = {
         "If true, then for models emitted as object schemas we default `unevaluatedProperties` to `{ not: {} }`,",
         "if not explicitly specified elsewhere.",
         "Default: `false`",
+      ].join("\n"),
+    },
+    "polymorphic-models-strategy": {
+      type: "string",
+      enum: ["ignore", "oneOf", "anyOf"],
+      nullable: true,
+      default: "ignore",
+      description: [
+        "Strategy for emitting models with the @discriminator decorator:",
+        "- ignore: Emit as regular object schema (default)",
+        "- oneOf: Emit a oneOf schema with references to all derived models (closed union)",
+        "- anyOf: Emit an anyOf schema with references to all derived models (open union)",
       ].join("\n"),
     },
   },

@@ -596,12 +596,18 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 null);
         }
 
-        public static InputPagingServiceMetadata ContinuationTokenPagingMetadata(InputParameter parameter, IReadOnlyList<string> itemSegments, IReadOnlyList<string> continuationTokenSegments, InputResponseLocation continuationTokenLocation)
+        public static InputPagingServiceMetadata ContinuationTokenPagingMetadata(
+            InputParameter parameter,
+            IReadOnlyList<string> itemSegments,
+            IReadOnlyList<string> continuationTokenSegments,
+            InputResponseLocation continuationTokenLocation,
+            IReadOnlyList<string>? pageSizeParameterSegments = null)
         {
             return new InputPagingServiceMetadata(
                 itemSegments,
                 null,
-                continuationToken: new InputContinuationToken(parameter, continuationTokenSegments, continuationTokenLocation));
+                continuationToken: new InputContinuationToken(parameter, continuationTokenSegments, continuationTokenLocation),
+                pageSizeParameterSegments: pageSizeParameterSegments);
         }
 
         public static InputOperationResponse OperationResponse(

@@ -296,6 +296,9 @@ export interface SourceModel {
   readonly usage: "is" | "spread" | "intersection";
   /** Source model */
   readonly model: Model;
+
+  /** Node where this source model was referenced. */
+  readonly node?: Node;
 }
 
 export interface ModelProperty extends BaseType, DecoratedType {

@@ -48,7 +48,7 @@
     "@types/react": "~19.2.2",
     "@types/react-dom": "~19.2.2",
     "@vitejs/plugin-react": "~5.1.0",
-    "rimraf": "~6.0.1",
+    "rimraf": "~6.1.2",
     "rollup-plugin-visualizer": "~6.0.3",
     "typescript": "~5.9.2",
     "vite": "^7.0.5",
