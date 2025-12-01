@@ -492,9 +492,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 secondaryConstructors.Add(secondaryConstructor);
 
-                // When endpoint has a default value and there are required parameters (like auth),
-                // add an additional constructor that accepts required parameters + options
+                // When endpoint has a default value and there are required parameters,
+                // add an additional constructor that accepts required parameters + options.
                 // This allows users to customize client options without specifying the endpoint.
+                // Note: Required parameters typically include auth credentials when auth is present.
                 if (_endpointParameter.InitializationValue is not null && requiredParameters.Count > 0)
                 {
                     ParameterProvider[] simplifiedConstructorWithOptionsParameters = [.. requiredParameters, ClientOptionsParameter];
