@@ -729,20 +729,67 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 if (baseParameters.Count > 0)
                 {
-                    // Check if base model has dual constructor pattern and we should call private protected constructor
-                    if (isInitializationConstructor && BaseModelProvider._isMultiLevelDiscriminator)
+                    // Check if current model has dual constructor pattern and we should call private protected constructor
+                    if (isInitializationConstructor && _isMultiLevelDiscriminator)
                     {
                         // Call base model's private protected constructor with discriminator value
                         var args = new List<ValueExpression>();
-                        args.Add(Literal(_inputModel.DiscriminatorValue ?? ""));
+
+                        // For multi-level inheritance: pass through discriminator if available, otherwise use own value
+                        if (includeDiscriminatorParameter)
+                        {
+                            var discriminatorProperty = BaseModelProvider?.CanonicalView.Properties.FirstOrDefault(p => p.IsDiscriminator);
+
+                            if (discriminatorProperty != null)
+                            {
+                                var baseDiscriminatorParam = baseParameters.FirstOrDefault(p => p.Property?.IsDiscriminator == true);
+
+                                if (baseDiscriminatorParam != null)
+                                {
+                                    args.Add(baseDiscriminatorParam);
+                                }
+                                else
+                                {
+                                    // Fallback: create variable expression
+                                    var discriminatorParamName = discriminatorProperty.Name.ToVariableName(); // should be "kind"
+                                    var discriminatorParam = new VariableExpression(typeof(string), discriminatorParamName);
+                                    args.Add(discriminatorParam);
+                                }
+                            }
+                            else
+                            {
+                                // Fallback: use our own discriminator value
+                                args.Add(Literal(_inputModel.DiscriminatorValue ?? ""));
+                            }
+                        }
+                        else
+                        {
+                            // For public constructor: use our own discriminator value
+                            args.Add(Literal(_inputModel.DiscriminatorValue ?? ""));
+                        }
+
                         var filteredParams = baseParameters.Where(p => p.Property is null || !p.Property.IsDiscriminator).ToList();
                         args.AddRange(filteredParams.Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor)));
                         constructorInitializer = new ConstructorInitializer(true, args);
                     }
                     else
                     {
-                        // Standard base constructor call
-                        constructorInitializer = new ConstructorInitializer(true, [.. baseParameters.Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor))]);
+                        // Check if base model has multi-level discriminator and we should call its protected constructor
+                        if (isInitializationConstructor && BaseModelProvider?._isMultiLevelDiscriminator == true)
+                        {
+                            // Call base model's private protected constructor with our discriminator value
+                            var args = new List<ValueExpression>();
+                            args.Add(Literal(_inputModel.DiscriminatorValue ?? ""));
+
+                            var filteredParams = baseParameters.Where(p => p.Property is null || !p.Property.IsDiscriminator).ToList();
+                            args.AddRange(filteredParams.Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor)));
+                            constructorInitializer = new ConstructorInitializer(true, args);
+                        }
+                        else
+                        {
+                            // Standard base constructor call
+                            constructorInitializer = new ConstructorInitializer(true, [.. baseParameters.Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor))]);
+                        }
                     }
                 }
                 else
@@ -842,7 +889,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 if (isPrimaryConstructor)
                 {
-                    return DiscriminatorValueExpression ?? throw new InvalidOperationException($"invalid discriminator {_inputModel.DiscriminatorValue} for property {parameter.Property.Name}");
+                    // For multi-level discriminators, check if we should pass through the parameter instead of using our discriminator value
+                    if (_isMultiLevelDiscriminator && parameter.Name != parameter.Property.Name.ToVariableName())
+                    {
+                        return parameter;
+                    }
+                    else
+                    {
+                        return DiscriminatorValueExpression ?? throw new InvalidOperationException($"invalid discriminator {_inputModel.DiscriminatorValue} for property {parameter.Property.Name}");
+                    }
                 }
                 else if (IsUnknownDiscriminatorModel)
                 {
