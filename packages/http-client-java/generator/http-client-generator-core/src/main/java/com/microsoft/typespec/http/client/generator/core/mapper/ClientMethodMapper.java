@@ -211,9 +211,16 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                     }
 
                     if (settings.isFluent()) {
-                        createLroBeginClientMethods(baseMethod, methodNamer.getLroBeginAsyncMethodName(),
+                        final PollingMetadata pollingMetadata = PollingMetadata.create(operation, proxyMethod,
+                            methodsReturnDescription.getSyncReturnType());
+                        final ClientMethod lroBaseMethod = pollingMetadata != null
+                            ? baseMethod.newBuilder()
+                                .methodPollingDetails(pollingMetadata.asMethodPollingDetails())
+                                .build()
+                            : baseMethod;
+                        createLroBeginClientMethods(lroBaseMethod, methodNamer.getLroBeginAsyncMethodName(),
                             methodNamer.getLroBeginMethodName(), methods, createMethodArgs);
-                        this.createAdditionalLroMethods(baseMethod, methods, createMethodArgs);
+                        this.createAdditionalLroMethods(lroBaseMethod, methods, createMethodArgs);
                     } else {
                         final PollingMetadata pollingMetadata = PollingMetadata.create(operation, proxyMethod,
                             methodsReturnDescription.getSyncReturnType());
