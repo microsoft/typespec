@@ -1,5 +1,17 @@
 # Change Log - @typespec/http-client-python
 
+## 0.21.0
+
+### Features
+
+- [#9112](https://github.com/microsoft/typespec/pull/9112) Support customized http method to call next link for paging operation
+
+### Bug Fixes
+
+- [#9108](https://github.com/microsoft/typespec/pull/9108) fix logic about which scenario to add msrest as dependency
+- [#9107](https://github.com/microsoft/typespec/pull/9107) Fix @override to avoid duplicated subscriptionId or api-version signatures
+
+
 ## 0.20.3
 
 ### Bump dependencies
