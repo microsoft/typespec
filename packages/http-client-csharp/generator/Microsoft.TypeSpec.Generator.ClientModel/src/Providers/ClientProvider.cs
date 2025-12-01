@@ -586,8 +586,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private ClientProvider? GetRootClient()
         {
             var currentClient = _inputClient;
+            var visited = new HashSet<InputClient>();
             while (currentClient.Parent != null)
             {
+                if (!visited.Add(currentClient))
+                {
+                    // Circular reference detected - return current client
+                    break;
+                }
                 currentClient = currentClient.Parent;
             }
             return ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(currentClient);
