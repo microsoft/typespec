@@ -495,6 +495,187 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(mockingConstructor);
         }
 
+        // Tests for InitializedBy flag behavior
+
+        [Test]
+        public void TestBuildConstructors_ForSubClient_InitializedByIndividually_HasPublicConstructors()
+        {
+            var parentClient = InputFactory.Client("ParentClient");
+            var subClient = InputFactory.Client(
+                "SubClient",
+                parent: parentClient,
+                initializedBy: InputClientInitializedBy.Individually);
+
+            MockHelpers.LoadMockGenerator(
+                auth: () => new(new InputApiKeyAuth("mock", null), null),
+                clients: () => [parentClient]);
+
+            var clientProvider = new ClientProvider(subClient);
+
+            Assert.IsNotNull(clientProvider);
+
+            var constructors = clientProvider.Constructors;
+
+            // Should have mocking constructor + public constructors
+            var publicConstructors = constructors.Where(
+                c => c.Signature?.Modifiers == MethodSignatureModifiers.Public).ToList();
+            Assert.IsTrue(publicConstructors.Count > 0, "SubClient with InitializedBy.Individually should have public constructors");
+
+            // Should NOT have internal constructor since InitializedBy does not include Parent
+            var internalConstructor = constructors.FirstOrDefault(
+                c => c.Signature?.Modifiers == MethodSignatureModifiers.Internal);
+            Assert.IsNull(internalConstructor, "SubClient with InitializedBy.Individually (without Parent) should not have internal constructor");
+
+            var mockingConstructor = constructors.FirstOrDefault(
+                c => c.Signature?.Modifiers == MethodSignatureModifiers.Protected);
+            Assert.IsNotNull(mockingConstructor);
+        }
+
+        [Test]
+        public void TestBuildConstructors_ForSubClient_InitializedByParentOnly_HasOnlyInternalConstructor()
+        {
+            var parentClient = InputFactory.Client("ParentClient");
+            var subClient = InputFactory.Client(
+                "SubClient",
+                parent: parentClient,
+                initializedBy: InputClientInitializedBy.Parent);
+
+            MockHelpers.LoadMockGenerator(
+                auth: () => new(new InputApiKeyAuth("mock", null), null),
+                clients: () => [parentClient]);
+
+            var clientProvider = new ClientProvider(subClient);
+
+            Assert.IsNotNull(clientProvider);
+
+            var constructors = clientProvider.Constructors;
+
+            // Should have mocking constructor + internal constructor only
+            var publicConstructors = constructors.Where(
+                c => c.Signature?.Modifiers == MethodSignatureModifiers.Public).ToList();
+            Assert.AreEqual(0, publicConstructors.Count, "SubClient with InitializedBy.Parent should not have public constructors");
+
+            var internalConstructor = constructors.FirstOrDefault(
+                c => c.Signature?.Modifiers == MethodSignatureModifiers.Internal);
+            Assert.IsNotNull(internalConstructor, "SubClient with InitializedBy.Parent should have internal constructor");
+
+            var mockingConstructor = constructors.FirstOrDefault(
+                c => c.Signature?.Modifiers == MethodSignatureModifiers.Protected);
+            Assert.IsNotNull(mockingConstructor);
+        }
+
+        [Test]
+        public void TestBuildConstructors_ForSubClient_InitializedByBoth_HasBothConstructors()
+        {
+            var parentClient = InputFactory.Client("ParentClient");
+            var subClient = InputFactory.Client(
+                "SubClient",
+                parent: parentClient,
+                initializedBy: InputClientInitializedBy.Individually | InputClientInitializedBy.Parent);
+
+            MockHelpers.LoadMockGenerator(
+                auth: () => new(new InputApiKeyAuth("mock", null), null),
+                clients: () => [parentClient]);
+
+            var clientProvider = new ClientProvider(subClient);
+
+            Assert.IsNotNull(clientProvider);
+
+            var constructors = clientProvider.Constructors;
+
+            // Should have public constructors
+            var publicConstructors = constructors.Where(
+                c => c.Signature?.Modifiers == MethodSignatureModifiers.Public).ToList();
+            Assert.IsTrue(publicConstructors.Count > 0, "SubClient with InitializedBy.Individually | Parent should have public constructors");
+
+            // Should also have internal constructor
+            var internalConstructor = constructors.FirstOrDefault(
+                c => c.Signature?.Modifiers == MethodSignatureModifiers.Internal);
+            Assert.IsNotNull(internalConstructor, "SubClient with InitializedBy.Individually | Parent should have internal constructor");
+
+            var mockingConstructor = constructors.FirstOrDefault(
+                c => c.Signature?.Modifiers == MethodSignatureModifiers.Protected);
+            Assert.IsNotNull(mockingConstructor);
+        }
+
+        [Test]
+        public void TestBuildMethods_ForParent_InitializedByIndividually_NoSubClientAccessor()
+        {
+            var parentClient = InputFactory.Client("ParentClient");
+            var subClient = InputFactory.Client(
+                "SubClient",
+                parent: parentClient,
+                initializedBy: InputClientInitializedBy.Individually);
+
+            MockHelpers.LoadMockGenerator(
+                clients: () => [parentClient]);
+
+            var parentProvider = new ClientProvider(parentClient);
+
+            Assert.IsNotNull(parentProvider);
+
+            // The parent should NOT have a factory method for the subclient
+            var factoryMethod = parentProvider.Methods.FirstOrDefault(
+                m => m.Signature?.Name == "GetSubClient" || m.Signature?.Name == "GetSubClientClient");
+            Assert.IsNull(factoryMethod, "Parent should not have factory method for subclient with InitializedBy.Individually (without Parent)");
+
+            // The parent should NOT have the caching field for the subclient
+            var cachingField = parentProvider.Fields.FirstOrDefault(f => f.Name == "_cachedSubClient");
+            Assert.IsNull(cachingField, "Parent should not have caching field for subclient with InitializedBy.Individually (without Parent)");
+        }
+
+        [Test]
+        public void TestBuildMethods_ForParent_InitializedByParent_HasSubClientAccessor()
+        {
+            var parentClient = InputFactory.Client("ParentClient");
+            var subClient = InputFactory.Client(
+                "SubClient",
+                parent: parentClient,
+                initializedBy: InputClientInitializedBy.Parent);
+
+            MockHelpers.LoadMockGenerator(
+                clients: () => [parentClient]);
+
+            var parentProvider = new ClientProvider(parentClient);
+
+            Assert.IsNotNull(parentProvider);
+
+            // The parent should have a factory method for the subclient
+            var factoryMethod = parentProvider.Methods.FirstOrDefault(
+                m => m.Signature?.Name == "GetSubClient" || m.Signature?.Name == "GetSubClientClient");
+            Assert.IsNotNull(factoryMethod, "Parent should have factory method for subclient with InitializedBy.Parent");
+
+            // The parent should have the caching field for the subclient
+            var cachingField = parentProvider.Fields.FirstOrDefault(f => f.Name == "_cachedSubClient");
+            Assert.IsNotNull(cachingField, "Parent should have caching field for subclient with InitializedBy.Parent");
+        }
+
+        [Test]
+        public void TestBuildMethods_ForParent_InitializedByBoth_HasSubClientAccessor()
+        {
+            var parentClient = InputFactory.Client("ParentClient");
+            var subClient = InputFactory.Client(
+                "SubClient",
+                parent: parentClient,
+                initializedBy: InputClientInitializedBy.Individually | InputClientInitializedBy.Parent);
+
+            MockHelpers.LoadMockGenerator(
+                clients: () => [parentClient]);
+
+            var parentProvider = new ClientProvider(parentClient);
+
+            Assert.IsNotNull(parentProvider);
+
+            // The parent should have a factory method for the subclient
+            var factoryMethod = parentProvider.Methods.FirstOrDefault(
+                m => m.Signature?.Name == "GetSubClient" || m.Signature?.Name == "GetSubClientClient");
+            Assert.IsNotNull(factoryMethod, "Parent should have factory method for subclient with InitializedBy.Individually | Parent");
+
+            // The parent should have the caching field for the subclient
+            var cachingField = parentProvider.Fields.FirstOrDefault(f => f.Name == "_cachedSubClient");
+            Assert.IsNotNull(cachingField, "Parent should have caching field for subclient with InitializedBy.Individually | Parent");
+        }
+
         private void ValidatePrimaryConstructor(
             ConstructorProvider primaryPublicConstructor,
             List<InputParameter> inputParameters,
