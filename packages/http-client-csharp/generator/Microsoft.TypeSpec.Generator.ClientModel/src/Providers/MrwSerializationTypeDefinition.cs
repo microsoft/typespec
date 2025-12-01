@@ -857,9 +857,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private MethodBodyStatement CallBaseJsonModelWriteCore(bool isDynamicModelWithNonDynamicBase)
         {
             // base.<JsonModelWriteCore>()
-            bool includeBasePatchSerialization = _shouldOverrideMethods
+            bool callBaseWriteMethod = _shouldOverrideMethods
                 && (_jsonPatchProperty is null || !isDynamicModelWithNonDynamicBase);
-            return includeBasePatchSerialization ?
+            return callBaseWriteMethod ?
                 Base.Invoke(JsonModelWriteCoreMethodName, [_utf8JsonWriterParameter, _serializationOptionsParameter]).Terminate()
                 : MethodBodyStatement.Empty;
         }
