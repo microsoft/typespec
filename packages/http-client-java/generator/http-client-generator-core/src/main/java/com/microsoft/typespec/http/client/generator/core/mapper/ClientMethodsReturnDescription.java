@@ -268,16 +268,20 @@ public final class ClientMethodsReturnDescription {
     }
 
     private IType getPollAndFinalTypeForFluent(MethodPollingDetails pollingDetails, boolean useNullableType) {
-        // TODO (weidxu): we may use "pollingDetails.getFinalResultType()" as 1st choice
-        IType resultType = syncReturnType;
-        if (resultType == ClassType.VOID || resultType == PrimitiveType.VOID) {
-            // no body in response, check final result from MethodPollingDetails
-            if (pollingDetails != null
-                && pollingDetails.getFinalResultType() != ClassType.VOID
-                && pollingDetails.getFinalResultType() != PrimitiveType.VOID) {
-                resultType = pollingDetails.getFinalResultType();
-            }
+        // Here in management, we use "finalResultType" for both pollResultType and finalResultType.
+        // This is mostly for backward compatibility.
+        // TODO (weidxu): for core-v2, we would like to use the "pollResultType" for pollResultType
+        IType resultType;
+
+        if (pollingDetails != null) {
+            // First check final result from MethodPollingDetails, this be available when the source is TypeSpec
+            resultType = pollingDetails.getFinalResultType();
+        } else {
+            // Fallback to the return type of the initiate operation.
+            // This logic would typically be for source from AutoRest.
+            resultType = syncReturnType;
         }
+
         return useNullableType ? resultType.asNullable() : resultType;
     }
 
