@@ -1,2 +1,2 @@
 # ignore ARM generated tests with random mock values
-src/test/java/tsptest/**/generated
+src/test/java/tsptest/**/arm*/generated
