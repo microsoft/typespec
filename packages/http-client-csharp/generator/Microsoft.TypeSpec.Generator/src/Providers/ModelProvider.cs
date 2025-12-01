@@ -623,6 +623,33 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         /// <summary>
+        /// Gets the appropriate discriminator value expression for calling base constructor.
+        /// </summary>
+        /// <param name="includeDiscriminatorParameter">Whether to use discriminator parameter if available</param>
+        /// <param name="baseParameters">Base constructor parameters to search for discriminator</param>
+        /// <returns>Expression representing the discriminator value to pass to base constructor</returns>
+        private ValueExpression GetDiscriminatorForBaseConstructor(bool includeDiscriminatorParameter, IReadOnlyList<ParameterProvider> baseParameters)
+        {
+            if (includeDiscriminatorParameter)
+            {
+                var discriminatorProperty = BaseModelProvider?.CanonicalView.Properties.FirstOrDefault(p => p.IsDiscriminator);
+                if (discriminatorProperty != null)
+                {
+                    var baseDiscriminatorParam = baseParameters.FirstOrDefault(p => p.Property?.IsDiscriminator == true);
+                    if (baseDiscriminatorParam != null)
+                    {
+                        return baseDiscriminatorParam;
+                    }
+                    // Fallback: create variable expression
+                    var discriminatorParamName = discriminatorProperty.Name.ToVariableName();
+                    return new VariableExpression(typeof(string), discriminatorParamName);
+                }
+            }
+
+            return DiscriminatorLiteral;
+        }
+
+        /// <summary>
         /// Builds the internal constructor for the model which contains all public properties
         /// as parameters.
         /// </summary>
@@ -737,37 +764,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         var args = new List<ValueExpression>();
 
                         // For multi-level inheritance: pass through discriminator parameter if available, otherwise use own value
-                        if (includeDiscriminatorParameter)
-                        {
-                            var discriminatorProperty = BaseModelProvider?.CanonicalView.Properties.FirstOrDefault(p => p.IsDiscriminator);
-
-                            if (discriminatorProperty != null)
-                            {
-                                var baseDiscriminatorParam = baseParameters.FirstOrDefault(p => p.Property?.IsDiscriminator == true);
-
-                                if (baseDiscriminatorParam != null)
-                                {
-                                    args.Add(baseDiscriminatorParam);
-                                }
-                                else
-                                {
-                                    // Fallback: create variable expression
-                                    var discriminatorParamName = discriminatorProperty.Name.ToVariableName(); // should be "kind"
-                                    var discriminatorParam = new VariableExpression(typeof(string), discriminatorParamName);
-                                    args.Add(discriminatorParam);
-                                }
-                            }
-                            else
-                            {
-                                // Fallback: use our own discriminator value
-                                args.Add(DiscriminatorLiteral);
-                            }
-                        }
-                        else
-                        {
-                            // For public constructor: use our own discriminator value
-                            args.Add(DiscriminatorLiteral);
-                        }
+                        args.Add(GetDiscriminatorForBaseConstructor(includeDiscriminatorParameter, baseParameters));
 
                         var filteredParams = baseParameters.Where(p => p.Property is null || !p.Property.IsDiscriminator).ToList();
                         args.AddRange(filteredParams.Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor)));
@@ -780,7 +777,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         {
                             // Call base model's private protected constructor with our discriminator value
                             var args = new List<ValueExpression>();
-                            args.Add(DiscriminatorLiteral);
+                            args.Add(GetDiscriminatorForBaseConstructor(false, baseParameters));
 
                             var filteredParams = baseParameters.Where(p => p.Property is null || !p.Property.IsDiscriminator).ToList();
                             args.AddRange(filteredParams.Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor)));
