@@ -14,6 +14,10 @@ import java.time.ZoneOffset;
  * Class to group conversion logic between client type and wire type.
  */
 public class WireTypeClientTypeConverter {
+
+    private WireTypeClientTypeConverter() {
+    }
+
     /**
      * Convert wire type expression to client type expression.
      * Any change to this method should also be reflected in {@link #convertLiteralToClientValue(IType, String)}, and
@@ -73,7 +77,7 @@ public class WireTypeClientTypeConverter {
     }
 
     /**
-     * Convert example literal value in wire type, to literal value in client type
+     * Convert example literal value in wire type, to literal value in client type.
      * <p>
      * date-time in RFC1123 to RFC3339
      * date-time in Unix epoch to RFC3339
