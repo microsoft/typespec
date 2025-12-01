@@ -120,6 +120,82 @@ model Dog {
 }
 ```
 
+### Decorator validation
+
+Decorators often need to validate that they are being used correctly. TypeSpec provides different validation strategies depending on your requirements:
+
+#### Immediate validation
+
+For simple validation cases (such as checking parameter values), you can use the `reportDiagnostic` method directly in the decorator implementation. This is suitable when validation only depends on the decorator's parameters.
+
+```ts
+export function $maxLength(context: DecoratorContext, target: Type, max: number) {
+  if (max < 0) {
+    reportDiagnostic(context.program, {
+      code: "invalid-max-length",
+      target: context.getArgumentTarget(0),
+      format: { max },
+    });
+  }
+  // ... rest of decorator implementation
+}
+```
+
+#### Post-validation callbacks
+
+When you need to validate interactions between decorators or verify constraints across the type graph, use validation callbacks. These callbacks allow you to defer validation until specific points in the compilation process.
+
+There are two different events you can use:
+
+##### `onFinish`
+
+Called when the target type is fully processed. At this point, all decorators have been applied to the type, making it suitable for validating decorator conflicts or combinations on a single type.
+
+```ts
+export function $track(context: DecoratorContext, target: Type) {
+  return {
+    onFinish() {
+      // Validate that @track and @deprecated are not used together
+      if (isDeprecated(context.program, target)) {
+        reportDiagnostic(context.program, {
+          code: "track-deprecated-conflict",
+          target: context.decoratorTarget,
+        });
+      }
+    },
+  };
+}
+```
+
+##### `onGraphFinish`
+
+Called after the entire type graph has been resolved during the checker phase. Use this when you need to validate relationships across multiple types or perform analysis that requires the complete type graph.
+
+```ts
+export function $foreignKey(context: DecoratorContext, target: ModelProperty, ref: Model) {
+  return {
+    onGraphFinish() {
+      // Validate that the referenced model exists in the type graph
+      // and has appropriate key properties
+      const refKeys = getKeyProperties(context.program, ref);
+      if (refKeys.length === 0) {
+        reportDiagnostic(context.program, {
+          code: "foreign-key-no-primary",
+          target: context.decoratorTarget,
+          format: { modelName: ref.name },
+        });
+      }
+    },
+  };
+}
+```
+
+#### Choosing the right validation approach
+
+- Use **immediate validation** for parameter validation and simple checks
+- Use **`onFinish`** when you need to check decorator combinations on a single type
+- Use **`onGraphFinish`** when you need to validate relationships across multiple types or require the complete type graph
+
 ### Decorator parameter marshalling
 
 When decorators are passed types, the type is passed as-is. When a decorator is passed a TypeSpec value, the decorator receives a JavaScript value with a type that is appropriate for representing that value.
