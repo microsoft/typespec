@@ -94,8 +94,6 @@ $generateScript = {
     $tspOptions += " --option ""@typespec/http-client-java.float32-as-double=false"""
     $tspOptions += " --option ""@typespec/http-client-java.uuid-as-string=false"""
   } elseif ($tspFile -match "tsp[\\/]arm-stream-style-serialization.tsp") {
-    # for mgmt, do not generate tests due to random mock values
-    $tspOptions += " --option ""@typespec/http-client-java.generate-tests=false"""
     # test service-name
     $tspOptions += " --option ""@typespec/http-client-java.service-name=Arm Resource Provider"""
     # test property-include-always
