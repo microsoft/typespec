@@ -491,6 +491,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var secondaryConstructor = BuildSecondaryConstructor(secondaryConstructorParameters, primaryConstructorParameters, constructorModifier);
 
                 secondaryConstructors.Add(secondaryConstructor);
+
+                // When endpoint has a default value and there are required parameters (like auth),
+                // add an additional constructor that accepts required parameters + options
+                // This allows users to customize client options without specifying the endpoint.
+                if (_endpointParameter.InitializationValue is not null && requiredParameters.Count > 0)
+                {
+                    ParameterProvider[] simplifiedConstructorWithOptionsParameters = [.. requiredParameters, ClientOptionsParameter];
+                    var simplifiedConstructorWithOptions = BuildSecondaryConstructor(simplifiedConstructorWithOptionsParameters, primaryConstructorParameters, constructorModifier);
+                    secondaryConstructors.Add(simplifiedConstructorWithOptions);
+                }
             }
         }
 
@@ -623,10 +633,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             IReadOnlyList<ParameterProvider> primaryCtorOrderedParams,
             MethodSignatureModifiers modifier)
         {
+            // Build a set of parameter names that are in the secondary constructor
+            var secondaryParamNames = new HashSet<string>(secondaryConstructorParameters.Select(p => p.Name));
+
             // initialize the arguments to reference the primary constructor
+            // For parameters in the secondary constructor, use the parameter itself
+            // For parameters not in the secondary constructor, use their initialization value
             var primaryCtorInitializer = new ConstructorInitializer(
                 false,
-                [.. primaryCtorOrderedParams.Select(p => p.InitializationValue ?? p)
+                [.. primaryCtorOrderedParams.Select(p => secondaryParamNames.Contains(p.Name) ? p : (p.InitializationValue ?? p))
              ]);
             var constructorSignature = new ConstructorSignature(
                 Type,

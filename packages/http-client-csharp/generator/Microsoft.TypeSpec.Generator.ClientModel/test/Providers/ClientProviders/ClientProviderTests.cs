@@ -408,9 +408,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var secondaryPublicConstructors = constructors.Where(
                 c => c.Signature?.Initializer != null && c.Signature?.Modifiers == MethodSignatureModifiers.Public).ToArray();
 
-            // for no auth or one auth case, this should be 1
-            // for both auth case, this should be 2
-            // for only unsupported auth case, this should be 0
+            // Check if endpoint has a default value
+            var endpointParam = inputParameters.FirstOrDefault(p => p is InputEndpointParameter ep && ep.IsEndpoint);
+            bool hasDefaultEndpoint = endpointParam?.DefaultValue != null;
+
+            // Calculate expected secondary constructor count:
+            // - For only unsupported auth: 0
+            // - For each auth type when endpoint has default value and auth is present: 2 (simple + with options)
+            // - For each auth type when endpoint is required or no auth: 1
             int expectedSecondaryCtorCount;
             if (_hasOnlyUnsupportedAuth)
             {
@@ -418,7 +423,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             }
             else
             {
-                expectedSecondaryCtorCount = _hasKeyAuth && _hasOAuth2 ? 2 : 1;
+                int authCount = (_hasKeyAuth ? 1 : 0) + (_hasOAuth2 || _hasOAuth2WithOtherCredType ? 1 : 0);
+                if (authCount == 0)
+                {
+                    // No auth case - just 1 secondary constructor
+                    expectedSecondaryCtorCount = 1;
+                }
+                else if (hasDefaultEndpoint)
+                {
+                    // When endpoint has default value and auth is present, we have 2 constructors per auth type:
+                    // - Client(credential)
+                    // - Client(credential, options)
+                    expectedSecondaryCtorCount = authCount * 2;
+                }
+                else
+                {
+                    // When endpoint is required, we have 1 constructor per auth type
+                    expectedSecondaryCtorCount = authCount;
+                }
             }
 
             Assert.AreEqual(expectedSecondaryCtorCount, secondaryPublicConstructors.Length);
@@ -495,6 +517,70 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(mockingConstructor);
         }
 
+        /// <summary>
+        /// Tests that when a client has a default endpoint and auth, we generate a simplified constructor
+        /// that accepts auth + options (using the default endpoint).
+        /// This is the pattern: Client(tokenProvider, options) with default endpoint.
+        /// </summary>
+        [TestCase(Category = KeyAuthCategory)]
+        [TestCase(Category = OAuth2Category)]
+        public void TestBuildConstructors_SimplifiedWithOptions_WhenDefaultEndpoint()
+        {
+            var inputParameters = new List<InputParameter>
+            {
+                InputFactory.EndpointParameter(
+                    KnownParameters.Endpoint.Name,
+                    InputPrimitiveType.String,
+                    defaultValue: InputFactory.Constant.String("https://default.endpoint.io"),
+                    scope: InputParameterScope.Client,
+                    isEndpoint: true)
+            };
+            var client = InputFactory.Client(TestClientName, parameters: [.. inputParameters]);
+            var clientProvider = new ClientProvider(client);
+
+            Assert.IsNotNull(clientProvider);
+
+            var constructors = clientProvider.Constructors;
+
+            // Get all public constructors with an initializer (secondary constructors)
+            var secondaryPublicConstructors = constructors.Where(
+                c => c.Signature?.Initializer != null && c.Signature?.Modifiers == MethodSignatureModifiers.Public).ToList();
+
+            // We should have 2 secondary constructors per auth type:
+            // 1. Client(credential) - simple with just auth
+            // 2. Client(credential, options) - simplified with auth + options
+            Assert.AreEqual(2, secondaryPublicConstructors.Count);
+
+            // Verify the simple constructor exists (just auth)
+            var simpleConstructor = secondaryPublicConstructors.FirstOrDefault(c => c.Signature.Parameters.Count == 1);
+            Assert.IsNotNull(simpleConstructor, "Expected a simple constructor with just auth parameter");
+            var simpleCtorParamName = simpleConstructor!.Signature.Parameters[0].Name;
+            Assert.IsTrue(simpleCtorParamName == "credential" || simpleCtorParamName == "tokenProvider",
+                $"Expected auth parameter, got {simpleCtorParamName}");
+
+            // Verify the simplified constructor with options exists (auth + options)
+            var simplifiedWithOptionsConstructor = secondaryPublicConstructors.FirstOrDefault(c => c.Signature.Parameters.Count == 2);
+            Assert.IsNotNull(simplifiedWithOptionsConstructor, "Expected a simplified constructor with auth + options parameters");
+
+            var firstParamName = simplifiedWithOptionsConstructor!.Signature.Parameters[0].Name;
+            Assert.IsTrue(firstParamName == "credential" || firstParamName == "tokenProvider",
+                $"Expected first param to be auth parameter, got {firstParamName}");
+
+            var secondParamName = simplifiedWithOptionsConstructor.Signature.Parameters[1].Name;
+            Assert.AreEqual("options", secondParamName, "Expected second param to be 'options'");
+
+            // Verify the initializer correctly passes the options parameter
+            var initializerArgs = simplifiedWithOptionsConstructor.Signature.Initializer?.Arguments;
+            Assert.IsNotNull(initializerArgs);
+            Assert.AreEqual(3, initializerArgs!.Count, "Initializer should have 3 arguments: endpoint, auth, options");
+
+            // The third argument should be the options parameter reference (not a new instance)
+            // When the options parameter is passed through, it will be a ParameterReferenceExpression
+            var optionsArg = initializerArgs[2];
+            // Verify it's not a NewInstanceExpression (which would indicate a default value is being used)
+            Assert.IsFalse(optionsArg is NewInstanceExpression, "Options argument should be the parameter itself, not a new instance");
+        }
+
         private void ValidatePrimaryConstructor(
             ConstructorProvider primaryPublicConstructor,
             List<InputParameter> inputParameters,
@@ -561,9 +647,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var ctorParams = secondaryPublicConstructor.Signature?.Parameters;
 
             // secondary ctor should consist of all required parameters + auth parameter (when present)
+            // Additionally, when endpoint has default value and auth is present, there may be
+            // a constructor with auth + options
             var requiredParams = inputParameters.Where(p => p.IsRequired).ToList();
             var authParameterCount = _hasSupportedAuth ? 1 : 0;
-            Assert.AreEqual(requiredParams.Count + authParameterCount, ctorParams?.Count);
+
+            // Check if this is the new simplified constructor with options
+            var hasOptionsParam = ctorParams?.Any(p => p.Name == "options") ?? false;
+            var expectedParamCount = requiredParams.Count + authParameterCount + (hasOptionsParam ? 1 : 0);
+            Assert.AreEqual(expectedParamCount, ctorParams?.Count);
+
             var endpointParam = ctorParams?.FirstOrDefault(p => p.Name == KnownParameters.Endpoint.Name);
 
             if (requiredParams.Count == 0)
@@ -575,6 +668,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                         ? "tokenProvider"
                         : "credential";
                     Assert.AreEqual(expectedName, ctorParams?[0].Name);
+
+                    // If there's an options param, it should be last
+                    if (hasOptionsParam)
+                    {
+                        Assert.AreEqual("options", ctorParams?[^1].Name);
+                    }
                 }
                 else
                 {
