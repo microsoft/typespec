@@ -1,6 +1,6 @@
 import type {
   DecoratorContext,
-  DecoratorValidatorCallback,
+  DecoratorValidatorCallbacks,
   Model,
   Namespace,
   Operation,
@@ -56,7 +56,7 @@ export type OperationIdDecorator = (
   context: DecoratorContext,
   target: Operation,
   operationId: string,
-) => DecoratorValidatorCallback | void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Attach some custom data to the OpenAPI element generated from this type.
@@ -75,7 +75,7 @@ export type ExtensionDecorator = (
   target: Type,
   key: string,
   value: unknown,
-) => DecoratorValidatorCallback | void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Specify that this model is to be treated as the OpenAPI `default` response.
@@ -92,7 +92,7 @@ export type ExtensionDecorator = (
 export type DefaultResponseDecorator = (
   context: DecoratorContext,
   target: Model,
-) => DecoratorValidatorCallback | void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Specify the OpenAPI `externalDocs` property for this type.
@@ -110,7 +110,7 @@ export type ExternalDocsDecorator = (
   target: Type,
   url: string,
   description?: string,
-) => DecoratorValidatorCallback | void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Specify OpenAPI additional information.
@@ -122,7 +122,7 @@ export type InfoDecorator = (
   context: DecoratorContext,
   target: Namespace,
   additionalInfo: AdditionalInfo,
-) => DecoratorValidatorCallback | void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Specify OpenAPI additional information.
@@ -141,7 +141,7 @@ export type TagMetadataDecorator = (
   target: Namespace,
   name: string,
   tagMetadata: TagMetadata,
-) => DecoratorValidatorCallback | void;
+) => DecoratorValidatorCallbacks | void;
 
 export type TypeSpecOpenAPIDecorators = {
   operationId: OperationIdDecorator;

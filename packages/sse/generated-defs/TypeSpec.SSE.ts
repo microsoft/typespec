@@ -1,6 +1,6 @@
 import type {
   DecoratorContext,
-  DecoratorValidatorCallback,
+  DecoratorValidatorCallbacks,
   UnionVariant,
 } from "@typespec/compiler";
 
@@ -11,7 +11,7 @@ import type {
 export type TerminalEventDecorator = (
   context: DecoratorContext,
   target: UnionVariant,
-) => DecoratorValidatorCallback | void;
+) => DecoratorValidatorCallbacks | void;
 
 export type TypeSpecSSEDecorators = {
   terminalEvent: TerminalEventDecorator;

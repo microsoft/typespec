@@ -163,10 +163,8 @@ export const $httpFile: HttpFileDecorator = (context: DecoratorContext, target: 
   }
 
   return {
-    when: "onGraphFinish",
-    validator: () => {
+    onGraphFinish: () => {
       validateHttpFileModel(context.program, target);
-      return [];
     },
   };
 };

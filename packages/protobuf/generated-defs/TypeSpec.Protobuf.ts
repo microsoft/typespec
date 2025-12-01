@@ -1,6 +1,6 @@
 import type {
   DecoratorContext,
-  DecoratorValidatorCallback,
+  DecoratorValidatorCallbacks,
   Interface,
   ModelProperty,
   Namespace,
@@ -21,7 +21,7 @@ import type {
 export type MessageDecorator = (
   context: DecoratorContext,
   target: Type,
-) => DecoratorValidatorCallback | void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Defines the field index of a model property for conversion to a Protobuf
@@ -56,7 +56,7 @@ export type FieldDecorator = (
   context: DecoratorContext,
   target: ModelProperty,
   index: number,
-) => DecoratorValidatorCallback | void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Reserve a field index, range, or name. If a field definition collides with a reservation, the emitter will produce
@@ -94,7 +94,7 @@ export type ReserveDecorator = (
   context: DecoratorContext,
   target: Type,
   ...reservations: (string | unknown | number)[]
-) => DecoratorValidatorCallback | void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Declares that a TypeSpec interface constitutes a Protobuf service. The contents of the interface will be converted to
@@ -103,7 +103,7 @@ export type ReserveDecorator = (
 export type ServiceDecorator = (
   context: DecoratorContext,
   target: Interface,
-) => DecoratorValidatorCallback | void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Declares that a TypeSpec namespace constitutes a Protobuf package. The contents of the namespace will be emitted to a
@@ -115,7 +115,7 @@ export type PackageDecorator = (
   context: DecoratorContext,
   target: Namespace,
   details?: Type,
-) => DecoratorValidatorCallback | void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Set the streaming mode of an operation. See [StreamMode](./data-types#TypeSpec.Protobuf.StreamMode) for more information.
@@ -136,7 +136,7 @@ export type StreamDecorator = (
   context: DecoratorContext,
   target: Operation,
   mode: Type,
-) => DecoratorValidatorCallback | void;
+) => DecoratorValidatorCallbacks | void;
 
 export type TypeSpecProtobufDecorators = {
   message: MessageDecorator;

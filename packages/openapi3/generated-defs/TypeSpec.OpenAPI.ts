@@ -1,6 +1,6 @@
 import type {
   DecoratorContext,
-  DecoratorValidatorCallback,
+  DecoratorValidatorCallbacks,
   Model,
   ModelProperty,
   Union,
@@ -12,7 +12,7 @@ import type {
 export type OneOfDecorator = (
   context: DecoratorContext,
   target: Union | ModelProperty,
-) => DecoratorValidatorCallback | void;
+) => DecoratorValidatorCallbacks | void;
 
 /**
  * Specify an external reference that should be used inside of emitting this type.
@@ -23,7 +23,7 @@ export type UseRefDecorator = (
   context: DecoratorContext,
   target: Model | ModelProperty,
   ref: string,
-) => DecoratorValidatorCallback | void;
+) => DecoratorValidatorCallbacks | void;
 
 export type TypeSpecOpenAPIDecorators = {
   oneOf: OneOfDecorator;

@@ -576,8 +576,7 @@ describe("validators", () => {
     const tester = await testerForDecorator((_: DecoratorContext, target: Model) => {
       order.push(`apply(${target.name})`);
       return {
-        when: "onFinish",
-        validator: () => {
+        onFinish: () => {
           order.push(`validate(${target.name})`);
           return [];
         },
@@ -608,10 +607,8 @@ describe("validators", () => {
     const tester = await testerForDecorator((_: DecoratorContext, target: Model) => {
       order.push(`apply(${target.name})`);
       return {
-        when: "onGraphFinish",
-        validator: () => {
+        onGraphFinish: () => {
           order.push(`validate(${target.name})`);
-          return [];
         },
       };
     });
