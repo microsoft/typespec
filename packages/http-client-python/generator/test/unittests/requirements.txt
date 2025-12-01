@@ -1,3 +1,4 @@
 -r ../dev_requirements.txt
 -e ../../../generator
 -e ../unbranded/generated/special-words
+-e ../azure/generated/azure-client-generator-core-flatten-property
