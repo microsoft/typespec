@@ -13,6 +13,7 @@ namespace SampleTypeSpec
     [ModelReaderWriterBuildable(typeof(AnotherDynamicModel))]
     [ModelReaderWriterBuildable(typeof(DynamicModel))]
     [ModelReaderWriterBuildable(typeof(Friend))]
+    [ModelReaderWriterBuildable(typeof(GetWidgetMetricsResponse))]
     [ModelReaderWriterBuildable(typeof(ListWithContinuationTokenHeaderResponseResponse))]
     [ModelReaderWriterBuildable(typeof(ListWithContinuationTokenResponse))]
     [ModelReaderWriterBuildable(typeof(ListWithNextLinkResponse))]
