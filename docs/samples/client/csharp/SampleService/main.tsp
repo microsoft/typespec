@@ -502,12 +502,14 @@ op EmbeddedParameters(@bodyRoot body: ModelWithEmbeddedNonBodyParameters): void;
 @post
 op DynamicModelOperation(@body body: DynamicModel): void;
 
-@clientInitialization({initializedBy: InitializedBy.individually | InitializedBy.parent})
+@clientInitialization({
+  initializedBy: InitializedBy.individually | InitializedBy.parent,
+})
 interface Metrics {
   @doc("Get Widget metrics for given day of week")
   @get
   @route("/metrics/widgets/daysOfWeek")
-  op getWidgetMetrics(@path day: DaysOfWeekExtensibleEnum): {
+  getWidgetMetrics(@path day: DaysOfWeekExtensibleEnum): {
     numSold: int32;
     averagePrice: float32;
   };
