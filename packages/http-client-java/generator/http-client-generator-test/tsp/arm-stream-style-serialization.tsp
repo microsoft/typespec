@@ -315,7 +315,11 @@ model Encoded {
   @encode(DurationKnownEncoding.seconds, int32)
   timeInSeconds?: duration;
 
+  @encode(DurationKnownEncoding.seconds, int32)
+  timeInSecondsPrimitive: duration;
+
   timeInSecondsFraction?: myDuration;
+  timeInSecondsFractionPrimitive: myDuration;
 
   @encode(DateTimeKnownEncoding.rfc3339)
   dateTime?: utcDateTime;
@@ -325,6 +329,9 @@ model Encoded {
 
   @encode(DateTimeKnownEncoding.unixTimestamp, int64)
   unixTimestamp?: utcDateTime;
+
+  @encode(DateTimeKnownEncoding.unixTimestamp, int64)
+  unixTimestampPrimitive: utcDateTime;
 
   @encode(BytesKnownEncoding.base64)
   base64?: bytes;
