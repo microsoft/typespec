@@ -1398,5 +1398,93 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 StringAssert.DoesNotContain("SetPropagators", derivedConstructor.BodyStatements!.ToDisplayString(), "Derived model constructor should not call SetPropagators when it has no dynamic properties");
             }
         }
+
+        [Test]
+        public void WriteDynamicDerivedModelWithNonDiscriminatedBase()
+        {
+            var baseModel = InputFactory.Model(
+                "animal",
+                isDynamicModel: false,
+                properties:
+                [
+                    InputFactory.Property("species", InputPrimitiveType.String, isRequired: true)
+                ]);
+
+            var dynamicDerivedModel = InputFactory.Model(
+                "dog",
+                isDynamicModel: true,
+                baseModel: baseModel,
+                properties:
+                [
+                    InputFactory.Property("barks", InputPrimitiveType.Boolean, isRequired: true)
+                ]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [baseModel, dynamicDerivedModel]);
+            
+            // Verify base model is NOT dynamic
+            var baseModelProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(baseModel) as ClientModel.Providers.ScmModelProvider;
+            Assert.IsNotNull(baseModelProvider);
+            Assert.IsFalse(baseModelProvider!.IsDynamicModel, "Base model should NOT be dynamic");
+
+            // Get the derived model and validate it's dynamic
+            var derivedModelProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(dynamicDerivedModel) as ClientModel.Providers.ScmModelProvider;
+            Assert.IsNotNull(derivedModelProvider);
+            Assert.IsTrue(derivedModelProvider!.IsDynamicModel, "Derived model should be dynamic");
+            Assert.IsTrue(derivedModelProvider.Constructors.Count > 0);
+
+            var serialization = derivedModelProvider.SerializationProviders.SingleOrDefault();
+            Assert.IsNotNull(serialization);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serialization!,
+                name => name is "JsonModelWriteCore" or "Write"));
+
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public void DeserializeDynamicDerivedModelWithNonDiscriminatedBase()
+        {
+            var baseModel = InputFactory.Model(
+                "animal",
+                isDynamicModel: false,
+                properties:
+                [
+                    InputFactory.Property("species", InputPrimitiveType.String, isRequired: true)
+                ]);
+
+            var dynamicDerivedModel = InputFactory.Model(
+                "dog",
+                isDynamicModel: true,
+                baseModel: baseModel,
+                properties:
+                [
+                    InputFactory.Property("barks", InputPrimitiveType.Boolean, isRequired: true)
+                ]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [baseModel, dynamicDerivedModel]);
+
+            // Verify base model is NOT dynamic
+            var baseModelProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(baseModel) as ClientModel.Providers.ScmModelProvider;
+            Assert.IsNotNull(baseModelProvider);
+            Assert.IsFalse(baseModelProvider!.IsDynamicModel, "Base model should NOT be dynamic");
+
+            // Get the derived model and validate it's dynamic
+            var derivedModelProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(dynamicDerivedModel) as ClientModel.Providers.ScmModelProvider;
+            Assert.IsNotNull(derivedModelProvider);
+            Assert.IsTrue(derivedModelProvider!.IsDynamicModel, "Derived model should be dynamic");
+            Assert.IsTrue(derivedModelProvider.Constructors.Count > 0);
+
+var serialization = derivedModelProvider.SerializationProviders.SingleOrDefault();
+            Assert.IsNotNull(serialization);
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serialization!,
+                name => name.StartsWith("Deserialize")));
+
+            var file = writer.Write();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
     }
 }
