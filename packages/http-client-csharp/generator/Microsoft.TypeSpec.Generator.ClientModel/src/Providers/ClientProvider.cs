@@ -161,11 +161,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 enclosingType: this);
 
             // Only create the caching field if the subclient can be initialized by parent
-            // (InitializedBy is null meaning default behavior = Parent, or explicitly includes Parent)
-            bool canBeInitializedByParent = _inputClient.Parent != null &&
-                (_inputClient.InitializedBy & InputClientInitializedBy.Parent) != 0;
+            // (InitializedBy is Default meaning default behavior = Parent, or explicitly includes Parent)
+            _canBeInitializedByParent = _inputClient.Parent != null &&
+                _inputClient.InitializedBy.HasFlag(InputClientInitializedBy.Parent) || _inputClient.InitializedBy.HasFlag(InputClientInitializedBy.Default);
 
-            if (canBeInitializedByParent)
+            if (_canBeInitializedByParent)
             {
                 // _clientCachingField will only have subClients (children)
                 // The sub-client caching field for the sub-client which is used for building the caching fields within a parent.
@@ -314,6 +314,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private Lazy<string?> _endpointParameterName;
         private InputEndpointParameter? _inputEndpointParam;
+        private readonly bool _canBeInitializedByParent;
         internal string? EndpointParameterName => _endpointParameterName.Value;
 
         private string? GetEndpointParameterName()
@@ -429,10 +430,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 var constructors = new List<ConstructorProvider> { mockingConstructor };
 
-                // Check if InitializedBy includes Parent (or is null/default which implies Parent)
-                bool includesParent = (_inputClient.InitializedBy & InputClientInitializedBy.Parent) != 0;
-
-                if (includesParent)
+                if (_canBeInitializedByParent)
                 {
                     List<MethodBodyStatement> body = new(3) { EndpointField.Assign(_endpointParameter).Terminate() };
                     foreach (var p in _subClientInternalConstructorParams.Value)
