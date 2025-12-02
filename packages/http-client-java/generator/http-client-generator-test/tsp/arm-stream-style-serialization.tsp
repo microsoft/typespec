@@ -319,7 +319,6 @@ model Encoded {
   timeInSecondsPrimitive: duration;
 
   timeInSecondsFraction?: myDuration;
-
   timeInSecondsFractionPrimitive: myDuration;
 
   @encode(DateTimeKnownEncoding.rfc3339)
