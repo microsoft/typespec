@@ -57,7 +57,7 @@ class ModelType(BaseType):  # pylint: disable=too-many-instance-attributes, too-
     :type properties: dict(str, str)
     """
 
-    base: Literal["msrest", "dpg", "json"]
+    base: Literal["msrest", "dpg", "json", "typeddict"]
 
     def __init__(
         self,
@@ -374,3 +374,39 @@ class DPGModelType(GeneratedModelType):
         if self.flattened_property:
             file_import.add_submodule_import("typing", "Any", ImportType.STDLIB)
         return file_import
+
+
+class TypedDictModelType(GeneratedModelType):
+    base = "typeddict"
+
+    def serialization_type(self, **kwargs: Any) -> str:
+        # TypedDict models serialize as plain dictionaries
+        return "dict"
+
+    @property
+    def instance_check_template(self) -> str:
+        return "isinstance({}, dict)"
+
+    def imports(self, **kwargs: Any) -> FileImport:
+        file_import = super().imports(**kwargs)
+        # TypedDict needs the TypedDict import
+        if kwargs.get("is_operation_file", False):
+            file_import.add_submodule_import("typing", "TypedDict", ImportType.STDLIB)
+        if kwargs.get("is_response", False):
+            file_import.define_mutable_mapping_type()
+        return file_import
+
+    def type_annotation(self, **kwargs: Any) -> str:
+        if kwargs.get("is_response", False):
+            return "JSON"
+        return super().type_annotation(**kwargs)
+
+    def docstring_text(self, **kwargs):
+        if kwargs.get("is_response", False):
+            return "JSON"
+        return super().docstring_text(**kwargs)
+
+    def docstring_type(self, **kwargs: Any) -> str:
+        if kwargs.get("is_response", False):
+            return "JSON"
+        return super().docstring_type(**kwargs)

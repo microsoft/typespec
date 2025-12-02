@@ -160,7 +160,7 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
     commandArgs["azure-arm"] = "true";
   }
   commandArgs["from-typespec"] = "true";
-  commandArgs["models-mode"] = (resolvedOptions as any)["models-mode"] ?? "dpg";
+  commandArgs["models-mode"] = resolvedOptions["models-mode"] ?? "dpg";
 
   if (!program.compilerOptions.noEmit && !program.hasError()) {
     // if not using pyodide and there's no venv, we try to create venv

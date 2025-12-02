@@ -346,6 +346,8 @@ export function emitCodeModel(sdkContext: PythonSdkContext) {
     }
   }
 
+  // TODO: report diasgnostics for unsupported types
+
   codeModel["types"] = [
     ...typesMap.values(),
     ...Object.values(KnownTypes),
