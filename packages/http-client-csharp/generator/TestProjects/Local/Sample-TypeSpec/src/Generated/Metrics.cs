@@ -32,6 +32,23 @@ namespace SampleTypeSpec
             Pipeline = pipeline;
         }
 
+        /// <summary> Initializes a new instance of Metrics. </summary>
+        /// <param name="endpoint"> Service endpoint. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> is null. </exception>
+        public Metrics(Uri endpoint) : this(endpoint, new SampleTypeSpecClientOptions())
+        {
+        }
+
+        /// <summary> Initializes a new instance of Metrics. </summary>
+        /// <param name="endpoint"> Service endpoint. </param>
+        /// <param name="options"> The options for configuring the client. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> is null. </exception>
+        public Metrics(Uri endpoint, SampleTypeSpecClientOptions options)
+        {
+            Argument.AssertNotNull(endpoint, nameof(endpoint));
+
+        }
+
         /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
         public ClientPipeline Pipeline { get; }
 
