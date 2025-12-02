@@ -4,7 +4,6 @@
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
 import com.microsoft.typespec.http.client.generator.core.util.WireTypeClientTypeConverter;
-
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.Set;

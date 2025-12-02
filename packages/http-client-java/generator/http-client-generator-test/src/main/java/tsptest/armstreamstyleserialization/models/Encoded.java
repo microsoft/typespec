@@ -8,6 +8,7 @@ import com.azure.core.annotation.Immutable;
 import com.azure.core.util.Base64Url;
 import com.azure.core.util.CoreUtils;
 import com.azure.core.util.DateTimeRfc1123;
+import com.azure.core.util.logging.ClientLogger;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonToken;
@@ -33,9 +34,19 @@ public final class Encoded implements JsonSerializable<Encoded> {
     private Long timeInSeconds;
 
     /*
+     * The timeInSecondsPrimitive property.
+     */
+    private long timeInSecondsPrimitive;
+
+    /*
      * The timeInSecondsFraction property.
      */
     private Double timeInSecondsFraction;
+
+    /*
+     * The timeInSecondsFractionPrimitive property.
+     */
+    private double timeInSecondsFractionPrimitive;
 
     /*
      * The dateTime property.
@@ -51,6 +62,11 @@ public final class Encoded implements JsonSerializable<Encoded> {
      * The unixTimestamp property.
      */
     private Long unixTimestamp;
+
+    /*
+     * The unixTimestampPrimitive property.
+     */
+    private long unixTimestampPrimitive;
 
     /*
      * The base64 property.
@@ -96,6 +112,15 @@ public final class Encoded implements JsonSerializable<Encoded> {
     }
 
     /**
+     * Get the timeInSecondsPrimitive property: The timeInSecondsPrimitive property.
+     * 
+     * @return the timeInSecondsPrimitive value.
+     */
+    public Duration timeInSecondsPrimitive() {
+        return Duration.ofSeconds(this.timeInSecondsPrimitive);
+    }
+
+    /**
      * Get the timeInSecondsFraction property: The timeInSecondsFraction property.
      * 
      * @return the timeInSecondsFraction value.
@@ -105,6 +130,15 @@ public final class Encoded implements JsonSerializable<Encoded> {
             return null;
         }
         return Duration.ofNanos((long) (this.timeInSecondsFraction * 1000_000_000L));
+    }
+
+    /**
+     * Get the timeInSecondsFractionPrimitive property: The timeInSecondsFractionPrimitive property.
+     * 
+     * @return the timeInSecondsFractionPrimitive value.
+     */
+    public Duration timeInSecondsFractionPrimitive() {
+        return Duration.ofNanos((long) (this.timeInSecondsFractionPrimitive * 1000_000_000L));
     }
 
     /**
@@ -138,6 +172,15 @@ public final class Encoded implements JsonSerializable<Encoded> {
             return null;
         }
         return OffsetDateTime.ofInstant(Instant.ofEpochSecond(this.unixTimestamp), ZoneOffset.UTC);
+    }
+
+    /**
+     * Get the unixTimestampPrimitive property: The unixTimestampPrimitive property.
+     * 
+     * @return the unixTimestampPrimitive value.
+     */
+    public OffsetDateTime unixTimestampPrimitive() {
+        return OffsetDateTime.ofInstant(Instant.ofEpochSecond(this.unixTimestampPrimitive), ZoneOffset.UTC);
     }
 
     /**
@@ -194,7 +237,22 @@ public final class Encoded implements JsonSerializable<Encoded> {
      * @throws IllegalArgumentException thrown if the instance is not valid.
      */
     public void validate() {
+        if (timeInSecondsPrimitive() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Missing required property timeInSecondsPrimitive in model Encoded"));
+        }
+        if (timeInSecondsFractionPrimitive() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException(
+                    "Missing required property timeInSecondsFractionPrimitive in model Encoded"));
+        }
+        if (unixTimestampPrimitive() == null) {
+            throw LOGGER.atError()
+                .log(new IllegalArgumentException("Missing required property unixTimestampPrimitive in model Encoded"));
+        }
     }
+
+    private static final ClientLogger LOGGER = new ClientLogger(Encoded.class);
 
     /**
      * {@inheritDoc}
@@ -202,6 +260,9 @@ public final class Encoded implements JsonSerializable<Encoded> {
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
+        jsonWriter.writeLongField("timeInSecondsPrimitive", this.timeInSecondsPrimitive);
+        jsonWriter.writeDoubleField("timeInSecondsFractionPrimitive", this.timeInSecondsFractionPrimitive);
+        jsonWriter.writeLongField("unixTimestampPrimitive", this.unixTimestampPrimitive);
         jsonWriter.writeNumberField("timeInSeconds", this.timeInSeconds);
         jsonWriter.writeNumberField("timeInSecondsFraction", this.timeInSecondsFraction);
         jsonWriter.writeStringField("dateTime",
@@ -222,6 +283,7 @@ public final class Encoded implements JsonSerializable<Encoded> {
      * @param jsonReader The JsonReader being read.
      * @return An instance of Encoded if the JsonReader was pointing to an instance of it, or null if it was pointing to
      * JSON null.
+     * @throws IllegalStateException If the deserialized JSON object was missing any required properties.
      * @throws IOException If an error occurs while reading the Encoded.
      */
     public static Encoded fromJson(JsonReader jsonReader) throws IOException {
@@ -231,7 +293,13 @@ public final class Encoded implements JsonSerializable<Encoded> {
                 String fieldName = reader.getFieldName();
                 reader.nextToken();
 
-                if ("timeInSeconds".equals(fieldName)) {
+                if ("timeInSecondsPrimitive".equals(fieldName)) {
+                    deserializedEncoded.timeInSecondsPrimitive = reader.getLong();
+                } else if ("timeInSecondsFractionPrimitive".equals(fieldName)) {
+                    deserializedEncoded.timeInSecondsFractionPrimitive = reader.getDouble();
+                } else if ("unixTimestampPrimitive".equals(fieldName)) {
+                    deserializedEncoded.unixTimestampPrimitive = reader.getLong();
+                } else if ("timeInSeconds".equals(fieldName)) {
                     deserializedEncoded.timeInSeconds = reader.getNullable(JsonReader::getLong);
                 } else if ("timeInSecondsFraction".equals(fieldName)) {
                     deserializedEncoded.timeInSecondsFraction = reader.getNullable(JsonReader::getDouble);
