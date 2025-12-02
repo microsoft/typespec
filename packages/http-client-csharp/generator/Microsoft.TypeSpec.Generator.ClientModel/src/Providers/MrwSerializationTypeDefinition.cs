@@ -684,7 +684,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodBodyStatement[] BuildJsonModelWriteCoreMethodBody()
         {
-            var propertiesStatements = CreateWritePropertiesStatements();
+            bool isDynamicModelWithNonDynamicBase = _model is ScmModelProvider { IsDynamicModel: true } && _model.BaseModelProvider is ScmModelProvider { IsDynamicModel: false };
+            var propertiesStatements = CreateWritePropertiesStatements(isDynamicModelWithNonDynamicBase);
             var additionalPropertiesStatements = CreateWriteAdditionalPropertiesStatement();
             List<MethodBodyStatement> writePropertiesStatements =
             [
@@ -720,7 +721,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return
             [
                 CreateValidateJsonFormat(_persistableModelTInterface, WriteAction),
-                CallBaseJsonModelWriteCore(),
+                CallBaseJsonModelWriteCore(isDynamicModelWithNonDynamicBase),
                 writePropertiesStatements,
                 CreateWriteAdditionalRawDataStatement()
             ];
@@ -853,10 +854,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ];
         }
 
-        private MethodBodyStatement CallBaseJsonModelWriteCore()
+        private MethodBodyStatement CallBaseJsonModelWriteCore(bool isDynamicModelWithNonDynamicBase)
         {
             // base.<JsonModelWriteCore>()
-            return _shouldOverrideMethods ?
+            bool callBaseWriteMethod = _shouldOverrideMethods
+                && (_jsonPatchProperty is null || !isDynamicModelWithNonDynamicBase);
+            return callBaseWriteMethod ?
                 Base.Invoke(JsonModelWriteCoreMethodName, [_utf8JsonWriterParameter, _serializationOptionsParameter]).Terminate()
                 : MethodBodyStatement.Empty;
         }
@@ -999,15 +1002,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 propertyDeserializationStatements.Add(
                     _additionalBinaryDataProperty.Value.AsVariableExpression.AsDictionary(_additionalBinaryDataProperty.Value.Type).Add(jsonProperty.Name(), binaryDataDeserializationValue));
             }
-            else if (rawBinaryData != null)
-            {
-                var elementType = rawBinaryData.Type.Arguments[1].FrameworkType;
-                var rawDataDeserializationValue = ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(elementType, jsonProperty.Value(), _dataParameter.As<BinaryData>(), _mrwOptionsParameterSnippet, SerializationFormat.Default);
-                propertyDeserializationStatements.Add(new IfStatement(_isNotEqualToWireConditionSnippet)
-                {
-                    rawBinaryData.AsVariableExpression.AsDictionary(rawBinaryData.Type).Add(jsonProperty.Name(), rawDataDeserializationValue)
-                });
-            }
             else if (_jsonPatchProperty != null)
             {
                 // If we have a JsonPatch property, we want to add any unknown properties to the patch
@@ -1017,6 +1011,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     jsonProperty.Value().GetUtf8Bytes());
                 propertyDeserializationStatements.Add(jsonPatchSet);
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+            }
+            else if (rawBinaryData != null)
+            {
+                var elementType = rawBinaryData.Type.Arguments[1].FrameworkType;
+                var rawDataDeserializationValue = ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(elementType, jsonProperty.Value(), _dataParameter.As<BinaryData>(), _mrwOptionsParameterSnippet, SerializationFormat.Default);
+                propertyDeserializationStatements.Add(new IfStatement(_isNotEqualToWireConditionSnippet)
+                {
+                    rawBinaryData.AsVariableExpression.AsDictionary(rawBinaryData.Type).Add(jsonProperty.Name(), rawDataDeserializationValue)
+                });
             }
 
             return propertyDeserializationStatements;
@@ -1530,9 +1533,36 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// <summary>
         /// Constructs the body statements for the JsonModelWriteCore method containing the serialization for the model properties.
         /// </summary>
-        private MethodBodyStatement[] CreateWritePropertiesStatements()
+        private MethodBodyStatement[] CreateWritePropertiesStatements(bool isDynamicModelWithNonDynamicBase)
         {
             List<MethodBodyStatement> propertyStatements = new();
+
+            if (isDynamicModelWithNonDynamicBase)
+            {
+                var baseModelProvider = _model.BaseModelProvider;
+                while (baseModelProvider != null)
+                {
+                    foreach (var property in baseModelProvider.CanonicalView.Properties)
+                    {
+                        if (property.WireInfo == null || property.WireInfo.IsHttpMetadata)
+                        {
+                            continue;
+                        }
+                        propertyStatements.Add(CreateWritePropertyStatement(property.WireInfo, property.Type, property.Name, property));
+                    }
+
+                    foreach (var field in baseModelProvider.CanonicalView.Fields)
+                    {
+                        if (field.WireInfo == null || field.WireInfo.IsHttpMetadata)
+                        {
+                            continue;
+                        }
+                        propertyStatements.Add(CreateWritePropertyStatement(field.WireInfo, field.Type, field.Name, field));
+                    }
+
+                    baseModelProvider = baseModelProvider.BaseModelProvider;
+                }
+            }
 
             // we should only write those properties with wire info and are payload properties.
             // Those properties without wireinfo indicate they are not spec properties.
