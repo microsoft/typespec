@@ -1,53 +1,55 @@
-import type { ModelProperty, Type } from "@typespec/compiler";
-import { MutationEdge } from "./mutation-edge.js";
+import type { Model, ModelProperty, Type } from "@typespec/compiler";
+import { HalfEdge } from "./mutation-edge.js";
 import { MutationNode } from "./mutation-node.js";
+import { traceNode } from "./tracer.js";
+
+export interface ModelPropertyConnectOptions {
+  /** Mutation key for the property's type node. Defaults to this node's key. */
+  typeMutationKey?: string;
+}
 
 export class ModelPropertyMutationNode extends MutationNode<ModelProperty> {
   readonly kind = "ModelProperty";
-  #referenceMutated = false;
 
-  traverse() {
-    const typeNode = this.subgraph.getNode(this.sourceType.type);
-    const referenceNode = this.subgraph.getReferenceNode(this.sourceType);
-
-    this.connectType(typeNode);
-    this.connectReference(referenceNode);
-  }
-
-  connectReference(referenceNode: MutationNode<Type>) {
-    MutationEdge.create(this, referenceNode, {
-      onTailMutation: () => {
-        this.#referenceMutated = true;
-        this.mutatedType.type = referenceNode.mutatedType;
+  startTypeEdge() {
+    return new HalfEdge<ModelProperty, Type>(this, {
+      onTailMutation: (tail) => {
+        traceNode(this, "Model property type mutated.");
+        this.mutate();
+        this.mutatedType.type = tail.mutatedType;
       },
       onTailDeletion: () => {
-        this.#referenceMutated = true;
+        this.mutate();
         this.mutatedType.type = this.$.intrinsic.any;
       },
       onTailReplaced: (newTail) => {
-        this.#referenceMutated = true;
+        this.mutate();
         this.mutatedType.type = newTail.mutatedType;
       },
     });
   }
 
   connectType(typeNode: MutationNode<Type>) {
-    MutationEdge.create(this, typeNode, {
-      onTailMutation: () => {
-        if (this.#referenceMutated) {
-          return;
-        }
-        this.mutatedType.type = typeNode.mutatedType;
+    this.startTypeEdge().setTail(typeNode);
+  }
+
+  startModelEdge() {
+    return new HalfEdge<ModelProperty, Model>(this, {
+      onTailMutation: (tail) => {
+        traceNode(this, "Model property model mutated.");
+        this.mutate();
+        this.mutatedType.model = tail.mutatedType;
       },
       onTailDeletion: () => {
-        if (this.#referenceMutated) {
-          return;
-        }
-        this.mutatedType.type = this.$.intrinsic.any;
+        this.delete();
       },
-      onTailReplaced: (newTail) => {
-        this.mutatedType.type = newTail.mutatedType;
+      onTailReplaced: () => {
+        this.delete();
       },
     });
+  }
+
+  connectModel(modelNode: MutationNode<Model>) {
+    this.startModelEdge().setTail(modelNode);
   }
 }
