@@ -100,6 +100,16 @@ model ApiKeyAuth<Location extends ApiKeyLocation, Name extends string> {
   name: Name;
 }
 
+model OAuth2Scope {
+  @doc("The scope identifier")
+  value: string;
+
+  @doc("A description of the scope")
+  description?: string;
+}
+
+alias ScopeList = string[] | OAuth2Scope[];
+
 /**
  * OAuth 2.0 is an authorization protocol that gives an API client limited access to user data on a web server.
  *
@@ -111,7 +121,7 @@ model ApiKeyAuth<Location extends ApiKeyLocation, Name extends string> {
  * @template Scopes The list of OAuth2 scopes, which are common for every flow from `Flows`. This list is combined with the scopes defined in specific OAuth2 flows.
  */
 @doc("")
-model OAuth2Auth<Flows extends OAuth2Flow[], Scopes extends string[] = []> {
+model OAuth2Auth<Flows extends OAuth2Flow[], Scopes extends ScopeList = []> {
   @doc("OAuth2 authentication")
   type: AuthType.oauth2;
 
@@ -154,7 +164,7 @@ model AuthorizationCodeFlow {
   refreshUrl?: string;
 
   @doc("list of scopes for the credential")
-  scopes?: string[];
+  scopes?: ScopeList;
 }
 
 @doc("Implicit flow")
@@ -169,7 +179,7 @@ model ImplicitFlow {
   refreshUrl?: string;
 
   @doc("list of scopes for the credential")
-  scopes?: string[];
+  scopes?: ScopeList;
 }
 
 @doc("Resource Owner Password flow")
@@ -184,7 +194,7 @@ model PasswordFlow {
   refreshUrl?: string;
 
   @doc("list of scopes for the credential")
-  scopes?: string[];
+  scopes?: ScopeList;
 }
 
 @doc("Client credentials flow")
@@ -199,7 +209,7 @@ model ClientCredentialsFlow {
   refreshUrl?: string;
 
   @doc("list of scopes for the credential")
-  scopes?: string[];
+  scopes?: ScopeList;
 }
 
 /**

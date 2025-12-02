@@ -52,6 +52,9 @@ import {
   HttpStatusCodeRange,
   HttpStatusCodes,
   HttpVerb,
+  OAuth2Flow,
+  OAuth2Scope,
+  Oauth2Auth,
   PathParameterOptions,
   QueryParameterOptions,
 } from "./types.js";
@@ -621,7 +624,11 @@ function extractHttpAuthentication(
   ];
 }
 
-function extractOAuth2Auth(modelType: Model, data: any): HttpAuth {
+function normalizeScope(scope: string | OAuth2Scope): OAuth2Scope {
+  return typeof scope === "string" ? { value: scope } : scope;
+}
+
+function extractOAuth2Auth(modelType: Model, data: any): Oauth2Auth<OAuth2Flow[]> {
   // Validation of OAuth2Flow models in this function is minimal because the
   // type system already validates whether the model represents a flow
   // configuration.  This code merely avoids runtime errors.
@@ -630,16 +637,19 @@ function extractOAuth2Auth(modelType: Model, data: any): HttpAuth {
       ? data.flows
       : [];
 
-  const defaultScopes = Array.isArray(data.defaultScopes) ? data.defaultScopes : [];
+  const defaultScopes: Array<string | OAuth2Scope> = Array.isArray(data.defaultScopes)
+    ? data.defaultScopes
+    : [];
+
   return {
     id: data.id,
     type: data.type,
     model: modelType,
-    flows: flows.map((flow: any) => {
-      const scopes: Array<string> = flow.scopes ? flow.scopes : defaultScopes;
+    flows: flows.map((flow: OAuth2Flow) => {
+      const scopes = flow.scopes ? flow.scopes : defaultScopes;
       return {
         ...flow,
-        scopes: scopes.map((x: string) => ({ value: x })),
+        scopes: scopes.map(normalizeScope),
       };
     }),
   };
