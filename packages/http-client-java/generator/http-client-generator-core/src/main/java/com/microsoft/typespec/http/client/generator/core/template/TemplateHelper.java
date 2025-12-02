@@ -36,11 +36,8 @@ public final class TemplateHelper {
     }
 
     public static String getByteCloneExpression(String propertyName) {
-        return JavaSettings.getInstance().isAzureV1() ? "CoreUtils.clone(" + propertyName + ")" : propertyName; // TODO:
-                                                                                                                // generic
-                                                                                                                // not
-                                                                                                                // having
-                                                                                                                // CoreUtils
+        // TODO: generic not having CoreUtils
+        return JavaSettings.getInstance().isAzureV1() ? "CoreUtils.clone(" + propertyName + ")" : propertyName;
     }
 
     public static void createHttpPipelineMethod(JavaSettings settings, String defaultCredentialScopes,

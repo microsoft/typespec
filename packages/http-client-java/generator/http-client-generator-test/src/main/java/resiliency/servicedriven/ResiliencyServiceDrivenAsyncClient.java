@@ -275,6 +275,25 @@ public final class ResiliencyServiceDrivenAsyncClient {
      * Tests that we can grow up an operation from accepting one optional parameter to accepting two optional
      * parameters.
      * 
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return A {@link Mono} that completes when a successful response is received.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> fromOneOptional() {
+        // Generated convenience method for fromOneOptionalWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return fromOneOptionalWithResponse(requestOptions).flatMap(FluxUtil::toMono);
+    }
+
+    /**
+     * Tests that we can grow up an operation from accepting one optional parameter to accepting two optional
+     * parameters.
+     * 
      * @param parameter I am an optional parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -292,25 +311,6 @@ public final class ResiliencyServiceDrivenAsyncClient {
         if (parameter != null) {
             requestOptions.addQueryParam("parameter", parameter, false);
         }
-        return fromOneOptionalWithResponse(requestOptions).flatMap(FluxUtil::toMono);
-    }
-
-    /**
-     * Tests that we can grow up an operation from accepting one optional parameter to accepting two optional
-     * parameters.
-     * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return A {@link Mono} that completes when a successful response is received.
-     */
-    @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Void> fromOneOptional() {
-        // Generated convenience method for fromOneOptionalWithResponse
-        RequestOptions requestOptions = new RequestOptions();
         return fromOneOptionalWithResponse(requestOptions).flatMap(FluxUtil::toMono);
     }
 }

@@ -109,7 +109,8 @@ public class ModelTestCaseUtil {
         } else if (type == ClassType.STRING) {
             return randomString();
         } else if (type.asNullable() == ClassType.UNIX_TIME_LONG) {
-            return RANDOM.nextLong() & Long.MAX_VALUE;
+            // use nextInt to avoid exceeding unixTime limit
+            return RANDOM.nextInt() & Long.MAX_VALUE;
         } else if (type == ClassType.DATE_TIME) {
             return randomDateTime().toString();
         } else if (type == ClassType.DATE_TIME_RFC_1123) {

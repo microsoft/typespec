@@ -6,6 +6,7 @@ package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 import com.microsoft.typespec.http.client.generator.core.extension.model.extensionmodel.XmsExtensions;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
+import com.microsoft.typespec.http.client.generator.core.util.WireTypeClientTypeConverter;
 import io.clientcore.core.credentials.oauth.OAuthTokenRequestContext;
 import io.clientcore.core.utils.CoreUtils;
 import java.io.InputStream;
@@ -88,7 +89,7 @@ public class ClassType implements IType {
     public static final ClassType ACCESS_TOKEN = withClientCoreReplacement("com.azure.core.credential.AccessToken",
         "io.clientcore.core.credentials.oauth.AccessToken");
     public static final ClassType AZURE_KEY_CREDENTIAL
-        = new Builder(false).packageName("com.azure.core.credential").name("AccessToken").build();
+        = new Builder(false).packageName("com.azure.core.credential").name("AzureKeyCredential").build();
     public static final ClassType KEY_CREDENTIAL = withClientCoreReplacement("com.azure.core.credential.KeyCredential",
         "io.clientcore.core.credentials.KeyCredential");
     public static final ClassType TOKEN_CREDENTIAL = withClientCoreAndVNextReplacement(
@@ -695,39 +696,11 @@ public class ClassType implements IType {
     }
 
     public String convertToClientType(String expression) {
-        if (this == ClassType.DATE_TIME_RFC_1123) {
-            expression = expression + ".getDateTime()";
-        } else if (this == ClassType.UNIX_TIME_LONG) {
-            expression = "OffsetDateTime.ofInstant(Instant.ofEpochSecond(" + expression + "), ZoneOffset.UTC)";
-        } else if (this == ClassType.BASE_64_URL) {
-            expression = expression + ".decodedBytes()";
-        } else if (this == ClassType.URL) {
-            expression = "new URL(" + expression + ")";
-        } else if (this == ClassType.DURATION_LONG) {
-            expression = "Duration.ofSeconds(" + expression + ")";
-        } else if (this == ClassType.DURATION_DOUBLE) {
-            expression = "Duration.ofNanos((long) (" + expression + " * 1000_000_000L))";
-        }
-
-        return expression;
+        return WireTypeClientTypeConverter.convertToClientTypeExpression(this, expression);
     }
 
     public String convertFromClientType(String expression) {
-        if (this == ClassType.DATE_TIME_RFC_1123) {
-            expression = "new DateTimeRfc1123(" + expression + ")";
-        } else if (this == ClassType.UNIX_TIME_LONG) {
-            expression = expression + ".toEpochSecond()";
-        } else if (this == ClassType.BASE_64_URL) {
-            expression = ClassType.BASE_64_URL.getName() + ".encode(" + expression + ")";
-        } else if (this == ClassType.URL) {
-            expression = expression + ".toString()";
-        } else if (this == ClassType.DURATION_LONG) {
-            expression = expression + ".getSeconds()";
-        } else if (this == ClassType.DURATION_DOUBLE) {
-            expression = "(double) " + expression + ".toNanos() / 1000_000_000L";
-        }
-
-        return expression;
+        return WireTypeClientTypeConverter.convertToWireTypeExpression(this, expression);
     }
 
     public String validate(String expression) {

@@ -232,10 +232,10 @@ describe("discriminated union with polymorphic-models-strategy option", () => {
     deepStrictEqual(petSchema.oneOf[0], { $ref: "Cat.json" });
     deepStrictEqual(petSchema.oneOf[1], { $ref: "Dog.json" });
 
-    // Should have base model properties along with oneOf
+    // Pet schema should contain both oneOf and base properties
     strictEqual(petSchema.type, "object");
-    ok(petSchema.properties, "Should have properties");
-    strictEqual(petSchema.properties.name.type, "string");
+    ok(petSchema.properties, "Pet should have properties");
+    strictEqual(petSchema.properties.name.type, "string", "Pet should have name property");
     deepStrictEqual(petSchema.properties.kind, {
       type: "string",
       description: "Discriminator property for Pet.",
@@ -271,13 +271,17 @@ describe("discriminated union with polymorphic-models-strategy option", () => {
     ok(catSchema, "Cat schema should exist");
     strictEqual(catSchema.properties.kind.const, "cat");
     strictEqual(catSchema.properties.meow.type, "integer");
-    deepStrictEqual(catSchema.allOf, [{ $ref: "Pet.json" }]);
+    // Cat should include base properties (name) inline to avoid circular refs
+    strictEqual(catSchema.properties.name.type, "string");
+    strictEqual(catSchema.allOf, undefined, "Should not have allOf to avoid circular refs");
 
     const dogSchema = schemas["Dog.json"];
     ok(dogSchema, "Dog schema should exist");
     strictEqual(dogSchema.properties.kind.const, "dog");
     strictEqual(dogSchema.properties.bark.type, "string");
-    deepStrictEqual(dogSchema.allOf, [{ $ref: "Pet.json" }]);
+    // Dog should include base properties (name) inline to avoid circular refs
+    strictEqual(dogSchema.properties.name.type, "string");
+    strictEqual(dogSchema.allOf, undefined, "Should not have allOf to avoid circular refs");
   });
 
   it("works with multiple levels of inheritance", async () => {
@@ -308,7 +312,9 @@ describe("discriminated union with polymorphic-models-strategy option", () => {
 
     const dogSchema = schemas["Dog.json"];
     ok(dogSchema, "Dog schema should exist");
-    deepStrictEqual(dogSchema.allOf, [{ $ref: "Pet.json" }]);
+    // Dog should inline Pet properties, not use allOf
+    strictEqual(dogSchema.properties.name.type, "string");
+    strictEqual(dogSchema.allOf, undefined, "Should not have allOf to avoid circular refs");
   });
 
   it("does not emit oneOf when option is ignore", async () => {
@@ -381,10 +387,10 @@ describe("discriminated union with polymorphic-models-strategy option", () => {
     deepStrictEqual(petSchema.anyOf[0], { $ref: "Cat.json" });
     deepStrictEqual(petSchema.anyOf[1], { $ref: "Dog.json" });
 
-    // Should have base model properties along with anyOf
+    // Pet schema should contain both anyOf and base properties
     strictEqual(petSchema.type, "object");
-    ok(petSchema.properties, "Should have properties");
-    strictEqual(petSchema.properties.name.type, "string");
+    ok(petSchema.properties, "Pet should have properties");
+    strictEqual(petSchema.properties.name.type, "string", "Pet should have name property");
     deepStrictEqual(petSchema.properties.kind, {
       type: "string",
       description: "Discriminator property for Pet.",
