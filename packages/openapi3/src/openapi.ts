@@ -1584,7 +1584,7 @@ function createOAPIEmitter(
       options,
     );
 
-    if (param.defaultValue) {
+    if (param.defaultValue && param.defaultValue.valueKind !== "UnknownValue") {
       schema.default = getDefaultValue(program, param.defaultValue, param);
     }
     // Description is already provided in the parameter itself.

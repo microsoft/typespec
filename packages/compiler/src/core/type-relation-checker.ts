@@ -98,9 +98,7 @@ const ReflectionNameToKind = {
   Tuple: "Tuple",
   Union: "Union",
   UnionVariant: "UnionVariant",
-} as const;
-
-const _assertReflectionNameToKind: Record<string, Type["kind"]> = ReflectionNameToKind;
+} as const satisfies Record<string, Type["kind"]>;
 
 type ReflectionTypeName = keyof typeof ReflectionNameToKind;
 
@@ -510,7 +508,7 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
 
   function isSimpleTypeAssignableTo(source: Type, target: Type): boolean | undefined {
     if (isNeverType(source)) return true;
-    if (isVoidType(target)) return false;
+    if (isVoidType(target)) return isVoidType(source);
     if (isUnknownType(target)) return true;
     if (isReflectionType(target)) {
       return source.kind === ReflectionNameToKind[target.name];
@@ -706,10 +704,11 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
       }
     }
 
-    return [
-      errors.length === 0 ? Related.true : Related.false,
-      wrapUnassignableErrors(source, target, errors),
-    ];
+    if (errors.length === 0) {
+      return [Related.true, []];
+    } else {
+      return [Related.false, wrapUnassignableErrors(source, target, errors)];
+    }
   }
 
   /** If we should check for excess properties on the given model. */

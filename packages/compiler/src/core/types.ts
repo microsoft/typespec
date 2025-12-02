@@ -15,6 +15,7 @@ Value extends StringValue ? string
   : Value extends EnumValue ? EnumMember
   : Value extends NullValue ? null
   : Value extends ScalarValue ? Value
+  : Value extends UnknownValue ? null
   : Value
 
 /**
@@ -49,8 +50,12 @@ export interface DecoratorApplication {
 }
 
 export interface DecoratorFunction {
-  (program: DecoratorContext, target: any, ...customArgs: any[]): void;
+  (context: DecoratorContext, target: any, ...args: any[]): void;
   namespace?: string;
+}
+
+export interface FunctionImplementation {
+  (context: FunctionContext, ...args: any[]): Type | Value;
 }
 
 export interface BaseType {
@@ -131,7 +136,8 @@ export type Type =
   | TemplateParameter
   | Tuple
   | Union
-  | UnionVariant;
+  | UnionVariant
+  | FunctionType;
 
 export type StdTypes = {
   // Models
@@ -166,7 +172,8 @@ export interface IndeterminateEntity {
     | BooleanLiteral
     | EnumMember
     | UnionVariant
-    | NullType;
+    | NullType
+    | UnknownType;
 }
 
 export interface IntrinsicType extends BaseType {
@@ -323,7 +330,8 @@ export type Value =
   | ObjectValue
   | ArrayValue
   | EnumValue
-  | NullValue;
+  | NullValue
+  | UnknownValue;
 
 /** @internal */
 export type ValueWithTemplate = Value | TemplateValue;
@@ -389,6 +397,9 @@ export interface EnumValue extends BaseValue {
 export interface NullValue extends BaseValue {
   valueKind: "NullValue";
   value: null;
+}
+export interface UnknownValue extends BaseValue {
+  valueKind: "UnknownValue";
 }
 
 /**
@@ -579,6 +590,13 @@ export interface Namespace extends BaseType, DecoratedType {
    * Order is implementation-defined and may change.
    */
   decoratorDeclarations: Map<string, Decorator>;
+
+  /**
+   * The functions declared in the namespace.
+   *
+   * Order is implementation-defined and may change.
+   */
+  functionDeclarations: Map<string, FunctionType>;
 }
 
 export type LiteralType = StringLiteral | NumericLiteral | BooleanLiteral;
@@ -687,27 +705,81 @@ export interface Decorator extends BaseType {
   namespace: Namespace;
   target: MixedFunctionParameter;
   parameters: MixedFunctionParameter[];
-  implementation: (...args: unknown[]) => void;
+  implementation: (ctx: DecoratorContext, target: Type, ...args: unknown[]) => void;
+}
+
+/**
+ * A function (`fn`) declared in the TypeSpec program.
+ */
+export interface FunctionType extends BaseType {
+  kind: "Function";
+  node?: FunctionDeclarationStatementNode;
+  /**
+   * The function's name as declared in the TypeSpec source.
+   */
+  name: string;
+  /**
+   * The namespace in which this function was declared.
+   */
+  namespace: Namespace;
+  /**
+   * The parameters of the function.
+   */
+  parameters: MixedFunctionParameter[];
+  /**
+   * The return type constraint of the function.
+   */
+  returnType: MixedParameterConstraint;
+  /**
+   * The JavaScript implementation of the function.
+   *
+   * WARNING: Calling the implementation function directly is dangerous. It assumes that you have marshaled the arguments
+   * to JS values correctly and that you will handle the return value appropriately. Constructing the correct context
+   * is your responsibility (use the `call
+   *
+   * @param ctx - The FunctionContext providing information about the call site.
+   * @param args - The arguments passed to the function.
+   * @returns The return value of the function, which is arbitrary.
+   */
+  implementation: (ctx: FunctionContext, ...args: unknown[]) => unknown;
 }
 
 export interface FunctionParameterBase extends BaseType {
   kind: "FunctionParameter";
   node?: FunctionParameterNode;
+  /**
+   * The name of this function parameter, as declared in the TypeSpec source.
+   */
   name: string;
+  /**
+   * Whether this parameter is optional.
+   */
   optional: boolean;
+  /**
+   * Whether this parameter is a rest parameter (i.e., `...args`).
+   */
   rest: boolean;
 }
 
-/** Represent a function parameter that could accept types or values in the TypeSpec program. */
+/**
+ * A function parameter with a mixed parameter constraint that could accept a value.
+ */
 export interface MixedFunctionParameter extends FunctionParameterBase {
   mixed: true;
   type: MixedParameterConstraint;
 }
-/** Represent a function parameter that represent the parameter signature(i.e the type would be the type of the value passed) */
+
+/**
+ * A function parameter with a simple type constraint.
+ */
 export interface SignatureFunctionParameter extends FunctionParameterBase {
   mixed: false;
   type: Type;
 }
+
+/**
+ * A function parameter.
+ */
 export type FunctionParameter = MixedFunctionParameter | SignatureFunctionParameter;
 
 export interface Sym {
@@ -2312,6 +2384,12 @@ export interface DecoratorImplementations {
   };
 }
 
+export interface FunctionImplementations {
+  readonly [namespace: string]: {
+    readonly [name: string]: FunctionImplementation;
+  };
+}
+
 export interface PackageFlags {}
 
 export interface LinterDefinition {
@@ -2462,22 +2540,102 @@ export interface DecoratorContext {
   decoratorTarget: DiagnosticTarget;
 
   /**
-   * Function that can be used to retrieve the target for a parameter at the given index.
-   * @param paramIndex Parameter index in the typespec
-   * @example @foo("bar", 123) -> $foo(context, target, arg0: string, arg1: number);
-   *  getArgumentTarget(0) -> target for arg0
-   *  getArgumentTarget(1) -> target for arg1
+   * Helper to get the target for a given argument index.
+   * @param argIndex Argument index in the decorator call.
+   * @example
+   * ```tsp
+   * @dec("hello", 123)
+   * model MyModel { }
+   * ```
+   * - `getArgumentTarget(0)` -> target for "hello"
+   * - `getArgumentTarget(1)` -> target for 123
    */
-  getArgumentTarget(paramIndex: number): DiagnosticTarget | undefined;
+  getArgumentTarget(argIndex: number): DiagnosticTarget | undefined;
 
   /**
-   * Helper to call out to another decorator
-   * @param decorator Other decorator function
-   * @param args Args to pass to other decorator function
+   * Helper to call a decorator implementation from within another decorator implementation.
+   *
+   * This function is identical to `callDecorator`.
+   *
+   * @param decorator The decorator function to call.
+   * @param target The target to which the decorator is applied.
+   * @param args Arguments to pass to the decorator.
    */
   call<T extends Type, A extends any[], R>(
     decorator: (context: DecoratorContext, target: T, ...args: A) => R,
     target: T,
+    ...args: A
+  ): R;
+
+  /**
+   * Helper to call a decorator implementation from within another decorator implementation.
+   *
+   * @param decorator The decorator function to call.
+   * @param target The target to which the decorator is applied.
+   * @param args Arguments to pass to the decorator.
+   */
+  callDecorator<T extends Type, A extends any[], R>(
+    decorator: (context: DecoratorContext, target: T, ...args: A) => R,
+    target: T,
+    ...args: A
+  ): R;
+
+  /**
+   * Helper to call a function implementation from within a decorator implementation.
+   * @param func The function implementation to call.
+   * @param args Arguments to pass to the function.
+   */
+  callFunction<A extends any[], R>(
+    func: (context: FunctionContext, ...args: A) => R,
+    ...args: A
+  ): R;
+}
+
+/**
+ * Context passed to function implementations.
+ */
+export interface FunctionContext {
+  /**
+   * The TypeSpec Program in which the function is evaluated.
+   */
+  program: Program;
+
+  /**
+   * The function call diagnostic target.
+   */
+  functionCallTarget: DiagnosticTarget;
+
+  /**
+   * Helper to get the target for a given argument index.
+   * @param argIndex Argument index in the function call.
+   * @example
+   * ```tsp
+   * foo("bar", 123):
+   * ```
+   * - `getArgumentTarget(0)` -> target for "bar"
+   * - `getArgumentTarget(1)` -> target for 123
+   */
+  getArgumentTarget(argIndex: number): DiagnosticTarget | undefined;
+
+  /**
+   * Helper to call a decorator implementation from within a function implementation.
+   * @param decorator The decorator function to call.
+   * @param target The target to which the decorator is applied.
+   * @param args Arguments to pass to the decorator.
+   */
+  callDecorator<T extends Type, A extends any[], R>(
+    decorator: (context: DecoratorContext, target: T, ...args: A) => R,
+    target: T,
+    ...args: A
+  ): R;
+
+  /**
+   * Helper to call a function implementation from within another function implementation.
+   * @param func The function implementation to call.
+   * @param args Arguments to pass to the function.
+   */
+  callFunction<A extends any[], R>(
+    func: (context: FunctionContext, ...args: A) => R,
     ...args: A
   ): R;
 }

@@ -211,7 +211,7 @@ export const $lib = createTypeSpecLibrary({
 export const StateKeys = $lib.stateKeys;
 ```
 
-### Reporting diagnostic on decorator or arguments
+### Reporting diagnostics on decorator or arguments
 
 The decorator context provides the `decoratorTarget` and `getArgumentTarget` helpers.
 
