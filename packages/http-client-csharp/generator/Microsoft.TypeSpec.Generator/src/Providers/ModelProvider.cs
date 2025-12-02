@@ -734,7 +734,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     {
                         // Call base model's private protected constructor with discriminator value
                         var args = new List<ValueExpression>();
-                        args.Add(Literal(_inputModel.DiscriminatorValue ?? ""));
+                        args.Add(Literal(_inputModel.DiscriminatorValue));
                         var filteredParams = baseParameters.Where(p => p.Property is null || !p.Property.IsDiscriminator).ToList();
                         args.AddRange(filteredParams.Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor)));
                         constructorInitializer = new ConstructorInitializer(true, args);

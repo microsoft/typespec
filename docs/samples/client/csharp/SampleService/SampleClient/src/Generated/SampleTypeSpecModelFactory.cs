@@ -229,5 +229,14 @@ namespace SampleTypeSpec
         {
             return new AnotherDynamicModel(bar, additionalBinaryDataProperties: null);
         }
+
+        /// <summary> The GetWidgetMetricsResponse. </summary>
+        /// <param name="numSold"></param>
+        /// <param name="averagePrice"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.GetWidgetMetricsResponse"/> instance for mocking. </returns>
+        public static GetWidgetMetricsResponse GetWidgetMetricsResponse(int numSold = default, float averagePrice = default)
+        {
+            return new GetWidgetMetricsResponse(numSold, averagePrice, additionalBinaryDataProperties: null);
+        }
     }
 }

@@ -255,5 +255,40 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
 
             Assert.IsTrue(inputModel!.Usage.HasFlag(InputModelTypeUsage.Json));
         }
+
+        [Test]
+        public void LoadsClientWithSubclientInitializedBy()
+        {
+            var directory = Helpers.GetAssetFileOrDirectoryPath(false);
+            // this tspCodeModel.json contains a partial part of the full tspCodeModel.json
+            var content = File.ReadAllText(Path.Combine(directory, "tspCodeModel.json"));
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true,
+                Converters =
+                {
+                    new JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
+                    new InputNamespaceConverter(referenceHandler),
+                    new InputClientConverter(referenceHandler),
+                },
+            };
+            var inputNamespace = JsonSerializer.Deserialize<InputNamespace>(content, options);
+
+            Assert.IsNotNull(inputNamespace);
+
+            var parentClient = inputNamespace!.Clients.SingleOrDefault(c => c.Name == "ParentClient");
+            Assert.IsNotNull(parentClient);
+            Assert.AreEqual(InputClientInitializedBy.Individually, parentClient!.InitializedBy);
+            Assert.IsNull(parentClient.Parent, "Parent client should not have a parent");
+            Assert.AreEqual(1, parentClient.Children.Count, "Parent client should have 1 child");
+
+            var subClient = inputNamespace.Clients.SingleOrDefault(c => c.Name == "SubClient");
+            Assert.IsNotNull(subClient);
+            Assert.AreEqual(InputClientInitializedBy.Individually | InputClientInitializedBy.Parent, subClient!.InitializedBy);
+            Assert.IsNotNull(subClient.Parent, "SubClient should have a parent");
+            Assert.AreEqual("ParentClient", subClient.Parent!.Name, "SubClient's parent should be ParentClient");
+            Assert.AreEqual(0, subClient.Children.Count, "SubClient should have no children");
+        }
     }
 }

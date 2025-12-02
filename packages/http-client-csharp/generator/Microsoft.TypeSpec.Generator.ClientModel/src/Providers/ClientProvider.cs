@@ -163,8 +163,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Only create the caching field if the subclient can be initialized by parent
             // (InitializedBy is null meaning default behavior = Parent, or explicitly includes Parent)
             bool canBeInitializedByParent = _inputClient.Parent != null &&
-                (_inputClient.InitializedBy is null ||
-                 (_inputClient.InitializedBy.Value & InputClientInitializedBy.Parent) != 0);
+                (_inputClient.InitializedBy & InputClientInitializedBy.Parent) != 0;
 
             if (canBeInitializedByParent)
             {
@@ -431,8 +430,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var constructors = new List<ConstructorProvider> { mockingConstructor };
 
                 // Check if InitializedBy includes Parent (or is null/default which implies Parent)
-                bool includesParent = _inputClient.InitializedBy is null ||
-                    (_inputClient.InitializedBy.Value & InputClientInitializedBy.Parent) != 0;
+                bool includesParent = (_inputClient.InitializedBy & InputClientInitializedBy.Parent) != 0;
 
                 if (includesParent)
                 {
@@ -453,8 +451,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
 
                 // Check if InitializedBy includes Individually
-                bool includesIndividually = _inputClient.InitializedBy is not null &&
-                    (_inputClient.InitializedBy.Value & InputClientInitializedBy.Individually) != 0;
+                bool includesIndividually = (_inputClient.InitializedBy & InputClientInitializedBy.Individually) != 0;
 
                 if (includesIndividually)
                 {
