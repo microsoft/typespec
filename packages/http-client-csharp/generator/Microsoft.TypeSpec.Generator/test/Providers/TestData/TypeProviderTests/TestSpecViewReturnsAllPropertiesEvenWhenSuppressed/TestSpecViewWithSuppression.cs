@@ -3,6 +3,7 @@
 using System;
 using Microsoft.TypeSpec.Generator;
 using SampleTypeSpec;
+using Microsoft.TypeSpec.Generator.Customizations;
 
 namespace Test;
 
