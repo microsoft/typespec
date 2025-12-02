@@ -25,6 +25,7 @@ export const DashboardFromAzureStorage = (props: DashboardFromAzureStorageProps)
         <Dashboard
           coverageSummaries={coverageSummaries}
           scenarioTierConfig={props.options.tiers}
+          useOverviewMode={true}
         ></Dashboard>
       ) : (
         "Loading"

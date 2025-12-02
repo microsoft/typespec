@@ -140,15 +140,17 @@ function getCompletedRatio(
   scope: string = "",
 ) {
   const filtered = scenarios.filter((x) => x.name.startsWith(scope));
+  // Only count scenarios that exist in this emitter's results
+  const emitterScenarios = filtered.filter((x) => x.name in report.results);
   let coveredCount = 0;
-  for (const scenario of filtered) {
+  for (const scenario of emitterScenarios) {
     const status = report.results[scenario.name];
     if (status === "pass" || status === "not-applicable" || status === "not-supported") {
       coveredCount++;
     }
   }
 
-  return coveredCount / filtered.length;
+  return emitterScenarios.length > 0 ? coveredCount / emitterScenarios.length : 0;
 }
 
 interface DashboardHeaderRowProps {

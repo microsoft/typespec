@@ -6,16 +6,16 @@ describe("compileTierConfig", () => {
     const config: TierConfig = {
       default: "tier1",
       tiers: {
-        tier1: ["Scenario.A", "Scenario.B"],
-        tier2: ["Scenario.C"],
+        tier1: { patterns: ["Scenario.A", "Scenario.B"] },
+        tier2: { patterns: ["Scenario.C"] },
       },
     };
 
     const compiled = compileTierConfig(config);
 
-    expect(compiled.exact.get("Scenario.A")).toBe("tier1");
-    expect(compiled.exact.get("Scenario.B")).toBe("tier1");
-    expect(compiled.exact.get("Scenario.C")).toBe("tier2");
+    expect(compiled.exact.get("Scenario.A")?.tier).toBe("tier1");
+    expect(compiled.exact.get("Scenario.B")?.tier).toBe("tier1");
+    expect(compiled.exact.get("Scenario.C")?.tier).toBe("tier2");
     expect(compiled.defaultTier).toBe("tier1");
     expect(compiled.patterns).toHaveLength(0);
   });
@@ -24,8 +24,8 @@ describe("compileTierConfig", () => {
     const config: TierConfig = {
       default: "tier1",
       tiers: {
-        tier1: ["Type.*"],
-        tier2: ["Authentication.*"],
+        tier1: { patterns: ["Type.*"] },
+        tier2: { patterns: ["Authentication.*"] },
       },
     };
 
@@ -42,8 +42,8 @@ describe("compileTierConfig", () => {
     const config: TierConfig = {
       default: "tier1",
       tiers: {
-        tier1: ["Exact.Match", "Prefix.*"],
-        tier2: ["Another.Exact"],
+        tier1: { patterns: ["Exact.Match", "Prefix.*"] },
+        tier2: { patterns: ["Another.Exact"] },
       },
     };
 
@@ -51,8 +51,8 @@ describe("compileTierConfig", () => {
 
     expect(compiled.exact.size).toBe(2);
     expect(compiled.patterns).toHaveLength(1);
-    expect(compiled.exact.get("Exact.Match")).toBe("tier1");
-    expect(compiled.exact.get("Another.Exact")).toBe("tier2");
+    expect(compiled.exact.get("Exact.Match")?.tier).toBe("tier1");
+    expect(compiled.exact.get("Another.Exact")?.tier).toBe("tier2");
     expect(compiled.patterns[0].tier).toBe("tier1");
   });
 
@@ -60,7 +60,7 @@ describe("compileTierConfig", () => {
     const config: TierConfig = {
       default: "tier1",
       tiers: {
-        tier1: ["Test.With.Dots.*", "Test(With)Parens.*"],
+        tier1: { patterns: ["Test.With.Dots.*", "Test(With)Parens.*"] },
       },
     };
 
@@ -78,7 +78,7 @@ describe("compileTierConfig", () => {
     const config: TierConfig = {
       default: "tier1",
       tiers: {
-        tier1: ["*.Suffix"],
+        tier1: { patterns: ["*.Suffix"] },
       },
     };
 
@@ -95,7 +95,7 @@ describe("compileTierConfig", () => {
     const config: TierConfig = {
       default: "tier1",
       tiers: {
-        tier1: ["Prefix.*.Suffix"],
+        tier1: { patterns: ["Prefix.*.Suffix"] },
       },
     };
 
@@ -112,7 +112,7 @@ describe("compileTierConfig", () => {
     const config: TierConfig = {
       default: "tier1",
       tiers: {
-        tier1: ["*.Array.*.get"],
+        tier1: { patterns: ["*.Array.*.get"] },
       },
     };
 
@@ -128,7 +128,7 @@ describe("compileTierConfig", () => {
     const config: TierConfig = {
       default: "nonexistent",
       tiers: {
-        tier1: ["Scenario.A"],
+        tier1: { patterns: ["Scenario.A"] },
       },
     };
 
@@ -141,8 +141,8 @@ describe("compileTierConfig", () => {
     const config: TierConfig = {
       default: "tier1",
       tiers: {
-        tier1: [],
-        tier2: ["Scenario.A"],
+        tier1: { patterns: [] },
+        tier2: { patterns: ["Scenario.A"] },
       },
     };
 
@@ -159,8 +159,8 @@ describe("classifyScenario", () => {
     const config: TierConfig = {
       default: "tier1",
       tiers: {
-        tier1: ["Type.*"],
-        tier2: ["Type.Array.StringValue"],
+        tier1: { patterns: ["Type.*"] },
+        tier2: { patterns: ["Type.Array.StringValue"] },
       },
     };
 
@@ -176,9 +176,9 @@ describe("classifyScenario", () => {
     const config: TierConfig = {
       default: "default",
       tiers: {
-        default: [],
-        tier1: ["Type.*"],
-        tier2: ["Authentication.*"],
+        default: { patterns: [] },
+        tier1: { patterns: ["Type.*"] },
+        tier2: { patterns: ["Authentication.*"] },
       },
     };
 
@@ -193,9 +193,9 @@ describe("classifyScenario", () => {
     const config: TierConfig = {
       default: "default",
       tiers: {
-        default: [],
-        tier1: ["*.get"],
-        tier2: ["*.post"],
+        default: { patterns: [] },
+        tier1: { patterns: ["*.get"] },
+        tier2: { patterns: ["*.post"] },
       },
     };
 
@@ -210,8 +210,8 @@ describe("classifyScenario", () => {
     const config: TierConfig = {
       default: "default",
       tiers: {
-        default: [],
-        tier1: ["Type.*.Value"],
+        default: { patterns: [] },
+        tier1: { patterns: ["Type.*.Value"] },
       },
     };
 
@@ -226,8 +226,8 @@ describe("classifyScenario", () => {
     const config: TierConfig = {
       default: "default",
       tiers: {
-        default: [],
-        tier1: ["*.Array.*.get"],
+        default: { patterns: [] },
+        tier1: { patterns: ["*.Array.*.get"] },
       },
     };
 
@@ -243,9 +243,9 @@ describe("classifyScenario", () => {
     const config: TierConfig = {
       default: "default",
       tiers: {
-        default: [],
-        tier1: ["Type.*"],
-        tier2: ["Type.Array.*"],
+        default: { patterns: [] },
+        tier1: { patterns: ["Type.*"] },
+        tier2: { patterns: ["Type.Array.*"] },
       },
     };
 
@@ -259,9 +259,9 @@ describe("classifyScenario", () => {
     const config: TierConfig = {
       default: "fallback",
       tiers: {
-        fallback: [],
-        tier1: ["Type.*"],
-        tier2: ["Authentication.*"],
+        fallback: { patterns: [] },
+        tier1: { patterns: ["Type.*"] },
+        tier2: { patterns: ["Authentication.*"] },
       },
     };
 
@@ -275,9 +275,9 @@ describe("classifyScenario", () => {
     const config: TierConfig = {
       default: "default",
       tiers: {
-        default: [],
-        tier1: ["Test.With.Dots.*"],
-        tier2: ["Test(With)Parens.*"],
+        default: { patterns: [] },
+        tier1: { patterns: ["Test.With.Dots.*"] },
+        tier2: { patterns: ["Test(With)Parens.*"] },
       },
     };
 
@@ -293,8 +293,8 @@ describe("classifyScenario", () => {
     const config: TierConfig = {
       default: "default",
       tiers: {
-        default: [],
-        tier1: ["Prefix.*"],
+        default: { patterns: [] },
+        tier1: { patterns: ["Prefix.*"] },
       },
     };
 
@@ -308,8 +308,8 @@ describe("classifyScenario", () => {
     const config: TierConfig = {
       default: "default",
       tiers: {
-        default: [],
-        tier1: ["Type.Array"],
+        default: { patterns: [] },
+        tier1: { patterns: ["Type.Array"] },
       },
     };
 
@@ -326,9 +326,9 @@ describe("classifyScenario", () => {
     const config: TierConfig = {
       default: "tier3",
       tiers: {
-        tier1: ["Type_*", "Authentication_ApiKey_*", "Authentication_Http_Basic_*"],
-        tier2: ["Encode_*", "Parameters_*", "*_Array_*"],
-        tier3: ["Advanced_*"],
+        tier1: { patterns: ["Type_*", "Authentication_ApiKey_*", "Authentication_Http_Basic_*"] },
+        tier2: { patterns: ["Encode_*", "Parameters_*", "*_Array_*"] },
+        tier3: { patterns: ["Advanced_*"] },
       },
     };
 
@@ -353,8 +353,8 @@ describe("classifyScenario", () => {
     const config: TierConfig = {
       default: "default",
       tiers: {
-        default: [],
-        tier1: ["Type_*"],
+        default: { patterns: [] },
+        tier1: { patterns: ["Type_*"] },
       },
     };
 
@@ -363,5 +363,99 @@ describe("classifyScenario", () => {
     expect(classifyScenario("Type_Array", compiled)).toBe("tier1");
     expect(classifyScenario("type_Array", compiled)).toBe("default");
     expect(classifyScenario("TYPE_Array", compiled)).toBe("default");
+  });
+
+  it("should apply emitter-specific patterns only to matching emitters", () => {
+    const config: TierConfig = {
+      default: "default",
+      tiers: {
+        default: { patterns: [] },
+        tier1: { patterns: ["Scenario.*"], emitters: ["emitter-python", "emitter-typescript"] },
+        tier2: { patterns: ["Scenario.*"], emitters: ["emitter-java"] },
+      },
+    };
+
+    const compiled = compileTierConfig(config);
+
+    // Should match tier1 for python emitter
+    expect(classifyScenario("Scenario.Test", compiled, "emitter-python")).toBe("tier1");
+
+    // Should match tier1 for typescript emitter
+    expect(classifyScenario("Scenario.Test", compiled, "emitter-typescript")).toBe("tier1");
+
+    // Should match tier2 for java emitter
+    expect(classifyScenario("Scenario.Test", compiled, "emitter-java")).toBe("tier2");
+
+    // Should fall back to default for unspecified emitter
+    expect(classifyScenario("Scenario.Test", compiled, "emitter-csharp")).toBe("default");
+
+    // Should fall back to default when no emitter specified
+    expect(classifyScenario("Scenario.Test", compiled)).toBe("default");
+  });
+
+  it("should prioritize global patterns when emitters is undefined", () => {
+    const config: TierConfig = {
+      default: "default",
+      tiers: {
+        default: { patterns: [] },
+        tier1: { patterns: ["Global.*"] },
+        tier2: { patterns: ["Global.*"], emitters: ["emitter-python"] },
+      },
+    };
+
+    const compiled = compileTierConfig(config);
+
+    // Global pattern (tier1) should match first for any emitter
+    expect(classifyScenario("Global.Test", compiled, "emitter-python")).toBe("tier1");
+    expect(classifyScenario("Global.Test", compiled, "emitter-typescript")).toBe("tier1");
+    expect(classifyScenario("Global.Test", compiled)).toBe("tier1");
+  });
+
+  it("should handle mixed global and emitter-specific patterns", () => {
+    const config: TierConfig = {
+      default: "default",
+      tiers: {
+        default: { patterns: [] },
+        core: { patterns: ["Type.*", "Authentication.*"] },
+        advanced: { patterns: ["Advanced.*"], emitters: ["emitter-python", "emitter-typescript"] },
+      },
+    };
+
+    const compiled = compileTierConfig(config);
+
+    // Global patterns apply to all
+    expect(classifyScenario("Type.String", compiled, "emitter-python")).toBe("core");
+    expect(classifyScenario("Type.String", compiled, "emitter-java")).toBe("core");
+
+    // Emitter-specific patterns only apply to specified emitters
+    expect(classifyScenario("Advanced.Feature", compiled, "emitter-python")).toBe("advanced");
+    expect(classifyScenario("Advanced.Feature", compiled, "emitter-java")).toBe("default");
+  });
+
+  it("should handle array of pattern configurations for same tier", () => {
+    const config: TierConfig = {
+      default: "default",
+      tiers: {
+        default: { patterns: [] },
+        core: [
+          { patterns: ["Type.*", "Authentication.*"] },
+          { patterns: ["Payload.Xml.*"], emitters: ["emitter-go"] },
+        ],
+      },
+    };
+
+    const compiled = compileTierConfig(config);
+
+    // Global patterns apply to all emitters
+    expect(classifyScenario("Type.String", compiled, "emitter-go")).toBe("core");
+    expect(classifyScenario("Type.String", compiled, "emitter-python")).toBe("core");
+
+    // Emitter-specific patterns only apply to specified emitter
+    expect(classifyScenario("Payload.Xml.Response", compiled, "emitter-go")).toBe("core");
+    expect(classifyScenario("Payload.Xml.Response", compiled, "emitter-python")).toBe("default");
+
+    // Both should be classified as "core" tier for the go emitter
+    expect(classifyScenario("Type.String", compiled, "emitter-go")).toBe("core");
+    expect(classifyScenario("Payload.Xml.Response", compiled, "emitter-go")).toBe("core");
   });
 });
