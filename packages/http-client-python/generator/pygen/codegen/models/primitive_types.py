@@ -615,6 +615,39 @@ class SdkCoreType(PrimitiveType):
         return self.name
 
 
+class ExternalType(PrimitiveType):
+    def __init__(self, yaml_data: dict[str, Any], code_model: "CodeModel") -> None:
+        super().__init__(yaml_data=yaml_data, code_model=code_model)
+        external_type_info = yaml_data.get("externalTypeInfo", {})
+        self.identity = external_type_info.get("identity", "")
+        self.submodule = ".".join(self.identity.split(".")[:-1])
+        self.min_version = external_type_info.get("minVersion", "")
+        self.package_name = external_type_info.get("package", "")
+
+    def docstring_type(self, **kwargs: Any) -> str:
+        return f"~{self.identity}"
+
+    def type_annotation(self, **kwargs: Any) -> str:
+        return self.identity
+
+    def imports(self, **kwargs: Any) -> FileImport:
+        file_import = super().imports(**kwargs)
+        file_import.add_import(self.submodule, ImportType.THIRDPARTY, TypingSection.REGULAR)
+        return file_import
+
+    @property
+    def instance_check_template(self) -> str:
+        return f"isinstance({{}}, {self.identity})"
+
+    def serialization_type(self, **kwargs: Any) -> str:
+        return self.identity
+
+    @property
+    def default_template_representation_declaration(self) -> str:
+        value = f"{self.identity}(...)"
+        return f'"{value}"' if self.code_model.for_test else value
+
+
 class MultiPartFileType(PrimitiveType):
     def __init__(self, yaml_data: dict[str, Any], code_model: "CodeModel") -> None:
         super().__init__(yaml_data=yaml_data, code_model=code_model)

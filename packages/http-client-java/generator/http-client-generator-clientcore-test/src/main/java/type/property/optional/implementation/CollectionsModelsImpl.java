@@ -106,7 +106,7 @@ public final class CollectionsModelsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return models that will return all properties in the model.
+     * @return models that will return all properties in the model along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<CollectionsModelProperty> getAllWithResponse(RequestContext requestContext) {
@@ -124,7 +124,7 @@ public final class CollectionsModelsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return models that will return the default object.
+     * @return models that will return the default object along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<CollectionsModelProperty> getDefaultWithResponse(RequestContext requestContext) {
@@ -143,7 +143,7 @@ public final class CollectionsModelsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putAllWithResponse(CollectionsModelProperty body, RequestContext requestContext) {
@@ -162,7 +162,7 @@ public final class CollectionsModelsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putDefaultWithResponse(CollectionsModelProperty body, RequestContext requestContext) {

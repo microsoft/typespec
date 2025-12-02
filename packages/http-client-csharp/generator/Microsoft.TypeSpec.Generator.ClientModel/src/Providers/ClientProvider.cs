@@ -160,7 +160,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 body: new AutoPropertyBody(false),
                 enclosingType: this);
 
-            if (_inputClient.Parent != null)
+            // Only create the caching field if the subclient can be initialized by parent
+            // (InitializedBy is null meaning default behavior = Parent, or explicitly includes Parent)
+            bool canBeInitializedByParent = _inputClient.Parent != null &&
+                (_inputClient.InitializedBy is null ||
+                 (_inputClient.InitializedBy.Value & InputClientInitializedBy.Parent) != 0);
+
+            if (canBeInitializedByParent)
             {
                 // _clientCachingField will only have subClients (children)
                 // The sub-client caching field for the sub-client which is used for building the caching fields within a parent.
@@ -422,21 +428,41 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // handle sub-client constructors
             if (ClientOptionsParameter is null)
             {
-                List<MethodBodyStatement> body = new(3) { EndpointField.Assign(_endpointParameter).Terminate() };
-                foreach (var p in _subClientInternalConstructorParams.Value)
-                {
-                    var assignment = p.Field?.Assign(p).Terminate() ?? p.Property?.Assign(p).Terminate();
-                    if (assignment != null)
-                    {
-                        body.Add(assignment);
-                    }
-                }
-                var subClientConstructor = new ConstructorProvider(
-                    new ConstructorSignature(Type, _publicCtorDescription, MethodSignatureModifiers.Internal, _subClientInternalConstructorParams.Value),
-                    body,
-                    this);
+                var constructors = new List<ConstructorProvider> { mockingConstructor };
 
-                return [mockingConstructor, subClientConstructor];
+                // Check if InitializedBy includes Parent (or is null/default which implies Parent)
+                bool includesParent = _inputClient.InitializedBy is null ||
+                    (_inputClient.InitializedBy.Value & InputClientInitializedBy.Parent) != 0;
+
+                if (includesParent)
+                {
+                    List<MethodBodyStatement> body = new(3) { EndpointField.Assign(_endpointParameter).Terminate() };
+                    foreach (var p in _subClientInternalConstructorParams.Value)
+                    {
+                        var assignment = p.Field?.Assign(p).Terminate() ?? p.Property?.Assign(p).Terminate();
+                        if (assignment != null)
+                        {
+                            body.Add(assignment);
+                        }
+                    }
+                    var subClientConstructor = new ConstructorProvider(
+                        new ConstructorSignature(Type, _publicCtorDescription, MethodSignatureModifiers.Internal, _subClientInternalConstructorParams.Value),
+                        body,
+                        this);
+                    constructors.Add(subClientConstructor);
+                }
+
+                // Check if InitializedBy includes Individually
+                bool includesIndividually = _inputClient.InitializedBy is not null &&
+                    (_inputClient.InitializedBy.Value & InputClientInitializedBy.Individually) != 0;
+
+                if (includesIndividually)
+                {
+                    // Add public constructors for individual initialization
+                    AppendSubClientPublicConstructors(constructors);
+                }
+
+                return [.. constructors];
             }
 
             // we need to construct two sets of constructors for both auth if we supported any.
@@ -491,7 +517,97 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var secondaryConstructor = BuildSecondaryConstructor(secondaryConstructorParameters, primaryConstructorParameters, constructorModifier);
 
                 secondaryConstructors.Add(secondaryConstructor);
+
+                // When endpoint has a default value and there are required parameters,
+                // add an additional constructor that accepts required parameters + options.
+                // This allows users to customize client options without specifying the endpoint.
+                // Note: Required parameters typically include auth credentials when auth is present.
+                if (_endpointParameter.InitializationValue is not null && requiredParameters.Count > 0)
+                {
+                    ParameterProvider[] simplifiedConstructorWithOptionsParameters = [.. requiredParameters, ClientOptionsParameter];
+                    var simplifiedConstructorWithOptions = BuildSecondaryConstructor(simplifiedConstructorWithOptionsParameters, primaryConstructorParameters, constructorModifier);
+                    secondaryConstructors.Add(simplifiedConstructorWithOptions);
+                }
             }
+        }
+
+        private void AppendSubClientPublicConstructors(List<ConstructorProvider> constructors)
+        {
+            // For sub-clients that can be initialized individually, we need to create public constructors
+            // similar to the root client constructors but adapted for sub-client needs
+            var primaryConstructors = new List<ConstructorProvider>();
+            var secondaryConstructors = new List<ConstructorProvider>();
+
+            // if there is key auth
+            if (_apiKeyAuthFields != null)
+            {
+                AppendSubClientPublicConstructorsForAuth(_apiKeyAuthFields, primaryConstructors, secondaryConstructors);
+            }
+            // if there is oauth2 auth
+            if (_oauth2Fields != null)
+            {
+                AppendSubClientPublicConstructorsForAuth(_oauth2Fields, primaryConstructors, secondaryConstructors);
+            }
+
+            // if there is no auth
+            if (_apiKeyAuthFields == null && _oauth2Fields == null)
+            {
+                AppendSubClientPublicConstructorsForAuth(null, primaryConstructors, secondaryConstructors);
+            }
+
+            constructors.AddRange(secondaryConstructors);
+            constructors.AddRange(primaryConstructors);
+
+            void AppendSubClientPublicConstructorsForAuth(
+                AuthFields? authFields,
+                List<ConstructorProvider> primaryConstructors,
+                List<ConstructorProvider> secondaryConstructors)
+            {
+                // For a sub-client with individual initialization, we need:
+                // - endpoint parameter
+                // - auth parameter (if auth exists)
+                // - client options parameter (we need to get this from the root client)
+                var rootClient = GetRootClient();
+                var clientOptionsParameter = rootClient?.ClientOptionsParameter;
+                if (clientOptionsParameter == null)
+                {
+                    // Cannot create public constructor without client options
+                    return;
+                }
+
+                var requiredParameters = GetRequiredParameters(authFields?.AuthField);
+                ParameterProvider[] primaryConstructorParameters = [_endpointParameter, .. requiredParameters, clientOptionsParameter];
+                var primaryConstructor = new ConstructorProvider(
+                    new ConstructorSignature(Type, _publicCtorDescription, MethodSignatureModifiers.Public, primaryConstructorParameters),
+                    BuildPrimaryConstructorBody(primaryConstructorParameters, authFields),
+                    this);
+
+                primaryConstructors.Add(primaryConstructor);
+
+                // If the endpoint parameter contains an initialization value, it is not required.
+                ParameterProvider[] secondaryConstructorParameters = _endpointParameter.InitializationValue is null
+                    ? [_endpointParameter, .. requiredParameters]
+                    : [.. requiredParameters];
+                var secondaryConstructor = BuildSecondaryConstructor(secondaryConstructorParameters, primaryConstructorParameters, MethodSignatureModifiers.Public);
+
+                secondaryConstructors.Add(secondaryConstructor);
+            }
+        }
+
+        private ClientProvider? GetRootClient()
+        {
+            var currentClient = _inputClient;
+            var visited = new HashSet<InputClient>();
+            while (currentClient.Parent != null)
+            {
+                if (!visited.Add(currentClient))
+                {
+                    // Circular reference detected - return current client
+                    break;
+                }
+                currentClient = currentClient.Parent;
+            }
+            return ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(currentClient);
         }
 
         private IReadOnlyList<ParameterProvider> GetRequiredParameters(FieldProvider? authField)
@@ -623,10 +739,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             IReadOnlyList<ParameterProvider> primaryCtorOrderedParams,
             MethodSignatureModifiers modifier)
         {
+            // Build a set of parameter names that are in the secondary constructor
+            var secondaryParamNames = new HashSet<string>(secondaryConstructorParameters.Select(p => p.Name));
+
             // initialize the arguments to reference the primary constructor
+            // For parameters in the secondary constructor, use the parameter itself
+            // For parameters not in the secondary constructor, use their initialization value
             var primaryCtorInitializer = new ConstructorInitializer(
                 false,
-                [.. primaryCtorOrderedParams.Select(p => p.InitializationValue ?? p)
+                [.. primaryCtorOrderedParams.Select(p => secondaryParamNames.Contains(p.Name) ? p : (p.InitializationValue ?? p))
              ]);
             var constructorSignature = new ConstructorSignature(
                 Type,

@@ -12,6 +12,7 @@ import com.azure.json.JsonWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Assertions;
@@ -101,6 +102,12 @@ public class StreamStyleSerializationTests {
         jsonDict = (Map<String, Object>) BinaryData.fromObject(functionConfiguration).toObject(Map.class);
         Assertions.assertTrue(jsonDict.containsKey("input"));
         Assertions.assertEquals("input", jsonDict.get("input"));
+    }
+
+    @Test
+    public void ensureInstantMaxValue() {
+        // ensure Integer.MAX_VALUE doesn't exceeds Instant.MAX
+        Instant.ofEpochSecond(Integer.MAX_VALUE);
     }
 
     private static HttpClient createExpandableEnumHttpClient() {

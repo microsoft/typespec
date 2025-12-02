@@ -3,24 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.template;
 
-import com.azure.core.credential.TokenCredential;
-import com.azure.core.http.HttpClient;
-import com.azure.core.http.HttpPipeline;
-import com.azure.core.http.HttpPipelineBuilder;
-import com.azure.core.http.HttpPipelinePosition;
-import com.azure.core.http.policy.AddDatePolicy;
-import com.azure.core.http.policy.AddHeadersFromContextPolicy;
-import com.azure.core.http.policy.BearerTokenAuthenticationPolicy;
-import com.azure.core.http.policy.HttpLogOptions;
-import com.azure.core.http.policy.HttpLoggingPolicy;
-import com.azure.core.http.policy.HttpPipelinePolicy;
-import com.azure.core.http.policy.HttpPolicyProviders;
-import com.azure.core.http.policy.RequestIdPolicy;
-import com.azure.core.http.policy.RetryOptions;
-import com.azure.core.http.policy.RetryPolicy;
-import com.azure.core.http.policy.UserAgentPolicy;
-import com.azure.core.util.Configuration;
-import com.azure.core.util.logging.ClientLogger;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
@@ -38,7 +20,6 @@ import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -88,18 +69,20 @@ public class FluentManagerTemplate {
 
         String managerName = manager.getType().getName();
 
-        Set<String> imports = new HashSet<>(Arrays.asList(
+        Set<String> imports = new HashSet<>(List.of(
             // java
             Objects.class.getName(), Duration.class.getName(), ChronoUnit.class.getName(), List.class.getName(),
             ArrayList.class.getName(), Collectors.class.getName(), Map.class.getName(),
             // azure-core
-            TokenCredential.class.getName(), ClientLogger.class.getName(), Configuration.class.getName(),
-            HttpClient.class.getName(), HttpPipeline.class.getName(), HttpPipelineBuilder.class.getName(),
-            HttpPipelinePolicy.class.getName(), HttpPipelinePosition.class.getName(),
-            HttpPolicyProviders.class.getName(), RetryOptions.class.getName(),
-            AddHeadersFromContextPolicy.class.getName(), RequestIdPolicy.class.getName(), RetryPolicy.class.getName(),
-            AddDatePolicy.class.getName(), HttpLoggingPolicy.class.getName(), HttpLogOptions.class.getName(),
-            BearerTokenAuthenticationPolicy.class.getName(), UserAgentPolicy.class.getName(),
+            ClassType.TOKEN_CREDENTIAL.getFullName(), ClassType.CLIENT_LOGGER.getFullName(),
+            ClassType.CONFIGURATION.getFullName(), ClassType.HTTP_CLIENT.getFullName(),
+            ClassType.HTTP_PIPELINE.getFullName(), ClassType.HTTP_PIPELINE_BUILDER.getFullName(),
+            ClassType.HTTP_PIPELINE_POLICY.getFullName(), ClassType.HTTP_PIPELINE_POSITION.getFullName(),
+            ClassType.HTTP_POLICY_PROVIDERS.getFullName(), ClassType.RETRY_OPTIONS.getFullName(),
+            ClassType.ADD_HEADERS_FROM_CONTEXT_POLICY.getFullName(), ClassType.REQUEST_ID_POLICY.getFullName(),
+            ClassType.RETRY_POLICY.getFullName(), ClassType.ADD_DATE_POLICY.getFullName(),
+            ClassType.HTTP_LOGGING_POLICY.getFullName(), ClassType.HTTP_LOG_OPTIONS.getFullName(),
+            ClassType.BEARER_TOKEN_POLICY.getFullName(), ClassType.USER_AGENT_POLICY.getFullName(),
             // azure-core-management
             FluentType.AZURE_PROFILE.getFullName()));
 
@@ -221,11 +204,10 @@ public class FluentManagerTemplate {
                         String.format("Resource collection API of %1$s.", property.getFluentType().getName()));
                 });
 
-                classBlock.publicMethod(
-                    String.format("%1$s %2$s()", property.getFluentType().getName(), property.getMethodName()),
+                classBlock.publicMethod(property.getFluentType().getName() + " " + property.getMethodName() + "()",
                     methodBlock -> {
                         methodBlock.ifBlock(String.format("this.%1$s == null", property.getName()),
-                            ifBlock -> methodBlock.line(String.format("this.%1$s = new %2$s(%3$s.%4$s(), this);",
+                            ifBlock -> ifBlock.line(String.format("this.%1$s = new %2$s(%3$s.%4$s(), this);",
                                 property.getName(), property.getFluentImplementType().getName(),
                                 ModelNaming.MANAGER_PROPERTY_CLIENT, property.getInnerClientGetMethod())));
                         methodBlock.methodReturn(property.getName());
@@ -238,10 +220,8 @@ public class FluentManagerTemplate {
                     serviceClientTypeName));
                 comment.methodReturns(String.format("Wrapped service client %1$s.", serviceClientTypeName));
             });
-            classBlock.publicMethod(
-                String.format("%1$s %2$s()", serviceClientTypeName, ModelNaming.METHOD_SERVICE_CLIENT),
-                methodBlock -> methodBlock
-                    .methodReturn(String.format("this.%1$s", ModelNaming.MANAGER_PROPERTY_CLIENT)));
+            classBlock.publicMethod(serviceClientTypeName + " " + ModelNaming.METHOD_SERVICE_CLIENT + "()",
+                methodBlock -> methodBlock.methodReturn("this." + ModelNaming.MANAGER_PROPERTY_CLIENT));
         });
     }
 }

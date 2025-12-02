@@ -3,10 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
-import com.azure.core.http.rest.PagedResponse;
-import com.azure.core.http.rest.PagedResponseBase;
-import com.azure.core.util.CoreUtils;
-import com.azure.core.util.FluxUtil;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ArrayType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
@@ -18,9 +14,9 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.List;
 import java.util.Set;
-import reactor.core.publisher.Flux;
 
 public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBase {
 
@@ -38,12 +34,12 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
             super.addImports(imports, convenienceMethods);
 
             // async e.g. FluxUtil::toMono
-            imports.add(FluxUtil.class.getName());
+            imports.add(ClassType.FLUX_UTIL.getFullName());
 
             // async pageable
-            imports.add(PagedResponse.class.getName());
-            imports.add(PagedResponseBase.class.getName());
-            imports.add(Flux.class.getName());
+            imports.add(ClassType.PAGED_RESPONSE.getFullName());
+            imports.add(ClassType.PAGED_RESPONSE_BASE.getFullName());
+            imports.add(ClassType.FLUX.getFullName());
         }
     }
 

@@ -440,6 +440,7 @@ export class OpenAPI3SchemaEmitterBase<
     if (isReadonlyProperty(program, prop)) {
       additionalProps.readOnly = true;
     }
+    this.#applyExternalDocs(prop, additionalProps);
 
     // Attach any additional OpenAPI extensions
     attachExtensions(program, prop, additionalProps);

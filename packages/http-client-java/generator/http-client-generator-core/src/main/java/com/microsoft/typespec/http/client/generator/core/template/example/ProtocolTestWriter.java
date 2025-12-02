@@ -3,10 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.template.example;
 
-import com.azure.core.http.HttpClient;
-import com.azure.core.http.policy.HttpLogDetailLevel;
-import com.azure.core.http.policy.HttpLogOptions;
-import com.azure.core.util.Configuration;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Scheme;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.AsyncSyncClient;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
@@ -39,12 +35,13 @@ public class ProtocolTestWriter {
             && serviceClient.getSecurityInfo().getSecurityTypes() != null
             && serviceClient.getSecurityInfo().getSecurityTypes().contains(Scheme.SecuritySchemeType.OAUTH2);
 
-        this.imports = new HashSet<>(List.of(HttpClient.class.getName(), HttpLogDetailLevel.class.getName(),
-            HttpLogOptions.class.getName(), Configuration.class.getName(),
-            "com.azure.core.test.utils.MockTokenCredential", "com.azure.identity.DefaultAzureCredentialBuilder",
-            "com.azure.core.test.TestProxyTestBase", "com.azure.core.test.TestMode",
-            // "com.azure.core.test.annotation.DoNotRecord",
-            "org.junit.jupiter.api.Disabled", "org.junit.jupiter.api.Test"));
+        this.imports
+            = new HashSet<>(List.of(ClassType.HTTP_CLIENT.getFullName(), ClassType.HTTP_LOG_DETAIL_LEVEL.getFullName(),
+                ClassType.HTTP_LOG_OPTIONS.getFullName(), ClassType.CONFIGURATION.getFullName(),
+                "com.azure.core.test.utils.MockTokenCredential", "com.azure.identity.DefaultAzureCredentialBuilder",
+                "com.azure.core.test.TestProxyTestBase", "com.azure.core.test.TestMode",
+                // "com.azure.core.test.annotation.DoNotRecord",
+                "org.junit.jupiter.api.Disabled", "org.junit.jupiter.api.Test"));
         // client and builder
         syncClients.forEach(c -> {
             c.addImportsTo(imports, false);
@@ -131,9 +128,8 @@ public class ProtocolTestWriter {
                 }
 
                 if (isTokenCredential) {
-                    codeBlock.elseIfBlock("getTestMode() == TestMode.LIVE", ifBlock -> {
-                        ifBlock.line(builderVarName + ".credential(new DefaultAzureCredentialBuilder().build());");
-                    });
+                    codeBlock.elseIfBlock("getTestMode() == TestMode.LIVE", ifBlock -> ifBlock
+                        .line(builderVarName + ".credential(new DefaultAzureCredentialBuilder().build());"));
                 }
 
                 methodBlock.line(String.format("%1$s = %2$s.%3$s();", clientVarName, builderVarName,
