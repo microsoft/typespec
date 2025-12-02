@@ -66,7 +66,7 @@ class GeneralSerializer(BaseSerializer):
         if dep_version > default_version:
             version_map[dep_name] = str(dep_version)
 
-    def _keep_pyproject_fields(self, file_content: str, additional_version_map: dict[str, str]) -> dict:
+    def external_lib_version_map(self, file_content: str, additional_version_map: dict[str, str]) -> dict:
         # Load the pyproject.toml file if it exists and extract fields to keep.
         result: dict = {"KEEP_FIELDS": {}}
         try:
@@ -119,11 +119,13 @@ class GeneralSerializer(BaseSerializer):
                     if item.min_version:
                         additional_version_map[item.package_name] = item.min_version
                     else:
+                        # Use "0" as a placeholder when min_version is not specified for external types.
+                        # This allows the dependency to be included without a specific version constraint.
                         additional_version_map[item.package_name] = "0"
 
         # Add fields to keep from an existing pyproject.toml
         if template_name == "pyproject.toml.jinja2":
-            params = self._keep_pyproject_fields(file_content, additional_version_map)
+            params = self.external_lib_version_map(file_content, additional_version_map)
         else:
             params = {}
 

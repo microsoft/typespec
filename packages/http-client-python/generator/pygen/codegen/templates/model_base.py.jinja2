@@ -532,7 +532,6 @@ def _serialize(o, format: typing.Optional[str] = None):  # pylint: disable=too-m
     if custom_serializer:
         return custom_serializer(o)
     {% endif %}
-
     return o
 
 

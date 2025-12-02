@@ -618,11 +618,11 @@ class SdkCoreType(PrimitiveType):
 class ExternalType(PrimitiveType):
     def __init__(self, yaml_data: dict[str, Any], code_model: "CodeModel") -> None:
         super().__init__(yaml_data=yaml_data, code_model=code_model)
-        self.external_type_info = yaml_data.get("externalTypeInfo", {})
-        self.identity = self.external_type_info.get("identity", "")
+        external_type_info = yaml_data.get("externalTypeInfo", {})
+        self.identity = external_type_info.get("identity", "")
         self.submodule = ".".join(self.identity.split(".")[:-1])
-        self.min_version = self.external_type_info.get("minVersion", "")
-        self.package_name = self.external_type_info.get("package", "")
+        self.min_version = external_type_info.get("minVersion", "")
+        self.package_name = external_type_info.get("package", "")
 
     def docstring_type(self, **kwargs: Any) -> str:
         return f"~{self.identity}"
