@@ -4,6 +4,7 @@ package com.microsoft.typespec.http.client.generator.core.util;
 
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import io.clientcore.core.utils.Base64Uri;
 import io.clientcore.core.utils.DateTimeRfc1123;
 import java.time.Duration;
@@ -73,6 +74,57 @@ public class WireTypeClientTypeConverter {
             expression = "(double) " + expression + ".toNanos() / 1000_000_000L";
         }
 
+        return expression;
+    }
+
+    /**
+     * Convert client type expression to wire type expression.
+     * Any change to this method should also be reflected in {@link #convertLiteralToClientValue(IType, String)}, and
+     * {@link #convertToWireTypeExpression(PrimitiveType, String)} if necessary.
+     *
+     * @param wireType the wire type
+     * @param expression value expression
+     * @return value expression in wire type form
+     * @see #convertLiteralToClientValue(IType, String) {@link #convertToWireTypeExpression(PrimitiveType, String)}
+     */
+    public static String convertToClientTypeExpression(PrimitiveType wireType, String expression) {
+        if (wireType.getClientType() == wireType) {
+            return expression;
+        }
+
+        if (wireType == PrimitiveType.UNIX_TIME_LONG) {
+            expression
+                = String.format("OffsetDateTime.ofInstant(Instant.ofEpochSecond(%1$s), ZoneOffset.UTC)", expression);
+        } else if (wireType == PrimitiveType.DURATION_LONG) {
+            expression = String.format("Duration.ofSeconds(%s)", expression);
+        } else if (wireType == PrimitiveType.DURATION_DOUBLE) {
+            expression = String.format("Duration.ofNanos((long) (%s * 1000_000_000L))", expression);
+        }
+        return expression;
+    }
+
+    /**
+     * Convert client type expression to wire type expression.
+     * Any change to this method should also be reflected in {@link #convertLiteralToClientValue(IType, String)}, and
+     * {@link #convertToClientTypeExpression(PrimitiveType, String)} if necessary.
+     *
+     * @param clientType the client type
+     * @param expression value expression
+     * @return value expression in wire type form
+     * @see #convertLiteralToClientValue(IType, String) {@link #convertToClientTypeExpression(PrimitiveType, String)}
+     */
+    public static String convertToWireTypeExpression(PrimitiveType clientType, String expression) {
+        if (clientType.getClientType() == clientType) {
+            return expression;
+        }
+
+        if (clientType == PrimitiveType.UNIX_TIME_LONG) {
+            expression = String.format("%1$s.toEpochSecond()", expression);
+        } else if (clientType == PrimitiveType.DURATION_LONG) {
+            expression = String.format("%s.getSeconds()", expression);
+        } else if (clientType == PrimitiveType.DURATION_DOUBLE) {
+            expression = String.format("(double) %s.toNanos() / 1000_000_000L", expression);
+        }
         return expression;
     }
 
