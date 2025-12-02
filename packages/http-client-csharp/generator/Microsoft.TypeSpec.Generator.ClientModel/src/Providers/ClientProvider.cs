@@ -500,7 +500,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var constructorModifier = onlyContainsUnsupportedAuth ? MethodSignatureModifiers.Internal : MethodSignatureModifiers.Public;
                 var primaryConstructor = new ConstructorProvider(
                     new ConstructorSignature(Type, _publicCtorDescription, constructorModifier, primaryConstructorParameters),
-                    BuildPrimaryConstructorBody(primaryConstructorParameters, authFields),
+                    BuildPrimaryConstructorBody(primaryConstructorParameters, authFields, ClientOptions, ClientOptionsParameter),
                     this);
 
                 primaryConstructors.Add(primaryConstructor);
@@ -564,7 +564,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // - client options parameter (we need to get this from the root client)
                 var rootClient = GetRootClient();
                 var clientOptionsParameter = rootClient?.ClientOptionsParameter;
-                if (clientOptionsParameter == null)
+                var clientOptionsProvider = rootClient?.ClientOptions;
+                if (clientOptionsParameter == null || clientOptionsProvider == null)
                 {
                     // Cannot create public constructor without client options
                     return;
@@ -574,7 +575,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ParameterProvider[] primaryConstructorParameters = [_endpointParameter, .. requiredParameters, clientOptionsParameter];
                 var primaryConstructor = new ConstructorProvider(
                     new ConstructorSignature(Type, _publicCtorDescription, MethodSignatureModifiers.Public, primaryConstructorParameters),
-                    BuildPrimaryConstructorBody(primaryConstructorParameters, authFields),
+                    BuildPrimaryConstructorBody(primaryConstructorParameters, authFields, clientOptionsProvider, clientOptionsParameter),
                     this);
 
                 primaryConstructors.Add(primaryConstructor);
@@ -647,9 +648,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return param;
         }
 
-        private MethodBodyStatement[] BuildPrimaryConstructorBody(IReadOnlyList<ParameterProvider> primaryConstructorParameters, AuthFields? authFields)
+        private MethodBodyStatement[] BuildPrimaryConstructorBody(IReadOnlyList<ParameterProvider> primaryConstructorParameters, AuthFields? authFields, ClientOptionsProvider? clientOptionsProvider, ParameterProvider? clientOptionsParameter)
         {
-            if (ClientOptions is null || ClientOptionsParameter is null)
+            if (clientOptionsProvider is null || clientOptionsParameter is null)
             {
                 return [MethodBodyStatement.Empty];
             }
@@ -666,7 +667,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 endpointAssignment = EndpointField.Assign(_endpointParameter);
             }
             List<MethodBodyStatement> body = [
-                ClientOptionsParameter.Assign(ClientOptionsParameter.InitializationValue!, nullCoalesce: true).Terminate(),
+                clientOptionsParameter.Assign(clientOptionsParameter.InitializationValue!, nullCoalesce: true).Terminate(),
                 MethodBodyStatement.EmptyLine,
                 endpointAssignment.Terminate()
             ];
@@ -706,14 +707,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     break;
             }
 
-            body.Add(PipelineProperty.Assign(This.ToApi<ClientPipelineApi>().Create(ClientOptionsParameter, perRetryPolicies)).Terminate());
+            body.Add(PipelineProperty.Assign(This.ToApi<ClientPipelineApi>().Create(clientOptionsParameter, perRetryPolicies)).Terminate());
 
-            var clientOptionsPropertyDict = ClientOptions.Properties.ToDictionary(p => p.Name.ToIdentifierName());
+            var clientOptionsPropertyDict = clientOptionsProvider.Properties.ToDictionary(p => p.Name.ToIdentifierName());
             foreach (var f in Fields)
             {
-                if (f == _apiVersionField && ClientOptions.VersionProperty != null)
+                if (f == _apiVersionField && clientOptionsProvider.VersionProperty != null)
                 {
-                    body.Add(f.Assign(ClientOptionsParameter.Property(ClientOptions.VersionProperty.Name)).Terminate());
+                    body.Add(f.Assign(clientOptionsParameter.Property(clientOptionsProvider.VersionProperty.Name)).Terminate());
                 }
                 else if (clientOptionsPropertyDict.TryGetValue(f.Name.ToIdentifierName(), out var optionsProperty))
                 {
