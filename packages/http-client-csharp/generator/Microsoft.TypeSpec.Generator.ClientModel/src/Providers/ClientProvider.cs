@@ -163,7 +163,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Only create the caching field if the subclient can be initialized by parent
             // (InitializedBy is Default meaning default behavior = Parent, or explicitly includes Parent)
             _canBeInitializedByParent = _inputClient.Parent != null &&
-                _inputClient.InitializedBy.HasFlag(InputClientInitializedBy.Parent) || _inputClient.InitializedBy.HasFlag(InputClientInitializedBy.Default);
+                (_inputClient.InitializedBy.HasFlag(InputClientInitializedBy.Parent) || _inputClient.InitializedBy == InputClientInitializedBy.Default);
 
             if (_canBeInitializedByParent)
             {
