@@ -607,6 +607,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 c => c.Signature?.Modifiers == MethodSignatureModifiers.Public).ToList();
             Assert.IsTrue(publicConstructors.Count > 0, "SubClient with InitializedBy.Individually should have public constructors");
 
+            // primary constructor should set the pipeline, options, and endpoint
+            var primaryConstructor = publicConstructors.FirstOrDefault(
+                c => c.Signature?.Initializer == null);
+            Assert.IsNotNull(primaryConstructor, "SubClient with InitializedBy.Individually should have primary public constructor");
+            StringAssert.Contains(
+                "options ??= new global::Sample.ParentClientOptions();",
+                primaryConstructor!.BodyStatements!.ToDisplayString(),
+                "Primary constructor should null coalesce options parameter");
+            StringAssert.Contains(
+                "Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>(), new global::System.ClientModel.Primitives.PipelinePolicy[] { new global::System.ClientModel.Primitives.UserAgentPolicy(typeof(global::Sample.SubClient).Assembly) }, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>());",
+                primaryConstructor.BodyStatements!.ToDisplayString(),
+                "Primary constructor should set the Pipeline property");
+
             // Should NOT have internal constructor since InitializedBy does not include Parent
             var internalConstructor = constructors.FirstOrDefault(
                 c => c.Signature?.Modifiers == MethodSignatureModifiers.Internal);
@@ -673,6 +686,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var publicConstructors = constructors.Where(
                 c => c.Signature?.Modifiers == MethodSignatureModifiers.Public).ToList();
             Assert.IsTrue(publicConstructors.Count > 0, "SubClient with InitializedBy.Individually | Parent should have public constructors");
+
+            // primary constructor should set the pipeline, options, and endpoint
+            var primaryConstructor = publicConstructors.FirstOrDefault(
+                c => c.Signature?.Initializer == null);
+            Assert.IsNotNull(primaryConstructor, "SubClient with InitializedBy.Individually should have primary public constructor");
+            StringAssert.Contains(
+                "options ??= new global::Sample.ParentClientOptions();",
+                primaryConstructor!.BodyStatements!.ToDisplayString(),
+                "Primary constructor should null coalesce options parameter");
+            StringAssert.Contains(
+                "Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>(), new global::System.ClientModel.Primitives.PipelinePolicy[] { new global::System.ClientModel.Primitives.UserAgentPolicy(typeof(global::Sample.SubClient).Assembly) }, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>());",
+                primaryConstructor.BodyStatements!.ToDisplayString(),
+                "Primary constructor should set the Pipeline property");
 
             // Should also have internal constructor
             var internalConstructor = constructors.FirstOrDefault(

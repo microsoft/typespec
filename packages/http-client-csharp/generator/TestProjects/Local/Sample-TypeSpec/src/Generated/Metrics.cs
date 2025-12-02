@@ -47,6 +47,10 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(endpoint, nameof(endpoint));
 
+            options ??= new SampleTypeSpecClientOptions();
+
+            _endpoint = endpoint;
+            Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(Metrics).Assembly) }, Array.Empty<PipelinePolicy>());
         }
 
         /// <summary> The HTTP pipeline for sending and receiving REST requests and responses. </summary>
