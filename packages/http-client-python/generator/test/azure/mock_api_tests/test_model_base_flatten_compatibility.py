@@ -14,10 +14,6 @@ from specs.azure.clientgenerator.core.flattenproperty._utils.model_base import (
     rest_field,
 )
 
-from collections.abc import MutableMapping
-
-JSON = MutableMapping[str, Any]  # pylint: disable=unsubscriptable-object
-
 
 class ModelProperty(Model):
     """This is a test model."""
