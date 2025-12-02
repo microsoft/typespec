@@ -33,7 +33,7 @@ namespace Microsoft.TypeSpec.Generator
         /// The fixed namespace used for CodeGen customization attributes.
         /// Using a fixed namespace avoids API compatibility failures when the project namespace changes.
         /// </summary>
-        public const string CustomizationAttributeNamespace = "Microsoft.TypeSpec.Generator.Customizations";
+        internal const string CustomizationAttributeNamespace = "Microsoft.TypeSpec.Generator.Customizations";
 
         internal Stopwatch Stopwatch { get; } = new Stopwatch();
         public static CodeModelGenerator Instance
