@@ -11,3 +11,4 @@ model Scalar {}
 model Union {}
 model UnionVariant {}
 model StringTemplate {}
+model Function<Parameters extends unknown[] = never[], ReturnType = unknown> {}

@@ -1,6 +1,7 @@
 import { For, join, List, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import {
+  Entity,
   getSourceLocation,
   IntrinsicScalarName,
   isArrayModelType,
@@ -10,7 +11,7 @@ import {
   Scalar,
   type Type,
 } from "@typespec/compiler";
-import { DocTag, SyntaxKind } from "@typespec/compiler/ast";
+import { DocNode, DocTag, SyntaxKind } from "@typespec/compiler/ast";
 import { typespecCompiler } from "../external-packages/compiler.js";
 import { FunctionSignature } from "../types.js";
 import { useTspd } from "./tspd-context.js";
@@ -286,8 +287,8 @@ function getValueOfReflectionType(type: Model) {
   }
 }
 
-function getDocComment(type: Type): string {
-  const docs = type.node?.docs;
+function getDocComment(entity: Entity & { node?: { docs?: readonly DocNode[] } }): string {
+  const docs = entity.node?.docs;
   if (docs === undefined || docs.length === 0) {
     return "";
   }

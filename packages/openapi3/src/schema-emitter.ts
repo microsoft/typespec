@@ -433,7 +433,7 @@ export class OpenAPI3SchemaEmitterBase<
       {} as Schema,
       schema,
     ) as any;
-    if (prop.defaultValue && prop.defaultValue.valueKind !== "UnknownValue") {
+    if (prop.defaultValue) {
       additionalProps.default = getDefaultValue(program, prop.defaultValue, prop);
     }
 

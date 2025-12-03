@@ -119,11 +119,6 @@ export const TypeConfig: TypeGraphConfig = buildConfig({
     implementation: "skip",
     target: "ref",
   },
-  Function: {
-    parameters: "nested-items",
-    returnType: "ref",
-    implementation: "skip",
-  },
   ScalarConstructor: {
     scalar: "parent",
     parameters: "nested-items",
@@ -154,6 +149,7 @@ export const TypeConfig: TypeGraphConfig = buildConfig({
   },
 
   // Don't want to expose those for now
+  Function: null,
   Intrinsic: null,
 });
 

@@ -25,6 +25,7 @@ import {
   Entity,
   Enum,
   IndeterminateEntity,
+  MixedFunctionParameter,
   MixedParameterConstraint,
   Model,
   ModelIndexer,
@@ -98,6 +99,7 @@ const ReflectionNameToKind = {
   Tuple: "Tuple",
   Union: "Union",
   UnionVariant: "UnionVariant",
+  Function: "Function",
 } as const satisfies Record<string, Type["kind"]>;
 
 type ReflectionTypeName = keyof typeof ReflectionNameToKind;
@@ -274,6 +276,10 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
     }
     if (source.entityKind === "MixedParameterConstraint") {
       return isTypeAssignableToInternal(source.type!, target, diagnosticTarget, relationCache);
+    }
+
+    if (isReflectionType(target)) {
+      return isTypeAssignableToReflectionType(source, target, diagnosticTarget, relationCache);
     }
 
     const isSimpleTypeRelated = isSimpleTypeAssignableTo(source, target);
@@ -510,9 +516,6 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
     if (isNeverType(source)) return true;
     if (isVoidType(target)) return isVoidType(source);
     if (isUnknownType(target)) return true;
-    if (isReflectionType(target)) {
-      return source.kind === ReflectionNameToKind[target.name];
-    }
 
     if (target.kind === "Scalar") {
       return isRelatedToScalar(source, target);
@@ -537,6 +540,153 @@ export function createTypeRelationChecker(program: Program, checker: Checker): T
       return source.kind === "Number" && target.value === source.value;
     }
     return undefined;
+  }
+
+  function isTypeAssignableToReflectionType(
+    source: Type,
+    target: Model & { name: ReflectionTypeName },
+    diagnosticTarget: Entity | Node,
+    relationCache: MultiKeyMap<[Entity, Entity], Related>,
+  ): [Related, readonly TypeRelationError[]] {
+    if (target.name === "Function") {
+      if (source.kind !== "Function") return [Related.false, []];
+
+      compilerAssert(
+        target.isFinished && target.templateMapper,
+        "Unexpected unfinished/uninstantiated Function reflection type.",
+      );
+
+      const mappedTypes = [...target.templateMapper.map];
+      const parametersType = mappedTypes.find(([k]) => k.node.id.sv === "Parameters")?.[1];
+      const returnType = mappedTypes.find(([k]) => k.node.id.sv === "ReturnType")?.[1];
+
+      compilerAssert(
+        parametersType && returnType,
+        "Function reflection type missing template parameters.",
+      );
+
+      // Check that target parameters assignable to source parameters
+
+      if (!isTypeAssignableTo(source.returnType, returnType, diagnosticTarget)) {
+        return [Related.false, []];
+      }
+
+      const parametersTypeAsType =
+        parametersType.entityKind === "Indeterminate" ? parametersType.type : parametersType;
+
+      compilerAssert(
+        parametersTypeAsType.entityKind !== "Value",
+        "Unexpected Parameters of Function reflection model being a Value.",
+      );
+
+      const isArray =
+        parametersTypeAsType.kind === "Model" && isArrayModelType(program, parametersTypeAsType);
+
+      compilerAssert(
+        isArray || parametersTypeAsType.kind === "Tuple",
+        "Expected Function Parameters to be an Array or Tuple type.",
+      );
+
+      const [parametersAssignable, parameterErrors] = areParametersAssignable(
+        parametersTypeAsType,
+        source.parameters,
+        diagnosticTarget,
+        relationCache,
+      );
+
+      if (!parametersAssignable) {
+        return [Related.false, parameterErrors];
+      }
+
+      return [Related.true, []];
+    } else {
+      return [source.kind === ReflectionNameToKind[target.name] ? Related.true : Related.false, []];
+    }
+  }
+
+  function areParametersAssignable(
+    sourceParametersType: ArrayModelType | Tuple,
+    targetParameters: readonly MixedFunctionParameter[],
+    diagnosticTarget: Entity | Node,
+    relationCache: MultiKeyMap<[Entity, Entity], Related>,
+  ): [Related, readonly TypeRelationError[]] {
+    if (sourceParametersType.kind === "Model") {
+      // Source is array, so indexer value must be assignable to all target parameters
+
+      const errors: TypeRelationError[] = [];
+      let related = Related.true;
+
+      const sourceParameterIndexerValue = sourceParametersType.indexer.value;
+      for (const parameter of targetParameters) {
+        if (parameter.rest) {
+          const [assignable, innerErrors] = isTypeAssignableToInternal(
+            sourceParametersType,
+            parameter.type,
+            diagnosticTarget,
+            relationCache,
+          );
+
+          if (!assignable) {
+            related = Related.false;
+            errors.push(
+              ...wrapUnassignableErrors(sourceParametersType, parameter.type, innerErrors),
+            );
+          }
+        } else {
+          const [assignable, innerErrors] = isTypeAssignableToInternal(
+            sourceParameterIndexerValue,
+            parameter.type,
+            diagnosticTarget,
+            relationCache,
+          );
+          if (!assignable) {
+            related = Related.false;
+            errors.push(
+              ...wrapUnassignableErrors(sourceParameterIndexerValue, parameter.type, innerErrors),
+            );
+          }
+        }
+      }
+
+      return [related, errors];
+    } else {
+      // Source is a tuple, so we have to zip the parameters together and check each one for assignability against the
+      // corresponding constraint type.
+
+      const errors: TypeRelationError[] = [];
+      let related = Related.true;
+
+      const sourceParameters = sourceParametersType.values;
+      let sourceIndex = 0;
+      let targetIndex = 0;
+
+      while (sourceIndex < sourceParameters.length) {
+        if (targetIndex >= targetParameters.length) {
+          // More sources than targets
+          related = Related.false;
+          errors.push(
+            createTypeRelationError({
+              code: "missing-property",
+              format: {
+                propertyName: `parameter at index ${sourceIndex}`,
+                sourceType: getTypeName(sourceParametersType),
+                targetType: `(${targetParameters.map((constraint) => getEntityName(constraint.type)).join(", ")})`,
+              },
+              diagnosticTarget,
+            }),
+          );
+          sourceIndex++;
+          continue;
+        }
+
+        const sourceParameter = sourceParameters[sourceIndex];
+        const targetParameter = targetParameters[targetIndex];
+
+        if (targetParameter.rest) {
+        } else {
+        }
+      }
+    }
   }
 
   function isNumericLiteralRelatedTo(source: NumericLiteral, target: Scalar) {

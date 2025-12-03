@@ -1959,6 +1959,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       reportCheckerDiagnostic(createDiagnostic({ code: "missing-implementation", target: node }));
     }
 
+    const parameters = node.parameters.map((x) => checkFunctionParameter(x, mapper, true));
+
     const returnType: MixedParameterConstraint = node.returnType
       ? getParamConstraintEntityForNode(node.returnType, mapper)
       : {
@@ -1970,12 +1972,17 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       {
         entityKind: "Value",
         valueKind: "Function",
-        type: unknownType,
         name,
+        // TODO/witemple - what should the type of this be?
+        type: createAndFinishType({
+          kind: "Function",
+          parameters,
+          returnType,
+        }),
+        parameters,
+        returnType,
         namespace,
         node,
-        parameters: node.parameters.map((x) => checkFunctionParameter(x, mapper, true)),
-        returnType,
         implementation:
           implementation ??
           Object.assign(() => getDefaultFunctionResult(returnType), {

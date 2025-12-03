@@ -19,7 +19,7 @@ import {
   resolvePath,
 } from "@typespec/compiler";
 import prettier from "prettier";
-import { FunctionType } from "../../../compiler/src/core/types.js";
+import { FunctionValue } from "../../../compiler/src/core/types.js";
 import { createDiagnostic } from "../ref-doc/lib.js";
 import { generateSignatures } from "./components/entity-signatures.js";
 import { DecoratorSignature, EntitySignature, FunctionSignature } from "./types.js";
@@ -193,7 +193,7 @@ function resolveDecoratorSignature(decorator: Decorator): DecoratorSignature {
   };
 }
 
-function resolveFunctionSignature(func: FunctionType): FunctionSignature {
+function resolveFunctionSignature(func: FunctionValue): FunctionSignature {
   return {
     kind: "Function",
     tspFunction: func,

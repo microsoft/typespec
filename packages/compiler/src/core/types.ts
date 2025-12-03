@@ -117,6 +117,7 @@ export type Entity = Type | Value | MixedParameterConstraint | IndeterminateEnti
 export type Type =
   | BooleanLiteral
   | Decorator
+  | FunctionType
   | Enum
   | EnumMember
   | FunctionParameter
@@ -701,6 +702,23 @@ export interface Decorator extends BaseType {
   target: MixedFunctionParameter;
   parameters: MixedFunctionParameter[];
   implementation: (ctx: DecoratorContext, target: Type, ...args: unknown[]) => void;
+}
+
+/**
+ * The type of a Function in TypeSpec.
+ */
+export interface FunctionType extends BaseType {
+  kind: "Function";
+
+  /**
+   * The parameter constraints of the function.
+   */
+  parameters: MixedFunctionParameter[];
+
+  /**
+   * The return type constraint of the function.
+   */
+  returnType: MixedParameterConstraint;
 }
 
 /**
