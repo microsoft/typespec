@@ -313,23 +313,11 @@ public class PartialUpdateHandlerTest {
         assertEquals("com.azure.messaging.webpubsubnew", module.getName().toString());
         assertEquals(3, module.getDirectives().size());
         assertEquals("requires transitive com.azure.core;",
-            module.getDirectives()
-                .get(0)
-                .getTokenRange()
-                .map(TokenRange::toString)
-                .orElseThrow());
+            module.getDirectives().get(0).getTokenRange().map(TokenRange::toString).orElseThrow());
         assertEquals("exports com.azure.messaging.webpubsubnew;",
-            module.getDirectives()
-                .get(1)
-                .getTokenRange()
-                .map(TokenRange::toString)
-                .orElseThrow());
+            module.getDirectives().get(1).getTokenRange().map(TokenRange::toString).orElseThrow());
         assertEquals("exports com.azure.messaging.webpubsubnew.models;",
-            module.getDirectives()
-                .get(2)
-                .getTokenRange()
-                .map(TokenRange::toString)
-                .orElseThrow());
+            module.getDirectives().get(2).getTokenRange().map(TokenRange::toString).orElseThrow());
     }
 
     @Test
@@ -353,37 +341,17 @@ public class PartialUpdateHandlerTest {
         assertEquals("com.azure.communication.phonenumbersdemo", module.getName().toString());
         assertEquals(5, module.getDirectives().size());
         assertEquals("requires transitive com.azure.core;",
-            module.getDirectives()
-                .get(0)
-                .getTokenRange()
-                .map(TokenRange::toString)
-                .orElseThrow());
+            module.getDirectives().get(0).getTokenRange().map(TokenRange::toString).orElseThrow());
         assertEquals("exports com.azure.communication.phonenumbersdemo;",
-            module.getDirectives()
-                .get(1)
-                .getTokenRange()
-                .map(TokenRange::toString)
-                .orElseThrow());
+            module.getDirectives().get(1).getTokenRange().map(TokenRange::toString).orElseThrow());
         assertEquals("exports com.azure.communication.phonenumbersdemo.models;",
-            module.getDirectives()
-                .get(2)
-                .getTokenRange()
-                .map(TokenRange::toString)
-                .orElseThrow());
+            module.getDirectives().get(2).getTokenRange().map(TokenRange::toString).orElseThrow());
         assertEquals(
             "opens com.azure.communication.phonenumbersdemo.implementation.models to com.azure.core, com.fasterxml.jackson.databind;",
-            module.getDirectives()
-                .get(3)
-                .getTokenRange()
-                .map(TokenRange::toString)
-                .orElseThrow());
+            module.getDirectives().get(3).getTokenRange().map(TokenRange::toString).orElseThrow());
         assertEquals(
             "opens com.azure.communication.phonenumbersdemo.models to com.azure.core, com.fasterxml.jackson.databind;",
-            module.getDirectives()
-                .get(4)
-                .getTokenRange()
-                .map(TokenRange::toString)
-                .orElseThrow());
+            module.getDirectives().get(4).getTokenRange().map(TokenRange::toString).orElseThrow());
     }
 
     @Test
@@ -412,11 +380,7 @@ public class PartialUpdateHandlerTest {
         assertEquals("com.azure.communication.phonenumbersdemo", module.getName().toString());
         assertEquals(5, module.getDirectives().size());
         assertEquals("requires transitive com.azure.core;",
-            module.getDirectives()
-                .get(0)
-                .getTokenRange()
-                .map(TokenRange::toString)
-                .orElseThrow());
+            module.getDirectives().get(0).getTokenRange().map(TokenRange::toString).orElseThrow());
         assertEquals("exports com.azure.communication.phonenumbersdemo;",
             module.getDirectives()
                 .get(1)
