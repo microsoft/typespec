@@ -499,6 +499,6 @@ class CodeModel:  # pylint: disable=too-many-public-methods, disable=too-many-in
                     return True
         return False
 
-      def external_types(self) -> list[ExternalType]:
+    def external_types(self) -> list[ExternalType]:
         """All of the external types"""
         return [t for t in self.types_map.values() if isinstance(t, ExternalType)]
