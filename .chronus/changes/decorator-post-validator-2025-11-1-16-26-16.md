@@ -5,4 +5,4 @@ packages:
   - "@typespec/compiler"
 ---
 
-[API] Introducution of decorator validator callbacks. A decorator can define some callbacks to achieve some defered validation(After the type is finished or the whole graph is)
+[API] Introduction of decorator validator callbacks. A decorator can define some callbacks to achieve some deferred validation (After the type is finished or the whole graph is)
