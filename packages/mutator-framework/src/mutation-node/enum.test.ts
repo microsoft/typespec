@@ -9,54 +9,54 @@ beforeEach(async () => {
 });
 
 it("handles mutation of members", async () => {
-  const { program, Foo, member1 } = await runner.compile(t.code`
+  const { program, Foo, a } = await runner.compile(t.code`
       enum ${t.enum("Foo")} {
-        ${t.enumMember("member1")};
-        member2;
+        ${t.enumMember("a")};
+        b;
       }
     `);
 
   const subgraph = getSubgraph(program);
   const fooNode = subgraph.getNode(Foo);
-  const member1Node = subgraph.getNode(member1);
-  member1Node.mutate();
-  expect(member1Node.isMutated).toBe(true);
+  const aNode = subgraph.getNode(a);
+  aNode.mutate();
+  expect(aNode.isMutated).toBe(true);
   expect(fooNode.isMutated).toBe(true);
-  expect(fooNode.mutatedType.members.get("member1") === member1Node.mutatedType).toBe(true);
+  expect(fooNode.mutatedType.members.get("a") === aNode.mutatedType).toBe(true);
 });
 
 it("handles mutation of members with name change", async () => {
-  const { program, Foo, member1 } = await runner.compile(t.code`
+  const { program, Foo, a } = await runner.compile(t.code`
       enum ${t.enum("Foo")} {
-        ${t.enumMember("member1")};
-        member2;
+        ${t.enumMember("a")};
+        b;
       }
     `);
 
   const subgraph = getSubgraph(program);
   const fooNode = subgraph.getNode(Foo);
-  const member1Node = subgraph.getNode(member1);
-  member1Node.mutate((clone) => (clone.name = "member1Renamed"));
-  expect(member1Node.isMutated).toBe(true);
+  const aNode = subgraph.getNode(a);
+  aNode.mutate((clone) => (clone.name = "aRenamed"));
+  expect(aNode.isMutated).toBe(true);
   expect(fooNode.isMutated).toBe(true);
-  expect(fooNode.mutatedType.members.get("member1")).toBeUndefined();
-  expect(fooNode.mutatedType.members.get("member1Renamed") === member1Node.mutatedType).toBe(true);
+  expect(fooNode.mutatedType.members.get("a")).toBeUndefined();
+  expect(fooNode.mutatedType.members.get("aRenamed") === aNode.mutatedType).toBe(true);
 });
 
 it("handles deletion of members", async () => {
-  const { program, Foo, member1 } = await runner.compile(t.code`
+  const { program, Foo, a } = await runner.compile(t.code`
       enum ${t.enum("Foo")} {
-        ${t.enumMember("member1")};
-        member2;
+        ${t.enumMember("a")};
+        b;
       }
     `);
 
   const subgraph = getSubgraph(program);
   const fooNode = subgraph.getNode(Foo);
-  const member1Node = subgraph.getNode(member1);
-  member1Node.delete();
-  expect(member1Node.isDeleted).toBe(true);
+  const aNode = subgraph.getNode(a);
+  aNode.delete();
+  expect(aNode.isDeleted).toBe(true);
   expect(fooNode.isMutated).toBe(true);
-  expect(fooNode.mutatedType.members.get("member1")).toBeUndefined();
+  expect(fooNode.mutatedType.members.get("a")).toBeUndefined();
   expect(fooNode.mutatedType.members.size).toBe(1);
 });
