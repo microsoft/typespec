@@ -231,6 +231,37 @@ namespace SampleTypeSpec
             return new AnotherDynamicModel(bar, default);
         }
 
+        /// <summary>
+        /// Base animal with discriminator
+        /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="SampleTypeSpec.Pet"/> and <see cref="SampleTypeSpec.Dog"/>.
+        /// </summary>
+        /// <param name="kind"> The kind of animal. </param>
+        /// <param name="name"> Name of the animal. </param>
+        /// <returns> A new <see cref="SampleTypeSpec.Animal"/> instance for mocking. </returns>
+        public static Animal Animal(string kind = default, string name = default)
+        {
+            return new UnknownAnimal(kind, name, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> Pet is a discriminated animal. </summary>
+        /// <param name="name"> Name of the animal. </param>
+        /// <param name="trained"> Whether the pet is trained. </param>
+        /// <returns> A new <see cref="SampleTypeSpec.Pet"/> instance for mocking. </returns>
+        public static Pet Pet(string name = default, bool trained = default)
+        {
+            return new Pet("pet", name, additionalBinaryDataProperties: null, trained);
+        }
+
+        /// <summary> Dog is a specific type of pet with hierarchy building. </summary>
+        /// <param name="name"> Name of the animal. </param>
+        /// <param name="trained"> Whether the pet is trained. </param>
+        /// <param name="breed"> The breed of the dog. </param>
+        /// <returns> A new <see cref="SampleTypeSpec.Dog"/> instance for mocking. </returns>
+        public static Dog Dog(string name = default, bool trained = default, string breed = default)
+        {
+            return new Dog("pet", name, additionalBinaryDataProperties: null, trained, breed);
+        }
+
         /// <summary> The GetWidgetMetricsResponse. </summary>
         /// <param name="numSold"></param>
         /// <param name="averagePrice"></param>
