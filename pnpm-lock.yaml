@@ -94,7 +94,7 @@ importers:
         specifier: ^13.0.3
         version: 13.0.4(typescript@5.9.3)
       tsx:
-        specifier: ^4.19.3
+        specifier: ^4.20.5
         version: 4.20.6
       typescript:
         specifier: ~5.9.2
@@ -1001,7 +1001,7 @@ importers:
         specifier: ^0.3.0
         version: 0.3.0
       tsx:
-        specifier: ^4.19.3
+        specifier: ^4.20.5
         version: 4.20.6
       typescript:
         specifier: ~5.9.2
@@ -2202,7 +2202,7 @@ importers:
         specifier: ~6.1.2
         version: 6.1.2
       tsx:
-        specifier: ^4.19.3
+        specifier: ^4.20.5
         version: 4.20.6
       typescript:
         specifier: ~5.9.2

@@ -25,12 +25,6 @@ export const EmitterDetail: FunctionComponent<EmitterDetailProps> = ({
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  if (!emitterName) {
-    return <div>Error: No emitter specified</div>;
-  }
-
-  const decodedEmitterName = decodeURIComponent(emitterName);
-
   // Get tier from URL or default to "core"
   const tierFromUrl = searchParams.get("tier");
   const [selectedTier, setSelectedTier] = useState<string | undefined>(tierFromUrl || "core");
@@ -49,6 +43,12 @@ export const EmitterDetail: FunctionComponent<EmitterDetailProps> = ({
     scenarioTierConfig,
     selectedTier,
   );
+
+  if (!emitterName) {
+    return <div>Error: No emitter specified</div>;
+  }
+
+  const decodedEmitterName = decodeURIComponent(emitterName);
 
   // Filter coverage summaries to only include the selected emitter
   const filteredSummaries: CoverageSummary[] = tierFilteredSummaries
@@ -81,7 +81,7 @@ export const EmitterDetail: FunctionComponent<EmitterDetailProps> = ({
           icon={<ArrowLeft24Regular />}
           onClick={() => {
             const tierParam = selectedTier ? `?tier=${encodeURIComponent(selectedTier)}` : "";
-            navigate(`/${tierParam}`);
+            void navigate(`/${tierParam}`);
           }}
           css={{ marginBottom: 32 }}
           appearance="subtle"
@@ -119,7 +119,7 @@ export const EmitterDetail: FunctionComponent<EmitterDetailProps> = ({
         icon={<ArrowLeft24Regular />}
         onClick={() => {
           const tierParam = selectedTier ? `?tier=${encodeURIComponent(selectedTier)}` : "";
-          navigate(`/${tierParam}`);
+          void navigate(`/${tierParam}`);
         }}
         css={{ marginBottom: 32 }}
         appearance="subtle"
