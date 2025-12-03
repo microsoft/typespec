@@ -1023,7 +1023,11 @@ class _RestField:
 
     @property
     def _class_type(self) -> typing.Any:
-        return getattr(self._type, "args", [None])[0]
+        result = getattr(self._type, "args", [None])[0]
+        # type may be wrapped by nested functools.partial so we need to check for that
+        if isinstance(result, functools.partial):
+            return getattr(result, "args", [None])[0]
+        return result
 
     @property
     def _rest_name(self) -> str:
