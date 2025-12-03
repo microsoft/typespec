@@ -94,7 +94,7 @@ public final class NoEnvelopeDefaultsImpl {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return test discriminated union with inline discriminator (no envelope).
      * The discriminated union should serialize with discriminator property
-     * injected directly into the variant object.
+     * injected directly into the variant object along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> getWithResponse(String kind, RequestContext requestContext) {
@@ -115,7 +115,7 @@ public final class NoEnvelopeDefaultsImpl {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return test discriminated union with inline discriminator (no envelope).
      * The discriminated union should serialize with discriminator property
-     * injected directly into the variant object.
+     * injected directly into the variant object along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<BinaryData> putWithResponse(BinaryData input, RequestContext requestContext) {

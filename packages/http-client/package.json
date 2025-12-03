@@ -34,7 +34,7 @@
     "@alloy-js/core": "^0.21.0",
     "@alloy-js/rollup-plugin": "^0.1.0",
     "@alloy-js/typescript": "^0.21.0",
-    "@types/node": "~24.9.1",
+    "@types/node": "~24.10.1",
     "@typespec/compiler": "workspace:^",
     "@typespec/emitter-framework": "workspace:^",
     "@typespec/http": "workspace:^",

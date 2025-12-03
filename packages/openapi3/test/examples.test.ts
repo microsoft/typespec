@@ -439,6 +439,78 @@ worksFor(supportedVersions, ({ openApiFor }) => {
         paramExample: `#{R: 100, G: 200, B: 150}`,
         expectedExample: undefined,
       },
+      {
+        desc: "commaDelimited (undefined)",
+        param: `@query @encode(ArrayEncoding.commaDelimited) color: string | null`,
+        paramExample: `null`,
+        expectedExample: undefined,
+      },
+      {
+        desc: "commaDelimited (string)",
+        param: `@query @encode(ArrayEncoding.commaDelimited) color: string`,
+        paramExample: `"blue"`,
+        expectedExample: undefined,
+      },
+      {
+        desc: "commaDelimited (array) explode: false",
+        param: `@query @encode(ArrayEncoding.commaDelimited) color: string[]`,
+        paramExample: `#["blue", "black", "brown"]`,
+        expectedExample: "color=blue%2Cblack%2Cbrown",
+      },
+      {
+        desc: "commaDelimited (array) explode: true",
+        param: `@query(#{ explode: true }) @encode(ArrayEncoding.commaDelimited) color: string[]`,
+        paramExample: `#["blue", "black", "brown"]`,
+        expectedExample: undefined,
+      },
+      {
+        desc: "commaDelimited (object) explode: false",
+        param: `@query @encode(ArrayEncoding.commaDelimited) color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: "color=R%2C100%2CG%2C200%2CB%2C150",
+      },
+      {
+        desc: "commaDelimited (object) explode: true",
+        param: `@query(#{ explode: true }) @encode(ArrayEncoding.commaDelimited) color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: undefined,
+      },
+      {
+        desc: "newlineDelimited (undefined)",
+        param: `@query @encode(ArrayEncoding.newlineDelimited) color: string | null`,
+        paramExample: `null`,
+        expectedExample: undefined,
+      },
+      {
+        desc: "newlineDelimited (string)",
+        param: `@query @encode(ArrayEncoding.newlineDelimited) color: string`,
+        paramExample: `"blue"`,
+        expectedExample: undefined,
+      },
+      {
+        desc: "newlineDelimited (array) explode: false",
+        param: `@query @encode(ArrayEncoding.newlineDelimited) color: string[]`,
+        paramExample: `#["blue", "black", "brown"]`,
+        expectedExample: "color=blue%0Ablack%0Abrown",
+      },
+      {
+        desc: "newlineDelimited (array) explode: true",
+        param: `@query(#{ explode: true }) @encode(ArrayEncoding.newlineDelimited) color: string[]`,
+        paramExample: `#["blue", "black", "brown"]`,
+        expectedExample: undefined,
+      },
+      {
+        desc: "newlineDelimited (object) explode: false",
+        param: `@query @encode(ArrayEncoding.newlineDelimited) color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: "color=R%0A100%0AG%0A200%0AB%0A150",
+      },
+      {
+        desc: "newlineDelimited (object) explode: true",
+        param: `@query(#{ explode: true }) @encode(ArrayEncoding.newlineDelimited) color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: undefined,
+      },
     ])("$desc", async ({ param, paramExample, expectedExample }) => {
       const res = await openApiFor(
         `

@@ -3392,6 +3392,29 @@ Expected header parameters:
 
 Check we recognize Repeatability-Request-ID and Repeatability-First-Sent.
 
+### SpecialWords_ModelProperties_dictMethods
+
+- Endpoint: `get /special-words/model-properties/dict-methods`
+
+Verify that model properties can use names that are Python dict methods. These names (keys, items, values, etc.) may conflict with Python's dict class methods.
+
+Send
+
+```json
+{
+  "keys": "ok",
+  "items": "ok",
+  "values": "ok",
+  "popitem": "ok",
+  "clear": "ok",
+  "update": "ok",
+  "setdefault": "ok",
+  "pop": "ok",
+  "get": "ok",
+  "copy": "ok"
+}
+```
+
 ### SpecialWords_ModelProperties_sameAsModel
 
 - Endpoint: `get /special-words/model-properties/same-as-model`

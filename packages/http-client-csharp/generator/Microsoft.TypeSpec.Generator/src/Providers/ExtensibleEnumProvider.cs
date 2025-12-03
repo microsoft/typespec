@@ -73,13 +73,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return values;
         }
 
-        protected override CSharpType[] BuildImplements()
+        protected internal override CSharpType[] BuildImplements()
             => [new CSharpType(typeof(IEquatable<>), Type)]; // extensible enums implement IEquatable<Self>
 
-        protected override FieldProvider[] BuildFields()
+        protected internal override FieldProvider[] BuildFields()
             => [_valueField, .. EnumValues.Select(v => v.Field)];
 
-        protected override PropertyProvider[] BuildProperties()
+        protected internal override PropertyProvider[] BuildProperties()
         {
             var properties = new PropertyProvider[EnumValues.Count];
 
@@ -100,7 +100,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return properties;
         }
 
-        protected override ConstructorProvider[] BuildConstructors()
+        protected internal override ConstructorProvider[] BuildConstructors()
         {
             var valueParameter = new ParameterProvider("value", $"The value.", EnumUnderlyingType)
             {
@@ -121,7 +121,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return [new ConstructorProvider(signature, body, this)];
         }
 
-        protected override MethodProvider[] BuildMethods()
+        protected internal override MethodProvider[] BuildMethods()
         {
             var methods = new List<MethodProvider>();
 

@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.transformer;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.DictionarySchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Language;
@@ -20,6 +19,7 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.FluentType;
 import com.microsoft.typespec.http.client.generator.mgmt.model.ResourceType;
 import com.microsoft.typespec.http.client.generator.mgmt.model.ResourceTypeName;
 import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -202,7 +202,7 @@ class ResourceTypeNormalization {
     }
 
     private static void tryAdaptAsResource(ObjectSchema compositeType) {
-        if (!getSchemaResourceType(compositeType).isPresent()) {
+        if (getSchemaResourceType(compositeType).isEmpty()) {
             if (hasProperties(compositeType, RESOURCE_FIELDS)) {
                 addDummyParentType(compositeType, DUMMY_RESOURCE);
 

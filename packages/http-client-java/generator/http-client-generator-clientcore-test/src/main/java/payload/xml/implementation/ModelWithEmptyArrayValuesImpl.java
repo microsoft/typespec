@@ -89,7 +89,8 @@ public final class ModelWithEmptyArrayValuesImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return contains an array of models that's supposed to be sent/received as an empty XML element.
+     * @return contains an array of models that's supposed to be sent/received as an empty XML element along with
+     * {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ModelWithEmptyArray> getWithResponse(RequestContext requestContext) {
@@ -108,7 +109,7 @@ public final class ModelWithEmptyArrayValuesImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> putWithResponse(ModelWithEmptyArray input, RequestContext requestContext) {

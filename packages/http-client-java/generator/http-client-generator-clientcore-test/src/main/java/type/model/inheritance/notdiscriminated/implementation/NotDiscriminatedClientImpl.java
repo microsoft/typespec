@@ -136,7 +136,7 @@ public final class NotDiscriminatedClientImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> postValidWithResponse(Siamese input, RequestContext requestContext) {
@@ -154,7 +154,7 @@ public final class NotDiscriminatedClientImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the third level model in the normal multiple levels inheritance.
+     * @return the third level model in the normal multiple levels inheritance along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Siamese> getValidWithResponse(RequestContext requestContext) {
@@ -173,7 +173,7 @@ public final class NotDiscriminatedClientImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the third level model in the normal multiple levels inheritance.
+     * @return the third level model in the normal multiple levels inheritance along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Siamese> putValidWithResponse(Siamese input, RequestContext requestContext) {

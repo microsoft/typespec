@@ -3,8 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
-import com.azure.core.client.traits.EndpointTrait;
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Annotation;
@@ -26,6 +24,7 @@ import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ModelNamer;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -108,15 +107,11 @@ public class ServiceAsyncClientTemplate implements IJavaTemplate<AsyncSyncClient
             if (wrapServiceClient) {
                 classBlock.constructor(constructorVisibility,
                     String.format("%1$s(%2$s %3$s)", asyncClassName, serviceClient.getClassName(), "serviceClient"),
-                    constructorBlock -> {
-                        constructorBlock.line("this.serviceClient = serviceClient;");
-                    });
+                    constructorBlock -> constructorBlock.line("this.serviceClient = serviceClient;"));
             } else {
                 classBlock.constructor(constructorVisibility,
                     String.format("%1$s(%2$s %3$s)", asyncClassName, methodGroupClient.getClassName(), "serviceClient"),
-                    constructorBlock -> {
-                        constructorBlock.line("this.serviceClient = serviceClient;");
-                    });
+                    constructorBlock -> constructorBlock.line("this.serviceClient = serviceClient;"));
             }
 
             if (wrapServiceClient) {
@@ -125,24 +120,22 @@ public class ServiceAsyncClientTemplate implements IJavaTemplate<AsyncSyncClient
                     .filter(clientMethod -> clientMethod.getMethodVisibility() == JavaVisibility.Public)
                     .filter(clientMethod -> !clientMethod.isImplementationOnly())
                     .filter(clientMethod -> clientMethod.getType().name().contains("Async"))
-                    .filter(clientMethod -> !clientMethod.getMethodParameters()
+                    .filter(clientMethod -> clientMethod.getMethodParameters()
                         .stream()
-                        .anyMatch(methodParam -> methodParam.getWireType().contains(ClassType.CONTEXT)))
-                    .forEach(clientMethod -> {
-                        Templates.getWrapperClientMethodTemplate().write(clientMethod, classBlock);
-                    });
+                        .noneMatch(methodParam -> methodParam.getWireType().contains(ClassType.CONTEXT)))
+                    .forEach(
+                        clientMethod -> Templates.getWrapperClientMethodTemplate().write(clientMethod, classBlock));
             } else {
                 methodGroupClient.getClientMethods()
                     .stream()
                     .filter(clientMethod -> clientMethod.getMethodVisibility() == JavaVisibility.Public)
                     .filter(clientMethod -> !clientMethod.isImplementationOnly())
                     .filter(clientMethod -> clientMethod.getType().name().contains("Async"))
-                    .filter(clientMethod -> !clientMethod.getMethodParameters()
+                    .filter(clientMethod -> clientMethod.getMethodParameters()
                         .stream()
-                        .anyMatch(methodParam -> methodParam.getWireType().contains(ClassType.CONTEXT)))
-                    .forEach(clientMethod -> {
-                        Templates.getWrapperClientMethodTemplate().write(clientMethod, classBlock);
-                    });
+                        .noneMatch(methodParam -> methodParam.getWireType().contains(ClassType.CONTEXT)))
+                    .forEach(
+                        clientMethod -> Templates.getWrapperClientMethodTemplate().write(clientMethod, classBlock));
             }
 
             writeSubClientAccessors(serviceClient, classBlock, true);
@@ -198,7 +191,7 @@ public class ServiceAsyncClientTemplate implements IJavaTemplate<AsyncSyncClient
 
                 clientBuilder.getBuilderTraits()
                     .stream()
-                    .filter(t -> EndpointTrait.class.getSimpleName().equals(t.getTraitInterfaceName()))
+                    .filter(t -> ClassType.ENDPOINT_TRAIT.getName().equals(t.getTraitInterfaceName()))
                     .map(t -> t.getTraitMethods().iterator().next().getProperty())
                     .findAny()
                     .ifPresent(serviceClientProperty -> {
@@ -208,9 +201,8 @@ public class ServiceAsyncClientTemplate implements IJavaTemplate<AsyncSyncClient
                         });
                         String methodName = new ModelNamer().modelPropertyGetterName(serviceClientProperty);
                         classBlock.method(serviceClientProperty.getMethodVisibility(), null,
-                            String.format("%1$s %2$s()", serviceClientProperty.getType(), methodName), function -> {
-                                function.methodReturn(endpointExpr);
-                            });
+                            String.format("%1$s %2$s()", serviceClientProperty.getType(), methodName),
+                            function -> function.methodReturn(endpointExpr));
                     });
             }
         }
@@ -242,9 +234,8 @@ public class ServiceAsyncClientTemplate implements IJavaTemplate<AsyncSyncClient
                 }
                 comment.methodReturns("an instance of " + subClientClassName + " class");
             });
-            classBlock.publicMethod(clientAccessorMethod.getAsyncSyncClientDeclaration(isAsync), method -> {
-                method.methodReturn("new " + subClientClassName + "(" + serviceClientMethodCall + ")");
-            });
+            classBlock.publicMethod(clientAccessorMethod.getAsyncSyncClientDeclaration(isAsync),
+                method -> method.methodReturn("new " + subClientClassName + "(" + serviceClientMethodCall + ")"));
         }
     }
 

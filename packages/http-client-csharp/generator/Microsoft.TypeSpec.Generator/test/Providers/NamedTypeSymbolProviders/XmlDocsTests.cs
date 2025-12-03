@@ -147,7 +147,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
 
             protected override string BuildName() => nameof(InvalidPropertyDocsModel);
 
-            protected override PropertyProvider[] BuildProperties()
+            protected internal override PropertyProvider[] BuildProperties()
             {
                 return
                 [
@@ -165,7 +165,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
 
             protected override string BuildName() => nameof(InvalidParameterDocsModel);
 
-            protected override MethodProvider[] BuildMethods()
+            protected internal override MethodProvider[] BuildMethods()
             {
                 var sig = new MethodSignature("Write", $"", MethodSignatureModifiers.Public, null, $"", [ new ParameterProvider("value", $"This is an invalid description because it is missing closing slash <see cref=\"Y\">", typeof(int)), new ParameterProvider("options", $"", typeof(string)) ]);
                 return [new MethodProvider(sig, Snippet.ThrowExpression(Snippet.Null), this, null)];
@@ -178,7 +178,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
 
             protected override string BuildName() => nameof(ValidDocsModel);
 
-            protected override PropertyProvider[] BuildProperties()
+            protected internal override PropertyProvider[] BuildProperties()
             {
                 return
                 [
@@ -196,7 +196,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
 
             protected override string BuildName() => nameof(SeeTagWithTypePrefixModel);
 
-            protected override PropertyProvider[] BuildProperties()
+            protected internal override PropertyProvider[] BuildProperties()
             {
                 return
                 [
@@ -212,7 +212,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
 
             protected override string BuildName() => nameof(SeeTagWithoutTypePrefixModel);
 
-            protected override PropertyProvider[] BuildProperties()
+            protected internal override PropertyProvider[] BuildProperties()
             {
                 return
                 [
@@ -228,7 +228,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
 
             protected override string BuildName() => nameof(MultipleSeeTagsModel);
 
-            protected override PropertyProvider[] BuildProperties()
+            protected internal override PropertyProvider[] BuildProperties()
             {
                 return
                 [
@@ -244,7 +244,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
 
             protected override string BuildName() => nameof(SeeTagWithoutCrefModel);
 
-            protected override PropertyProvider[] BuildProperties()
+            protected internal override PropertyProvider[] BuildProperties()
             {
                 return
                 [
@@ -260,7 +260,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
 
             protected override string BuildName() => nameof(MixedContentModel);
 
-            protected override PropertyProvider[] BuildProperties()
+            protected internal override PropertyProvider[] BuildProperties()
             {
                 return
                 [

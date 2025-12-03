@@ -11,10 +11,6 @@ import static com.microsoft.typespec.http.client.generator.core.model.clientmode
 import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.INT;
 import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.LONG;
 
-import com.azure.core.util.FluxUtil;
-import com.azure.core.util.serializer.CollectionFormat;
-import com.azure.core.util.serializer.JacksonAdapter;
-import com.azure.core.util.serializer.TypeReference;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Annotation;
@@ -44,6 +40,7 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVis
 import com.microsoft.typespec.http.client.generator.core.template.util.ModelTemplateHeaderHelper;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
+import com.microsoft.typespec.http.client.generator.core.util.CollectionFormat;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import java.lang.reflect.ParameterizedType;
@@ -422,12 +419,12 @@ abstract class ConvenienceMethodTemplateBase {
         ClassType.REQUEST_CONTEXT.addImportsTo((imports), false);
         imports.add(Collectors.class.getName());
         imports.add(Objects.class.getName());
-        imports.add(FluxUtil.class.getName());
+        imports.add(ClassType.FLUX_UTIL.getFullName());
 
         // collection format
-        imports.add(JacksonAdapter.class.getName());
-        imports.add(CollectionFormat.class.getName());
-        imports.add(TypeReference.class.getName());
+        imports.add(ClassType.JACKSON_ADAPTER.getFullName());
+        imports.add(ClassType.COLLECTION_FORMAT.getFullName());
+        imports.add(ClassType.TYPE_REFERENCE.getFullName());
         if (!JavaSettings.getInstance().isAzureV1() || JavaSettings.getInstance().isAzureV2()) {
             imports.add(Type.class.getName());
             imports.add(ParameterizedType.class.getName());

@@ -17,13 +17,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override string BuildName() => "CodeGenMemberAttribute";
 
+        protected override string BuildNamespace() => CodeModelGenerator.CustomizationAttributeNamespace;
+
         private protected sealed override NamedTypeSymbolProvider? BuildCustomCodeView(string? generatedTypeName = default, string? generatedTypeNamespace = default) => null;
         private protected sealed override NamedTypeSymbolProvider? BuildLastContractView(string? generatedTypeName = default, string? generatedTypeNamespace = default) => null;
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers() =>
             TypeSignatureModifiers.Internal | TypeSignatureModifiers.Class;
 
-        protected override CSharpType[] BuildImplements() => [new CodeGenTypeAttributeDefinition().Type];
+        protected internal override CSharpType[] BuildImplements() => [new CodeGenTypeAttributeDefinition().Type];
 
         protected override IReadOnlyList<AttributeStatement> BuildAttributes()
         {
@@ -33,7 +35,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     FrameworkEnumValue(AttributeTargets.Property),
                     FrameworkEnumValue(AttributeTargets.Field)))];
         }
-        protected override ConstructorProvider[] BuildConstructors()
+        protected internal override ConstructorProvider[] BuildConstructors()
         {
             var parameter = new ParameterProvider("originalName", $"The original name of the member.", typeof(string));
 
