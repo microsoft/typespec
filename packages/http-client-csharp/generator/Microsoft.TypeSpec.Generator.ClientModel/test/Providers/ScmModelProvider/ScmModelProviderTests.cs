@@ -383,6 +383,49 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
             Assert.IsTrue(patchParam!.IsIn);
         }
 
+        [Test]
+        public void TestDynamicModelInheritsFromNonDiscriminatedBase()
+        {
+            var baseModel = InputFactory.Model(
+                "animal",
+                isDynamicModel: false,
+                properties:
+                [
+                    InputFactory.Property("species", InputPrimitiveType.String, isRequired: true)
+                ]);
+
+            var dynamicDerivedModel = InputFactory.Model(
+                "dog",
+                isDynamicModel: true,
+                baseModel: baseModel,
+                properties:
+                [
+                    InputFactory.Property("barks", InputPrimitiveType.Boolean, isRequired: true)
+                ]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [baseModel, dynamicDerivedModel]);
+            var outputLibrary = ScmCodeModelGenerator.Instance.OutputLibrary;
+
+            // Verify that the base model is NOT marked as dynamic
+            var baseModelProvider = outputLibrary.TypeProviders.OfType<ScmModel>()
+                .FirstOrDefault(t => t.Name == "Animal");
+            Assert.IsNotNull(baseModelProvider);
+            Assert.IsFalse(baseModelProvider!.IsDynamicModel, "Non-discriminated base model should NOT be marked as dynamic");
+
+            // Verify that the derived model IS marked as dynamic
+            var derivedModelProvider = outputLibrary.TypeProviders.OfType<ScmModel>()
+                .FirstOrDefault(t => t.Name == "Dog");
+            Assert.IsNotNull(derivedModelProvider);
+            Assert.IsTrue(derivedModelProvider!.IsDynamicModel, "Derived model should be marked as dynamic");
+
+            AssertJsonIgnoreAttributeOnPatchProperty(derivedModelProvider);
+
+            var writer = new TypeProviderWriter(derivedModelProvider);
+            var file = writer.Write();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
         private void AssertJsonIgnoreAttributeOnPatchProperty(ScmModel model)
         {
             var patchProperty = model.JsonPatchProperty;

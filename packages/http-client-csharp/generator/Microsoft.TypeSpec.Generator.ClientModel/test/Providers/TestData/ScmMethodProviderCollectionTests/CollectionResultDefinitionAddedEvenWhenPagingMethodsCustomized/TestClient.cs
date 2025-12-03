@@ -4,6 +4,7 @@
 using System.ClientModel.Primitives;
 using SampleTypeSpec;
 using System.Threading;
+using Microsoft.TypeSpec.Generator.Customizations;
 
 namespace Sample
 {

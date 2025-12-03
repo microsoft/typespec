@@ -16,7 +16,11 @@ namespace Authentication.Union
 
         public UnionClient(ApiKeyCredential credential) : this(new Uri("http://localhost:3000"), credential, new UnionClientOptions()) => throw null;
 
+        public UnionClient(ApiKeyCredential credential, UnionClientOptions options) : this(new Uri("http://localhost:3000"), credential, options) => throw null;
+
         public UnionClient(AuthenticationTokenProvider tokenProvider) : this(new Uri("http://localhost:3000"), tokenProvider, new UnionClientOptions()) => throw null;
+
+        public UnionClient(AuthenticationTokenProvider tokenProvider, UnionClientOptions options) : this(new Uri("http://localhost:3000"), tokenProvider, options) => throw null;
 
         public UnionClient(Uri endpoint, ApiKeyCredential credential, UnionClientOptions options) => throw null;
 

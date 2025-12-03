@@ -36,6 +36,7 @@ namespace SampleTypeSpec
             }
         };
         private readonly string _apiVersion;
+        private Metrics _cachedMetrics;
 
         /// <summary> Initializes a new instance of SampleTypeSpecClient for mocking. </summary>
         protected SampleTypeSpecClient()
@@ -1717,6 +1718,12 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(body, nameof(body));
 
             return await DynamicModelOperationAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+        }
+
+        /// <summary> Initializes a new instance of Metrics. </summary>
+        public virtual Metrics GetMetricsClient()
+        {
+            return Volatile.Read(ref _cachedMetrics) ?? Interlocked.CompareExchange(ref _cachedMetrics, new Metrics(Pipeline, _endpoint), null) ?? _cachedMetrics;
         }
     }
 }
