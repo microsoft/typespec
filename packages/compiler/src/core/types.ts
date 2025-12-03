@@ -61,11 +61,20 @@ export interface DecoratorFunction {
   namespace?: string;
 }
 
+export type ValidatorFn = () => readonly Diagnostic[];
+
 export interface DecoratorValidatorCallbacks {
-  /** After all decorators are run on the same type. Useful if trying to validate this decorator is compatible with other decorators without relying on the order they are applied. */
-  readonly onFinish?: () => void;
-  /** After everything is checked in the type graph. Useful when trying to get an overall view of the program. */
-  readonly onGraphFinish?: () => void;
+  /**
+   * Run validation after all decorators are run on the same type. Useful if trying to validate this decorator is compatible with other decorators without relying on the order they are applied.
+   * @note This is meant for validation which means the type graph should be treated as readonly in this function.
+   */
+  readonly onTargetFinish?: ValidatorFn;
+
+  /**
+   * Run validation after everything is checked in the type graph. Useful when trying to get an overall view of the program.
+   * @note This is meant for validation which means the type graph should be treated as readonly in this function.
+   */
+  readonly onGraphFinish?: ValidatorFn;
 }
 
 export interface BaseType {

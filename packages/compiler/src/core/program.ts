@@ -147,7 +147,9 @@ interface EmitterRef {
 
 interface Validator {
   metadata: LibraryMetadata;
-  callback: (program: Program) => void | Promise<void>;
+  callback: (
+    program: Program,
+  ) => void | readonly Diagnostic[] | Promise<void> | Promise<readonly Diagnostic[]>;
 }
 
 interface TypeSpecLibraryReference {
@@ -638,7 +640,10 @@ async function createProgram(
     runtimeStats.validation.validators.compiler = start.end();
     for (const validator of validateCbs) {
       const start = startTimer();
-      await runValidator(validator);
+      const diagnostics = await runValidator(validator);
+      if (diagnostics) {
+        program.reportDiagnostics(diagnostics);
+      }
       runtimeStats.validation.validators[validator.metadata.name ?? "<unnamed>"] = start.end();
     }
     runtimeStats.validation.total = start.end();
@@ -646,7 +651,7 @@ async function createProgram(
 
   async function runValidator(validator: Validator) {
     try {
-      await validator.callback(program);
+      return await validator.callback(program);
     } catch (error: any) {
       if (options.designTimeBuild) {
         program.reportDiagnostic(

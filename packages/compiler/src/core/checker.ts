@@ -157,6 +157,7 @@ import {
   UnionVariantNode,
   UnknownType,
   UsingStatementNode,
+  ValidatorFn,
   Value,
   ValueWithTemplate,
   VoidType,
@@ -369,7 +370,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    * Key is the SymId of a node. It can be retrieved with getNodeSymId(node)
    */
   const pendingResolutions = new PendingResolutions();
-  const postCheckValidators: (() => void)[] = [];
+  const postCheckValidators: ValidatorFn[] = [];
 
   const typespecNamespaceBinding = resolver.symbols.global.exports!.get("TypeSpec");
   if (typespecNamespaceBinding) {
@@ -5970,11 +5971,11 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function applyDecoratorsToType(typeDef: Type & { decorators: DecoratorApplication[] }) {
-    const postSelfValidators: (() => void)[] = [];
+    const postSelfValidators: ValidatorFn[] = [];
     for (const decApp of typeDef.decorators) {
       const validators = applyDecoratorToType(program, decApp, typeDef);
-      if (validators?.onFinish) {
-        postSelfValidators.push(validators.onFinish);
+      if (validators?.onTargetFinish) {
+        postSelfValidators.push(validators.onTargetFinish);
       }
       if (validators?.onGraphFinish) {
         postCheckValidators.push(validators.onGraphFinish);
@@ -5984,9 +5985,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   /** Run a list of post validator */
-  function runPostValidators(validators: (() => void)[]) {
+  function runPostValidators(validators: ValidatorFn[]) {
     for (const validator of validators) {
-      validator();
+      program.reportDiagnostics(validator());
     }
   }
 

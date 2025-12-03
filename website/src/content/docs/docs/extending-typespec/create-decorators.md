@@ -147,21 +147,24 @@ When you need to validate interactions between decorators or verify constraints 
 
 There are two different events you can use:
 
-##### `onFinish`
+##### `onTargetFinish`
 
 Called when the target type is fully processed. At this point, all decorators have been applied to the type, making it suitable for validating decorator conflicts or combinations on a single type.
 
 ```ts
 export function $track(context: DecoratorContext, target: Type) {
   return {
-    onFinish() {
+    onTargetFinish() {
       // Validate that @track and @deprecated are not used together
       if (isDeprecated(context.program, target)) {
-        reportDiagnostic(context.program, {
-          code: "track-deprecated-conflict",
-          target: context.decoratorTarget,
-        });
+        return [
+          createDiagnostic(context.program, {
+            code: "track-deprecated-conflict",
+            target: context.decoratorTarget,
+          }),
+        ];
       }
+      return [];
     },
   };
 }
@@ -179,12 +182,15 @@ export function $foreignKey(context: DecoratorContext, target: ModelProperty, re
       // and has appropriate key properties
       const refKeys = getKeyProperties(context.program, ref);
       if (refKeys.length === 0) {
-        reportDiagnostic(context.program, {
-          code: "foreign-key-no-primary",
-          target: context.decoratorTarget,
-          format: { modelName: ref.name },
-        });
+        return [
+          createDiagnostic(context.program, {
+            code: "foreign-key-no-primary",
+            target: context.decoratorTarget,
+            format: { modelName: ref.name },
+          }),
+        ];
       }
+      return [];
     },
   };
 }
@@ -193,7 +199,7 @@ export function $foreignKey(context: DecoratorContext, target: ModelProperty, re
 #### Choosing the right validation approach
 
 - Use **immediate validation** for parameter validation and simple checks
-- Use **`onFinish`** when you need to check decorator combinations on a single type
+- Use **`onTargetFinish`** when you need to check decorator combinations on a single type
 - Use **`onGraphFinish`** when you need to validate relationships across multiple types or require the complete type graph
 
 ### Decorator parameter marshalling
