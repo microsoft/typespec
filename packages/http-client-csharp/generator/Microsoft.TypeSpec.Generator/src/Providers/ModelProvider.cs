@@ -623,55 +623,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         /// <summary>
-        /// Builds a multi-level discriminator constructor initializer.
-        /// </summary>
-        private ConstructorInitializer BuildMultiLevelDiscriminatorInitializer(
-            IReadOnlyList<ParameterProvider> baseParameters,
-            HashSet<PropertyProvider> overriddenProperties,
-            bool isInitializationConstructor,
-            bool includeDiscriminatorParameter,
-            IReadOnlyList<ParameterProvider> currentParameters)
-        {
-            var args = new List<ValueExpression>();
-
-            // Only add discriminator if base model has discriminator or is multi-level discriminator
-            if (BaseModelProvider?._isMultiLevelDiscriminator == true || baseParameters.Any(p => p.Property?.IsDiscriminator == true))
-            {
-                args.Add(GetDiscriminatorForBaseConstructor(includeDiscriminatorParameter, baseParameters, currentParameters));
-            }
-
-            var filteredParams = baseParameters.Where(p => p.Property is null || !p.Property.IsDiscriminator).ToList();
-            args.AddRange(filteredParams.Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor)));
-
-            return new ConstructorInitializer(true, args);
-        }
-
-        /// <summary>
-        /// Gets the appropriate discriminator value expression for calling base constructor.
-        /// </summary>
-        private ValueExpression GetDiscriminatorForBaseConstructor(bool includeDiscriminatorParameter, IReadOnlyList<ParameterProvider> baseParameters, IReadOnlyList<ParameterProvider>? currentParameters = null)
-        {
-            var discriminatorProperty = BaseModelProvider?.CanonicalView.Properties.FirstOrDefault(p => p.IsDiscriminator);
-            if (discriminatorProperty != null)
-            {
-                var baseDiscriminatorParam = baseParameters.FirstOrDefault(p => p.Property?.IsDiscriminator == true);
-
-                if (baseDiscriminatorParam != null && includeDiscriminatorParameter)
-                {
-                    var discriminatorParam = currentParameters?.FirstOrDefault(p => p.Property?.IsDiscriminator == true)
-                        ?? baseParameters.FirstOrDefault(p => p.Property?.IsDiscriminator == true);
-
-                    if (discriminatorParam != null)
-                    {
-                        return discriminatorParam;
-                    }
-                }
-            }
-
-            return DiscriminatorLiteral;
-        }
-
-        /// <summary>
         /// Builds the internal constructor for the model which contains all public properties
         /// as parameters.
         /// </summary>
@@ -788,7 +739,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 ? baseParameters
                 : baseParameters.Where(p =>
                     p.Property is null
-                    || (!overriddenProperties.Contains(p.Property!) && (!p.Property.IsDiscriminator || !isInitializationConstructor || includeDiscriminatorParameter))));
+                    || (!overriddenProperties.Contains(p.Property!) && (!p.Property.IsDiscriminator || !isInitializationConstructor || (includeDiscriminatorParameter && _isMultiLevelDiscriminator)))));
 
             // construct the initializer using the parameters from base signature
             ConstructorInitializer? constructorInitializer = null;
@@ -797,19 +748,24 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 if (baseParameters.Count > 0)
                 {
                     // Check if we should call multi-level discriminator constructor
-                    if (isInitializationConstructor && (_isMultiLevelDiscriminator || BaseModelProvider?._isMultiLevelDiscriminator == true))
+                    if (isInitializationConstructor && (_isMultiLevelDiscriminator || BaseModelProvider._isMultiLevelDiscriminator))
                     {
-                        constructorInitializer = BuildMultiLevelDiscriminatorInitializer(
-                            baseParameters,
-                            overriddenProperties,
-                            isInitializationConstructor,
-                            includeDiscriminatorParameter,
-                            constructorParameters);
+                        var baseDiscriminatorParam = baseParameters.FirstOrDefault(p => p.Property?.IsDiscriminator == true);
+                        var hasDiscriminatorProperty = BaseModelProvider.CanonicalView.Properties.Any(p => p.IsDiscriminator);
+
+                        ValueExpression discriminatorExpression = (hasDiscriminatorProperty && baseDiscriminatorParam is not null && includeDiscriminatorParameter)
+                            ? constructorParameters.FirstOrDefault(p => p.Property?.IsDiscriminator == true) ?? baseDiscriminatorParam
+                            : DiscriminatorLiteral;
+
+                        var args = baseParameters.Where(p => p.Property?.IsDiscriminator != true)
+                            .Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor, includeDiscriminatorParameter: false));
+
+                        constructorInitializer = new ConstructorInitializer(true, [discriminatorExpression, .. args]);
                     }
                     else
                     {
                         // Standard base constructor call
-                        constructorInitializer = new ConstructorInitializer(true, [.. baseParameters.Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor))]);
+                        constructorInitializer = new ConstructorInitializer(true, [.. baseParameters.Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor, includeDiscriminatorParameter: false))]);
                     }
                 }
                 else
@@ -887,14 +843,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return null;
         }
 
-        private ValueExpression GetExpressionForCtor(ParameterProvider parameter, HashSet<PropertyProvider> overriddenProperties, bool isPrimaryConstructor)
+        private ValueExpression GetExpressionForCtor(ParameterProvider parameter, HashSet<PropertyProvider> overriddenProperties, bool isPrimaryConstructor, bool includeDiscriminatorParameter = false)
         {
             if (parameter.Property is not null && parameter.Property.IsDiscriminator && _inputModel.DiscriminatorValue != null)
             {
                 if (isPrimaryConstructor)
                 {
-                    // For multi-level discriminators, check if we should pass through the parameter instead of using our discriminator value
-                    if (_isMultiLevelDiscriminator && parameter.Name != parameter.Property.Name.ToVariableName())
+                    if (includeDiscriminatorParameter && _isMultiLevelDiscriminator)
                     {
                         return parameter;
                     }
@@ -906,6 +861,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 else if (IsUnknownDiscriminatorModel)
                 {
                     return GetUnknownDiscriminatorExpression(parameter.Property) ?? throw new InvalidOperationException($"invalid discriminator {_inputModel.DiscriminatorValue} for property {parameter.Property.Name}");
+                }
+                else
+                {
+                    return parameter;
                 }
             }
 
