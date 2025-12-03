@@ -7,6 +7,7 @@ import { Colors } from "../constants.js";
 import { useTierFiltering } from "../hooks/use-tier-filtering.js";
 import { detectLanguage, LanguageIcon } from "../utils/language-utils.js";
 import { TierConfig } from "../utils/tier-filtering-utils.js";
+import { DashboardTable } from "./dashboard-table.js";
 import { ScenarioGroupRatioStatusBox } from "./scenario-group-status.js";
 import { TierFilterDropdown } from "./tier-filter.js";
 
@@ -56,6 +57,7 @@ export const EmitterOverview: FunctionComponent<EmitterOverviewProps> = ({
     }
   >();
 
+  // Use filtered summaries for emitter cards
   for (const summary of filteredSummaries) {
     for (const [emitterName, report] of Object.entries(summary.generatorReports)) {
       if (!report) continue;
@@ -115,6 +117,7 @@ export const EmitterOverview: FunctionComponent<EmitterOverviewProps> = ({
           display: "grid",
           gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
           gap: 24,
+          marginBottom: 64,
         }}
       >
         {emitters.map((emitter) => {
@@ -143,9 +146,9 @@ export const EmitterOverview: FunctionComponent<EmitterOverviewProps> = ({
                   },
                 },
               ]}
-              onClick={() => {
+              onClick={async () => {
                 const tierParam = selectedTier ? `?tier=${encodeURIComponent(selectedTier)}` : "";
-                navigate(`/emitter/${encodeURIComponent(emitter.name)}${tierParam}`);
+                await navigate(`/emitter/${encodeURIComponent(emitter.name)}${tierParam}`);
               }}
             >
               <CardHeader
@@ -218,6 +221,23 @@ export const EmitterOverview: FunctionComponent<EmitterOverviewProps> = ({
             </Card>
           );
         })}
+      </div>
+
+      {/* Full detailed tables section - show all scenarios without tier filtering */}
+      <div css={{ borderTop: `2px solid ${tokens.colorNeutralStroke2}`, paddingTop: 40 }}>
+        <Text
+          as="h2"
+          size={700}
+          weight="bold"
+          css={{ display: "block", marginBottom: 32, textAlign: "center" }}
+        >
+          Detailed Scenario Coverage
+        </Text>
+        {coverageSummaries.map((summary, i) => (
+          <div key={i} css={{ marginBottom: 32 }}>
+            <DashboardTable coverageSummary={summary} />
+          </div>
+        ))}
       </div>
     </div>
   );
