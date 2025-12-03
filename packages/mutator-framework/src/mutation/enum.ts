@@ -34,4 +34,3 @@ export class EnumMutation<
     this.mutateMembers();
   }
 }
-

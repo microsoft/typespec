@@ -1,9 +1,5 @@
 import type { EnumMember, MemberType } from "@typespec/compiler";
-import type {
-  CustomMutationClasses,
-  MutationEngine,
-  MutationOptions,
-} from "./mutation-engine.js";
+import type { CustomMutationClasses, MutationEngine, MutationOptions } from "./mutation-engine.js";
 import { Mutation } from "./mutation.js";
 
 export class EnumMemberMutation<
@@ -26,4 +22,3 @@ export class EnumMemberMutation<
     // EnumMember is a leaf type with no children to mutate
   }
 }
-
