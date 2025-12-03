@@ -1,3 +1,5 @@
+export * from "./enum-member.js";
+export * from "./enum.js";
 export * from "./interface.js";
 export * from "./intrinsic.js";
 export * from "./literal.js";
