@@ -1,5 +1,16 @@
 # Changelog - @typespec/emitter-framework
 
+## 0.13.0
+
+### Features
+
+- [#8415](https://github.com/microsoft/typespec/pull/8415) [c#] Support encode when generating csharp property.
+
+### Bump dependencies
+
+- [#8823](https://github.com/microsoft/typespec/pull/8823) Upgrade dependencies
+
+
 ## 0.12.0
 
 ### Features

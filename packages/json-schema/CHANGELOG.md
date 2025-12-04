@@ -1,5 +1,16 @@
 # Change Log - @typespec/json-schema
 
+## 1.6.0
+
+### Bump dependencies
+
+- [#8823](https://github.com/microsoft/typespec/pull/8823) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8739](https://github.com/microsoft/typespec/pull/8739) Correctly emit `union`, `enum`, `scalar` when marked with `@jsonSchema`
+
+
 ## 1.5.0
 
 ### Bug Fixes

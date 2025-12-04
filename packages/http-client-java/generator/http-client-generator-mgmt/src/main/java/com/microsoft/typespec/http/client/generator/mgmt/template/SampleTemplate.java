@@ -3,6 +3,8 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.template;
 
+import static com.microsoft.typespec.http.client.generator.core.util.Constants.NEW_LINE;
+
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.postprocessor.implementation.CodeFormatterUtil;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentExample;
@@ -18,8 +20,6 @@ import java.util.stream.Collectors;
 public class SampleTemplate {
 
     private final StringBuilder builder = new StringBuilder();
-
-    private static final String NEW_LINE = System.lineSeparator();
 
     public String write(List<FluentExample> examples, List<JavaFile> sampleJavaFiles) {
         assert examples.size() == sampleJavaFiles.size();
@@ -89,7 +89,7 @@ public class SampleTemplate {
                 formattedLines.add(line);
             }
         }
-        return String.join(System.lineSeparator(), formattedLines);
+        return String.join(NEW_LINE, formattedLines);
     }
 
     private static String link(String text, URL url) {

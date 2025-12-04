@@ -1,5 +1,34 @@
 # Change Log - @typespec/compiler
 
+## 1.6.0
+
+### Features
+
+- [#8868](https://github.com/microsoft/typespec/pull/8868) [API] Add new `createAddDecoratorCodeFix` function to help generating a codefix to add a decorator to a target node.
+- [#8580](https://github.com/microsoft/typespec/pull/8580) Add support for `@minValue`, `@maxValue` and their exclusive variant for datetime and duration types.
+  Expose as well the following APIs
+  - `getMinValueForScalar`
+  - `getMaxValueForScalar`
+  - `getMinValueExclusiveForScalar`
+  - `getMaxValueExclusiveForScalar`
+- [#8938](https://github.com/microsoft/typespec/pull/8938) [API] Add `repository` field to `PackageJson` type
+
+### Bump dependencies
+
+- [#8823](https://github.com/microsoft/typespec/pull/8823) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8792](https://github.com/microsoft/typespec/pull/8792) Compiler internal decorators shouldn't be listed in autocomplete
+- [#8733](https://github.com/microsoft/typespec/pull/8733) Fix issue where namespace with same name but different parent would get merged together when under a file namespace scope.
+- [#8698](https://github.com/microsoft/typespec/pull/8698) [TM Grammar] Fix issue with directive used after decorators
+- [#8751](https://github.com/microsoft/typespec/pull/8751) Correctly report error when trying to reference member of template without using the arguments
+- [#8780](https://github.com/microsoft/typespec/pull/8780) Fix missing examples in OpenAPI when response uses union of unions
+- [#8676](https://github.com/microsoft/typespec/pull/8676) Addressed an issue where applying the `Update` visibility transform would not correctly rename nested models.
+- [#8687](https://github.com/microsoft/typespec/pull/8687) Fix go to definition for directory imports
+- [#8681](https://github.com/microsoft/typespec/pull/8681) Addressed a bug that could cause duplicate `@encodedName` applications to be detected when none actually exist.
+
+
 ## 1.5.0
 
 ### Features

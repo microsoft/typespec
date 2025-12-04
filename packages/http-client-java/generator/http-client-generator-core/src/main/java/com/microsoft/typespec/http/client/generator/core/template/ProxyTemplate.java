@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
-import com.azure.core.http.ContentType;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
@@ -38,14 +37,12 @@ public class ProxyTemplate implements IJavaTemplate<Proxy, JavaClass> {
     public final void write(Proxy restAPI, JavaClass classBlock) {
         JavaSettings settings = JavaSettings.getInstance();
         if (restAPI != null) {
-            classBlock.javadocComment(comment -> {
-                comment.description(String.format(
-                    "The interface defining all the services for %1$s to be used by the proxy service to perform REST calls.",
-                    restAPI.getClientTypeName()));
-            });
+            classBlock.javadocComment(comment -> comment.description(String.format(
+                "The interface defining all the services for %1$s to be used by the proxy service to perform REST calls.",
+                restAPI.getClientTypeName())));
             if (settings.isAzureV1()) {
-                classBlock.annotation(String.format("Host(\"%1$s\")", restAPI.getBaseURL()));
-                classBlock.annotation(String.format("ServiceInterface(name = \"%1$s\")", restAPI.getClientTypeName()));
+                classBlock.annotation("Host(\"" + restAPI.getBaseURL() + "\")");
+                classBlock.annotation("ServiceInterface(name = \"" + restAPI.getClientTypeName() + "\")");
             } else {
                 classBlock.annotation(String.format("ServiceInterface(name = \"%1$s\", host = \"%2$s\")",
                     restAPI.getClientTypeName(), restAPI.getBaseURL()));
@@ -57,42 +54,25 @@ public class ProxyTemplate implements IJavaTemplate<Proxy, JavaClass> {
             }
 
             classBlock.interfaceBlock(visibility, restAPI.getName(), interfaceBlock -> {
-
                 if (settings.isAzureV2() || !settings.isAzureV1()) {
-                    StringBuilder params = new StringBuilder();
-                    params.append("HttpPipeline pipeline");
-
-                    StringBuilder paramTypes = new StringBuilder();
-                    paramTypes.append("HttpPipeline.class");
-
-                    StringBuilder reflectionParams = new StringBuilder();
-                    reflectionParams.append("pipeline");
-
                     interfaceBlock.staticMethod(JavaVisibility.PackagePrivate,
-                        restAPI.getName() + " getNewInstance(" + params + ")", javaBlock -> {
-
-                            String serviceClientInterfacePackageName
-                                = ClientModelUtil.getServiceClientInterfacePackageName();
-                            javaBlock.tryBlock(tryBlock -> {
-                                tryBlock.line(
-                                    "Class<?> clazz = Class.forName(" + "\"" + JavaSettings.getInstance().getPackage()
-                                        + ".implementation." + restAPI.getName() + "Impl" + "\");");
-                                tryBlock.line("return (" + restAPI.getName() + ") clazz.getMethod(\"getNewInstance\", "
-                                    + paramTypes + ").invoke(null, " + reflectionParams + ");");
-                            })
-                                .catchBlock(
-                                    "ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e",
-                                    catchBlock -> {
-                                        catchBlock.line("throw new RuntimeException(e);");
-                                    });
-                        });
+                        restAPI.getName() + " getNewInstance(HttpPipeline pipeline)",
+                        javaBlock -> javaBlock.tryBlock(tryBlock -> {
+                            tryBlock
+                                .line("Class<?> clazz = Class.forName(" + "\"" + JavaSettings.getInstance().getPackage()
+                                    + ".implementation." + restAPI.getName() + "Impl" + "\");");
+                            tryBlock.line("return (" + restAPI.getName() + ") clazz.getMethod(\"getNewInstance\", "
+                                + "HttpPipeline.class).invoke(null, pipeline);");
+                        })
+                            .catchBlock(
+                                "ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e",
+                                catchBlock -> catchBlock.line("throw new RuntimeException(e);")));
                 }
 
                 for (ProxyMethod restAPIMethod : restAPI.getMethods()) {
                     if (restAPIMethod.getRequestContentType().equals("multipart/form-data")
                         || restAPIMethod.getRequestContentType().equals("application/x-www-form-urlencoded")) {
-                        interfaceBlock.lineComment(
-                            String.format("@Multipart not supported by %1$s", ClassType.REST_PROXY.getName()));
+                        interfaceBlock.lineComment("@Multipart not supported by " + ClassType.REST_PROXY.getName());
                     }
 
                     writeProxyMethodHeaders(restAPIMethod, interfaceBlock);
@@ -165,41 +145,45 @@ public class ProxyTemplate implements IJavaTemplate<Proxy, JavaClass> {
             case PATH:
             case QUERY:
             case HEADER:
-                parameterDeclarationBuilder
-                    .append(String.format("@%1$sParam(", CodeNamer.toPascalCase(location.toString())));
+                parameterDeclarationBuilder.append('@')
+                    .append(CodeNamer.toPascalCase(location.toString()))
+                    .append("Param(");
                 if (location == RequestParameterLocation.QUERY
                     && parameter.getAlreadyEncoded()
                     && parameter.getExplode()) {
-                    parameterDeclarationBuilder
-                        .append(String.format("value = \"%1$s\", encoded = true, multipleQueryParams = true",
-                            parameter.getRequestParameterName()));
+                    parameterDeclarationBuilder.append("value = \"")
+                        .append(parameter.getRequestParameterName())
+                        .append("\", encoded = true, multipleQueryParams = true");
                 } else if (location == RequestParameterLocation.QUERY && parameter.getExplode()) {
-                    parameterDeclarationBuilder.append(String.format("value = \"%1$s\", multipleQueryParams = true",
-                        parameter.getRequestParameterName()));
+                    parameterDeclarationBuilder.append("value = \"")
+                        .append(parameter.getRequestParameterName())
+                        .append("\", multipleQueryParams = true");
                 } else if ((location == RequestParameterLocation.PATH || location == RequestParameterLocation.QUERY)
                     && parameter.getAlreadyEncoded()) {
-                    parameterDeclarationBuilder
-                        .append(String.format("value = \"%1$s\", encoded = true", parameter.getRequestParameterName()));
+                    parameterDeclarationBuilder.append("value = \"")
+                        .append(parameter.getRequestParameterName())
+                        .append("\", encoded = true");
                 } else if (location == RequestParameterLocation.HEADER
                     && parameter.getHeaderCollectionPrefix() != null
                     && !parameter.getHeaderCollectionPrefix().isEmpty()) {
-                    parameterDeclarationBuilder
-                        .append(String.format("\"%1$s\"", parameter.getHeaderCollectionPrefix()));
+                    parameterDeclarationBuilder.append('"').append(parameter.getHeaderCollectionPrefix()).append('"');
                 } else {
-                    parameterDeclarationBuilder.append(String.format("\"%1$s\"", parameter.getRequestParameterName()));
+                    parameterDeclarationBuilder.append('"').append(parameter.getRequestParameterName()).append('"');
                 }
                 parameterDeclarationBuilder.append(") ");
 
                 break;
 
             case BODY:
-                if (ContentType.APPLICATION_X_WWW_FORM_URLENCODED.equals(restAPIMethod.getRequestContentType())) {
-                    parameterDeclarationBuilder
-                        .append(String.format("@FormParam(\"%1$s\") ", parameter.getRequestParameterName()));
+                if ("application/x-www-form-urlencoded".equals(restAPIMethod.getRequestContentType())) {
+                    parameterDeclarationBuilder.append("@FormParam(\"")
+                        .append(parameter.getRequestParameterName())
+                        .append("\") ");
                     break;
                 }
-                parameterDeclarationBuilder
-                    .append(String.format("@BodyParam(\"%1$s\") ", restAPIMethod.getRequestContentType()));
+                parameterDeclarationBuilder.append("@BodyParam(\"")
+                    .append(restAPIMethod.getRequestContentType())
+                    .append("\") ");
                 break;
 
             // case FormData:
@@ -282,9 +266,8 @@ public class ProxyTemplate implements IJavaTemplate<Proxy, JavaClass> {
             String parameterDeclarations = String.join(", ", parameterDeclarationList);
             IType restAPIMethodReturnValueClientType = restAPIMethod.getReturnType().getClientType();
             interfaceBlock.defaultMethod(String.format("%1$s %2$s(%3$s)", restAPIMethodReturnValueClientType,
-                restAPIMethod.getName(), parameterDeclarations), functionBlock -> {
-                    functionBlock.line(restAPIMethod.getImplementation());
-                });
+                restAPIMethod.getName(), parameterDeclarations),
+                functionBlock -> functionBlock.line(restAPIMethod.getImplementation()));
         } else {
             String parameterDeclarations = String.join(", ", parameterDeclarationList);
             IType restAPIMethodReturnValueClientType = restAPIMethod.getReturnType().getClientType();

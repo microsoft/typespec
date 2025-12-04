@@ -1,5 +1,17 @@
 # Change Log - @typespec/http
 
+## 1.6.0
+
+### Bump dependencies
+
+- [#8823](https://github.com/microsoft/typespec/pull/8823) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8974](https://github.com/microsoft/typespec/pull/8974) Do not report `no-service-found` if there is a service even if it has no routes
+- [#8737](https://github.com/microsoft/typespec/pull/8737) Fix `@bodyIgnore` property shouldn't count as implicit body property for check
+
+
 ## 1.5.0
 
 No changes, version bump only.

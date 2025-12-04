@@ -1,5 +1,17 @@
 # @typespec/http-specs
 
+## 0.1.0-alpha.28
+
+### Features
+
+- [#8729](https://github.com/microsoft/typespec/pull/8729) Add scenario for encode duration with larger units
+- [#8938](https://github.com/microsoft/typespec/pull/8938) Resolve packageName and spec display name from spec set package.json
+
+### Bump dependencies
+
+- [#8823](https://github.com/microsoft/typespec/pull/8823) Upgrade dependencies
+
+
 ## 0.1.0-alpha.27
 
 ### Features

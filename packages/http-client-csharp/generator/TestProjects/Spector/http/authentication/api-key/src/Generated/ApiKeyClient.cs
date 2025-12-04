@@ -16,6 +16,8 @@ namespace Authentication.ApiKey
 
         public ApiKeyClient(ApiKeyCredential credential) : this(new Uri("http://localhost:3000"), credential, new ApiKeyClientOptions()) => throw null;
 
+        public ApiKeyClient(ApiKeyCredential credential, ApiKeyClientOptions options) : this(new Uri("http://localhost:3000"), credential, options) => throw null;
+
         public ApiKeyClient(Uri endpoint, ApiKeyCredential credential, ApiKeyClientOptions options) => throw null;
 
         public ClientPipeline Pipeline => throw null;

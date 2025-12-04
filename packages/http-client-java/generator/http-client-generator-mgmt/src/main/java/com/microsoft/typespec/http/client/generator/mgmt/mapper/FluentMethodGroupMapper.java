@@ -48,9 +48,9 @@ public class FluentMethodGroupMapper extends MethodGroupMapper {
         Optional<IType> classTypeForList = supportListMethod(clientMethods);
         Optional<IType> classTypeForDelete = supportDeleteMethod(clientMethods);
 
-        classTypeForGet.ifPresent(iType -> interfaces.add(FluentType.InnerSupportsGet(iType)));
-        classTypeForList.ifPresent(iType -> interfaces.add(FluentType.InnerSupportsList(iType)));
-        classTypeForDelete.ifPresent(iType -> interfaces.add(FluentType.InnerSupportsDelete(iType)));
+        classTypeForGet.ifPresent(iType -> interfaces.add(FluentType.innerSupportsGet(iType)));
+        classTypeForList.ifPresent(iType -> interfaces.add(FluentType.innerSupportsList(iType)));
+        classTypeForDelete.ifPresent(iType -> interfaces.add(FluentType.innerSupportsDelete(iType)));
 
         if (!interfaces.isEmpty()) {
             LOGGER.info("Method group '{}' support interfaces {}", Utils.getJavaName(operationGroup),

@@ -143,7 +143,7 @@ describe("Operation parameters", async () => {
     expect(viaBody === viaProp).toBe(true);
   });
 
-  it.only("handles multiple content types", async () => {
+  it("handles multiple content types", async () => {
     const { createFoo, program } = await runner.compile(t.code`
       model ${t.model("Foo")} {
         name: string;

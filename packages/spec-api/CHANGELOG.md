@@ -1,5 +1,12 @@
 # @typespec/spec-api
 
+## 0.1.0-alpha.10
+
+### Bump dependencies
+
+- [#8823](https://github.com/microsoft/typespec/pull/8823) Upgrade dependencies
+
+
 ## 0.1.0-alpha.9
 
 ### Bump dependencies

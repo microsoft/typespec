@@ -35,6 +35,8 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, openApiFor }) => {
     it.each([
       { encoding: "ArrayEncoding.pipeDelimited", style: "pipeDelimited" },
       { encoding: "ArrayEncoding.spaceDelimited", style: "spaceDelimited" },
+      { encoding: "ArrayEncoding.commaDelimited", style: "commaDelimited" },
+      { encoding: "ArrayEncoding.newlineDelimited", style: "newlineDelimited" },
     ])("can set style to $style with @encode($encoding)", async ({ encoding, style }) => {
       const param = await getQueryParam(
         `op test(@query @encode(${encoding}) myParam: string[]): void;`,

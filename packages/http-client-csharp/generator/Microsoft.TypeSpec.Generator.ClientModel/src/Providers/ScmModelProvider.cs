@@ -21,6 +21,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
     public sealed class ScmModelProvider : ModelProvider
     {
+        private readonly InputModelType _inputModel;
         private const string JsonPatchFieldName = "_patch";
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
         private readonly CSharpType _jsonPatchFieldType = typeof(JsonPatch);
@@ -33,7 +34,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         internal const string JsonPatchPropertyName = "Patch";
         internal bool IsDynamicModel { get; }
-        internal bool HasDynamicModelSupport { get; }
         internal Lazy<PropertyProvider?> BaseJsonPatchProperty { get; }
 
         internal bool HasDynamicProperties => _hasDynamicProperties ??= BuildHasDynamicProperties();
@@ -45,8 +45,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         public ScmModelProvider(InputModelType inputModel) : base(inputModel)
         {
+            _inputModel = inputModel;
             IsDynamicModel = inputModel.IsDynamicModel;
-            HasDynamicModelSupport = ComputeHasDynamicModelSupport();
             BaseJsonPatchProperty = new(GetBaseJsonPatchProperty());
         }
 
@@ -110,18 +110,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     constructor.Update(signature: constructor.Signature);
                     constructor.Update(suppressions: [suppression, .. constructor.Suppressions]);
 
-                    if (RawDataField != null && constructor.BodyStatements != null)
+                    if (constructor.BodyStatements != null)
                     {
                         List<MethodBodyStatement> updatedBody = [];
-                        foreach (var statement in constructor.BodyStatements)
+                        if (RawDataField is null)
                         {
-                            if (statement is ExpressionStatement expressionStatement
-                                && expressionStatement.Expression is AssignmentExpression assignmentExpression
-                                && assignmentExpression.Value == RawDataField.AsParameter == true)
+                            updatedBody.AddRange(constructor.BodyStatements);
+                        }
+                        else
+                        {
+                            foreach (var statement in constructor.BodyStatements)
                             {
-                                continue;
+                                if (statement is ExpressionStatement { Expression: AssignmentExpression assignmentExpression }
+                                    && assignmentExpression.Value.Equals(RawDataField.AsParameter))
+                                {
+                                    continue;
+                                }
+                                updatedBody.Add(statement);
                             }
-                            updatedBody.Add(statement);
                         }
 
                         if (JsonPatchField != null)
@@ -133,6 +139,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                                 updatedBody.Add(JsonPatchField.As<JsonPatch>().SetPropagators(new MemberExpression(null, "PropagateSet"), new MemberExpression(null, "PropagateGet")));
 #pragma warning restore SCME0001
                             }
+                        }
+                        else if (HasDynamicProperties && BaseJsonPatchProperty.Value is not null)
+                        {
+                            // Derived model has dynamic properties but inherits the JsonPatch field from base
+                            // We need to call SetPropagators on the inherited patch field
+#pragma warning disable SCME0001
+                            updatedBody.Add(BaseJsonPatchProperty.Value.As<JsonPatch>().SetPropagators(new MemberExpression(null, "PropagateSet"), new MemberExpression(null, "PropagateGet")));
+#pragma warning restore SCME0001
                         }
 
                         constructor.Update(bodyStatements: updatedBody);
@@ -208,26 +222,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             };
         }
 
-        private bool ComputeHasDynamicModelSupport()
-        {
-            if (IsDynamicModel)
-            {
-                return true;
-            }
-
-            var baseModelProvider = BaseModelProvider;
-            while (baseModelProvider != null)
-            {
-                if (baseModelProvider is ScmModelProvider { IsDynamicModel: true })
-                {
-                    return true;
-                }
-                baseModelProvider = baseModelProvider.BaseModelProvider;
-            }
-
-            return false;
-        }
-
         private bool ShouldUpdateFullConstructor()
         {
             var hasJsonPatchParameter = FullConstructor.Signature.Parameters.Any(
@@ -280,6 +274,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     currentProvider = currentProvider.BaseModelProvider;
                 }
 
+                bool isDiscriminatedType = currentProvider is ScmModelProvider { DiscriminatorValue: not null }
+                    || currentProvider is ScmModelProvider { _inputModel.DiscriminatorProperty: not null };
+                bool hasDynamicModelSupport = currentProvider is ScmModelProvider { IsDynamicModel: true };
+
                 if (baseRawDataField != null)
                 {
                     var updatedArguments = new List<ValueExpression>(FullConstructor.Signature.Initializer.Arguments.Count);
@@ -288,7 +286,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         VariableExpression rawDataFieldAsVar = baseRawDataField.AsParameter;
                         if (rawDataFieldAsVar.Equals(argument))
                         {
-                            updatedArguments.Add(jsonPatchParameter);
+                            var replacement = !isDiscriminatedType && !hasDynamicModelSupport
+                               ? Default
+                               : jsonPatchParameter;
+                            updatedArguments.Add(replacement);
                         }
                         else
                         {

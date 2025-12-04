@@ -3,6 +3,12 @@ export type ScenarioManifest = {
   displayName?: string;
   /** Repository where scenarios live */
   repo?: string;
+  /**
+   * Template of where the source file lives
+   * Interpolate {scenarioPath} with the scenario file path
+   * @example "https://github.com/microsoft/typespec/tree/main/packages/http-specs/specs/{scenarioPath}"
+   */
+  sourceUrl?: string;
   commit: string;
   version: string;
   scenarios: ScenarioData[];

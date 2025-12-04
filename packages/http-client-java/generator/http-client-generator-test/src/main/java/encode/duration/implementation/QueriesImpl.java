@@ -114,6 +114,24 @@ public final class QueriesImpl {
         Response<Void> int32SecondsSync(@HostParam("endpoint") String endpoint, @QueryParam("input") long input,
             RequestOptions requestOptions, Context context);
 
+        @Get("/encode/duration/query/int32-seconds-larger-unit")
+        @ExpectedResponses({ 204 })
+        @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
+        @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
+        @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
+        @UnexpectedResponseExceptionType(HttpResponseException.class)
+        Mono<Response<Void>> int32SecondsLargerUnit(@HostParam("endpoint") String endpoint,
+            @QueryParam("input") long input, RequestOptions requestOptions, Context context);
+
+        @Get("/encode/duration/query/int32-seconds-larger-unit")
+        @ExpectedResponses({ 204 })
+        @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
+        @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
+        @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
+        @UnexpectedResponseExceptionType(HttpResponseException.class)
+        Response<Void> int32SecondsLargerUnitSync(@HostParam("endpoint") String endpoint,
+            @QueryParam("input") long input, RequestOptions requestOptions, Context context);
+
         @Get("/encode/duration/query/float-seconds")
         @ExpectedResponses({ 204 })
         @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
@@ -131,6 +149,24 @@ public final class QueriesImpl {
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<Void> floatSecondsSync(@HostParam("endpoint") String endpoint, @QueryParam("input") double input,
             RequestOptions requestOptions, Context context);
+
+        @Get("/encode/duration/query/float-seconds-larger-unit")
+        @ExpectedResponses({ 204 })
+        @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
+        @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
+        @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
+        @UnexpectedResponseExceptionType(HttpResponseException.class)
+        Mono<Response<Void>> floatSecondsLargerUnit(@HostParam("endpoint") String endpoint,
+            @QueryParam("input") double input, RequestOptions requestOptions, Context context);
+
+        @Get("/encode/duration/query/float-seconds-larger-unit")
+        @ExpectedResponses({ 204 })
+        @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
+        @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
+        @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
+        @UnexpectedResponseExceptionType(HttpResponseException.class)
+        Response<Void> floatSecondsLargerUnitSync(@HostParam("endpoint") String endpoint,
+            @QueryParam("input") double input, RequestOptions requestOptions, Context context);
 
         @Get("/encode/duration/query/float64-seconds")
         @ExpectedResponses({ 204 })
@@ -168,6 +204,24 @@ public final class QueriesImpl {
         Response<Void> int32MillisecondsSync(@HostParam("endpoint") String endpoint, @QueryParam("input") int input,
             RequestOptions requestOptions, Context context);
 
+        @Get("/encode/duration/query/int32-milliseconds-larger-unit")
+        @ExpectedResponses({ 204 })
+        @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
+        @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
+        @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
+        @UnexpectedResponseExceptionType(HttpResponseException.class)
+        Mono<Response<Void>> int32MillisecondsLargerUnit(@HostParam("endpoint") String endpoint,
+            @QueryParam("input") int input, RequestOptions requestOptions, Context context);
+
+        @Get("/encode/duration/query/int32-milliseconds-larger-unit")
+        @ExpectedResponses({ 204 })
+        @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
+        @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
+        @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
+        @UnexpectedResponseExceptionType(HttpResponseException.class)
+        Response<Void> int32MillisecondsLargerUnitSync(@HostParam("endpoint") String endpoint,
+            @QueryParam("input") int input, RequestOptions requestOptions, Context context);
+
         @Get("/encode/duration/query/float-milliseconds")
         @ExpectedResponses({ 204 })
         @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
@@ -185,6 +239,24 @@ public final class QueriesImpl {
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<Void> floatMillisecondsSync(@HostParam("endpoint") String endpoint, @QueryParam("input") double input,
             RequestOptions requestOptions, Context context);
+
+        @Get("/encode/duration/query/float-milliseconds-larger-unit")
+        @ExpectedResponses({ 204 })
+        @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
+        @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
+        @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
+        @UnexpectedResponseExceptionType(HttpResponseException.class)
+        Mono<Response<Void>> floatMillisecondsLargerUnit(@HostParam("endpoint") String endpoint,
+            @QueryParam("input") double input, RequestOptions requestOptions, Context context);
+
+        @Get("/encode/duration/query/float-milliseconds-larger-unit")
+        @ExpectedResponses({ 204 })
+        @UnexpectedResponseExceptionType(value = ClientAuthenticationException.class, code = { 401 })
+        @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = { 404 })
+        @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
+        @UnexpectedResponseExceptionType(HttpResponseException.class)
+        Response<Void> floatMillisecondsLargerUnitSync(@HostParam("endpoint") String endpoint,
+            @QueryParam("input") double input, RequestOptions requestOptions, Context context);
 
         @Get("/encode/duration/query/float64-milliseconds")
         @ExpectedResponses({ 204 })
@@ -343,6 +415,42 @@ public final class QueriesImpl {
     }
 
     /**
+     * The int32SecondsLargerUnit operation.
+     * 
+     * @param input The input parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response} on successful completion of {@link Mono}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> int32SecondsLargerUnitWithResponseAsync(Duration input, RequestOptions requestOptions) {
+        long inputConverted = input.getSeconds();
+        return FluxUtil.withContext(context -> service.int32SecondsLargerUnit(this.client.getEndpoint(), inputConverted,
+            requestOptions, context));
+    }
+
+    /**
+     * The int32SecondsLargerUnit operation.
+     * 
+     * @param input The input parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> int32SecondsLargerUnitWithResponse(Duration input, RequestOptions requestOptions) {
+        long inputConverted = input.getSeconds();
+        return service.int32SecondsLargerUnitSync(this.client.getEndpoint(), inputConverted, requestOptions,
+            Context.NONE);
+    }
+
+    /**
      * The floatSeconds operation.
      * 
      * @param input The input parameter.
@@ -375,6 +483,42 @@ public final class QueriesImpl {
     public Response<Void> floatSecondsWithResponse(Duration input, RequestOptions requestOptions) {
         double inputConverted = (double) input.toNanos() / 1000_000_000L;
         return service.floatSecondsSync(this.client.getEndpoint(), inputConverted, requestOptions, Context.NONE);
+    }
+
+    /**
+     * The floatSecondsLargerUnit operation.
+     * 
+     * @param input The input parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response} on successful completion of {@link Mono}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> floatSecondsLargerUnitWithResponseAsync(Duration input, RequestOptions requestOptions) {
+        double inputConverted = (double) input.toNanos() / 1000_000_000L;
+        return FluxUtil.withContext(context -> service.floatSecondsLargerUnit(this.client.getEndpoint(), inputConverted,
+            requestOptions, context));
+    }
+
+    /**
+     * The floatSecondsLargerUnit operation.
+     * 
+     * @param input The input parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> floatSecondsLargerUnitWithResponse(Duration input, RequestOptions requestOptions) {
+        double inputConverted = (double) input.toNanos() / 1000_000_000L;
+        return service.floatSecondsLargerUnitSync(this.client.getEndpoint(), inputConverted, requestOptions,
+            Context.NONE);
     }
 
     /**
@@ -446,6 +590,39 @@ public final class QueriesImpl {
     }
 
     /**
+     * The int32MillisecondsLargerUnit operation.
+     * 
+     * @param input The input parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response} on successful completion of {@link Mono}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> int32MillisecondsLargerUnitWithResponseAsync(int input, RequestOptions requestOptions) {
+        return FluxUtil.withContext(
+            context -> service.int32MillisecondsLargerUnit(this.client.getEndpoint(), input, requestOptions, context));
+    }
+
+    /**
+     * The int32MillisecondsLargerUnit operation.
+     * 
+     * @param input The input parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> int32MillisecondsLargerUnitWithResponse(int input, RequestOptions requestOptions) {
+        return service.int32MillisecondsLargerUnitSync(this.client.getEndpoint(), input, requestOptions, Context.NONE);
+    }
+
+    /**
      * The floatMilliseconds operation.
      * 
      * @param input The input parameter.
@@ -476,6 +653,40 @@ public final class QueriesImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> floatMillisecondsWithResponse(double input, RequestOptions requestOptions) {
         return service.floatMillisecondsSync(this.client.getEndpoint(), input, requestOptions, Context.NONE);
+    }
+
+    /**
+     * The floatMillisecondsLargerUnit operation.
+     * 
+     * @param input The input parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response} on successful completion of {@link Mono}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> floatMillisecondsLargerUnitWithResponseAsync(double input,
+        RequestOptions requestOptions) {
+        return FluxUtil.withContext(
+            context -> service.floatMillisecondsLargerUnit(this.client.getEndpoint(), input, requestOptions, context));
+    }
+
+    /**
+     * The floatMillisecondsLargerUnit operation.
+     * 
+     * @param input The input parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> floatMillisecondsLargerUnitWithResponse(double input, RequestOptions requestOptions) {
+        return service.floatMillisecondsLargerUnitSync(this.client.getEndpoint(), input, requestOptions, Context.NONE);
     }
 
     /**

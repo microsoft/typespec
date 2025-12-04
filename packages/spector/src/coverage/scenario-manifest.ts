@@ -1,6 +1,6 @@
 import { loadScenarios } from "../scenarios-resolver.js";
 import { Diagnostic } from "../utils/diagnostic-reporter.js";
-import { getCommit, getPackageJson } from "../utils/misc-utils.js";
+import { getCommit, getPackageJson, type SpectorPackageJson } from "../utils/misc-utils.js";
 import { ScenarioLocation, ScenarioManifest } from "@typespec/spec-coverage-sdk";
 import { getSourceLocation, normalizePath, PackageJson } from "@typespec/compiler";
 import { relative } from "path";
@@ -30,7 +30,7 @@ function getRepo(pkg: PackageJson): string | undefined {
 }
 export function createScenarioManifest(
   scenariosPath: string,
-  pkg: PackageJson | undefined,
+  pkg: SpectorPackageJson | undefined,
   commit: string,
   scenarios: Scenario[],
 ): ScenarioManifest {
@@ -38,6 +38,7 @@ export function createScenarioManifest(
   return {
     version: pkg?.version ?? "?",
     repo: pkg && getRepo(pkg),
+    sourceUrl: pkg?.spector?.sourceUrl,
     packageName: pkg?.name,
     displayName: pkg && ("displayName" in pkg ? pkg.displayName as string : undefined),
     commit,

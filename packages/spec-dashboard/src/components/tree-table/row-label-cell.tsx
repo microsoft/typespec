@@ -61,8 +61,8 @@ export const RowLabelCell: FunctionComponent<RowLabelCellProps> = ({ row, manife
         </div>
         <div css={{}}>
           {row.item.scenario && <ScenarioInfoButton scenario={row.item.scenario} />}
-          {row.item.scenario && (
-            <GotoSourceButton manifest={manifest} scenario={row.item.scenario} />
+          {row.item.scenario && manifest.sourceUrl && (
+            <GotoSourceButton sourceUrl={manifest.sourceUrl} scenario={row.item.scenario} />
           )}
         </div>
       </div>
@@ -95,14 +95,13 @@ const ScenarioInfoButton: FunctionComponent<ScenarioInfoButtonProps> = ({ scenar
 };
 
 type ShowSourceButtonProps = {
-  manifest: ScenarioManifest;
+  sourceUrl: string;
   scenario: ScenarioData;
 };
-const GotoSourceButton: FunctionComponent<ShowSourceButtonProps> = ({ manifest, scenario }) => {
-  const baseUrl = `${manifest.repo}/tree/main/packages/http-specs/specs/`;
+const GotoSourceButton: FunctionComponent<ShowSourceButtonProps> = ({ sourceUrl, scenario }) => {
   const start = getGithubLineNumber(scenario.location.start.line);
   const end = getGithubLineNumber(scenario.location.end.line);
-  const url = `${baseUrl}/${scenario.location.path}#${start}-${end}`;
+  const url = `${sourceUrl.replaceAll("{scenarioPath}", scenario.location.path)}#${start}-${end}`;
   return (
     <Tooltip content="Go to source" relationship="label">
       <Button
