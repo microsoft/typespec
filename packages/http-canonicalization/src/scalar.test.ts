@@ -41,11 +41,11 @@ it("canonicalizes an int32 scalar", async () => {
 
   const canonicalMyNumber = engine.canonicalize(myNumber, {
     visibility: Visibility.Read,
+    contentType: "application/json",
   });
 
   // We leave the language type the same
   expectTypeEquals(canonicalMyNumber.sourceType, canonicalMyNumber.languageType);
-
   // but the wire type is a float64
   expect(canonicalMyNumber.sourceType === canonicalMyNumber.wireType).toBe(false);
   expectTypeEquals(canonicalMyNumber.wireType, tk.builtin.float64);
@@ -62,6 +62,7 @@ it("canonicalizes a utcDateTime scalar", async () => {
 
   const canonicalMyString = engine.canonicalize(myDateTime, {
     visibility: Visibility.Read,
+    contentType: "application/json",
   });
 
   expectTypeEquals(canonicalMyString.wireType, tk.builtin.string);
@@ -79,6 +80,7 @@ it("canonicalizes a utcDateTime scalar with encode decorator", async () => {
 
   const canonicalMyString = engine.canonicalize(myDateTime, {
     visibility: Visibility.Read,
+    contentType: "application/json",
   });
 
   // the codec is set appropriately
@@ -105,6 +107,7 @@ it("canonicalizes a utcDateTime scalar with encode decorator on a member", async
   const engine = new HttpCanonicalizer(tk);
   const canonicalFoo = engine.canonicalize(Foo, {
     visibility: Visibility.Read,
+    contentType: "application/json",
   });
 
   // navigating canonicalization
@@ -119,4 +122,32 @@ it("canonicalizes a utcDateTime scalar with encode decorator on a member", async
   const wireFoo = canonicalFoo.wireType;
   const wireDateType = wireFoo.properties.get("createdAt")!.type;
   expectTypeEquals(wireDateType, tk.builtin.string);
+});
+
+it("canonicalizes a unix timestamp", async () => {
+  const { myDateTime1, myDateTime2, program } = await runner.compile(t.code`
+      @encode("unixTimestamp", int32)
+      scalar ${t.scalar("myDateTime1")} extends utcDateTime;
+      @encode(DateTimeKnownEncoding.unixTimestamp, int32)
+      scalar ${t.scalar("myDateTime2")} extends utcDateTime;
+    `);
+
+  const tk = $(program);
+  const engine = new HttpCanonicalizer(tk);
+
+  const canonicalDate1 = engine.canonicalize(myDateTime1, {
+    visibility: Visibility.Read,
+    contentType: "application/json",
+  });
+
+  // the codec is set appropriately
+  expect(canonicalDate1.codec.id).toBe("unix-timestamp-32");
+
+  const canonicalDate2 = engine.canonicalize(myDateTime2, {
+    visibility: Visibility.Read,
+    contentType: "application/json",
+  });
+
+  // the codec is set appropriately
+  expect(canonicalDate2.codec.id).toBe("unix-timestamp-32");
 });

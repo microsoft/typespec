@@ -1,10 +1,12 @@
-import type { MemberType, Model } from "@typespec/compiler";
+import type { MemberType, Model, Union } from "@typespec/compiler";
 import { expectTypeEquals, t } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/typekit";
 import { expect, it } from "vitest";
 import { Tester } from "../../test/test-host.js";
+import type { MutationHalfEdge, MutationTraits } from "./mutation-engine.js";
 import type { MutationInfo } from "./mutation.js";
 import {
+  SimpleIntrinsicMutation,
   SimpleModelMutation,
   SimpleModelPropertyMutation,
   SimpleMutationEngine,
@@ -106,11 +108,21 @@ class RenameModelBasedOnReferenceMutation extends SimpleModelMutation<SimpleMuta
     sourceType: Model,
     referenceTypes: MemberType[],
     options: SimpleMutationOptions,
+    halfEdge?: MutationHalfEdge,
+    traits?: MutationTraits,
   ): MutationInfo {
     if (referenceTypes.length === 0) {
-      return { mutationKey: options.mutationKey + "-no-ref", hasReference: false };
+      return {
+        mutationKey: options.mutationKey + "-no-ref",
+        hasReference: false,
+        isSynthetic: traits?.isSynthetic,
+      };
     }
-    return { mutationKey: options.mutationKey + "-has-ref", hasReference: true };
+    return {
+      mutationKey: options.mutationKey + "-has-ref",
+      hasReference: true,
+      isSynthetic: traits?.isSynthetic,
+    };
   }
 
   mutate() {
@@ -222,3 +234,97 @@ it("allows replacing types", async () => {
     tk.builtin.string,
   );
 });
+
+const nullableUnionCache = new WeakMap<Model, Union>();
+
+class NullableReferencedModelMutation extends SimpleModelMutation<SimpleMutationOptions> {
+  static mutationInfo(
+    engine: SimpleMutationEngine<{ Model: NullableReferencedModelMutation }>,
+    sourceType: Model,
+    referenceTypes: MemberType[],
+    options: SimpleMutationOptions,
+    halfEdge?: MutationHalfEdge,
+    traits?: MutationTraits,
+  ) {
+    if (referenceTypes.length > 0 && referenceTypes[0].kind === "ModelProperty") {
+      let nullableUnion = nullableUnionCache.get(sourceType);
+      if (!nullableUnion) {
+        nullableUnion = engine.$.union.create({
+          name: `${sourceType.name ?? "Anonymous"}NullableUnion`,
+          variants: [
+            engine.$.unionVariant.create({ name: "Value", type: sourceType }),
+            engine.$.unionVariant.create({ name: "Null", type: engine.$.intrinsic.null }),
+          ],
+        });
+        nullableUnionCache.set(sourceType, nullableUnion);
+      }
+
+      return engine.replaceAndMutateReference(referenceTypes[0], nullableUnion, options, halfEdge);
+    }
+
+    return super.mutationInfo(engine, sourceType, referenceTypes, options, halfEdge, traits);
+  }
+}
+
+it(
+  "substitutes referenced models with nullable unions",
+  async () => {
+    const runner = await Tester.createInstance();
+    const { Foo, Bar, program } = await runner.compile(t.code`
+    model ${t.model("Bar")} {
+      value: string;
+    }
+
+    model ${t.model("Foo")} {
+      prop: Bar;
+    }
+  `);
+
+    const tk = $(program);
+    const engine = new SimpleMutationEngine<{ Model: NullableReferencedModelMutation }>(tk, {
+      Model: NullableReferencedModelMutation,
+    });
+
+    const barMutation = engine.mutate(Bar);
+
+    expect(barMutation.kind).toBe("Model");
+    expect(barMutation.mutatedType === Bar).toBe(true);
+
+    const fooMutation = engine.mutate(Foo);
+
+    expect(fooMutation.kind).toBe("Model");
+
+    const propMutation = fooMutation.properties.get("prop")!;
+    const nullableBarUnionMutation =
+      propMutation.type as SimpleUnionMutation<SimpleMutationOptions>;
+
+    expect(nullableBarUnionMutation.kind).toBe("Union");
+    const unionVariants = [...nullableBarUnionMutation.variants.values()];
+    expect(unionVariants).toHaveLength(2);
+
+    const modelVariant = unionVariants[0];
+    expect(modelVariant.type.kind).toBe("Model");
+
+    const modelVariantMutation = modelVariant.type as SimpleModelMutation<SimpleMutationOptions>;
+    expect(modelVariantMutation.mutatedType === Bar).toBe(true);
+
+    const nullVariant = unionVariants[1];
+    expect(nullVariant.type.kind).toBe("Intrinsic");
+
+    const nullMutation = nullVariant.type as SimpleIntrinsicMutation<SimpleMutationOptions>;
+    expect(nullMutation.mutatedType === tk.intrinsic.null).toBe(true);
+
+    const nullableBarUnderlyingType = propMutation.mutatedType.type as Union;
+    expect(nullableBarUnderlyingType.kind).toBe("Union");
+    expect(nullableBarUnderlyingType.variants.size).toBe(2);
+    expect(nullableBarUnderlyingType === nullableBarUnionMutation.mutatedType).toBe(true);
+
+    const [valueUnionVariant, nullUnionVariant] = [...nullableBarUnderlyingType.variants.values()];
+    expect(valueUnionVariant.name).toBe("Value");
+    expect(valueUnionVariant.type.kind).toBe("Model");
+    expect((valueUnionVariant.type as Model).name).toBe("Bar");
+    expect(nullUnionVariant.name).toBe("Null");
+    expect(nullUnionVariant.type === tk.intrinsic.null).toBe(true);
+  },
+  Infinity,
+);

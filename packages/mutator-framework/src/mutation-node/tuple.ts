@@ -26,9 +26,12 @@ export class TupleMutationNode extends MutationNode<Tuple> {
           this.#indexMap[i]--;
         }
       },
-      onTailReplaced: (newTail) => {
-        this.mutate();
-        this.mutatedType.values[this.#indexMap[index]] = newTail.mutatedType;
+      onTailReplaced: (_oldTail, newTail, head, reconnect) => {
+        head.mutate();
+        head.mutatedType.values[this.#indexMap[index]] = newTail.mutatedType;
+        if (reconnect) {
+          head.connectElement(newTail, index);
+        }
       },
     });
   }

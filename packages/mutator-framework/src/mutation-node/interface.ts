@@ -22,12 +22,15 @@ export class InterfaceMutationNode extends MutationNode<Interface> {
       onTailDeletion: (tail) => {
         this.mutatedType.operations.delete(tail.sourceType.name);
       },
-      onTailReplaced: (tail, newTail) => {
+      onTailReplaced: (oldTail, newTail, head, reconnect) => {
         if (newTail.mutatedType.kind !== "Operation") {
           throw new Error("Cannot replace operation with non-operation type");
         }
-        this.mutatedType.operations.delete(tail.sourceType.name);
-        this.mutatedType.operations.set(newTail.mutatedType.name, newTail.mutatedType);
+        head.mutatedType.operations.delete(oldTail.sourceType.name);
+        head.mutatedType.operations.set(newTail.mutatedType.name, newTail.mutatedType);
+        if (reconnect) {
+          head.connectOperation(newTail as MutationNode<Operation>);
+        }
       },
     });
   }

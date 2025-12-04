@@ -1,4 +1,5 @@
 import type { Model, ModelProperty, Type } from "@typespec/compiler";
+import { ModelPropertyMutationNode as SelfType } from "./model-property.js";
 import { HalfEdge } from "./mutation-edge.js";
 import { MutationNode } from "./mutation-node.js";
 import { traceNode } from "./tracer.js";
@@ -22,9 +23,19 @@ export class ModelPropertyMutationNode extends MutationNode<ModelProperty> {
         this.mutate();
         this.mutatedType.type = this.$.intrinsic.any;
       },
-      onTailReplaced: (newTail) => {
-        this.mutate();
-        this.mutatedType.type = newTail.mutatedType;
+      onTailReplaced: (_oldTail, newTail, head, reconnect) => {
+        head.mutate();
+        head.mutatedType.type = newTail.mutatedType;
+        if (reconnect) {
+          (head as ModelPropertyMutationNode).connectType(newTail);
+        }
+      },
+      onHeadReplaced: (_oldHead, newHead, tail) => {
+        // When this edge's head is replaced, have the new head establish
+        // its own connection to the tail so it receives future mutations
+        if (newHead instanceof SelfType) {
+          (newHead as ModelPropertyMutationNode).connectType(tail);
+        }
       },
     });
   }
@@ -43,8 +54,8 @@ export class ModelPropertyMutationNode extends MutationNode<ModelProperty> {
       onTailDeletion: () => {
         this.delete();
       },
-      onTailReplaced: () => {
-        this.delete();
+      onTailReplaced: (_oldTail, _newTail, head, _reconnect) => {
+        head.delete();
       },
     });
   }

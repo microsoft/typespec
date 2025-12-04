@@ -3,27 +3,31 @@ import {
   MutationHalfEdge,
   UnionVariantMutation,
   type MutationNodeForType,
+  type MutationTraits,
 } from "@typespec/mutator-framework";
+import type { Codec } from "./codecs.js";
 import type { HttpCanonicalizationMutations } from "./http-canonicalization-classes.js";
-import type { HttpCanonicalizationInfo, HttpCanonicalizer } from "./http-canonicalization.js";
+import type {
+  CanonicalizationPredicate,
+  HttpCanonicalizationCommon,
+  HttpCanonicalizationInfo,
+  HttpCanonicalizer,
+} from "./http-canonicalization.js";
 import { HttpCanonicalizationOptions } from "./options.js";
 
 /**
  * Canonicalizes a union variant for HTTP.
  */
-export class UnionVariantHttpCanonicalization extends UnionVariantMutation<
-  HttpCanonicalizationOptions,
-  HttpCanonicalizationMutations,
-  HttpCanonicalizer
-> {
-  /**
-   * Canonicalization options.
-   */
-  options: HttpCanonicalizationOptions;
-  /**
-   * Indicates if the variant corresponds to a named declaration. Always false.
-   */
+export class UnionVariantHttpCanonicalization
+  extends UnionVariantMutation<
+    HttpCanonicalizationOptions,
+    HttpCanonicalizationMutations,
+    HttpCanonicalizer
+  >
+  implements HttpCanonicalizationCommon
+{
   isDeclaration: boolean = false;
+  codec: Codec | null = null;
   /**
    * Whether the variant is visible under the current visibility options.
    */
@@ -32,32 +36,36 @@ export class UnionVariantHttpCanonicalization extends UnionVariantMutation<
   #languageMutationNode: MutationNodeForType<UnionVariant>;
   #wireMutationNode: MutationNodeForType<UnionVariant>;
 
-  /**
-   * The language mutation node for this variant.
-   */
   get languageMutationNode() {
     return this.#languageMutationNode;
   }
 
-  /**
-   * The wire mutation node for this variant.
-   */
   get wireMutationNode() {
     return this.#wireMutationNode;
   }
 
-  /**
-   * The possibly mutated language type for this variant.
-   */
   get languageType() {
     return this.#languageMutationNode.mutatedType;
   }
 
-  /**
-   * The possibly mutated wire type for this variant.
-   */
   get wireType() {
     return this.#wireMutationNode.mutatedType;
+  }
+
+  /**
+   * Tests whether the subgraph rooted at this canonicalization uses only
+   * the identity codec (no transformation).
+   */
+  subgraphUsesIdentityCodec(): boolean {
+    return this.engine.subgraphUsesIdentityCodec(this);
+  }
+
+  /**
+   * Tests whether the subgraph rooted at this canonicalization satisfies
+   * the provided predicate.
+   */
+  subgraphMatchesPredicate(predicate: CanonicalizationPredicate): boolean {
+    return this.engine.subgraphMatchesPredicate(this, predicate);
   }
 
   static mutationInfo(
@@ -65,10 +73,13 @@ export class UnionVariantHttpCanonicalization extends UnionVariantMutation<
     sourceType: UnionVariant,
     referenceTypes: MemberType[],
     options: HttpCanonicalizationOptions,
+    halfEdge?: MutationHalfEdge<any, any>,
+    traits?: MutationTraits,
   ): HttpCanonicalizationInfo {
     return {
       mutationKey: options.mutationKey,
       codec: null as any, // Union variants don't need a codec
+      isSynthetic: traits?.isSynthetic,
     };
   }
 
@@ -93,7 +104,7 @@ export class UnionVariantHttpCanonicalization extends UnionVariantMutation<
   }
 
   protected startTypeEdge(): MutationHalfEdge {
-    return new MutationHalfEdge(this, (tail) => {
+    return new MutationHalfEdge("type", this, (tail) => {
       this.#languageMutationNode.connectType(tail.languageMutationNode);
       this.#wireMutationNode.connectType(tail.wireMutationNode);
     });

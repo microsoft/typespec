@@ -2,6 +2,7 @@ import type { Model, ModelProperty, Scalar, Type } from "@typespec/compiler";
 import type { ModelPropertyMutationNode } from "./model-property.js";
 import { HalfEdge } from "./mutation-edge.js";
 import { MutationNode } from "./mutation-node.js";
+import { traceNode } from "./tracer.js";
 
 export interface ModelConnectOptions {
   /** Mutation key for the base model node. Defaults to this node's key. */
@@ -22,12 +23,15 @@ export class ModelMutationNode extends MutationNode<Model> {
         this.mutate();
         this.mutatedType.baseModel = undefined;
       },
-      onTailReplaced: (newTail) => {
+      onTailReplaced: (_oldTail, newTail, head, reconnect) => {
         if (newTail.mutatedType.kind !== "Model") {
           throw new Error("Cannot replace base model with non-model type");
         }
-        this.mutate();
-        this.mutatedType.baseModel = newTail.mutatedType;
+        head.mutate();
+        head.mutatedType.baseModel = newTail.mutatedType;
+        if (reconnect) {
+          head.connectBase(newTail as MutationNode<Model>);
+        }
       },
     });
   }
@@ -42,6 +46,10 @@ export class ModelMutationNode extends MutationNode<Model> {
       },
       onTailMutation: (tail) => {
         this.mutate();
+        traceNode(
+          this,
+          `Model property mutated: ${tail.sourceType.name} -> ${tail.mutatedType.name}`,
+        );
         this.mutatedType.properties.delete(tail.sourceType.name);
         this.mutatedType.properties.set(tail.mutatedType.name, tail.mutatedType);
       },
@@ -49,13 +57,20 @@ export class ModelMutationNode extends MutationNode<Model> {
         this.mutate();
         this.mutatedType.properties.delete(tail.sourceType.name);
       },
-      onTailReplaced: (tail, newTail) => {
+      onTailReplaced: (oldTail, newTail, head, reconnect) => {
         if (newTail.mutatedType.kind !== "ModelProperty") {
           throw new Error("Cannot replace model property with non-model property type");
         }
-        this.mutate();
-        this.mutatedType.properties.delete(tail.sourceType.name);
-        this.mutatedType.properties.set(newTail.mutatedType.name, newTail.mutatedType);
+        head.mutate();
+        traceNode(
+          this,
+          `Model property replaced: ${oldTail.sourceType.name} -> ${newTail.mutatedType.name}`,
+        );
+        head.mutatedType.properties.delete(oldTail.sourceType.name);
+        head.mutatedType.properties.set(newTail.mutatedType.name, newTail.mutatedType);
+        if (reconnect) {
+          head.connectProperty(newTail as unknown as ModelPropertyMutationNode);
+        }
       },
     });
   }
@@ -84,13 +99,16 @@ export class ModelMutationNode extends MutationNode<Model> {
           };
         }
       },
-      onTailReplaced: (newTail) => {
-        this.mutate();
-        if (this.mutatedType.indexer) {
-          this.mutatedType.indexer = {
-            key: this.mutatedType.indexer.key,
+      onTailReplaced: (_oldTail, newTail, head, reconnect) => {
+        head.mutate();
+        if (head.mutatedType.indexer) {
+          head.mutatedType.indexer = {
+            key: head.mutatedType.indexer.key,
             value: newTail.mutatedType,
           };
+        }
+        if (reconnect) {
+          head.connectIndexerValue(newTail);
         }
       },
     });
@@ -116,13 +134,19 @@ export class ModelMutationNode extends MutationNode<Model> {
           };
         }
       },
-      onTailReplaced: (newTail) => {
-        this.mutate();
-        if (this.mutatedType.indexer) {
-          this.mutatedType.indexer = {
+      onTailReplaced: (_oldTail, newTail, head, reconnect) => {
+        if (!head.$.scalar.is(newTail.mutatedType)) {
+          throw new Error("Cannot replace indexer key with non-scalar type");
+        }
+        head.mutate();
+        if (head.mutatedType.indexer) {
+          head.mutatedType.indexer = {
             key: newTail.mutatedType,
-            value: this.mutatedType.indexer.value,
+            value: head.mutatedType.indexer.value,
           };
+        }
+        if (reconnect) {
+          head.connectIndexerKey(newTail as MutationNode<Scalar>);
         }
       },
     });

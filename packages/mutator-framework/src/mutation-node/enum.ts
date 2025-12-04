@@ -19,13 +19,16 @@ export class EnumMutationNode extends MutationNode<Enum> {
         this.mutate();
         this.mutatedType.members.delete(tail.sourceType.name);
       },
-      onTailReplaced: (tail, newTail) => {
+      onTailReplaced: (oldTail, newTail, head, reconnect) => {
         if (newTail.mutatedType.kind !== "EnumMember") {
           throw new Error("Cannot replace enum member with non-enum member type");
         }
-        this.mutate();
-        this.mutatedType.members.delete(tail.sourceType.name);
-        this.mutatedType.members.set(newTail.mutatedType.name, newTail.mutatedType);
+        head.mutate();
+        head.mutatedType.members.delete(oldTail.sourceType.name);
+        head.mutatedType.members.set(newTail.mutatedType.name, newTail.mutatedType);
+        if (reconnect) {
+          head.connectMember(newTail as MutationNode<EnumMember>);
+        }
       },
     });
   }

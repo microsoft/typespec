@@ -15,8 +15,8 @@ export class EnumMemberMutationNode extends MutationNode<EnumMember> {
       onTailDeletion: () => {
         this.delete();
       },
-      onTailReplaced: () => {
-        this.delete();
+      onTailReplaced: (_oldTail, _newTail, head, _reconnect) => {
+        head.delete();
       },
     });
   }

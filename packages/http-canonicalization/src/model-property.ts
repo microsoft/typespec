@@ -1,38 +1,50 @@
 import type { MemberType, ModelProperty } from "@typespec/compiler";
-import { getHeaderFieldOptions, getQueryParamOptions, isMetadata, isVisible } from "@typespec/http";
+import {
+  getHeaderFieldOptions,
+  getPathParamOptions,
+  getQueryParamOptions,
+  isBody,
+  isBodyRoot,
+  isMetadata,
+  isVisible,
+} from "@typespec/http";
 import {
   ModelPropertyMutation,
   MutationHalfEdge,
   type MutationNodeForType,
+  type MutationTraits,
 } from "@typespec/mutator-framework";
-import { Codec } from "./codecs.js";
+import type { Codec, EncodingInfo } from "./codecs.js";
 import type { HttpCanonicalizationMutations } from "./http-canonicalization-classes.js";
-import type { HttpCanonicalizationInfo, HttpCanonicalizer } from "./http-canonicalization.js";
+import type {
+  CanonicalizationPredicate,
+  HttpCanonicalizationCommon,
+  HttpCanonicalizationInfo,
+  HttpCanonicalizer,
+} from "./http-canonicalization.js";
 import { HttpCanonicalizationOptions } from "./options.js";
 
 /**
  * Canonicalizes model properties, tracking request/response metadata and visibility.
  */
-export class ModelPropertyHttpCanonicalization extends ModelPropertyMutation<
-  HttpCanonicalizationMutations,
-  HttpCanonicalizationOptions,
-  HttpCanonicalizer
-> {
-  /**
-   * Indicates if this property corresponds to a named declaration. Always
-   * false.
-   */
-  isDeclaration: boolean = false;
+export class ModelPropertyHttpCanonicalization
+  extends ModelPropertyMutation<
+    HttpCanonicalizationMutations,
+    HttpCanonicalizationOptions,
+    HttpCanonicalizer
+  >
+  implements HttpCanonicalizationCommon
+{
+  isDeclaration = false;
 
   /**
    * Whether the property is visible given the current visibility options.
    */
   isVisible: boolean = false;
 
-  /**
-   * Codec used to transform the property's type between language and wire views.
-   */
   codec: Codec | null = null;
+
+  #encodingInfo: EncodingInfo | null = null;
 
   /**
    * True when the property is a query parameter.
@@ -55,6 +67,11 @@ export class ModelPropertyHttpCanonicalization extends ModelPropertyMutation<
   headerName: string = "";
 
   /**
+   * Whether the property is metadata (i.e. not part of an HTTP body).
+   */
+  isMetadata: boolean = false;
+
+  /**
    * True when the property is a path parameter.
    */
   isPathParameter: boolean = false;
@@ -68,6 +85,16 @@ export class ModelPropertyHttpCanonicalization extends ModelPropertyMutation<
    * Whether structured values should use explode semantics.
    */
   explode: boolean = false;
+
+  /**
+   * Whether this is the property which declares the HTTP content type.
+   */
+  isContentTypeProperty: boolean = false;
+
+  /**
+   * Whether this is the property which declares the HTTP body.
+   */
+  isBodyProperty: boolean = false;
 
   #languageMutationNode: MutationNodeForType<ModelProperty>;
   get languageMutationNode() {
@@ -93,8 +120,30 @@ export class ModelPropertyHttpCanonicalization extends ModelPropertyMutation<
     return this.#wireMutationNode.mutatedType;
   }
 
+  /**
+   * Tests whether the subgraph rooted at this canonicalization uses only
+   * the identity codec (no transformation).
+   */
+  subgraphUsesIdentityCodec(): boolean {
+    return this.engine.subgraphUsesIdentityCodec(this);
+  }
+
+  /**
+   * Tests whether the subgraph rooted at this canonicalization satisfies
+   * the provided predicate.
+   */
+  subgraphMatchesPredicate(predicate: CanonicalizationPredicate): boolean {
+    return this.engine.subgraphMatchesPredicate(this, predicate);
+  }
+
+  /**
+   * Whether the type of this property is a nullable union. For the JSON content
+   * type, nullable properties are optional on the wire.
+   */
+  typeIsNullable: boolean = false;
+
   protected startTypeEdge() {
-    return new MutationHalfEdge(this, (tail) => {
+    return new MutationHalfEdge("type", this, (tail) => {
       this.#languageMutationNode.connectType(tail.languageMutationNode);
       this.#wireMutationNode.connectType(tail.wireMutationNode);
     });
@@ -105,10 +154,15 @@ export class ModelPropertyHttpCanonicalization extends ModelPropertyMutation<
     sourceType: ModelProperty,
     referenceTypes: MemberType[],
     options: HttpCanonicalizationOptions,
+    halfEdge?: MutationHalfEdge<any, any>,
+    traits?: MutationTraits,
   ): HttpCanonicalizationInfo {
+    const encodingInfo = engine.codecs.encode(sourceType, referenceTypes);
+
     return {
       mutationKey: options.mutationKey,
-      codec: null as any, // Model properties don't need a codec directly
+      encodingInfo,
+      isSynthetic: traits?.isSynthetic,
     };
   }
 
@@ -144,7 +198,7 @@ export class ModelPropertyHttpCanonicalization extends ModelPropertyMutation<
         this.queryParameterName = queryInfo.name;
         this.explode = !!queryInfo.explode;
       } else {
-        const pathInfo = getQueryParamOptions(this.engine.$.program, this.sourceType);
+        const pathInfo = getPathParamOptions(this.engine.$.program, this.sourceType);
         if (pathInfo) {
           this.isPathParameter = true;
           this.pathParameterName = pathInfo.name;
@@ -152,6 +206,26 @@ export class ModelPropertyHttpCanonicalization extends ModelPropertyMutation<
         }
       }
     }
+
+    this.isMetadata = isMetadata(this.engine.$.program, this.sourceType);
+    this.isBodyProperty =
+      isBody(this.engine.$.program, this.sourceType) ||
+      isBodyRoot(this.engine.$.program, this.sourceType);
+
+    this.isContentTypeProperty = this.isHeader && this.headerName.toLowerCase() === "content-type";
+
+    if (
+      this.engine.$.union.is(this.sourceType.type) &&
+      this.options.contentType === "application/json"
+    ) {
+      const variants = [...this.sourceType.type.variants.values()];
+      if (variants.some((v) => v.type === this.engine.$.intrinsic.null)) {
+        this.typeIsNullable = true;
+      }
+    }
+
+    this.codec = info.encodingInfo?.codec ?? null;
+    this.#encodingInfo = info.encodingInfo ?? null;
   }
 
   /**
@@ -164,7 +238,7 @@ export class ModelPropertyHttpCanonicalization extends ModelPropertyMutation<
       return;
     }
 
-    if (isMetadata(this.engine.$.program, this.sourceType)) {
+    if (this.isMetadata) {
       this.#wireMutationNode.delete();
     }
 
@@ -181,6 +255,27 @@ export class ModelPropertyHttpCanonicalization extends ModelPropertyMutation<
               location: `path${this.explode ? "-explode" : ""}`,
             })
           : this.options.with({ location: "body" });
+
+    if (this.typeIsNullable) {
+      // nullable things often mean optional things, I guess.
+      this.#wireMutationNode.mutate((prop) => {
+        prop.optional = true;
+      });
+    }
+
+    if (this.#encodingInfo) {
+      const { languageType, wireType } = this.#encodingInfo;
+      if (languageType !== this.sourceType) {
+        this.#languageMutationNode = this.#languageMutationNode.replace(
+          languageType as ModelProperty,
+        ) as MutationNodeForType<ModelProperty>;
+      }
+      if (wireType !== this.sourceType) {
+        this.#wireMutationNode = this.#wireMutationNode.replace(
+          wireType as ModelProperty,
+        ) as MutationNodeForType<ModelProperty>;
+      }
+    }
 
     super.mutate(newOptions);
   }

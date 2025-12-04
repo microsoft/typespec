@@ -1,7 +1,7 @@
 import type { MemberType, Type } from "@typespec/compiler";
 import type { Typekit } from "@typespec/compiler/typekit";
 import { mutationNodeFor, type MutationNodeForType } from "../mutation-node/factory.js";
-import type { MutationNode } from "../mutation-node/mutation-node.js";
+import { MutationNode, type MutationNodeOptions } from "../mutation-node/mutation-node.js";
 import { InterfaceMutation } from "./interface.js";
 import { IntrinsicMutation } from "./intrinsic.js";
 import { LiteralMutation } from "./literal.js";
@@ -13,6 +13,13 @@ import { OperationMutation } from "./operation.js";
 import { ScalarMutation } from "./scalar.js";
 import { UnionVariantMutation } from "./union-variant.js";
 import { UnionMutation } from "./union.js";
+
+interface StronglyConnectedMutationsEntry {
+  components: Mutation<any, any, any, any>[][];
+  componentAdjacency: Map<number, Set<number>>;
+  mutationToComponent: Map<Mutation<any, any, any, any>, number>;
+  mutations: Set<Mutation<any, any, any, any>>;
+}
 
 export type MutationRegistry = Record<Type["kind"], Mutation<Type, any, any>>;
 
@@ -71,6 +78,10 @@ export interface MutationContext<
 > extends InitialMutationContext<TSourceType, TCustomMutations, TOptions, TEngine>,
     CreateMutationContext {}
 
+export interface MutationTraits {
+  isSynthetic?: boolean;
+}
+
 /**
  * Orchestrates type mutations using custom and default mutation classes.
  */
@@ -81,6 +92,14 @@ export class MutationEngine<TCustomMutations extends CustomMutationClasses> {
   // Map of Type -> (Map of options.cacheKey() -> Mutation)
   #mutationCache = new Map<Type, Map<string, MutationFor<TCustomMutations>>>();
   #seenMutationNodes = new WeakMap<Type, Map<string, MutationNode<Type>>>();
+  #mutationAdjacency = new WeakMap<
+    Mutation<any, any, any, any>,
+    Set<Mutation<any, any, any, any>>
+  >();
+  #mutationStronglyConnectedComponents = new WeakMap<
+    Mutation<any, any, any, any>,
+    StronglyConnectedMutationsEntry
+  >();
   #mutatorClasses: ConstructorsFor<MutationRegistry>;
 
   /**
@@ -111,9 +130,12 @@ export class MutationEngine<TCustomMutations extends CustomMutationClasses> {
    * @param mutationKey - Cache key for the node
    * @returns Mutation node for the type
    */
-  getMutationNode<T extends Type>(type: T, mutationKey: string = ""): MutationNodeForType<T> {
+  getMutationNode<T extends Type>(
+    type: T,
+    options?: MutationNodeOptions | string,
+  ): MutationNodeForType<T> {
     let keyMap = this.#seenMutationNodes.get(type);
-
+    const mutationKey = typeof options === "string" ? options : (options?.mutationKey ?? "");
     if (keyMap) {
       const existingNode = keyMap.get(mutationKey);
       if (existingNode) {
@@ -124,7 +146,7 @@ export class MutationEngine<TCustomMutations extends CustomMutationClasses> {
       this.#seenMutationNodes.set(type, keyMap);
     }
 
-    const node = mutationNodeFor(this, type, mutationKey);
+    const node = mutationNodeFor(this, type, options);
     keyMap.set(mutationKey, node);
     return node;
   }
@@ -163,7 +185,10 @@ export class MutationEngine<TCustomMutations extends CustomMutationClasses> {
     halfEdge?: MutationHalfEdge,
   ) {
     const { references } = resolveReference(reference);
-    return this.mutateWorker(newType, references, options, halfEdge);
+    const mut = this.mutateWorker(newType, references, options, halfEdge, {
+      isSynthetic: true,
+    });
+    return mut;
   }
 
   /**
@@ -174,6 +199,7 @@ export class MutationEngine<TCustomMutations extends CustomMutationClasses> {
     references: MemberType[],
     options: MutationOptions,
     halfEdge?: MutationHalfEdge,
+    traits?: MutationTraits,
   ): MutationFor<TCustomMutations, TType["kind"]> {
     // initialize cache
     if (!this.#mutationCache.has(type)) {
@@ -186,9 +212,21 @@ export class MutationEngine<TCustomMutations extends CustomMutationClasses> {
       throw new Error("No mutator registered for type kind: " + type.kind);
     }
 
-    const info = (mutatorClass as any).mutationInfo(this, type, references, options);
-    const key = info.mutationKey;
+    const info = (mutatorClass as any).mutationInfo(
+      this,
+      type,
+      references,
+      options,
+      halfEdge,
+      traits,
+    );
+    if (info instanceof Mutation) {
+      // Already a mutation, return it directly.
+      // Type change mutations break types badly, but hopefully in general things "just work"?
+      return info as any;
+    }
 
+    const key = info.mutationKey;
     if (byType.has(key)) {
       const existing = byType.get(key)! as any;
       halfEdge?.setTail(existing);
@@ -220,8 +258,9 @@ export class MutationEngine<TCustomMutations extends CustomMutationClasses> {
     type: TType,
     options: MutationOptions = new MutationOptions(),
     halfEdge?: MutationHalfEdge,
+    traits?: MutationTraits,
   ): MutationFor<TCustomMutations, TType["kind"]> {
-    return this.mutateWorker(type, [], options, halfEdge);
+    return this.mutateWorker(type, [], options, halfEdge, traits);
   }
 
   /**
@@ -235,10 +274,169 @@ export class MutationEngine<TCustomMutations extends CustomMutationClasses> {
     reference: MemberType,
     options: MutationOptions = new MutationOptions(),
     halfEdge?: MutationHalfEdge,
+    traits?: MutationTraits,
   ): MutationFor<TCustomMutations> {
     const { referencedType, references } = resolveReference(reference);
 
-    return this.mutateWorker(referencedType, references, options, halfEdge) as any;
+    return this.mutateWorker(referencedType, references, options, halfEdge, traits) as any;
+  }
+
+  registerMutationEdge(head: Mutation<any, any, any, any>, tail: Mutation<any, any, any, any>) {
+    let neighbors = this.#mutationAdjacency.get(head);
+    if (!neighbors) {
+      neighbors = new Set();
+      this.#mutationAdjacency.set(head, neighbors);
+    }
+    if (neighbors.has(tail)) {
+      return;
+    }
+    neighbors.add(tail);
+    this.#onMutationGraphChanged(head);
+  }
+
+  getMutationStronglyConnectedComponents(
+    root: Mutation<any, any, any, any>,
+  ): Mutation<any, any, any, any>[][] {
+    let entry = this.#mutationStronglyConnectedComponents.get(root);
+    if (!entry) {
+      entry = this.#buildMutationStronglyConnectedComponentsEntry(root);
+    }
+    return this.#collectMutationComponentsFromEntry(entry, root);
+  }
+
+  #onMutationGraphChanged(mutation: Mutation<any, any, any, any>) {
+    const entry = this.#mutationStronglyConnectedComponents.get(mutation);
+    if (entry) {
+      this.#invalidateMutationStronglyConnectedComponents(entry);
+    }
+  }
+
+  #buildMutationStronglyConnectedComponentsEntry(
+    root: Mutation<any, any, any, any>,
+  ): StronglyConnectedMutationsEntry {
+    const indexMap = new Map<Mutation<any, any, any, any>, number>();
+    const lowlinkMap = new Map<Mutation<any, any, any, any>, number>();
+    const stack: Mutation<any, any, any, any>[] = [];
+    const onStack = new Set<Mutation<any, any, any, any>>();
+    let index = 0;
+    const components: Mutation<any, any, any, any>[][] = [];
+    const mutationToComponent = new Map<Mutation<any, any, any, any>, number>();
+
+    const strongConnect = (mutation: Mutation<any, any, any, any>) => {
+      indexMap.set(mutation, index);
+      lowlinkMap.set(mutation, index);
+      index++;
+      stack.push(mutation);
+      onStack.add(mutation);
+
+      const neighbors = this.#mutationAdjacency.get(mutation);
+      if (neighbors) {
+        for (const neighbor of neighbors) {
+          if (!indexMap.has(neighbor)) {
+            strongConnect(neighbor);
+            lowlinkMap.set(
+              mutation,
+              Math.min(lowlinkMap.get(mutation)!, lowlinkMap.get(neighbor)!),
+            );
+          } else if (onStack.has(neighbor)) {
+            lowlinkMap.set(mutation, Math.min(lowlinkMap.get(mutation)!, indexMap.get(neighbor)!));
+          }
+        }
+      }
+
+      if (lowlinkMap.get(mutation) === indexMap.get(mutation)) {
+        const component: Mutation<any, any, any, any>[] = [];
+        let member: Mutation<any, any, any, any>;
+        do {
+          member = stack.pop()!;
+          onStack.delete(member);
+          component.push(member);
+        } while (member !== mutation);
+        const componentIndex = components.length;
+        components.push(component);
+        for (const memberMutation of component) {
+          mutationToComponent.set(memberMutation, componentIndex);
+        }
+      }
+    };
+
+    strongConnect(root);
+
+    const componentAdjacency = new Map<number, Set<number>>();
+    for (let i = 0; i < components.length; i++) {
+      componentAdjacency.set(i, new Set());
+    }
+
+    for (const [mutation, componentIndex] of mutationToComponent.entries()) {
+      const neighbors = this.#mutationAdjacency.get(mutation);
+      if (!neighbors) continue;
+      for (const neighbor of neighbors) {
+        const neighborComponent = mutationToComponent.get(neighbor);
+        if (neighborComponent === undefined || neighborComponent === componentIndex) {
+          continue;
+        }
+        componentAdjacency.get(componentIndex)!.add(neighborComponent);
+      }
+    }
+
+    const entry: StronglyConnectedMutationsEntry = {
+      components,
+      componentAdjacency,
+      mutationToComponent,
+      mutations: new Set(mutationToComponent.keys()),
+    };
+
+    for (const mutation of entry.mutations) {
+      const previous = this.#mutationStronglyConnectedComponents.get(mutation);
+      if (previous && previous !== entry) {
+        previous.mutations.delete(mutation);
+      }
+      this.#mutationStronglyConnectedComponents.set(mutation, entry);
+    }
+
+    return entry;
+  }
+
+  #collectMutationComponentsFromEntry(
+    entry: StronglyConnectedMutationsEntry,
+    root: Mutation<any, any, any, any>,
+  ): Mutation<any, any, any, any>[][] {
+    const start = entry.mutationToComponent.get(root);
+    if (start === undefined) {
+      return [];
+    }
+
+    const result: Mutation<any, any, any, any>[][] = [];
+    const visited = new Set<number>();
+    const queue: number[] = [start];
+    let cursor = 0;
+
+    while (cursor < queue.length) {
+      const componentIndex = queue[cursor++];
+      if (visited.has(componentIndex)) {
+        continue;
+      }
+      visited.add(componentIndex);
+      result.push(entry.components[componentIndex]);
+      const neighbors = entry.componentAdjacency.get(componentIndex);
+      if (!neighbors) continue;
+      for (const next of neighbors) {
+        if (!visited.has(next)) {
+          queue.push(next);
+        }
+      }
+    }
+
+    return result;
+  }
+
+  #invalidateMutationStronglyConnectedComponents(entry: StronglyConnectedMutationsEntry) {
+    for (const mutation of entry.mutations) {
+      const cachedEntry = this.#mutationStronglyConnectedComponents.get(mutation);
+      if (cachedEntry === entry) {
+        this.#mutationStronglyConnectedComponents.delete(mutation);
+      }
+    }
   }
 }
 
@@ -272,15 +470,18 @@ export class MutationHalfEdge<
 > {
   head: THead;
   tail: TTail | undefined;
+  readonly kind: string;
   #onTailCreation: (tail: TTail) => void;
 
-  constructor(head: THead, onTailCreation: (tail: TTail) => void) {
+  constructor(kind: string, head: THead, onTailCreation: (tail: TTail) => void) {
+    this.kind = kind;
     this.head = head;
     this.#onTailCreation = onTailCreation;
   }
 
   setTail(tail: TTail) {
     this.tail = tail;
+    this.head.mutationEngine.registerMutationEdge(this.head, tail);
     this.#onTailCreation(tail);
   }
 }

@@ -1,36 +1,59 @@
 import type { IntrinsicType, MemberType } from "@typespec/compiler";
-import { IntrinsicMutation, type MutationNodeForType } from "@typespec/mutator-framework";
+import {
+  IntrinsicMutation,
+  type MutationHalfEdge,
+  type MutationNodeForType,
+  type MutationTraits,
+} from "@typespec/mutator-framework";
+import type { Codec } from "./codecs.js";
 import type { HttpCanonicalizationMutations } from "./http-canonicalization-classes.js";
-import { HttpCanonicalizer, type HttpCanonicalizationInfo } from "./http-canonicalization.js";
+import {
+  HttpCanonicalizer,
+  type CanonicalizationPredicate,
+  type HttpCanonicalizationCommon,
+  type HttpCanonicalizationInfo,
+} from "./http-canonicalization.js";
 import { HttpCanonicalizationOptions } from "./options.js";
 
 /**
  * Canonicalizes intrinsic types for HTTP.
  */
-export class IntrinsicHttpCanonicalization extends IntrinsicMutation<
-  HttpCanonicalizationOptions,
-  HttpCanonicalizationMutations,
-  HttpCanonicalizer
-> {
-  /**
-   * Indicates if this intrinsic represents a named declaration. Always false.
-   */
-  isDeclaration: boolean = false;
+export class IntrinsicHttpCanonicalization
+  extends IntrinsicMutation<
+    HttpCanonicalizationOptions,
+    HttpCanonicalizationMutations,
+    HttpCanonicalizer
+  >
+  implements HttpCanonicalizationCommon
+{
+  isDeclaration = false;
+  codec: Codec | null = null;
+
   #languageMutationNode: MutationNodeForType<IntrinsicType>;
   #wireMutationNode: MutationNodeForType<IntrinsicType>;
 
-  /**
-   * The language mutation node for this intrinsic.
-   */
   get languageMutationNode() {
     return this.#languageMutationNode;
   }
 
-  /**
-   * The wire mutation node for this intrinsic.
-   */
   get wireMutationNode() {
     return this.#wireMutationNode;
+  }
+
+  /**
+   * Tests whether the subgraph rooted at this canonicalization uses only
+   * the identity codec (no transformation).
+   */
+  subgraphUsesIdentityCodec(): boolean {
+    return this.engine.subgraphUsesIdentityCodec(this);
+  }
+
+  /**
+   * Tests whether the subgraph rooted at this canonicalization satisfies
+   * the provided predicate.
+   */
+  subgraphMatchesPredicate(predicate: CanonicalizationPredicate): boolean {
+    return this.engine.subgraphMatchesPredicate(this, predicate);
   }
 
   static mutationInfo(
@@ -38,10 +61,13 @@ export class IntrinsicHttpCanonicalization extends IntrinsicMutation<
     sourceType: IntrinsicType,
     referenceTypes: MemberType[],
     options: HttpCanonicalizationOptions,
+    halfEdge?: MutationHalfEdge<any, any>,
+    traits?: MutationTraits,
   ): HttpCanonicalizationInfo {
     return {
       mutationKey: options.mutationKey,
       codec: null as any, // Intrinsics don't need a codec
+      isSynthetic: traits?.isSynthetic,
     };
   }
 

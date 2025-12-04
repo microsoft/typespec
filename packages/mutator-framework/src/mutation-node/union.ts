@@ -19,13 +19,16 @@ export class UnionMutationNode extends MutationNode<Union> {
         this.mutate();
         this.mutatedType.variants.delete(tail.sourceType.name);
       },
-      onTailReplaced: (tail, newTail) => {
+      onTailReplaced: (oldTail, newTail, head, reconnect) => {
         if (newTail.mutatedType.kind !== "UnionVariant") {
           throw new Error("Cannot replace union variant with non-union variant type");
         }
-        this.mutate();
-        this.mutatedType.variants.delete(tail.sourceType.name);
-        this.mutatedType.variants.set(newTail.mutatedType.name, newTail.mutatedType);
+        head.mutate();
+        head.mutatedType.variants.delete(oldTail.sourceType.name);
+        head.mutatedType.variants.set(newTail.mutatedType.name, newTail.mutatedType);
+        if (reconnect) {
+          head.connectVariant(newTail as MutationNode<UnionVariant>);
+        }
       },
     });
   }

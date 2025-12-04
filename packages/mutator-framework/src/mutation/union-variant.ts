@@ -27,7 +27,7 @@ export abstract class UnionVariantMutation<
   }
 
   mutate(): void {
-    this.type = this.engine.mutate(this.sourceType.type, this.options, this.startTypeEdge());
+    this.type = this.engine.mutateReference(this.sourceType, this.options, this.startTypeEdge());
   }
 
   protected abstract startTypeEdge(): MutationHalfEdge;

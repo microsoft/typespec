@@ -1,8 +1,15 @@
 import type { MemberType, Type } from "@typespec/compiler";
-import type { CustomMutationClasses, MutationEngine, MutationOptions } from "./mutation-engine.js";
+import type {
+  CustomMutationClasses,
+  MutationEngine,
+  MutationHalfEdge,
+  MutationOptions,
+  MutationTraits,
+} from "./mutation-engine.js";
 
 export interface MutationInfo extends Record<string, unknown> {
   mutationKey: string;
+  isSynthetic?: boolean;
 }
 
 export abstract class Mutation<
@@ -36,14 +43,21 @@ export abstract class Mutation<
     this.mutationInfo = info;
   }
 
+  get mutationEngine(): TEngine {
+    return this.engine;
+  }
+
   static mutationInfo(
     engine: MutationEngine<any>,
     sourceType: Type,
     referenceTypes: MemberType[],
     options: MutationOptions,
-  ): MutationInfo {
+    halfEdge?: MutationHalfEdge,
+    traits?: MutationTraits,
+  ): MutationInfo | Mutation<any, any, any, any> {
     return {
       mutationKey: options.mutationKey,
+      isSynthetic: traits?.isSynthetic,
     };
   }
   abstract mutate(): void;

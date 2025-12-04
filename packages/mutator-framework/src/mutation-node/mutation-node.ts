@@ -25,6 +25,11 @@ import { traceNode } from "./tracer.js";
 
 let nextId = 0;
 
+export interface MutationNodeOptions {
+  mutationKey?: string;
+  isSynthetic?: boolean;
+}
+
 export abstract class MutationNode<T extends Type> {
   abstract readonly kind: string;
 
@@ -32,10 +37,14 @@ export abstract class MutationNode<T extends Type> {
   sourceType: T;
   mutatedType: T;
   isMutated: boolean = false;
+  isSynthetic: boolean = false;
   isDeleted: boolean = false;
   isReplaced: boolean = false;
   replacementNode: MutationNodeForType<Type> | null = null;
+  /** If this node is a replacement for another node, this is the node it replaced */
+  replacedNode: MutationNodeForType<Type> | null = null;
   inEdges: Set<MutationEdge<Type, T>> = new Set();
+  outEdges: Set<MutationEdge<T, Type>> = new Set();
   engine: MutationEngine<any>;
   mutationKey: string;
   $: Typekit;
@@ -43,12 +52,22 @@ export abstract class MutationNode<T extends Type> {
 
   #whenMutatedCallbacks: ((mutatedType: Type | null) => void)[] = [];
 
-  constructor(subgraph: MutationEngine<any>, sourceNode: T, mutationKey: string = "") {
+  constructor(
+    subgraph: MutationEngine<any>,
+    sourceNode: T,
+    options: MutationNodeOptions | string = "",
+  ) {
     this.engine = subgraph;
     this.$ = this.engine.$;
     this.sourceType = sourceNode;
     this.mutatedType = sourceNode;
-    this.mutationKey = mutationKey;
+    if (typeof options === "string") {
+      this.mutationKey = options;
+    } else {
+      this.mutationKey = options.mutationKey ?? "";
+      this.isSynthetic = options.isSynthetic ?? false;
+    }
+
     traceNode(this, "Created.");
   }
 
@@ -60,16 +79,21 @@ export abstract class MutationNode<T extends Type> {
     this.inEdges.delete(edge);
   }
 
+  addOutEdge(edge: MutationEdge<T, Type>) {
+    this.outEdges.add(edge);
+  }
+
+  deleteOutEdge(edge: MutationEdge<T, Type>) {
+    this.outEdges.delete(edge);
+  }
+
   whenMutated(cb: (mutatedType: T | null) => void) {
     this.#whenMutatedCallbacks.push(cb as any);
   }
 
   mutate(initializeMutation?: (type: T) => void) {
-    if (this.isDeleted || this.isReplaced || this.isMutated) {
-      traceNode(
-        this,
-        `Already deleted/replaced/mutated, skipping mutation: ${this.isDeleted}, ${this.isReplaced}, ${this.isMutated}`,
-      );
+    if (this.isDeleted || this.isReplaced) {
+      traceNode(this, `Already deleted/replaced, skipping mutation.`);
       return;
     }
 
@@ -112,8 +136,26 @@ export abstract class MutationNode<T extends Type> {
     }
   }
 
+  /**
+   * Replace this node with a new type. This creates a new mutation node for the
+   * replacement type and updates all edges to point to the new node.
+   *
+   * When a node is replaced:
+   * 1. A new mutation node is created for the replacement type
+   * 2. The original node is marked as replaced and will ignore future mutations
+   * 3. All out-edges (where this node is the head) are notified via `headReplaced`,
+   *    which marks the edge so its callbacks no longer fire for the original node.
+   *    The edge's `onHeadReplaced` callback is invoked, allowing the replacement
+   *    node to establish its own connections to the tail nodes if needed.
+   * 4. All in-edges (where this node is the tail) are notified via `tailReplaced`,
+   *    which updates the edge to point to the replacement node and invokes the
+   *    head's `onTailReplaced` callback.
+   *
+   * @param newType - The type to replace this node with
+   * @returns The new mutation node for the replacement type
+   */
   replace(newType: Type) {
-    if (this.isMutated || this.isDeleted || this.isReplaced) {
+    if (this.isReplaced) {
       return this;
     }
 
@@ -123,12 +165,19 @@ export abstract class MutationNode<T extends Type> {
 
     this.isReplaced = true;
     this.replacementNode = mutationNodeFor(this.engine, newType, this.mutationKey);
+    // Set the back-reference so the replacement node knows what it replaced
+    this.replacementNode.replacedNode = this as unknown as MutationNodeForType<Type>;
     // we don't need to do the clone stuff with this node, but we mark it as
     // mutated because we don't want to allow further mutations on it.
     this.replacementNode.isMutated = true;
 
     this.engine.replaceMutationNode(this, this.replacementNode);
+    traceNode(this, "Calling head replaced");
+    for (const edge of this.outEdges) {
+      edge.headReplaced(this.replacementNode);
+    }
 
+    traceNode(this, "Calling tail replaced");
     for (const edge of this.inEdges) {
       edge.tailReplaced(this.replacementNode);
     }

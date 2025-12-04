@@ -1,3 +1,4 @@
+import type { Model } from "@typespec/compiler";
 import { expectTypeEquals, t, type TesterInstance } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/typekit";
 import { beforeEach, expect, it } from "vitest";
@@ -127,4 +128,87 @@ it("can connect to an already-replaced node", async () => {
   propNode.connectType(barNode);
   expect(propNode.isMutated).toBe(true);
   expectTypeEquals(propNode.mutatedType.type, $(program).builtin.int16);
+});
+
+it("handles replacing multiple properties", async () => {
+  const { Foo, one, two, program } = await runner.compile(t.code`
+    model ${t.model("Foo")} {
+      ${t.modelProperty("one")}: string;
+      ${t.modelProperty("two")}: string;
+    }
+  `);
+
+  const engine = getEngine(program);
+  const fooNode = engine.getMutationNode(Foo);
+  const oneNode = engine.getMutationNode(one);
+  const twoNode = engine.getMutationNode(two);
+  fooNode.connectProperty(oneNode);
+  fooNode.connectProperty(twoNode);
+
+  const r1 = $(program).modelProperty.create({
+    name: "replacement",
+    type: $(program).builtin.string,
+  });
+  const r2 = $(program).modelProperty.create({
+    name: "replacement2",
+    type: $(program).builtin.string,
+  });
+  oneNode.replace(r1);
+  twoNode.replace(r2);
+
+  expect(fooNode.mutatedType.properties.size).toBe(2);
+  expect(fooNode.mutatedType.properties.get("replacement")).toBeDefined();
+  expect(fooNode.mutatedType.properties.get("replacement2")).toBeDefined();
+});
+
+it("handles replacing properties and mutating their types", async () => {
+  const { Foo, Bar, one, program } = await runner.compile(t.code`
+    model ${t.model("Foo")} {
+      ${t.modelProperty("one")}: Bar;
+    }
+
+    model ${t.model("Bar")} {}
+  `);
+
+  const engine = getEngine(program);
+  const fooNode = engine.getMutationNode(Foo);
+  const oneNode = engine.getMutationNode(one);
+  const barNode = engine.getMutationNode(Bar);
+  fooNode.connectProperty(oneNode);
+  oneNode.connectType(barNode);
+
+  const r1 = $(program).modelProperty.create({
+    name: "replacement",
+    type: Bar,
+  });
+  oneNode.replace(r1);
+
+  barNode.mutate();
+  barNode.mutatedType.name = "Rebar";
+
+  expect(fooNode.mutatedType.properties.size).toBe(1);
+  expect(fooNode.mutatedType.properties.get("replacement")).toBeDefined();
+  expect((fooNode.mutatedType.properties.get("replacement")!.type as Model).name).toBe("Rebar");
+});
+
+it("handles replacing properties that have already been mutated", async () => {
+  const { Foo, one, program } = await runner.compile(t.code`
+    model ${t.model("Foo")} {
+      ${t.modelProperty("one")}: string;
+    }
+  `);
+
+  const engine = getEngine(program);
+  const fooNode = engine.getMutationNode(Foo);
+  const oneNode = engine.getMutationNode(one);
+  const stringNode = engine.getMutationNode($(program).builtin.string);
+  oneNode.connectType(stringNode);
+  const r1 = $(program).modelProperty.create({
+    name: "replacement",
+    type: $(program).builtin.string,
+  });
+  const newNode = oneNode.replace(r1);
+  fooNode.connectProperty(newNode as any);
+  expect(fooNode.mutatedType.properties.size).toBe(1);
+  expect(fooNode.mutatedType.properties.get("replacement")).toBeDefined();
 });

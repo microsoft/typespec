@@ -27,7 +27,8 @@ export abstract class UnionMutation<
   }
 
   protected mutateVariants() {
-    for (const variant of this.sourceType.variants.values()) {
+    const variants = [...this.sourceType.variants.values()];
+    for (const variant of variants) {
       this.variants.set(
         variant.name,
         this.engine.mutate(variant, this.options, this.startVariantEdge()),

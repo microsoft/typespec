@@ -20,9 +20,12 @@ export class UnionVariantMutationNode extends MutationNode<UnionVariant> {
         this.mutate();
         this.mutatedType.type = this.$.intrinsic.any;
       },
-      onTailReplaced: (newTail) => {
-        this.mutate();
-        this.mutatedType.type = newTail.mutatedType;
+      onTailReplaced: (_oldTail, newTail, head, reconnect) => {
+        head.mutate();
+        head.mutatedType.type = newTail.mutatedType;
+        if (reconnect) {
+          head.connectType(newTail);
+        }
       },
     });
   }
@@ -40,8 +43,8 @@ export class UnionVariantMutationNode extends MutationNode<UnionVariant> {
       onTailDeletion: () => {
         this.delete();
       },
-      onTailReplaced: () => {
-        this.delete();
+      onTailReplaced: (_oldTail, _newTail, head, _reconnect) => {
+        head.delete();
       },
     });
   }

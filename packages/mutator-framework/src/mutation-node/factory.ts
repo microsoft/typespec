@@ -23,6 +23,7 @@ import { IntrinsicMutationNode } from "./intrinsic.js";
 import { LiteralMutationNode } from "./literal.js";
 import { ModelPropertyMutationNode } from "./model-property.js";
 import { ModelMutationNode } from "./model.js";
+import type { MutationNodeOptions } from "./mutation-node.js";
 import { OperationMutationNode } from "./operation.js";
 import { ScalarMutationNode } from "./scalar.js";
 import { TupleMutationNode } from "./tuple.js";
@@ -32,47 +33,39 @@ import { UnionMutationNode } from "./union.js";
 export function mutationNodeFor<T extends Type>(
   engine: MutationEngine<any>,
   sourceType: T,
-  mutationKey?: string,
+  options?: MutationNodeOptions | string,
 ): MutationNodeForType<T> {
   switch (sourceType.kind) {
     case "Operation":
-      return new OperationMutationNode(engine, sourceType, mutationKey) as MutationNodeForType<T>;
+      return new OperationMutationNode(engine, sourceType, options) as MutationNodeForType<T>;
     case "Interface":
-      return new InterfaceMutationNode(engine, sourceType, mutationKey) as MutationNodeForType<T>;
+      return new InterfaceMutationNode(engine, sourceType, options) as MutationNodeForType<T>;
     case "Model":
-      return new ModelMutationNode(engine, sourceType, mutationKey) as MutationNodeForType<T>;
+      return new ModelMutationNode(engine, sourceType, options) as MutationNodeForType<T>;
     case "ModelProperty":
-      return new ModelPropertyMutationNode(
-        engine,
-        sourceType,
-        mutationKey,
-      ) as MutationNodeForType<T>;
+      return new ModelPropertyMutationNode(engine, sourceType, options) as MutationNodeForType<T>;
     case "Scalar":
-      return new ScalarMutationNode(engine, sourceType, mutationKey) as MutationNodeForType<T>;
+      return new ScalarMutationNode(engine, sourceType, options) as MutationNodeForType<T>;
     case "Tuple":
-      return new TupleMutationNode(engine, sourceType, mutationKey) as MutationNodeForType<T>;
+      return new TupleMutationNode(engine, sourceType, options) as MutationNodeForType<T>;
     case "Union":
-      return new UnionMutationNode(engine, sourceType, mutationKey) as MutationNodeForType<T>;
+      return new UnionMutationNode(engine, sourceType, options) as MutationNodeForType<T>;
     case "UnionVariant":
-      return new UnionVariantMutationNode(
-        engine,
-        sourceType,
-        mutationKey,
-      ) as MutationNodeForType<T>;
+      return new UnionVariantMutationNode(engine, sourceType, options) as MutationNodeForType<T>;
     case "Enum":
-      return new EnumMutationNode(engine, sourceType, mutationKey) as MutationNodeForType<T>;
+      return new EnumMutationNode(engine, sourceType, options) as MutationNodeForType<T>;
     case "EnumMember":
-      return new EnumMemberMutationNode(engine, sourceType, mutationKey) as MutationNodeForType<T>;
+      return new EnumMemberMutationNode(engine, sourceType, options) as MutationNodeForType<T>;
     case "String":
     case "Number":
     case "Boolean":
       return new LiteralMutationNode(
         engine,
         sourceType as StringLiteral | NumericLiteral | BooleanLiteral,
-        mutationKey,
+        options,
       ) as MutationNodeForType<T>;
     case "Intrinsic":
-      return new IntrinsicMutationNode(engine, sourceType, mutationKey) as MutationNodeForType<T>;
+      return new IntrinsicMutationNode(engine, sourceType, options) as MutationNodeForType<T>;
     default:
       throw new Error("Unsupported type kind: " + sourceType.kind);
   }

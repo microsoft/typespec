@@ -23,11 +23,14 @@ export class OperationMutationNode extends MutationNode<Operation> {
           properties: {},
         });
       },
-      onTailReplaced: (newTail) => {
+      onTailReplaced: (_oldTail, newTail, head, reconnect) => {
         if (newTail.mutatedType.kind !== "Model") {
           throw new Error("Cannot replace parameters with non-model type");
         }
-        this.mutatedType.parameters = newTail.mutatedType;
+        head.mutatedType.parameters = newTail.mutatedType;
+        if (reconnect) {
+          head.connectParameters(newTail as MutationNode<Model>);
+        }
       },
     });
   }
@@ -44,8 +47,11 @@ export class OperationMutationNode extends MutationNode<Operation> {
       onTailDeletion: () => {
         this.mutatedType.returnType = this.$.intrinsic.void;
       },
-      onTailReplaced: (newTail) => {
-        this.mutatedType.returnType = newTail.mutatedType;
+      onTailReplaced: (_oldTail, newTail, head, reconnect) => {
+        head.mutatedType.returnType = newTail.mutatedType;
+        if (reconnect) {
+          head.connectReturnType(newTail);
+        }
       },
     });
   }
@@ -63,8 +69,8 @@ export class OperationMutationNode extends MutationNode<Operation> {
       onTailDeletion: () => {
         this.delete();
       },
-      onTailReplaced: () => {
-        this.delete();
+      onTailReplaced: (_oldTail, _newTail, head, _reconnect) => {
+        head.delete();
       },
     });
   }
