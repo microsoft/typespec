@@ -1,5 +1,6 @@
 export * from "./mutation-node.js";
 
+export * from "./enum-member.js";
 export * from "./enum.js";
 export * from "./interface.js";
 export * from "./intrinsic.js";
@@ -13,4 +14,3 @@ export * from "./scalar.js";
 export * from "./tuple.js";
 export * from "./union-variant.js";
 export * from "./union.js";
-//export * from "./enum-member.js";
