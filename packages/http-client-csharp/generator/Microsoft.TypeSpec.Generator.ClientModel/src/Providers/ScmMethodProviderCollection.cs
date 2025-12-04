@@ -380,7 +380,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
                 else
                 {
-                    return response.Content().ToObjectFromJson(responseBodyType.OutputType);
+                    return Static(typeof(ModelReaderWriter)).Invoke(nameof(ModelReaderWriter.Read), [response.Content(), ModelSerializationExtensionsSnippets.Wire, ModelReaderWriterContextSnippets.Default], new CSharpType[] { responseBodyType.OutputType });
                 }
             }
             if (responseBodyType.IsDictionary)
@@ -391,7 +391,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
                 else
                 {
-                    return response.Content().ToObjectFromJson(responseBodyType.OutputType);
+                   return Static(typeof(ModelReaderWriter)).Invoke(nameof(ModelReaderWriter.Read), [response.Content(), ModelSerializationExtensionsSnippets.Wire, ModelReaderWriterContextSnippets.Default], new CSharpType[] { responseBodyType.OutputType });
                 }
             }
             if (responseBodyType.Equals(typeof(string)) && ServiceMethod.Operation.Responses.Any(r => r.IsErrorResponse is false && r.ContentTypes.Contains("text/plain")))
@@ -400,11 +400,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             if (responseBodyType.IsFrameworkType)
             {
-                return response.Content().ToObjectFromJson(responseBodyType);
+                return Static(typeof(ModelReaderWriter)).Invoke(nameof(ModelReaderWriter.Read), [response.Content(), ModelSerializationExtensionsSnippets.Wire, ModelReaderWriterContextSnippets.Default], new CSharpType[] { responseBodyType });
             }
             if (responseBodyType.IsEnum)
             {
-                return responseBodyType.ToEnum(response.Content().ToObjectFromJson(responseBodyType.UnderlyingEnumType));
+                return responseBodyType.ToEnum(Static(typeof(ModelReaderWriter)).Invoke(nameof(ModelReaderWriter.Read), [response.Content(), ModelSerializationExtensionsSnippets.Wire, ModelReaderWriterContextSnippets.Default], new CSharpType[] { responseBodyType.UnderlyingEnumType }));
             }
             return result.CastTo(responseBodyType);
         }
