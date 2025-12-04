@@ -758,14 +758,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
                             : DiscriminatorLiteral;
 
                         var args = baseParameters.Where(p => p.Property?.IsDiscriminator != true)
-                            .Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor, includeDiscriminatorParameter: false));
+                            .Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor));
 
                         constructorInitializer = new ConstructorInitializer(true, [discriminatorExpression, .. args]);
                     }
                     else
                     {
                         // Standard base constructor call
-                        constructorInitializer = new ConstructorInitializer(true, [.. baseParameters.Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor, includeDiscriminatorParameter: false))]);
+                        constructorInitializer = new ConstructorInitializer(true, [.. baseParameters.Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor))]);
                     }
                 }
                 else
@@ -843,20 +843,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return null;
         }
 
-        private ValueExpression GetExpressionForCtor(ParameterProvider parameter, HashSet<PropertyProvider> overriddenProperties, bool isPrimaryConstructor, bool includeDiscriminatorParameter = false)
+        private ValueExpression GetExpressionForCtor(ParameterProvider parameter, HashSet<PropertyProvider> overriddenProperties, bool isPrimaryConstructor)
         {
             if (parameter.Property is not null && parameter.Property.IsDiscriminator && _inputModel.DiscriminatorValue != null)
             {
                 if (isPrimaryConstructor)
                 {
-                    if (includeDiscriminatorParameter && _isMultiLevelDiscriminator)
-                    {
-                        return parameter;
-                    }
-                    else
-                    {
-                        return DiscriminatorValueExpression ?? throw new InvalidOperationException($"invalid discriminator {_inputModel.DiscriminatorValue} for property {parameter.Property.Name}");
-                    }
+                    return DiscriminatorValueExpression ?? throw new InvalidOperationException($"invalid discriminator {_inputModel.DiscriminatorValue} for property {parameter.Property.Name}");
                 }
                 else if (IsUnknownDiscriminatorModel)
                 {
