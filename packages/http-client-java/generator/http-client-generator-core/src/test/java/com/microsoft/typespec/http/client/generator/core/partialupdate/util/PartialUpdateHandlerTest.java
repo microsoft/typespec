@@ -13,16 +13,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.github.javaparser.TokenRange;
 import com.github.javaparser.ast.AccessSpecifier;
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.ConstructorDeclaration;
-import com.github.javaparser.ast.body.InitializerDeclaration;
+import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.TypeDeclaration;
 import com.github.javaparser.ast.modules.ModuleDeclaration;
-import com.github.javaparser.ast.stmt.BlockStmt;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -61,20 +61,12 @@ public class PartialUpdateHandlerTest {
 
         CompilationUnit compilationUnit = parse(output);
         assertEquals(1, compilationUnit.getTypes().size());
-        assertEquals(1, compilationUnit.getTypes().get(0).getMethodsByName("putNullWithResponse").size());
-        assertEquals(2,
-            compilationUnit.getTypes().get(0).getMethodsByName("putNullWithResponse").get(0).getParameters().size());
-        assertEquals("test",
-            compilationUnit.getTypes()
-                .get(0)
-                .getMethodsByName("putNullWithResponse")
-                .get(0)
-                .getParameters()
-                .get(1)
-                .getName()
-                .asString());
-        assertEquals(AccessSpecifier.NONE,
-            compilationUnit.getTypes().get(0).getMethodsByName("putNullWithResponse").get(0).getAccessSpecifier());
+        List<MethodDeclaration> methods = compilationUnit.getTypes().get(0).getMethodsByName("putNullWithResponse");
+        assertEquals(1, methods.size());
+        MethodDeclaration method = methods.get(0);
+        assertEquals(2, method.getParameters().size());
+        assertEquals("test", method.getParameters().get(1).getNameAsString());
+        assertEquals(AccessSpecifier.NONE, method.getAccessSpecifier());
     }
 
     @Test
@@ -126,15 +118,9 @@ public class PartialUpdateHandlerTest {
         CompilationUnit compilationUnit = parse(output);
         assertEquals(1, compilationUnit.getTypes().size());
         assertEquals(1, compilationUnit.getTypes().get(0).getMethods().size());
-        assertEquals(1, compilationUnit.getTypes().get(0).getMethodsByName("putNullWithResponse").size());
-        assertEquals("updateParam",
-            compilationUnit.getTypes()
-                .get(0)
-                .getMethodsByName("putNullWithResponse")
-                .get(0)
-                .getParameter(1)
-                .getName()
-                .asString());
+        List<MethodDeclaration> methods = compilationUnit.getTypes().get(0).getMethodsByName("putNullWithResponse");
+        assertEquals(1, methods.size());
+        assertEquals("updateParam", methods.get(0).getParameter(1).getNameAsString());
     }
 
     @Test
@@ -148,17 +134,11 @@ public class PartialUpdateHandlerTest {
         CompilationUnit compilationUnit = parse(output);
         assertEquals(1, compilationUnit.getTypes().size());
         assertEquals(1, compilationUnit.getTypes().get(0).getMethods().size());
-        assertEquals(1, compilationUnit.getTypes().get(0).getMethodsByName("putNullWithResponse").size());
-        assertEquals("test",
-            compilationUnit.getTypes()
-                .get(0)
-                .getMethodsByName("putNullWithResponse")
-                .get(0)
-                .getParameter(1)
-                .getName()
-                .asString());
-        assertEquals(AccessSpecifier.NONE,
-            compilationUnit.getTypes().get(0).getMethodsByName("putNullWithResponse").get(0).getAccessSpecifier());
+        List<MethodDeclaration> methods = compilationUnit.getTypes().get(0).getMethodsByName("putNullWithResponse");
+        assertEquals(1, methods.size());
+        MethodDeclaration method = methods.get(0);
+        assertEquals("test", method.getParameter(1).getNameAsString());
+        assertEquals(AccessSpecifier.NONE, method.getAccessSpecifier());
     }
 
     @Test
@@ -172,15 +152,9 @@ public class PartialUpdateHandlerTest {
         CompilationUnit compilationUnit = parse(output);
         assertEquals(1, compilationUnit.getTypes().size());
         assertEquals(1, compilationUnit.getTypes().get(0).getMethods().size());
-        assertEquals(1, compilationUnit.getTypes().get(0).getMethodsByName("putNullWithResponse").size());
-        assertEquals("test",
-            compilationUnit.getTypes()
-                .get(0)
-                .getMethodsByName("putNullWithResponse")
-                .get(0)
-                .getParameter(1)
-                .getName()
-                .asString());
+        List<MethodDeclaration> methods = compilationUnit.getTypes().get(0).getMethodsByName("putNullWithResponse");
+        assertEquals(1, methods.size());
+        assertEquals("test", methods.get(0).getParameter(1).getNameAsString());
     }
 
     @Test
@@ -194,12 +168,13 @@ public class PartialUpdateHandlerTest {
 
         CompilationUnit compilationUnit = parse(output);
         assertEquals(1, compilationUnit.getTypes().size());
-        assertEquals(4, compilationUnit.getTypes().get(0).getMembers().size());
-        assertEquals(1, compilationUnit.getTypes().get(0).getConstructors().size());
-        assertEquals(1, compilationUnit.getTypes().get(0).getFields().size());
-        assertEquals(2, compilationUnit.getTypes().get(0).getMethods().size());
 
-        assertEquals(2, compilationUnit.getTypes().get(0).getMethodsByName("list").size());
+        TypeDeclaration<?> type = compilationUnit.getTypes().get(0);
+        assertEquals(4, type.getMembers().size());
+        assertEquals(1, type.getConstructors().size());
+        assertEquals(1, type.getFields().size());
+        assertEquals(2, type.getMethods().size());
+        assertEquals(2, type.getMethodsByName("list").size());
     }
 
     @Test
@@ -212,12 +187,13 @@ public class PartialUpdateHandlerTest {
 
         CompilationUnit compilationUnit = parse(output);
         assertEquals(1, compilationUnit.getTypes().size());
-        assertEquals(4, compilationUnit.getTypes().get(0).getMembers().size());
-        assertEquals(1, compilationUnit.getTypes().get(0).getConstructors().size());
-        assertEquals(1, compilationUnit.getTypes().get(0).getFields().size());
-        assertEquals(2, compilationUnit.getTypes().get(0).getMethods().size());
 
-        assertEquals(2, compilationUnit.getTypes().get(0).getMethodsByName("list").size());
+        TypeDeclaration<?> type = compilationUnit.getTypes().get(0);
+        assertEquals(4, type.getMembers().size());
+        assertEquals(1, type.getConstructors().size());
+        assertEquals(1, type.getFields().size());
+        assertEquals(2, type.getMethods().size());
+        assertEquals(2, type.getMethodsByName("list").size());
     }
 
     @Test
@@ -226,14 +202,10 @@ public class PartialUpdateHandlerTest {
         String existingFileContent = load("partialupdate/StringOperationWithDuplicateMethodGeneratedClient.java");
         String generatedFileContent = load("partialupdate/StringOperationWithDuplicateMethodGeneratedClient.java");
 
-        Exception exception = assertThrows(RuntimeException.class, () -> {
-            PartialUpdateHandler.handlePartialUpdateForFile(generatedFileContent, existingFileContent);
-        });
+        Exception exception = assertThrows(RuntimeException.class,
+            () -> PartialUpdateHandler.handlePartialUpdateForFile(generatedFileContent, existingFileContent));
 
-        String expectedMessage = "Found duplicate methods in the generated file.";
-        String actualMessage = exception.getMessage();
-
-        assertTrue(actualMessage.contains(expectedMessage));
+        assertTrue(exception.getMessage().contains("Found duplicate methods in the generated file."));
 
     }
 
@@ -255,14 +227,14 @@ public class PartialUpdateHandlerTest {
 
     @Test
     public void testModuleInfoFileToTestWhenGeneratedFileEqualsExistingFileToTestThenUseGeneratedFile() {
-        String existingFileContent = String.join("\n", "// Copyright (c) Microsoft Corporation. All rights reserved.",
-            "// Licensed under the MIT License.", "// Code generated by Microsoft (R) AutoRest Code Generator.", "",
-            "module com.azure.iot.deviceupdate {", "", "    requires transitive com.azure.core;", "",
-            "    exports com.azure.iot.deviceupdate;", "}", "");
+        String existingFileContent = "// Copyright (c) Microsoft Corporation. All rights reserved.\n"
+            + "// Licensed under the MIT License.\n// Code generated by Microsoft (R) AutoRest Code Generator.\n\n"
+            + "module com.azure.iot.deviceupdate {\n\n    requires transitive com.azure.core;\n\n"
+            + "    exports com.azure.iot.deviceupdate;\n}\n\n";
         String generatedFileContent = "// Copyright (c) Microsoft Corporation. All rights reserved.\n"
-            + "// Licensed under the MIT License.\n" + "// Code generated by Microsoft (R) AutoRest Code Generator.\n"
-            + "\n" + "module com.azure.iot.deviceupdate {\n" + "\n" + "    requires transitive com.azure.core;\n" + "\n"
-            + "    exports com.azure.iot.deviceupdate;\n" + "}\n";
+            + "// Licensed under the MIT License.\n" + "// Code generated by Microsoft (R) AutoRest Code Generator.\n\n"
+            + "module com.azure.iot.deviceupdate {\n\n    requires transitive com.azure.core;\n\n"
+            + "    exports com.azure.iot.deviceupdate;\n}\n";
 
         String output = PartialUpdateHandler.handlePartialUpdateForFile(generatedFileContent, existingFileContent);
 
@@ -275,14 +247,13 @@ public class PartialUpdateHandlerTest {
     @Test
     public void testModuleInfoFileToTestWhenExistingFileHasUpdatesToTestThenUseExistingFile() {
         String existingFileContent = "// Copyright (c) Microsoft Corporation. All rights reserved.\n"
-            + "// Licensed under the MIT License.\n" + "// Code generated by Microsoft (R) AutoRest Code Generator.\n"
-            + "\n" + "\n" + "module com.azure.messaging.webpubsubnew {\n" + "    requires transitive com.azure.core;\n"
-            + "\n" + "    exports com.azure.messaging.webpubsubnew;\n"
-            + "    exports com.azure.messaging.webpubsubnew.models;\n" + "}";
+            + "// Licensed under the MIT License.\n// Code generated by Microsoft (R) AutoRest Code Generator.\n\n\n"
+            + "module com.azure.messaging.webpubsubnew {\n    requires transitive com.azure.core;\n\n"
+            + "    exports com.azure.messaging.webpubsubnew;\n    exports com.azure.messaging.webpubsubnew.models;\n}";
         String generatedFileContent = "// Copyright (c) Microsoft Corporation. All rights reserved.\n"
-            + "// Licensed under the MIT License.\n" + "// Code generated by Microsoft (R) AutoRest Code Generator.\n"
-            + "\n" + "\n" + "module com.azure.messaging.webpubsubnew {\n" + "    requires transitive com.azure.core;\n"
-            + "\n" + "    exports com.azure.messaging.webpubsubnew;\n" + "}";
+            + "// Licensed under the MIT License.\n// Code generated by Microsoft (R) AutoRest Code Generator.\n\n\n"
+            + "module com.azure.messaging.webpubsubnew {\n    requires transitive com.azure.core;\n\n"
+            + "    exports com.azure.messaging.webpubsubnew;\n}";
 
         String output = PartialUpdateHandler.handlePartialUpdateForFile(generatedFileContent, existingFileContent);
 
@@ -298,158 +269,105 @@ public class PartialUpdateHandlerTest {
     public void
         testModuleInfoFileToTestMergeExistingFileAndGeneratedFileToTestWhenExistingFileContentHasMoreDirectives() {
         String existingFileContent = "// Copyright (c) Microsoft Corporation. All rights reserved.\n"
-            + "// Licensed under the MIT License.\n" + "// Code generated by Microsoft (R) AutoRest Code Generator.\n"
-            + "module com.azure.messaging.webpubsubnew {\n" + "    requires transitive com.azure.core;\n" + "\n"
-            + "    exports com.azure.messaging.webpubsubnew;\n"
-            + "    exports com.azure.messaging.webpubsubnew.models;\n" + "}";
+            + "// Licensed under the MIT License.\n// Code generated by Microsoft (R) AutoRest Code Generator.\n"
+            + "module com.azure.messaging.webpubsubnew {\n    requires transitive com.azure.core;\n\n"
+            + "    exports com.azure.messaging.webpubsubnew;\n    exports com.azure.messaging.webpubsubnew.models;\n}";
         String generatedFileContent = "// Copyright (c) Microsoft Corporation. All rights reserved.\n"
-            + "// Licensed under the MIT License.\n" + "// Code generated by Microsoft (R) AutoRest Code Generator.\n"
-            + "module com.azure.messaging.webpubsubnew {\n" + "    requires transitive com.azure.core;\n" + "\n"
-            + "    exports com.azure.messaging.webpubsubnew;\n" + "}";
+            + "// Licensed under the MIT License.\n// Code generated by Microsoft (R) AutoRest Code Generator.\n"
+            + "module com.azure.messaging.webpubsubnew {\n    requires transitive com.azure.core;\n\n"
+            + "    exports com.azure.messaging.webpubsubnew;\n}";
         String output = PartialUpdateHandler.handlePartialUpdateForFile(generatedFileContent, existingFileContent);
 
         CompilationUnit compilationUnit = parse(output);
         ModuleDeclaration module = compilationUnit.getModule().orElseThrow();
         assertEquals("com.azure.messaging.webpubsubnew", module.getName().toString());
         assertEquals(3, module.getDirectives().size());
-        assertEquals("requires transitive com.azure.core;",
-            module.getDirectives().get(0).getTokenRange().map(TokenRange::toString).orElseThrow());
-        assertEquals("exports com.azure.messaging.webpubsubnew;",
-            module.getDirectives().get(1).getTokenRange().map(TokenRange::toString).orElseThrow());
-        assertEquals("exports com.azure.messaging.webpubsubnew.models;",
-            module.getDirectives().get(2).getTokenRange().map(TokenRange::toString).orElseThrow());
+        assertEquals("requires transitive com.azure.core;", moduleDirectiveToString(module, 0));
+        assertEquals("exports com.azure.messaging.webpubsubnew;", moduleDirectiveToString(module, 1));
+        assertEquals("exports com.azure.messaging.webpubsubnew.models;", moduleDirectiveToString(module, 2));
     }
 
     @Test
     public void
         testModuleInfoFileToTestMergeExistingFileAndGeneratedFileToTestWhenGeneratedFileContentHasMoreDirectives() {
-        String existingFileContent
-            = "module com.azure.communication.phonenumbersdemo {\n" + "    requires transitive com.azure.core;\n" + "\n"
-                + "    exports com.azure.communication.phonenumbersdemo;\n" + "}";
-        String generatedFileContent
-            = "module com.azure.communication.phonenumbersdemo {\n" + "    requires transitive com.azure.core;\n" + "\n"
-                + "    exports com.azure.communication.phonenumbersdemo;\n"
-                + "    exports com.azure.communication.phonenumbersdemo.models;\n" + "\n"
-                + "    opens com.azure.communication.phonenumbersdemo.implementation.models to\n"
-                + "            com.azure.core,\n" + "            com.fasterxml.jackson.databind;\n"
-                + "    opens com.azure.communication.phonenumbersdemo.models to\n" + "            com.azure.core,\n"
-                + "            com.fasterxml.jackson.databind;\n" + "}";
+        String existingFileContent = "module com.azure.communication.phonenumbersdemo {\n"
+            + "    requires transitive com.azure.core;\n\n    exports com.azure.communication.phonenumbersdemo;\n}";
+        String generatedFileContent = "module com.azure.communication.phonenumbersdemo {\n"
+            + "    requires transitive com.azure.core;\n\n    exports com.azure.communication.phonenumbersdemo;\n"
+            + "    exports com.azure.communication.phonenumbersdemo.models;\n\n"
+            + "    opens com.azure.communication.phonenumbersdemo.implementation.models to\n"
+            + "            com.azure.core,\n            com.fasterxml.jackson.databind;\n"
+            + "    opens com.azure.communication.phonenumbersdemo.models to\n            com.azure.core,\n"
+            + "            com.fasterxml.jackson.databind;\n}";
         String output = PartialUpdateHandler.handlePartialUpdateForFile(generatedFileContent, existingFileContent);
 
         CompilationUnit compilationUnit = parse(output);
         ModuleDeclaration module = compilationUnit.getModule().orElseThrow();
         assertEquals("com.azure.communication.phonenumbersdemo", module.getName().toString());
         assertEquals(5, module.getDirectives().size());
-        assertEquals("requires transitive com.azure.core;",
-            module.getDirectives().get(0).getTokenRange().map(TokenRange::toString).orElseThrow());
-        assertEquals("exports com.azure.communication.phonenumbersdemo;",
-            module.getDirectives().get(1).getTokenRange().map(TokenRange::toString).orElseThrow());
-        assertEquals("exports com.azure.communication.phonenumbersdemo.models;",
-            module.getDirectives().get(2).getTokenRange().map(TokenRange::toString).orElseThrow());
+        assertEquals("requires transitive com.azure.core;", moduleDirectiveToString(module, 0));
+        assertEquals("exports com.azure.communication.phonenumbersdemo;", moduleDirectiveToString(module, 1));
+        assertEquals("exports com.azure.communication.phonenumbersdemo.models;", moduleDirectiveToString(module, 2));
         assertEquals(
             "opens com.azure.communication.phonenumbersdemo.implementation.models to com.azure.core, com.fasterxml.jackson.databind;",
-            module.getDirectives().get(3).getTokenRange().map(TokenRange::toString).orElseThrow());
+            moduleDirectiveToString(module, 3));
         assertEquals(
             "opens com.azure.communication.phonenumbersdemo.models to com.azure.core, com.fasterxml.jackson.databind;",
-            module.getDirectives().get(4).getTokenRange().map(TokenRange::toString).orElseThrow());
+            moduleDirectiveToString(module, 4));
     }
 
     @Test
     public void
         testModuleInfoFileToTestMergeExistingFileAndGeneratedFileToTestWhenExistingAndGeneratedFileHasSameContent() {
-        String existingFileContent
-            = "module com.azure.communication.phonenumbersdemo {\n" + "    requires transitive com.azure.core;\n" + "\n"
-                + "    exports com.azure.communication.phonenumbersdemo;\n"
-                + "    exports com.azure.communication.phonenumbersdemo.models;\n" + "\n"
-                + "    opens com.azure.communication.phonenumbersdemo.implementation.models to\n"
-                + "            com.azure.core,\n" + "            com.fasterxml.jackson.databind;\n"
-                + "    opens com.azure.communication.phonenumbersdemo.models to\n" + "            com.azure.core,\n"
-                + "            com.fasterxml.jackson.databind;\n" + "}";
-        String generatedFileContent
-            = "module com.azure.communication.phonenumbersdemo {\n" + "    requires transitive com.azure.core;\n" + "\n"
-                + "    exports com.azure.communication.phonenumbersdemo;\n"
-                + "    exports com.azure.communication.phonenumbersdemo.models;\n" + "\n"
-                + "    opens com.azure.communication.phonenumbersdemo.implementation.models to\n"
-                + "            com.azure.core,\n" + "            com.fasterxml.jackson.databind;\n"
-                + "    opens com.azure.communication.phonenumbersdemo.models to\n" + "            com.azure.core,\n"
-                + "            com.fasterxml.jackson.databind;\n" + "}";
+        String existingFileContent = "module com.azure.communication.phonenumbersdemo {\n"
+            + "    requires transitive com.azure.core;\n\n    exports com.azure.communication.phonenumbersdemo;\n"
+            + "    exports com.azure.communication.phonenumbersdemo.models;\n\n"
+            + "    opens com.azure.communication.phonenumbersdemo.implementation.models to\n"
+            + "            com.azure.core,\n            com.fasterxml.jackson.databind;\n"
+            + "    opens com.azure.communication.phonenumbersdemo.models to\n            com.azure.core,\n"
+            + "            com.fasterxml.jackson.databind;\n}";
+        String generatedFileContent = "module com.azure.communication.phonenumbersdemo {\n"
+            + "    requires transitive com.azure.core;\n\n    exports com.azure.communication.phonenumbersdemo;\n"
+            + "    exports com.azure.communication.phonenumbersdemo.models;\n\n"
+            + "    opens com.azure.communication.phonenumbersdemo.implementation.models to\n"
+            + "            com.azure.core,\n            com.fasterxml.jackson.databind;\n"
+            + "    opens com.azure.communication.phonenumbersdemo.models to\n            com.azure.core,\n"
+            + "            com.fasterxml.jackson.databind;\n}";
         String output = PartialUpdateHandler.handlePartialUpdateForFile(generatedFileContent, existingFileContent);
 
         CompilationUnit compilationUnit = parse(output);
         ModuleDeclaration module = compilationUnit.getModule().orElseThrow();
         assertEquals("com.azure.communication.phonenumbersdemo", module.getName().toString());
         assertEquals(5, module.getDirectives().size());
-        assertEquals("requires transitive com.azure.core;",
-            module.getDirectives().get(0).getTokenRange().map(TokenRange::toString).orElseThrow());
-        assertEquals("exports com.azure.communication.phonenumbersdemo;",
-            module.getDirectives()
-                .get(1)
-                .asModuleExportsDirective()
-                .getTokenRange()
-                .map(TokenRange::toString)
-                .orElseThrow());
-        assertEquals("exports com.azure.communication.phonenumbersdemo.models;",
-            module.getDirectives()
-                .get(2)
-                .asModuleExportsDirective()
-                .getTokenRange()
-                .map(TokenRange::toString)
-                .orElseThrow());
+        assertEquals("requires transitive com.azure.core;", moduleDirectiveToString(module, 0));
+        assertEquals("exports com.azure.communication.phonenumbersdemo;", moduleDirectiveToString(module, 1));
+        assertEquals("exports com.azure.communication.phonenumbersdemo.models;", moduleDirectiveToString(module, 2));
         assertEquals(
             "opens com.azure.communication.phonenumbersdemo.implementation.models to com.azure.core, com.fasterxml.jackson.databind;",
-            module.getDirectives()
-                .get(3)
-                .asModuleOpensDirective()
-                .getTokenRange()
-                .map(TokenRange::toString)
-                .orElseThrow());
+            moduleDirectiveToString(module, 3));
         assertEquals(
             "opens com.azure.communication.phonenumbersdemo.models to com.azure.core, com.fasterxml.jackson.databind;",
-            module.getDirectives()
-                .get(4)
-                .asModuleOpensDirective()
-                .getTokenRange()
-                .map(TokenRange::toString)
-                .orElseThrow());
+            moduleDirectiveToString(module, 4));
     }
 
     @Test
     public void testModuleInfoFileToTestMergeExistingFileAndGeneratedFileToTestIgnoreEmptyLineAndWhiteSpace() {
         String existingFileContent
-            = "module com.azure.communication.phonenumbersdemo {\n" + "    requires transitive com.azure.core;\n" + "\n"
-                + "\n" + "    exports      com.azure.communication.phonenumbersdemo;     \n"
-                + "    exports com.azure.communication.phonenumbersdemo.models;\n" + "\n" + "}";
-        String generatedFileContent
-            = "module com.azure.communication.phonenumbersdemo {\n" + "    requires transitive com.azure.core;\n" + "\n"
-                + "    exports com.azure.communication.phonenumbersdemo;\n"
-                + "    exports com.azure.communication.phonenumbersdemo.models;\n" + "\n" + "}";
+            = "module com.azure.communication.phonenumbersdemo {\n" + "    requires transitive com.azure.core;\n\n\n"
+                + "    exports      com.azure.communication.phonenumbersdemo;     \n"
+                + "    exports com.azure.communication.phonenumbersdemo.models;\n\n}";
+        String generatedFileContent = "module com.azure.communication.phonenumbersdemo {\n"
+            + "    requires transitive com.azure.core;\n\n    exports com.azure.communication.phonenumbersdemo;\n"
+            + "    exports com.azure.communication.phonenumbersdemo.models;\n\n}";
         String output = PartialUpdateHandler.handlePartialUpdateForFile(generatedFileContent, existingFileContent);
 
         CompilationUnit compilationUnit = parse(output);
         ModuleDeclaration module = compilationUnit.getModule().orElseThrow();
         assertEquals("com.azure.communication.phonenumbersdemo", module.getName().toString());
         assertEquals(3, module.getDirectives().size());
-        assertEquals("requires transitive com.azure.core;",
-            module.getDirectives()
-                .get(0)
-                .asModuleRequiresDirective()
-                .getTokenRange()
-                .map(TokenRange::toString)
-                .orElseThrow());
-        assertEquals("exports com.azure.communication.phonenumbersdemo;",
-            module.getDirectives()
-                .get(1)
-                .asModuleExportsDirective()
-                .getTokenRange()
-                .map(TokenRange::toString)
-                .orElseThrow());
-        assertEquals("exports com.azure.communication.phonenumbersdemo.models;",
-            module.getDirectives()
-                .get(2)
-                .asModuleExportsDirective()
-                .getTokenRange()
-                .map(TokenRange::toString)
-                .orElseThrow());
+        assertEquals("requires transitive com.azure.core;", moduleDirectiveToString(module, 0));
+        assertEquals("exports com.azure.communication.phonenumbersdemo;", moduleDirectiveToString(module, 1));
+        assertEquals("exports com.azure.communication.phonenumbersdemo.models;", moduleDirectiveToString(module, 2));
     }
 
     @Test
@@ -461,13 +379,11 @@ public class PartialUpdateHandlerTest {
 
         CompilationUnit compilationUnit = parse(output);
         assertEquals(1, compilationUnit.getTypes().size());
-        List<InitializerDeclaration> staticInitializerDeclaration = compilationUnit.getTypes()
+        List<BodyDeclaration<?>> staticInitializerDeclaration = compilationUnit.getTypes()
             .get(0)
             .getMembers()
             .stream()
-            .filter(m -> m instanceof InitializerDeclaration)
-            .map(m -> (InitializerDeclaration) m)
-            .filter(InitializerDeclaration::isStatic)
+            .filter(m -> m.isInitializerDeclaration() && m.asInitializerDeclaration().isStatic())
             .collect(Collectors.toList());
         // verify 1 block
         Assertions.assertEquals(1, staticInitializerDeclaration.size());
@@ -484,16 +400,14 @@ public class PartialUpdateHandlerTest {
 
         CompilationUnit compilationUnit = parse(output);
         assertEquals(1, compilationUnit.getTypes().size());
-        List<InitializerDeclaration> staticInitializerDeclaration = compilationUnit.getTypes()
-            .get(0)
-            .getMembers()
-            .stream()
-            .filter(m -> m instanceof InitializerDeclaration)
-            .map(m -> (InitializerDeclaration) m)
-            .filter(InitializerDeclaration::isStatic)
-            .collect(Collectors.toList());
         // verify 1 block
-        Assertions.assertEquals(1, staticInitializerDeclaration.size());
+        assertEquals(1,
+            compilationUnit.getTypes()
+                .get(0)
+                .getMembers()
+                .stream()
+                .filter(m -> m.isInitializerDeclaration() && m.asInitializerDeclaration().isStatic())
+                .count());
         // also verify a few other methods is added
         Assertions.assertNotNull(compilationUnit.getTypes().get(0).getMethodsByName("serializeAsJsonMergePatch"));
         Assertions.assertNotNull(compilationUnit.getTypes().get(0).getFieldByName("jsonMergePatch"));
@@ -514,9 +428,7 @@ public class PartialUpdateHandlerTest {
             .get(0)
             .getMembers()
             .stream()
-            .filter(m -> m instanceof InitializerDeclaration)
-            .map(m -> (InitializerDeclaration) m)
-            .noneMatch(InitializerDeclaration::isStatic));
+            .noneMatch(m -> m.isInitializerDeclaration() && m.asInitializerDeclaration().isStatic()));
     }
 
     @Test
@@ -528,17 +440,15 @@ public class PartialUpdateHandlerTest {
 
         CompilationUnit compilationUnit = parse(output);
         ConstructorDeclaration constructorDeclaration = compilationUnit.getTypes().get(0).getConstructors().get(1);
-        Assertions.assertTrue(
-            constructorDeclaration.getJavadoc().get().getDescription().toText().contains("<!-- @formatter:off -->"));
-        Assertions.assertTrue(
-            constructorDeclaration.getJavadoc().get().getDescription().toText().contains("<!-- @formatter:on -->"));
-        BlockStmt constructorCodeBlock = (BlockStmt) constructorDeclaration.getChildNodes()
-            .stream()
-            .filter(node -> node instanceof BlockStmt)
-            .findFirst()
-            .get();
+
+        // Check that the Javadoc retained formatter flags.
+        String javadoc = constructorDeclaration.getJavadoc().map(doc -> doc.getDescription().toText()).orElseThrow();
+        Assertions.assertTrue(javadoc.contains("<!-- @formatter:off -->"));
+        Assertions.assertTrue(javadoc.contains("<!-- @formatter:on -->"));
+
+        // Check that the constructor body retained formatter flags.
         List<String> lines
-            = Arrays.stream(constructorCodeBlock.toString().split("\n")).map(String::trim).collect(Collectors.toList());
+            = constructorDeclaration.getBody().toString().lines().map(String::trim).collect(Collectors.toList());
         Assertions.assertTrue(lines.contains("// @formatter:off"));
         Assertions.assertTrue(lines.contains("// @formatter:on"));
     }
@@ -546,5 +456,9 @@ public class PartialUpdateHandlerTest {
     private String load(String resource) throws IOException, URISyntaxException {
         URL resourceUrl = Objects.requireNonNull(getClass().getClassLoader().getResource(resource));
         return Files.readString(Paths.get(resourceUrl.toURI()));
+    }
+
+    private static String moduleDirectiveToString(ModuleDeclaration module, int index) {
+        return module.getDirectives().get(index).getTokenRange().map(TokenRange::toString).orElseThrow();
     }
 }
