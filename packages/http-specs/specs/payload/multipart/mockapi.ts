@@ -192,6 +192,16 @@ Scenarios.Payload_MultiPart_FormData_basic = passOnSuccess({
   handler: (req: MockRequest) => createHandler(req, [checkId, checkProfileImage]),
   kind: "MockApiDefinition",
 });
+Scenarios.Payload_MultiPart_FormData_withWireName = passOnSuccess({
+  uri: "/multipart/form-data/mixed-parts-with-wire-name",
+  method: "post",
+  request: {
+    body: multipart({ parts: { id: 123 }, files: [files[0]] }),
+  },
+  response: { status: 204 },
+  handler: (req: MockRequest) => createHandler(req, [checkId, checkProfileImage]),
+  kind: "MockApiDefinition",
+});
 Scenarios.Payload_MultiPart_FormData_fileArrayAndBasic = passOnSuccess({
   uri: "/multipart/form-data/complex-parts",
   method: "post",

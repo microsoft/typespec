@@ -2025,6 +2025,36 @@ Content-Type: application/octet-stream
 --abcde12345--
 ```
 
+### Payload_MultiPart_FormData_withWireName
+
+- Endpoint: `post /multipart/form-data/mixed-parts-with-wire-name`
+
+Expect request with wire names (
+
+- according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.4, content-type of file part shall be labeled with
+  appropriate media type, server will check it; content-type of other parts is optional, server will ignore it.
+- according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.2, filename of file part SHOULD be supplied.
+  If there are duplicated filename in same fieldName, server can't parse them all.
+  ):
+
+```
+POST /upload HTTP/1.1
+Content-Length: 428
+Content-Type: multipart/form-data; boundary=abcde12345
+
+--abcde12345
+Content-Disposition: form-data; name="id"
+Content-Type: text/plain
+
+123
+--abcde12345
+Content-Disposition: form-data; name="profileImage"; filename="<any-or-no-name-is-ok>"
+Content-Type: application/octet-stream;
+
+{…file content of .jpg file…}
+--abcde12345--
+```
+
 ### Payload_Pageable_PageSize_listWithoutContinuation
 
 - Endpoint: `get /payload/pageable/pagesize/without-continuation`

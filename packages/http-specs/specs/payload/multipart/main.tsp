@@ -13,6 +13,11 @@ model MultiPartRequest {
   profileImage: HttpPart<bytes>;
 }
 
+model MultiPartRequestWithWireName {
+  identifier: HttpPart<string, #{ name: "id" }>;
+  image: HttpPart<bytes, #{ name: "profileImage" }>;
+}
+
 model Address {
   city: string;
 }
@@ -107,6 +112,40 @@ namespace FormData {
   op basic(
     @header contentType: "multipart/form-data",
     @multipartBody body: MultiPartRequest,
+  ): NoContentResponse;
+
+  @scenario
+  @scenarioDoc("""
+    Expect request with wire names (
+    - according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.4, content-type of file part shall be labeled with
+      appropriate media type, server will check it; content-type of other parts is optional, server will ignore it.
+    - according to https://datatracker.ietf.org/doc/html/rfc7578#section-4.2, filename of file part SHOULD be supplied.
+      If there are duplicated filename in same fieldName, server can't parse them all.
+    ):
+    ```
+    POST /upload HTTP/1.1
+    Content-Length: 428
+    Content-Type: multipart/form-data; boundary=abcde12345
+    
+    --abcde12345
+    Content-Disposition: form-data; name="id"
+    Content-Type: text/plain
+    
+    123
+    --abcde12345
+    Content-Disposition: form-data; name="profileImage"; filename="<any-or-no-name-is-ok>"
+    Content-Type: application/octet-stream;
+    
+    {…file content of .jpg file…}
+    --abcde12345--
+    ```
+    """)
+  @doc("Test content-type: multipart/form-data with wire names")
+  @post
+  @route("/mixed-parts-with-wire-name")
+  op withWireName(
+    @header contentType: "multipart/form-data",
+    @multipartBody body: MultiPartRequestWithWireName,
   ): NoContentResponse;
 
   @scenario
