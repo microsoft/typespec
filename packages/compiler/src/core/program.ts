@@ -641,7 +641,7 @@ async function createProgram(
     for (const validator of validateCbs) {
       const start = startTimer();
       const diagnostics = await runValidator(validator);
-      if (diagnostics) {
+      if (diagnostics && Array.isArray(diagnostics)) {
         program.reportDiagnostics(diagnostics);
       }
       runtimeStats.validation.validators[validator.metadata.name ?? "<unnamed>"] = start.end();
