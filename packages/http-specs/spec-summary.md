@@ -290,6 +290,14 @@ Stream should match packages/http-specs/assets/image.png file.
 When content type is application/octet-stream and body is `bytes` the payload is a binary stream.
 Stream should match packages/http-specs/assets/image.png file.
 
+### Encode_Bytes_RequestBodyContentType_cose
+
+- Endpoint: `post /encode/bytes/body/request/content-type/cose`
+
+Test sending bytes body with application/cose content type (COSE Sign1 signature).
+Expected request body is the bytes representing a COSE Sign1 envelope.
+Expected Content-Type header: application/cose.
+
 ### Encode_Bytes_ResponseBody_base64
 
 - Endpoint: `get /encode/bytes/body/response/base64`
@@ -326,6 +334,14 @@ Stream should match packages/http-specs/assets/image.png file.
 
 When content type is application/octet-stream and body is `bytes` the payload is a binary stream.
 Stream should match packages/http-specs/assets/image.png file.
+
+### Encode_Bytes_ResponseBodyContentType_cose
+
+- Endpoint: `get /encode/bytes/body/response/content-type/cose`
+
+Test receiving bytes body with application/cose content type.
+Expected response body is the bytes representing a COSE Sign1 envelope.
+Expected Content-Type header: application/cose.
 
 ### Encode_Datetime_Header_default
 

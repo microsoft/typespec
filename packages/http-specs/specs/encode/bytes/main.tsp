@@ -370,3 +370,40 @@ namespace ResponseBody {
     body: base64urlBytes;
   };
 }
+
+@route("/body/request/content-type")
+namespace RequestBodyContentType {
+  @route("/cose")
+  @scenario
+  @scenarioDoc("""
+    Test sending bytes body with application/cose content type (COSE Sign1 signature).
+    Expected request body is the bytes representing a COSE Sign1 envelope.
+    Expected Content-Type header: application/cose.
+    """)
+  @post
+  op cose(
+    @header
+    contentType: "application/cose",
+
+    @body
+    value: bytes,
+  ): NoContentResponse;
+}
+
+@route("/body/response/content-type")
+namespace ResponseBodyContentType {
+  @route("/cose")
+  @scenario
+  @scenarioDoc("""
+    Test receiving bytes body with application/cose content type.
+    Expected response body is the bytes representing a COSE Sign1 envelope.
+    Expected Content-Type header: application/cose.
+    """)
+  op cose(): {
+    @header
+    contentType: "application/cose";
+
+    @body
+    value: bytes;
+  };
+}
