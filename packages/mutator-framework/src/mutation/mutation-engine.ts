@@ -271,7 +271,6 @@ export class MutationEngine<TCustomMutations extends CustomMutationClasses> {
 
     return this.mutateWorker(referencedType, references, options, halfEdge, traits) as any;
   }
-
 }
 
 function resolveReference(reference: MemberType) {
