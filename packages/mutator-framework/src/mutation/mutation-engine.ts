@@ -2,6 +2,8 @@ import type { MemberType, Type } from "@typespec/compiler";
 import type { Typekit } from "@typespec/compiler/typekit";
 import type { MutationNodeForType } from "../mutation-node/factory.js";
 import { MutationSubgraph } from "../mutation-node/mutation-subgraph.js";
+import { EnumMemberMutation } from "./enum-member.js";
+import { EnumMutation } from "./enum.js";
 import { InterfaceMutation } from "./interface.js";
 import { IntrinsicMutation } from "./intrinsic.js";
 import { LiteralMutation } from "./literal.js";
@@ -24,6 +26,8 @@ export interface DefaultMutationClasses<TCustomMutations extends CustomMutationC
   ModelProperty: ModelPropertyMutation<MutationOptions, TCustomMutations>;
   Union: UnionMutation<MutationOptions, TCustomMutations>;
   UnionVariant: UnionVariantMutation<MutationOptions, TCustomMutations>;
+  Enum: EnumMutation<MutationOptions, TCustomMutations>;
+  EnumMember: EnumMemberMutation<MutationOptions, TCustomMutations>;
   String: LiteralMutation<MutationOptions, TCustomMutations>;
   Number: LiteralMutation<MutationOptions, TCustomMutations>;
   Boolean: LiteralMutation<MutationOptions, TCustomMutations>;
@@ -72,6 +76,8 @@ export class MutationEngine<TCustomMutations extends CustomMutationClasses> {
       ModelProperty: mutatorClasses.ModelProperty ?? ModelPropertyMutation,
       Union: mutatorClasses.Union ?? UnionMutation,
       UnionVariant: mutatorClasses.UnionVariant ?? UnionVariantMutation,
+      Enum: mutatorClasses.Enum ?? EnumMutation,
+      EnumMember: mutatorClasses.EnumMember ?? EnumMemberMutation,
       String: mutatorClasses.String ?? LiteralMutation,
       Number: mutatorClasses.Number ?? LiteralMutation,
       Boolean: mutatorClasses.Boolean ?? LiteralMutation,

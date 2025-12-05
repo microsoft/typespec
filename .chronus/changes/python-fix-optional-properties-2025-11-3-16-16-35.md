@@ -4,4 +4,4 @@ packages:
   - "@typespec/http-client-python"
 ---
 
-fix logic about which scenario to add msrest as dependency
+Fix for optional properties in flatten model to keep compatibility

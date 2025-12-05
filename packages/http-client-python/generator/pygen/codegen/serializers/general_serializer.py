@@ -23,7 +23,7 @@ VERSION_MAP = {
     "msrest": "0.7.1",
     "isodate": "0.6.1",
     "azure-mgmt-core": "1.6.0",
-    "azure-core": "1.35.0",
+    "azure-core": "1.36.0",
     "typing-extensions": "4.6.0",
     "corehttp": "1.0.0b6",
 }
@@ -57,7 +57,16 @@ class GeneralSerializer(BaseSerializer):
         m = re.search(r"[>=]=?([\d.]+(?:[a-z]+\d+)?)", s)
         return parse_version(m.group(1)) if m else parse_version("0")
 
-    def _keep_pyproject_fields(self, file_content: str) -> dict:
+    def _update_version_map(self, version_map: dict[str, str], dep_name: str, dep: str) -> None:
+        # For tracked dependencies, check if the version is higher than our default
+        default_version = parse_version(version_map[dep_name])
+        dep_version = self._extract_min_dependency(dep)
+        # If the version is higher than the default, update VERSION_MAP
+        # with higher min dependency version
+        if dep_version > default_version:
+            version_map[dep_name] = str(dep_version)
+
+    def external_lib_version_map(self, file_content: str, additional_version_map: dict[str, str]) -> dict:
         # Load the pyproject.toml file if it exists and extract fields to keep.
         result: dict = {"KEEP_FIELDS": {}}
         try:
@@ -80,15 +89,11 @@ class GeneralSerializer(BaseSerializer):
                 for dep in loaded_pyproject_toml["project"]["dependencies"]:
                     dep_name = re.split(r"[<>=\[]", dep)[0].strip()
 
-                    # Check if dependency is one we track in VERSION_MAP
+                    # Check if dependency is one we track in version map
                     if dep_name in VERSION_MAP:
-                        # For tracked dependencies, check if the version is higher than our default
-                        default_version = parse_version(VERSION_MAP[dep_name])
-                        dep_version = self._extract_min_dependency(dep)
-                        # If the version is higher than the default, update VERSION_MAP
-                        # with higher min dependency version
-                        if dep_version > default_version:
-                            VERSION_MAP[dep_name] = str(dep_version)
+                        self._update_version_map(VERSION_MAP, dep_name, dep)
+                    elif dep_name in additional_version_map:
+                        self._update_version_map(additional_version_map, dep_name, dep)
                     else:
                         # Keep non-default dependencies
                         kept_deps.append(dep)
@@ -107,9 +112,20 @@ class GeneralSerializer(BaseSerializer):
     def serialize_package_file(self, template_name: str, file_content: str, **kwargs: Any) -> str:
         template = self.env.get_template(template_name)
 
+        additional_version_map = {}
+        if self.code_model.has_external_type:
+            for item in self.code_model.external_types:
+                if item.package_name:
+                    if item.min_version:
+                        additional_version_map[item.package_name] = item.min_version
+                    else:
+                        # Use "0" as a placeholder when min_version is not specified for external types.
+                        # This allows the dependency to be included without a specific version constraint.
+                        additional_version_map[item.package_name] = "0"
+
         # Add fields to keep from an existing pyproject.toml
         if template_name == "pyproject.toml.jinja2":
-            params = self._keep_pyproject_fields(file_content)
+            params = self.external_lib_version_map(file_content, additional_version_map)
         else:
             params = {}
 
@@ -126,6 +142,7 @@ class GeneralSerializer(BaseSerializer):
             dev_status = "4 - Beta"
         else:
             dev_status = "5 - Production/Stable"
+
         params |= {
             "code_model": self.code_model,
             "dev_status": dev_status,
@@ -136,6 +153,7 @@ class GeneralSerializer(BaseSerializer):
             "VERSION_MAP": VERSION_MAP,
             "MIN_PYTHON_VERSION": MIN_PYTHON_VERSION,
             "MAX_PYTHON_VERSION": MAX_PYTHON_VERSION,
+            "ADDITIONAL_DEPENDENCIES": [f"{item[0]}>={item[1]}" for item in additional_version_map.items()],
         }
         params |= {"options": self.code_model.options}
         params |= kwargs
