@@ -111,8 +111,15 @@ public class SchemaCleanup {
             Set<Schema> responses = codeModel.getOperationGroups()
                 .stream()
                 .flatMap(og -> og.getOperations().stream())
-                .flatMap(o -> o.getResponses().stream())
-                .map(Response::getSchema)
+                .flatMap(o -> {
+                    if (o.getLroMetadata() == null) {
+                        // not LRO operation, or it is LRO but not from TypeSpec
+                        return o.getResponses().stream().map(Response::getSchema);
+                    } else {
+                        // if the operation has LroMetadata, SDK will use its FinalResultType
+                        return Stream.of(o.getLroMetadata().getFinalResultType());
+                    }
+                })
                 .map(SchemaCleanup::schemaOrElementInCollection)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
