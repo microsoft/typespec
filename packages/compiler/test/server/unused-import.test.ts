@@ -122,6 +122,51 @@ describe("unused import", () => {
     strictEqual(unusedImportDiags.length, 0);
   });
 
+  it("does not mark import as unused when using statement references its namespace", async () => {
+    const testHost = await createTestServerHost();
+    testHost.addOrUpdateDocument(
+      "./tspconfig.yaml",
+      "linter:\n  enable:\n    '@typespec/compiler/unused-import': true",
+    );
+    testHost.addOrUpdateDocument(
+      "./mylib.tsp",
+      "namespace MyLib { model LibModel { prop: string; } }",
+    );
+    const mainFile = testHost.addOrUpdateDocument(
+      "./main.tsp",
+      'import "./mylib.tsp";\nusing MyLib;\n\nmodel Foo { bar: LibModel; }',
+    );
+
+    await testHost.server.compile(mainFile, undefined, { mode: "full" });
+    const diags = testHost.getDiagnostics("main.tsp");
+    const unusedImportDiags = diags.filter((d) => d.code === "@typespec/compiler/unused-import");
+    strictEqual(unusedImportDiags.length, 0);
+  });
+
+  it("does not mark import as unused when using statement references its namespace even without symbol usage", async () => {
+    const testHost = await createTestServerHost();
+    testHost.addOrUpdateDocument(
+      "./tspconfig.yaml",
+      "linter:\n  enable:\n    '@typespec/compiler/unused-import': true",
+    );
+    testHost.addOrUpdateDocument(
+      "./mylib.tsp",
+      "namespace MyLib { model LibModel { prop: string; } }",
+    );
+    // Note: using MyLib is present but no symbols from MyLib are used
+    // The import should still NOT be marked as unused because using references it
+    const mainFile = testHost.addOrUpdateDocument(
+      "./main.tsp",
+      'import "./mylib.tsp";\nusing MyLib;\n\nmodel Foo { bar: string; }',
+    );
+
+    await testHost.server.compile(mainFile, undefined, { mode: "full" });
+    const diags = testHost.getDiagnostics("main.tsp");
+    const unusedImportDiags = diags.filter((d) => d.code === "@typespec/compiler/unused-import");
+    // The import should NOT be marked as unused because the using statement references its namespace
+    strictEqual(unusedImportDiags.length, 0);
+  });
+
   it("hint by default for unused import", async () => {
     const testHost = await createTestServerHost();
     testHost.addOrUpdateDocument("./models.tsp", "model Bun { prop: string; }");

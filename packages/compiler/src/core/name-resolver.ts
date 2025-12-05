@@ -277,6 +277,20 @@ export function createResolver(program: Program): NameResolver {
       if (lc.type === "project") {
         const usedFiles = usedSourceFiles.get(file) ?? new Set<string>();
         const ownFilePath = file.file.path;
+
+        // Also add files that are used by using statements
+        // When "using X.Y.Z" is present, the namespace X.Y.Z comes from some source file,
+        // and that import should be considered used
+        for (const using of file.usings) {
+          const resolvedSym = getNodeLinks(using.name).resolvedSymbol;
+          if (resolvedSym) {
+            const sourceFilePath = getSymbolSourceFilePath(resolvedSym);
+            if (sourceFilePath && sourceFilePath !== ownFilePath) {
+              usedFiles.add(sourceFilePath);
+            }
+          }
+        }
+
         // Get all import statements in this file
         for (const statement of file.statements) {
           if (statement.kind === SyntaxKind.ImportStatement) {
