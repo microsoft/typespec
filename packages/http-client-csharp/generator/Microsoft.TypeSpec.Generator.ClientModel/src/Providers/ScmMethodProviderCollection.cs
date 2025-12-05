@@ -380,7 +380,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
                 else
                 {
-                    return Static(typeof(ModelReaderWriter)).Invoke(nameof(ModelReaderWriter.Read), [response.Content(), ModelSerializationExtensionsSnippets.Wire, ModelReaderWriterContextSnippets.Default], new CSharpType[] { responseBodyType.OutputType });
+                    return ModelReaderWriterSnippets.Read(response.Content(), responseBodyType.OutputType);
                 }
             }
             if (responseBodyType.IsDictionary)
@@ -391,7 +391,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
                 else
                 {
-                   return Static(typeof(ModelReaderWriter)).Invoke(nameof(ModelReaderWriter.Read), [response.Content(), ModelSerializationExtensionsSnippets.Wire, ModelReaderWriterContextSnippets.Default], new CSharpType[] { responseBodyType.OutputType });
+                   return ModelReaderWriterSnippets.Read(response.Content(), responseBodyType.OutputType);
                 }
             }
             if (responseBodyType.Equals(typeof(string)) && ServiceMethod.Operation.Responses.Any(r => r.IsErrorResponse is false && r.ContentTypes.Contains("text/plain")))
@@ -400,11 +400,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             if (responseBodyType.IsFrameworkType)
             {
-                return Static(typeof(ModelReaderWriter)).Invoke(nameof(ModelReaderWriter.Read), [response.Content(), ModelSerializationExtensionsSnippets.Wire, ModelReaderWriterContextSnippets.Default], new CSharpType[] { responseBodyType });
+                return ModelReaderWriterSnippets.Read(response.Content(), responseBodyType);
             }
             if (responseBodyType.IsEnum)
             {
-                return responseBodyType.ToEnum(Static(typeof(ModelReaderWriter)).Invoke(nameof(ModelReaderWriter.Read), [response.Content(), ModelSerializationExtensionsSnippets.Wire, ModelReaderWriterContextSnippets.Default], new CSharpType[] { responseBodyType.UnderlyingEnumType }));
+                return responseBodyType.ToEnum(ModelReaderWriterSnippets.Read(response.Content(), responseBodyType.UnderlyingEnumType));
             }
             return result.CastTo(responseBodyType);
         }
