@@ -31,6 +31,9 @@
     "./typescript": {
       "import": "./dist/src/typescript/index.js"
     },
+    "./python": {
+      "import": "./dist/src/python/index.js"
+    },
     "./testing": {
       "import": "./dist/src/testing/index.js"
     }
@@ -48,6 +51,10 @@
     "#typescript/*": {
       "development": "./src/typescript/*",
       "default": "./dist/src/typescript/*"
+    },
+    "#python/*": {
+      "development": "./src/python/*",
+      "default": "./dist/src/python/*"
     }
   },
   "keywords": [],
@@ -55,16 +62,18 @@
   "license": "MIT",
   "description": "",
   "peerDependencies": {
-    "@alloy-js/core": "^0.21.0",
-    "@alloy-js/csharp": "^0.21.0",
-    "@alloy-js/typescript": "^0.21.0",
+    "@alloy-js/core": "^0.21.0 || >=0.22.0-dev.3",
+    "@alloy-js/csharp": "^0.21.0 || >=0.22.0-dev.3",
+    "@alloy-js/python": "0.3.0-dev.5",
+    "@alloy-js/typescript": "^0.21.0 || >=0.22.0-dev.3",
     "@typespec/compiler": "workspace:^"
   },
   "devDependencies": {
     "@alloy-js/cli": "^0.21.0",
-    "@alloy-js/core": "^0.21.0",
+    "@alloy-js/core": ">=0.22.0-dev.4",
+    "@alloy-js/python": "0.3.0-dev.5",
     "@alloy-js/rollup-plugin": "^0.1.0",
-    "@alloy-js/typescript": "^0.21.0",
+    "@alloy-js/typescript": ">=0.22.0-dev.3",
     "@typespec/compiler": "workspace:^",
     "concurrently": "^9.1.2",
     "pathe": "^2.0.3",
