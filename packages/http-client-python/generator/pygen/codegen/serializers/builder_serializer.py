@@ -679,7 +679,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                     ")",
                     f"_file_fields: list[str] = {file_fields}",
                     f"_data_fields: list[str] = {data_fields}",
-                    "_files, _data = prepare_multipart_form_data(_body, _file_fields, _data_fields)",
+                    "_files = prepare_multipart_form_data(_body, _file_fields, _data_fields)",
                 ]
             )
             return retval
@@ -861,7 +861,6 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             retval.append(f"    {client_name}=_{client_name},")
         elif request_builder.has_form_data_body:
             retval.append("    files=_files,")
-            retval.append("    data=_data,")
         elif request_builder.overloads:
             seen_body_params = set()
             for overload in request_builder.overloads:
