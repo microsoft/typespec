@@ -92,7 +92,7 @@ def prepare_multipart_form_data(
     for data_field in data_fields:
         data_entry = body.get(data_field)
         if data_entry:
-            files.append((data_field, (None, str(serialize_multipart_data_entry(data_entry)))))
+            files.append((data_field, str(serialize_multipart_data_entry(data_entry))))
 
     return files
 {% endif %}
