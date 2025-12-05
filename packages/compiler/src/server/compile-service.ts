@@ -8,6 +8,7 @@ import {
 } from "../config/config-loader.js";
 import { resolveOptionsFromConfig } from "../config/config-to-options.js";
 import { TypeSpecConfig } from "../config/types.js";
+import { builtInLinterRule_UnusedImport } from "../core/linter-rules/unused-import.rule.js";
 import { builtInLinterRule_UnusedTemplateParameter } from "../core/linter-rules/unused-template-parameter.rule.js";
 import { builtInLinterRule_UnusedUsing } from "../core/linter-rules/unused-using.rule.js";
 import { builtInLinterLibraryName } from "../core/linter.js";
@@ -170,6 +171,17 @@ export function createCompileService({
         // User can set ['<config:defaults>'] to opt-in
         options.emit = [];
       }
+    }
+
+    // add linter rule for unused import if user didn't configure it explicitly
+    const unusedImportRule = `${builtInLinterLibraryName}/${builtInLinterRule_UnusedImport}`;
+    if (
+      options.linterRuleSet?.enable?.[unusedImportRule] === undefined &&
+      options.linterRuleSet?.disable?.[unusedImportRule] === undefined
+    ) {
+      options.linterRuleSet ??= {};
+      options.linterRuleSet.enable ??= {};
+      options.linterRuleSet.enable[unusedImportRule] = true;
     }
 
     // add linter rule for unused using if user didn't configure it explicitly

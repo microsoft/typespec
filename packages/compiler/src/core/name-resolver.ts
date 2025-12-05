@@ -69,8 +69,10 @@ import {
   EnumStatementNode,
   Expression,
   IdentifierNode,
+  ImportStatementNode,
   InterfaceStatementNode,
   IntersectionExpressionNode,
+  JsSourceFileNode,
   MemberExpressionNode,
   ModelExpressionNode,
   ModelPropertyNode,
@@ -144,6 +146,9 @@ export interface NameResolver {
   /** Get the using statement nodes which is not used in resolving yet */
   getUnusedUsings(): UsingStatementNode[];
 
+  /** Get the import statement nodes which are not used in resolving */
+  getUnusedImports(): ImportStatementNode[];
+
   /** Built-in symbols. */
   readonly symbols: {
     /** Symbol for the global namespace */
@@ -181,6 +186,13 @@ export function createResolver(program: Program): NameResolver {
    * Tracking the symbols that are used through using.
    */
   const usedUsingSym = new Map<TypeSpecScriptNode, Set<Sym>>();
+
+  /**
+   * Tracking the source files whose symbols are used in each file.
+   * Key: the file where symbols are being used
+   * Value: set of file paths whose symbols are referenced
+   */
+  const usedSourceFiles = new Map<TypeSpecScriptNode, Set<string>>();
 
   const metaTypePrototypes = createMetaTypePrototypes();
 
@@ -230,6 +242,7 @@ export function createResolver(program: Program): NameResolver {
 
     getAugmentDecoratorsForSym,
     getUnusedUsings,
+    getUnusedImports,
   };
 
   function getUnusedUsings(): UsingStatementNode[] {
@@ -254,6 +267,170 @@ export function createResolver(program: Program): NameResolver {
       }
     }
     return [...unusedUsings];
+  }
+
+  function getUnusedImports(): ImportStatementNode[] {
+    const unusedImports: ImportStatementNode[] = [];
+    for (const file of program.sourceFiles.values()) {
+      const lc = program.getSourceFileLocationContext(file.file);
+      if (lc.type === "project") {
+        const usedFiles = usedSourceFiles.get(file) ?? new Set<string>();
+        const ownFilePath = file.file.path;
+        // Get all import statements in this file
+        for (const statement of file.statements) {
+          if (statement.kind === SyntaxKind.ImportStatement) {
+            const importStatement = statement as ImportStatementNode;
+            // Check if any file loaded by this import is used
+            if (!isImportUsed(ownFilePath, importStatement.path.value, usedFiles)) {
+              unusedImports.push(importStatement);
+            }
+          }
+        }
+      }
+    }
+    return unusedImports;
+  }
+
+  /**
+   * Checks if an import is used by checking if any symbols from the imported file(s) are referenced.
+   * @param importingFilePath - The file that contains the import statement
+   * @param importPath - The import path string (e.g., "./models.tsp" or "@typespec/http")
+   * @param usedFiles - Set of file paths whose symbols are used in the importing file
+   */
+  function isImportUsed(
+    importingFilePath: string,
+    importPath: string,
+    usedFiles: Set<string>,
+  ): boolean {
+    // Resolve the import path to actual file paths
+    // For relative imports, we need to resolve relative to the importing file
+    const resolvedPaths = resolveImportPaths(importingFilePath, importPath);
+
+    // Check if any of the resolved files (or files they load) are in the used set
+    for (const resolvedPath of resolvedPaths) {
+      if (usedFiles.has(resolvedPath)) {
+        return true;
+      }
+      // Also check for transitive usage - if this import loads another file that is used
+      const loadedFile = program.sourceFiles.get(resolvedPath);
+      if (loadedFile) {
+        // Check if any symbols from this file are transitively used
+        for (const usedPath of usedFiles) {
+          // If the used file was loaded through this import
+          if (usedPath === resolvedPath) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Resolve an import path to the actual file paths it loads.
+   */
+  function resolveImportPaths(importingFilePath: string, importPath: string): string[] {
+    const resolvedPaths: string[] = [];
+
+    // For relative paths, resolve against the importing file's directory
+    if (importPath.startsWith(".")) {
+      // Get the directory of the importing file
+      const importingDir = importingFilePath.substring(
+        0,
+        importingFilePath.lastIndexOf("/") + 1,
+      );
+
+      // Simple path resolution for relative imports
+      let resolvedPath = importingDir + importPath;
+
+      // Normalize the path (remove ./ and resolve ../)
+      resolvedPath = normalizePath(resolvedPath);
+
+      // Add .tsp extension if not present
+      if (!resolvedPath.endsWith(".tsp") && !resolvedPath.endsWith(".js")) {
+        // Check if it's a file or directory
+        if (program.sourceFiles.has(resolvedPath + ".tsp")) {
+          resolvedPath = resolvedPath + ".tsp";
+        } else if (program.sourceFiles.has(resolvedPath + "/main.tsp")) {
+          resolvedPath = resolvedPath + "/main.tsp";
+        }
+      }
+
+      resolvedPaths.push(resolvedPath);
+    } else {
+      // For package imports (like @typespec/http), find files from that package
+      // by checking which loaded files have paths that match
+      for (const filePath of program.sourceFiles.keys()) {
+        // Check if this file comes from the imported package
+        if (filePath.includes(`/node_modules/${importPath}/`) ||
+            filePath.includes(`\\node_modules\\${importPath}\\`)) {
+          resolvedPaths.push(filePath);
+        }
+      }
+      // Also check for files loaded from the package root
+      for (const filePath of program.jsSourceFiles.keys()) {
+        if (filePath.includes(`/node_modules/${importPath}/`) ||
+            filePath.includes(`\\node_modules\\${importPath}\\`)) {
+          resolvedPaths.push(filePath);
+        }
+      }
+    }
+
+    return resolvedPaths;
+  }
+
+  /**
+   * Normalize a file path by resolving . and .. segments
+   */
+  function normalizePath(path: string): string {
+    const parts = path.split("/");
+    const result: string[] = [];
+    for (const part of parts) {
+      if (part === "..") {
+        result.pop();
+      } else if (part !== "." && part !== "") {
+        result.push(part);
+      }
+    }
+    return (path.startsWith("/") ? "/" : "") + result.join("/");
+  }
+
+  /**
+   * Track that a symbol from a source file is being used in the given scope's file.
+   * This is used to determine which imports are unused.
+   */
+  function trackSymbolSourceFileUsage(scope: TypeSpecScriptNode, sym: Sym): void {
+    const sourceFilePath = getSymbolSourceFilePath(sym);
+    if (sourceFilePath && sourceFilePath !== scope.file.path) {
+      const usedFiles = usedSourceFiles.get(scope) ?? new Set<string>();
+      usedFiles.add(sourceFilePath);
+      usedSourceFiles.set(scope, usedFiles);
+    }
+  }
+
+  /**
+   * Get the source file path where a symbol is declared.
+   */
+  function getSymbolSourceFilePath(sym: Sym): string | undefined {
+    // Get the symbol's declaration node
+    const declaration = sym.declarations?.[0];
+    if (!declaration) {
+      return undefined;
+    }
+
+    // Walk up to find the root TypeSpecScript or JsSourceFile node
+    let node: Node | undefined = declaration;
+    while (node?.parent) {
+      node = node.parent;
+    }
+
+    if (node?.kind === SyntaxKind.TypeSpecScript) {
+      return (node as TypeSpecScriptNode).file.path;
+    } else if (node?.kind === SyntaxKind.JsSourceFile) {
+      return (node as JsSourceFileNode).file.path;
+    }
+
+    return undefined;
   }
 
   function getAugmentDecoratorsForSym(sym: Sym) {
@@ -1030,6 +1207,8 @@ export function createResolver(program: Program): NameResolver {
       if (globalBinding && usingBinding) {
         return ambiguousResult([globalBinding, usingBinding]);
       } else if (globalBinding) {
+        // Track the source file of the resolved symbol as being used
+        trackSymbolSourceFileUsage(scope, globalBinding);
         return resolvedResult(globalBinding);
       } else if (usingBinding) {
         if (usingBinding.flags & SymbolFlags.DuplicateUsing) {

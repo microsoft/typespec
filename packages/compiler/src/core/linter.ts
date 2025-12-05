@@ -2,6 +2,7 @@ import { isPromise } from "../utils/misc.js";
 import { DiagnosticCollector, compilerAssert, createDiagnosticCollector } from "./diagnostics.js";
 import { getLocationContext } from "./helpers/location-context.js";
 import { defineLinter } from "./library.js";
+import { createUnusedImportLinterRule } from "./linter-rules/unused-import.rule.js";
 import { createUnusedTemplateParameterLinterRule } from "./linter-rules/unused-template-parameter.rule.js";
 import { createUnusedUsingLinterRule } from "./linter-rules/unused-using.rule.js";
 import { createDiagnostic } from "./messages.js";
@@ -352,10 +353,11 @@ export function createBuiltInLinterLibrary(): LinterLibraryInstance {
   return { linter: builtInLinter };
 }
 function createBuiltInLinter(): LinterDefinition {
+  const unusedImportLinterRule = createUnusedImportLinterRule();
   const unusedUsingLinterRule = createUnusedUsingLinterRule();
   const unusedTemplateParameterLinterRule = createUnusedTemplateParameterLinterRule();
 
   return defineLinter({
-    rules: [unusedUsingLinterRule, unusedTemplateParameterLinterRule],
+    rules: [unusedImportLinterRule, unusedUsingLinterRule, unusedTemplateParameterLinterRule],
   });
 }
