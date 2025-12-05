@@ -108,10 +108,8 @@ public class SchemaCleanup {
         }
         if (!schemasNotInUse.isEmpty() || !choicesSchemasNotInUse.isEmpty()) {
             // operation responses
-            Set<Schema> responses = codeModel.getOperationGroups()
-                .stream()
-                .flatMap(og -> og.getOperations().stream())
-                .flatMap(o -> {
+            Set<Schema> responses
+                = codeModel.getOperationGroups().stream().flatMap(og -> og.getOperations().stream()).flatMap(o -> {
                     if (o.getLroMetadata() == null) {
                         // not LRO operation, or it is LRO but not from TypeSpec
                         return o.getResponses().stream().map(Response::getSchema);
@@ -119,10 +117,7 @@ public class SchemaCleanup {
                         // if the operation has LroMetadata, SDK will use its FinalResultType
                         return Stream.of(o.getLroMetadata().getFinalResultType());
                     }
-                })
-                .map(SchemaCleanup::schemaOrElementInCollection)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
+                }).map(SchemaCleanup::schemaOrElementInCollection).filter(Objects::nonNull).collect(Collectors.toSet());
             schemasNotInUse.removeAll(responses);
             choicesSchemasNotInUse.removeAll(responses);
             schemasInUse.addAll(responses);
