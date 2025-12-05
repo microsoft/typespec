@@ -3,11 +3,12 @@ import type {
   CustomMutationClasses,
   MutationEngine,
   MutationFor,
+  MutationHalfEdge,
   MutationOptions,
 } from "./mutation-engine.js";
-import { Mutation } from "./mutation.js";
+import { Mutation, type MutationInfo } from "./mutation.js";
 
-export class InterfaceMutation<
+export abstract class InterfaceMutation<
   TOptions extends MutationOptions,
   TCustomMutations extends CustomMutationClasses,
 > extends Mutation<Interface, TCustomMutations, TOptions> {
@@ -17,20 +18,26 @@ export class InterfaceMutation<
   constructor(
     engine: MutationEngine<TCustomMutations>,
     sourceType: Interface,
-    referenceTypes: MemberType[] = [],
+    referenceTypes: MemberType[],
     options: TOptions,
+    info: MutationInfo,
   ) {
-    super(engine, sourceType, referenceTypes, options);
+    super(engine, sourceType, referenceTypes, options, info);
   }
 
   protected mutateOperations() {
     for (const op of this.sourceType.operations.values()) {
       this.operations.set(
         op.name,
-        this.engine.mutate(op, this.options) as MutationFor<TCustomMutations, "Operation">,
+        this.engine.mutate(op, this.options, this.startOperationEdge()) as MutationFor<
+          TCustomMutations,
+          "Operation"
+        >,
       );
     }
   }
+
+  protected abstract startOperationEdge(): MutationHalfEdge;
 
   mutate() {
     this.mutateOperations();

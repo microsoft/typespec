@@ -1,6 +1,6 @@
 import type { BooleanLiteral, MemberType, NumericLiteral, StringLiteral } from "@typespec/compiler";
 import type { CustomMutationClasses, MutationEngine, MutationOptions } from "./mutation-engine.js";
-import { Mutation } from "./mutation.js";
+import { Mutation, type MutationInfo } from "./mutation.js";
 
 export class LiteralMutation<
   TOptions extends MutationOptions,
@@ -17,10 +17,11 @@ export class LiteralMutation<
   constructor(
     engine: TEngine,
     sourceType: StringLiteral | NumericLiteral | BooleanLiteral,
-    referenceTypes: MemberType[] = [],
+    referenceTypes: MemberType[],
     options: TOptions,
+    info: MutationInfo,
   ) {
-    super(engine, sourceType, referenceTypes, options);
+    super(engine, sourceType, referenceTypes, options, info);
   }
 
   mutate() {
