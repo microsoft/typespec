@@ -38,9 +38,13 @@ export function convertDiagnosticToLsp(
 
   let message = diagnostic.message;
   if (root === undefined) {
-    const emitterName = program.compilerOptions.emit?.find((emitName) =>
-      diagnostic.message.includes(emitName),
-    );
+    let emitterName: string | undefined = undefined;
+    if (diagnostic.code === "import-not-found") {
+      emitterName = program.compilerOptions.emit?.find((emitName) =>
+        diagnostic.message.includes(emitName),
+      );
+    }
+     
     root = getLocationInTspConfig(fileService, program.compilerOptions.config, emitterName);
     if (root === undefined) {
       // If the emitter is enabled from clientConfig (i.e. vscode settings), append "[From IDE settings]" to the message,
