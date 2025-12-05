@@ -87,7 +87,7 @@ def prepare_multipart_form_data(
         elif multipart_entry:
             files.append((multipart_field, multipart_entry))
 
-    # if files is empty, azure-core can't handle multipart/form-data correctly, so
+    # if files is empty, sdk core library can't handle multipart/form-data correctly, so
     # we put data fields into files with filename as None to avoid that scenario.
     for data_field in data_fields:
         data_entry = body.get(data_field)
