@@ -225,7 +225,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public IReadOnlyList<PropertyProvider> Properties => _properties ??= FilterCustomizedMembers ? FilterCustomizedProperties(BuildProperties()) : BuildProperties();
 
         private IReadOnlyList<MethodProvider>? _methods;
-        public IReadOnlyList<MethodProvider> Methods => _methods ??= FilterCustomizedMembers ? FilterCustomizedMethods(BuildMethods()) : BuildMethods();
+        public IReadOnlyList<MethodProvider> Methods => _methods ??= FilterCustomizedMembers
+            ? FilterCustomizedMethods(BuildMethods())
+            : BuildMethodsForBackCompatibility(BuildMethods());
 
         private IReadOnlyList<ConstructorProvider>? _constructors;
 
@@ -334,7 +336,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
             }
 
-            return [..methods];
+            return [ .. BuildMethodsForBackCompatibility(methods)];
         }
 
         internal ConstructorProvider[] FilterCustomizedConstructors(IEnumerable<ConstructorProvider> specConstructors)
@@ -548,6 +550,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 type.EnsureBuilt();
             }
         }
+
+        protected virtual IReadOnlyList<MethodProvider> BuildMethodsForBackCompatibility(IEnumerable<MethodProvider> originalMethods)
+            => [.. originalMethods];
 
         private IReadOnlyList<EnumTypeMember>? _enumValues;
 
