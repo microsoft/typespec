@@ -173,9 +173,7 @@ class MsrestModelSerializer(_ModelSerializer):
 
     def declare_model(self, model: ModelType) -> str:
         basename = (
-            "msrest.serialization.Model"
-            if self.code_model.options["client-side-validation"]
-            else "_serialization.Model"
+            "msrest.serialization.Model" if not self.code_model.need_utils_serialization else "_serialization.Model"
         )
         if model.parents:
             basename = ", ".join([m.name for m in model.parents])
@@ -334,6 +332,9 @@ class DpgModelSerializer(_ModelSerializer):
 
         if prop.xml_metadata:
             args.append(f"xml={prop.xml_metadata}")
+
+        if prop.original_tsp_name:
+            args.append(f'original_tsp_name="{prop.original_tsp_name}"')
 
         field = "rest_discriminator" if prop.is_discriminator else "rest_field"
         type_ignore = (

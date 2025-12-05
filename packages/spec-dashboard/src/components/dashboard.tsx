@@ -54,7 +54,7 @@ const CadlRanchSpecsCard: FunctionComponent<{
   coverageSummary: CoverageSummary;
 }> = ({ coverageSummary }) => {
   const commitLink = `${coverageSummary.manifest.repo}/commit/${coverageSummary.manifest.commit}`;
-  const heading = coverageSummary.manifest.displayName;
+  const heading = coverageSummary.tableName || coverageSummary.manifest.displayName;
   const packageName = coverageSummary.manifest.packageName;
 
   return (

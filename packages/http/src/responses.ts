@@ -34,15 +34,24 @@ export function getResponsesForOperation(
   const responses = new ResponseIndex();
   const tk = $(program);
   if (tk.union.is(responseType) && !tk.union.getDiscriminatedUnion(responseType)) {
+    // Check if the union itself has a @doc to use as the response description
+    const unionDescription = getDoc(program, responseType);
     for (const option of responseType.variants.values()) {
       if (isNullType(option.type)) {
         // TODO how should we treat this? https://github.com/microsoft/typespec/issues/356
         continue;
       }
-      processResponseType(program, diagnostics, operation, responses, option.type);
+      processResponseType(
+        program,
+        diagnostics,
+        operation,
+        responses,
+        option.type,
+        unionDescription,
+      );
     }
   } else {
-    processResponseType(program, diagnostics, operation, responses, responseType);
+    processResponseType(program, diagnostics, operation, responses, responseType, undefined);
   }
 
   return diagnostics.wrap(responses.values());
@@ -81,6 +90,7 @@ function processResponseType(
   operation: Operation,
   responses: ResponseIndex,
   responseType: Type,
+  parentDescription?: string,
 ) {
   const tk = $(program);
 
@@ -89,11 +99,20 @@ function processResponseType(
   // or when unions are nested (e.g., a union variant is itself a union).
   // Each variant will be processed separately to extract its status codes and responses.
   if (tk.union.is(responseType) && !tk.union.getDiscriminatedUnion(responseType)) {
+    // Check if this nested union has its own @doc, otherwise inherit parent's description
+    const unionDescription = getDoc(program, responseType) ?? parentDescription;
     for (const option of responseType.variants.values()) {
       if (isNullType(option.type)) {
         continue;
       }
-      processResponseType(program, diagnostics, operation, responses, option.type);
+      processResponseType(
+        program,
+        diagnostics,
+        operation,
+        responses,
+        option.type,
+        unionDescription,
+      );
     }
     return;
   }
@@ -132,7 +151,14 @@ function processResponseType(
     const response: HttpOperationResponse = responses.get(statusCode) ?? {
       statusCodes: statusCode,
       type: responseType,
-      description: getResponseDescription(program, operation, responseType, statusCode, metadata),
+      description: getResponseDescription(
+        program,
+        operation,
+        responseType,
+        statusCode,
+        metadata,
+        parentDescription,
+      ),
       responses: [],
     };
 
@@ -223,7 +249,13 @@ function getResponseDescription(
   responseType: Type,
   statusCode: HttpStatusCodes[number],
   metadata: HttpProperty[],
+  parentDescription?: string,
 ): string | undefined {
+  // If a parent union provided a description, use that first
+  if (parentDescription) {
+    return parentDescription;
+  }
+
   // NOTE: If the response type is an envelope and not the same as the body
   // type, then use its @doc as the response description. However, if the
   // response type is the same as the body type, then use the default status

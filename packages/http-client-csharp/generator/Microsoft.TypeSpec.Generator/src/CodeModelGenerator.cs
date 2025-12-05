@@ -28,6 +28,13 @@ namespace Microsoft.TypeSpec.Generator
         private static CodeModelGenerator? _instance;
         private List<string> _sharedSourceDirectories = [];
         public const string GeneratorMetadataName = "GeneratorName";
+
+        /// <summary>
+        /// The fixed namespace used for CodeGen customization attributes.
+        /// Using a fixed namespace avoids API compatibility failures when the project namespace changes.
+        /// </summary>
+        internal const string CustomizationAttributeNamespace = "Microsoft.TypeSpec.Generator.Customizations";
+
         internal Stopwatch Stopwatch { get; } = new Stopwatch();
         public static CodeModelGenerator Instance
         {

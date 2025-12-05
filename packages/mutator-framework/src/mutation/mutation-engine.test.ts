@@ -1,9 +1,11 @@
-import type { Model } from "@typespec/compiler";
+import type { Enum, Model } from "@typespec/compiler";
 import { t } from "@typespec/compiler/testing";
 import { $, type Typekit } from "@typespec/compiler/typekit";
 import { expect, it } from "vitest";
 import { Tester } from "../../test/test-host.js";
 import type { MutationSubgraph } from "../mutation-node/mutation-subgraph.js";
+import { EnumMemberMutation } from "./enum-member.js";
+import { EnumMutation } from "./enum.js";
 import { ModelPropertyMutation } from "./model-property.js";
 import { ModelMutation } from "./model.js";
 import { MutationEngine, MutationOptions } from "./mutation-engine.js";
@@ -199,4 +201,71 @@ it("mutates model properties into unions", async () => {
 
   const mutatedFoo = fooMutation.unionified;
   expect(tk.union.is(mutatedFoo.properties.get("prop")!.type)).toBe(true);
+});
+
+interface RenameEnumMutations {
+  Enum: RenameEnumMutation;
+  EnumMember: RenameEnumMemberMutation;
+}
+
+class RenameEnumMutation extends EnumMutation<
+  RenameMutationOptions,
+  RenameEnumMutations,
+  MutationEngine<RenameEnumMutations>
+> {
+  get withPrefix() {
+    return this.getMutatedType();
+  }
+
+  mutate() {
+    this.mutateType((e) => (e.name = `${this.options.prefix}${this.sourceType.name}`));
+    super.mutate();
+  }
+}
+
+class RenameEnumMemberMutation extends EnumMemberMutation<
+  RenameMutationOptions,
+  RenameEnumMutations,
+  MutationEngine<RenameEnumMutations>
+> {
+  get withPrefix() {
+    return this.getMutatedType();
+  }
+
+  mutate() {
+    this.mutateType((m) => (m.name = `${this.options.prefix}${this.sourceType.name}`));
+    super.mutate();
+  }
+}
+
+it("mutates enums and enum members", async () => {
+  const runner = await Tester.createInstance();
+  const { Status, program } = await runner.compile(t.code`
+    enum ${t.enum("Status")} {
+      Active,
+      Inactive,
+    }
+  `);
+
+  const tk = $(program);
+  const engine = new SimpleMutationEngine(tk, {
+    Enum: RenameEnumMutation,
+    EnumMember: RenameEnumMemberMutation,
+  });
+
+  const options = new RenameMutationOptions("Pre", "Suf");
+  const enumMutation = engine.mutate(Status, options) as RenameEnumMutation;
+
+  // Verify the enum and its members are mutated
+  expect(enumMutation.withPrefix.name).toBe("PreStatus");
+
+  const activeMutation = enumMutation.members.get("Active") as RenameEnumMemberMutation;
+  expect(activeMutation.withPrefix.name).toBe("PreActive");
+
+  // Verify the mutated enum has the renamed members
+  const mutatedEnum = enumMutation.withPrefix as Enum;
+  expect(mutatedEnum.members.has("PreActive")).toBe(true);
+  expect(mutatedEnum.members.has("PreInactive")).toBe(true);
+  expect(mutatedEnum.members.has("Active")).toBe(false);
+  expect(mutatedEnum.members.has("Inactive")).toBe(false);
 });

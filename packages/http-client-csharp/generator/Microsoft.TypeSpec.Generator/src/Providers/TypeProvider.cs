@@ -516,6 +516,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // Reset the custom code view to reflect the new namespace
                 _customCodeView = new(BuildCustomCodeView(Type.Name, @namespace));
                 _lastContractView = new(BuildLastContractView(Type.Name, @namespace));
+                _declarationModifiers = BuildDeclarationModifiersInternal(); // recalculate declaration modifiers
                 Type.Update(@namespace: _customCodeView.Value?.Type.Namespace ?? @namespace);
             }
 

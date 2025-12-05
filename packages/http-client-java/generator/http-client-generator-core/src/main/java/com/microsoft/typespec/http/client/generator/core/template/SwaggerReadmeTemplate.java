@@ -5,11 +5,11 @@ package com.microsoft.typespec.http.client.generator.core.template;
 
 import static com.microsoft.typespec.http.client.generator.core.util.Constants.NEW_LINE;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.AutorestSettings;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.projectmodel.Project;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
