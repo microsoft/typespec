@@ -305,6 +305,14 @@ function getStringSchemaDecorators(schema: OpenAPI3Schema | OpenAPISchema3_1) {
     decorators.push({ name: "format", args: [schema.format] });
   }
 
+  // Handle contentEncoding: base64 for OpenAPI 3.1+ (indicates binary data encoded as base64 string)
+  if ("contentEncoding" in schema && schema.contentEncoding === "base64") {
+    decorators.push({
+      name: "encode",
+      args: [createTSValue(`"base64"`), createTSValue("string")],
+    });
+  }
+
   return decorators;
 }
 
