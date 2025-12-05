@@ -78,7 +78,7 @@ def serialize_multipart_data_entry(data_entry: Any) -> Any:
 
 def prepare_multipart_form_data(
     body: Mapping[str, Any], multipart_fields: list[str], data_fields: list[str]
-) -> tuple[list[FileType]]:
+) -> list[FileType]:
     files: list[FileType] = []
     for multipart_field in multipart_fields:
         multipart_entry = body.get(multipart_field)
