@@ -235,7 +235,10 @@ function emitProperty(
   }
   return {
     clientName: camelToSnakeCase(property.name),
-    wireName: property.serializationOptions.json?.name ?? property.name,
+    wireName:
+      (property.serializationOptions?.multipart
+        ? property.serializationOptions?.multipart?.name
+        : property.serializationOptions?.json?.name) ?? property.name,
     type: getType(context, sourceType),
     optional: property.optional,
     description: property.summary ? property.summary : property.doc,
