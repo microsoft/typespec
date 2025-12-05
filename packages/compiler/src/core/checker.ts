@@ -5959,18 +5959,22 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     stats.finishedTypes++;
 
     if (!options.skipDecorators) {
+      let postSelfValidators: ValidatorFn[] = [];
       if ("decorators" in typeDef) {
-        applyDecoratorsToType(typeDef);
+        postSelfValidators = applyDecoratorsToType(typeDef);
       }
       typeDef.isFinished = true;
       Object.setPrototypeOf(typeDef, typePrototype);
+      runPostValidators(postSelfValidators);
     }
 
     markAsChecked(typeDef);
     return typeDef;
   }
 
-  function applyDecoratorsToType(typeDef: Type & { decorators: DecoratorApplication[] }) {
+  function applyDecoratorsToType(
+    typeDef: Type & { decorators: DecoratorApplication[] },
+  ): ValidatorFn[] {
     const postSelfValidators: ValidatorFn[] = [];
     for (const decApp of typeDef.decorators) {
       const validators = applyDecoratorToType(program, decApp, typeDef);
@@ -5981,7 +5985,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         postCheckValidators.push(validators.onGraphFinish);
       }
     }
-    runPostValidators(postSelfValidators);
+    return postSelfValidators;
   }
 
   /** Run a list of post validator */
