@@ -81,7 +81,7 @@ describe("converts top-level schemas", () => {
         Base64Encoded: {
           type: "string",
           contentEncoding: "base64",
-        },
+        } as any,
       },
     });
 
