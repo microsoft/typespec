@@ -404,7 +404,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             if (responseBodyType.IsEnum)
             {
-                return responseBodyType.ToEnum(Static(typeof(ModelReaderWriter)).Invoke(nameof(ModelReaderWriter.Read), [response.Content(), ModelSerializationExtensionsSnippets.Wire, ModelReaderWriterContextSnippets.Default], new CSharpType[] { responseBodyType.UnderlyingEnumType }));
+                return Static(typeof(ModelReaderWriter)).Invoke(nameof(ModelReaderWriter.Read), [response.Content(), ModelSerializationExtensionsSnippets.Wire, ModelReaderWriterContextSnippets.Default], new CSharpType[] { responseBodyType });
             }
             return result.CastTo(responseBodyType);
         }
