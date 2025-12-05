@@ -61,6 +61,7 @@ import { Mutable, mutate } from "../utils/misc.js";
 import { createSymbol, createSymbolTable, getSymNode } from "./binder.js";
 import { compilerAssert } from "./diagnostics.js";
 import { getFirstAncestor, visitChildren } from "./parser.js";
+import { getDirectoryPath, normalizePath, resolvePath } from "./path-utils.js";
 import { Program } from "./program.js";
 import {
   AliasStatementNode,
@@ -306,21 +307,10 @@ export function createResolver(program: Program): NameResolver {
     // For relative imports, we need to resolve relative to the importing file
     const resolvedPaths = resolveImportPaths(importingFilePath, importPath);
 
-    // Check if any of the resolved files (or files they load) are in the used set
+    // Check if any of the resolved files are in the used set
     for (const resolvedPath of resolvedPaths) {
       if (usedFiles.has(resolvedPath)) {
         return true;
-      }
-      // Also check for transitive usage - if this import loads another file that is used
-      const loadedFile = program.sourceFiles.get(resolvedPath);
-      if (loadedFile) {
-        // Check if any symbols from this file are transitively used
-        for (const usedPath of usedFiles) {
-          // If the used file was loaded through this import
-          if (usedPath === resolvedPath) {
-            return true;
-          }
-        }
       }
     }
     return false;
@@ -334,16 +324,11 @@ export function createResolver(program: Program): NameResolver {
 
     // For relative paths, resolve against the importing file's directory
     if (importPath.startsWith(".")) {
-      // Get the directory of the importing file
-      const importingDir = importingFilePath.substring(
-        0,
-        importingFilePath.lastIndexOf("/") + 1,
-      );
+      // Get the directory of the importing file using the proper path utility
+      const importingDir = getDirectoryPath(importingFilePath);
 
-      // Simple path resolution for relative imports
-      let resolvedPath = importingDir + importPath;
-
-      // Normalize the path (remove ./ and resolve ../)
+      // Resolve the path and normalize it
+      let resolvedPath = resolvePath(importingDir, importPath);
       resolvedPath = normalizePath(resolvedPath);
 
       // Add .tsp extension if not present
@@ -360,39 +345,25 @@ export function createResolver(program: Program): NameResolver {
     } else {
       // For package imports (like @typespec/http), find files from that package
       // by checking which loaded files have paths that match
+      // Normalize the import path for matching (handles both / and \ separators)
+      const normalizedModulePath = `/node_modules/${importPath}/`;
       for (const filePath of program.sourceFiles.keys()) {
-        // Check if this file comes from the imported package
-        if (filePath.includes(`/node_modules/${importPath}/`) ||
-            filePath.includes(`\\node_modules\\${importPath}\\`)) {
+        // Normalize the file path and check if it contains the module path
+        const normalizedFilePath = normalizePath(filePath);
+        if (normalizedFilePath.includes(normalizedModulePath)) {
           resolvedPaths.push(filePath);
         }
       }
       // Also check for files loaded from the package root
       for (const filePath of program.jsSourceFiles.keys()) {
-        if (filePath.includes(`/node_modules/${importPath}/`) ||
-            filePath.includes(`\\node_modules\\${importPath}\\`)) {
+        const normalizedFilePath = normalizePath(filePath);
+        if (normalizedFilePath.includes(normalizedModulePath)) {
           resolvedPaths.push(filePath);
         }
       }
     }
 
     return resolvedPaths;
-  }
-
-  /**
-   * Normalize a file path by resolving . and .. segments
-   */
-  function normalizePath(path: string): string {
-    const parts = path.split("/");
-    const result: string[] = [];
-    for (const part of parts) {
-      if (part === "..") {
-        result.pop();
-      } else if (part !== "." && part !== "") {
-        result.push(part);
-      }
-    }
-    return (path.startsWith("/") ? "/" : "") + result.join("/");
   }
 
   /**
