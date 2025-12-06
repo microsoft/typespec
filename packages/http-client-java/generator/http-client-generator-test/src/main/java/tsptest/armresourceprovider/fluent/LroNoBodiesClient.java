@@ -14,6 +14,7 @@ import com.azure.core.util.polling.SyncPoller;
 import java.nio.ByteBuffer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import tsptest.armresourceprovider.models.ActionFinalResult;
 import tsptest.armresourceprovider.models.ResourceLroNoBody;
 
 /**
@@ -126,4 +127,100 @@ public interface LroNoBodiesClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     ResourceLroNoBody createOrUpdate(String resourceGroupName, String resourceLroNoBodyName, ResourceLroNoBody resource,
         Context context);
+
+    /**
+     * A long-running resource action.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response} on successful completion of {@link Mono}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    Mono<Response<Flux<ByteBuffer>>> actionWithResponseAsync(String resourceGroupName, String resourceLroNoBodyName);
+
+    /**
+     * A long-running resource action.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link PollerFlux} for polling of long-running operation.
+     */
+    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
+    PollerFlux<PollResult<ActionFinalResult>, ActionFinalResult> beginActionAsync(String resourceGroupName,
+        String resourceLroNoBodyName);
+
+    /**
+     * A long-running resource action.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link SyncPoller} for polling of long-running operation.
+     */
+    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
+    SyncPoller<PollResult<ActionFinalResult>, ActionFinalResult> beginAction(String resourceGroupName,
+        String resourceLroNoBodyName);
+
+    /**
+     * A long-running resource action.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link SyncPoller} for polling of long-running operation.
+     */
+    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
+    SyncPoller<PollResult<ActionFinalResult>, ActionFinalResult> beginAction(String resourceGroupName,
+        String resourceLroNoBodyName, Context context);
+
+    /**
+     * A long-running resource action.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body on successful completion of {@link Mono}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    Mono<ActionFinalResult> actionAsync(String resourceGroupName, String resourceLroNoBodyName);
+
+    /**
+     * A long-running resource action.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    ActionFinalResult action(String resourceGroupName, String resourceLroNoBodyName);
+
+    /**
+     * A long-running resource action.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws com.azure.core.management.exception.ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    ActionFinalResult action(String resourceGroupName, String resourceLroNoBodyName, Context context);
 }

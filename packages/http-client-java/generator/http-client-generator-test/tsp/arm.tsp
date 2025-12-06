@@ -272,6 +272,16 @@ model ResourceLroNoBodyProperties {
   provisioningState?: ProvisioningState;
 }
 
+// this model should not be generated
+model ActionInitiateResult {
+  status: string;
+}
+
+// this model should be generated
+model ActionFinalResult {
+  result: string;
+}
+
 //----------------------- Paths -----------------------
 @armResourceOperations
 interface ChildResourcesInterface
@@ -389,6 +399,15 @@ interface LroNoBody {
     Request = ResourceLroNoBody,
     Response = ArmAcceptedLroResponse<LroHeaders = ArmCombinedLroHeaders<FinalResult = ResourceLroNoBody> &
       Azure.Core.Foundations.RetryAfterHeader>
+  >;
+
+  @post
+  action is ArmResourceActionAsync<
+    ResourceLroNoBody,
+    void,
+    ActionInitiateResult,
+    LroHeaders = ArmCombinedLroHeaders<FinalResult = ActionFinalResult> &
+      Azure.Core.Foundations.RetryAfterHeader
   >;
 }
 
