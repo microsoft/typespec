@@ -329,6 +329,8 @@ class DpgModelSerializer(_ModelSerializer):
             args.append("is_multipart_file_input=True")
         elif hasattr(prop.type, "encode") and prop.type.encode:  # type: ignore
             args.append(f'format="{prop.type.encode}"')  # type: ignore
+        elif prop.encode:
+            args.append(f'format="{prop.encode}"')
 
         if prop.xml_metadata:
             args.append(f"xml={prop.xml_metadata}")

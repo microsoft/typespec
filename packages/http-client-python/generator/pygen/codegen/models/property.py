@@ -40,6 +40,7 @@ class Property(BaseModel):  # pylint: disable=too-many-instance-attributes
         self.is_multipart_file_input: bool = yaml_data.get("isMultipartFileInput", False)
         self.flatten = self.yaml_data.get("flatten", False) and not getattr(self.type, "flattened_property", False)
         self.original_tsp_name: Optional[str] = self.yaml_data.get("originalTspName")
+        self.encode: Optional[str] = self.yaml_data.get("encode")
 
     def pylint_disable(self) -> str:
         retval: str = ""
