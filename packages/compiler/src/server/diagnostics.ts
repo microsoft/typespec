@@ -3,6 +3,7 @@ import type {
   Range,
   Diagnostic as VSDiagnostic,
 } from "vscode-languageserver";
+import { Range as VSRange } from "vscode-languageserver";
 import type { TextDocument } from "vscode-languageserver-textdocument";
 import { DiagnosticSeverity } from "vscode-languageserver/node.js";
 import {
@@ -14,6 +15,10 @@ import type { Program } from "../core/program.js";
 import type { Node, SourceLocation } from "../core/types.js";
 import { Diagnostic } from "../core/types.js";
 import { isDefined } from "../utils/misc.js";
+import { getLocationInYamlScript } from "../yaml/diagnostics.js";
+import { parseYaml } from "../yaml/parser.js";
+import { YamlScript } from "../yaml/types.js";
+import { Config } from "./client-config-provider.js";
 import type { FileService } from "./file-service.js";
 import type { ServerSourceFile } from "./types.js";
 
@@ -23,12 +28,39 @@ export function convertDiagnosticToLsp(
   program: Program,
   document: TextDocument,
   diagnostic: Diagnostic,
+  clientConfig?: Config | undefined,
 ): [VSDiagnostic, TextDocument][] {
-  const root = getVSLocation(
+  let root = getVSLocation(
     fileService,
     getSourceLocation(diagnostic.target, { locateId: true }),
     document,
   );
+
+  let message = diagnostic.message;
+  if (root === undefined) {
+    let emitterName: string | undefined = undefined;
+    if (diagnostic.code === "import-not-found") {
+      emitterName = program.compilerOptions.emit?.find((emitName) =>
+        diagnostic.message.includes(emitName),
+      );
+    }
+     
+    root = getLocationInTspConfig(fileService, program.compilerOptions.config, emitterName);
+    if (root === undefined) {
+      // If the emitter is enabled from clientConfig (i.e. vscode settings), append "[From IDE settings]" to the message,
+      // otherwise append [No associated location] because we can't figure out the related source location.
+      // Both will be shown in the top of current active doc because vscode requires a location when reporting diagnostics.
+      message +=
+        clientConfig?.lsp?.emit && emitterName && clientConfig.lsp.emit.includes(emitterName)
+          ? " [From IDE settings]"
+          : " [No associated location]";
+      root = {
+        range: VSRange.create(0, 0, 0, 0),
+        document,
+      };
+    }
+  }
+
   if (root === undefined || !fileService.upToDate(root.document)) return [];
 
   const instantiationNodes = getDiagnosticTemplateInstantitationTrace(diagnostic.target);
@@ -73,7 +105,7 @@ export function convertDiagnosticToLsp(
   const rootDiagnostic: [VSDiagnostic, TextDocument] = [
     createLspDiagnostic({
       range: root.range,
-      message: diagnostic.message,
+      message,
       severity: convertSeverity(diagnostic.severity),
       code: diagnostic.code,
       relatedInformation,
@@ -174,4 +206,45 @@ function convertSeverity(severity: "warning" | "error"): DiagnosticSeverity {
     case "error":
       return DiagnosticSeverity.Error;
   }
+}
+
+function getLocationInTspConfig(
+  fileService: FileService,
+  configFilePath: string | undefined,
+  emitterName?: string,
+): VSLocation | undefined {
+  if (configFilePath && emitterName && emitterName.length > 0) {
+    const docTspConfig = fileService.getOpenDocument(configFilePath);
+    if (!docTspConfig) {
+      return undefined;
+    }
+    const [yamlScript] = parseYaml(docTspConfig.getText());
+    const range = getDiagnosticRangeInTspConfig(yamlScript, emitterName);
+    if (range === undefined) {
+      return undefined;
+    }
+    return {
+      range,
+      document: docTspConfig,
+    };
+  }
+  return undefined;
+}
+
+export function getDiagnosticRangeInTspConfig(
+  yamlScript: YamlScript,
+  emitterName: string,
+): Range | undefined {
+  const target = getLocationInYamlScript(yamlScript, ["emit", emitterName], "key");
+  if (target.pos === 0) {
+    return undefined;
+  }
+
+  const lineAndChar = target.file.getLineAndCharacterOfPosition(target.pos);
+  return VSRange.create(
+    lineAndChar.line,
+    lineAndChar.character,
+    lineAndChar.line,
+    lineAndChar.character + emitterName.length,
+  );
 }

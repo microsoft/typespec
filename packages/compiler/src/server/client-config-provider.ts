@@ -6,7 +6,7 @@ interface LSPConfig {
   emit?: string[];
 }
 
-interface Config {
+export interface Config {
   lsp?: LSPConfig;
   entrypoint?: string[];
 }
