@@ -56,6 +56,7 @@ import { resolveCodeFix } from "../core/code-fixes.js";
 import { compilerAssert, getSourceLocation } from "../core/diagnostics.js";
 import { formatTypeSpec } from "../core/formatter.js";
 import { getEntityName, getTypeName } from "../core/helpers/type-name-utils.js";
+import { builtInLinterRule_UnusedImport } from "../core/linter-rules/unused-import.rule.js";
 import { builtInLinterRule_UnusedTemplateParameter } from "../core/linter-rules/unused-template-parameter.rule.js";
 import { builtInLinterRule_UnusedUsing } from "../core/linter-rules/unused-using.rule.js";
 import { builtInLinterLibraryName } from "../core/linter.js";
@@ -749,10 +750,23 @@ export function createServer(
             href: each.url,
           };
         }
+        const unusedImportRule = `${builtInLinterLibraryName}/${builtInLinterRule_UnusedImport}`;
         const unusedUsingRule = `${builtInLinterLibraryName}/${builtInLinterRule_UnusedUsing}`;
         const unusedTemlateParameterRule = `${builtInLinterLibraryName}/${builtInLinterRule_UnusedTemplateParameter}`;
         if (each.code === "deprecated") {
           diagnostic.tags = [DiagnosticTag.Deprecated];
+        } else if (each.code === unusedImportRule) {
+          // Unused or unnecessary code. Diagnostics with this tag are rendered faded out, so no extra work needed from IDE side
+          // https://vscode-api.js.org/enums/vscode.DiagnosticTag.html#google_vignette
+          // https://learn.microsoft.com/en-us/dotnet/api/microsoft.visualstudio.languageserver.protocol.diagnostictag?view=visualstudiosdk-2022
+          diagnostic.tags = [DiagnosticTag.Unnecessary];
+          if (
+            optionsFromConfig.linterRuleSet?.enable?.[unusedImportRule] === undefined &&
+            optionsFromConfig.linterRuleSet?.disable?.[unusedImportRule] === undefined
+          ) {
+            // if the unused import is not configured by user explicitly, report it as hint by default
+            diagnostic.severity = DiagnosticSeverity.Hint;
+          }
         } else if (each.code === unusedUsingRule) {
           // Unused or unnecessary code. Diagnostics with this tag are rendered faded out, so no extra work needed from IDE side
           // https://vscode-api.js.org/enums/vscode.DiagnosticTag.html#google_vignette

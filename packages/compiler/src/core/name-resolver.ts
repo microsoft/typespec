@@ -61,6 +61,7 @@ import { Mutable, mutate } from "../utils/misc.js";
 import { createSymbol, createSymbolTable, getSymNode } from "./binder.js";
 import { compilerAssert } from "./diagnostics.js";
 import { getFirstAncestor, visitChildren } from "./parser.js";
+import { getDirectoryPath, normalizePath, resolvePath } from "./path-utils.js";
 import { Program } from "./program.js";
 import {
   AliasStatementNode,
@@ -69,8 +70,10 @@ import {
   EnumStatementNode,
   Expression,
   IdentifierNode,
+  ImportStatementNode,
   InterfaceStatementNode,
   IntersectionExpressionNode,
+  JsSourceFileNode,
   MemberExpressionNode,
   ModelExpressionNode,
   ModelPropertyNode,
@@ -144,6 +147,9 @@ export interface NameResolver {
   /** Get the using statement nodes which is not used in resolving yet */
   getUnusedUsings(): UsingStatementNode[];
 
+  /** Get the import statement nodes which are not used in resolving */
+  getUnusedImports(): ImportStatementNode[];
+
   /** Built-in symbols. */
   readonly symbols: {
     /** Symbol for the global namespace */
@@ -181,6 +187,13 @@ export function createResolver(program: Program): NameResolver {
    * Tracking the symbols that are used through using.
    */
   const usedUsingSym = new Map<TypeSpecScriptNode, Set<Sym>>();
+
+  /**
+   * Tracking the source files whose symbols are used in each file.
+   * Key: the file where symbols are being used
+   * Value: set of file paths whose symbols are referenced
+   */
+  const usedSourceFiles = new Map<TypeSpecScriptNode, Set<string>>();
 
   const metaTypePrototypes = createMetaTypePrototypes();
 
@@ -230,6 +243,7 @@ export function createResolver(program: Program): NameResolver {
 
     getAugmentDecoratorsForSym,
     getUnusedUsings,
+    getUnusedImports,
   };
 
   function getUnusedUsings(): UsingStatementNode[] {
@@ -254,6 +268,154 @@ export function createResolver(program: Program): NameResolver {
       }
     }
     return [...unusedUsings];
+  }
+
+  function getUnusedImports(): ImportStatementNode[] {
+    const unusedImports: ImportStatementNode[] = [];
+    for (const file of program.sourceFiles.values()) {
+      const lc = program.getSourceFileLocationContext(file.file);
+      if (lc.type === "project") {
+        const usedFiles = usedSourceFiles.get(file) ?? new Set<string>();
+        const ownFilePath = file.file.path;
+
+        // Also add files that are used by using statements
+        // When "using X.Y.Z" is present, the namespace X.Y.Z comes from some source file,
+        // and that import should be considered used
+        for (const using of file.usings) {
+          const resolvedSym = getNodeLinks(using.name).resolvedSymbol;
+          if (resolvedSym) {
+            const sourceFilePath = getSymbolSourceFilePath(resolvedSym);
+            if (sourceFilePath && sourceFilePath !== ownFilePath) {
+              usedFiles.add(sourceFilePath);
+            }
+          }
+        }
+
+        // Get all import statements in this file
+        for (const statement of file.statements) {
+          if (statement.kind === SyntaxKind.ImportStatement) {
+            const importStatement = statement as ImportStatementNode;
+            // Check if any file loaded by this import is used
+            if (!isImportUsed(ownFilePath, importStatement.path.value, usedFiles)) {
+              unusedImports.push(importStatement);
+            }
+          }
+        }
+      }
+    }
+    return unusedImports;
+  }
+
+  /**
+   * Checks if an import is used by checking if any symbols from the imported file(s) are referenced.
+   * @param importingFilePath - The file that contains the import statement
+   * @param importPath - The import path string (e.g., "./models.tsp" or "@typespec/http")
+   * @param usedFiles - Set of file paths whose symbols are used in the importing file
+   */
+  function isImportUsed(
+    importingFilePath: string,
+    importPath: string,
+    usedFiles: Set<string>,
+  ): boolean {
+    // Resolve the import path to actual file paths
+    // For relative imports, we need to resolve relative to the importing file
+    const resolvedPaths = resolveImportPaths(importingFilePath, importPath);
+
+    // Check if any of the resolved files are in the used set
+    for (const resolvedPath of resolvedPaths) {
+      if (usedFiles.has(resolvedPath)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Resolve an import path to the actual file paths it loads.
+   */
+  function resolveImportPaths(importingFilePath: string, importPath: string): string[] {
+    const resolvedPaths: string[] = [];
+
+    // For relative paths, resolve against the importing file's directory
+    if (importPath.startsWith(".")) {
+      // Get the directory of the importing file using the proper path utility
+      const importingDir = getDirectoryPath(importingFilePath);
+
+      // Resolve the path and normalize it
+      let resolvedPath = resolvePath(importingDir, importPath);
+      resolvedPath = normalizePath(resolvedPath);
+
+      // Add .tsp extension if not present
+      if (!resolvedPath.endsWith(".tsp") && !resolvedPath.endsWith(".js")) {
+        // Check if it's a file or directory
+        if (program.sourceFiles.has(resolvedPath + ".tsp")) {
+          resolvedPath = resolvedPath + ".tsp";
+        } else if (program.sourceFiles.has(resolvedPath + "/main.tsp")) {
+          resolvedPath = resolvedPath + "/main.tsp";
+        }
+      }
+
+      resolvedPaths.push(resolvedPath);
+    } else {
+      // For package imports (like @typespec/http), find files from that package
+      // by checking which loaded files have paths that match
+      // Normalize the import path for matching (handles both / and \ separators)
+      const normalizedModulePath = `/node_modules/${importPath}/`;
+      for (const filePath of program.sourceFiles.keys()) {
+        // Normalize the file path and check if it contains the module path
+        const normalizedFilePath = normalizePath(filePath);
+        if (normalizedFilePath.includes(normalizedModulePath)) {
+          resolvedPaths.push(filePath);
+        }
+      }
+      // Also check for files loaded from the package root
+      for (const filePath of program.jsSourceFiles.keys()) {
+        const normalizedFilePath = normalizePath(filePath);
+        if (normalizedFilePath.includes(normalizedModulePath)) {
+          resolvedPaths.push(filePath);
+        }
+      }
+    }
+
+    return resolvedPaths;
+  }
+
+  /**
+   * Track that a symbol from a source file is being used in the given scope's file.
+   * This is used to determine which imports are unused.
+   */
+  function trackSymbolSourceFileUsage(scope: TypeSpecScriptNode, sym: Sym): void {
+    const sourceFilePath = getSymbolSourceFilePath(sym);
+    if (sourceFilePath && sourceFilePath !== scope.file.path) {
+      const usedFiles = usedSourceFiles.get(scope) ?? new Set<string>();
+      usedFiles.add(sourceFilePath);
+      usedSourceFiles.set(scope, usedFiles);
+    }
+  }
+
+  /**
+   * Get the source file path where a symbol is declared.
+   */
+  function getSymbolSourceFilePath(sym: Sym): string | undefined {
+    // Get the symbol's declaration node
+    const declaration = sym.declarations?.[0];
+    if (!declaration) {
+      return undefined;
+    }
+
+    // Walk up to find the root TypeSpecScript or JsSourceFile node
+    let node: Node | undefined = declaration;
+    while (node?.parent) {
+      node = node.parent;
+    }
+
+    if (node?.kind === SyntaxKind.TypeSpecScript) {
+      return (node as TypeSpecScriptNode).file.path;
+    } else if (node?.kind === SyntaxKind.JsSourceFile) {
+      return (node as JsSourceFileNode).file.path;
+    }
+
+    return undefined;
   }
 
   function getAugmentDecoratorsForSym(sym: Sym) {
@@ -1030,6 +1192,8 @@ export function createResolver(program: Program): NameResolver {
       if (globalBinding && usingBinding) {
         return ambiguousResult([globalBinding, usingBinding]);
       } else if (globalBinding) {
+        // Track the source file of the resolved symbol as being used
+        trackSymbolSourceFileUsage(scope, globalBinding);
         return resolvedResult(globalBinding);
       } else if (usingBinding) {
         if (usingBinding.flags & SymbolFlags.DuplicateUsing) {
