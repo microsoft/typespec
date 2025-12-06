@@ -1133,5 +1133,66 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.IsNotNull(collectionResultDefinition, "CollectionResultDefinition should be added even when paging methods are customized");
         }
 
+        [TestCase("ListOfStrings", typeof(IReadOnlyList<string>))]
+        [TestCase("DictionaryOfInts", typeof(IReadOnlyDictionary<string, int>))]
+        [TestCase("Int32", typeof(int))]
+        [TestCase("Enum", typeof(int))] // Enum is tested with underlying type
+        public void AotCompatibleModelReaderWriterReadMethods(string testCaseName, Type returnType)
+        {
+            InputType? inputType = null;
+            bool isEnum = testCaseName == "Enum";
+
+            if (testCaseName == "ListOfStrings")
+            {
+                inputType = InputFactory.Array(InputPrimitiveType.String);
+            }
+            else if (testCaseName == "DictionaryOfInts")
+            {
+                inputType = InputFactory.Dictionary(InputPrimitiveType.Int32);
+            }
+            else if (testCaseName == "Int32")
+            {
+                inputType = InputPrimitiveType.Int32;
+            }
+            else if (isEnum)
+            {
+                inputType = InputFactory.Int32Enum("TestEnum", [("Value1", 1), ("Value2", 2)]);
+            }
+
+            var inputOperation = InputFactory.Operation(
+                "GetData",
+                responses: [InputFactory.OperationResponse([200], inputType!)]);
+
+            var inputServiceMethod = InputFactory.BasicServiceMethod("GetData", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator();
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+            Assert.IsNotNull(methodCollection);
+            
+            var convenienceMethod = methodCollection.FirstOrDefault(m
+                => m.Signature.Parameters.All(p => p.Name != "options")
+                   && m.Signature.Name == $"{inputOperation.Name.ToIdentifierName()}");
+
+            Assert.IsNotNull(convenienceMethod);
+            
+            // Verify the body uses ModelReaderWriter.Read with context parameter
+            var bodyText = convenienceMethod!.BodyStatements!.ToDisplayString();
+            
+            StringAssert.Contains("ModelReaderWriter.Read", bodyText, 
+                "Method should use ModelReaderWriter.Read for AOT compatibility");
+            StringAssert.Contains("SampleContext.Default", bodyText, 
+                "Method should include ModelReaderWriterContext.Default parameter");
+            StringAssert.Contains("ModelSerializationExtensions.WireOptions", bodyText,
+                "Method should include WireOptions parameter");
+            
+            // Compare with expected output (normalize line endings for cross-platform compatibility)
+            var expected = Helpers.GetExpectedFromFile(testCaseName).Replace("\r\n", "\n");
+            var actual = bodyText.Replace("\r\n", "\n");
+            Assert.AreEqual(expected, actual);
+        }
+
     }
 }
