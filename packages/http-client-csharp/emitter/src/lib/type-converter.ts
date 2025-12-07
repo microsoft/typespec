@@ -38,6 +38,7 @@ import {
   InputPrimitiveType,
   InputType,
   InputUnionType,
+  ExternalTypeInfo,
 } from "../type/input-type.js";
 import { isReadOnly } from "./utils.js";
 
@@ -81,12 +82,14 @@ export function fromSdkType<T extends SdkType>(
     return retVar as any;
   }
 
-  // Check if this type references an external type
-  if ((sdkType as any).external) {
-    retVar = fromSdkExternalType(sdkContext, sdkType);
-    sdkContext.__typeCache.updateSdkTypeReferences(sdkType, retVar);
-    return retVar as any;
-  }
+  // Extract external type information if present
+  const externalInfo = (sdkType as any).external
+    ? {
+        identity: (sdkType as any).external.identity,
+        package: (sdkType as any).external.package,
+        minVersion: (sdkType as any).external.minVersion,
+      }
+    : undefined;
 
   switch (sdkType.kind) {
     case "nullable":
@@ -94,23 +97,24 @@ export function fromSdkType<T extends SdkType>(
         kind: "nullable",
         type: fromSdkType(sdkContext, sdkType.type, sdkProperty, namespace),
         namespace: sdkType.namespace,
+        external: externalInfo,
       };
       retVar = nullableType;
       break;
     case "model":
-      retVar = fromSdkModelType(sdkContext, sdkType);
+      retVar = fromSdkModelType(sdkContext, sdkType, externalInfo);
       break;
     case "enum":
-      retVar = fromSdkEnumType(sdkContext, sdkType);
+      retVar = fromSdkEnumType(sdkContext, sdkType, externalInfo);
       break;
     case "enumvalue":
       retVar = fromSdkEnumValueType(sdkContext, sdkType);
       break;
     case "dict":
-      retVar = fromSdkDictionaryType(sdkContext, sdkType);
+      retVar = fromSdkDictionaryType(sdkContext, sdkType, externalInfo);
       break;
     case "array":
-      retVar = fromSdkArrayType(sdkContext, sdkType);
+      retVar = fromSdkArrayType(sdkContext, sdkType, externalInfo);
       break;
     case "constant":
       if (
@@ -120,20 +124,20 @@ export function fromSdkType<T extends SdkType>(
         sdkType.valueType.kind !== "boolean"
       ) {
         // turn the constant into an extensible enum
-        retVar = createEnumType(sdkContext, sdkType, namespace!);
+        retVar = createEnumType(sdkContext, sdkType, namespace!, externalInfo);
       } else {
         retVar = fromSdkConstantType(sdkContext, sdkType);
       }
       break;
     case "union":
-      retVar = fromUnionType(sdkContext, sdkType);
+      retVar = fromUnionType(sdkContext, sdkType, externalInfo);
       break;
     case "utcDateTime":
     case "offsetDateTime":
-      retVar = fromSdkDateTimeType(sdkContext, sdkType);
+      retVar = fromSdkDateTimeType(sdkContext, sdkType, externalInfo);
       break;
     case "duration":
-      retVar = fromSdkDurationType(sdkContext, sdkType);
+      retVar = fromSdkDurationType(sdkContext, sdkType, externalInfo);
       break;
     case "tuple":
       sdkContext.logger.reportDiagnostic({
@@ -146,6 +150,7 @@ export function fromSdkType<T extends SdkType>(
         name: "tuple",
         crossLanguageDefinitionId: "",
         decorators: sdkType.decorators,
+        external: externalInfo,
       };
       retVar = tupleType;
       break;
@@ -165,11 +170,12 @@ export function fromSdkType<T extends SdkType>(
         name: "credential",
         crossLanguageDefinitionId: "",
         decorators: sdkType.decorators,
+        external: externalInfo,
       };
       retVar = credentialType;
       break;
     default:
-      retVar = fromSdkBuiltInType(sdkContext, sdkType);
+      retVar = fromSdkBuiltInType(sdkContext, sdkType, externalInfo);
       break;
   }
 
@@ -181,6 +187,7 @@ export function fromSdkType<T extends SdkType>(
 function fromSdkModelType(
   sdkContext: CSharpEmitterContext,
   modelType: SdkModelType,
+  externalInfo?: ExternalTypeInfo,
 ): InputModelType {
   // get all unique decorators for the model type from the namespace level and the model level
   let decorators: DecoratorInfo[] = modelType.decorators;
@@ -200,6 +207,7 @@ function fromSdkModelType(
     summary: modelType.summary,
     discriminatorValue: modelType.discriminatorValue,
     decorators: decorators,
+    external: externalInfo,
   } as InputModelType;
 
   sdkContext.__typeCache.updateSdkTypeReferences(modelType, inputModelType);
@@ -281,14 +289,15 @@ function fromSdkModelProperty(
   return property;
 }
 
-function fromSdkEnumType(sdkContext: CSharpEmitterContext, enumType: SdkEnumType): InputEnumType {
-  return createEnumType(sdkContext, enumType, enumType.namespace);
+function fromSdkEnumType(sdkContext: CSharpEmitterContext, enumType: SdkEnumType, externalInfo?: ExternalTypeInfo): InputEnumType {
+  return createEnumType(sdkContext, enumType, enumType.namespace, externalInfo);
 }
 
 function createEnumType(
   sdkContext: CSharpEmitterContext,
   sdkType: SdkConstantType | SdkEnumType,
   namespace: string,
+  externalInfo?: ExternalTypeInfo,
 ): InputEnumType {
   const values: InputEnumValueType[] = [];
 
@@ -313,6 +322,7 @@ function createEnumType(
     // constantType.usage, TODO - constant type now does not have usage. TCGC will add it later
     usage: sdkType.kind === "enum" ? sdkType.usage : UsageFlags.None,
     decorators: sdkType.decorators,
+    external: externalInfo,
   };
 
   sdkContext.__typeCache.updateSdkTypeReferences(sdkType, inputEnumType);
@@ -331,6 +341,7 @@ function createEnumType(
 function fromSdkDateTimeType(
   sdkContext: CSharpEmitterContext,
   dateTimeType: SdkDateTimeType,
+  externalInfo?: ExternalTypeInfo,
 ): InputDateTimeType {
   return {
     kind: dateTimeType.kind,
@@ -340,12 +351,14 @@ function fromSdkDateTimeType(
     crossLanguageDefinitionId: dateTimeType.crossLanguageDefinitionId,
     baseType: dateTimeType.baseType ? fromSdkType(sdkContext, dateTimeType.baseType) : undefined,
     decorators: dateTimeType.decorators,
+    external: externalInfo,
   };
 }
 
 function fromSdkDurationType(
   sdkContext: CSharpEmitterContext,
   durationType: SdkDurationType,
+  externalInfo?: ExternalTypeInfo,
 ): InputDurationType {
   return {
     kind: durationType.kind,
@@ -355,12 +368,14 @@ function fromSdkDurationType(
     crossLanguageDefinitionId: durationType.crossLanguageDefinitionId,
     baseType: durationType.baseType ? fromSdkType(sdkContext, durationType.baseType) : undefined,
     decorators: durationType.decorators,
+    external: externalInfo,
   };
 }
 
 function fromSdkBuiltInType(
   sdkContext: CSharpEmitterContext,
   builtInType: SdkBuiltInType,
+  externalInfo?: ExternalTypeInfo,
 ): InputPrimitiveType {
   return {
     kind: builtInType.kind,
@@ -369,10 +384,11 @@ function fromSdkBuiltInType(
     crossLanguageDefinitionId: builtInType.crossLanguageDefinitionId,
     baseType: builtInType.baseType ? fromSdkType(sdkContext, builtInType.baseType) : undefined,
     decorators: builtInType.decorators,
+    external: externalInfo,
   };
 }
 
-function fromUnionType(sdkContext: CSharpEmitterContext, union: SdkUnionType): InputUnionType {
+function fromUnionType(sdkContext: CSharpEmitterContext, union: SdkUnionType, externalInfo?: ExternalTypeInfo): InputUnionType {
   const variantTypes: InputType[] = [];
   for (const value of union.variantTypes) {
     const variantType = fromSdkType(sdkContext, value);
@@ -385,6 +401,7 @@ function fromUnionType(sdkContext: CSharpEmitterContext, union: SdkUnionType): I
     variantTypes: variantTypes,
     namespace: union.namespace,
     decorators: union.decorators,
+    external: externalInfo,
   };
 }
 
@@ -441,18 +458,21 @@ function createEnumValueType(
 function fromSdkDictionaryType(
   sdkContext: CSharpEmitterContext,
   dictionaryType: SdkDictionaryType,
+  externalInfo?: ExternalTypeInfo,
 ): InputDictionaryType {
   return {
     kind: "dict",
     keyType: fromSdkType(sdkContext, dictionaryType.keyType),
     valueType: fromSdkType(sdkContext, dictionaryType.valueType),
     decorators: dictionaryType.decorators,
+    external: externalInfo,
   };
 }
 
 function fromSdkArrayType(
   sdkContext: CSharpEmitterContext,
   arrayType: SdkArrayType,
+  externalInfo?: ExternalTypeInfo,
 ): InputArrayType {
   return {
     kind: "array",
@@ -460,6 +480,7 @@ function fromSdkArrayType(
     valueType: fromSdkType(sdkContext, arrayType.valueType),
     crossLanguageDefinitionId: arrayType.crossLanguageDefinitionId,
     decorators: arrayType.decorators,
+    external: externalInfo,
   };
 }
 
@@ -468,20 +489,6 @@ function fromSdkEndpointType(): InputPrimitiveType {
     kind: "string",
     name: "string",
     crossLanguageDefinitionId: "TypeSpec.string",
-  };
-}
-
-function fromSdkExternalType(
-  sdkContext: CSharpEmitterContext,
-  sdkType: SdkType,
-): InputExternalType {
-  const external = (sdkType as any).external;
-  return {
-    kind: "external",
-    identity: external.identity,
-    package: external.package,
-    minVersion: external.minVersion,
-    decorators: sdkType.decorators,
   };
 }
 
