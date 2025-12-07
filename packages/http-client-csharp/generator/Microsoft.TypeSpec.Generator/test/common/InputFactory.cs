@@ -632,7 +632,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
         public static InputUnionType ExternalUnion(string identity, string? package = null, string? minVersion = null, params InputType[] variantTypes)
         {
             var union = new InputUnionType("ExternalUnion", variantTypes.ToList());
-            union.External = new InputExternalTypeProperties(identity, package, minVersion);
+            union.External = new InputExternalTypeMetadata(identity, package, minVersion);
             return union;
         }
 

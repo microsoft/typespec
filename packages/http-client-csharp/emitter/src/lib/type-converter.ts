@@ -37,7 +37,7 @@ import {
   InputPrimitiveType,
   InputType,
   InputUnionType,
-  InputExternalTypeProperties,
+  InputExternalTypeMetadata,
 } from "../type/input-type.js";
 import { isReadOnly } from "./utils.js";
 
@@ -502,11 +502,11 @@ export function getAllModelDecorators(
 }
 
 /**
- * Converts TCGC external type information to InputExternalTypeProperties
+ * Converts TCGC external type information to InputExternalTypeMetadata
  * @param sdkType - The SDK type that may have external type information
- * @returns InputExternalTypeProperties if the type has external info, undefined otherwise
+ * @returns InputExternalTypeMetadata if the type has external info, undefined otherwise
  */
-function fromSdkExternalTypeInfo(sdkType: SdkType): InputExternalTypeProperties | undefined {
+function fromSdkExternalTypeInfo(sdkType: SdkType): InputExternalTypeMetadata | undefined {
   const external = (sdkType as any).external;
   if (!external) {
     return undefined;

@@ -7,29 +7,29 @@ using System.Text.Json.Serialization;
 
 namespace Microsoft.TypeSpec.Generator.Input
 {
-    internal class InputExternalTypePropertiesConverter : JsonConverter<InputExternalTypeProperties>
+    internal class InputExternalTypeMetadataConverter : JsonConverter<InputExternalTypeMetadata>
     {
         private readonly TypeSpecReferenceHandler _referenceHandler;
 
-        public InputExternalTypePropertiesConverter(TypeSpecReferenceHandler referenceHandler)
+        public InputExternalTypeMetadataConverter(TypeSpecReferenceHandler referenceHandler)
         {
             _referenceHandler = referenceHandler;
         }
 
-        public override InputExternalTypeProperties? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override InputExternalTypeMetadata? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             if (reader.TokenType == JsonTokenType.Null)
             {
                 return null;
             }
 
-            return reader.ReadReferenceAndResolve<InputExternalTypeProperties>(_referenceHandler.CurrentResolver) ?? CreateInputExternalTypeProperties(ref reader, null, options, _referenceHandler.CurrentResolver);
+            return reader.ReadReferenceAndResolve<InputExternalTypeMetadata>(_referenceHandler.CurrentResolver) ?? CreateInputExternalTypeMetadata(ref reader, null, options, _referenceHandler.CurrentResolver);
         }
 
-        public override void Write(Utf8JsonWriter writer, InputExternalTypeProperties value, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, InputExternalTypeMetadata value, JsonSerializerOptions options)
             => throw new NotSupportedException("Writing not supported");
 
-        public static InputExternalTypeProperties CreateInputExternalTypeProperties(ref Utf8JsonReader reader, string? id, JsonSerializerOptions options, ReferenceResolver resolver)
+        public static InputExternalTypeMetadata CreateInputExternalTypeMetadata(ref Utf8JsonReader reader, string? id, JsonSerializerOptions options, ReferenceResolver resolver)
         {
             string? identity = null;
             string? package = null;
@@ -48,9 +48,9 @@ namespace Microsoft.TypeSpec.Generator.Input
                 }
             }
 
-            identity = identity ?? throw new JsonException("InputExternalTypeProperties must have identity");
+            identity = identity ?? throw new JsonException("InputExternalTypeMetadata must have identity");
 
-            var externalTypeProperties = new InputExternalTypeProperties(identity, package, minVersion);
+            var externalTypeProperties = new InputExternalTypeMetadata(identity, package, minVersion);
 
             if (id != null)
             {

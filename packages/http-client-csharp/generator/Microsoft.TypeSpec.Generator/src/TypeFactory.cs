@@ -238,9 +238,9 @@ namespace Microsoft.TypeSpec.Generator
         /// <summary>
         /// Factory method for creating a <see cref="CSharpType"/> based on external type properties.
         /// </summary>
-        /// <param name="externalProperties">The <see cref="InputExternalTypeProperties"/> to convert.</param>
+        /// <param name="externalProperties">The <see cref="InputExternalTypeMetadata"/> to convert.</param>
         /// <returns>A <see cref="CSharpType"/> representing the external type, or null if the type cannot be resolved.</returns>
-        private CSharpType? CreateExternalType(InputExternalTypeProperties externalProperties)
+        private CSharpType? CreateExternalType(InputExternalTypeMetadata externalProperties)
         {
             // Try to create a framework type from the fully qualified name
             var frameworkType = CreateFrameworkType(externalProperties.Identity);

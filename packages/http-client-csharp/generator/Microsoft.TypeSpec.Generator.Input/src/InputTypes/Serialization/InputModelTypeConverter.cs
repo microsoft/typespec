@@ -72,7 +72,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             bool modelAsStruct = false;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
             InputSerializationOptions? serializationOptions = null;
-            InputExternalTypeProperties? external = null;
+            InputExternalTypeMetadata? external = null;
 
             // read all possible properties and throw away the unknown properties
             while (reader.TokenType != JsonTokenType.EndObject)

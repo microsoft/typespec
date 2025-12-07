@@ -29,7 +29,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? encode = null;
             InputPrimitiveType? baseType = null;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
-            InputExternalTypeProperties? external = null;
+            InputExternalTypeMetadata? external = null;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref id)

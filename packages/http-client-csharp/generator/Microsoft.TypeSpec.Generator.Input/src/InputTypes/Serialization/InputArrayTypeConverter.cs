@@ -28,7 +28,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? crossLanguageDefinitionId = null;
             InputType? valueType = null;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
-            InputExternalTypeProperties? external = null;
+            InputExternalTypeMetadata? external = null;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref id)

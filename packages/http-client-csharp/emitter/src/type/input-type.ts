@@ -20,7 +20,7 @@ import { RequestLocation } from "./request-location.js";
  * External type information for types that map to external library types.
  * @beta
  */
-export interface InputExternalTypeProperties {
+export interface InputExternalTypeMetadata {
   identity: string;
   package?: string;
   minVersion?: string;
@@ -64,7 +64,7 @@ interface InputTypeBase extends DecoratedType {
   summary?: string;
   doc?: string;
   deprecation?: string;
-  external?: InputExternalTypeProperties;
+  external?: InputExternalTypeMetadata;
 }
 
 export type InputType =
