@@ -21,7 +21,7 @@ namespace Microsoft.TypeSpec.Generator.Input
 
         public string Name { get; internal set; }
         public IReadOnlyList<InputDecoratorInfo> Decorators { get; internal set; } = new List<InputDecoratorInfo>();
-        public ExternalTypeInfo? External { get; internal set; }
+        public InputExternalTypeProperties? External { get; internal set; }
 
         internal InputType GetCollectionEquivalent(InputType inputType)
         {

@@ -7,29 +7,29 @@ using System.Text.Json.Serialization;
 
 namespace Microsoft.TypeSpec.Generator.Input
 {
-    internal class ExternalTypeInfoConverter : JsonConverter<ExternalTypeInfo>
+    internal class InputExternalTypePropertiesConverter : JsonConverter<InputExternalTypeProperties>
     {
         private readonly TypeSpecReferenceHandler _referenceHandler;
 
-        public ExternalTypeInfoConverter(TypeSpecReferenceHandler referenceHandler)
+        public InputExternalTypePropertiesConverter(TypeSpecReferenceHandler referenceHandler)
         {
             _referenceHandler = referenceHandler;
         }
 
-        public override ExternalTypeInfo? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override InputExternalTypeProperties? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             if (reader.TokenType == JsonTokenType.Null)
             {
                 return null;
             }
 
-            return reader.ReadReferenceAndResolve<ExternalTypeInfo>(_referenceHandler.CurrentResolver) ?? CreateExternalTypeInfo(ref reader, null, options, _referenceHandler.CurrentResolver);
+            return reader.ReadReferenceAndResolve<InputExternalTypeProperties>(_referenceHandler.CurrentResolver) ?? CreateInputExternalTypeProperties(ref reader, null, options, _referenceHandler.CurrentResolver);
         }
 
-        public override void Write(Utf8JsonWriter writer, ExternalTypeInfo value, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter writer, InputExternalTypeProperties value, JsonSerializerOptions options)
             => throw new NotSupportedException("Writing not supported");
 
-        public static ExternalTypeInfo CreateExternalTypeInfo(ref Utf8JsonReader reader, string? id, JsonSerializerOptions options, ReferenceResolver resolver)
+        public static InputExternalTypeProperties CreateInputExternalTypeProperties(ref Utf8JsonReader reader, string? id, JsonSerializerOptions options, ReferenceResolver resolver)
         {
             string? identity = null;
             string? package = null;
@@ -48,16 +48,16 @@ namespace Microsoft.TypeSpec.Generator.Input
                 }
             }
 
-            identity = identity ?? throw new JsonException("ExternalTypeInfo must have identity");
+            identity = identity ?? throw new JsonException("InputExternalTypeProperties must have identity");
 
-            var externalTypeInfo = new ExternalTypeInfo(identity, package, minVersion);
+            var externalTypeProperties = new InputExternalTypeProperties(identity, package, minVersion);
 
             if (id != null)
             {
-                resolver.AddReference(id, externalTypeInfo);
+                resolver.AddReference(id, externalTypeProperties);
             }
 
-            return externalTypeInfo;
+            return externalTypeProperties;
         }
     }
 }

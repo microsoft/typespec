@@ -60,7 +60,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             InputPrimitiveType? valueType = null;
             IReadOnlyList<InputEnumTypeValue>? values = null;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
-            ExternalTypeInfo? external = null;
+            InputExternalTypeProperties? external = null;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadString("name", ref name)

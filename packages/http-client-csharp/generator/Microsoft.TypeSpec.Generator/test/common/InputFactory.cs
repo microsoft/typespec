@@ -629,9 +629,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             return new InputServiceMethodResponse(type, resultSegments);
         }
 
-        public static InputExternalType External(string identity, string? package = null, string? minVersion = null)
+        public static InputUnionType ExternalUnion(string identity, string? package = null, string? minVersion = null, params InputType[] variantTypes)
         {
-            return new InputExternalType(identity, package, minVersion);
+            var union = new InputUnionType("ExternalUnion", variantTypes.ToList());
+            union.External = new InputExternalTypeProperties(identity, package, minVersion);
+            return union;
         }
 
         private static readonly Dictionary<InputClient, IList<InputClient>> _childClientsCache = new();

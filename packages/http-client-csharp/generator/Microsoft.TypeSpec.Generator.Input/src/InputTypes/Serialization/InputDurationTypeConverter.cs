@@ -30,7 +30,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             InputPrimitiveType? wireType = null;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
             InputDurationType? baseType = null;
-            ExternalTypeInfo? external = null;
+            InputExternalTypeProperties? external = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {

@@ -20,7 +20,7 @@ import { RequestLocation } from "./request-location.js";
  * External type information for types that map to external library types.
  * @beta
  */
-export interface ExternalTypeInfo {
+export interface InputExternalTypeProperties {
   identity: string;
   package?: string;
   minVersion?: string;
@@ -64,7 +64,7 @@ interface InputTypeBase extends DecoratedType {
   summary?: string;
   doc?: string;
   deprecation?: string;
-  external?: ExternalTypeInfo;
+  external?: InputExternalTypeProperties;
 }
 
 export type InputType =
@@ -78,8 +78,7 @@ export type InputType =
   | InputEnumValueType
   | InputArrayType
   | InputDictionaryType
-  | InputNullableType
-  | InputExternalType;
+  | InputNullableType;
 
 export interface InputPrimitiveType extends InputTypeBase {
   kind: SdkBuiltInKinds;
@@ -284,11 +283,4 @@ export interface InputDictionaryType extends InputTypeBase {
   kind: "dict";
   keyType: InputType;
   valueType: InputType;
-}
-
-export interface InputExternalType extends InputTypeBase {
-  kind: "external";
-  identity: string;
-  package?: string;
-  minVersion?: string;
 }

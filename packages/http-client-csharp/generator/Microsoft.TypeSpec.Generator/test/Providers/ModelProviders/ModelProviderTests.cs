@@ -1163,7 +1163,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         public void ExternalTypeModelUsedAsProperty()
         {
             // Test a model decorated with alternateType that references System.Uri
-            var externalType = InputFactory.External("System.Uri");
+            var externalType = InputFactory.ExternalUnion("System.Uri", null, null, InputPrimitiveType.String);
             var modelWithExternal = InputFactory.Model("ExternalModel");
 
             // Create a model that uses the external type as a property
@@ -1197,7 +1197,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         public void ExternalTypePropertyIsResolved()
         {
             // Test a property decorated with alternateType
-            var externalType = InputFactory.External("System.Net.IPAddress", "System.Net.Primitives", "4.3.0");
+            var externalType = InputFactory.ExternalUnion("System.Net.IPAddress", "System.Net.Primitives", "4.3.0", InputPrimitiveType.String);
 
             var model = InputFactory.Model(
                 "ModelWithExternalProperty",
@@ -1229,7 +1229,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         public void UnsupportedExternalTypeEmitsDiagnostic()
         {
             // Test an external type that cannot be resolved (non-framework type)
-            var externalType = InputFactory.External("Azure.Core.Expressions.DataFactoryExpression");
+            var externalType = InputFactory.ExternalUnion("Azure.Core.Expressions.DataFactoryExpression", null, null, InputPrimitiveType.String);
 
             var model = InputFactory.Model(
                 "ModelWithUnsupportedExternal",
