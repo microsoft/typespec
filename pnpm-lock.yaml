@@ -106,7 +106,7 @@ importers:
         specifier: ^0.24.0
         version: 0.24.0(rollup@4.49.0)(vite@7.2.4(@types/node@24.10.1)(tsx@4.20.6)(yaml@2.8.1))
       vitest:
-        specifier: ^4.0.9
+        specifier: ^4.0.4
         version: 4.0.12(@types/debug@4.1.12)(@types/node@24.10.1)(@vitest/ui@4.0.12)(happy-dom@20.0.10)(jsdom@25.0.1)(tsx@4.20.6)(yaml@2.8.1)
       yaml:
         specifier: ~2.8.0
