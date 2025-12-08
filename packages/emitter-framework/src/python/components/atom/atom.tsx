@@ -3,19 +3,30 @@ import * as py from "@alloy-js/python";
 import { compilerAssert, type Value } from "@typespec/compiler";
 
 /**
- * Properties for the {@link Atom} component.
+ * Base properties for the {@link Atom} component.
  */
-interface AtomProps {
+interface BaseAtomProps {
   /**
    * The TypeSpec value to be converted to a Python expression.
    */
   value: Value;
+}
+
+/**
+ * Properties for the {@link Atom} component when dealing with numeric values.
+ */
+interface NumericAtomProps extends BaseAtomProps {
   /**
    * Hint that this numeric value should be emitted as a float (e.g., 42 -> 42.0).
    * Only affects NumericValue.
    */
   assumeFloat?: boolean;
 }
+
+/**
+ * All possible properties for the {@link Atom} component.
+ */
+type AtomProps = BaseAtomProps | NumericAtomProps;
 
 /**
  * Generates a Python atom from a TypeSpec value.
@@ -31,7 +42,8 @@ export function Atom(props: Readonly<AtomProps>): Children {
     case "NumericValue": {
       const num = props.value.value.asNumber();
       const isNonInteger = num != null && !Number.isInteger(num);
-      const asFloat = isNonInteger || props.assumeFloat === true;
+      const numericProps = props as NumericAtomProps;
+      const asFloat = isNonInteger || numericProps.assumeFloat === true;
       return <py.Atom jsValue={num} asFloat={asFloat} />;
     }
     case "ArrayValue":
