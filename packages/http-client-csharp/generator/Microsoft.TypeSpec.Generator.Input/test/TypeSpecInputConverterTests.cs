@@ -621,5 +621,23 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             Assert.IsNull(enumType.External.Package);
             Assert.IsNull(enumType.External.MinVersion);
         }
+
+        [Test]
+        public void LoadsModelWithExternalMetadataEndToEnd()
+        {
+            var directory = Helpers.GetAssetFileOrDirectoryPath(false);
+            // this tspCodeModel.json contains a partial part of the full tspCodeModel.json
+            var content = File.ReadAllText(Path.Combine(directory, "tspCodeModel.json"));
+            var inputNamespace = TypeSpecSerialization.Deserialize(content);
+
+            Assert.IsNotNull(inputNamespace);
+
+            var externalModel = inputNamespace!.Models.SingleOrDefault(m => m.Name == "ExternalModel");
+            Assert.IsNotNull(externalModel);
+            Assert.IsNotNull(externalModel!.External, "External metadata should be populated");
+            Assert.AreEqual("System.Text.Json.JsonElement", externalModel.External!.Identity);
+            Assert.AreEqual("System.Text.Json", externalModel.External.Package);
+            Assert.AreEqual("8.0.0", externalModel.External.MinVersion);
+        }
     }
 }
