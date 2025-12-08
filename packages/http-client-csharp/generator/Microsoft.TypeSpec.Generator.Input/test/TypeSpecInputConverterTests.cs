@@ -463,7 +463,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
                     new InputTypeConverter(referenceHandler),
                     new InputUnionTypeConverter(referenceHandler),
                     new InputPrimitiveTypeConverter(referenceHandler),
-                    new InputExternalTypeMetadataConverter(referenceHandler)
+                    new InputExternalTypeMetadataConverter()
                 }
             };
 
@@ -502,7 +502,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
                 {
                     new InputTypeConverter(referenceHandler),
                     new InputModelTypeConverter(referenceHandler),
-                    new InputExternalTypeMetadataConverter(referenceHandler)
+                    new InputExternalTypeMetadataConverter()
                 }
             };
 
@@ -537,7 +537,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
                     new InputTypeConverter(referenceHandler),
                     new InputArrayTypeConverter(referenceHandler),
                     new InputPrimitiveTypeConverter(referenceHandler),
-                    new InputExternalTypeMetadataConverter(referenceHandler)
+                    new InputExternalTypeMetadataConverter()
                 }
             };
 
@@ -572,7 +572,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
                     new InputTypeConverter(referenceHandler),
                     new InputDictionaryTypeConverter(referenceHandler),
                     new InputPrimitiveTypeConverter(referenceHandler),
-                    new InputExternalTypeMetadataConverter(referenceHandler)
+                    new InputExternalTypeMetadataConverter()
                 }
             };
 
@@ -610,7 +610,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
                     new InputTypeConverter(referenceHandler),
                     new InputEnumTypeConverter(referenceHandler),
                     new InputPrimitiveTypeConverter(referenceHandler),
-                    new InputExternalTypeMetadataConverter(referenceHandler)
+                    new InputExternalTypeMetadataConverter()
                 }
             };
 

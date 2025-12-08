@@ -72,7 +72,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     new TypeSpecInputExampleValueConverter(),
                     new TypeSpecInputParameterExampleConverter(),
                     new TypeSpecInputOperationExampleConverter(),
-                    new InputExternalTypeMetadataConverter(referenceHandler),
+                    new InputExternalTypeMetadataConverter(),
                 }
             };
 
