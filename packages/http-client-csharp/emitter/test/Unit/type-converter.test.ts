@@ -130,7 +130,10 @@ describe("External types", () => {
     // The type should remain a union but with external info
     strictEqual(prop.type.kind, "union");
     ok((prop.type as any).external, "Type should have external info");
-    strictEqual((prop.type as any).external.identity, "Azure.Core.Expressions.DataFactoryExpression");
+    strictEqual(
+      (prop.type as any).external.identity,
+      "Azure.Core.Expressions.DataFactoryExpression",
+    );
     strictEqual((prop.type as any).external.package, "Azure.Core.Expressions");
     strictEqual((prop.type as any).external.minVersion, "1.0.0");
     // Verify union variants are preserved

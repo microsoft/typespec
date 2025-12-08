@@ -29,6 +29,7 @@ import {
   InputDurationType,
   InputEnumType,
   InputEnumValueType,
+  InputExternalTypeMetadata,
   InputLiteralType,
   InputModelProperty,
   InputModelType,
@@ -37,7 +38,6 @@ import {
   InputPrimitiveType,
   InputType,
   InputUnionType,
-  InputExternalTypeMetadata,
 } from "../type/input-type.js";
 import { isReadOnly } from "./utils.js";
 
@@ -511,7 +511,7 @@ function fromSdkExternalTypeInfo(sdkType: SdkType): InputExternalTypeMetadata | 
   if (!external) {
     return undefined;
   }
-  
+
   return {
     identity: external.identity,
     package: external.package,
