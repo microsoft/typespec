@@ -493,9 +493,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             return new InputDictionaryType("dictionary", keyType ?? InputPrimitiveType.String, valueType);
         }
 
-        public static InputType Union(IList<InputType> types, string name = "union")
+        public static InputType Union(IList<InputType> types, string name = "union", InputExternalTypeMetadata? external = null)
         {
-            return new InputUnionType(name, [.. types]);
+            var union = new InputUnionType(name, [.. types]);
+            if (external != null)
+            {
+                union.External = external;
+            }
+            return union;
         }
 
         public static InputBasicServiceMethod BasicServiceMethod(
@@ -627,13 +632,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
         public static InputServiceMethodResponse ServiceMethodResponse(InputType? type, IReadOnlyList<string>? resultSegments)
         {
             return new InputServiceMethodResponse(type, resultSegments);
-        }
-
-        public static InputUnionType ExternalUnion(string identity, string? package = null, string? minVersion = null, params InputType[] variantTypes)
-        {
-            var union = new InputUnionType("ExternalUnion", variantTypes.ToList());
-            union.External = new InputExternalTypeMetadata(identity, package, minVersion);
-            return union;
         }
 
         private static readonly Dictionary<InputClient, IList<InputClient>> _childClientsCache = new();

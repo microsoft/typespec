@@ -1163,7 +1163,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         public void ExternalTypeModelUsedAsProperty()
         {
             // Test a model decorated with alternateType that references System.Uri
-            var externalType = InputFactory.ExternalUnion("System.Uri", null, null, InputPrimitiveType.String);
+            var externalType = InputFactory.Union(
+                [InputPrimitiveType.String],
+                "ExternalUnion",
+                new InputExternalTypeMetadata("System.Uri", null, null));
             var modelWithExternal = InputFactory.Model("ExternalModel");
 
             // Create a model that uses the external type as a property
@@ -1197,7 +1200,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         public void ExternalTypePropertyIsResolved()
         {
             // Test a property decorated with alternateType
-            var externalType = InputFactory.ExternalUnion("System.Net.IPAddress", "System.Net.Primitives", "4.3.0", InputPrimitiveType.String);
+            var externalType = InputFactory.Union(
+                [InputPrimitiveType.String],
+                "ExternalUnion",
+                new InputExternalTypeMetadata("System.Net.IPAddress", "System.Net.Primitives", "4.3.0"));
 
             var model = InputFactory.Model(
                 "ModelWithExternalProperty",
@@ -1229,7 +1235,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         public void UnsupportedExternalTypeEmitsDiagnostic()
         {
             // Test an external type that cannot be resolved (non-framework type)
-            var externalType = InputFactory.ExternalUnion("Azure.Core.Expressions.DataFactoryExpression", null, null, InputPrimitiveType.String);
+            var externalType = InputFactory.Union(
+                [InputPrimitiveType.String],
+                "ExternalUnion",
+                new InputExternalTypeMetadata("Azure.Core.Expressions.DataFactoryExpression", null, null));
 
             var model = InputFactory.Model(
                 "ModelWithUnsupportedExternal",
