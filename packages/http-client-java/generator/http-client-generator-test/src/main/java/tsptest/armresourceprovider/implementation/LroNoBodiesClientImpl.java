@@ -11,6 +11,7 @@ import com.azure.core.annotation.Headers;
 import com.azure.core.annotation.Host;
 import com.azure.core.annotation.HostParam;
 import com.azure.core.annotation.PathParam;
+import com.azure.core.annotation.Post;
 import com.azure.core.annotation.Put;
 import com.azure.core.annotation.QueryParam;
 import com.azure.core.annotation.ReturnType;
@@ -30,6 +31,7 @@ import java.nio.ByteBuffer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tsptest.armresourceprovider.fluent.LroNoBodiesClient;
+import tsptest.armresourceprovider.models.ActionFinalResult;
 import tsptest.armresourceprovider.models.ResourceLroNoBody;
 
 /**
@@ -84,6 +86,26 @@ public final class LroNoBodiesClientImpl implements LroNoBodiesClient {
             @PathParam("resourceGroupName") String resourceGroupName,
             @PathParam("resourceLroNoBodyName") String resourceLroNoBodyName,
             @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") ResourceLroNoBody resource,
+            Context context);
+
+        @Headers({ "Content-Type: application/json" })
+        @Post("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/resourceLroNoBody/{resourceLroNoBodyName}/action")
+        @ExpectedResponses({ 200, 202 })
+        @UnexpectedResponseExceptionType(ManagementException.class)
+        Mono<Response<Flux<ByteBuffer>>> action(@HostParam("endpoint") String endpoint,
+            @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
+            @PathParam("resourceGroupName") String resourceGroupName,
+            @PathParam("resourceLroNoBodyName") String resourceLroNoBodyName, @HeaderParam("Accept") String accept,
+            Context context);
+
+        @Headers({ "Content-Type: application/json" })
+        @Post("/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmResourceProvider/resourceLroNoBody/{resourceLroNoBodyName}/action")
+        @ExpectedResponses({ 200, 202 })
+        @UnexpectedResponseExceptionType(ManagementException.class)
+        Response<BinaryData> actionSync(@HostParam("endpoint") String endpoint,
+            @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
+            @PathParam("resourceGroupName") String resourceGroupName,
+            @PathParam("resourceLroNoBodyName") String resourceLroNoBodyName, @HeaderParam("Accept") String accept,
             Context context);
     }
 
@@ -260,5 +282,163 @@ public final class LroNoBodiesClientImpl implements LroNoBodiesClient {
     public ResourceLroNoBody createOrUpdate(String resourceGroupName, String resourceLroNoBodyName,
         ResourceLroNoBody resource, Context context) {
         return beginCreateOrUpdate(resourceGroupName, resourceLroNoBodyName, resource, context).getFinalResult();
+    }
+
+    /**
+     * A long-running resource action.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response} on successful completion of {@link Mono}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Flux<ByteBuffer>>> actionWithResponseAsync(String resourceGroupName,
+        String resourceLroNoBodyName) {
+        final String accept = "application/json";
+        return FluxUtil
+            .withContext(context -> service.action(this.client.getEndpoint(), this.client.getApiVersion(),
+                this.client.getSubscriptionId(), resourceGroupName, resourceLroNoBodyName, accept, context))
+            .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
+    }
+
+    /**
+     * A long-running resource action.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    private Response<BinaryData> actionWithResponse(String resourceGroupName, String resourceLroNoBodyName) {
+        final String accept = "application/json";
+        return service.actionSync(this.client.getEndpoint(), this.client.getApiVersion(),
+            this.client.getSubscriptionId(), resourceGroupName, resourceLroNoBodyName, accept, Context.NONE);
+    }
+
+    /**
+     * A long-running resource action.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    private Response<BinaryData> actionWithResponse(String resourceGroupName, String resourceLroNoBodyName,
+        Context context) {
+        final String accept = "application/json";
+        return service.actionSync(this.client.getEndpoint(), this.client.getApiVersion(),
+            this.client.getSubscriptionId(), resourceGroupName, resourceLroNoBodyName, accept, context);
+    }
+
+    /**
+     * A long-running resource action.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link PollerFlux} for polling of long-running operation.
+     */
+    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
+    public PollerFlux<PollResult<ActionFinalResult>, ActionFinalResult> beginActionAsync(String resourceGroupName,
+        String resourceLroNoBodyName) {
+        Mono<Response<Flux<ByteBuffer>>> mono = actionWithResponseAsync(resourceGroupName, resourceLroNoBodyName);
+        return this.client.<ActionFinalResult, ActionFinalResult>getLroResult(mono, this.client.getHttpPipeline(),
+            ActionFinalResult.class, ActionFinalResult.class, this.client.getContext());
+    }
+
+    /**
+     * A long-running resource action.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link SyncPoller} for polling of long-running operation.
+     */
+    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
+    public SyncPoller<PollResult<ActionFinalResult>, ActionFinalResult> beginAction(String resourceGroupName,
+        String resourceLroNoBodyName) {
+        Response<BinaryData> response = actionWithResponse(resourceGroupName, resourceLroNoBodyName);
+        return this.client.<ActionFinalResult, ActionFinalResult>getLroResult(response, ActionFinalResult.class,
+            ActionFinalResult.class, Context.NONE);
+    }
+
+    /**
+     * A long-running resource action.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link SyncPoller} for polling of long-running operation.
+     */
+    @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
+    public SyncPoller<PollResult<ActionFinalResult>, ActionFinalResult> beginAction(String resourceGroupName,
+        String resourceLroNoBodyName, Context context) {
+        Response<BinaryData> response = actionWithResponse(resourceGroupName, resourceLroNoBodyName, context);
+        return this.client.<ActionFinalResult, ActionFinalResult>getLroResult(response, ActionFinalResult.class,
+            ActionFinalResult.class, context);
+    }
+
+    /**
+     * A long-running resource action.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body on successful completion of {@link Mono}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<ActionFinalResult> actionAsync(String resourceGroupName, String resourceLroNoBodyName) {
+        return beginActionAsync(resourceGroupName, resourceLroNoBodyName).last()
+            .flatMap(this.client::getLroFinalResultOrError);
+    }
+
+    /**
+     * A long-running resource action.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public ActionFinalResult action(String resourceGroupName, String resourceLroNoBodyName) {
+        return beginAction(resourceGroupName, resourceLroNoBodyName).getFinalResult();
+    }
+
+    /**
+     * A long-running resource action.
+     * 
+     * @param resourceGroupName The name of the resource group. The name is case insensitive.
+     * @param resourceLroNoBodyName The name of the ResourceLroNoBody.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public ActionFinalResult action(String resourceGroupName, String resourceLroNoBodyName, Context context) {
+        return beginAction(resourceGroupName, resourceLroNoBodyName, context).getFinalResult();
     }
 }
