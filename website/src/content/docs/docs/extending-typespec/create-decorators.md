@@ -125,7 +125,7 @@ model Dog {
 Decorators often need to validate that they are being used correctly. TypeSpec provides different validation strategies depending on your requirements:
 
 :::warning
-The purpose of those callbacks is uniquely to report diagnostics, not to modify the type graph. Modifying the type graph at those stages can lead to unexpected behavior.
+The purpose of validation callbacks is specifically to report diagnostics, not to modify the type graph. Modifying the type graph during validation may lead to unexpected behavior.
 :::
 
 #### Immediate validation
