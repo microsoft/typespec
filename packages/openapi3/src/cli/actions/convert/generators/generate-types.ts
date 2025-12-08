@@ -572,6 +572,12 @@ function getNumberType(schema: SupportedOpenAPISchema): string {
 
 function getStringType(schema: SupportedOpenAPISchema): string {
   const format = schema.format ?? "";
+
+  // Handle contentEncoding: base64 for OpenAPI 3.1+ (indicates binary data encoded as base64 string)
+  if ("contentEncoding" in schema && schema.contentEncoding === "base64") {
+    return "bytes";
+  }
+
   let type = "string";
   switch (format) {
     case "binary":
