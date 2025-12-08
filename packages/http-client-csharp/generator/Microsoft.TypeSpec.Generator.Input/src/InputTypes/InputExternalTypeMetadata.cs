@@ -4,17 +4,17 @@
 namespace Microsoft.TypeSpec.Generator.Input
 {
     /// <summary>
-    /// Represents an external type reference in the input model.
+    /// External type information for types that map to external library types.
     /// </summary>
-    public sealed class InputExternalType : InputType
+    public sealed class InputExternalTypeMetadata
     {
         /// <summary>
-        /// Construct a new <see cref="InputExternalType"/> instance
+        /// Construct a new <see cref="InputExternalTypeMetadata"/> instance
         /// </summary>
         /// <param name="identity">The fully qualified name of the external type.</param>
         /// <param name="package">The package that exports the external type.</param>
         /// <param name="minVersion">The minimum version of the package.</param>
-        public InputExternalType(string identity, string? package, string? minVersion) : base("external")
+        public InputExternalTypeMetadata(string identity, string? package, string? minVersion)
         {
             Identity = identity;
             Package = package;
