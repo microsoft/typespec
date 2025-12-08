@@ -262,7 +262,7 @@ class NullableReferencedModelMutation extends SimpleModelMutation<SimpleMutation
 }
 ```
 
-Mutation nodes also have a `replace` method. Returning a new mutation from MutationInfo makes the resulting Mutations look "as if" the source type graph were shaped differently. This is useful for doing things like normalizations of the type graph. The structure of the Mutations mimick this new structure. When you `replace` on a mutation node, the Mutation stays the same, but the mutated type graph is changed. This is useful for doing things like renaming things or swapping scalars in situations where you want to see both the source type and the mutated type in order to compare them.
+Mutation nodes also have a `replace` method. Returning a new mutation from MutationInfo makes the resulting Mutations look "as if" the source type graph were shaped differently. This is useful for doing things like normalizations of the type graph. The structure of the Mutations mimic this new structure. When you `replace` on a mutation node, the Mutation stays the same, but the mutated type graph is changed. This is useful for doing things like renaming things or swapping scalars in situations where you want to see both the source type and the mutated type in order to compare them.
 
 ## Mutation Caching
 

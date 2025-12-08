@@ -187,7 +187,7 @@ describe("SCCSet", () => {
     ]);
   });
 
-  it.only("exposes component connections", () => {
+  it("exposes component connections", () => {
     const edges = new Map<string, string[]>([
       ["Leaf", []],
       ["Base", ["Leaf"]],

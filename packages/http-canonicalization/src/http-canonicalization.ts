@@ -342,6 +342,17 @@ export function* httpCanonicalizationDependencyConnector(
       );
       break;
     }
+    case "Enum": {
+      for (const member of canonicalization.members.values()) {
+        yield assertDependencyDefined(
+          member as HttpCanonicalization | undefined,
+          canonicalization,
+          "member",
+        );
+      }
+      break;
+    }
+    case "EnumMember":
     case "Intrinsic":
     case "Literal":
       break;
