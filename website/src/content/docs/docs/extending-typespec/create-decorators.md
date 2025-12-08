@@ -124,6 +124,10 @@ model Dog {
 
 Decorators often need to validate that they are being used correctly. TypeSpec provides different validation strategies depending on your requirements:
 
+:::warning
+The purpose of those callbacks is uniquely to report diagnostics, not to modify the type graph. Modifying the type graph at those stages can lead to unexpected behavior.
+:::
+
 #### Immediate validation
 
 For simple validation cases (such as checking parameter values), you can use the `reportDiagnostic` method directly in the decorator implementation. This is suitable when validation only depends on the decorator's parameters.
