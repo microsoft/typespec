@@ -78,7 +78,7 @@ describe.skip("Payload.MultiPart", () => {
     });
   });
 
-  describe("FormDataClient.HttpParts.ContentType", () => {
+  describe.skip("FormDataClient.HttpParts.ContentType", () => {
     const client = new HttpPartsClient({
       allowInsecureConnection: true,
       retryOptions: { maxRetries: 1 },
@@ -114,7 +114,7 @@ describe.skip("Payload.MultiPart", () => {
     });
   });
 
-  describe("FormDataClient.HttpParts", () => {
+  describe.skip("FormDataClient.HttpParts", () => {
     it("should send json array and file array", async () => {
       const client = new HttpPartsClient({
         allowInsecureConnection: true,
@@ -141,7 +141,7 @@ describe.skip("Payload.MultiPart", () => {
     });
   });
 
-  describe("FormDataClient.HttpParts.NonString", () => {
+  describe.skip("FormDataClient.HttpParts.NonString", () => {
     it("should handle non-string float", async () => {
       const client = new HttpPartsClient({
         allowInsecureConnection: true,
