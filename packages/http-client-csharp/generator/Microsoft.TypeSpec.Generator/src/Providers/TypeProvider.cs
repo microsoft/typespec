@@ -230,9 +230,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public IReadOnlyList<PropertyProvider> Properties => _properties ??= FilterCustomizedMembers ? FilterCustomizedProperties(BuildProperties()) : BuildProperties();
 
         private IReadOnlyList<MethodProvider>? _methods;
-        public IReadOnlyList<MethodProvider> Methods => _methods ??= FilterCustomizedMembers
-            ? FilterCustomizedMethods(BuildMethods())
-            : BuildMethodsForBackCompatibility(BuildMethods());
+        public IReadOnlyList<MethodProvider> Methods => _methods ??= FilterCustomizedMembers ? FilterCustomizedMethods(BuildMethods()) : BuildMethods();
 
         private IReadOnlyList<ConstructorProvider>? _constructors;
 
@@ -302,7 +300,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
             }
 
-            return [..properties];
+            return [.. properties];
         }
 
         internal FieldProvider[] FilterCustomizedFields(IEnumerable<FieldProvider> specFields)
@@ -341,7 +339,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
             }
 
-            return [ .. BuildMethodsForBackCompatibility(methods)];
+            return [.. methods];
         }
 
         internal ConstructorProvider[] FilterCustomizedConstructors(IEnumerable<ConstructorProvider> specConstructors)
@@ -355,7 +353,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
             }
 
-            return [..constructors];
+            return [.. constructors];
         }
 
         private TypeProvider[] BuildNestedTypesInternal()
@@ -556,7 +554,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
         }
 
-        protected virtual IReadOnlyList<MethodProvider> BuildMethodsForBackCompatibility(IEnumerable<MethodProvider> originalMethods)
+        internal void ProcessTypeForBackCompatibility()
+        {
+            if (LastContractView?.Methods == null || LastContractView?.Methods.Count == 0)
+            {
+                return;
+            }
+
+            Update(methods: BuildMethodsForBackCompatibility(Methods));
+        }
+
+        protected internal virtual IReadOnlyList<MethodProvider> BuildMethodsForBackCompatibility(IEnumerable<MethodProvider> originalMethods)
             => [.. originalMethods];
 
         private IReadOnlyList<EnumTypeMember>? _enumValues;
@@ -671,7 +679,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
             else if (attribute.ConstructorArguments[1].Kind != TypedConstantKind.Array)
             {
-                parameterTypes = attribute.ConstructorArguments[1..].Select(a => (ISymbol?) a.Value).ToArray();
+                parameterTypes = attribute.ConstructorArguments[1..].Select(a => (ISymbol?)a.Value).ToArray();
             }
             else
             {

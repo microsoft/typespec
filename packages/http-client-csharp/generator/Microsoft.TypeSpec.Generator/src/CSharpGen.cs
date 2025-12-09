@@ -71,6 +71,9 @@ namespace Microsoft.TypeSpec.Generator
 
             foreach (var outputType in output.TypeProviders)
             {
+                // Ensure back-compatibility processing is done after all visitors have run
+                outputType.ProcessTypeForBackCompatibility();
+
                 var writer = CodeModelGenerator.Instance.GetWriter(outputType);
                 generateFilesTasks.Add(generatedCodeWorkspace.AddGeneratedFile(writer.Write()));
 

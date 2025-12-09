@@ -6,7 +6,6 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -2430,6 +2429,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(clientProvider);
             Assert.IsNotNull(clientProvider!.LastContractView);
 
+            // Use reflection to invoke internal ProcessTypeForBackCompatibility method
+            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            processMethod?.Invoke(clientProvider, null);
+
             var methods = clientProvider!.Methods;
             var protocolMethods = methods
                 .Where(m => m.Signature.Name.StartsWith("TestMethod") && m is ScmMethodProvider { Kind: ScmMethodKind.Protocol })
@@ -2513,6 +2516,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(clientProvider);
             Assert.IsNotNull(clientProvider!.LastContractView);
 
+            // Use reflection to invoke internal ProcessTypeForBackCompatibility method
+            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            processMethod?.Invoke(clientProvider, null);
+
             var methods = clientProvider!.Methods;
             var convenienceMethods = methods
                 .Where(m => m.Signature.Name.StartsWith("GetData") && m is ScmMethodProvider { Kind: ScmMethodKind.Convenience })
@@ -2591,7 +2598,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNotNull(clientProvider);
             Assert.IsNotNull(clientProvider!.LastContractView);
 
-            var methods = clientProvider!.Methods;
+            // Use reflection to invoke internal ProcessTypeForBackCompatibility method
+            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            processMethod?.Invoke(clientProvider, null);
+
+            var methods = clientProvider.Methods;
             var protocolMethods = methods
                 .Where(m => m.Signature.Name.StartsWith("UpdateResource") && m is ScmMethodProvider { Kind: ScmMethodKind.Protocol })
                 .ToList();
@@ -2654,6 +2665,90 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                "global::System.ClientModel.ClientResult result = await this.UpdateResourceAsync(content, param2, param3, cancellationToken.ToRequestOptions()).ConfigureAwait(false);\n" +
                "return global::System.ClientModel.ClientResult.FromValue(result.GetRawResponse().Content.ToObjectFromJson<string>(), result.GetRawResponse());\n",
                result);
+        }
+
+        [Test]
+        public async Task BackCompatibility_ExactMatchWithCompatibleOverload()
+        {
+            // Set up operation parameters - exact match has string param2, overload has int param2
+            var param1 = InputFactory.BodyParameter("param1", InputPrimitiveType.String, isRequired: true);
+            var param2String = InputFactory.QueryParameter("param2", InputPrimitiveType.String, isRequired: true);
+            var param3 = InputFactory.HeaderParameter("param3", InputPrimitiveType.Boolean, isRequired: true);
+
+            var operation = InputFactory.Operation(
+                "ProcessData",
+                parameters: [param1, param2String, param3]);
+
+            List<InputMethodParameter> methodParameters =
+            [
+                InputFactory.MethodParameter("param1", InputPrimitiveType.String, location: InputRequestLocation.Body, isRequired: true),
+                InputFactory.MethodParameter("param2", InputPrimitiveType.String, location: InputRequestLocation.Query, isRequired: true),
+                InputFactory.MethodParameter("param3", InputPrimitiveType.Boolean, location: InputRequestLocation.Header, isRequired: true),
+            ];
+
+            var method = InputFactory.BasicServiceMethod("ProcessData", operation, parameters: [.. methodParameters]);
+            var client = InputFactory.Client(TestClientName, methods: [method]);
+
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var clientProvider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().FirstOrDefault();
+            Assert.IsNotNull(clientProvider);
+            Assert.IsNotNull(clientProvider!.LastContractView);
+
+            // Use reflection to invoke internal ProcessTypeForBackCompatibility method
+            var processMethod = typeof(ClientProvider).GetMethod("ProcessTypeForBackCompatibility", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            processMethod?.Invoke(clientProvider, null);
+
+            var methods = clientProvider.Methods;
+            var processDataMethods = methods
+                .Where(m => m.Signature.Name.StartsWith("ProcessData") && m is ScmMethodProvider)
+                .ToList();
+
+            // Should have 4 methods total: 2 protocol (sync/async) and 2 convenience (sync/async)
+            Assert.AreEqual(4, processDataMethods.Count);
+
+            foreach (var testMethod in processDataMethods)
+            {
+                Assert.IsTrue(testMethod is ScmMethodProvider scmMethod && scmMethod.EnclosingType is ClientProvider);
+            }
+
+            var protocolMethods = processDataMethods
+                .Where(m => m is ScmMethodProvider { Kind: ScmMethodKind.Protocol })
+                .ToList();
+            Assert.AreEqual(2, protocolMethods.Count);
+
+            // Validate that the parameters remained unchanged (exact match found, so no reordering)
+            foreach (var testMethod in protocolMethods)
+            {
+                var parameters = testMethod.Signature.Parameters;
+                Assert.AreEqual(4, parameters.Count);
+                // Should remain in the original order: content, param2 (string), param3, options
+                Assert.AreEqual("content", parameters[0].Name);
+                Assert.AreEqual("param2", parameters[1].Name);
+                Assert.AreEqual(typeof(string), parameters[1].Type.FrameworkType);
+                Assert.AreEqual("param3", parameters[2].Name);
+                Assert.AreEqual("options", parameters[3].Name);
+            }
+
+            // Validate convenience methods also remained unchanged
+            var convenienceMethods = processDataMethods
+                .Where(m => m is ScmMethodProvider { Kind: ScmMethodKind.Convenience })
+                .ToList();
+            Assert.AreEqual(2, convenienceMethods.Count);
+
+            foreach (var testMethod in convenienceMethods)
+            {
+                var parameters = testMethod.Signature.Parameters;
+                Assert.AreEqual(4, parameters.Count);
+                // Should remain in the original order: param1, param2 (string), param3, cancellationToken
+                Assert.AreEqual("param1", parameters[0].Name);
+                Assert.AreEqual("param2", parameters[1].Name);
+                Assert.AreEqual(typeof(string), parameters[1].Type.FrameworkType);
+                Assert.AreEqual("param3", parameters[2].Name);
+                Assert.AreEqual("cancellationToken", parameters[3].Name);
+            }
         }
     }
 }

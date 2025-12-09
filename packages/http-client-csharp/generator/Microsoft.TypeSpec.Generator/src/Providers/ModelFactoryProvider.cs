@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -90,7 +89,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return [.. methods];
         }
 
-        protected sealed override IReadOnlyList<MethodProvider> BuildMethodsForBackCompatibility(IEnumerable<MethodProvider> originalMethods)
+        protected internal sealed override IReadOnlyList<MethodProvider> BuildMethodsForBackCompatibility(IEnumerable<MethodProvider> originalMethods)
         {
             if (LastContractView?.Methods == null || LastContractView.Methods.Count == 0)
             {
@@ -110,16 +109,28 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
 
                 List<MethodSignature> currentOverloads = [];
+                bool foundCompatibleOverload = false;
+
                 // Attempt to find an updated method in the current contract to call
                 foreach (var currentMethodSignature in currentMethodSignatures)
                 {
                     if (currentMethodSignature.Name.Equals(previousMethod.Signature.Name))
                     {
+                        if (MethodSignatureHelper.HaveSameParametersInSameOrder(currentMethodSignature, previousMethod.Signature))
+                        {
+                            foundCompatibleOverload = true;
+                            break;
+                        }
+
                         currentOverloads.Add(currentMethodSignature);
                     }
                 }
 
-                bool foundCompatibleOverload = false;
+                if (foundCompatibleOverload)
+                {
+                    continue;
+                }
+
                 foreach (var currentOverload in currentOverloads)
                 {
                     // If the parameter ordering is the only difference, just use the previous method

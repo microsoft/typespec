@@ -858,18 +858,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                var matchingCurrentSignature = FindMethodWithSameParametersButDifferentOrder(
+                var methodToUpdate = FindMethodWithSameParametersButDifferentOrder(
                     previousMethod.Signature,
                     currentMethodSignatures);
 
-                if (matchingCurrentSignature != null
-                    && currentMethodSignatures.TryGetValue(matchingCurrentSignature, out var methodToUpdate))
+                if (methodToUpdate != null && TryReorderCurrentMethodParameters(
+                    methodToUpdate,
+                    previousMethod.Signature,
+                    updatedSignatureToOriginal))
                 {
-                    ReorderCurrentMethodParameters(
-                        methodToUpdate,
-                        previousMethod.Signature,
-                        updatedSignatureToOriginal,
-                        methodsWithReorderedParams);
+                    methodsWithReorderedParams.Add(methodToUpdate);
+                    CodeModelGenerator.Instance.Emitter.Debug(
+                        $"Preserved method {Name}.{methodToUpdate.Signature.Name} signature to match last contract.");
                 }
             }
 
@@ -904,31 +904,37 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                    modifiers.HasFlag(MethodSignatureModifiers.Protected);
         }
 
-        private static MethodSignature? FindMethodWithSameParametersButDifferentOrder(
+        private static MethodProvider? FindMethodWithSameParametersButDifferentOrder(
             MethodSignature previousSignature,
             Dictionary<MethodSignature, MethodProvider> currentMethodSignatures)
         {
             foreach (var kvp in currentMethodSignatures)
             {
                 var currentSignature = kvp.Key;
-                if (currentSignature.Name.Equals(previousSignature.Name) &&
-                    MethodSignatureHelper.ContainsSameParameters(previousSignature, currentSignature))
+                if (currentSignature.Name.Equals(previousSignature.Name)
+                    && currentSignature.ReturnType?.AreNamesEqual(previousSignature.ReturnType) == true
+                    && MethodSignatureHelper.ContainsSameParameters(previousSignature, currentSignature))
                 {
-                    return currentSignature;
+                    return kvp.Value;
                 }
             }
 
             return null;
         }
 
-        private void ReorderCurrentMethodParameters(
+        private bool TryReorderCurrentMethodParameters(
             MethodProvider methodToUpdate,
             MethodSignature previousSignature,
-            Dictionary<MethodSignature, MethodSignature> updatedSignatureToOriginal,
-            List<MethodProvider> methodsWithReorderedParams)
+            Dictionary<MethodSignature, MethodSignature> updatedSignatureToOriginal)
         {
             var currentSignature = methodToUpdate.Signature;
-            var parametersByName = currentSignature.Parameters.ToDictionary(p => p.Name);
+            // Early exit: Check if parameters are already in the same order
+            if (MethodSignatureHelper.HaveSameParametersInSameOrder(currentSignature, previousSignature))
+            {
+                return false;
+            }
+
+            var parametersByName = currentSignature.Parameters.ToDictionary(p => p.Name.ToVariableName());
             var reorderedParameters = new List<ParameterProvider>(currentSignature.Parameters.Count);
 
             foreach (var previousParam in previousSignature.Parameters)
@@ -941,7 +947,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (reorderedParameters.Count != currentSignature.Parameters.Count)
             {
-                return;
+                return false;
             }
 
             var updatedSignature = new MethodSignature(
@@ -960,10 +966,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             UpdateXmlDocProviderForParamReorder(methodToUpdate.XmlDocs, updatedSignature);
             methodToUpdate.Update(signature: updatedSignature, xmlDocProvider: methodToUpdate.XmlDocs);
-            methodsWithReorderedParams.Add(methodToUpdate);
 
-            CodeModelGenerator.Instance.Emitter.Debug(
-                $"Preserved method {Name}.{methodToUpdate.Signature.Name} signature to match last contract.");
+            return true;
         }
 
         private ParameterProvider BuildClientEndpointParameter()
