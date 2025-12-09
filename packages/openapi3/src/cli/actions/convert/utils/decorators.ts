@@ -177,18 +177,24 @@ export function getDecoratorsForSchema(
   let typeForFormat = effectiveType;
 
   // If format is not directly on the schema, check anyOf/oneOf members for unixtime format
-  if (!formatToUse && (schema.anyOf || schema.oneOf)) {
-    const unionMembers = schema.anyOf || schema.oneOf || [];
-    for (const member of unionMembers) {
-      if ("$ref" in member) continue;
-      // Check if this is a non-null member with unixtime format
-      if (member.format === "unixtime" && member.type !== "null") {
-        formatToUse = member.format;
-        // Extract effective type from member (handle type arrays)
-        typeForFormat = Array.isArray(member.type)
-          ? member.type.find((t) => t !== "null")
-          : member.type;
-        break;
+  if (!formatToUse) {
+    const unionMembers = schema.anyOf || schema.oneOf;
+    if (unionMembers) {
+      for (const member of unionMembers) {
+        if ("$ref" in member) continue;
+        // Check if this is a non-null member with unixtime format
+        if (member.format === "unixtime" && member.type !== "null") {
+          formatToUse = member.format;
+          // Extract effective type from member (handle type arrays)
+          const memberType = Array.isArray(member.type)
+            ? member.type.find((t) => t !== "null")
+            : member.type;
+          // Only use if we found a valid type
+          if (memberType) {
+            typeForFormat = memberType;
+          }
+          break;
+        }
       }
     }
   }
