@@ -100,6 +100,14 @@ public final class HeadersImpl {
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
+            path = "/encode/duration/header/int32-seconds-larger-unit",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> int32SecondsLargerUnit(@HostParam("endpoint") String endpoint,
+            @HeaderParam("duration") long duration, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
             path = "/encode/duration/header/float-seconds",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
@@ -108,11 +116,67 @@ public final class HeadersImpl {
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
+            path = "/encode/duration/header/float-seconds-larger-unit",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> floatSecondsLargerUnit(@HostParam("endpoint") String endpoint,
+            @HeaderParam("duration") double duration, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
             path = "/encode/duration/header/float64-seconds",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
         Response<Void> float64Seconds(@HostParam("endpoint") String endpoint, @HeaderParam("duration") double duration,
             RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/encode/duration/header/int32-milliseconds",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> int32Milliseconds(@HostParam("endpoint") String endpoint, @HeaderParam("duration") int duration,
+            RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/encode/duration/header/int32-milliseconds-larger-unit",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> int32MillisecondsLargerUnit(@HostParam("endpoint") String endpoint,
+            @HeaderParam("duration") int duration, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/encode/duration/header/float-milliseconds",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> floatMilliseconds(@HostParam("endpoint") String endpoint,
+            @HeaderParam("duration") double duration, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/encode/duration/header/float-milliseconds-larger-unit",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> floatMillisecondsLargerUnit(@HostParam("endpoint") String endpoint,
+            @HeaderParam("duration") double duration, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/encode/duration/header/float64-milliseconds",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> float64Milliseconds(@HostParam("endpoint") String endpoint,
+            @HeaderParam("duration") double duration, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/encode/duration/header/int32-milliseconds-array",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> int32MillisecondsArray(@HostParam("endpoint") String endpoint,
+            @HeaderParam("duration") String duration, RequestContext requestContext);
     }
 
     /**
@@ -123,7 +187,7 @@ public final class HeadersImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> defaultMethodWithResponse(Duration duration, RequestContext requestContext) {
@@ -141,7 +205,7 @@ public final class HeadersImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> iso8601WithResponse(Duration duration, RequestContext requestContext) {
@@ -159,7 +223,7 @@ public final class HeadersImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> iso8601ArrayWithResponse(List<Duration> duration, RequestContext requestContext) {
@@ -204,7 +268,7 @@ public final class HeadersImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> int32SecondsWithResponse(Duration duration, RequestContext requestContext) {
@@ -216,6 +280,25 @@ public final class HeadersImpl {
     }
 
     /**
+     * The int32SecondsLargerUnit operation.
+     * 
+     * @param duration The duration parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> int32SecondsLargerUnitWithResponse(Duration duration, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Header.int32SecondsLargerUnit",
+            requestContext, updatedContext -> {
+                long durationConverted = duration.getSeconds();
+                return service.int32SecondsLargerUnit(this.client.getEndpoint(), durationConverted, updatedContext);
+            });
+    }
+
+    /**
      * The floatSeconds operation.
      * 
      * @param duration The duration parameter.
@@ -223,7 +306,7 @@ public final class HeadersImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> floatSecondsWithResponse(Duration duration, RequestContext requestContext) {
@@ -235,6 +318,25 @@ public final class HeadersImpl {
     }
 
     /**
+     * The floatSecondsLargerUnit operation.
+     * 
+     * @param duration The duration parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> floatSecondsLargerUnitWithResponse(Duration duration, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Header.floatSecondsLargerUnit",
+            requestContext, updatedContext -> {
+                double durationConverted = (double) duration.toNanos() / 1000_000_000L;
+                return service.floatSecondsLargerUnit(this.client.getEndpoint(), durationConverted, updatedContext);
+            });
+    }
+
+    /**
      * The float64Seconds operation.
      * 
      * @param duration The duration parameter.
@@ -242,7 +344,7 @@ public final class HeadersImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> float64SecondsWithResponse(Duration duration, RequestContext requestContext) {
@@ -250,6 +352,141 @@ public final class HeadersImpl {
             updatedContext -> {
                 double durationConverted = (double) duration.toNanos() / 1000_000_000L;
                 return service.float64Seconds(this.client.getEndpoint(), durationConverted, updatedContext);
+            });
+    }
+
+    /**
+     * The int32Milliseconds operation.
+     * 
+     * @param duration The duration parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> int32MillisecondsWithResponse(int duration, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Header.int32Milliseconds", requestContext,
+            updatedContext -> {
+                return service.int32Milliseconds(this.client.getEndpoint(), duration, updatedContext);
+            });
+    }
+
+    /**
+     * The int32MillisecondsLargerUnit operation.
+     * 
+     * @param duration The duration parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> int32MillisecondsLargerUnitWithResponse(int duration, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Header.int32MillisecondsLargerUnit",
+            requestContext, updatedContext -> {
+                return service.int32MillisecondsLargerUnit(this.client.getEndpoint(), duration, updatedContext);
+            });
+    }
+
+    /**
+     * The floatMilliseconds operation.
+     * 
+     * @param duration The duration parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> floatMillisecondsWithResponse(double duration, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Header.floatMilliseconds", requestContext,
+            updatedContext -> {
+                return service.floatMilliseconds(this.client.getEndpoint(), duration, updatedContext);
+            });
+    }
+
+    /**
+     * The floatMillisecondsLargerUnit operation.
+     * 
+     * @param duration The duration parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> floatMillisecondsLargerUnitWithResponse(double duration, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Header.floatMillisecondsLargerUnit",
+            requestContext, updatedContext -> {
+                return service.floatMillisecondsLargerUnit(this.client.getEndpoint(), duration, updatedContext);
+            });
+    }
+
+    /**
+     * The float64Milliseconds operation.
+     * 
+     * @param duration The duration parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> float64MillisecondsWithResponse(double duration, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Header.float64Milliseconds", requestContext,
+            updatedContext -> {
+                return service.float64Milliseconds(this.client.getEndpoint(), duration, updatedContext);
+            });
+    }
+
+    /**
+     * The int32MillisecondsArray operation.
+     * 
+     * @param duration The duration parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> int32MillisecondsArrayWithResponse(List<Integer> duration, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Header.int32MillisecondsArray",
+            requestContext, updatedContext -> {
+                String durationConverted = duration.stream().map(paramItemValue -> {
+                    if (paramItemValue == null) {
+                        return "";
+                    } else {
+                        String itemValueString = BinaryData.fromObject(paramItemValue).toString();
+                        int strLength = itemValueString.length();
+                        int startOffset = 0;
+                        while (startOffset < strLength) {
+                            if (itemValueString.charAt(startOffset) != '"') {
+                                break;
+                            }
+                            startOffset++;
+                        }
+                        if (startOffset == strLength) {
+                            return "";
+                        }
+                        int endOffset = strLength - 1;
+                        while (endOffset >= 0) {
+                            if (itemValueString.charAt(endOffset) != '"') {
+                                break;
+                            }
+
+                            endOffset--;
+                        }
+                        return itemValueString.substring(startOffset, endOffset + 1);
+                    }
+                }).collect(Collectors.joining(","));
+                return service.int32MillisecondsArray(this.client.getEndpoint(), durationConverted, updatedContext);
             });
     }
 }

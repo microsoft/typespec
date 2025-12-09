@@ -10,7 +10,7 @@ export async function main() {
   return convertAction(host, cliArgs);
 }
 
-const cliUsage = `tsp-openapi3 <path/to/openapi3/file> --output-dir <path/to/output/directory>`;
+const cliUsage = `tsp-openapi3 <path/to/openapi3/file> --output-dir <path/to/output/directory> [--namespace <namespace>]`;
 
 function parseCliArgs(): ConvertCliArgs {
   const options = parseArgs({
@@ -20,6 +20,9 @@ function parseCliArgs(): ConvertCliArgs {
         type: "boolean",
       },
       "output-dir": {
+        type: "string",
+      },
+      namespace: {
         type: "string",
       },
     },
@@ -55,6 +58,7 @@ function parseCliArgs(): ConvertCliArgs {
   return {
     "output-dir": options.values["output-dir"]!,
     path: options.positionals[0],
+    namespace: options.values.namespace,
   };
 }
 
@@ -78,6 +82,13 @@ function displayHelp() {
       "--output-dir",
       "The output directory for generated TypeSpec files. Will be created if it does not exist.",
       "[string] [required]",
+    ),
+  );
+  log(
+    padArgumentUsage(
+      "--namespace",
+      "The namespace name to use instead of generating from the OpenAPI title.",
+      "[string]",
     ),
   );
 }

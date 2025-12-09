@@ -1,5 +1,38 @@
 # Change Log - @typespec/versioning
 
+## 0.76.0
+
+### Bump dependencies
+
+- [#8823](https://github.com/microsoft/typespec/pull/8823) Upgrade dependencies
+
+
+## 0.75.0
+
+No changes, version bump only.
+
+## 0.74.0
+
+### Bump dependencies
+
+- [#8317](https://github.com/microsoft/typespec/pull/8317) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8327](https://github.com/microsoft/typespec/pull/8327) Skip validating versioning in template declaration as information could be missing
+
+
+## 0.73.0
+
+### Features
+
+- [#7999](https://github.com/microsoft/typespec/pull/7999) Use of `@useDependency` is now optional when referencing types from a versioned library. By default the latest version of the library will be used.
+
+### Bump dependencies
+
+- [#7978](https://github.com/microsoft/typespec/pull/7978) Upgrade dependencies
+
+
 ## 0.72.0
 
 ### Bump dependencies

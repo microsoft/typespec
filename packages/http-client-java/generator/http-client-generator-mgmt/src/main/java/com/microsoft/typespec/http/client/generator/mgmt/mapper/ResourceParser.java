@@ -3,9 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.mapper;
 
-import com.azure.core.http.HttpMethod;
-import com.azure.core.management.Region;
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
@@ -16,6 +13,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examp
 import com.microsoft.typespec.http.client.generator.core.template.prototype.MethodTemplate;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.mgmt.FluentGen;
+import com.microsoft.typespec.http.client.generator.mgmt.model.FluentType;
 import com.microsoft.typespec.http.client.generator.mgmt.model.ResourceTypeName;
 import com.microsoft.typespec.http.client.generator.mgmt.model.arm.ModelCategory;
 import com.microsoft.typespec.http.client.generator.mgmt.model.arm.UrlPathSegments;
@@ -31,6 +29,8 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluen
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.update.ResourceUpdate;
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
+import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -83,22 +83,21 @@ public class ResourceParser {
             if (FluentUtils.modelHasLocationProperty(model) && !model.hasProperty("region")) {
                 // if resource instance has location property, add region() method
                 methods.add(MethodTemplate.builder()
-                    .imports(Collections.singletonList(Region.class.getName()))
+                    .imports(Collections.singletonList(FluentType.REGION.getFullName()))
                     .comment(commentBlock -> {
                         commentBlock.description("Gets the region of the resource.");
                         commentBlock.methodReturns("the region of the resource.");
                     })
                     .methodSignature("Region region()")
-                    .method(methodBlock -> {
-                        methodBlock.methodReturn("Region.fromName(this.regionName())");
-                    })
+                    .method(methodBlock -> methodBlock.methodReturn("Region.fromName(this.regionName())"))
                     .build());
                 methods.add(MethodTemplate.builder().comment(commentBlock -> {
                     commentBlock.description("Gets the name of the resource region.");
                     commentBlock.methodReturns("the name of the resource region.");
-                }).methodSignature("String regionName()").method(methodBlock -> {
-                    methodBlock.methodReturn("this.location()");
-                }).build());
+                })
+                    .methodSignature("String regionName()")
+                    .method(methodBlock -> methodBlock.methodReturn("this.location()"))
+                    .build());
             }
         }
 
@@ -137,15 +136,13 @@ public class ResourceParser {
                         })
                         .map(Map.Entry::getValue)
                         .findFirst()
-                        .ifPresent(var -> {
-                            methods.add(MethodTemplate.builder().comment(commentBlock -> {
-                                commentBlock.description("Gets the name of the resource group.");
-                                commentBlock.methodReturns("the name of the resource group.");
-                            })
-                                .methodSignature("String resourceGroupName()")
-                                .method(methodBlock -> methodBlock.methodReturn(var.getName()))
-                                .build());
-                        });
+                        .ifPresent(var -> methods.add(MethodTemplate.builder().comment(commentBlock -> {
+                            commentBlock.description("Gets the name of the resource group.");
+                            commentBlock.methodReturns("the name of the resource group.");
+                        })
+                            .methodSignature("String resourceGroupName()")
+                            .method(methodBlock -> methodBlock.methodReturn(var.getName()))
+                            .build()));
                 });
         }
     }
@@ -209,9 +206,8 @@ public class ResourceParser {
             }
         }
 
-        supportsCreateList.forEach(rc -> {
-            rc.getMethodReferences().addAll(collectMethodReferences(collection, rc.getMethodName()));
-        });
+        supportsCreateList
+            .forEach(rc -> rc.getMethodReferences().addAll(collectMethodReferences(collection, rc.getMethodName())));
 
         return supportsCreateList;
     }
@@ -311,15 +307,11 @@ public class ResourceParser {
                     if (method.getInnerProxyMethod()
                         .getParameters()
                         .stream()
-                        .allMatch(p -> p.isFromClient()
-                            || !p.isRequired()
-                            || (p.getRequestParameterLocation() == RequestParameterLocation.QUERY && p.isConstant())     // usually
-                                                                                                                         // 'api-version'
-                                                                                                                         // query
-                                                                                                                         // parameter
-                            || (p.getRequestParameterLocation() == RequestParameterLocation.HEADER && p.isConstant())    // usually
-                                                                                                                         // 'accept'
-                                                                                                                         // header
+                        .allMatch(p -> p.isFromClient() || !p.isRequired()
+                        // usually 'api-version' query parameter
+                            || (p.getRequestParameterLocation() == RequestParameterLocation.QUERY && p.isConstant())
+                            // usually 'accept' header
+                            || (p.getRequestParameterLocation() == RequestParameterLocation.HEADER && p.isConstant())
                             || p.getRequestParameterLocation() == RequestParameterLocation.PATH
                             || p.getRequestParameterLocation() == RequestParameterLocation.BODY)) {
                         actionMethods.add(method);
@@ -361,8 +353,7 @@ public class ResourceParser {
                         // at present, cannot handle derived models
                         if (fluentModel != null && fluentModel.getInnerModel().getDerivedModels().isEmpty()) {
                             // "id", "name", "type" in resource instance
-                            if (fluentModel != null
-                                && fluentModel.getResourceCreate() == null
+                            if (fluentModel.getResourceCreate() == null
                                 && !foundModels.containsKey(fluentModel)
                                 && !excludeModels.contains(fluentModel)
                                 && fluentModel.hasProperty(ResourceTypeName.FIELD_ID)
@@ -471,7 +462,7 @@ public class ResourceParser {
             .map(p -> p.getClientType().toString())
             .findAny();
 
-        if (!bodyTypeNameOpt.isPresent()) {
+        if (bodyTypeNameOpt.isEmpty()) {
             throw new IllegalStateException(
                 "Body type not found for method " + method.getInnerClientMethod().getName());
         }
@@ -479,7 +470,7 @@ public class ResourceParser {
         Optional<ClientModel> clientModelOpt
             = availableModels.stream().filter(model -> model.getName().equals(bodyTypeNameOpt.get())).findAny();
 
-        if (!clientModelOpt.isPresent()) {
+        if (clientModelOpt.isEmpty()) {
             LOGGER.warn("Client model not found for type name '{}', method '{}'", bodyTypeNameOpt.get(),
                 method.getInnerClientMethod().getName());
         }

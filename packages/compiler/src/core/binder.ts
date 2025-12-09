@@ -355,13 +355,18 @@ export function createBinder(program: Program): Binder {
     if (hasScope(node)) {
       const prevScope = scope;
       scope = node;
+
       visitChildren(node, bindNode);
 
       if ("locals" in node) {
         program.reportDuplicateSymbols(node.locals);
       }
 
-      scope = prevScope;
+      if (prevScope?.kind === SyntaxKind.TypeSpecScript && fileNamespace) {
+        scope = fileNamespace;
+      } else {
+        scope = prevScope;
+      }
     } else {
       visitChildren(node, bindNode);
     }
@@ -436,7 +441,7 @@ export function createBinder(program: Program): Binder {
   }
 
   function bindNamespaceStatement(statement: NamespaceStatementNode) {
-    const effectiveScope = fileNamespace ?? scope;
+    const effectiveScope = scope;
     // check if there's an existing symbol for this namespace
     const existingBinding = effectiveScope.symbol.exports!.get(statement.id.sv);
     if (existingBinding && existingBinding.flags & SymbolFlags.Namespace) {
@@ -454,6 +459,7 @@ export function createBinder(program: Program): Binder {
 
     if (statement.statements === undefined) {
       fileNamespace = statement;
+      scope = statement;
       let current: TypeSpecScriptNode | NamespaceStatementNode = statement;
       while (current.kind !== SyntaxKind.TypeSpecScript) {
         (currentFile.inScopeNamespaces as NamespaceStatementNode[]).push(current);
@@ -542,7 +548,7 @@ export function createBinder(program: Program): Binder {
   }
 
   function declareScriptMember(node: Declaration, flags: SymbolFlags, name?: string) {
-    const effectiveScope = fileNamespace ?? scope;
+    const effectiveScope = scope;
     if (
       flags & SymbolFlags.Namespace &&
       mergeNamespaceDeclarations(node as NamespaceStatementNode, effectiveScope)

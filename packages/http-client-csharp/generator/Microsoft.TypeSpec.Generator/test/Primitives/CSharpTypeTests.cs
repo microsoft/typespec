@@ -221,6 +221,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Primitives
         }
 
         [TestCase(typeof(IList<>), new[] { typeof(int) })]
+        [TestCase(typeof(IList<>), new[] { typeof(TestDerivedType) })]
+        [TestCase(typeof(IList<>), new[] { typeof(TestBaseType) })]
         [TestCase(typeof(IReadOnlyList<>), new[] { typeof(string) })]
         [TestCase(typeof(IDictionary<,>), new[] { typeof(string), typeof(string) })]
         [TestCase(typeof(IReadOnlyDictionary<,>), new[] { typeof(string), typeof(int) })]
@@ -561,6 +563,30 @@ namespace Microsoft.TypeSpec.Generator.Tests.Primitives
             Assert.IsFalse(ReferenceEquals(cSharpType7, cSharpType8));
         }
 
+        [TestCase(typeof(int))]
+        [TestCase(typeof(IList<>))]
+        [TestCase(typeof(IList<int>))]
+        [TestCase(typeof(IDictionary<,>))]
+        [TestCase(typeof(IDictionary<int, int>))]
+        [TestCase(typeof(IDictionary<string, int>))]
+        [TestCase(typeof(IDictionary<IDictionary<int, string>, IDictionary<string, int>>))]
+        [TestCase(typeof(TestStruct<int>))]
+        [TestCase(typeof(string[]))]
+        [TestCase(typeof(TestEnum))]
+        [TestCase(typeof(TestDerivedType), typeof(TestBaseType))]
+        public void BaseTypesAreCorrect(Type type, Type? expectedBaseType = null)
+        {
+            var csharpType = new CSharpType(type);
+            if (expectedBaseType == null)
+            {
+                Assert.IsNull(csharpType.BaseType);
+            }
+            else
+            {
+                Assert.IsTrue(csharpType.BaseType!.Equals(expectedBaseType));
+            }
+        }
+
         [TestCaseSource(nameof(ValidateNullableTypesData))]
         public void ValidateNullableTypes(Type type, IReadOnlyList<CSharpType> expectedArguments, bool expectedIsNullable)
         {
@@ -626,5 +652,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Primitives
         ];
 
         internal struct TestStruct<T> { }
+
+        private enum TestEnum { Value1, Value2 }
+
+        private class TestDerivedType : TestBaseType
+        {
+        }
+        private class TestBaseType
+        {
+        }
     }
 }

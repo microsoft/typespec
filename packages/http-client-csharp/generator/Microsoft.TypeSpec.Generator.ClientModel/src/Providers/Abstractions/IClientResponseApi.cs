@@ -23,6 +23,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         CSharpType ClientCollectionAsyncResponseOfTType { get; }
 
+        string ResponseParameterName { get; }
+
         TypeProvider CreateClientCollectionResultDefinition(
             ClientProvider client,
             InputPagingServiceMethod serviceMethod,

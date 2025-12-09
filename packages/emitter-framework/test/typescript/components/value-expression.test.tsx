@@ -1,3 +1,4 @@
+import { getProgram } from "#test/utils.js";
 import { Output } from "@alloy-js/core";
 import { dedent } from "@alloy-js/core/testing";
 import { SourceFile } from "@alloy-js/typescript";
@@ -13,7 +14,6 @@ import {
 import { $ } from "@typespec/compiler/typekit";
 import { assert, beforeAll, describe, expect, it } from "vitest";
 import { ValueExpression } from "../../../src/typescript/components/value-expression.js";
-import { getProgram } from "../test-host.js";
 
 let program: Program;
 beforeAll(async () => {

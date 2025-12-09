@@ -7,6 +7,7 @@ import pytest
 from authentication.apikey import ApiKeyClient
 from authentication.oauth2 import OAuth2Client
 from authentication.union import UnionClient
+from setuppy.authentication.union import UnionClient as SetuppyUnionClient
 from authentication.http.custom import CustomClient
 
 
@@ -94,13 +95,15 @@ def test_oauth2_invalid(oauth2_client, core_library):
     assert ex.value.status_code == 403
 
 
-def test_union_keyvalid(api_key_client):
-    client = api_key_client(UnionClient)
+@pytest.mark.parametrize("union_client_type", [UnionClient, SetuppyUnionClient])
+def test_union_keyvalid(api_key_client, union_client_type):
+    client = api_key_client(union_client_type)
     client.valid_key()
 
 
-def test_union_tokenvalid(oauth2_client):
-    client = oauth2_client(UnionClient)
+@pytest.mark.parametrize("union_client_type", [UnionClient, SetuppyUnionClient])
+def test_union_tokenvalid(oauth2_client, union_client_type):
+    client = oauth2_client(union_client_type)
     client.valid_token(enforce_https=False)
 
 

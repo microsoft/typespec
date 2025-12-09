@@ -2,11 +2,19 @@ package encode.duration;
 
 import encode.duration.implementation.PropertiesImpl;
 import encode.duration.property.DefaultDurationProperty;
+import encode.duration.property.Float64MillisecondsDurationProperty;
 import encode.duration.property.Float64SecondsDurationProperty;
+import encode.duration.property.FloatMillisecondsDurationArrayProperty;
+import encode.duration.property.FloatMillisecondsDurationProperty;
+import encode.duration.property.FloatMillisecondsLargerUnitDurationProperty;
 import encode.duration.property.FloatSecondsDurationArrayProperty;
 import encode.duration.property.FloatSecondsDurationProperty;
+import encode.duration.property.FloatSecondsLargerUnitDurationProperty;
 import encode.duration.property.ISO8601DurationProperty;
+import encode.duration.property.Int32MillisecondsDurationProperty;
+import encode.duration.property.Int32MillisecondsLargerUnitDurationProperty;
 import encode.duration.property.Int32SecondsDurationProperty;
+import encode.duration.property.Int32SecondsLargerUnitDurationProperty;
 import io.clientcore.core.annotations.Metadata;
 import io.clientcore.core.annotations.MetadataProperties;
 import io.clientcore.core.annotations.ReturnType;
@@ -47,7 +55,7 @@ public final class PropertyClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the response body along with {@link Response}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -80,7 +88,7 @@ public final class PropertyClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the response body along with {@link Response}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -113,7 +121,7 @@ public final class PropertyClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the response body along with {@link Response}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -146,7 +154,7 @@ public final class PropertyClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the response body along with {@link Response}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -179,7 +187,7 @@ public final class PropertyClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the response body along with {@link Response}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -205,6 +213,105 @@ public final class PropertyClient {
     }
 
     /**
+     * The int32Milliseconds operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Int32MillisecondsDurationProperty>
+        int32MillisecondsWithResponse(Int32MillisecondsDurationProperty body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Property.int32Milliseconds", requestContext,
+            updatedContext -> this.serviceClient.int32MillisecondsWithResponse(body, updatedContext));
+    }
+
+    /**
+     * The int32Milliseconds operation.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Int32MillisecondsDurationProperty int32Milliseconds(Int32MillisecondsDurationProperty body) {
+        return int32MillisecondsWithResponse(body, RequestContext.none()).getValue();
+    }
+
+    /**
+     * The floatMilliseconds operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<FloatMillisecondsDurationProperty>
+        floatMillisecondsWithResponse(FloatMillisecondsDurationProperty body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Property.floatMilliseconds", requestContext,
+            updatedContext -> this.serviceClient.floatMillisecondsWithResponse(body, updatedContext));
+    }
+
+    /**
+     * The floatMilliseconds operation.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public FloatMillisecondsDurationProperty floatMilliseconds(FloatMillisecondsDurationProperty body) {
+        return floatMillisecondsWithResponse(body, RequestContext.none()).getValue();
+    }
+
+    /**
+     * The float64Milliseconds operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Float64MillisecondsDurationProperty>
+        float64MillisecondsWithResponse(Float64MillisecondsDurationProperty body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Property.float64Milliseconds",
+            requestContext, updatedContext -> this.serviceClient.float64MillisecondsWithResponse(body, updatedContext));
+    }
+
+    /**
+     * The float64Milliseconds operation.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Float64MillisecondsDurationProperty float64Milliseconds(Float64MillisecondsDurationProperty body) {
+        return float64MillisecondsWithResponse(body, RequestContext.none()).getValue();
+    }
+
+    /**
      * The floatSecondsArray operation.
      * 
      * @param body The body parameter.
@@ -212,7 +319,7 @@ public final class PropertyClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the response body along with {@link Response}.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -235,5 +342,177 @@ public final class PropertyClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public FloatSecondsDurationArrayProperty floatSecondsArray(FloatSecondsDurationArrayProperty body) {
         return floatSecondsArrayWithResponse(body, RequestContext.none()).getValue();
+    }
+
+    /**
+     * The floatMillisecondsArray operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<FloatMillisecondsDurationArrayProperty>
+        floatMillisecondsArrayWithResponse(FloatMillisecondsDurationArrayProperty body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Property.floatMillisecondsArray",
+            requestContext,
+            updatedContext -> this.serviceClient.floatMillisecondsArrayWithResponse(body, updatedContext));
+    }
+
+    /**
+     * The floatMillisecondsArray operation.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public FloatMillisecondsDurationArrayProperty floatMillisecondsArray(FloatMillisecondsDurationArrayProperty body) {
+        return floatMillisecondsArrayWithResponse(body, RequestContext.none()).getValue();
+    }
+
+    /**
+     * The int32SecondsLargerUnit operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Int32SecondsLargerUnitDurationProperty>
+        int32SecondsLargerUnitWithResponse(Int32SecondsLargerUnitDurationProperty body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Property.int32SecondsLargerUnit",
+            requestContext,
+            updatedContext -> this.serviceClient.int32SecondsLargerUnitWithResponse(body, updatedContext));
+    }
+
+    /**
+     * The int32SecondsLargerUnit operation.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Int32SecondsLargerUnitDurationProperty int32SecondsLargerUnit(Int32SecondsLargerUnitDurationProperty body) {
+        return int32SecondsLargerUnitWithResponse(body, RequestContext.none()).getValue();
+    }
+
+    /**
+     * The floatSecondsLargerUnit operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<FloatSecondsLargerUnitDurationProperty>
+        floatSecondsLargerUnitWithResponse(FloatSecondsLargerUnitDurationProperty body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Property.floatSecondsLargerUnit",
+            requestContext,
+            updatedContext -> this.serviceClient.floatSecondsLargerUnitWithResponse(body, updatedContext));
+    }
+
+    /**
+     * The floatSecondsLargerUnit operation.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public FloatSecondsLargerUnitDurationProperty floatSecondsLargerUnit(FloatSecondsLargerUnitDurationProperty body) {
+        return floatSecondsLargerUnitWithResponse(body, RequestContext.none()).getValue();
+    }
+
+    /**
+     * The int32MillisecondsLargerUnit operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Int32MillisecondsLargerUnitDurationProperty> int32MillisecondsLargerUnitWithResponse(
+        Int32MillisecondsLargerUnitDurationProperty body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Property.int32MillisecondsLargerUnit",
+            requestContext,
+            updatedContext -> this.serviceClient.int32MillisecondsLargerUnitWithResponse(body, updatedContext));
+    }
+
+    /**
+     * The int32MillisecondsLargerUnit operation.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Int32MillisecondsLargerUnitDurationProperty
+        int32MillisecondsLargerUnit(Int32MillisecondsLargerUnitDurationProperty body) {
+        return int32MillisecondsLargerUnitWithResponse(body, RequestContext.none()).getValue();
+    }
+
+    /**
+     * The floatMillisecondsLargerUnit operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<FloatMillisecondsLargerUnitDurationProperty> floatMillisecondsLargerUnitWithResponse(
+        FloatMillisecondsLargerUnitDurationProperty body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Property.floatMillisecondsLargerUnit",
+            requestContext,
+            updatedContext -> this.serviceClient.floatMillisecondsLargerUnitWithResponse(body, updatedContext));
+    }
+
+    /**
+     * The floatMillisecondsLargerUnit operation.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public FloatMillisecondsLargerUnitDurationProperty
+        floatMillisecondsLargerUnit(FloatMillisecondsLargerUnitDurationProperty body) {
+        return floatMillisecondsLargerUnitWithResponse(body, RequestContext.none()).getValue();
     }
 }

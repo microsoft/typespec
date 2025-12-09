@@ -1,4 +1,5 @@
 import { Connection } from "vscode-languageserver/node.js";
+import { deepClone } from "../utils/misc.js";
 import { ServerHost } from "./types.js";
 
 interface LSPConfig {
@@ -7,6 +8,7 @@ interface LSPConfig {
 
 interface Config {
   lsp?: LSPConfig;
+  entrypoint?: string[];
 }
 
 /**
@@ -30,23 +32,15 @@ export function createClientConfigProvider(): ClientConfigProvider {
   async function initialize(connection: Connection, host: ServerHost): Promise<void> {
     try {
       const configs = await connection.workspace.getConfiguration("typespec");
-      host.log({ level: "debug", message: "VSCode settings loaded", detail: configs });
-
       // Transform the raw configuration to match our Config interface
-      config = {
-        lsp: {
-          emit: configs?.lsp?.emit,
-        },
-      };
+      config = deepClone(configs);
+
+      host.log({ level: "debug", message: "vscode settings loaded", detail: config });
 
       connection.onDidChangeConfiguration(async (params) => {
         if (params.settings) {
           const newConfigs = params.settings?.typespec;
-          config = {
-            lsp: {
-              emit: newConfigs?.lsp?.emit,
-            },
-          };
+          config = deepClone(newConfigs);
         }
 
         host.log({ level: "debug", message: "Configuration changed", detail: params.settings });

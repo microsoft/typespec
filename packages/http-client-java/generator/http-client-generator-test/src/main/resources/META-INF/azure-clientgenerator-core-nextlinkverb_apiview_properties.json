@@ -1,0 +1,11 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "azure.clientgenerator.core.nextlinkverb.NextLinkVerbAsyncClient": "_Specs_.Azure.ClientGenerator.Core.NextLinkVerb",
+    "azure.clientgenerator.core.nextlinkverb.NextLinkVerbAsyncClient.listItems": "_Specs_.Azure.ClientGenerator.Core.NextLinkVerb.listItems",
+    "azure.clientgenerator.core.nextlinkverb.NextLinkVerbClient": "_Specs_.Azure.ClientGenerator.Core.NextLinkVerb",
+    "azure.clientgenerator.core.nextlinkverb.NextLinkVerbClient.listItems": "_Specs_.Azure.ClientGenerator.Core.NextLinkVerb.listItems",
+    "azure.clientgenerator.core.nextlinkverb.NextLinkVerbClientBuilder": "_Specs_.Azure.ClientGenerator.Core.NextLinkVerb",
+    "azure.clientgenerator.core.nextlinkverb.models.Test": "_Specs_.Azure.ClientGenerator.Core.NextLinkVerb.Test"
+  }
+}

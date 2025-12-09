@@ -87,18 +87,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         public bool GenerateConvenienceMethod { get; internal set; }
         public string CrossLanguageDefinitionId { get; internal set; }
         public IReadOnlyList<InputDecoratorInfo> Decorators { get; internal set; } = new List<InputDecoratorInfo>();
-
-        private IReadOnlyDictionary<string, InputOperationExample>? _examples;
-        internal IReadOnlyDictionary<string, InputOperationExample> Examples => _examples ??= EnsureExamples();
-
-        private IReadOnlyDictionary<string, InputOperationExample> EnsureExamples()
-        {
-            return new Dictionary<string, InputOperationExample>()
-            {
-                [ExampleMockValueBuilder.ShortVersionMockExampleKey] = ExampleMockValueBuilder.BuildOperationExample(this, false),
-                [ExampleMockValueBuilder.MockExampleAllParameterKey] = ExampleMockValueBuilder.BuildOperationExample(this, true)
-            };
-        }
+        public IReadOnlyList<InputOperationExample> Examples { get; internal set; } = new List<InputOperationExample>();
 
         private bool? _isMultipartFormData;
         public bool IsMultipartFormData => _isMultipartFormData ??= RequestMediaTypes is not null && RequestMediaTypes.Count == 1 && RequestMediaTypes[0] == "multipart/form-data";

@@ -1,0 +1,177 @@
+{
+  "name": "SampleNamespace",
+  "models": [
+    {
+      "$id": "1",
+      "kind": "model",
+      "name": "Foo",
+      "namespace": "SampleNamespace",
+      "crossLanguageDefinitionId": "SampleNamespace.Foo",
+      "usage": "Output,Input,Json",
+      "decorators": [
+        {
+          "name": "TypeSpec.HttpClient.CSharp.@dynamicModel",
+          "arguments": {}
+        }
+      ],
+      "properties": [
+        {
+          "$id": "2",
+          "kind": "property",
+          "name": "kind",
+          "serializedName": "kind",
+          "type": {
+            "$id": "3",
+            "kind": "string",
+            "name": "string",
+            "crossLanguageDefinitionId": "TypeSpec.string",
+            "decorators": []
+          },
+          "optional": false,
+          "readOnly": false,
+          "discriminator": true,
+          "flatten": false,
+          "decorators": [],
+          "crossLanguageDefinitionId": "SampleNamespace.Foo.kind",
+          "serializationOptions": {
+            "json": {
+              "name": "kind"
+            }
+          },
+          "isHttpMetadata": false
+        },
+        {
+          "$id": "4",
+          "kind": "property",
+          "name": "sharedProp",
+          "serializedName": "sharedProp",
+          "type": {
+            "$id": "5",
+            "kind": "string",
+            "name": "string",
+            "crossLanguageDefinitionId": "TypeSpec.string",
+            "decorators": []
+          },
+          "optional": false,
+          "readOnly": false,
+          "discriminator": false,
+          "flatten": false,
+          "decorators": [],
+          "crossLanguageDefinitionId": "SampleNamespace.Foo.sharedProp",
+          "serializationOptions": {
+            "json": {
+              "name": "sharedProp"
+            }
+          },
+          "isHttpMetadata": false
+        }
+      ],
+      "discriminatorProperty": {
+        "$ref": "2"
+      }
+    },
+    {
+      "$id": "6",
+      "kind": "model",
+      "name": "Bar",
+      "namespace": "SampleNamespace",
+      "crossLanguageDefinitionId": "SampleNamespace.Bar",
+      "usage": "Output,Input,Json",
+      "baseModel": {
+        "$ref": "1"
+      },
+      "discriminatorValue": "bar",
+      "properties": [
+        {
+          "$id": "7",
+          "kind": "property",
+          "name": "kind",
+          "serializedName": "kind",
+          "type": {
+            "$id": "8",
+            "kind": "string",
+            "name": "string",
+            "crossLanguageDefinitionId": "TypeSpec.string",
+            "decorators": []
+          },
+          "optional": false,
+          "readOnly": false,
+          "discriminator": true,
+          "flatten": false,
+          "decorators": [],
+          "crossLanguageDefinitionId": "SampleNamespace.Bar.kind",
+          "serializationOptions": {
+            "json": {
+              "name": "kind"
+            }
+          },
+          "isHttpMetadata": false
+        },
+        {
+          "$id": "9",
+          "kind": "property",
+          "name": "barProp",
+          "serializedName": "barProp",
+          "type": {
+            "$id": "10",
+            "kind": "string",
+            "name": "string",
+            "crossLanguageDefinitionId": "TypeSpec.string",
+            "decorators": []
+          },
+          "optional": false,
+          "readOnly": false,
+          "discriminator": false,
+          "flatten": false,
+          "decorators": [],
+          "crossLanguageDefinitionId": "SampleNamespace.Bar.barProp",
+          "serializationOptions": {
+            "json": {
+              "name": "barProp"
+            }
+          },
+          "isHttpMetadata": false
+        }
+      ]
+    },
+    {
+      "$id": "11",
+      "kind": "model",
+      "name": "UnknownFoo",
+      "namespace": "SampleNamespace",
+      "crossLanguageDefinitionId": "SampleNamespace.UnknownFoo",
+      "usage": "Output,Input,Json",
+      "baseModel": {
+        "$ref": "1"
+      },
+      "discriminatorValue": "unknown",
+      "properties": [
+        {
+          "$id": "12",
+          "kind": "property",
+          "name": "kind",
+          "serializedName": "kind",
+          "type": {
+            "$id": "13",
+            "kind": "string",
+            "name": "string",
+            "crossLanguageDefinitionId": "TypeSpec.string",
+            "decorators": []
+          },
+          "optional": false,
+          "readOnly": false,
+          "discriminator": true,
+          "flatten": false,
+          "decorators": [],
+          "crossLanguageDefinitionId": "SampleNamespace.UnknownFoo.kind",
+          "serializationOptions": {
+            "json": {
+              "name": "kind"
+            }
+          },
+          "isHttpMetadata": false
+        }
+      ]
+    }
+  ]
+}

@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
-import com.azure.core.http.policy.UserAgentPolicy;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import java.util.Collections;
@@ -18,71 +17,71 @@ public class ServiceClient {
     /**
      * The package that this service client belongs to.
      */
-    private String packageName;
+    private final String packageName;
     /**
      * Get the name of this client's class.
      */
-    private String className;
+    private final String className;
     /**
      * Get the name of this client's interface.
      */
-    private String interfaceName;
+    private final String interfaceName;
     /**
      * Get the REST API that this client will send requests to.
      */
-    private Proxy proxy;
+    private final Proxy proxy;
     /**
      * The MethodGroupClients that belong to this ServiceClient.
      */
-    private List<MethodGroupClient> methodGroupClients;
+    private final List<MethodGroupClient> methodGroupClients;
     /**
      * The properties of this ServiceClient.
      */
-    private List<ServiceClientProperty> properties;
+    private final List<ServiceClientProperty> properties;
     /**
      * The constructors for this ServiceClient.
      */
-    private List<Constructor> constructors;
+    private final List<Constructor> constructors;
     /**
      * The client method overloads for this ServiceClient.
      */
-    private List<ClientMethod> clientMethods;
+    private final List<ClientMethod> clientMethods;
     /**
      * The azure environment parameter.
      */
-    private ClientMethodParameter azureEnvironmentParameter;
+    private final ClientMethodParameter azureEnvironmentParameter;
     /**
      * The default poll interval parameter.
      */
-    private ClientMethodParameter defaultPollIntervalParameter;
+    private final ClientMethodParameter defaultPollIntervalParameter;
     /**
      * The credentials parameter.
      */
-    private ClientMethodParameter tokenCredentialParameter;
+    private final ClientMethodParameter tokenCredentialParameter;
     /**
      * The HttpPipeline parameter.
      */
-    private ClientMethodParameter httpPipelineParameter;
+    private final ClientMethodParameter httpPipelineParameter;
 
-    private ClientMethodParameter serializerAdapterParameter;
+    private final ClientMethodParameter serializerAdapterParameter;
 
-    private String clientBaseName;
+    private final String clientBaseName;
 
-    private String defaultCredentialScopes;
+    private final String defaultCredentialScopes;
 
-    private boolean builderDisabled;
-    private String builderPackageName;
+    private final boolean builderDisabled;
+    private final String builderPackageName;
 
     /**
      * The security configuration information.
      */
-    private SecurityInfo securityInfo;
+    private final SecurityInfo securityInfo;
 
-    private String baseUrl;
+    private final String baseUrl;
 
-    private PipelinePolicyDetails pipelinePolicyDetails;
+    private final PipelinePolicyDetails pipelinePolicyDetails;
 
-    private List<ClientAccessorMethod> clientAccessorMethods;
+    private final List<ClientAccessorMethod> clientAccessorMethods;
     private ServiceClient parentClient;
     private AsyncSyncClient asyncClient;
     private AsyncSyncClient syncClient;
@@ -346,7 +345,7 @@ public class ServiceClient {
             ClassType.HTTP_PIPELINE_BUILDER.addImportsTo(imports, false);
             ClassType.RETRY_POLICY.addImportsTo(imports, false);
             if (JavaSettings.getInstance().isAzureV1()) {
-                imports.add(UserAgentPolicy.class.getName());
+                imports.add(ClassType.USER_AGENT_POLICY.getFullName());
             }
         }
 

@@ -1,5 +1,12 @@
-import { listAllServiceNamespaces } from "@azure-tools/typespec-client-generator-core";
+import {
+  listAllServiceNamespaces,
+  SdkHttpParameter,
+  SdkMethodParameter,
+  SdkModelPropertyType,
+  isReadOnly as tcgcIsReadOnly,
+} from "@azure-tools/typespec-client-generator-core";
 import { getNamespaceFullName, Namespace, NoTarget, Type } from "@typespec/compiler";
+import { Visibility } from "@typespec/http";
 import { spawn, SpawnOptions } from "child_process";
 import { CSharpEmitterContext } from "../sdk-context.js";
 
@@ -159,4 +166,23 @@ export function firstLetterToUpperCase(str: string): string {
     return str;
   }
   return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+/**
+ * Checks if the property or parameter is read-only.
+ * @param prop - The property to check.
+ * @beta
+ */
+export function isReadOnly(
+  p: SdkModelPropertyType | SdkMethodParameter | SdkHttpParameter,
+): boolean {
+  if (p.kind === "property") {
+    return tcgcIsReadOnly(p);
+  }
+
+  if (p.visibility?.includes(Visibility.Read) && p.visibility.length === 1) {
+    return true;
+  } else {
+    return false;
+  }
 }

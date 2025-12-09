@@ -2,7 +2,7 @@ import { For } from "@alloy-js/core";
 import { Reference, ValueExpression } from "@alloy-js/typescript";
 import type { IntrinsicType, Model, Scalar, Type } from "@typespec/compiler";
 import type { Typekit } from "@typespec/compiler/typekit";
-import "@typespec/http/experimental/typekit";
+import { Experimental_OverridableComponent } from "../../core/components/overrides/component-overrides.jsx";
 import { useTsp } from "../../core/context/tsp-context.js";
 import { reportTypescriptDiagnostic } from "../../typescript/lib.js";
 import { efRefkey } from "../utils/refkey.js";
@@ -24,63 +24,68 @@ export interface TypeExpressionProps {
 }
 
 export function TypeExpression(props: TypeExpressionProps) {
+  const type = props.type;
   const { $ } = useTsp();
-  const type = $.httpPart.unpack(props.type);
-  if (!props.noReference && isDeclaration($, type)) {
-    // todo: probably need abstraction around deciding what's a declaration in the output
-    // (it may not correspond to things which are declarations in TypeSpec?)
-    return <Reference refkey={efRefkey(type)} />;
-    //throw new Error("Reference not implemented");
-  }
 
-  // TODO: Make sure this is an exhaustive switch, including EnumMember and such
-  switch (type.kind) {
-    case "Scalar":
-    case "Intrinsic":
-      return <>{getScalarIntrinsicExpression($, type)}</>;
-    case "Boolean":
-    case "Number":
-    case "String":
-      return <ValueExpression jsValue={type.value} />;
-    case "Union":
-      return <UnionExpression type={type} />;
-    case "UnionVariant":
-      return <TypeExpression type={type.type} />;
-    case "Tuple":
-      return (
-        <>
-          [
-          <For each={type.values} comma line>
-            {(element) => <TypeExpression type={element} />}
-          </For>
-          ]
-        </>
-      );
-    case "ModelProperty":
-      return <TypeExpression type={type.type} />;
-    case "Model":
-      if ($.array.is(type)) {
-        const elementType = type.indexer!.value;
-        return <ArrayExpression elementType={elementType} />;
-      }
+  return (
+    <Experimental_OverridableComponent reference type={type}>
+      {() => {
+        if (!props.noReference && isDeclaration($, type)) {
+          // todo: probably need abstraction around deciding what's a declaration in the output
+          // (it may not correspond to things which are declarations in TypeSpec?)
+          return <Reference refkey={efRefkey(type)} />;
+          //throw new Error("Reference not implemented");
+        }
 
-      if ($.record.is(type)) {
-        const elementType = (type as Model).indexer!.value;
-        return <RecordExpression elementType={elementType} />;
-      }
+        // TODO: Make sure this is an exhaustive switch, including EnumMember and such
+        switch (type.kind) {
+          case "Scalar":
+          case "Intrinsic":
+            return <>{getScalarIntrinsicExpression($, type)}</>;
+          case "Boolean":
+          case "Number":
+          case "String":
+            return <ValueExpression jsValue={type.value} />;
+          case "Union":
+            return <UnionExpression type={type} />;
+          case "UnionVariant":
+            return <TypeExpression type={type.type} />;
+          case "Tuple":
+            return (
+              <>
+                [
+                <For each={type.values} comma line>
+                  {(element) => <TypeExpression type={element} />}
+                </For>
+                ]
+              </>
+            );
+          case "ModelProperty":
+            return <TypeExpression type={type.type} />;
+          case "Model":
+            if ($.array.is(type)) {
+              const elementType = type.indexer!.value;
+              return <ArrayExpression elementType={elementType} />;
+            }
 
-      if ($.httpPart.is(type)) {
-        const partType = $.httpPart.unpack(type);
-        return <TypeExpression type={partType} />;
-      }
+            if ($.record.is(type)) {
+              const elementType = (type as Model).indexer!.value;
+              return <RecordExpression elementType={elementType} />;
+            }
 
-      return <InterfaceExpression type={type} />;
-    case "Operation":
-      return <FunctionType type={type} />;
-    default:
-      reportTypescriptDiagnostic($.program, { code: "typescript-unsupported-type", target: type });
-      return "any";
-  }
+            return <InterfaceExpression type={type} />;
+          case "Operation":
+            return <FunctionType type={type} />;
+          default:
+            reportTypescriptDiagnostic($.program, {
+              code: "typescript-unsupported-type",
+              target: type,
+            });
+            return "any";
+        }
+      }}
+    </Experimental_OverridableComponent>
+  );
 }
 
 const intrinsicNameToTSType = new Map<string, string | null>([

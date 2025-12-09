@@ -1,7 +1,7 @@
 import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual } from "assert";
-import { describe, it } from "vitest";
-import { compileOperations, getRoutesFor } from "./test-host.js";
+import { describe, expect, it } from "vitest";
+import { compileOperations, diagnoseOperations, getRoutesFor } from "./test-host.js";
 
 it("emit diagnostic for parameters with multiple http request annotations", async () => {
   const [_, diagnostics] = await compileOperations(`
@@ -29,8 +29,46 @@ it("allows a deeply nested @bodyRoot", async () => {
   deepStrictEqual(routes, [{ verb: "post", params: [], path: "/" }]);
 });
 
+// Test for https://github.com/microsoft/typespec/issues/8667
+it("@bodyIgnore doesn't mark property as implicit body", async () => {
+  const [op, diagnostics] = await compileOperations(`
+    op test(
+        @bodyIgnore key: { 
+          @path path: string, 
+          @query query: string,
+          @header header: string 
+        }, 
+        @body body: bytes
+      ): void;
+  `);
+  expectDiagnosticEmpty(diagnostics);
+  expect(op).toEqual([
+    {
+      params: {
+        body: "body",
+        params: [
+          {
+            name: "path",
+            type: "path",
+          },
+          {
+            name: "query",
+            type: "query",
+          },
+          {
+            name: "header",
+            type: "header",
+          },
+        ],
+      },
+      path: "/{path}",
+      verb: "post",
+    },
+  ]);
+});
+
 it("emit diagnostic when there is an unannotated parameter and a @body param", async () => {
-  const [_, diagnostics] = await compileOperations(`
+  const diagnostics = await diagnoseOperations(`
       @get op get(param1: string, @body param2: string): string;
     `);
 

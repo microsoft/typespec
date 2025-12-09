@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.Javagen;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ArraySchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ChoiceSchema;
@@ -51,6 +50,7 @@ import com.microsoft.typespec.http.client.generator.core.template.Templates;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -557,7 +557,7 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
         xmlSequenceWrappers.computeIfAbsent(modelTypeName, name -> new XmlSequenceWrapper(name, arraySchema, settings));
     }
 
-    public static ObjectSchema parseHeader(Operation operation, JavaSettings settings) {
+    public ObjectSchema parseHeader(Operation operation, JavaSettings settings) {
         if (!SchemaUtil.responseContainsHeaderSchemas(operation, settings)) {
             return null;
         }
@@ -565,12 +565,14 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
         String name = CodeNamer.getPlural(operation.getOperationGroup().getLanguage().getJava().getName())
             + CodeNamer.toPascalCase(operation.getLanguage().getJava().getName()) + "Headers";
         Map<String, Schema> headerMap = new HashMap<>();
+        Map<String, String> headerClientNameMap = new HashMap<>();
         Map<String, XmsExtensions> headerExtensions = new HashMap<>();
         for (Response response : operation.getResponses()) {
             if (response.getProtocol().getHttp().getHeaders() != null) {
                 for (Header header : response.getProtocol().getHttp().getHeaders()) {
                     headerExtensions.put(header.getHeader(), header.getExtensions());
                     headerMap.put(header.getHeader(), header.getSchema());
+                    headerClientNameMap.put(header.getHeader(), getResponseHeaderName(header));
                 }
             }
         }
@@ -595,7 +597,9 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
             property.setSerializedName(header.getKey());
             property.setLanguage(new Languages());
             property.getLanguage().setJava(new Language());
-            property.getLanguage().getJava().setName(CodeNamer.getPropertyName(header.getKey()));
+            property.getLanguage()
+                .getJava()
+                .setName(CodeNamer.getPropertyName(headerClientNameMap.get(header.getKey())));
             property.getLanguage().getJava().setDescription(header.getValue().getDescription());
             property.setSchema(header.getValue());
             property.setDescription(header.getValue().getDescription());
@@ -611,6 +615,12 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
             headerSchema.getProperties().add(property);
         }
         return headerSchema;
+    }
+
+    protected String getResponseHeaderName(Header header) {
+        // We should use header.getLanguage().getDefault().getName()
+        // kept as header.getHeader() for backward compatibility
+        return header.getHeader();
     }
 
     private ClientResponse parseResponse(Operation method, List<ClientModel> models, JavaSettings settings) {

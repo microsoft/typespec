@@ -3,11 +3,11 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.util;
 
-import com.azure.core.util.CoreUtils;
-import com.azure.json.JsonReader;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlugin;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
 import com.microsoft.typespec.http.client.generator.mgmt.model.ResourceCollectionAssociation;
+import io.clientcore.core.serialization.json.JsonReader;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -78,7 +78,7 @@ public class FluentJavaSettings {
 
     private SampleGeneration generateSamples = SampleGeneration.NONE;
 
-    private String graalVmConfigSuffix = null;
+    private String metadataSuffix = null;
 
     private boolean sdkIntegration = false;
 
@@ -131,6 +131,12 @@ public class FluentJavaSettings {
         return javaNamesForRemoveOperationGroup;
     }
 
+    /**
+     * The set of model property that should always be serialized, even its value is null.
+     * The model property is in the form of "<modelName>.<propertyName>".
+     *
+     * @return the set of model property names that should always be serialized.
+     */
     public Set<String> getJavaNamesForPropertyIncludeAlways() {
         return javaNamesForPropertyIncludeAlways;
     }
@@ -159,8 +165,8 @@ public class FluentJavaSettings {
         return generateSamples != SampleGeneration.NONE;
     }
 
-    public Optional<String> getGraalVmConfigSuffix() {
-        return Optional.ofNullable(graalVmConfigSuffix);
+    public Optional<String> getMetadataSuffix() {
+        return Optional.ofNullable(metadataSuffix);
     }
 
     public boolean isSdkIntegration() {
@@ -210,7 +216,7 @@ public class FluentJavaSettings {
         loadBooleanSetting("generate-samples",
             s -> generateSamples = (s ? SampleGeneration.AGGREGATED : SampleGeneration.NONE));
 
-        loadStringSetting("graalvm-config-suffix", s -> graalVmConfigSuffix = s);
+        loadStringSetting("metadata-suffix", s -> metadataSuffix = s);
 
         loadBooleanSetting("sdk-integration", b -> sdkIntegration = b);
 

@@ -5,6 +5,6 @@ namespace Microsoft.TypeSpec.Generator.Input
 {
     public enum DurationKnownEncoding
     {
-        Iso8601, Seconds, Constant
+        Iso8601, Seconds, Constant, Milliseconds
     }
 }

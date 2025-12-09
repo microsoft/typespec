@@ -3,10 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.util;
 
-import com.azure.core.util.Base64Url;
-import com.azure.core.util.CoreUtils;
-import com.azure.core.util.DateTimeRfc1123;
-import com.azure.core.util.serializer.CollectionFormat;
 import com.microsoft.typespec.http.client.generator.core.Javagen;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
@@ -27,6 +23,9 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examp
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.MapNode;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.MethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.examplemodel.ObjectNode;
+import io.clientcore.core.utils.Base64Uri;
+import io.clientcore.core.utils.CoreUtils;
+import io.clientcore.core.utils.DateTimeRfc1123;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -232,7 +231,7 @@ public class ModelExampleUtil {
         if (wireType == ClassType.DATE_TIME_RFC_1123) {
             literalValue = new DateTimeRfc1123(literalValue).getDateTime().toString();
         } else if (wireType == ClassType.BASE_64_URL) {
-            literalValue = new Base64Url(literalValue).toString();
+            literalValue = new Base64Uri(literalValue).toString();
         } else if (wireType == PrimitiveType.UNIX_TIME_LONG) {
             literalValue = OffsetDateTime.from(Instant.ofEpochSecond(Long.parseLong(literalValue))).toString();
         }

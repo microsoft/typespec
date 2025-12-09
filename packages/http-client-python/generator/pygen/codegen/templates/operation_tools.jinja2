@@ -19,7 +19,8 @@
     {% endfor %}
     {% for description in param_description_and_response_docstring %}
         {% if description %}
-{{ wrap_string(description, wrapstring='\n ') }}
+{% set description = wrap_string(description, wrapstring='\n ') %}
+{{ " " if description[0] != ":" and description[0] != " " else "" }}{{ description}}
         {% else %}
 
         {% endif %}

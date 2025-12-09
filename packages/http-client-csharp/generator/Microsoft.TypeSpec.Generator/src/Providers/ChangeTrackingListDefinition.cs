@@ -55,7 +55,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override string BuildName() => "ChangeTrackingList";
 
-        protected override ConstructorProvider[] BuildConstructors()
+        protected internal override ConstructorProvider[] BuildConstructors()
         {
             var iList = new ParameterProvider("innerList", $"The inner list.", _iListOfT);
             var iListSignature = new ConstructorSignature(Type, null, MethodSignatureModifiers.Public, [iList]);
@@ -90,17 +90,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return [_t];
         }
 
-        protected override CSharpType[] BuildImplements()
+        protected internal override CSharpType[] BuildImplements()
         {
             return [_iListOfT, _iReadOnlyListOfT];
         }
 
-        protected override FieldProvider[] BuildFields()
+        protected internal override FieldProvider[] BuildFields()
         {
             return [_innerListField];
         }
 
-        protected override PropertyProvider[] BuildProperties() =>
+        protected internal override PropertyProvider[] BuildProperties() =>
             [
                 new PropertyProvider(null, MethodSignatureModifiers.Public, typeof(bool), "IsUndefined", new ExpressionPropertyBody(_innerList.Equal(Null)), this),
                 BuildCount(),
@@ -150,7 +150,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 this);
         }
 
-        protected override MethodProvider[] BuildMethods()
+        protected internal override MethodProvider[] BuildMethods()
         {
             return
             [

@@ -1,6 +1,7 @@
 import type { CompilerOptions } from "../core/options.js";
 import type { Program } from "../core/program.js";
 import type { CompilerHost, Diagnostic, Entity, Type } from "../core/types.js";
+import { PositionedMarker } from "./fourslash.js";
 import { GetMarkedEntities, TemplateWithMarkers } from "./marked-template.js";
 
 // #region Test file system
@@ -54,6 +55,9 @@ export type TestCompileResult<T extends Record<string, Entity>> = T & {
 
   /** File system */
   readonly fs: TestFileSystem;
+
+  /** Position of all markers */
+  readonly pos: Record<keyof T | string, PositionedMarkerInFile>;
 } & Record<string, Entity>;
 
 export interface TestCompileOptions {
@@ -201,6 +205,11 @@ export interface TesterInstance extends TesterInstanceBase, Testable {}
 
 /** Instance of an emitter tester */
 export interface EmitterTesterInstance<Result> extends TesterInstanceBase, OutputTestable<Result> {}
+
+export interface PositionedMarkerInFile extends PositionedMarker {
+  /** The file where the marker is located */
+  readonly filename: string;
+}
 
 // #endregion
 

@@ -9,21 +9,19 @@ import { logger } from "../logger.js";
 export interface UploadScenarioManifestConfig {
   scenariosPaths: string[];
   storageAccountName: string;
-  setNames: string[];
   containerName: string;
 }
 
 export async function uploadScenarioManifest({
   scenariosPaths,
   storageAccountName,
-  setNames,
   containerName,
 }: UploadScenarioManifestConfig) {
   const manifests = [];
   for (let idx = 0; idx < scenariosPaths.length; idx++) {
     const path = resolve(process.cwd(), scenariosPaths[idx]);
     logger.info(`Computing scenario manifest for ${path}`);
-    const [manifest, diagnostics] = await computeScenarioManifest(path, setNames[idx]);
+    const [manifest, diagnostics] = await computeScenarioManifest(path);
     if (manifest === undefined || diagnostics.length > 0) {
       process.exit(-1);
     }

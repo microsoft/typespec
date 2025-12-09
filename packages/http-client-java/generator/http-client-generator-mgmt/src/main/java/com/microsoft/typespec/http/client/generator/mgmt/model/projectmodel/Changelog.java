@@ -15,7 +15,6 @@ import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.SignStyle;
 import java.time.temporal.ChronoField;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -39,7 +38,7 @@ public class Changelog {
     }
 
     public Changelog(String content) {
-        this.lines = Arrays.stream(content.split("\r?\n")).collect(Collectors.toList());
+        this.lines = content.lines().collect(Collectors.toList());
     }
 
     public Changelog(BufferedReader reader) {

@@ -1,7 +1,8 @@
 import { getUnionAsEnum } from "@azure-tools/typespec-azure-core";
 import {
-  SdkBodyModelPropertyType,
   SdkDurationType,
+  SdkEnumType,
+  SdkModelPropertyType,
   SdkModelType,
   SdkType,
   isSdkFloatKind,
@@ -352,7 +353,7 @@ export function isArmCommonType(entity: Type): boolean {
  * @param property the model property.
  * @returns the serialized name of the property.
  */
-export function getPropertySerializedName(property: SdkBodyModelPropertyType): string {
+export function getPropertySerializedName(property: SdkModelPropertyType): string {
   // still fallback to "property.name", as for orphan model, serializationOptions.json is undefined
   return (
     property.serializationOptions.json?.name ??
@@ -370,7 +371,7 @@ export function getPropertySerializedName(property: SdkBodyModelPropertyType): s
  * @returns the XML serialization format, or undefined if not applicable.
  */
 export function getXmlSerializationFormat(
-  type: SdkModelType | SdkBodyModelPropertyType,
+  type: SdkModelType | SdkModelPropertyType,
 ): XmlSerializationFormat | undefined {
   if (!type.serializationOptions.xml) {
     return undefined;
@@ -480,4 +481,18 @@ export function scopeImplicitlyIncludeJava(scope: string): boolean {
 function scopeIsNegationOfMultiple(scope: string): boolean {
   const trimmedScope = scope.trim();
   return trimmedScope.startsWith("!(") && trimmedScope.endsWith(")");
+}
+
+/**
+ * Gets the Java simple class name of the ExternalType type.
+ * @param type the type.
+ * @returns the Java simple class name.
+ */
+export function getExternalJavaClassName(type: SdkModelType | SdkEnumType): string {
+  if (type.external) {
+    const fullyQualifiedClassName = type.external.identity;
+    return fullyQualifiedClassName.substring(fullyQualifiedClassName.lastIndexOf(".") + 1);
+  } else {
+    throw new Error(`Type ${type.name} is not an ExternalType.`);
+  }
 }

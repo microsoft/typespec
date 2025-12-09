@@ -94,6 +94,13 @@ public interface TopLevelArmResource {
     OffsetDateTime startTimeStamp();
 
     /**
+     * Gets the size property: The size property.
+     * 
+     * @return the size value.
+     */
+    Float size();
+
+    /**
      * Gets the provisioningState property: The status of the last operation.
      * 
      * @return the provisioningState value.

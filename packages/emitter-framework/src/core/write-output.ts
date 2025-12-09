@@ -1,4 +1,4 @@
-import { type Children, type OutputDirectory, render } from "@alloy-js/core";
+import { renderAsync, type Children, type OutputDirectory } from "@alloy-js/core";
 import { emitFile, joinPaths, type Program } from "@typespec/compiler";
 
 export async function writeOutput(
@@ -6,7 +6,7 @@ export async function writeOutput(
   rootComponent: Children,
   emitterOutputDir: string,
 ) {
-  const tree = render(rootComponent);
+  const tree = await renderAsync(rootComponent);
   await writeOutputDirectory(program, tree, emitterOutputDir);
 }
 

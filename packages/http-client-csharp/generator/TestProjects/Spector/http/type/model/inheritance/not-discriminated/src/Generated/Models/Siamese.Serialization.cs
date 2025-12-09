@@ -9,7 +9,7 @@ using System.Text.Json;
 
 namespace _Type.Model.Inheritance.NotDiscriminated
 {
-    public partial class Siamese : IJsonModel<Siamese>
+    public partial class Siamese : Cat, IJsonModel<Siamese>
     {
         internal Siamese() => throw null;
 

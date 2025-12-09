@@ -2,8 +2,8 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 
 import {
+  DecoratorInfo,
   SdkArrayType,
-  SdkBodyModelPropertyType,
   SdkBuiltInType,
   SdkConstantType,
   SdkDateTimeType,
@@ -11,19 +11,16 @@ import {
   SdkDurationType,
   SdkEnumType,
   SdkEnumValueType,
-  SdkHeaderParameter,
   SdkModelPropertyType,
+  SdkModelPropertyTypeBase,
   SdkModelType,
-  SdkPathParameter,
-  SdkQueryParameter,
   SdkType,
   SdkUnionType,
   UsageFlags,
   getAccessOverride,
-  isReadOnly as tcgcIsReadOnly,
+  isHttpMetadata,
 } from "@azure-tools/typespec-client-generator-core";
 import { Model, NoTarget } from "@typespec/compiler";
-import { Visibility } from "@typespec/http";
 import { CSharpEmitterContext } from "../sdk-context.js";
 import {
   InputArrayType,
@@ -32,18 +29,17 @@ import {
   InputDurationType,
   InputEnumType,
   InputEnumValueType,
-  InputHeaderParameter,
+  InputExternalType,
   InputLiteralType,
   InputModelProperty,
   InputModelType,
+  InputNamespace,
   InputNullableType,
-  InputPathParameter,
   InputPrimitiveType,
-  InputProperty,
-  InputQueryParameter,
   InputType,
   InputUnionType,
 } from "../type/input-type.js";
+import { isReadOnly } from "./utils.js";
 
 // we have this complicated type here to let the caller of fromSdkType could infer the real return type of this function.
 type InputReturnType<T extends SdkType> = T extends { kind: "nullable" }
@@ -77,9 +73,18 @@ type InputReturnType<T extends SdkType> = T extends { kind: "nullable" }
 export function fromSdkType<T extends SdkType>(
   sdkContext: CSharpEmitterContext,
   sdkType: T,
+  sdkProperty?: SdkModelPropertyTypeBase,
+  namespace?: string,
 ): InputReturnType<T> {
   let retVar = sdkContext.__typeCache.types.get(sdkType);
   if (retVar) {
+    return retVar as any;
+  }
+
+  // Check if this type references an external type
+  if ((sdkType as any).external) {
+    retVar = fromSdkExternalType(sdkContext, sdkType);
+    sdkContext.__typeCache.updateSdkTypeReferences(sdkType, retVar);
     return retVar as any;
   }
 
@@ -87,7 +92,7 @@ export function fromSdkType<T extends SdkType>(
     case "nullable":
       const nullableType: InputNullableType = {
         kind: "nullable",
-        type: fromSdkType(sdkContext, sdkType.type),
+        type: fromSdkType(sdkContext, sdkType.type, sdkProperty, namespace),
         namespace: sdkType.namespace,
       };
       retVar = nullableType;
@@ -108,7 +113,17 @@ export function fromSdkType<T extends SdkType>(
       retVar = fromSdkArrayType(sdkContext, sdkType);
       break;
     case "constant":
-      retVar = fromSdkConstantType(sdkContext, sdkType);
+      if (
+        sdkProperty &&
+        (sdkProperty.optional || sdkProperty?.type.kind === "nullable") &&
+        sdkProperty?.type.kind !== "boolean" &&
+        sdkType.valueType.kind !== "boolean"
+      ) {
+        // turn the constant into an extensible enum
+        retVar = createEnumType(sdkContext, sdkType, namespace!);
+      } else {
+        retVar = fromSdkConstantType(sdkContext, sdkType);
+      }
       break;
     case "union":
       retVar = fromUnionType(sdkContext, sdkType);
@@ -167,6 +182,12 @@ function fromSdkModelType(
   sdkContext: CSharpEmitterContext,
   modelType: SdkModelType,
 ): InputModelType {
+  // get all unique decorators for the model type from the namespace level and the model level
+  let decorators: DecoratorInfo[] = modelType.decorators;
+  const namespace = sdkContext.__typeCache.namespaces.get(modelType.namespace);
+  if (namespace) {
+    decorators = getAllModelDecorators(namespace, modelType.decorators);
+  }
   const inputModelType: InputModelType = {
     kind: "model",
     name: modelType.name,
@@ -178,7 +199,7 @@ function fromSdkModelType(
     doc: modelType.doc,
     summary: modelType.summary,
     discriminatorValue: modelType.discriminatorValue,
-    decorators: modelType.decorators,
+    decorators: decorators,
   } as InputModelType;
 
   sdkContext.__typeCache.updateSdkTypeReferences(modelType, inputModelType);
@@ -187,9 +208,9 @@ function fromSdkModelType(
     ? fromSdkType(sdkContext, modelType.additionalProperties)
     : undefined;
 
-  const properties: InputProperty[] = [];
+  const properties: InputModelProperty[] = [];
   for (const property of modelType.properties) {
-    const ourProperty = fromSdkModelProperty(sdkContext, property);
+    const ourProperty = fromSdkModelProperty(sdkContext, property, modelType);
 
     if (ourProperty) {
       properties.push(ourProperty);
@@ -197,7 +218,7 @@ function fromSdkModelType(
   }
 
   inputModelType.discriminatorProperty = modelType.discriminatorProperty
-    ? fromSdkModelProperty(sdkContext, modelType.discriminatorProperty)
+    ? fromSdkModelProperty(sdkContext, modelType.discriminatorProperty, modelType)
     : undefined;
 
   inputModelType.baseModel = modelType.baseModel
@@ -216,152 +237,92 @@ function fromSdkModelType(
   }
 
   return inputModelType;
+}
 
-  function fromSdkModelProperty(
-    sdkContext: CSharpEmitterContext,
-    sdkProperty: SdkModelPropertyType,
-  ): InputProperty | undefined {
-    // TODO -- this returns undefined because some properties we do not support yet.
-    let property = sdkContext.__typeCache.properties.get(sdkProperty) as InputProperty | undefined;
-    if (property) {
-      return property;
-    }
-    switch (sdkProperty.kind) {
-      case "property":
-        property = fromSdkBodyModelProperty(sdkContext, sdkProperty);
-        break;
-      case "header":
-        property = fromSdkHeaderParameter(sdkContext, sdkProperty);
-        break;
-      case "query":
-        property = fromSdkQueryParameter(sdkContext, sdkProperty);
-        break;
-      case "path":
-        property = fromSdkPathParameter(sdkContext, sdkProperty);
-        break;
-    }
-
-    if (property) {
-      sdkContext.__typeCache.updateSdkPropertyReferences(sdkProperty, property);
-    }
-
+function fromSdkModelProperty(
+  sdkContext: CSharpEmitterContext,
+  sdkProperty: SdkModelPropertyType,
+  sdkModel: SdkModelType,
+): InputModelProperty | undefined {
+  // TODO -- this returns undefined because some properties we do not support yet.
+  let property = sdkContext.__typeCache.properties.get(sdkProperty) as
+    | InputModelProperty
+    | undefined;
+  if (property) {
     return property;
   }
 
-  function fromSdkHeaderParameter(
-    sdkContext: CSharpEmitterContext,
-    property: SdkHeaderParameter,
-  ): InputHeaderParameter {
-    return {
-      kind: property.kind,
-      name: property.name,
-      serializedName: property.serializedName,
-      summary: property.summary,
-      doc: property.doc,
-      type: fromSdkType(sdkContext, property.type),
-      optional: property.optional,
-      readOnly: isReadOnly(property),
-      decorators: property.decorators,
-      crossLanguageDefinitionId: property.crossLanguageDefinitionId,
-      collectionFormat: property.collectionFormat,
-      correspondingMethodParams: [], // TODO - this should be a ref of other properties
-    };
+  const serializedName =
+    sdkProperty.serializationOptions?.json?.name ??
+    sdkProperty.serializationOptions?.xml?.name ??
+    sdkProperty.serializationOptions?.multipart?.name;
+  property = {
+    kind: sdkProperty.kind,
+    name: sdkProperty.name,
+    serializedName: serializedName,
+    summary: sdkProperty.summary,
+    doc: sdkProperty.doc,
+    type: fromSdkType(sdkContext, sdkProperty.type, sdkProperty, sdkModel.namespace),
+    optional: sdkProperty.optional,
+    readOnly: isReadOnly(sdkProperty),
+    discriminator: sdkProperty.discriminator,
+    flatten: sdkProperty.flatten,
+    decorators: sdkProperty.decorators,
+    crossLanguageDefinitionId: sdkProperty.crossLanguageDefinitionId,
+    serializationOptions: sdkProperty.serializationOptions,
+    // A property is defined to be metadata if it is marked `@header`, `@cookie`, `@query`, `@path`.
+    isHttpMetadata: isHttpMetadata(sdkContext, sdkProperty),
+  } as InputModelProperty;
+
+  if (property) {
+    sdkContext.__typeCache.updateSdkPropertyReferences(sdkProperty, property);
   }
 
-  function fromSdkQueryParameter(
-    sdkContext: CSharpEmitterContext,
-    property: SdkQueryParameter,
-  ): InputQueryParameter {
-    return {
-      kind: property.kind,
-      name: property.name,
-      serializedName: property.serializedName,
-      summary: property.summary,
-      doc: property.doc,
-      type: fromSdkType(sdkContext, property.type),
-      optional: property.optional,
-      readOnly: isReadOnly(property),
-      decorators: property.decorators,
-      crossLanguageDefinitionId: property.crossLanguageDefinitionId,
-      correspondingMethodParams: [], // TODO - this should be a ref of other properties
-      explode: property.explode,
-    };
-  }
-
-  function fromSdkPathParameter(
-    sdkContext: CSharpEmitterContext,
-    property: SdkPathParameter,
-  ): InputPathParameter {
-    return {
-      kind: property.kind,
-      name: property.name,
-      serializedName: property.serializedName,
-      summary: property.summary,
-      doc: property.doc,
-      type: fromSdkType(sdkContext, property.type),
-      optional: property.optional,
-      readOnly: isReadOnly(property),
-      decorators: property.decorators,
-      crossLanguageDefinitionId: property.crossLanguageDefinitionId,
-      explode: property.explode,
-      style: property.style,
-      allowReserved: property.allowReserved,
-      correspondingMethodParams: [], // TODO - this should be a ref of other properties
-    };
-  }
-
-  function fromSdkBodyModelProperty(
-    sdkContext: CSharpEmitterContext,
-    property: SdkBodyModelPropertyType,
-  ): InputModelProperty {
-    let targetType = property.type;
-    if (targetType.kind === "model") {
-      const body = targetType.properties.find((x) => x.kind === "body");
-      if (body) targetType = body.type;
-    }
-
-    const modelProperty: InputModelProperty = {
-      kind: property.kind,
-      name: property.name,
-      serializedName: property.serializedName,
-      summary: property.summary,
-      doc: property.doc,
-      type: fromSdkType(sdkContext, targetType),
-      optional: property.optional,
-      readOnly: isReadOnly(property),
-      discriminator: property.discriminator,
-      flatten: property.flatten,
-      decorators: property.decorators,
-      crossLanguageDefinitionId: property.crossLanguageDefinitionId,
-      serializationOptions: property.serializationOptions,
-    };
-
-    return modelProperty;
-  }
+  return property;
 }
 
 function fromSdkEnumType(sdkContext: CSharpEmitterContext, enumType: SdkEnumType): InputEnumType {
-  const enumName = enumType.name;
+  return createEnumType(sdkContext, enumType, enumType.namespace);
+}
+
+function createEnumType(
+  sdkContext: CSharpEmitterContext,
+  sdkType: SdkConstantType | SdkEnumType,
+  namespace: string,
+): InputEnumType {
   const values: InputEnumValueType[] = [];
+
   const inputEnumType: InputEnumType = {
     kind: "enum",
-    name: enumName,
-    crossLanguageDefinitionId: enumType.crossLanguageDefinitionId,
-    valueType: fromSdkType(sdkContext, enumType.valueType) as InputPrimitiveType,
+    name: sdkType.name,
+    crossLanguageDefinitionId: sdkType.kind === "enum" ? sdkType.crossLanguageDefinitionId : "",
+    valueType:
+      sdkType.kind === "enum"
+        ? (fromSdkType(sdkContext, sdkType.valueType) as InputPrimitiveType)
+        : fromSdkBuiltInType(sdkContext, sdkType.valueType),
     values: values,
-    access: getAccessOverride(sdkContext, enumType.__raw as any),
-    namespace: enumType.namespace,
-    deprecation: enumType.deprecation,
-    summary: enumType.summary,
-    doc: enumType.doc,
-    isFixed: enumType.isFixed,
-    isFlags: enumType.isFlags,
-    usage: enumType.usage,
-    decorators: enumType.decorators,
+    // constantType.access, TODO - constant type now does not have access. TCGC will add it later
+    access:
+      sdkType.kind === "enum" ? getAccessOverride(sdkContext, sdkType.__raw as any) : undefined,
+    namespace: namespace,
+    deprecation: sdkType.deprecation,
+    summary: sdkType.summary,
+    doc: sdkType.doc,
+    isFixed: sdkType.kind === "enum" ? sdkType.isFixed : false,
+    isFlags: sdkType.kind === "enum" ? sdkType.isFlags : false,
+    // constantType.usage, TODO - constant type now does not have usage. TCGC will add it later
+    usage: sdkType.kind === "enum" ? sdkType.usage : UsageFlags.None,
+    decorators: sdkType.decorators,
   };
-  sdkContext.__typeCache.updateSdkTypeReferences(enumType, inputEnumType);
-  for (const v of enumType.values) {
-    values.push(fromSdkType(sdkContext, v));
+
+  sdkContext.__typeCache.updateSdkTypeReferences(sdkType, inputEnumType);
+
+  if (sdkType.kind === "enum") {
+    for (const v of sdkType.values) {
+      values.push(createEnumValueType(sdkContext, v, inputEnumType));
+    }
+  } else {
+    values.push(createEnumValueType(sdkContext, sdkType, inputEnumType));
   }
 
   return inputEnumType;
@@ -451,15 +412,29 @@ function fromSdkEnumValueType(
   sdkContext: CSharpEmitterContext,
   enumValueType: SdkEnumValueType,
 ): InputEnumValueType {
+  return createEnumValueType(sdkContext, enumValueType, enumValueType.enumType);
+}
+
+function createEnumValueType(
+  sdkContext: CSharpEmitterContext,
+  sdkType: SdkEnumValueType | SdkConstantType,
+  enumType: InputEnumType,
+): InputEnumValueType {
   return {
     kind: "enumvalue",
-    name: enumValueType.name,
-    value: enumValueType.value,
-    valueType: fromSdkType(sdkContext, enumValueType.valueType),
-    enumType: fromSdkType(sdkContext, enumValueType.enumType),
-    summary: enumValueType.summary,
-    doc: enumValueType.doc,
-    decorators: enumValueType.decorators,
+    name:
+      sdkType.kind === "constant"
+        ? sdkType.value === null
+          ? "Null"
+          : sdkType.value.toString()
+        : sdkType.name,
+    value: typeof sdkType.value === "boolean" ? (sdkType.value ? 1 : 0) : sdkType.value,
+    valueType:
+      sdkType.kind === "constant" ? sdkType.valueType : fromSdkType(sdkContext, sdkType.valueType),
+    enumType: enumType,
+    summary: sdkType.summary,
+    doc: sdkType.doc,
+    decorators: sdkType.decorators,
   };
 }
 
@@ -496,14 +471,42 @@ function fromSdkEndpointType(): InputPrimitiveType {
   };
 }
 
-function isReadOnly(prop: SdkModelPropertyType): boolean {
-  if (prop.kind === "property") {
-    return tcgcIsReadOnly(prop);
+function fromSdkExternalType(
+  sdkContext: CSharpEmitterContext,
+  sdkType: SdkType,
+): InputExternalType {
+  const external = (sdkType as any).external;
+  return {
+    kind: "external",
+    identity: external.identity,
+    package: external.package,
+    minVersion: external.minVersion,
+    decorators: sdkType.decorators,
+  };
+}
+
+/**
+ * @beta
+ */
+export function getAllModelDecorators(
+  namespace: InputNamespace,
+  modelDecorators?: DecoratorInfo[],
+): DecoratorInfo[] {
+  const decoratorMap = new Map<string, DecoratorInfo>();
+
+  // Add namespace decorators first
+  if (namespace.decorators) {
+    for (const decorator of namespace.decorators) {
+      decoratorMap.set(decorator.name, decorator);
+    }
   }
 
-  if (prop.visibility?.includes(Visibility.Read) && prop.visibility.length === 1) {
-    return true;
-  } else {
-    return false;
+  // Add model decorators (will override namespace decorators with same name)
+  if (modelDecorators) {
+    for (const decorator of modelDecorators) {
+      decoratorMap.set(decorator.name, decorator);
+    }
   }
+
+  return Array.from(decoratorMap.values());
 }

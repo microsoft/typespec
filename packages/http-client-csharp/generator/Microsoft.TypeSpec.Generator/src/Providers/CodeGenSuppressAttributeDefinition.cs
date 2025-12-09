@@ -17,13 +17,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override string BuildName() => "CodeGenSuppressAttribute";
 
-        private protected sealed override NamedTypeSymbolProvider? BuildCustomCodeView(string? generatedTypeName = default) => null;
-        private protected sealed override NamedTypeSymbolProvider? BuildLastContractView() => null;
+        private protected sealed override NamedTypeSymbolProvider? BuildCustomCodeView(string? generatedTypeName = default, string? generatedTypeNamespace = default) => null;
+        private protected sealed override NamedTypeSymbolProvider? BuildLastContractView(string? generatedTypeName = default, string? generatedTypeNamespace = default) => null;
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers() =>
             TypeSignatureModifiers.Internal | TypeSignatureModifiers.Class;
 
-        protected override CSharpType[] BuildImplements() => [typeof(Attribute)];
+        protected internal override CSharpType[] BuildImplements() => [typeof(Attribute)];
 
         protected override IReadOnlyList<AttributeStatement> BuildAttributes()
         {
@@ -41,7 +41,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             ];
         }
 
-        protected override PropertyProvider[] BuildProperties() =>
+        protected internal override PropertyProvider[] BuildProperties() =>
         [
             new PropertyProvider(
                 null,
@@ -59,7 +59,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 this)
         ];
 
-        protected override ConstructorProvider[] BuildConstructors()
+        protected internal override ConstructorProvider[] BuildConstructors()
         {
             var memberParameter = new ParameterProvider("member", $"The member to suppress.", typeof(string));
             var parameterParameters = new ParameterProvider("parameters", $"The types of the parameters of the member.", typeof(Type[]), isParams: true);
