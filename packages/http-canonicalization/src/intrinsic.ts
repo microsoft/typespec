@@ -1,52 +1,74 @@
 import type { IntrinsicType, MemberType } from "@typespec/compiler";
-import { IntrinsicMutation } from "@typespec/mutator-framework";
+import {
+  IntrinsicMutation,
+  type MutationHalfEdge,
+  type MutationNodeForType,
+  type MutationTraits,
+} from "@typespec/mutator-framework";
+import type { Codec } from "./codecs.js";
 import type { HttpCanonicalizationMutations } from "./http-canonicalization-classes.js";
-import { HttpCanonicalizer } from "./http-canonicalization.js";
+import {
+  HttpCanonicalizer,
+  type CanonicalizationPredicate,
+  type HttpCanonicalizationCommon,
+  type HttpCanonicalizationInfo,
+} from "./http-canonicalization.js";
 import { HttpCanonicalizationOptions } from "./options.js";
 
 /**
  * Canonicalizes intrinsic types for HTTP.
  */
-export class IntrinsicHttpCanonicalization extends IntrinsicMutation<
-  HttpCanonicalizationOptions,
-  HttpCanonicalizationMutations,
-  HttpCanonicalizer
-> {
-  /**
-   * Canonicalization options.
-   */
-  options: HttpCanonicalizationOptions;
-  /**
-   * Indicates if this intrinsic represents a named declaration. Always false.
-   */
-  isDeclaration: boolean = false;
+export class IntrinsicHttpCanonicalization
+  extends IntrinsicMutation<
+    HttpCanonicalizationOptions,
+    HttpCanonicalizationMutations,
+    HttpCanonicalizer
+  >
+  implements HttpCanonicalizationCommon
+{
+  isDeclaration = false;
+  codec: Codec | null = null;
 
-  /**
-   * Mutation subgraph for language types.
-   */
-  get #languageSubgraph() {
-    return this.engine.getLanguageSubgraph(this.options);
+  #languageMutationNode: MutationNodeForType<IntrinsicType>;
+  #wireMutationNode: MutationNodeForType<IntrinsicType>;
+
+  get languageMutationNode() {
+    return this.#languageMutationNode;
+  }
+
+  get wireMutationNode() {
+    return this.#wireMutationNode;
   }
 
   /**
-   * Mutation subgraph for wire types.
+   * Tests whether the subgraph rooted at this canonicalization uses only
+   * the identity codec (no transformation).
    */
-  get #wireSubgraph() {
-    return this.engine.getWireSubgraph(this.options);
+  subgraphUsesIdentityCodec(): boolean {
+    return this.engine.subgraphUsesIdentityCodec(this);
   }
 
   /**
-   * The possibly mutated language type for this intrinsic.
+   * Tests whether the subgraph rooted at this canonicalization satisfies
+   * the provided predicate.
    */
-  get languageType() {
-    return this.getMutatedType(this.#languageSubgraph);
+  subgraphMatchesPredicate(predicate: CanonicalizationPredicate): boolean {
+    return this.engine.subgraphMatchesPredicate(this, predicate);
   }
 
-  /**
-   * The possibly mutated wire type for this intrinsic.
-   */
-  get wireType() {
-    return this.getMutatedType(this.#wireSubgraph);
+  static mutationInfo(
+    engine: HttpCanonicalizer,
+    sourceType: IntrinsicType,
+    referenceTypes: MemberType[],
+    options: HttpCanonicalizationOptions,
+    halfEdge?: MutationHalfEdge<any, any>,
+    traits?: MutationTraits,
+  ): HttpCanonicalizationInfo {
+    return {
+      mutationKey: options.mutationKey,
+      codec: null as any, // Intrinsics don't need a codec
+      isSynthetic: traits?.isSynthetic,
+    };
   }
 
   constructor(
@@ -54,8 +76,30 @@ export class IntrinsicHttpCanonicalization extends IntrinsicMutation<
     sourceType: IntrinsicType,
     referenceTypes: MemberType[],
     options: HttpCanonicalizationOptions,
+    info: HttpCanonicalizationInfo,
   ) {
-    super(engine, sourceType, referenceTypes, options);
-    this.options = options;
+    super(engine, sourceType, referenceTypes, options, info);
+    this.#languageMutationNode = this.engine.getMutationNode(
+      this.sourceType,
+      info.mutationKey + "-language",
+    );
+    this.#wireMutationNode = this.engine.getMutationNode(
+      this.sourceType,
+      info.mutationKey + "-wire",
+    );
+  }
+
+  /**
+   * The possibly mutated language type for this intrinsic.
+   */
+  get languageType() {
+    return this.#languageMutationNode.mutatedType;
+  }
+
+  /**
+   * The possibly mutated wire type for this intrinsic.
+   */
+  get wireType() {
+    return this.#wireMutationNode.mutatedType;
   }
 }

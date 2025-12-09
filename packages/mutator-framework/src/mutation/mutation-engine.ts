@@ -1,7 +1,7 @@
 import type { MemberType, Type } from "@typespec/compiler";
 import type { Typekit } from "@typespec/compiler/typekit";
-import type { MutationNodeForType } from "../mutation-node/factory.js";
-import { MutationSubgraph } from "../mutation-node/mutation-subgraph.js";
+import { mutationNodeFor, type MutationNodeForType } from "../mutation-node/factory.js";
+import { MutationNode, type MutationNodeOptions } from "../mutation-node/mutation-node.js";
 import { EnumMemberMutation } from "./enum-member.js";
 import { EnumMutation } from "./enum.js";
 import { InterfaceMutation } from "./interface.js";
@@ -11,6 +11,7 @@ import { ModelPropertyMutation } from "./model-property.js";
 import { ModelMutation } from "./model.js";
 import { Mutation } from "./mutation.js";
 import { OperationMutation } from "./operation.js";
+
 import { ScalarMutation } from "./scalar.js";
 import { UnionVariantMutation } from "./union-variant.js";
 import { UnionMutation } from "./union.js";
@@ -21,9 +22,9 @@ export interface DefaultMutationClasses<TCustomMutations extends CustomMutationC
   extends MutationRegistry {
   Operation: OperationMutation<MutationOptions, TCustomMutations>;
   Interface: InterfaceMutation<MutationOptions, TCustomMutations>;
-  Model: ModelMutation<MutationOptions, TCustomMutations>;
+  Model: ModelMutation<TCustomMutations, MutationOptions>;
   Scalar: ScalarMutation<MutationOptions, TCustomMutations>;
-  ModelProperty: ModelPropertyMutation<MutationOptions, TCustomMutations>;
+  ModelProperty: ModelPropertyMutation<TCustomMutations, MutationOptions>;
   Union: UnionMutation<MutationOptions, TCustomMutations>;
   UnionVariant: UnionVariantMutation<MutationOptions, TCustomMutations>;
   Enum: EnumMutation<MutationOptions, TCustomMutations>;
@@ -50,22 +51,51 @@ export type InstancesFor<T extends Record<string, new (...args: any[]) => any>> 
   [K in keyof T]: InstanceType<T[K]>;
 };
 
+export interface InitialMutationContext<
+  TSourceType extends Type,
+  TCustomMutations extends CustomMutationClasses,
+  TOptions extends MutationOptions = MutationOptions,
+  TEngine extends MutationEngine<TCustomMutations> = MutationEngine<TCustomMutations>,
+> {
+  engine: TEngine;
+  sourceType: TSourceType;
+  referenceTypes: MemberType[];
+  options: TOptions;
+}
+
+export interface CreateMutationContext {
+  mutationKey: string;
+}
+
+export interface MutationContext<
+  TSourceType extends Type,
+  TCustomMutations extends CustomMutationClasses,
+  TOptions extends MutationOptions = MutationOptions,
+  TEngine extends MutationEngine<TCustomMutations> = MutationEngine<TCustomMutations>,
+> extends InitialMutationContext<TSourceType, TCustomMutations, TOptions, TEngine>,
+    CreateMutationContext {}
+
+export interface MutationTraits {
+  isSynthetic?: boolean;
+}
+
+/**
+ * Orchestrates type mutations using custom and default mutation classes.
+ */
 export class MutationEngine<TCustomMutations extends CustomMutationClasses> {
+  /** TypeSpec type utilities. */
   $: Typekit;
 
   // Map of Type -> (Map of options.cacheKey() -> Mutation)
   #mutationCache = new Map<Type, Map<string, MutationFor<TCustomMutations>>>();
+  #seenMutationNodes = new WeakMap<Type, Map<string, MutationNode<Type>>>();
+  #mutatorClasses: ConstructorsFor<MutationRegistry>;
 
-  // Map of MemberType -> (Map of options.cacheKey() -> Mutation)
-  #referenceMutationCache = new Map<MemberType, Map<string, MutationFor<TCustomMutations>>>();
-
-  #subgraphNames = new Set<string>();
-
-  // Map of subgraph names -> (Map of options.cacheKey() -> MutationSubgraph)
-  #subgraphs = new Map<string, Map<string, MutationSubgraph>>();
-
-  #mutatorClasses: MutationRegistry;
-
+  /**
+   * Creates a mutation engine with optional custom mutation classes.
+   * @param $ - TypeSpec type utilities
+   * @param mutatorClasses - Custom mutation class constructors
+   */
   constructor($: Typekit, mutatorClasses: ConstructorsFor<TCustomMutations>) {
     this.$ = $;
     this.#mutatorClasses = {
@@ -85,170 +115,112 @@ export class MutationEngine<TCustomMutations extends CustomMutationClasses> {
     } as any;
   }
 
-  protected registerSubgraph(name: string) {
-    this.#subgraphNames.add(name);
-  }
-
-  protected getMutationSubgraph(options: MutationOptions, name?: string) {
-    const optionsKey = options?.cacheKey() ?? "default";
-    if (!this.#subgraphs.has(optionsKey)) {
-      this.#subgraphs.set(optionsKey, new Map());
-    }
-    const subgraphsForOptions = this.#subgraphs.get(optionsKey)!;
-
-    name = name ?? "default";
-    if (!subgraphsForOptions.has(name)) {
-      subgraphsForOptions.set(name, new MutationSubgraph(this));
-    }
-
-    return subgraphsForOptions.get(name)!;
-  }
-
-  getDefaultMutationSubgraph(options?: MutationOptions): MutationSubgraph {
-    throw new Error("This mutation engine does not provide a default mutation subgraph.");
-  }
-
   /**
-   * Retrieve the mutated type from the default mutation subgraph for the given options.
-   */
-  getMutatedType<T extends Type>(options: MutationOptions, sourceType: T): T;
-  /**
-   * Retrieve the mutated type from a specific mutation subgraph.
-   */
-  getMutatedType<T extends Type>(subgraph: MutationSubgraph, sourceType: T): T;
-  /**
-   * Retrieve the mutated type from either the default subgraph with the given
-   * options or a specific subgraph.
-   */
-  getMutatedType<T extends Type>(
-    subgraphOrOptions: MutationOptions | MutationSubgraph,
-    sourceType: T,
-  ): T;
-  getMutatedType<T extends Type>(
-    subgraphOrOptions: MutationOptions | MutationSubgraph,
-    sourceType: T,
-  ) {
-    if (subgraphOrOptions instanceof MutationOptions) {
-      return this.getMutationNode(subgraphOrOptions, sourceType).mutatedType;
-    }
-    return this.getMutationNode(subgraphOrOptions, sourceType).mutatedType;
-  }
-
-  /**
-   * Get (and potentially create) the mutation node for the provided type in the default subgraph.
-   */
-  getMutationNode<T extends Type>(options: MutationOptions, type: T): MutationNodeForType<T>;
-  /**
-   * Get (and potentially create) the mutation node for the provided type in a specific subgraph.
-   */
-  getMutationNode<T extends Type>(subgraph: MutationSubgraph, type: T): MutationNodeForType<T>;
-
-  /**
-   * Get (and potentially create) the mutation node for the provided type in
-   * either the default subgraph with the given options or a specific subgraph.
+   * Gets or creates a mutation node for the given type and key.
+   * @param type - Source type
+   * @param mutationKey - Cache key for the node
+   * @returns Mutation node for the type
    */
   getMutationNode<T extends Type>(
-    subgraphOrOptions: MutationOptions | MutationSubgraph,
     type: T,
-  ): MutationNodeForType<T>;
-  getMutationNode<T extends Type>(subgraphOrOptions: MutationOptions | MutationSubgraph, type: T) {
-    let subgraph: MutationSubgraph;
-    if (subgraphOrOptions instanceof MutationOptions) {
-      subgraph = this.getDefaultMutationSubgraph(subgraphOrOptions);
+    options?: MutationNodeOptions | string,
+  ): MutationNodeForType<T> {
+    let keyMap = this.#seenMutationNodes.get(type);
+    const mutationKey = typeof options === "string" ? options : (options?.mutationKey ?? "");
+    if (keyMap) {
+      const existingNode = keyMap.get(mutationKey);
+      if (existingNode) {
+        return existingNode as MutationNodeForType<T>;
+      }
     } else {
-      subgraph = subgraphOrOptions;
+      keyMap = new Map();
+      this.#seenMutationNodes.set(type, keyMap);
     }
-    return subgraph.getNode(type);
+
+    const node = mutationNodeFor(this, type, options);
+    keyMap.set(mutationKey, node);
+    return node;
   }
 
-  mutateType<T extends Type>(
-    subgraphOrOptions: MutationOptions | MutationSubgraph,
-    type: T,
-    initializeMutation: (type: T) => void,
-  ) {
-    const subgraph = this.#getSubgraphFromOptions(subgraphOrOptions);
-    this.getMutationNode(subgraph, type).mutate(initializeMutation as (type: Type) => void);
-  }
-
-  #getSubgraphFromOptions(subgraphOrOptions: MutationOptions | MutationSubgraph) {
-    if (subgraphOrOptions instanceof MutationOptions) {
-      return this.getDefaultMutationSubgraph(subgraphOrOptions);
-    } else {
-      return subgraphOrOptions;
+  /**
+   * Replaces one mutation node with another in the cache.
+   * @param oldNode - Node to remove
+   * @param newNode - Node to add
+   */
+  replaceMutationNode(oldNode: MutationNode<Type>, newNode: MutationNode<Type>) {
+    const oldKeyMap = this.#seenMutationNodes.get(oldNode.sourceType);
+    if (oldKeyMap) {
+      oldKeyMap.delete(oldNode.mutationKey);
     }
+
+    let newKeyMap = this.#seenMutationNodes.get(newNode.sourceType);
+    if (!newKeyMap) {
+      newKeyMap = new Map();
+      this.#seenMutationNodes.set(newNode.sourceType, newKeyMap);
+    }
+    newKeyMap.set(newNode.mutationKey, newNode);
   }
 
-  mutate<TType extends Type>(
-    type: TType,
+  /**
+   * Replaces a reference with a new type and mutates it.
+   * @param reference - Original reference to replace
+   * @param newType - New type to use
+   * @param options - Mutation options
+   * @param halfEdge - Optional half edge for tracking
+   * @returns Mutation for the new type
+   */
+  replaceAndMutateReference<TType extends Type>(
+    reference: MemberType,
+    newType: TType,
     options: MutationOptions = new MutationOptions(),
+    halfEdge?: MutationHalfEdge,
+  ) {
+    const { references } = resolveReference(reference);
+    const mut = this.mutateWorker(newType, references, options, halfEdge, {
+      isSynthetic: true,
+    });
+    return mut;
+  }
+
+  /**
+   * Internal worker that creates or retrieves mutations with caching.
+   */
+  protected mutateWorker<TType extends Type>(
+    type: TType,
+    references: MemberType[],
+    options: MutationOptions,
+    halfEdge?: MutationHalfEdge,
+    traits?: MutationTraits,
   ): MutationFor<TCustomMutations, TType["kind"]> {
+    // initialize cache
     if (!this.#mutationCache.has(type)) {
       this.#mutationCache.set(type, new Map<string, MutationFor<TCustomMutations, Type["kind"]>>());
     }
 
     const byType = this.#mutationCache.get(type)!;
-    const key = options.cacheKey();
-    if (byType.has(key)) {
-      const existing = byType.get(key)! as any;
-      if (!existing.isMutated) {
-        existing.isMutated = true;
-        existing.mutate();
-      }
-      return existing;
-    }
-
-    this.#initializeSubgraphs(type, options);
-
     const mutatorClass = this.#mutatorClasses[type.kind];
     if (!mutatorClass) {
       throw new Error("No mutator registered for type kind: " + type.kind);
     }
 
-    // TS doesn't like this abstract class here, but it will be a derivative
-    // class in practice.
-    const mutation = new (mutatorClass as any)(this, type, [], options);
-
-    byType.set(key, mutation);
-    mutation.isMutated = true;
-    mutation.mutate();
-    return mutation;
-  }
-
-  mutateReference<TType extends MemberType>(
-    memberType: TType,
-    referencedMutationNode: Type,
-    options: MutationOptions,
-  ): MutationFor<TCustomMutations>;
-  mutateReference<TType extends MemberType>(
-    memberType: TType,
-    options: MutationOptions,
-  ): MutationFor<TCustomMutations>;
-  mutateReference<TType extends MemberType>(
-    memberType: TType,
-    referencedMutationNodeOrOptions: Type | MutationOptions,
-    options?: MutationOptions,
-  ): MutationFor<TCustomMutations> {
-    let referencedMutationNode: Type | undefined;
-    let finalOptions: MutationOptions;
-    if (referencedMutationNodeOrOptions instanceof MutationOptions) {
-      finalOptions = referencedMutationNodeOrOptions;
-      referencedMutationNode = undefined;
-    } else {
-      referencedMutationNode = referencedMutationNodeOrOptions as Type;
-      finalOptions = options!;
+    const info = (mutatorClass as any).mutationInfo(
+      this,
+      type,
+      references,
+      options,
+      halfEdge,
+      traits,
+    );
+    if (info instanceof Mutation) {
+      // Already a mutation, return it directly.
+      // Type change mutations break types badly, but hopefully in general things "just work"?
+      return info as any;
     }
 
-    if (!this.#referenceMutationCache.has(memberType)) {
-      this.#referenceMutationCache.set(
-        memberType,
-        new Map<string, MutationFor<TCustomMutations>>(),
-      );
-    }
-
-    const byType = this.#referenceMutationCache.get(memberType)!;
-    const key = finalOptions.cacheKey();
+    const key = info.mutationKey;
     if (byType.has(key)) {
       const existing = byType.get(key)! as any;
+      halfEdge?.setTail(existing);
       if (!existing.isMutated) {
         existing.isMutated = true;
         existing.mutate();
@@ -256,39 +228,92 @@ export class MutationEngine<TCustomMutations extends CustomMutationClasses> {
       return existing;
     }
 
-    this.#initializeSubgraphs(memberType, finalOptions);
-    const sources: MemberType[] = [];
-
-    let referencedType: Type = memberType;
-    while (referencedType.kind === "ModelProperty" || referencedType.kind === "UnionVariant") {
-      sources.push(referencedType);
-      referencedType = referencedType.type;
-    }
-
-    const typeToMutate = referencedMutationNode ?? referencedType;
-    const mutatorClass = this.#mutatorClasses[typeToMutate.kind];
-    if (!mutatorClass) {
-      throw new Error("No mutator registered for type kind: " + typeToMutate.kind);
-    }
-
-    const mutation = new (mutatorClass as any)(this, typeToMutate, sources, finalOptions);
-
+    // TS doesn't like this abstract class here, but it will be a derivative
+    // class in practice.
+    const mutation = new (mutatorClass as any)(this, type, [], options, info);
     byType.set(key, mutation);
     mutation.isMutated = true;
+    halfEdge?.setTail(mutation);
     mutation.mutate();
     return mutation;
   }
 
-  #initializeSubgraphs(root: Type, options: MutationOptions) {
-    for (const name of this.#subgraphNames) {
-      const subgraph = this.getMutationSubgraph(options, name);
-      subgraph.getNode(root);
-    }
+  /**
+   * Mutates a type using registered mutation classes.
+   * @param type - Type to mutate
+   * @param options - Mutation options
+   * @param halfEdge - Optional half edge for linking mutations to parent mutations
+   * @returns Mutation for the type
+   */
+  mutate<TType extends Type>(
+    type: TType,
+    options: MutationOptions = new MutationOptions(),
+    halfEdge?: MutationHalfEdge,
+    traits?: MutationTraits,
+  ): MutationFor<TCustomMutations, TType["kind"]> {
+    return this.mutateWorker(type, [], options, halfEdge, traits);
+  }
+
+  /**
+   * Mutates a type through a reference chain (e.g., ModelProperty or UnionVariant).
+   * @param reference - Reference to mutate
+   * @param options - Mutation options
+   * @param halfEdge - Optional half edge for tracking
+   * @returns Mutation for the referenced type
+   */
+  mutateReference(
+    reference: MemberType,
+    options: MutationOptions = new MutationOptions(),
+    halfEdge?: MutationHalfEdge,
+    traits?: MutationTraits,
+  ): MutationFor<TCustomMutations> {
+    const { referencedType, references } = resolveReference(reference);
+
+    return this.mutateWorker(referencedType, references, options, halfEdge, traits) as any;
   }
 }
 
+function resolveReference(reference: MemberType) {
+  const references: MemberType[] = [];
+  let referencedType: Type = reference;
+  while (referencedType.kind === "ModelProperty" || referencedType.kind === "UnionVariant") {
+    references.push(referencedType);
+    referencedType = referencedType.type;
+  }
+  return {
+    referencedType,
+    references,
+  };
+}
+
 export class MutationOptions {
-  cacheKey(): string {
+  get mutationKey(): string {
     return "";
+  }
+}
+
+/**
+ * Half-edge used to link mutations together. This represents the head-end of a
+ * mutation. When the tail is created, it is set on the half-edge and allows the
+ * head mutation to connect its nodes to the tail mutation.
+ */
+export class MutationHalfEdge<
+  THead extends Mutation<any, any> = any,
+  TTail extends Mutation<any, any> = any,
+> {
+  head: THead;
+  tail: TTail | undefined;
+  readonly kind: string;
+  #onTailCreation: (tail: TTail) => void;
+
+  constructor(kind: string, head: THead, onTailCreation: (tail: TTail) => void) {
+    this.kind = kind;
+    this.head = head;
+    this.#onTailCreation = onTailCreation;
+  }
+
+  setTail(tail: TTail) {
+    this.tail = tail;
+    this.#onTailCreation(tail);
   }
 }

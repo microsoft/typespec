@@ -1,6 +1,6 @@
 # Mutator Framework
 
-** WARNING: THIS PACKAGE IS EXPERIMENTAL AND WILL CHANGE **
+**WARNING: THIS PACKAGE IS EXPERIMENTAL AND WILL CHANGE**
 
 This package provides utilities for building mutations of the TypeSpec type
 graph. Mutations are modifications to the original type graph that live in a
@@ -17,323 +17,290 @@ At a high level you:
 - Instantiate a `MutationEngine` subtype (e.g. `SimpleMutationEngine`) with the
   `Typekit` from the TypeSpec program you want to mutate.
 
-The key APIs are:
+## Key Concepts
 
-- `MutationEngine` – orchestrates creation, caching, and traversal of mutation nodes.
-- `SimpleMutationEngine` – a convenience engine that exposes a single default mutation subgraph.
-- `MutationOptions` – lets you parameterize a mutation run and cache its results.
-- `ModelMutation`, `ModelPropertyMutation`, `UnionMutation`, `UnionVariantMutation`,
-  `OperationMutation`, etc. – base classes for crafting custom mutations per TypeSpec kind.
-- `MutationSubgraph` – creates an isolated graph of mutated types that can be inspected or
-  retrieved later.
-- `ModelMutationNode`, `ModelPropertyMutationNode`, `UnionMutationNode`, etc. -
-  nodes which represent the possible mutation of a particular type graph type.
+### Mutations
+
+Mutations are abstract classes that control how each TypeSpec type kind is
+traversed and transformed. They have a protocol based on a static `mutationInfo`
+method that returns a unique `mutationKey` for that mutation. If a mutation with
+the same key exists, it is reused; otherwise, a new mutation is constructed.
+
+The `mutationInfo` method can also return a `Mutation` directly, useful for
+constructing a mutation view "as if" the type graph looked different.
+
+### Mutation Nodes
+
+Mutation nodes represent individual type transformations. They are unique per
+`(type, mutationKey)` pair. Connections between nodes are built lazily using
+half-edges - mutations call `startXEdge()` methods to create a `MutationHalfEdge`
+that gets connected when the target mutation is resolved.
+
+### Key APIs
+
+- `MutationEngine` – orchestrates creation, caching, and traversal of mutations.
+- `SimpleMutationEngine` – a convenience engine with Simple\* mutation classes
+  that expose a single mutated type per source type.
+- `MutationOptions` – lets you parameterize a mutation run and provide a `mutationKey`.
+- `MutationHalfEdge` – represents the head-end of a connection; the tail is set when
+  the target mutation is resolved.
+- `ModelMutation`, `ModelPropertyMutation`, `UnionMutation`, etc. – abstract base
+  classes for crafting custom mutations per TypeSpec kind.
+- `SimpleModelMutation`, `SimpleModelPropertyMutation`, etc. – concrete implementations
+  that expose `mutationNode` and `mutatedType` properties.
 
 ## Getting Started
 
 ```ts
 import type { Model, Program } from "@typespec/compiler";
-import { $, type Typekit } from "@typespec/compiler/typekit";
-import { SimpleMutationEngine } from "@typespec/mutator-framework";
+import { $ } from "@typespec/compiler/typekit";
+import {
+  SimpleModelMutation,
+  SimpleMutationEngine,
+  SimpleMutationOptions,
+} from "@typespec/mutator-framework";
 
-// Create a typekit for the program
-const tk: Typekit = $(program);
+// Define custom options with a mutationKey
+class RenameMutationOptions extends SimpleMutationOptions {
+  constructor(readonly suffix: string) {
+    super();
+  }
 
-// Instantiate an engine for running the mutations.
-// Might be the built-in SimpleMutationEngine, or a
-// custom `MutationEngine` subclass.
+  get mutationKey() {
+    return this.suffix;
+  }
+}
+
+// Define a custom mutation that renames models
+class RenameModelMutation extends SimpleModelMutation<RenameMutationOptions> {
+  mutate() {
+    if ("name" in this.sourceType && typeof this.sourceType.name === "string") {
+      this.mutationNode.mutate(
+        (type) => (type.name = `${this.sourceType.name}${this.options.suffix}`),
+      );
+    }
+    super.mutate();
+  }
+}
+
+// Create the engine and run mutations
+const tk = $(program);
 const engine = new SimpleMutationEngine(tk, {
-  Model: RenameModelMutation, // defined later in this guide
+  Model: RenameModelMutation,
 });
-const renamedMutation = engine.mutate(someType);
-const mutatedType = renamedMutation.mutatedType;
+
+const options = new RenameMutationOptions("Suf");
+const fooMutation = engine.mutate(fooModel, options);
+console.log(fooMutation.mutatedType.name); // "FooSuf"
 ```
 
 ## Defining Custom Mutation Options
 
-Options derive from `MutationOptions`. They let you tune mutations (for example,
-to switch on features or change naming rules) and provide a cache key used to
-memoize results. Extend the class and override `cacheKey()` to represent your
-configuration.
+Options derive from `MutationOptions` (or `SimpleMutationOptions` for simple
+mutations). Override the `mutationKey` getter to provide a unique cache key for
+your configuration. Mutations are cached per `(type, mutationKey)` pair.
 
 ```ts
-// rename-mutations.ts
-import { MutationOptions } from "@typespec/mutator-framework";
+import { SimpleMutationOptions } from "@typespec/mutator-framework";
 
-export class RenameMutationOptions extends MutationOptions {
-  constructor(
-    readonly prefix: string,
-    readonly suffix: string,
-  ) {
+class RenameMutationOptions extends SimpleMutationOptions {
+  constructor(readonly suffix: string) {
     super();
   }
 
-  override cacheKey() {
-    return `${this.prefix}-${this.suffix}`;
+  get mutationKey() {
+    return this.suffix;
+  }
+
+  with(options: Partial<{ suffix: string }>) {
+    return new RenameMutationOptions(options.suffix ?? this.suffix);
   }
 }
-```
-
-## Creating a Custom Mutation Engine
-
-`MutationEngine` is responsible for coordinating mutation nodes and subgraphs. Supply constructors
-for each type kind you want to customize. Anything you omit defaults to the base implementations
-(`ModelMutation`, `ModelPropertyMutation`, etc.).
-
-You can also register additional mutation subgraphs. Each subgraph represents an isolated view of
-the mutated graph. This is useful when you want to compare alternative transformations side by side
-(for example, with different naming conventions).
-
-```ts
-// rename-mutations.ts
-import { MutationEngine, type MutationSubgraph } from "@typespec/mutator-framework";
-import type { Typekit } from "@typespec/compiler/typekit";
-
-export class RenameMutationEngine extends MutationEngine<{ Model: RenameModelMutation }> {
-  constructor(typekit: Typekit) {
-    super(typekit, { Model: RenameModelMutation });
-    this.registerSubgraph("prefix");
-    this.registerSubgraph("suffix");
-  }
-
-  getPrefix(options: RenameMutationOptions): MutationSubgraph {
-    return this.getMutationSubgraph(options, "prefix");
-  }
-
-  getSuffix(options: RenameMutationOptions): MutationSubgraph {
-    return this.getMutationSubgraph(options, "suffix");
-  }
-}
-```
-
-The base `MutationEngine` does not define a default subgraph. If you just need a single mutated
-view, use the `SimpleMutationEngine`. It auto-registers a `"subgraph"` and wires
-`getDefaultMutationSubgraph` for you:
-
-```ts
-import { SimpleMutationEngine } from "@typespec/mutator-framework";
-
-const engine = new SimpleMutationEngine(tk, {
-  Model: RenameModelMutation,
-});
 ```
 
 ## Writing Mutation Classes
 
-Mutation classes derive from the base classes included in the framework. Each class receives the
-engine, the source TypeSpec type, the list of reference members that referenced that type (if any),
-and the options. Override `mutate()` to perform your transformations.
+Mutation classes are abstract classes that derive from the base classes included
+in the framework. Override `mutate()` to perform your transformations.
 
-Inside `mutate()` you can:
+### The `mutationInfo` Protocol
 
-- Traverse connected types via `this.engine.mutate(...)` or `this.engine.mutateReference(...)`.
-- Retrieve or create mutation nodes with `this.getMutationNode()`.
-- Mutate values using `this.mutateType()` or `engine.mutateType(...)`.
-- Switch subgraphs by calling `this.engine.getMutationSubgraph(...)`.
-
-### Example: Renaming Models in Multiple Subgraphs
+Each mutation class has a static `mutationInfo` method that is called to
+determine the unique key for a mutation. The default implementation uses
+`options.mutationKey`. Override this to implement context-sensitive mutation
+keys based on reference types or other factors:
 
 ```ts
-// rename-mutations.ts
-import { ModelMutation } from "@typespec/mutator-framework";
-
-export class RenameModelMutation extends ModelMutation<
-  RenameMutationOptions,
-  { Model: RenameModelMutation },
-  RenameMutationEngine
-> {
-  get withPrefix() {
-    return this.getMutatedType(this.engine.getPrefix(this.options));
-  }
-
-  get withSuffix() {
-    return this.getMutatedType(this.engine.getSuffix(this.options));
+class RenameModelBasedOnReferenceMutation extends SimpleModelMutation<SimpleMutationOptions> {
+  static mutationInfo(
+    engine: SimpleMutationEngine<{ Model: RenameModelBasedOnReferenceMutation }>,
+    sourceType: Model,
+    referenceTypes: MemberType[],
+    options: SimpleMutationOptions,
+    halfEdge?: MutationHalfEdge,
+    traits?: MutationTraits,
+  ): MutationInfo {
+    // Different key based on whether this type was reached via a reference
+    if (referenceTypes.length === 0) {
+      return {
+        mutationKey: options.mutationKey + "-no-ref",
+        hasReference: false,
+        isSynthetic: traits?.isSynthetic,
+      };
+    }
+    return {
+      mutationKey: options.mutationKey + "-has-ref",
+      hasReference: true,
+      isSynthetic: traits?.isSynthetic,
+    };
   }
 
   mutate() {
-    if ("name" in this.sourceType && typeof this.sourceType.name === "string") {
-      this.mutateType(this.engine.getPrefix(this.options), (model) => {
-        model.name = `${this.options.prefix}${model.name}`;
-      });
-
-      this.mutateType(this.engine.getSuffix(this.options), (model) => {
-        model.name = `${model.name}${this.options.suffix}`;
-      });
+    if (this.mutationInfo.hasReference) {
+      this.mutationNode.mutate((type) => (type.name = `${this.sourceType.name}Reference`));
     }
-
-    // Always call super.mutate() if you still want the base implementation
-    // to traverse properties, base models, indexers, etc. with the same options.
     super.mutate();
   }
 }
 ```
 
-### Running the Mutation
+### Lazy Connections with Half-Edges
+
+Connections between mutations are built lazily. Mutations provide `startXEdge()`
+methods that return a `MutationHalfEdge`. Pass this half-edge to `engine.mutate()`
+or related methods. When the target mutation is resolved, its mutation node is
+connected to the originating mutation's node:
 
 ```ts
-import type { Model, Program } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/typekit";
-import { RenameMutationEngine, RenameMutationOptions } from "./rename-mutations.js";
-
-export function applyRename(program: Program, fooModel: Model) {
-  const engine = new RenameMutationEngine($(program));
-  const options = new RenameMutationOptions("Pre", "Suf");
-
-  const fooMutation = engine.mutate(fooModel, options);
-  const prefixFoo = fooMutation.withPrefix;
-  const suffixFoo = fooMutation.withSuffix;
-
-  const propMutation = fooMutation.properties.get("prop")!;
-  const barMutation = propMutation.type as RenameModelMutation;
-
-  return {
-    prefixFoo,
-    suffixFoo,
-    barWithSuffix: barMutation.withSuffix,
-  };
-}
-```
-
-### Example: Mutating Referenced Types
-
-`ModelPropertyMutation` exposes `mutateReference` and `replaceReferencedType`
-helpers that make it easy to mutate types referenced by properties. When
-mutating references, a clone of the referenced type is made, so changes to not
-affect the referenced type. This enables references to reference a unique type
-with mutations that are particular to that type when referenced in that context.
-For example, if the model property contains a decorator that affects the
-mutation of a referenced scalar.
-
-```ts
-import type { Model, Program } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/typekit";
-import {
-  ModelMutation,
-  ModelPropertyMutation,
-  MutationOptions,
-  SimpleMutationEngine,
-} from "@typespec/mutator-framework";
-
-class UnionifyOptions extends MutationOptions {}
-
-class UnionifyModel extends ModelMutation<
-  UnionifyOptions,
-  UnionifyMutations,
-  SimpleMutationEngine<UnionifyMutations>
-> {
-  get unionified() {
-    return this.getMutatedType();
-  }
-}
-
-class UnionifyProperty extends ModelPropertyMutation<
-  UnionifyOptions,
-  UnionifyMutations,
-  SimpleMutationEngine<UnionifyMutations>
-> {
-  get unionified() {
-    return this.getMutatedType();
+class SimpleModelMutation extends ModelMutation {
+  // Creates a half-edge for connecting to a property mutation
+  startPropertyEdge() {
+    return new MutationHalfEdge("property", this, (tail) =>
+      this.mutationNode.connectProperty(tail.mutationNode),
+    );
   }
 
   mutate() {
+    for (const prop of this.sourceType.properties.values()) {
+      // Pass the half-edge so the connection is made when resolved
+      this.engine.mutate(prop, this.options, this.startPropertyEdge());
+    }
+  }
+}
+```
+
+### Replacing Referenced Types
+
+Use `engine.replaceAndMutateReference()` to substitute a type with a different
+one while preserving the reference chain. This is useful for wrapping types in
+unions or other containers:
+
+```ts
+class UnionifyProperty extends SimpleModelPropertyMutation<SimpleMutationOptions> {
+  mutate() {
     if (!this.engine.$.union.is(this.sourceType.type)) {
-      const unionVariant = this.engine.$.unionVariant.create({ type: this.sourceType.type });
-      const fallbackVariant = this.engine.$.unionVariant.create({
-        type: this.engine.$.builtin.string,
+      // Create a union wrapping the original type
+      const newUnionType = this.engine.$.union.create({
+        name: "DynamicUnion",
+        variants: [
+          this.engine.$.unionVariant.create({ type: this.sourceType.type }),
+          this.engine.$.unionVariant.create({ type: this.engine.$.builtin.string }),
+        ],
       });
 
-      const unionType = this.engine.$.union.create({ variants: [unionVariant, fallbackVariant] });
+      // Update the mutation node
+      this.mutationNode.mutate((prop) => {
+        prop.type = newUnionType;
+      });
 
-      this.type = this.replaceReferencedType(
-        this.engine.getDefaultMutationSubgraph(this.options),
-        unionType,
+      // Replace and mutate the reference
+      this.type = this.engine.replaceAndMutateReference(
+        this.sourceType,
+        newUnionType,
+        this.options,
+        this.startTypeEdge(),
       );
     } else {
       super.mutate();
     }
   }
 }
-
-interface UnionifyMutations {
-  Model: UnionifyModel;
-  ModelProperty: UnionifyProperty;
-}
-
-export function createUnionifyEngine(program: Program) {
-  const tk = $(program);
-  return new SimpleMutationEngine(tk, {
-    Model: UnionifyModel,
-    ModelProperty: UnionifyProperty,
-  });
-}
-
-export function unionifyModel(program: Program, fooModel: Model) {
-  const engine = createUnionifyEngine(program);
-  const fooMutation = engine.mutate(fooModel, new UnionifyOptions());
-  const propMutation = fooMutation.properties.get("prop")!;
-
-  return {
-    property: propMutation.unionified,
-    model: fooMutation.unionified,
-  };
-}
 ```
 
-## Core Mutation Base Classes
+### Returning Mutations from `mutationInfo`
 
-| Class                   | Source Type                    | Responsibilities                                           |
-| ----------------------- | ------------------------------ | ---------------------------------------------------------- |
-| `ModelMutation`         | `Model`                        | Traverses base models, properties, and indexers.           |
-| `ModelPropertyMutation` | `ModelProperty`                | Mutates referenced types, exposes `replaceReferencedType`. |
-| `UnionMutation`         | `Union`                        | Iterates over variants and lazy-loads their mutations.     |
-| `UnionVariantMutation`  | `UnionVariant`                 | Handles referenced variant types.                          |
-| `ScalarMutation`        | `Scalar`                       | Provides access to scalar definitions and projections.     |
-| `LiteralMutation`       | string/number/boolean literals | Provides literal values and traversal control.             |
-| `OperationMutation`     | `Operation`                    | Mutates parameters, return types, and decorators.          |
-| `InterfaceMutation`     | `Interface`                    | Walks operations declared on the interface.                |
-| `IntrinsicMutation`     | `Intrinsic`                    | Surfaces intrinsic TypeSpec types.                         |
-
-Each class inherits from the foundational `Mutation` class, which provides
-shared helpers for mutated types (`getMutatedType`) and nodes
-(`getMutationNode`). Override them or add convenience getters/setters to tailor
-the experience for your consumers.
-
-## Working with Mutation Subgraphs
-
-The engine builds mutation nodes inside a `MutationSubgraph`. Each subgraph
-captures a set of mutations that share the same options and transformation
-logic.
+The `mutationInfo` method can return a `Mutation` directly instead of a
+`MutationInfo` object. This is useful for completely substituting the mutation
+for a different one:
 
 ```ts
-const prefixGraph = engine.getPrefix(renameOptions);
-const prefixFoo = engine.getMutatedType(prefixGraph, Foo);
+class NullableReferencedModelMutation extends SimpleModelMutation<SimpleMutationOptions> {
+  static mutationInfo(
+    engine: SimpleMutationEngine<{ Model: NullableReferencedModelMutation }>,
+    sourceType: Model,
+    referenceTypes: MemberType[],
+    options: SimpleMutationOptions,
+    halfEdge?: MutationHalfEdge,
+    traits?: MutationTraits,
+  ) {
+    // When accessed via a ModelProperty reference, return a union mutation instead
+    if (referenceTypes.length > 0 && referenceTypes[0].kind === "ModelProperty") {
+      const nullableUnion = engine.$.union.create({
+        name: `${sourceType.name}NullableUnion`,
+        variants: [
+          engine.$.unionVariant.create({ name: "Value", type: sourceType }),
+          engine.$.unionVariant.create({ name: "Null", type: engine.$.intrinsic.null }),
+        ],
+      });
 
-const suffixGraph = engine.getSuffix(renameOptions);
-const suffixFoo = engine.getMutatedType(suffixGraph, Foo);
+      // Return a mutation for the union instead
+      return engine.replaceAndMutateReference(referenceTypes[0], nullableUnion, options, halfEdge);
+    }
 
-console.log(prefixFoo.name, suffixFoo.name);
+    return super.mutationInfo(engine, sourceType, referenceTypes, options, halfEdge, traits);
+  }
+}
 ```
 
-When you call `engine.mutate(type, options)` the engine automatically creates mutation nodes in all
-registered subgraphs for the provided options. Subsequent calls reuse the cached nodes, so you can
-freely navigate the mutation graph without re-running your transformation logic.
+Mutation nodes also have a `replace` method. Returning a new mutation from MutationInfo makes the resulting Mutations look "as if" the source type graph were shaped differently. This is useful for doing things like normalizations of the type graph. The structure of the Mutations mimic this new structure. When you `replace` on a mutation node, the Mutation stays the same, but the mutated type graph is changed. This is useful for doing things like renaming things or swapping scalars in situations where you want to see both the source type and the mutated type in order to compare them.
+
+## Mutation Caching
+
+Mutations are automatically cached and reused. When you call `engine.mutate()`
+with the same type and options (determined by `mutationKey`), you get back the
+same mutation instance:
+
+```ts
+const barMutation = engine.mutate(Bar, new RenameMutationOptions({ suffix: "X" }));
+const fooMutation = engine.mutate(Foo, new RenameMutationOptions({ suffix: "X" }));
+
+// When traversing from Foo to its Bar property, we get the same mutation
+expect(fooMutation.properties.get("prop")!.type === barMutation).toBe(true);
+```
+
+### Simple Mutation Classes
+
+The `Simple*` mutation classes (e.g., `SimpleModelMutation`, `SimpleModelPropertyMutation`)
+are concrete implementations that provide:
+
+- A `mutationNode` property for accessing the underlying mutation node
+- A `mutatedType` property for accessing the mutated TypeSpec type
+- `startXEdge()` methods for creating half-edges to connected types
 
 ## Tips for Building Mutations
 
 - **Always call `super.mutate()`** when you want the default traversal logic after your custom
   changes. Skipping it gives you full control, but you must handle traversal yourself.
-- **Use `MutationOptions` subclasses** whenever your mutation behavior depends on input
-  configuration. Return a stable `cacheKey()` to reuse work.
-- **Inspect `referenceTypes`** to learn which `ModelProperty` or `UnionVariant` led to the current
-  mutation node. This helps you emit diagnostics or perform context-sensitive logic.
-- **Mutate lazily**. Mutations only run once per `(type, options)` pair. If you expose getters that
-  trigger work, they should go through `engine.mutate(...)` so the cache stays consistent.
-- **Prefer `SimpleMutationEngine`** unless you need named subgraphs. You can graduate to a custom
-  engine later.
+- **Use `mutationKey`** to differentiate mutations. Mutations are cached per `(type, mutationKey)` pair.
+- **Inspect `referenceTypes`** in `mutationInfo` to learn which `ModelProperty` or `UnionVariant`
+  led to the current mutation. This enables context-sensitive mutations.
+- **Use half-edges** for lazy connections. Call `startXEdge()` and pass the result to `engine.mutate()`.
+- **Override `mutationInfo`** to return different mutation keys or substitute mutations entirely.
+- **Use `replaceAndMutateReference`** when you need to substitute a type with a synthetic one.
 
 ## Additional Resources
 
-- Browse the rest of the files under `packages/mutator-framework/src/mutation` to see the built-in
+- Browse the files under `packages/mutator-framework/src/mutation` to see the built-in
   mutation implementations.
-- The unit tests in `mutation-engine.test.ts` demonstrate more end-to-end usage patterns, including
-  multi-subgraph mutations and reference replacements.
+- The unit tests in `simple-mutation-engine.test.ts` demonstrate end-to-end usage patterns,
+  including custom mutation keys, reference replacements, and type substitutions.
