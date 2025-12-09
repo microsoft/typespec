@@ -436,5 +436,208 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             Assert.AreEqual("ParentClient", subClient.Parent!.Name, "SubClient's parent should be ParentClient");
             Assert.AreEqual(0, subClient.Children.Count, "SubClient should have no children");
         }
+
+        [Test]
+        public void DeserializeUnionWithExternalMetadata()
+        {
+            var json = @"{
+                ""$id"": ""1"",
+                ""kind"": ""union"",
+                ""name"": ""TestUnion"",
+                ""variantTypes"": [
+                    { ""$id"": ""2"", ""kind"": ""string"", ""name"": ""string"", ""crossLanguageDefinitionId"": ""TypeSpec.string"" }
+                ],
+                ""external"": {
+                    ""identity"": ""Azure.Core.Expressions.DataFactoryElement"",
+                    ""package"": ""Azure.Core.Expressions"",
+                    ""minVersion"": ""1.0.0""
+                }
+            }";
+
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true,
+                Converters =
+                {
+                    new InputTypeConverter(referenceHandler),
+                    new InputUnionTypeConverter(referenceHandler),
+                    new InputPrimitiveTypeConverter(referenceHandler),
+                    new InputExternalTypeMetadataConverter()
+                }
+            };
+
+            var union = JsonSerializer.Deserialize<InputUnionType>(json, options);
+            Assert.IsNotNull(union);
+            Assert.IsNotNull(union!.External);
+            Assert.AreEqual("Azure.Core.Expressions.DataFactoryElement", union.External!.Identity);
+            Assert.AreEqual("Azure.Core.Expressions", union.External.Package);
+            Assert.AreEqual("1.0.0", union.External.MinVersion);
+            Assert.AreEqual(1, union.VariantTypes.Count);
+        }
+
+        [Test]
+        public void DeserializeModelWithExternalMetadata()
+        {
+            var json = @"{
+                ""$id"": ""1"",
+                ""kind"": ""model"",
+                ""name"": ""TestModel"",
+                ""namespace"": ""Test.Models"",
+                ""crossLanguageDefinitionId"": ""Test.Models.TestModel"",
+                ""usage"": ""None"",
+                ""properties"": [],
+                ""external"": {
+                    ""identity"": ""System.Text.Json.JsonElement"",
+                    ""package"": ""System.Text.Json"",
+                    ""minVersion"": ""8.0.0""
+                }
+            }";
+
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true,
+                Converters =
+                {
+                    new InputTypeConverter(referenceHandler),
+                    new InputModelTypeConverter(referenceHandler),
+                    new InputExternalTypeMetadataConverter()
+                }
+            };
+
+            var model = JsonSerializer.Deserialize<InputModelType>(json, options);
+            Assert.IsNotNull(model);
+            Assert.IsNotNull(model!.External);
+            Assert.AreEqual("System.Text.Json.JsonElement", model.External!.Identity);
+            Assert.AreEqual("System.Text.Json", model.External.Package);
+            Assert.AreEqual("8.0.0", model.External.MinVersion);
+        }
+
+        [Test]
+        public void DeserializeArrayWithExternalMetadata()
+        {
+            var json = @"{
+                ""$id"": ""1"",
+                ""kind"": ""array"",
+                ""name"": ""TestArray"",
+                ""crossLanguageDefinitionId"": ""TestArray"",
+                ""valueType"": { ""$id"": ""2"", ""kind"": ""string"", ""name"": ""string"", ""crossLanguageDefinitionId"": ""TypeSpec.string"" },
+                ""external"": {
+                    ""identity"": ""System.Collections.Generic.IList""
+                }
+            }";
+
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true,
+                Converters =
+                {
+                    new InputTypeConverter(referenceHandler),
+                    new InputArrayTypeConverter(referenceHandler),
+                    new InputPrimitiveTypeConverter(referenceHandler),
+                    new InputExternalTypeMetadataConverter()
+                }
+            };
+
+            var array = JsonSerializer.Deserialize<InputArrayType>(json, options);
+            Assert.IsNotNull(array);
+            Assert.IsNotNull(array!.External);
+            Assert.AreEqual("System.Collections.Generic.IList", array.External!.Identity);
+            Assert.IsNull(array.External.Package);
+            Assert.IsNull(array.External.MinVersion);
+        }
+
+        [Test]
+        public void DeserializeDictionaryWithExternalMetadata()
+        {
+            var json = @"{
+                ""$id"": ""1"",
+                ""kind"": ""dict"",
+                ""keyType"": { ""$id"": ""2"", ""kind"": ""string"", ""name"": ""string"", ""crossLanguageDefinitionId"": ""TypeSpec.string"" },
+                ""valueType"": { ""$id"": ""3"", ""kind"": ""string"", ""name"": ""string"", ""crossLanguageDefinitionId"": ""TypeSpec.string"" },
+                ""external"": {
+                    ""identity"": ""System.Collections.Generic.IDictionary"",
+                    ""package"": ""System.Collections""
+                }
+            }";
+
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true,
+                Converters =
+                {
+                    new InputTypeConverter(referenceHandler),
+                    new InputDictionaryTypeConverter(referenceHandler),
+                    new InputPrimitiveTypeConverter(referenceHandler),
+                    new InputExternalTypeMetadataConverter()
+                }
+            };
+
+            var dictionary = JsonSerializer.Deserialize<InputDictionaryType>(json, options);
+            Assert.IsNotNull(dictionary);
+            Assert.IsNotNull(dictionary!.External);
+            Assert.AreEqual("System.Collections.Generic.IDictionary", dictionary.External!.Identity);
+            Assert.AreEqual("System.Collections", dictionary.External.Package);
+            Assert.IsNull(dictionary.External.MinVersion);
+        }
+
+        [Test]
+        public void DeserializeEnumWithExternalMetadata()
+        {
+            var json = @"{
+                ""$id"": ""1"",
+                ""kind"": ""enum"",
+                ""name"": ""TestEnum"",
+                ""namespace"": ""Test.Models"",
+                ""crossLanguageDefinitionId"": ""Test.Models.TestEnum"",
+                ""valueType"": { ""$id"": ""2"", ""kind"": ""string"", ""name"": ""string"", ""crossLanguageDefinitionId"": ""TypeSpec.string"" },
+                ""values"": [],
+                ""isFixed"": true,
+                ""external"": {
+                    ""identity"": ""System.DayOfWeek""
+                }
+            }";
+
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                AllowTrailingCommas = true,
+                Converters =
+                {
+                    new InputTypeConverter(referenceHandler),
+                    new InputEnumTypeConverter(referenceHandler),
+                    new InputPrimitiveTypeConverter(referenceHandler),
+                    new InputExternalTypeMetadataConverter()
+                }
+            };
+
+            var enumType = JsonSerializer.Deserialize<InputEnumType>(json, options);
+            Assert.IsNotNull(enumType);
+            Assert.IsNotNull(enumType!.External);
+            Assert.AreEqual("System.DayOfWeek", enumType.External!.Identity);
+            Assert.IsNull(enumType.External.Package);
+            Assert.IsNull(enumType.External.MinVersion);
+        }
+
+        [Test]
+        public void LoadsModelWithExternalMetadataEndToEnd()
+        {
+            var directory = Helpers.GetAssetFileOrDirectoryPath(false);
+            // this tspCodeModel.json contains a partial part of the full tspCodeModel.json
+            var content = File.ReadAllText(Path.Combine(directory, "tspCodeModel.json"));
+            var inputNamespace = TypeSpecSerialization.Deserialize(content);
+
+            Assert.IsNotNull(inputNamespace);
+
+            var externalModel = inputNamespace!.Models.SingleOrDefault(m => m.Name == "ExternalModel");
+            Assert.IsNotNull(externalModel);
+            Assert.IsNotNull(externalModel!.External, "External metadata should be populated");
+            Assert.AreEqual("System.Text.Json.JsonElement", externalModel.External!.Identity);
+            Assert.AreEqual("System.Text.Json", externalModel.External.Package);
+            Assert.AreEqual("8.0.0", externalModel.External.MinVersion);
+        }
     }
 }
