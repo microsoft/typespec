@@ -422,8 +422,8 @@ importers:
         specifier: '>=0.22.0-dev.4'
         version: 0.22.0-dev.4
       '@alloy-js/python':
-        specifier: 0.3.0-dev.5
-        version: 0.3.0-dev.5
+        specifier: 0.3.0-dev.6
+        version: 0.3.0-dev.6
       '@alloy-js/rollup-plugin':
         specifier: ^0.1.0
         version: 0.1.0(@babel/core@7.28.5)(@types/babel__core@7.20.5)(rollup@4.49.0)
@@ -2735,8 +2735,8 @@ packages:
   '@alloy-js/msbuild@0.21.0':
     resolution: {integrity: sha512-QmMwF7eoYMdR5mX+8cIKb5F3Mgi3uQlFYrGYq92ht6BOc/XKyBXIwCXq6zqPMAT7nd2BHDD2hvgbL6nLS4QcGg==}
 
-  '@alloy-js/python@0.3.0-dev.5':
-    resolution: {integrity: sha512-9P5H5sTVdzxxW6kM8p5u9gFAf3jjuW9/TOHtkaMMeB8soeFDuRmO2fEr51mk2mSE+8h01owFItik5mnEt4KkuA==}
+  '@alloy-js/python@0.3.0-dev.6':
+    resolution: {integrity: sha512-uXy8KmErg9xtJqFEZ+aqT2zdr1jIf44fQbFi6x5+UUQ1/enwctVn8a3ZubVU94Fk5XPa1S3J5ITeTYTPt0ZWTQ==}
 
   '@alloy-js/rollup-plugin@0.1.0':
     resolution: {integrity: sha512-MXR8mBdSh/pxMP8kIXAcMYKsm5yOWZ+igxcaRX1vBXFiHU4eK7gE/5q6Fk8Vdydh+MItWtgekwIhUWvcszdNFQ==}
@@ -13800,7 +13800,7 @@ snapshots:
       marked: 16.4.2
       pathe: 2.0.3
 
-  '@alloy-js/python@0.3.0-dev.5':
+  '@alloy-js/python@0.3.0-dev.6':
     dependencies:
       '@alloy-js/core': 0.22.0-dev.4
       change-case: 5.4.4
@@ -19616,7 +19616,7 @@ snapshots:
       algoliasearch: 4.25.3
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
       diff: 5.2.0
-      ink: 3.2.0(@types/react@19.2.6)(react@18.3.1)
+      ink: 3.2.0(@types/react@19.2.6)(react@17.0.2)
       ink-text-input: 4.0.3(ink@3.2.0(@types/react@19.2.6)(react@17.0.2))(react@17.0.2)
       react: 17.0.2
       semver: 7.7.3
@@ -19766,7 +19766,7 @@ snapshots:
       '@yarnpkg/plugin-git': 3.1.4(@yarnpkg/core@4.5.0(typanion@3.14.0))(typanion@3.14.0)
       clipanion: 4.0.0-rc.4(typanion@3.14.0)
       es-toolkit: 1.42.0
-      ink: 3.2.0(@types/react@19.2.6)(react@17.0.2)
+      ink: 3.2.0(@types/react@19.2.6)(react@18.3.1)
       react: 17.0.2
       semver: 7.7.3
       tslib: 2.8.1
