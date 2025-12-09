@@ -10,6 +10,6 @@ streaming
 
 type/union/discriminated
 
-# Multipart
+# Multipart - https://github.com/microsoft/typespec/issues/9155
 
 payload/multipart
