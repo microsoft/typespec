@@ -1163,7 +1163,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         public void ExternalTypeModelUsedAsProperty()
         {
             // Test a model decorated with alternateType that references System.Uri
-            var externalType = InputFactory.External("System.Uri");
+            var externalType = InputFactory.Union(
+                [InputPrimitiveType.String],
+                "ExternalUnion",
+                new InputExternalTypeMetadata("System.Uri", null, null));
             var modelWithExternal = InputFactory.Model("ExternalModel");
 
             // Create a model that uses the external type as a property
@@ -1197,7 +1200,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         public void ExternalTypePropertyIsResolved()
         {
             // Test a property decorated with alternateType
-            var externalType = InputFactory.External("System.Net.IPAddress", "System.Net.Primitives", "4.3.0");
+            var externalType = InputFactory.Union(
+                [InputPrimitiveType.String],
+                "ExternalUnion",
+                new InputExternalTypeMetadata("System.Net.IPAddress", "System.Net.Primitives", "4.3.0"));
 
             var model = InputFactory.Model(
                 "ModelWithExternalProperty",
@@ -1229,7 +1235,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         public void UnsupportedExternalTypeEmitsDiagnostic()
         {
             // Test an external type that cannot be resolved (non-framework type)
-            var externalType = InputFactory.External("Azure.Core.Expressions.DataFactoryExpression");
+            var externalType = InputFactory.Union(
+                [InputPrimitiveType.String],
+                "ExternalUnion",
+                new InputExternalTypeMetadata("Azure.Core.Expressions.DataFactoryExpression", null, null));
 
             var model = InputFactory.Model(
                 "ModelWithUnsupportedExternal",
@@ -1541,6 +1550,75 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual("species", catProtectedParams[1].Name);
             Assert.AreEqual("name", catProtectedParams[2].Name);
             Assert.AreEqual("meows", catProtectedParams[3].Name);
+        }
+
+        [Test]
+        public void TestMultiLevelDiscriminatorConstructorParameterPassthrough()
+        {
+            // Create a three-level discriminator hierarchy: base → intermediate → derived
+            var derivedInputModel = InputFactory.Model(
+                "derived",
+                discriminatedKind: "derived", 
+                properties: [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("derivedProperty", InputPrimitiveType.String, isRequired: true)
+                ]);
+                
+            var intermediateInputModel = InputFactory.Model(
+                "intermediate",
+                discriminatedKind: "intermediate",
+                properties: [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true), 
+                    InputFactory.Property("intermediateProperty", InputPrimitiveType.Boolean, isRequired: true)
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "derived", derivedInputModel } });
+                
+            var baseInputModel = InputFactory.Model(
+                "base",
+                properties: [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("baseProperty", InputPrimitiveType.String, isRequired: true)
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType>() { { "intermediate", intermediateInputModel } });
+
+            MockHelpers.LoadMockGenerator(inputModelTypes: [baseInputModel, intermediateInputModel, derivedInputModel]);
+
+            var intermediateProvider = new ModelProvider(intermediateInputModel);
+            var derivedProvider = new ModelProvider(derivedInputModel);
+
+            Assert.IsNotNull(intermediateProvider);
+            Assert.IsNotNull(derivedProvider);
+
+            // Verify intermediate model has expected constructor count
+            Assert.AreEqual(3, intermediateProvider.Constructors.Count);
+            
+            // Get the protected constructor for intermediate model
+            var intermediateProtectedCtor = intermediateProvider.Constructors.FirstOrDefault(c => 
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Private) && 
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Protected));
+            
+            Assert.IsNotNull(intermediateProtectedCtor, "Intermediate model should have a protected constructor for multi-level discriminator");
+            
+            // Verify the base constructor call uses the discriminator parameter, not hardcoded literal
+            var initializer = intermediateProtectedCtor!.Signature.Initializer;
+            Assert.IsNotNull(initializer, "Protected constructor should have base initializer");
+            Assert.IsTrue(initializer!.IsBase, "Initializer should call base constructor");
+            
+            // Key validation: first argument should be the discriminator parameter, not hardcoded value
+            var kindArgument = initializer!.Arguments[0].ToDisplayString();
+            Assert.AreEqual("kind", kindArgument, "Intermediate protected constructor should pass discriminator parameter to base, not hardcode literal");
+            
+            // Verify derived model constructor passes discriminator correctly to intermediate
+            var derivedCtor = derivedProvider.Constructors.FirstOrDefault(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsNotNull(derivedCtor, "Derived model should have a public constructor");
+            
+            var derivedInitializer = derivedCtor!.Signature.Initializer; 
+            Assert.IsNotNull(derivedInitializer, "Derived constructor should have base initializer");
+            Assert.IsTrue(derivedInitializer!.IsBase, "Derived initializer should call base constructor");
+            
+            // Derived should pass its discriminator value to intermediate constructor
+            var derivedKindArgument = derivedInitializer!.Arguments[0].ToDisplayString();
+            Assert.AreEqual("\"derived\"", derivedKindArgument, "Derived should pass its discriminator value to intermediate constructor");
         }
     }
 }

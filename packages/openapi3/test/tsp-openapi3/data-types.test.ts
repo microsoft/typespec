@@ -75,6 +75,24 @@ describe("converts top-level schemas", () => {
     ]);
   });
 
+  it("handles contentEncoding base64 as bytes with @encode decorator", async () => {
+    const serviceNamespace = await tspForOpenAPI3({
+      schemas: {
+        Base64Encoded: {
+          type: "string",
+          contentEncoding: "base64",
+        } as any,
+      },
+    });
+
+    const scalars = serviceNamespace.scalars;
+    /* @encode("base64", string) scalar Base64Encoded extends bytes; */
+    expect(scalars.get("Base64Encoded")?.baseScalar?.name).toBe("bytes");
+    expectDecorators(scalars.get("Base64Encoded")!.decorators, [
+      { name: "encode", args: ["base64", { kind: "Scalar", name: "string" }] },
+    ]);
+  });
+
   it("handles arrays", async () => {
     const serviceNamespace = await tspForOpenAPI3({
       schemas: {

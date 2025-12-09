@@ -3,10 +3,10 @@ import { formatTypeSpec } from "@typespec/compiler";
 import { strictEqual } from "node:assert";
 import { beforeAll, describe, it } from "vitest";
 import { Context, createContext } from "../../src/cli/actions/convert/utils/context.js";
-import { OpenAPI3Document, OpenAPI3Schema, Refable } from "../../src/types.js";
+import { OpenAPI3Document, OpenAPI3Schema, OpenAPISchema3_1, Refable } from "../../src/types.js";
 
 interface TestScenario {
-  schema: Refable<OpenAPI3Schema>;
+  schema: Refable<OpenAPI3Schema | OpenAPISchema3_1>;
   expected: string;
 }
 
@@ -62,6 +62,8 @@ const testScenarios: TestScenario[] = [
   },
   { schema: { type: "string", format: "binary" }, expected: "bytes" },
   { schema: { type: "string", format: "byte" }, expected: "bytes" },
+  // OpenAPI 3.1+ contentEncoding: base64 should be bytes
+  { schema: { type: "string", contentEncoding: "base64" }, expected: "bytes" },
   { schema: { type: "string", format: "date" }, expected: "plainDate" },
   { schema: { type: "string", format: "date-time" }, expected: "utcDateTime" },
   { schema: { type: "string", format: "duration" }, expected: "duration" },

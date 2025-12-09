@@ -79,6 +79,12 @@ namespace Microsoft.TypeSpec.Generator
 
         protected virtual CSharpType? CreateCSharpTypeCore(InputType inputType)
         {
+            // Check if this type has external type information
+            if (inputType.External != null)
+            {
+                return CreateExternalType(inputType.External);
+            }
+
             CSharpType? type;
             switch (inputType)
             {
@@ -124,9 +130,6 @@ namespace Microsoft.TypeSpec.Generator
                     break;
                 case InputNullableType nullableType:
                     type = CreateCSharpType(nullableType.Type)?.WithNullable(true);
-                    break;
-                case InputExternalType externalType:
-                    type = CreateExternalType(externalType);
                     break;
                 default:
                     type = CreatePrimitiveCSharpTypeCore(inputType);
@@ -233,14 +236,14 @@ namespace Microsoft.TypeSpec.Generator
             => EnumProvider.Create(enumType, declaringType);
 
         /// <summary>
-        /// Factory method for creating a <see cref="CSharpType"/> based on an external type reference <paramref name="externalType"/>.
+        /// Factory method for creating a <see cref="CSharpType"/> based on external type properties.
         /// </summary>
-        /// <param name="externalType">The <see cref="InputExternalType"/> to convert.</param>
+        /// <param name="externalProperties">The <see cref="InputExternalTypeMetadata"/> to convert.</param>
         /// <returns>A <see cref="CSharpType"/> representing the external type, or null if the type cannot be resolved.</returns>
-        private CSharpType? CreateExternalType(InputExternalType externalType)
+        private CSharpType? CreateExternalType(InputExternalTypeMetadata externalProperties)
         {
             // Try to create a framework type from the fully qualified name
-            var frameworkType = CreateFrameworkType(externalType.Identity);
+            var frameworkType = CreateFrameworkType(externalProperties.Identity);
             if (frameworkType != null)
             {
                 return new CSharpType(frameworkType);
@@ -250,7 +253,7 @@ namespace Microsoft.TypeSpec.Generator
             // Report a diagnostic to inform the user
             CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
                 "unsupported-external-type",
-                $"External type '{externalType.Identity}' is not currently supported.");
+                $"External type '{externalProperties.Identity}' is not currently supported.");
 
             return null;
         }
