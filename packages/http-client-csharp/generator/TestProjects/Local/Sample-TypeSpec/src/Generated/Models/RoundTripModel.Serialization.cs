@@ -47,7 +47,7 @@ namespace SampleTypeSpec
             writer.WriteStartArray();
             foreach (StringFixedEnum item in RequiredCollection)
             {
-                writer.WriteStringValue(item.ToSerialString());
+                writer.WriteStringValue(item.ToString());
             }
             writer.WriteEndArray();
             writer.WritePropertyName("requiredDictionary"u8);
@@ -133,7 +133,7 @@ namespace SampleTypeSpec
             if (Optional.IsDefined(StringFixedEnum))
             {
                 writer.WritePropertyName("stringFixedEnum"u8);
-                writer.WriteStringValue(StringFixedEnum.Value.ToSerialString());
+                writer.WriteStringValue(StringFixedEnum.Value.ToString());
             }
             writer.WritePropertyName("requiredUnknown"u8);
 #if NET6_0_OR_GREATER
@@ -333,7 +333,7 @@ namespace SampleTypeSpec
                     List<StringFixedEnum> array = new List<StringFixedEnum>();
                     foreach (var item in prop.Value.EnumerateArray())
                     {
-                        array.Add(item.GetString().ToStringFixedEnum());
+                        array.Add(new StringFixedEnum(item.GetString()));
                     }
                     requiredCollection = array;
                     continue;
@@ -469,7 +469,7 @@ namespace SampleTypeSpec
                     {
                         continue;
                     }
-                    stringFixedEnum = prop.Value.GetString().ToStringFixedEnum();
+                    stringFixedEnum = new StringFixedEnum(prop.Value.GetString());
                     continue;
                 }
                 if (prop.NameEquals("requiredUnknown"u8))

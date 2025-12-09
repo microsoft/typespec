@@ -103,8 +103,48 @@ namespace Microsoft.TypeSpec.Generator
                     type.FilterCustomizedFields(fields),
                     serializations,
                     nestedTypes);
+
                 type = PostVisitType(type);
+                type = PostProcessType(type);
             }
+            return type;
+        }
+
+        private static TypeProvider? PostProcessType(TypeProvider? type)
+        {
+            if (type is null)
+            {
+                return null;
+            }
+
+            if (type is EnumProvider enumType)
+            {
+               type = PostProcessEnum(enumType);
+            }
+
+            return type;
+        }
+
+        private static EnumProvider PostProcessEnum(EnumProvider type)
+        {
+            if (type.CustomCodeView != null)
+            {
+                // Flag the generated fixed enum to be removed if there is custom code
+                if (type.FixedEnumView != null)
+                {
+                    CodeModelGenerator.Instance.AddTypeToRemove(type.FixedEnumView);
+                    // Update the type cache to the extensible enum
+                    if (type.ExtensibleEnumView != null)
+                    {
+                        CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[type.Type] = type.ExtensibleEnumView;
+                    }
+                    else
+                    {
+                        CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.Remove(type.Type);
+                    }
+                }
+            }
+
             return type;
         }
 

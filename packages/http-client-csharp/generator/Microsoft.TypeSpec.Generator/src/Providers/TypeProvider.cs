@@ -158,7 +158,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private TypeSignatureModifiers BuildDeclarationModifiersInternal()
         {
             var modifiers = BuildDeclarationModifiers();
-            var customModifiers = CustomCodeView?.DeclarationModifiers ?? TypeSignatureModifiers.None;
+            var customModifiers = BuildCustomDeclarationModifiers(this);
             if (customModifiers != TypeSignatureModifiers.None)
             {
                 // if the custom modifiers contain accessibility modifiers, we override the default ones
@@ -197,6 +197,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return modifiers;
+        }
+
+        private static TypeSignatureModifiers BuildCustomDeclarationModifiers(TypeProvider typeProvider)
+        {
+            return typeProvider is FixedEnumProvider
+                ? TypeSignatureModifiers.None
+                : typeProvider.CustomCodeView?.DeclarationModifiers ?? TypeSignatureModifiers.None;
         }
 
         internal virtual TypeProvider? BaseTypeProvider => null;

@@ -137,6 +137,10 @@ namespace Microsoft.TypeSpec.Generator
         internal HashSet<string> AdditionalRootTypes { get; } = [];
 
         internal HashSet<string> NonRootTypes { get; } = [];
+        internal HashSet<string> TypesToRemove { get; } = [];
+
+        internal void AddTypeToRemove(TypeProvider type) => TypesToRemove.Add(type.Type.FullyQualifiedName);
+        internal void AddTypeToRemove(string typeName) => TypesToRemove.Add(typeName);
 
         /// <summary>
         /// Adds a type to the list of types to keep.

@@ -59,7 +59,7 @@ namespace SampleTypeSpec
             if (Optional.IsDefined(RequiredFixedEnum))
             {
                 writer.WritePropertyName("requiredFixedEnum"u8);
-                writer.WriteStringValue(RequiredFixedEnum.Value.ToSerialString());
+                writer.WriteStringValue(RequiredFixedEnum.Value.ToString());
             }
             else
             {
@@ -140,7 +140,7 @@ namespace SampleTypeSpec
                         requiredFixedEnum = null;
                         continue;
                     }
-                    requiredFixedEnum = prop.Value.GetString().ToStringFixedEnum();
+                    requiredFixedEnum = new StringFixedEnum(prop.Value.GetString());
                     continue;
                 }
                 if (options.Format != "W")

@@ -12,8 +12,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
 {
     public abstract class EnumProvider : TypeProvider
     {
-        private readonly InputEnumType? _inputType;
-
         public static EnumProvider Create(InputEnumType input, TypeProvider? declaringType = null)
         {
             bool isApiVersionEnum = input.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum);
@@ -42,10 +40,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected EnumProvider(InputEnumType? input)
         {
-            _inputType = input;
+            InputType = input;
             _deprecated = input?.Deprecation;
             IsExtensible = input?.IsExtensible ?? false;
         }
+
+        internal InputEnumType? InputType { get; }
+        internal FixedEnumProvider? FixedEnumView { get; private protected set; }
+        internal ExtensibleEnumProvider? ExtensibleEnumView { get; private protected set; }
 
         public bool IsExtensible { get; }
         private bool? _isIntValue;
@@ -58,19 +60,19 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "Models", $"{Name}.cs");
 
-        protected override string BuildName() => _inputType!.Name.ToIdentifierName();
-        protected override FormattableString BuildDescription() => DocHelpers.GetFormattableDescription(_inputType!.Summary, _inputType.Doc) ?? FormattableStringHelpers.Empty;
+        protected override string BuildName() => InputType!.Name.ToIdentifierName();
+        protected override FormattableString BuildDescription() => DocHelpers.GetFormattableDescription(InputType!.Summary, InputType.Doc) ?? FormattableStringHelpers.Empty;
 
         protected override TypeProvider[] BuildSerializationProviders()
         {
-            return [.. CodeModelGenerator.Instance.TypeFactory.CreateSerializations(_inputType!, this)];
+            return [.. CodeModelGenerator.Instance.TypeFactory.CreateSerializations(InputType!, this)];
         }
-        protected override string BuildNamespace() => string.IsNullOrEmpty(_inputType?.Namespace) ?
+        protected override string BuildNamespace() => string.IsNullOrEmpty(InputType?.Namespace) ?
             // TODO - this should not be necessary as every enum should have a namespace https://github.com/Azure/typespec-azure/issues/2210
             CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace : // we default to this model namespace when the namespace is empty
-            CodeModelGenerator.Instance.TypeFactory.GetCleanNameSpace(_inputType.Namespace);
+            CodeModelGenerator.Instance.TypeFactory.GetCleanNameSpace(InputType.Namespace);
 
         protected override bool GetIsEnum() => true;
-        protected override CSharpType BuildEnumUnderlyingType() => CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(_inputType!.ValueType) ?? throw new InvalidOperationException($"Failed to create CSharpType for {_inputType.ValueType}");
+        protected override CSharpType BuildEnumUnderlyingType() => CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(InputType!.ValueType) ?? throw new InvalidOperationException($"Failed to create CSharpType for {InputType.ValueType}");
     }
 }

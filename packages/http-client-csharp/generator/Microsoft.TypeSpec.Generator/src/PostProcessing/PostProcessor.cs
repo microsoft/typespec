@@ -18,16 +18,19 @@ namespace Microsoft.TypeSpec.Generator
         private readonly string? _modelFactoryFullName;
         private readonly HashSet<string> _additionalNonRootTypeNames;
         private readonly HashSet<string> _typesToKeep;
+        private readonly HashSet<string> _typesToRemove;
         private INamedTypeSymbol? _modelFactorySymbol;
 
         public PostProcessor(
             HashSet<string> typesToKeep,
             string? modelFactoryFullName = null,
-            IEnumerable<string>? additionalNonRootTypeNames = null)
+            IEnumerable<string>? additionalNonRootTypeNames = null,
+            HashSet<string>? typesToRemove = null)
         {
             _typesToKeep = typesToKeep;
             _modelFactoryFullName = modelFactoryFullName;
             _additionalNonRootTypeNames = new HashSet<string>(additionalNonRootTypeNames ?? []);
+            _typesToRemove = typesToRemove ?? [];
         }
 
         private record TypeSymbols(
@@ -263,6 +266,15 @@ namespace Microsoft.TypeSpec.Generator
                 {
                     continue;
                 }
+                nodesToRemove.AddRange(definitions.DeclaredNodesCache[symbol]);
+            }
+
+            // Add types explicitly flagged for removal
+            var explicitlyRemovedSymbols = definitions.DeclaredSymbols
+                .Where(s => _typesToRemove.Contains(s.Name) || _typesToRemove.Contains(s.GetFullyQualifiedName()));
+
+            foreach (var symbol in explicitlyRemovedSymbols)
+            {
                 nodesToRemove.AddRange(definitions.DeclaredNodesCache[symbol]);
             }
 

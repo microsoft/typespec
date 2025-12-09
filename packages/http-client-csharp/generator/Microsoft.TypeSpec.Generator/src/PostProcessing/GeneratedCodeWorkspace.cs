@@ -261,10 +261,12 @@ namespace Microsoft.TypeSpec.Generator
         {
             var modelFactory = CodeModelGenerator.Instance.OutputLibrary.ModelFactory.Value;
             var nonRootTypes = CodeModelGenerator.Instance.NonRootTypes;
+            var typesToRemove = CodeModelGenerator.Instance.TypesToRemove;
             var postProcessor = new PostProcessor(
                 [.. CodeModelGenerator.Instance.TypeFactory.UnionVariantTypesToKeep, .. CodeModelGenerator.Instance.AdditionalRootTypes],
                 modelFactoryFullName: modelFactory.Type.FullyQualifiedName,
-                additionalNonRootTypeNames: nonRootTypes);
+                additionalNonRootTypeNames: nonRootTypes,
+                typesToRemove: typesToRemove);
 
             switch (Configuration.UnreferencedTypesHandling)
             {

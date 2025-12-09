@@ -38,7 +38,21 @@ namespace Microsoft.TypeSpec.Generator
                 }
                 else if (outputEnum != null)
                 {
-                    enums.Add(outputEnum);
+                    // Add both fixed and extensible enum versions to the list, to be post processed later.
+                    if (outputEnum.FixedEnumView != null)
+                    {
+                        enums.Add(outputEnum.FixedEnumView);
+                    }
+
+                    if (outputEnum.ExtensibleEnumView != null)
+                    {
+                        enums.Add(outputEnum.ExtensibleEnumView);
+                    }
+
+                    if (outputEnum.FixedEnumView == null && outputEnum.ExtensibleEnumView == null)
+                    {
+                        enums.Add(outputEnum);
+                    }
                 }
             }
 
