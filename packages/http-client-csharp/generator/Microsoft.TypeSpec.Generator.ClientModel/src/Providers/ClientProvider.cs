@@ -911,8 +911,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             foreach (var kvp in currentMethodSignatures)
             {
                 var currentSignature = kvp.Key;
-                if (currentSignature.Name.Equals(previousSignature.Name) &&
-                    MethodSignatureHelper.ContainsSameParameters(previousSignature, currentSignature))
+                if (currentSignature.Name.Equals(previousSignature.Name)
+                    && currentSignature.ReturnType?.AreNamesEqual(previousSignature.ReturnType) == true
+                    && MethodSignatureHelper.ContainsSameParameters(previousSignature, currentSignature))
                 {
                     return currentSignature;
                 }

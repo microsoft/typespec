@@ -90,7 +90,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return [.. methods];
         }
 
-        protected sealed override IReadOnlyList<MethodProvider> BuildMethodsForBackCompatibility(IEnumerable<MethodProvider> originalMethods)
+        protected internal sealed override IReadOnlyList<MethodProvider> BuildMethodsForBackCompatibility(IEnumerable<MethodProvider> originalMethods)
         {
             if (LastContractView?.Methods == null || LastContractView.Methods.Count == 0)
             {
