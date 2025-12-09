@@ -1,5 +1,24 @@
 # Change Log - @typespec/json-schema
 
+## 1.7.0
+
+### Features
+
+- [#9038](https://github.com/microsoft/typespec/pull/9038) Add discriminator support and polymorphic models strategy option
+  
+  - Automatically injects discriminator property into base models with `@discriminator` decorator
+  - Marks discriminator property as required in generated schemas
+  - New `polymorphic-models-strategy` emitter option with three strategies:
+    - `ignore`: Emit as regular object schema (default)
+    - `oneOf`: Emit oneOf schema for closed discriminated unions
+    - `anyOf`: Emit anyOf schema for open discriminated unions
+  - Includes discriminator.mapping in oneOf/anyOf schemas for improved validation
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+
 ## 1.6.0
 
 ### Bump dependencies

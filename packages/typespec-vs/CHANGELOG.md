@@ -1,5 +1,9 @@
 # Change Log - typespec-vs
 
+## 1.7.0
+
+No changes, version bump only.
+
 ## 1.6.0
 
 No changes, version bump only.
