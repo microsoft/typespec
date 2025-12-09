@@ -1,5 +1,12 @@
 # Changelog - @typespec/http-canonicalization
 
+## 0.14.0
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+
 
 
 ## 0.13.0
