@@ -9,6 +9,7 @@
 -e ./generated/setuppy-authentication-union
 -e ./generated/encode-duration
 -e ./generated/encode-numeric
+-e ./generated/encode-array
 -e ./generated/parameters-basic
 -e ./generated/parameters-collection-format
 -e ./generated/parameters-path
