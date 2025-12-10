@@ -1993,7 +1993,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(
                     DiagnosticCodes.UnsupportedSerialization,
-                    $"Deserialization of type {valueType.Name} may not be supported. Using MRW serialization.",
+                    $"Deserialization of type {valueType.Name} may not be supported using MRW serialization.",
                     severity: EmitterDiagnosticSeverity.Warning);
                 // Fall back to MRW deserialization for framework type
                 return Static(typeof(ModelReaderWriter)).Invoke(
