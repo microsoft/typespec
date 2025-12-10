@@ -9,22 +9,31 @@ import { OverviewIllustrationTerminalContent } from "./overview-illustration-ter
 <style>
   .card {
     width: 723px;
-    height: 542px;
     position: relative;
   }
 
   .terminal {
-    position: absolute;
-    top: 60px;
-    left: 50px;
     width: 420px;
     height: 320px;
   }
-
   .ide {
-    position: absolute;
-    top: 226px;
-    left: 183px;
+    width: 420px;
+  }
+
+  @media only screen and (min-width: 728px) {
+    .card {
+      height: 542px;
+    }
+    .terminal {
+      position: absolute;
+      top: 60px;
+      left: 50px;
+    }
+    .ide {
+      position: absolute;
+      top: 226px;
+      left: 183px;
+    }
   }
 </style>
 <IllustrationCard blend class="card">
