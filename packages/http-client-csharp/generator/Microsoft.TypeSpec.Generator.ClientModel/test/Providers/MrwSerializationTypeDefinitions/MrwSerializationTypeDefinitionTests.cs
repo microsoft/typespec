@@ -928,6 +928,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         [Test]
         public void TestGetDeserializationMethodInvocationForType_FrameworkType()
         {
+            MockHelpers.LoadMockGenerator();
             // Test that framework types are handled via DeserializeJsonValueCore
             // which uses MRW.Read as a fallback for unsupported types
             var jsonElementVar = new ScopedApi<JsonElement>(new VariableExpression(typeof(JsonElement), "element"));
@@ -951,6 +952,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         [Test]
         public void TestGetDeserializationMethodInvocationForType_ModelType()
         {
+            MockHelpers.LoadMockGenerator();
             // Test that model types use the model's deserialize method
             var inputModel = InputFactory.Model("TestModel");
             var (model, _) = CreateModelAndSerialization(inputModel);
@@ -975,6 +977,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         [Test]
         public void TestGetDeserializationMethodInvocationForType_NonModelCSharpType()
         {
+            MockHelpers.LoadMockGenerator();
             // Test that non-model CSharpTypes use the type's deserialize method
             var jsonElementVar = new ScopedApi<JsonElement>(new VariableExpression(typeof(JsonElement), "element"));
             var dataVar = new VariableExpression(typeof(BinaryData), "data");
@@ -997,6 +1000,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         [Test]
         public void TestGetDeserializationMethodInvocationForType_WithoutOptions()
         {
+            MockHelpers.LoadMockGenerator();
             // Test that the method works when options are not provided
             var jsonElementVar = new ScopedApi<JsonElement>(new VariableExpression(typeof(JsonElement), "element"));
             var dataVar = new VariableExpression(typeof(BinaryData), "data");
@@ -1017,6 +1021,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         [Test]
         public void TestDeserializeJsonValueCore_FrameworkTypeWithMrwFallback()
         {
+            MockHelpers.LoadMockGenerator();
             // Test that DeserializeJsonValueCore uses MRW fallback for unsupported framework types
             var jsonElementVar = new ScopedApi<JsonElement>(new VariableExpression(typeof(JsonElement), "element"));
             var dataVar = new ScopedApi<BinaryData>(new VariableExpression(typeof(BinaryData), "data"));
@@ -1042,6 +1047,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         [Test]
         public void TestDeserializeJsonValueCore_SupportedFrameworkTypes()
         {
+            MockHelpers.LoadMockGenerator();
             // Test that common framework types are handled correctly without MRW fallback
             var jsonElementVar = new ScopedApi<JsonElement>(new VariableExpression(typeof(JsonElement), "element"));
             var dataVar = new ScopedApi<BinaryData>(new VariableExpression(typeof(BinaryData), "data"));
@@ -1078,6 +1084,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         [Test]
         public void TestGetDeserializationMethodInvocationForType_DynamicModel()
         {
+            MockHelpers.LoadMockGenerator();
             // Test that dynamic models handle data parameter correctly
             var properties = new List<InputModelProperty>
             {
@@ -1110,6 +1117,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         [Test]
         public void TestGetDeserializationMethodInvocationForType_InDeserializationMethod()
         {
+            MockHelpers.LoadMockGenerator();
             // Test that GetDeserializationMethodInvocationForType is used correctly in the deserialization method
             var properties = new List<InputModelProperty>
             {
@@ -1147,6 +1155,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         [Test]
         public void TestGetDeserializationMethodInvocationForType_CollectionOfModels()
         {
+            MockHelpers.LoadMockGenerator();
             // Test deserialization of collections containing model types
             var innerModel = InputFactory.Model("ItemModel");
             var properties = new List<InputModelProperty>
@@ -1183,6 +1192,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         [Test]
         public void TestGetDeserializationMethodInvocationForType_DictionaryOfModels()
         {
+            MockHelpers.LoadMockGenerator();
             // Test deserialization of dictionaries with model values
             var valueModel = InputFactory.Model("ValueModel");
             var properties = new List<InputModelProperty>
