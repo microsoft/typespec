@@ -98,7 +98,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string access = "public",
             InputModelTypeUsage usage = InputModelTypeUsage.Input | InputModelTypeUsage.Output,
             bool isExtensible = false,
-            string clientNamespace = "Sample.Models")
+            string clientNamespace = "Sample.Models",
+            InputExternalTypeMetadata? external = null)
         {
             var enumValues = new List<InputEnumTypeValue>();
             var enumType = Enum(
@@ -108,7 +109,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 access: access,
                 usage: usage,
                 isExtensible: isExtensible,
-                clientNamespace: clientNamespace);
+                clientNamespace: clientNamespace,
+                external: external);
 
             foreach (var (valueName, value) in values)
             {
@@ -124,7 +126,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string access = "public",
             InputModelTypeUsage usage = InputModelTypeUsage.Input | InputModelTypeUsage.Output,
             bool isExtensible = false,
-            string clientNamespace = "Sample.Models")
+            string clientNamespace = "Sample.Models",
+            InputExternalTypeMetadata? external = null)
         {
             var enumValues = new List<InputEnumTypeValue>();
             var enumType = Enum(
@@ -134,7 +137,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 access: access,
                 usage: usage,
                 isExtensible: isExtensible,
-                clientNamespace: clientNamespace);
+                clientNamespace: clientNamespace,
+                external: external);
 
             foreach (var (valueName, value) in values)
             {
@@ -150,7 +154,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string access = "public",
             InputModelTypeUsage usage = InputModelTypeUsage.Input | InputModelTypeUsage.Output,
             bool isExtensible = false,
-            string clientNamespace = "Sample.Models")
+            string clientNamespace = "Sample.Models",
+            InputExternalTypeMetadata? external = null)
         {
             var enumValues = new List<InputEnumTypeValue>();
             var enumType = Enum(
@@ -160,7 +165,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 access: access,
                 usage: usage,
                 isExtensible: isExtensible,
-                clientNamespace: clientNamespace);
+                clientNamespace: clientNamespace,
+                external: external);
 
             foreach (var (valueName, value) in values)
             {
@@ -176,7 +182,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string access = "public",
             InputModelTypeUsage usage = InputModelTypeUsage.Input | InputModelTypeUsage.Output,
             bool isExtensible = false,
-            string clientNamespace = "Sample.Models")
+            string clientNamespace = "Sample.Models",
+            InputExternalTypeMetadata? external = null)
         {
             var enumValues = new List<InputEnumTypeValue>();
             var enumType = Enum(
@@ -186,7 +193,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 access: access,
                 usage: usage,
                 isExtensible: isExtensible,
-                clientNamespace: clientNamespace);
+                clientNamespace: clientNamespace,
+                external: external);
 
             foreach (var (valueName, value) in values)
             {
@@ -203,8 +211,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             string access = "public",
             InputModelTypeUsage usage = InputModelTypeUsage.Output | InputModelTypeUsage.Input,
             bool isExtensible = false,
-            string clientNamespace = "Sample.Models")
-            => new InputEnumType(
+            string clientNamespace = "Sample.Models",
+            InputExternalTypeMetadata? external = null)
+        {
+            var enumType = new InputEnumType(
                 name,
                 clientNamespace,
                 name,
@@ -216,6 +226,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 underlyingType,
                 values,
                 isExtensible);
+            if (external != null)
+            {
+                enumType.External = external;
+            }
+            return enumType;
+        }
 
         public static InputModelProperty Property(
             string name,
@@ -449,7 +465,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
             IDictionary<string, InputModelType>? discriminatedModels = null,
             IEnumerable<InputModelType>? derivedModels = null,
             InputModelProperty? discriminatorProperty = null,
-            bool isDynamicModel = false)
+            bool isDynamicModel = false,
+            InputExternalTypeMetadata? external = null)
         {
             IEnumerable<InputModelProperty> propertiesList = properties ?? [Property("StringProperty", InputPrimitiveType.String)];
 
@@ -480,22 +497,42 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 _addDerivedModelMethod.Invoke(baseModel, new object[] { model });
             }
 
+            if (external != null)
+            {
+                model.External = external;
+            }
+
             return model;
         }
 
-        public static InputType Array(InputType elementType)
+        public static InputType Array(InputType elementType, InputExternalTypeMetadata? external = null)
         {
-            return new InputArrayType("list", "list", elementType);
+            var array = new InputArrayType("list", "list", elementType);
+            if (external != null)
+            {
+                array.External = external;
+            }
+            return array;
         }
 
-        public static InputType Dictionary(InputType valueType, InputType? keyType = null)
+        public static InputType Dictionary(InputType valueType, InputType? keyType = null, InputExternalTypeMetadata? external = null)
         {
-            return new InputDictionaryType("dictionary", keyType ?? InputPrimitiveType.String, valueType);
+            var dictionary = new InputDictionaryType("dictionary", keyType ?? InputPrimitiveType.String, valueType);
+            if (external != null)
+            {
+                dictionary.External = external;
+            }
+            return dictionary;
         }
 
-        public static InputType Union(IList<InputType> types, string name = "union")
+        public static InputType Union(IList<InputType> types, string name = "union", InputExternalTypeMetadata? external = null)
         {
-            return new InputUnionType(name, [.. types]);
+            var union = new InputUnionType(name, [.. types]);
+            if (external != null)
+            {
+                union.External = external;
+            }
+            return union;
         }
 
         public static InputBasicServiceMethod BasicServiceMethod(
@@ -627,11 +664,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
         public static InputServiceMethodResponse ServiceMethodResponse(InputType? type, IReadOnlyList<string>? resultSegments)
         {
             return new InputServiceMethodResponse(type, resultSegments);
-        }
-
-        public static InputExternalType External(string identity, string? package = null, string? minVersion = null)
-        {
-            return new InputExternalType(identity, package, minVersion);
         }
 
         private static readonly Dictionary<InputClient, IList<InputClient>> _childClientsCache = new();

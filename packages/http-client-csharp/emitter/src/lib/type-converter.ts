@@ -29,7 +29,7 @@ import {
   InputDurationType,
   InputEnumType,
   InputEnumValueType,
-  InputExternalType,
+  InputExternalTypeMetadata,
   InputLiteralType,
   InputModelProperty,
   InputModelType,
@@ -81,19 +81,13 @@ export function fromSdkType<T extends SdkType>(
     return retVar as any;
   }
 
-  // Check if this type references an external type
-  if ((sdkType as any).external) {
-    retVar = fromSdkExternalType(sdkContext, sdkType);
-    sdkContext.__typeCache.updateSdkTypeReferences(sdkType, retVar);
-    return retVar as any;
-  }
-
   switch (sdkType.kind) {
     case "nullable":
       const nullableType: InputNullableType = {
         kind: "nullable",
         type: fromSdkType(sdkContext, sdkType.type, sdkProperty, namespace),
         namespace: sdkType.namespace,
+        external: fromSdkExternalTypeInfo(sdkType),
       };
       retVar = nullableType;
       break;
@@ -146,6 +140,7 @@ export function fromSdkType<T extends SdkType>(
         name: "tuple",
         crossLanguageDefinitionId: "",
         decorators: sdkType.decorators,
+        external: fromSdkExternalTypeInfo(sdkType),
       };
       retVar = tupleType;
       break;
@@ -165,6 +160,7 @@ export function fromSdkType<T extends SdkType>(
         name: "credential",
         crossLanguageDefinitionId: "",
         decorators: sdkType.decorators,
+        external: fromSdkExternalTypeInfo(sdkType),
       };
       retVar = credentialType;
       break;
@@ -200,6 +196,7 @@ function fromSdkModelType(
     summary: modelType.summary,
     discriminatorValue: modelType.discriminatorValue,
     decorators: decorators,
+    external: fromSdkExternalTypeInfo(modelType),
   } as InputModelType;
 
   sdkContext.__typeCache.updateSdkTypeReferences(modelType, inputModelType);
@@ -313,6 +310,7 @@ function createEnumType(
     // constantType.usage, TODO - constant type now does not have usage. TCGC will add it later
     usage: sdkType.kind === "enum" ? sdkType.usage : UsageFlags.None,
     decorators: sdkType.decorators,
+    external: fromSdkExternalTypeInfo(sdkType),
   };
 
   sdkContext.__typeCache.updateSdkTypeReferences(sdkType, inputEnumType);
@@ -340,6 +338,7 @@ function fromSdkDateTimeType(
     crossLanguageDefinitionId: dateTimeType.crossLanguageDefinitionId,
     baseType: dateTimeType.baseType ? fromSdkType(sdkContext, dateTimeType.baseType) : undefined,
     decorators: dateTimeType.decorators,
+    external: fromSdkExternalTypeInfo(dateTimeType),
   };
 }
 
@@ -355,6 +354,7 @@ function fromSdkDurationType(
     crossLanguageDefinitionId: durationType.crossLanguageDefinitionId,
     baseType: durationType.baseType ? fromSdkType(sdkContext, durationType.baseType) : undefined,
     decorators: durationType.decorators,
+    external: fromSdkExternalTypeInfo(durationType),
   };
 }
 
@@ -369,6 +369,7 @@ function fromSdkBuiltInType(
     crossLanguageDefinitionId: builtInType.crossLanguageDefinitionId,
     baseType: builtInType.baseType ? fromSdkType(sdkContext, builtInType.baseType) : undefined,
     decorators: builtInType.decorators,
+    external: fromSdkExternalTypeInfo(builtInType),
   };
 }
 
@@ -385,6 +386,7 @@ function fromUnionType(sdkContext: CSharpEmitterContext, union: SdkUnionType): I
     variantTypes: variantTypes,
     namespace: union.namespace,
     decorators: union.decorators,
+    external: fromSdkExternalTypeInfo(union),
   };
 }
 
@@ -447,6 +449,7 @@ function fromSdkDictionaryType(
     keyType: fromSdkType(sdkContext, dictionaryType.keyType),
     valueType: fromSdkType(sdkContext, dictionaryType.valueType),
     decorators: dictionaryType.decorators,
+    external: fromSdkExternalTypeInfo(dictionaryType),
   };
 }
 
@@ -460,6 +463,7 @@ function fromSdkArrayType(
     valueType: fromSdkType(sdkContext, arrayType.valueType),
     crossLanguageDefinitionId: arrayType.crossLanguageDefinitionId,
     decorators: arrayType.decorators,
+    external: fromSdkExternalTypeInfo(arrayType),
   };
 }
 
@@ -468,20 +472,6 @@ function fromSdkEndpointType(): InputPrimitiveType {
     kind: "string",
     name: "string",
     crossLanguageDefinitionId: "TypeSpec.string",
-  };
-}
-
-function fromSdkExternalType(
-  sdkContext: CSharpEmitterContext,
-  sdkType: SdkType,
-): InputExternalType {
-  const external = (sdkType as any).external;
-  return {
-    kind: "external",
-    identity: external.identity,
-    package: external.package,
-    minVersion: external.minVersion,
-    decorators: sdkType.decorators,
   };
 }
 
@@ -509,4 +499,22 @@ export function getAllModelDecorators(
   }
 
   return Array.from(decoratorMap.values());
+}
+
+/**
+ * Converts TCGC external type information to InputExternalTypeMetadata
+ * @param sdkType - The SDK type that may have external type information
+ * @returns InputExternalTypeMetadata if the type has external info, undefined otherwise
+ */
+function fromSdkExternalTypeInfo(sdkType: SdkType): InputExternalTypeMetadata | undefined {
+  const external = (sdkType as any).external;
+  if (!external) {
+    return undefined;
+  }
+
+  return {
+    identity: external.identity,
+    package: external.package,
+    minVersion: external.minVersion,
+  };
 }

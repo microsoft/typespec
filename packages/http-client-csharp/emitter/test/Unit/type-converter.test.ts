@@ -127,11 +127,18 @@ describe("External types", () => {
     const prop = testModel.properties.find((p) => p.name === "prop");
     ok(prop, "prop should exist");
 
-    // The type should be an external type
-    strictEqual(prop.type.kind, "external");
-    strictEqual((prop.type as any).identity, "Azure.Core.Expressions.DataFactoryExpression");
-    strictEqual((prop.type as any).package, "Azure.Core.Expressions");
-    strictEqual((prop.type as any).minVersion, "1.0.0");
+    // The type should remain a union but with external info
+    strictEqual(prop.type.kind, "union");
+    ok((prop.type as any).external, "Type should have external info");
+    strictEqual(
+      (prop.type as any).external.identity,
+      "Azure.Core.Expressions.DataFactoryExpression",
+    );
+    strictEqual((prop.type as any).external.package, "Azure.Core.Expressions");
+    strictEqual((prop.type as any).external.minVersion, "1.0.0");
+    // Verify union variants are preserved
+    ok((prop.type as any).variantTypes, "Union should have variant types");
+    strictEqual((prop.type as any).variantTypes.length, 2, "Union should have 2 variant types");
   });
 
   it("should convert external type on model", async () => {
@@ -165,10 +172,11 @@ describe("External types", () => {
     const jsonElementProp = testModel.properties.find((p) => p.name === "jsonElement");
     ok(jsonElementProp, "jsonElement property should exist");
 
-    // The type should be an external type
-    strictEqual(jsonElementProp.type.kind, "external");
-    strictEqual((jsonElementProp.type as any).identity, "System.Text.Json.JsonElement");
-    strictEqual((jsonElementProp.type as any).package, "System.Text.Json");
-    strictEqual((jsonElementProp.type as any).minVersion, "8.0.0");
+    // The type should remain a model but with external info
+    strictEqual(jsonElementProp.type.kind, "model");
+    ok((jsonElementProp.type as any).external, "Type should have external info");
+    strictEqual((jsonElementProp.type as any).external.identity, "System.Text.Json.JsonElement");
+    strictEqual((jsonElementProp.type as any).external.package, "System.Text.Json");
+    strictEqual((jsonElementProp.type as any).external.minVersion, "8.0.0");
   });
 });
