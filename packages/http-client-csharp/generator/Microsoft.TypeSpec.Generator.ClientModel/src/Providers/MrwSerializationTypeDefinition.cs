@@ -1993,9 +1993,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(
                     DiagnosticCodes.UnsupportedSerialization,
-                    $"Deserialization of type {valueType.Name} is not supported.",
+                    $"Deserialization of type {valueType.Name} may not be supported. Using MRW serialization.",
                     severity: EmitterDiagnosticSeverity.Warning);
-                return GetDeserializationMethodInvocationForType(valueType, element, data, mrwOptions);
+                // Fall back to MRW deserialization for framework type
+                return Static(typeof(ModelReaderWriter)).Invoke(
+                    nameof(ModelReaderWriter.Read),
+                    [data, ModelSerializationExtensionsSnippets.Wire, ModelReaderWriterContextSnippets.Default],
+                    [valueType]);
             }
 
             return exp;
@@ -2224,14 +2228,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ValueExpression dataVariable,
             ValueExpression? optionsVariable = null)
         {
-            if (modelType.IsFrameworkType)
-            {
-                return Static(typeof(ModelReaderWriter)).Invoke(
-                    nameof(ModelReaderWriter.Read),
-                    [dataVariable, ModelSerializationExtensionsSnippets.Wire, ModelReaderWriterContextSnippets.Default],
-                    [modelType]);
-            }
-
             return ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(modelType, out var provider) &&
                    provider is ModelProvider modelProvider
                 ? GetDeserializationMethodInvocationForType(modelProvider, jsonElementVariable, dataVariable, optionsVariable)

@@ -928,12 +928,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         [Test]
         public void TestGetDeserializationMethodInvocationForType_FrameworkType()
         {
-            MockHelpers.LoadMockGenerator();
-            // Test that framework types use ModelReaderWriter.Read
+            // Test that framework types are handled via DeserializeJsonValueCore
+            // which uses MRW.Read as a fallback for unsupported types
             var jsonElementVar = new ScopedApi<JsonElement>(new VariableExpression(typeof(JsonElement), "element"));
             var dataVar = new VariableExpression(typeof(BinaryData), "data");
             var optionsVar = new VariableExpression(typeof(ModelReaderWriterOptions), "options");
 
+            // String is a framework type that should be handled by DeserializeJsonValueCore
             var frameworkType = new CSharpType(typeof(string));
             var result = MrwSerializationTypeDefinition.GetDeserializationMethodInvocationForType(
                 frameworkType,
@@ -943,15 +944,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
             Assert.IsNotNull(result);
             var resultString = result.ToDisplayString();
-            Assert.IsTrue(resultString.Contains("global::System.ClientModel.Primitives.ModelReaderWriter.Read"));
-            Assert.IsTrue(resultString.Contains("<string>"));
-            Assert.IsTrue(resultString.Contains("data"));
+            // Framework types now go through the type's Deserialize method
+            Assert.IsTrue(resultString.Contains("Deserialize"));
         }
 
         [Test]
         public void TestGetDeserializationMethodInvocationForType_ModelType()
         {
-            MockHelpers.LoadMockGenerator();
             // Test that model types use the model's deserialize method
             var inputModel = InputFactory.Model("TestModel");
             var (model, _) = CreateModelAndSerialization(inputModel);
@@ -974,9 +973,30 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [Test]
+        public void TestGetDeserializationMethodInvocationForType_NonModelCSharpType()
+        {
+            // Test that non-model CSharpTypes use the type's deserialize method
+            var jsonElementVar = new ScopedApi<JsonElement>(new VariableExpression(typeof(JsonElement), "element"));
+            var dataVar = new VariableExpression(typeof(BinaryData), "data");
+            var optionsVar = new VariableExpression(typeof(ModelReaderWriterOptions), "options");
+
+            // Use a type that's not in the type factory
+            var customType = new CSharpType(typeof(int));
+            var result = MrwSerializationTypeDefinition.GetDeserializationMethodInvocationForType(
+                customType,
+                jsonElementVar,
+                dataVar,
+                optionsVar);
+
+            Assert.IsNotNull(result);
+            var resultString = result.ToDisplayString();
+            // Should call Deserialize on the type
+            Assert.IsTrue(resultString.Contains("Deserialize"));
+        }
+
+        [Test]
         public void TestGetDeserializationMethodInvocationForType_WithoutOptions()
         {
-            MockHelpers.LoadMockGenerator();
             // Test that the method works when options are not provided
             var jsonElementVar = new ScopedApi<JsonElement>(new VariableExpression(typeof(JsonElement), "element"));
             var dataVar = new VariableExpression(typeof(BinaryData), "data");
@@ -990,14 +1010,74 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
             Assert.IsNotNull(result);
             var resultString = result.ToDisplayString();
+            // Should still deserialize even without options parameter
+            Assert.IsTrue(resultString.Contains("Deserialize"));
+        }
+
+        [Test]
+        public void TestDeserializeJsonValueCore_FrameworkTypeWithMrwFallback()
+        {
+            // Test that DeserializeJsonValueCore uses MRW fallback for unsupported framework types
+            var jsonElementVar = new ScopedApi<JsonElement>(new VariableExpression(typeof(JsonElement), "element"));
+            var dataVar = new ScopedApi<BinaryData>(new VariableExpression(typeof(BinaryData), "data"));
+            var optionsVar = new ScopedApi<ModelReaderWriterOptions>(new VariableExpression(typeof(ModelReaderWriterOptions), "options"));
+
+            // Use a framework type that's not explicitly handled in DeserializeJsonValueCore
+            // This should fall back to ModelReaderWriter.Read
+            var unsupportedType = new CSharpType(typeof(System.Reflection.Assembly));
+            var result = MrwSerializationTypeDefinition.DeserializeJsonValueCore(
+                unsupportedType,
+                jsonElementVar,
+                dataVar,
+                optionsVar,
+                SerializationFormat.Default);
+
+            Assert.IsNotNull(result);
+            var resultString = result.ToDisplayString();
+            // Should use MRW.Read as fallback
             Assert.IsTrue(resultString.Contains("global::System.ClientModel.Primitives.ModelReaderWriter.Read"));
-            Assert.IsTrue(resultString.Contains("<string>"));
+            Assert.IsTrue(resultString.Contains("data"));
+        }
+
+        [Test]
+        public void TestDeserializeJsonValueCore_SupportedFrameworkTypes()
+        {
+            // Test that common framework types are handled correctly without MRW fallback
+            var jsonElementVar = new ScopedApi<JsonElement>(new VariableExpression(typeof(JsonElement), "element"));
+            var dataVar = new ScopedApi<BinaryData>(new VariableExpression(typeof(BinaryData), "data"));
+            var optionsVar = new ScopedApi<ModelReaderWriterOptions>(new VariableExpression(typeof(ModelReaderWriterOptions), "options"));
+
+            // Test string
+            var stringResult = MrwSerializationTypeDefinition.DeserializeJsonValueCore(
+                new CSharpType(typeof(string)),
+                jsonElementVar,
+                dataVar,
+                optionsVar,
+                SerializationFormat.Default);
+            Assert.IsTrue(stringResult.ToDisplayString().Contains("GetString"));
+
+            // Test int
+            var intResult = MrwSerializationTypeDefinition.DeserializeJsonValueCore(
+                new CSharpType(typeof(int)),
+                jsonElementVar,
+                dataVar,
+                optionsVar,
+                SerializationFormat.Default);
+            Assert.IsTrue(intResult.ToDisplayString().Contains("GetInt32"));
+
+            // Test bool
+            var boolResult = MrwSerializationTypeDefinition.DeserializeJsonValueCore(
+                new CSharpType(typeof(bool)),
+                jsonElementVar,
+                dataVar,
+                optionsVar,
+                SerializationFormat.Default);
+            Assert.IsTrue(boolResult.ToDisplayString().Contains("GetBoolean"));
         }
 
         [Test]
         public void TestGetDeserializationMethodInvocationForType_DynamicModel()
         {
-            MockHelpers.LoadMockGenerator();
             // Test that dynamic models handle data parameter correctly
             var properties = new List<InputModelProperty>
             {
@@ -1030,7 +1110,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         [Test]
         public void TestGetDeserializationMethodInvocationForType_InDeserializationMethod()
         {
-            MockHelpers.LoadMockGenerator();
             // Test that GetDeserializationMethodInvocationForType is used correctly in the deserialization method
             var properties = new List<InputModelProperty>
             {
@@ -1068,7 +1147,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         [Test]
         public void TestGetDeserializationMethodInvocationForType_CollectionOfModels()
         {
-            MockHelpers.LoadMockGenerator();
             // Test deserialization of collections containing model types
             var innerModel = InputFactory.Model("ItemModel");
             var properties = new List<InputModelProperty>
@@ -1105,7 +1183,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         [Test]
         public void TestGetDeserializationMethodInvocationForType_DictionaryOfModels()
         {
-            MockHelpers.LoadMockGenerator();
             // Test deserialization of dictionaries with model values
             var valueModel = InputFactory.Model("ValueModel");
             var properties = new List<InputModelProperty>
