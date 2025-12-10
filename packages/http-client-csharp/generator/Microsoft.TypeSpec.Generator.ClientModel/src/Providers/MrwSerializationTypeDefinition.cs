@@ -2217,5 +2217,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             return false;
         }
+
+        internal static ValueExpression GetDeserializationMethodInvocationForType(
+            CSharpType modelType,
+            ScopedApi<JsonElement> jsonElementVariable,
+            ValueExpression dataVariable,
+            ValueExpression? optionsVariable = null)
+        {
+            if (modelType.IsFrameworkType)
+            {
+                return Static(typeof(ModelReaderWriter)).Invoke(
+                    nameof(ModelReaderWriter.Read),
+                    [dataVariable, ModelSerializationExtensionsSnippets.Wire, ModelReaderWriterContextSnippets.Default],
+                    [modelType]);
+            }
+
+            return ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(modelType, out var provider) &&
+                   provider is ModelProvider modelProvider
+                ? GetDeserializationMethodInvocationForType(modelProvider, jsonElementVariable, dataVariable, optionsVariable)
+                : modelType.Deserialize(jsonElementVariable, null, optionsVariable);
+        }
     }
 }
