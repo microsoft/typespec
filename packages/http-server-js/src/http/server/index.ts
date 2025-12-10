@@ -425,7 +425,11 @@ function* emitRawServerOperation(
 
         const encoder = jsScalar.http[httpOperationParam.type];
 
-        paramBaseExpression = encoder.decode(paramNameSafe);
+        const decoded = encoder.decode(paramNameSafe);
+
+        paramBaseExpression = param.optional
+          ? `${paramNameSafe} === undefined ? undefined : (${decoded})`
+          : decoded;
       } else {
         paramBaseExpression = paramNameSafe;
       }
