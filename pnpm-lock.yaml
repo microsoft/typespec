@@ -2507,11 +2507,11 @@ importers:
         specifier: ^0.9.4
         version: 0.9.5(prettier-plugin-astro@0.14.1)(prettier@3.6.2)(typescript@5.9.3)
       '@astrojs/react':
-        specifier: ^4.2.1
+        specifier: ^4.4.2
         version: 4.4.2(@types/node@24.10.1)(@types/react-dom@19.2.3(@types/react@19.2.6))(@types/react@19.2.6)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(tsx@4.20.6)(yaml@2.8.1)
       '@astrojs/starlight':
-        specifier: ^0.36.1
-        version: 0.36.2(astro@5.16.4(@azure/identity@4.13.0)(@azure/storage-blob@12.29.1)(@types/node@24.10.1)(rollup@4.49.0)(tsx@4.20.6)(typescript@5.9.3)(yaml@2.8.1))
+        specifier: ^0.37.0
+        version: 0.37.0(astro@5.16.4(@azure/identity@4.13.0)(@azure/storage-blob@12.29.1)(@types/node@24.10.1)(rollup@4.49.0)(tsx@4.20.6)(typescript@5.9.3)(yaml@2.8.1))
       '@docsearch/css':
         specifier: ^4.3.2
         version: 4.3.2
@@ -2799,6 +2799,11 @@ packages:
 
   '@astrojs/starlight@0.36.2':
     resolution: {integrity: sha512-QR8NfO7+7DR13kBikhQwAj3IAoptLLNs9DkyKko2M2l3PrqpcpVUnw1JBJ0msGDIwE6tBbua2UeBND48mkh03w==}
+    peerDependencies:
+      astro: ^5.5.0
+
+  '@astrojs/starlight@0.37.0':
+    resolution: {integrity: sha512-1AlaEjYYRO+5o6P5maPUBQZr6Q3wtuhMQTmsDQExI07wJVwe7EC2wGhXnFo+jpCjwHv/Bdg33PQheY4UhMj01g==}
     peerDependencies:
       astro: ^5.5.0
 
@@ -14054,7 +14059,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@astrojs/starlight@0.36.2(astro@5.16.4(@azure/identity@4.13.0)(@azure/storage-blob@12.29.1)(@types/node@24.10.1)(rollup@4.49.0)(tsx@4.20.6)(typescript@5.9.3)(yaml@2.8.1))':
+  '@astrojs/starlight@0.37.0(astro@5.16.4(@azure/identity@4.13.0)(@azure/storage-blob@12.29.1)(@types/node@24.10.1)(rollup@4.49.0)(tsx@4.20.6)(typescript@5.9.3)(yaml@2.8.1))':
     dependencies:
       '@astrojs/markdown-remark': 6.3.9
       '@astrojs/mdx': 4.3.12(astro@5.16.4(@azure/identity@4.13.0)(@azure/storage-blob@12.29.1)(@types/node@24.10.1)(rollup@4.49.0)(tsx@4.20.6)(typescript@5.9.3)(yaml@2.8.1))
@@ -14073,6 +14078,7 @@ snapshots:
       i18next: 23.16.8
       js-yaml: 4.1.1
       klona: 2.0.6
+      magic-string: 0.30.21
       mdast-util-directive: 3.1.0
       mdast-util-to-markdown: 2.1.2
       mdast-util-to-string: 4.0.0
