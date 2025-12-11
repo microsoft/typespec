@@ -59,47 +59,47 @@ extends:
               artifactName: npm-packages-next
               tag: next
 
-      - stage: publish_vscode
-        displayName: Publish VSCode extension
-        dependsOn: build
-        jobs:
-          - template: /eng/tsp-core/pipelines/jobs/publish-vscode.yml
+      # - stage: publish_vscode
+      #   displayName: Publish VSCode extension
+      #   dependsOn: build
+      #   jobs:
+      #     - template: /eng/tsp-core/pipelines/jobs/publish-vscode.yml
 
-      - stage: publish_vs
-        displayName: Publish VS extension
-        dependsOn: build
-        jobs:
-          - template: /eng/tsp-core/pipelines/jobs/publish-vs.yml
+      # - stage: publish_vs
+      #   displayName: Publish VS extension
+      #   dependsOn: build
+      #   jobs:
+      #     - template: /eng/tsp-core/pipelines/jobs/publish-vs.yml
 
-      - template: /eng/tsp-core/pipelines/stages/sign-publish-tsp-cli.yml@self
+      # - template: /eng/tsp-core/pipelines/stages/sign-publish-tsp-cli.yml@self
 
-      - stage: docker
-        displayName: Docker
-        dependsOn: []
-        jobs:
-          - job: docker
-            displayName: Build and publish
-            variables:
-              imageName: "azsdkengsys.azurecr.io/typespec"
-            pool:
-              name: $(LINUXPOOL)
-              image: $(LINUXVMIMAGE)
-              os: linux
-            steps:
-              - task: Docker@1
-                displayName: login
-                inputs:
-                  azureSubscriptionEndpoint: "AzureSDKEngKeyVault Secrets"
-                  azureContainerRegistry: azsdkengsys.azurecr.io
-                  command: login
+      # - stage: docker
+      #   displayName: Docker
+      #   dependsOn: []
+      #   jobs:
+      #     - job: docker
+      #       displayName: Build and publish
+      #       variables:
+      #         imageName: "azsdkengsys.azurecr.io/typespec"
+      #       pool:
+      #         name: $(LINUXPOOL)
+      #         image: $(LINUXVMIMAGE)
+      #         os: linux
+      #       steps:
+      #         - task: Docker@1
+      #           displayName: login
+      #           inputs:
+      #             azureSubscriptionEndpoint: "AzureSDKEngKeyVault Secrets"
+      #             azureContainerRegistry: azsdkengsys.azurecr.io
+      #             command: login
 
-              - script: |
-                  docker build -f ./docker/Dockerfile \
-                    -t $(imageName):latest \
-                    .
-                displayName: "Build"
-              - script: docker push $(imageName) --all-tags
-                displayName: "Push"
+      #         - script: |
+      #             docker build -f ./docker/Dockerfile \
+      #               -t $(imageName):latest \
+      #               .
+      #           displayName: "Build"
+      #         - script: docker push $(imageName) --all-tags
+      #           displayName: "Push"
 
       - stage: validate_manifest
         displayName: Validate Manifest

@@ -29,10 +29,17 @@ jobs:
       - script: ls $(Pipeline.Workspace)/${{ parameters.artifactName }}
         displayName: List files in artifact
 
+      - script: |
+          npx tsx eng/tsp-core/scripts/filter-unpublished-packages.ts \
+            "$(Pipeline.Workspace)/${{ parameters.artifactName }}" \
+            "$(Pipeline.Workspace)/${{ parameters.artifactName }}-unpublished" \
+            --manifest "./publish-summary.json"
+        displayName: Filter unpublished packages
+
       - template: /eng/tsp-core/pipelines/templates/release/esrp-release.yml
         parameters:
           tag: ${{ parameters.tag }}
-          path: "$(Pipeline.Workspace)/${{ parameters.artifactName }}"
+          path: "$(Pipeline.Workspace)/${{ parameters.artifactName }}-unpublished"
 
       - pwsh: |
           $publishSummary = Get-Content "./publish-summary.json" | ConvertFrom-Json
