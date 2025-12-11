@@ -22,7 +22,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private readonly IReadOnlyList<InputEnumTypeValue> _allowedValues;
         private readonly TypeSignatureModifiers _modifiers;
         private readonly InputEnumType _inputType;
-        internal ExtensibleEnumProvider(InputEnumType input, TypeProvider? declaringType) : base(input)
+        public ExtensibleEnumProvider(InputEnumType input, TypeProvider? declaringType) : base(input)
         {
             _inputType = input;
             _allowedValues = input.Values;

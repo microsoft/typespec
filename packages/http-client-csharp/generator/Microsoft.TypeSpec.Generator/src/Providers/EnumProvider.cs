@@ -22,9 +22,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 : new FixedEnumProvider(input, declaringType);
             var extensibleEnumProvider = new ExtensibleEnumProvider(input, declaringType);
 
+            return CreateConcreteType(input, fixedEnumProvider, extensibleEnumProvider);
+        }
+
+        protected internal static EnumProvider CreateConcreteType(
+            InputEnumType input,
+            FixedEnumProvider fixedEnumProvider,
+            ExtensibleEnumProvider extensibleEnumProvider)
+        {
             // Check to see if there is custom code that customizes the enum.
             var customCodeView = fixedEnumProvider.CustomCodeView ?? extensibleEnumProvider.CustomCodeView;
-
             EnumProvider provider = customCodeView switch
             {
                 { Type: { IsValueType: true, IsStruct: true } } => extensibleEnumProvider,
