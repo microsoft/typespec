@@ -346,7 +346,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         {
                             Continue
                         });
-                    whileLoop.Add(Declare("propertyName", getString, out var propertyName));
+                    whileLoop.Add(Declare("propertyName", typeof(string), getString, out var propertyName));
                     whileLoop.Add(readMethod.Terminate()); // Read the value token
                     whileLoop.Add(GetElementConversionFromReader(valueType, data, readerVar, value, propertyName));
 
