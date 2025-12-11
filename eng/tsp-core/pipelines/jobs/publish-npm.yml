@@ -38,6 +38,11 @@ jobs:
         env:
           NPM_AUTH_TOKEN: $(azure-sdk-npm-token)
 
+      - template: /eng/tsp-core/pipelines/templates/signing/sign.yml
+        parameters:
+          tag: ${{ parameters.tag }}
+          path: "$(Pipeline.Workspace)/${{ parameters.artifactName }}"
+
       - pwsh: |
           $publishSummary = Get-Content "./publish-summary.json" | ConvertFrom-Json
           if ($publishSummary.packages.'@typespec/http-specs'.published -eq $true) {
