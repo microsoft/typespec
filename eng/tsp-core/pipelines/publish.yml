@@ -6,6 +6,7 @@ trigger:
       - main
       # For patch releases
       - release/*
+      - esrp-publish # TODO: for test remove
     exclude:
       - packages/http-client-csharp
 
