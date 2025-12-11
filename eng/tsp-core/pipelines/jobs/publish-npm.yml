@@ -36,6 +36,10 @@ jobs:
             --manifest "./publish-summary.json"
         displayName: Filter unpublished packages
 
+      - script: echo "ESRP_RELEASE_DETAILS:"
+          echo $ESRP_RELEASE_DETAILS
+          cat ./publish-summary.json
+        displayName: "Log ESRP release details"
       - pwsh: |
           $manifest = Get-Content "./publish-summary.json" | ConvertFrom-Json
           if ($manifest.Count -gt 0) {
