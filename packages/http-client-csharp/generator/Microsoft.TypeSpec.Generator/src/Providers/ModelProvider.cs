@@ -242,32 +242,32 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private ModelProvider? BuildBaseModelProvider()
         {
-            if (_inputModel.BaseModel == null)
+            // consider models that have been customized to inherit from a different model
+            if (CustomCodeView?.BaseType != null)
             {
-                // consider models that have been customized to inherit from a different model
-                if (CustomCodeView?.BaseType != null)
-                {
-                    var baseType = CustomCodeView.BaseType;
+                var baseType = CustomCodeView.BaseType;
 
-                    // If the custom base type doesn't have a resolved namespace, then try to resolve it from the input model map.
-                    // This will happen if a model is customized to inherit from another generated model, but that generated model
-                    // was not also defined in custom code so Roslyn does not recognize it.
-                    if (string.IsNullOrEmpty(baseType.Namespace))
+                // If the custom base type doesn't have a resolved namespace, then try to resolve it from the input model map.
+                // This will happen if a model is customized to inherit from another generated model, but that generated model
+                // was not also defined in custom code so Roslyn does not recognize it.
+                if (string.IsNullOrEmpty(baseType.Namespace))
+                {
+                    if (CodeModelGenerator.Instance.TypeFactory.InputModelTypeNameMap.TryGetValue(baseType.Name, out var baseInputModel))
                     {
-                        if (CodeModelGenerator.Instance.TypeFactory.InputModelTypeNameMap.TryGetValue(baseType.Name, out var baseInputModel))
-                        {
-                            baseType = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(baseInputModel);
-                        }
-                    }
-                    if (baseType != null && CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(
-                            baseType,
-                            out var customBaseType) &&
-                        customBaseType is ModelProvider customBaseModel)
-                    {
-                        return customBaseModel;
+                        baseType = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(baseInputModel);
                     }
                 }
+                if (baseType != null && CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(
+                        baseType,
+                        out var customBaseType) &&
+                    customBaseType is ModelProvider customBaseModel)
+                {
+                    return customBaseModel;
+                }
+            }
 
+            if (_inputModel.BaseModel == null)
+            {
                 return null;
             }
 
