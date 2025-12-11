@@ -7,7 +7,7 @@ parameters:
 
 steps:
   - task: EsrpRelease@9
-    displayName: "Publish ${{ parameters.ArtifactName }} via ESRP"
+    displayName: "Publish via ESRP"
     condition: and(succeeded(), ne(variables['SkipPublishing'], 'true'))
     inputs:
       ConnectedServiceName: "Azure SDK PME Managed Identity"
