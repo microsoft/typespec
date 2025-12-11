@@ -29,7 +29,7 @@ jobs:
       - script: ls $(Pipeline.Workspace)/${{ parameters.artifactName }}
         displayName: List files in artifact
 
-      - template: /eng/tsp-core/pipelines/templates/signing/sign.yml
+      - template: /eng/tsp-core/pipelines/templates/release/esrp-release.yml
         parameters:
           tag: ${{ parameters.tag }}
           path: "$(Pipeline.Workspace)/${{ parameters.artifactName }}"
