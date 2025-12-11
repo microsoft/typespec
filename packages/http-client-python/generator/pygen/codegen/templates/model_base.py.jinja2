@@ -824,8 +824,6 @@ def _deserialize_sequence(
         return obj
     if isinstance(obj, ET.Element):
         obj = list(obj)
-    if isinstance(obj, str):
-        return deserializer(obj)
     try:
         if (
             isinstance(obj, str)
