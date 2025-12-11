@@ -36,6 +36,17 @@ jobs:
             --manifest "./publish-summary.json"
         displayName: Filter unpublished packages
 
+      - pwsh: |
+          $manifest = Get-Content "./publish-summary.json" | ConvertFrom-Json
+          if ($manifest.Count -gt 0) {
+            Write-Output "Found $($manifest.Count) unpublished packages to publish."
+            Write-Host "##vso[task.setvariable variable=SkipPublishing]false"
+          } else {
+            Write-Output "No unpublished packages found."
+            Write-Host "##vso[task.setvariable variable=SkipPublishing]true"
+          }
+        displayName: "Check for unpublished packages"
+
       - template: /eng/tsp-core/pipelines/templates/release/esrp-release.yml
         parameters:
           tag: ${{ parameters.tag }}
