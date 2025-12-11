@@ -14,6 +14,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
     {
         private readonly InputEnumType? _inputType;
 
+        /// <summary>
+        /// Gets the fixed enum view of this enum. This is set during <see cref="Create"/> to enable
+        /// switching between fixed and extensible enum implementations after visitors run.
+        /// </summary>
+        internal FixedEnumProvider? FixedEnumView { get; private protected set; }
+
+        /// <summary>
+        /// Gets the extensible enum view of this enum. This is set during <see cref="Create"/> to enable
+        /// switching between fixed and extensible enum implementations after visitors run.
+        /// </summary>
+        internal ExtensibleEnumProvider? ExtensibleEnumView { get; private protected set; }
+
         public static EnumProvider Create(InputEnumType input, TypeProvider? declaringType = null)
         {
             bool isApiVersionEnum = input.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum);
@@ -21,6 +33,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 ? new ApiVersionEnumProvider(input, declaringType)
                 : new FixedEnumProvider(input, declaringType);
             var extensibleEnumProvider = new ExtensibleEnumProvider(input, declaringType);
+
+            // Cross-link both views so they can reference each other
+            fixedEnumProvider.ExtensibleEnumView = extensibleEnumProvider;
+            fixedEnumProvider.FixedEnumView = fixedEnumProvider;
+            extensibleEnumProvider.FixedEnumView = fixedEnumProvider;
+            extensibleEnumProvider.ExtensibleEnumView = extensibleEnumProvider;
 
             // Check to see if there is custom code that customizes the enum.
             var customCodeView = fixedEnumProvider.CustomCodeView ?? extensibleEnumProvider.CustomCodeView;
@@ -38,6 +56,35 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return provider;
+        }
+
+        /// <summary>
+        /// Gets the final enum provider based on the current <see cref="TypeProvider.CustomCodeView"/> state.
+        /// This should be called after all visitors have had a chance to modify the type's namespace,
+        /// as namespace changes can affect which custom code is discovered.
+        /// </summary>
+        /// <returns>The appropriate enum provider (fixed or extensible) based on custom code.</returns>
+        internal EnumProvider GetFinalProvider()
+        {
+            // Re-check CustomCodeView which may have changed after namespace updates
+            var customCodeView = CustomCodeView;
+
+            if (customCodeView != null)
+            {
+                // Custom code is a struct -> use extensible enum
+                if (customCodeView.Type.IsValueType && customCodeView.Type.IsStruct)
+                {
+                    return ExtensibleEnumView ?? this;
+                }
+                // Custom code is an enum -> use fixed enum
+                if (customCodeView.Type.IsValueType && !customCodeView.Type.IsStruct)
+                {
+                    return FixedEnumView ?? this;
+                }
+            }
+
+            // No custom code or can't determine - use original selection based on IsExtensible
+            return IsExtensible ? (ExtensibleEnumView ?? this) : (FixedEnumView ?? this);
         }
 
         protected EnumProvider(InputEnumType? input)

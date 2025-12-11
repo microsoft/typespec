@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Utilities;
 
@@ -52,6 +53,34 @@ namespace Microsoft.TypeSpec.Generator
             var output = CodeModelGenerator.Instance.OutputLibrary;
             Directory.CreateDirectory(Path.Combine(generatedSourceOutputPath, "Models"));
             List<Task> generateFilesTasks = new();
+
+            // Allow visitors to modify type identity (name, namespace) before members are built.
+            // This is important for enums where namespace changes can affect custom code discovery.
+            foreach (var visitor in CodeModelGenerator.Instance.Visitors)
+            {
+                foreach (var type in output.TypeProviders)
+                {
+                    visitor.VisitPreBuiltType(type);
+                }
+            }
+
+            // Finalize enum selection based on updated CustomCodeView after pre-build visitors.
+            // Namespace changes may have caused different custom code to be discovered.
+            var finalizedTypes = new List<TypeProvider>(output.TypeProviders.Count);
+            foreach (var type in output.TypeProviders)
+            {
+                if (type is EnumProvider enumProvider)
+                {
+                    finalizedTypes.Add(enumProvider.GetFinalProvider());
+                }
+                else
+                {
+                    finalizedTypes.Add(type);
+                }
+            }
+            output.TypeProviders = finalizedTypes;
+
+            LoggingHelpers.LogElapsedTime("Pre-build visitors applied and enum types finalized");
 
             // Build all TypeProviders
             foreach (var type in output.TypeProviders)

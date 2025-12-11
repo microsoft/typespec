@@ -145,6 +145,17 @@ namespace Microsoft.TypeSpec.Generator
         }
 
         /// <summary>
+        /// Visits a <see cref="TypeProvider"/> before its members are built. This method is called before
+        /// <see cref="TypeProvider.EnsureBuilt"/> and allows modifying the type's identity (name, namespace)
+        /// before members are constructed. This is particularly important for enums, as namespace changes
+        /// can affect whether custom code is discovered which determines if the enum should be fixed or extensible.
+        /// </summary>
+        /// <param name="type">The <see cref="TypeProvider"/> to visit.</param>
+        protected internal virtual void VisitPreBuiltType(TypeProvider type)
+        {
+        }
+
+        /// <summary>
         /// Visits a <see cref="TypeProvider"/> and returns a possibly modified version of it. This method is called before visiting the
         /// type provider's members.
         /// </summary>
