@@ -29,6 +29,7 @@
     "@typespec/events": "0.76.0",
     "@typespec/sse": "0.76.0",
     "@typespec/streams": "0.76.0",
+    "@typespec/json-schema": "1.6.0",
     "@azure-tools/typespec-azure-core": "0.62.0",
     "@azure-tools/typespec-client-generator-core": "0.62.0",
     "@azure-tools/typespec-azure-resource-manager": "0.62.1",
