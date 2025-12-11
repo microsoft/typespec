@@ -55,8 +55,6 @@ jobs:
 
       - script: |
           echo "ESRP_RELEASE_DETAILS:"
-          echo "$(variables.ESRP_RELEASE_DETAILS)"
-          echo "ESRP_RELEASE_DETAILS:"
           echo "$ESRP_RELEASE_DETAILS"
         displayName: "Log ESRP release details"
 
