@@ -36,10 +36,6 @@ jobs:
             --manifest "./publish-summary.json"
         displayName: Filter unpublished packages
 
-      - script: echo "ESRP_RELEASE_DETAILS:"
-          echo "$(variables.ESRP_RELEASE_DETAILS)"
-          cat ./publish-summary.json
-        displayName: "Log ESRP release details"
       - pwsh: |
           $manifest = Get-Content "./publish-summary.json" | ConvertFrom-Json
           $packageCount = ($manifest.packages | Get-Member -MemberType NoteProperty).Count
@@ -56,6 +52,13 @@ jobs:
         parameters:
           tag: ${{ parameters.tag }}
           path: "$(Pipeline.Workspace)/${{ parameters.artifactName }}-unpublished"
+
+      - script: |
+          echo "ESRP_RELEASE_DETAILS:"
+          echo "$(variables.ESRP_RELEASE_DETAILS)"
+          echo "ESRP_RELEASE_DETAILS:"
+          echo "$ESRP_RELEASE_DETAILS"
+        displayName: "Log ESRP release details"
 
       - pwsh: |
           $publishSummary = Get-Content "./publish-summary.json" | ConvertFrom-Json
