@@ -13,11 +13,13 @@ export type PublishSummaryStatus = "success" | "partial" | "failed";
 
 export interface PublishedPackageSuccess {
   published: true;
+  name: string;
   version: string;
 }
 
 export interface PublishedPackageFailure {
   published: false;
+  name: string;
   error: string;
 }
 
@@ -198,6 +200,7 @@ async function main() {
     console.log(`Copied: ${pkg.filename}`);
 
     packages[pkg.name] = {
+      name: pkg.name,
       published: true,
       version: pkg.version,
     };
