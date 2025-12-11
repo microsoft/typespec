@@ -37,13 +37,14 @@ jobs:
         displayName: Filter unpublished packages
 
       - script: echo "ESRP_RELEASE_DETAILS:"
-          echo $ESRP_RELEASE_DETAILS
+          echo "$(variables.ESRP_RELEASE_DETAILS)"
           cat ./publish-summary.json
         displayName: "Log ESRP release details"
       - pwsh: |
           $manifest = Get-Content "./publish-summary.json" | ConvertFrom-Json
-          if ($manifest.Count -gt 0) {
-            Write-Output "Found $($manifest.Count) unpublished packages to publish."
+          $packageCount = ($manifest.packages | Get-Member -MemberType NoteProperty).Count
+          if ($packageCount -gt 0) {
+            Write-Output "Found $packageCount unpublished packages to publish."
             Write-Host "##vso[task.setvariable variable=SkipPublishing]false"
           } else {
             Write-Output "No unpublished packages found."

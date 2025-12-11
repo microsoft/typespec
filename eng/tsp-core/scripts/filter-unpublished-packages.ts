@@ -9,6 +9,25 @@ import { promisify } from "util";
 
 const execAsync = promisify(exec);
 
+export type PublishSummaryStatus = "success" | "partial" | "failed";
+
+export interface PublishedPackageSuccess {
+  published: true;
+  version: string;
+}
+
+export interface PublishedPackageFailure {
+  published: false;
+  error: string;
+}
+
+export type PublishPackageResult = PublishedPackageSuccess | PublishedPackageFailure;
+
+export interface PublishSummary {
+  status: PublishSummaryStatus;
+  packages: Record<string, PublishPackageResult>;
+}
+
 interface PackageInfo {
   name: string;
   version: string;
@@ -169,7 +188,7 @@ async function main() {
   console.log("");
   console.log(`Copying unpublished packages to ${destFolder}...`);
 
-  const manifestEntries: string[] = [];
+  const packages: Record<string, PublishPackageResult> = {};
 
   for (const pkg of unpublishedPackages) {
     const sourcePath = join(sourceFolder, pkg.filename);
@@ -178,13 +197,22 @@ async function main() {
     await copyFile(sourcePath, destPath);
     console.log(`Copied: ${pkg.filename}`);
 
-    manifestEntries.push(pkg.filename);
+    packages[pkg.name] = {
+      published: true,
+      version: pkg.version,
+    };
   }
 
-  // Create manifest file
-  await writeFile(manifestPath, JSON.stringify(manifestEntries, null, 2), "utf8");
+  // Create publish summary manifest
+  const publishSummary: PublishSummary = {
+    status: Object.keys(packages).length > 0 ? "success" : "failed",
+    packages,
+  };
+
+  await writeFile(manifestPath, JSON.stringify(publishSummary, null, 2), "utf8");
   console.log("");
-  console.log(`Manifest created: ${manifestPath}`);
+  console.log(`Publish summary created: ${manifestPath}`);
+  console.log(`Status: ${publishSummary.status}`);
   console.log("");
   console.log("Summary:");
   console.log(`  Total packages scanned: ${packageInfos.length}`);
