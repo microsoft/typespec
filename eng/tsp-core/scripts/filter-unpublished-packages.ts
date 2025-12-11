@@ -177,30 +177,28 @@ async function main() {
   console.log(
     `Found ${unpublishedPackages.length} unpublished packages out of ${packageInfos.length} total`,
   );
+  const packages: Record<string, PublishPackageResult> = {};
 
   if (unpublishedPackages.length === 0) {
     console.log("No unpublished packages to move.");
-    process.exit(0);
-  }
+  } else {
+    // Copy unpublished packages to destination
+    console.log("");
+    console.log(`Copying unpublished packages to ${destFolder}...`);
 
-  // Copy unpublished packages to destination
-  console.log("");
-  console.log(`Copying unpublished packages to ${destFolder}...`);
+    for (const pkg of unpublishedPackages) {
+      const sourcePath = join(sourceFolder, pkg.filename);
+      const destPath = join(destFolder, pkg.filename);
 
-  const packages: Record<string, PublishPackageResult> = {};
+      await copyFile(sourcePath, destPath);
+      console.log(`Copied: ${pkg.filename}`);
 
-  for (const pkg of unpublishedPackages) {
-    const sourcePath = join(sourceFolder, pkg.filename);
-    const destPath = join(destFolder, pkg.filename);
-
-    await copyFile(sourcePath, destPath);
-    console.log(`Copied: ${pkg.filename}`);
-
-    packages[pkg.name] = {
-      name: pkg.name,
-      published: true,
-      version: pkg.version,
-    };
+      packages[pkg.name] = {
+        name: pkg.name,
+        published: true,
+        version: pkg.version,
+      };
+    }
   }
 
   // Create publish summary manifest
