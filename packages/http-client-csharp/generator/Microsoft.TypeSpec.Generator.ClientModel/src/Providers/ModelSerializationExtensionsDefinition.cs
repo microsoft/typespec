@@ -157,6 +157,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 BuildWriteNumberValueMethodProvider(),
                 BuildWriteObjectValueMethodGeneric(),
                 BuildWriteObjectValueMethodProvider(),
+                BuildGetUtf8BytesMethodProvider(),
                 .. BuildDynamicModelHelpers()
             ];
         }
@@ -576,7 +577,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             [
                 BuildSliceToStartOfPropertyNameMethodProvider(),
                 BuildGetFirstPropertyNameMethodProvider(),
-                BuildGetUtf8BytesMethodProvider(),
                 BuildTryGetIndexMethodProvider(),
                 BuildGetRemainderMethodProvider()
             ];

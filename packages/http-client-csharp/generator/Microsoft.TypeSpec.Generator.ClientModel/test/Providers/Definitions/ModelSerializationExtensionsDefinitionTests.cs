@@ -203,6 +203,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         }
 
         [Test]
+        public void ValidateGetUtf8BytesMethodIsGenerated()
+        {
+            MockHelpers.LoadMockGenerator();
+
+            var definition = new ModelSerializationExtensionsDefinition();
+            var methods = definition.Methods;
+
+            Assert.IsNotNull(methods);
+            var getUtf8BytesMethod = methods.SingleOrDefault(m => m.Signature.Name == "GetUtf8Bytes");
+            Assert.IsNotNull(getUtf8BytesMethod, "GetUtf8Bytes method should be generated");
+            Assert.AreEqual(typeof(BinaryData), getUtf8BytesMethod!.Signature.ReturnType?.FrameworkType);
+            Assert.IsTrue(getUtf8BytesMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.IsTrue(getUtf8BytesMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Static));
+            Assert.IsTrue(getUtf8BytesMethod.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Extension));
+            Assert.AreEqual(1, getUtf8BytesMethod.Signature.Parameters.Count);
+            Assert.AreEqual(typeof(JsonElement), getUtf8BytesMethod.Signature.Parameters[0].Type.FrameworkType);
+        }
+
+        [Test]
         public void ValidateWriteStringValueMethodsAreGenerated()
         {
             MockHelpers.LoadMockGenerator();
