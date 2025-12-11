@@ -12,11 +12,11 @@
     "spector-stop": "tsp-spector server stop"
   },
   "dependencies": {
-    "@typespec/spector": "0.1.0-alpha.20",
-    "@typespec/spec-api": "0.1.0-alpha.10",
-    "@typespec/http-specs": "0.1.0-alpha.28",
-    "@typespec/json-schema": "1.6.0",
-    "@typespec/http-client-java": "file:../../typespec-http-client-java-0.6.0.tgz",
+    "@typespec/spector": "0.1.0-alpha.21",
+    "@typespec/spec-api": "0.1.0-alpha.11",
+    "@typespec/http-specs": "0.1.0-alpha.29",
+    "@typespec/json-schema": "1.7.0",
+    "@typespec/http-client-java": "file:../../typespec-http-client-java-0.6.1.tgz",
     "@typespec/http-client-java-tests": "file:"
   },
   "overrides": {
