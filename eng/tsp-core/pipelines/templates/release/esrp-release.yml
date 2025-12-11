@@ -1,5 +1,5 @@
 parameters:
-  - name: tagName
+  - name: tag
     type: string
     default: stable
   - name: path
@@ -18,9 +18,9 @@ steps:
       SignCertName: "azure-sdk-esrp-release-certificate"
       Intent: "PackageDistribution"
       ContentType: "npm"
-      FolderLocation: $(path)
+      FolderLocation: ${{ parameters.path }}
       Owners: ${{ coalesce(variables['Build.RequestedForEmail'], 'azuresdk@microsoft.com') }}
       Approvers: ${{ coalesce(variables['Build.RequestedForEmail'], 'azuresdk@microsoft.com') }}
       ServiceEndpointUrl: "https://api.esrp.microsoft.com"
       MainPublisher: "ESRPRELPACMANTEST"
-      productstate: $(tagName)
+      productstate: ${{ parameters.tag }}
