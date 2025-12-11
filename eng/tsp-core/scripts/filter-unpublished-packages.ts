@@ -2,6 +2,8 @@
 import { exec } from "child_process";
 import { existsSync } from "fs";
 import { copyFile, mkdir, readdir, writeFile } from "fs/promises";
+import { resolve } from "node:path";
+import { parseArgs } from "node:util";
 import { join } from "path";
 import { promisify } from "util";
 
@@ -46,6 +48,9 @@ async function parsePackageFromTarball(
  * Check if a package version is published on npm
  */
 async function isPackagePublished(name: string, version: string): Promise<boolean> {
+  if (name === "@typespec/bundler") {
+    return false;
+  } // TODO: remove for testing
   try {
     const { stdout } = await execAsync(`npm view ${name}@${version} version`, {
       encoding: "utf8",
@@ -66,9 +71,17 @@ async function isPackagePublished(name: string, version: string): Promise<boolea
  * Main function
  */
 async function main() {
-  const args = process.argv.slice(2);
+  const { values, positionals } = parseArgs({
+    args: process.argv.slice(2),
+    options: {
+      manifest: {
+        type: "string",
+      },
+    },
+    allowPositionals: true,
+  });
 
-  if (args.length < 2) {
+  if (positionals.length < 2) {
     console.error(
       "Usage: filter-unpublished-packages <source-folder> <destination-folder> [--manifest <manifest-file>]",
     );
@@ -80,15 +93,13 @@ async function main() {
     process.exit(1);
   }
 
-  const sourceFolder = args[0];
-  const destFolder = args[1];
+  const sourceFolder = positionals[0];
+  const destFolder = positionals[1];
 
   // Parse optional manifest path
-  let manifestPath = join(destFolder, "manifest.json");
-  const manifestIndex = args.indexOf("--manifest");
-  if (manifestIndex !== -1 && args[manifestIndex + 1]) {
-    manifestPath = args[manifestIndex + 1];
-  }
+  const manifestPath = values.manifest
+    ? resolve(values.manifest)
+    : join(destFolder, "manifest.json");
 
   // Validate source folder exists
   if (!existsSync(sourceFolder)) {
