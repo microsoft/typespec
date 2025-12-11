@@ -1439,10 +1439,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 { IsFrameworkType: true } when valueType.FrameworkType == typeof(Nullable<>) =>
                     ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(
-                        valueType.Arguments[0].FrameworkType, jsonElement, data,
+                        valueType.Arguments[0], jsonElement, data,
                         _mrwOptionsParameterSnippet, serializationFormat),
                 { IsFrameworkType: true } =>
-                    ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(valueType.FrameworkType,
+                    ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(valueType,
                         jsonElement, data, _mrwOptionsParameterSnippet,
                         serializationFormat),
                 { IsEnum: true } =>
