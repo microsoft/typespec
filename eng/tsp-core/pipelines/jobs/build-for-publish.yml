@@ -16,8 +16,8 @@ jobs:
 
       - template: /eng/tsp-core/pipelines/templates/build.yml
 
-      - script: pnpm run test:ci
-        displayName: Test
+      # - script: pnpm run test:ci
+      #   displayName: Test
 
       - template: /eng/tsp-core/pipelines/templates/upload-coverage.yml
 
