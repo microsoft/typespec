@@ -69,9 +69,6 @@ async function parsePackageFromTarball(
  * Check if a package version is published on npm
  */
 async function isPackagePublished(name: string, version: string): Promise<boolean> {
-  if (name === "@typespec/bundler") {
-    return false;
-  } // TODO: remove for testing
   try {
     const { stdout } = await execAsync(`npm view ${name}@${version} version`, {
       encoding: "utf8",
