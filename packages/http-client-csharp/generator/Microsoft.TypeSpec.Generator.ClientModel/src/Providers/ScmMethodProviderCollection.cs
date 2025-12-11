@@ -289,13 +289,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     var valueDeclaration = Declare("value", New.Instance(new CSharpType(typeof(List<>), elementType)).As(responseBodyType), out var value);
                     var dataDeclaration = Declare("data", result.GetRawResponse().Content(), out var data);
 
+                    // Create Utf8JsonReader from BinaryData
+                    var readerVar = new VariableExpression(typeof(Utf8JsonReader), "reader");
+                    var readerDeclaration = Declare(readerVar, New.Instance(typeof(Utf8JsonReader), data.ToMemory().Property("Span")));
+
+                    // Create while loop to read array elements
+                    var readMethod = readerVar.Invoke("Read");
+                    var tokenTypeProperty = readerVar.Property("TokenType");
+
+                    var whileLoop = new WhileStatement(readMethod);
+                    whileLoop.Add(new IfStatement(tokenTypeProperty.Equal(JsonTokenTypeSnippets.EndArray))
+                        {
+                            Break
+                        });
+                    whileLoop.Add(GetElementConversionFromReader(elementType, data, readerVar, value));
+
                     MethodBodyStatement[] statements =
                     [
                         valueDeclaration,
                         dataDeclaration,
-                        UsingDeclare("document", data.Parse(), out var document),
-                        ForEachStatement.Create("item", document.RootElement().EnumerateArray(), out ScopedApi<JsonElement> item)
-                            .Add(GetElementConversion(elementType, data, item, value))
+                        readerDeclaration,
+                        readMethod.Terminate(), // Read StartArray token
+                        whileLoop
                     ];
                     declarations = new Dictionary<string, ValueExpression>
                     {
@@ -313,13 +328,35 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     var valueDeclaration = Declare("value", New.Instance(new CSharpType(typeof(Dictionary<,>), keyType, valueType)).As(responseBodyType), out var value);
                     var dataDeclaration = Declare("data", result.GetRawResponse().Content(), out var data);
 
+                    // Create Utf8JsonReader from BinaryData
+                    var readerVar = new VariableExpression(typeof(Utf8JsonReader), "reader");
+                    var readerDeclaration = Declare(readerVar, New.Instance(typeof(Utf8JsonReader), data.ToMemory().Property("Span")));
+
+                    // For dictionaries, we need to read property name and value
+                    var readMethod = readerVar.Invoke("Read");
+                    var tokenTypeProperty = readerVar.Property("TokenType");
+
+                    var getString = readerVar.Invoke("GetString");
+                    var whileLoop = new WhileStatement(readMethod);
+                    whileLoop.Add(new IfStatement(tokenTypeProperty.Equal(JsonTokenTypeSnippets.EndObject))
+                        {
+                            Break
+                        });
+                    whileLoop.Add(new IfStatement(tokenTypeProperty.Equal(JsonTokenTypeSnippets.StartObject))
+                        {
+                            Continue
+                        });
+                    whileLoop.Add(Declare("propertyName", getString, out var propertyName));
+                    whileLoop.Add(readMethod.Terminate()); // Read the value token
+                    whileLoop.Add(GetElementConversionFromReader(valueType, data, readerVar, value, propertyName));
+
                     MethodBodyStatement[] statements =
                     [
                         valueDeclaration,
                         dataDeclaration,
-                        UsingDeclare("document", data.Parse(), out var document),
-                        ForEachStatement.Create("item", document.RootElement().EnumerateObject(), out ScopedApi<JsonProperty> item)
-                            .Add(GetElementConversion(valueType, data, item.Value(), value, item.Name()))
+                        readerDeclaration,
+                        readMethod.Terminate(), // Read StartObject token
+                        whileLoop
                     ];
                     declarations = new Dictionary<string, ValueExpression>
                     {
@@ -331,6 +368,38 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             declarations = [];
             return [];
+        }
+
+        private MethodBodyStatement GetElementConversionFromReader(CSharpType elementType, ScopedApi<BinaryData> data, VariableExpression reader, ScopedApi value, ValueExpression? dictKey = null)
+        {
+            if (elementType.Equals(typeof(TimeSpan)))
+            {
+                // TimeSpan requires reading as string and parsing with TypeFormatters
+                var getString = reader.Invoke("GetString");
+                return AddElement(dictKey, TypeFormattersSnippets.ParseTimeSpan(getString.As<string>(), Literal("P")), value);
+            }
+            else if (elementType.Equals(typeof(BinaryData)))
+            {
+                var tokenTypeProperty = reader.Property("TokenType");
+                var getString = reader.Invoke("GetString");
+                return new IfElseStatement(
+                    tokenTypeProperty.Equal(JsonTokenTypeSnippets.Null),
+                    AddElement(dictKey, Null, value),
+                    AddElement(dictKey, BinaryDataSnippets.FromString(getString.As<string>()), value));
+            }
+            else
+            {
+                // For non-framework types, we need to parse into a JsonElement first
+                // Use JsonElement.ParseValue with the reader
+                return new[]
+                {
+                    UsingDeclare("element", JsonDocumentSnippets.ParseValue(reader), out var element),
+                    AddElement(
+                        dictKey,
+                        MrwSerializationTypeDefinition.GetDeserializationMethodInvocationForType(elementType, element.RootElement(), data, ModelSerializationExtensionsSnippets.Wire),
+                        value)
+                };
+            }
         }
 
         private MethodBodyStatement GetElementConversion(CSharpType elementType, ScopedApi<BinaryData> data, ScopedApi<JsonElement> item, ScopedApi value, ValueExpression? dictKey = null)
