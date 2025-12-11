@@ -14,7 +14,7 @@
 -e ./generated/parameters-basic
 -e ./generated/parameters-collection-format
 -e ./generated/parameters-path
--e ./generated/parameters-spreadgit
+-e ./generated/parameters-spread
 -e ./generated/serialization-encoded-name-json
 -e ./generated/server-endpoint-not-defined
 -e ./generated/server-path-multiple
