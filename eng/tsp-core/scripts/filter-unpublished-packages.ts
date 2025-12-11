@@ -15,48 +15,30 @@ interface PackageInfo {
 }
 
 /**
- * Extract package name and version from a .tgz filename
- * Format: @scope-name-version.tgz or name-version.tgz
+ * Extract package name and version from a .tgz file by reading its package.json
  */
-function parsePackageFilename(filename: string): { name: string; version: string } | null {
-  if (!filename.endsWith(".tgz")) {
+async function parsePackageFromTarball(
+  filePath: string,
+): Promise<{ name: string; version: string } | null> {
+  try {
+    // Extract package.json from the tarball
+    // npm pack creates tarballs with structure: package/package.json
+    const { stdout } = await execAsync(`tar -xzOf "${filePath}" package/package.json`, {
+      encoding: "utf8",
+    });
+
+    const packageJson = JSON.parse(stdout);
+    if (!packageJson.name || !packageJson.version) {
+      return null;
+    }
+
+    return {
+      name: packageJson.name,
+      version: packageJson.version,
+    };
+  } catch (error: any) {
+    console.warn(`Warning: Could not extract package.json from ${filePath}: ${error.message}`);
     return null;
-  }
-
-  const nameWithoutTgz = filename.slice(0, -4);
-
-  // Handle scoped packages: @scope-name-version.tgz becomes @scope/name
-  if (filename.startsWith("@")) {
-    // Find the last dash that separates version from name
-    const lastDashIndex = nameWithoutTgz.lastIndexOf("-");
-    if (lastDashIndex === -1) {
-      return null;
-    }
-
-    const version = nameWithoutTgz.slice(lastDashIndex + 1);
-    const nameWithScope = nameWithoutTgz.slice(0, lastDashIndex);
-
-    // Convert @scope-name to @scope/name
-    const firstDashIndex = nameWithScope.indexOf("-");
-    if (firstDashIndex === -1) {
-      return null;
-    }
-
-    const name =
-      nameWithScope.slice(0, firstDashIndex) + "/" + nameWithScope.slice(firstDashIndex + 1);
-
-    return { name, version };
-  } else {
-    // Handle non-scoped packages: name-version.tgz
-    const lastDashIndex = nameWithoutTgz.lastIndexOf("-");
-    if (lastDashIndex === -1) {
-      return null;
-    }
-
-    const name = nameWithoutTgz.slice(0, lastDashIndex);
-    const version = nameWithoutTgz.slice(lastDashIndex + 1);
-
-    return { name, version };
   }
 }
 
@@ -130,9 +112,10 @@ async function main() {
 
   // Parse package information from filenames
   for (const filename of tgzFiles) {
-    const parsed = parsePackageFilename(filename);
+    const filePath = join(sourceFolder, filename);
+    const parsed = await parsePackageFromTarball(filePath);
     if (!parsed) {
-      console.warn(`Warning: Could not parse filename: ${filename}`);
+      console.warn(`Warning: Could not parse package from: ${filename}`);
       continue;
     }
 
