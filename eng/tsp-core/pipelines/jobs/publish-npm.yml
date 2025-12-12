@@ -21,78 +21,80 @@ jobs:
     templateContext:
       type: releaseJob
       isProduction: true
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+            - download: current
+              artifact: ${{ parameters.artifactName }}
+              displayName: Download Npm Packages
 
-    steps:
-      - download: current
-        artifact: ${{ parameters.artifactName }}
-        displayName: Download Npm Packages
+            - template: ../templates/install.yml
 
-      - template: ../templates/install.yml
+            - script: ls $(Pipeline.Workspace)/${{ parameters.artifactName }}
+              displayName: List files in artifact
 
-      - script: ls $(Pipeline.Workspace)/${{ parameters.artifactName }}
-        displayName: List files in artifact
+            - script: |
+                npx tsx eng/tsp-core/scripts/filter-unpublished-packages.ts \
+                  "$(Pipeline.Workspace)/${{ parameters.artifactName }}" \
+                  "$(Pipeline.Workspace)/${{ parameters.artifactName }}-unpublished" \
+                  --manifest "./publish-summary.json"
+              displayName: Filter unpublished packages
 
-      - script: |
-          npx tsx eng/tsp-core/scripts/filter-unpublished-packages.ts \
-            "$(Pipeline.Workspace)/${{ parameters.artifactName }}" \
-            "$(Pipeline.Workspace)/${{ parameters.artifactName }}-unpublished" \
-            --manifest "./publish-summary.json"
-        displayName: Filter unpublished packages
+            - pwsh: |
+                $manifest = Get-Content "./publish-summary.json" | ConvertFrom-Json
+                $packageCount = ($manifest.packages | Get-Member -MemberType NoteProperty).Count
+                if ($packageCount -gt 0) {
+                  Write-Output "Found $packageCount unpublished packages to publish."
+                  Write-Host "##vso[task.setvariable variable=SkipPublishing]false"
+                } else {
+                  Write-Output "No unpublished packages found."
+                  Write-Host "##vso[task.setvariable variable=SkipPublishing]true"
+                }
+              displayName: "Check for unpublished packages"
 
-      - pwsh: |
-          $manifest = Get-Content "./publish-summary.json" | ConvertFrom-Json
-          $packageCount = ($manifest.packages | Get-Member -MemberType NoteProperty).Count
-          if ($packageCount -gt 0) {
-            Write-Output "Found $packageCount unpublished packages to publish."
-            Write-Host "##vso[task.setvariable variable=SkipPublishing]false"
-          } else {
-            Write-Output "No unpublished packages found."
-            Write-Host "##vso[task.setvariable variable=SkipPublishing]true"
-          }
-        displayName: "Check for unpublished packages"
+            - template: /eng/tsp-core/pipelines/templates/release/esrp-release.yml
+              parameters:
+                tag: ${{ parameters.tag }}
+                path: "$(Pipeline.Workspace)/${{ parameters.artifactName }}"
 
-      - template: /eng/tsp-core/pipelines/templates/release/esrp-release.yml
-        parameters:
-          tag: ${{ parameters.tag }}
-          path: "$(Pipeline.Workspace)/${{ parameters.artifactName }}"
+            - script: |
+                echo "ESRP_RELEASE_DETAILS:"
+                echo "$ESRP_RELEASE_DETAILS"
+              displayName: "Log ESRP release details"
 
-      - script: |
-          echo "ESRP_RELEASE_DETAILS:"
-          echo "$ESRP_RELEASE_DETAILS"
-        displayName: "Log ESRP release details"
+            - pwsh: |
+                $publishSummary = Get-Content "./publish-summary.json" | ConvertFrom-Json
+                if ($publishSummary.packages.'@typespec/http-specs'.published -eq $true) {
+                  Write-Output "Setting PublishHttpSpecs variable to true."
+                  Write-Host "##vso[task.setvariable variable=PublishHttpSpecs]true"
+                } else {
+                  Write-Output "Setting PublishHttpSpecs variable to false."
+                  Write-Host "##vso[task.setvariable variable=PublishHttpSpecs]false"
+                }
+              displayName: "Check if @typespec/http-specs was published"
 
-      - pwsh: |
-          $publishSummary = Get-Content "./publish-summary.json" | ConvertFrom-Json
-          if ($publishSummary.packages.'@typespec/http-specs'.published -eq $true) {
-            Write-Output "Setting PublishHttpSpecs variable to true."
-            Write-Host "##vso[task.setvariable variable=PublishHttpSpecs]true"
-          } else {
-            Write-Output "Setting PublishHttpSpecs variable to false."
-            Write-Host "##vso[task.setvariable variable=PublishHttpSpecs]false"
-          }
-        displayName: "Check if @typespec/http-specs was published"
+            - script: pnpm -r --filter '@typespec/http-specs...' build
+              condition: eq(variables['PublishHttpSpecs'], 'true')
+              displayName: Build spector
 
-      - script: pnpm -r --filter '@typespec/http-specs...' build
-        condition: eq(variables['PublishHttpSpecs'], 'true')
-        displayName: Build spector
+            - task: AzureCLI@2
+              displayName: Upload scenario manifest
+              condition: eq(variables['PublishHttpSpecs'], 'true')
+              inputs:
+                workingDirectory: packages/http-specs
+                azureSubscription: "TypeSpec Storage"
+                scriptType: "bash"
+                scriptLocation: "inlineScript"
+                inlineScript: "pnpm upload-manifest"
 
-      - task: AzureCLI@2
-        displayName: Upload scenario manifest
-        condition: eq(variables['PublishHttpSpecs'], 'true')
-        inputs:
-          workingDirectory: packages/http-specs
-          azureSubscription: "TypeSpec Storage"
-          scriptType: "bash"
-          scriptLocation: "inlineScript"
-          inlineScript: "pnpm upload-manifest"
+            - ${{ if eq(parameters.publishGithubRelease, true) }}:
+                - script: |
+                    echo "Publish summary:"
+                    cat ./publish-summary.json
+                  displayName: Log publish summary
 
-      - ${{ if eq(parameters.publishGithubRelease, true) }}:
-          - script: |
-              echo "Publish summary:"
-              cat ./publish-summary.json
-            displayName: Log publish summary
-
-          - script: pnpm chronus-github create-releases --repo microsoft/typespec --publish-summary ./publish-summary.json
-            displayName: Create github releases
-            env:
-              GITHUB_TOKEN: $(azuresdk-github-pat)
+                - script: pnpm chronus-github create-releases --repo microsoft/typespec --publish-summary ./publish-summary.json
+                  displayName: Create github releases
+                  env:
+                    GITHUB_TOKEN: $(azuresdk-github-pat)
