@@ -6,11 +6,13 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Utilities;
 
 namespace Microsoft.TypeSpec.Generator.Providers
 {
@@ -187,7 +189,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // mask & (mask - 1) gives us 0 if mask is a power of 2, it means we have exactly one flag of above when the mask is a power of 2
             if ((mask & (mask - 1)) != 0)
             {
-                throw new InvalidOperationException($"Invalid modifier {modifiers} on TypeProvider {Name}");
+                CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                   DiagnosticCodes.InvalidAccessModifier,
+                   $"Invalid modifiers {modifiers} detected.",
+                   severity: EmitterDiagnosticSeverity.Warning);
             }
 
             // we always add partial when possible

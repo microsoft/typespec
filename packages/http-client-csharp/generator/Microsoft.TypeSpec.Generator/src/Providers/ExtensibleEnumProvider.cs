@@ -22,7 +22,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private readonly IReadOnlyList<InputEnumTypeValue> _allowedValues;
         private readonly TypeSignatureModifiers _modifiers;
         private readonly InputEnumType _inputType;
-        public ExtensibleEnumProvider(InputEnumType input, TypeProvider? declaringType) : base(input)
+        internal ExtensibleEnumProvider(InputEnumType input, TypeProvider? declaringType) : base(input)
         {
             _inputType = input;
             _allowedValues = input.Values;
@@ -36,6 +36,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             _valueField = new FieldProvider(FieldModifiers.Private | FieldModifiers.ReadOnly, EnumUnderlyingType, "_value", this);
             _declaringType = declaringType;
+            ExtensibleEnumView = this;
         }
 
         private readonly FieldProvider _valueField;

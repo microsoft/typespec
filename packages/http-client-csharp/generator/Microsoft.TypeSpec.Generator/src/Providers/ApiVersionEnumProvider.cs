@@ -13,7 +13,7 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.Providers
 {
-    public class ApiVersionEnumProvider : FixedEnumProvider
+    internal sealed class ApiVersionEnumProvider : FixedEnumProvider
     {
         private const string ApiVersionEnumName = "ServiceVersion";
         private const string ApiVersionEnumDescription = "The version of the service to use.";
