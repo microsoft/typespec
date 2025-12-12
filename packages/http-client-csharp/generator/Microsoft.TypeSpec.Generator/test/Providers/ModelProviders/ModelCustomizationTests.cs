@@ -621,9 +621,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 [("val1", 1), ("val2", 2), ("val3", 3)],
                 isExtensible: false
             );
-            var enumProvider = EnumProvider.Create(inputEnum);
+            var enumProvider = CodeModelGenerator.Instance.TypeFactory.CreateEnum(inputEnum);
 
-            Assert.IsTrue(enumProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Struct | TypeSignatureModifiers.ReadOnly));
+            Assert.IsNotNull(enumProvider);
+            Assert.IsTrue(enumProvider is ExtensibleEnumProvider);
+            Assert.IsTrue(enumProvider!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Struct | TypeSignatureModifiers.ReadOnly));
         }
 
         [Test]
