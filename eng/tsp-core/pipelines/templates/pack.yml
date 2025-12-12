@@ -7,7 +7,10 @@ parameters:
 
 steps:
   - script: |
+      echo "Packing npm packages into $(Build.ArtifactStagingDirectory)/${{ parameters.artifactName }}"
       pnpm chronus pack --exclude standalone --pack-destination $(Build.ArtifactStagingDirectory)/${{ parameters.artifactName }}
+
+      echo "Create manifest of unpublished packages"
       node eng/tsp-core/scripts/filter-unpublished-packages.ts \
         "$(Pipeline.Workspace)/${{ parameters.artifactName }}" \
         --manifest "$(Build.ArtifactStagingDirectory)/${{ parameters.artifactName }}/publish-summary.json"
@@ -22,4 +25,4 @@ steps:
         Write-Output "No unpublished packages found."
         Write-Host "##vso[task.setvariable variable=${{parameters.hasPackageVariables}}]false"
       }
-    displayName: Pack packages
+    displayName: Pack packages ${{ parameters.artifactName }}
