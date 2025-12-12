@@ -52,14 +52,14 @@ extends:
               artifactName: npm-packages-stable
               tag: latest
               publishGithubRelease: true
-              shouldPublish: $[ eq(variables['HAS_STABLE_PACKAGES_TO_PUBLISH'], 'true') ]
+              condition: eq(variables['HAS_STABLE_PACKAGES_TO_PUBLISH'], 'true')
 
           - template: /eng/tsp-core/pipelines/jobs/publish-npm.yml
             parameters:
               dependsOn: publish_npm_latest
               artifactName: npm-packages-next
               tag: next
-              shouldPublish: $[ eq(variables['HAS_NEXT_PACKAGES_TO_PUBLISH'], 'true') ]
+              condition: eq(variables['HAS_NEXT_PACKAGES_TO_PUBLISH'], 'true')
 
       # - stage: publish_vscode
       #   displayName: Publish VSCode extension

@@ -6,9 +6,8 @@ parameters:
   - name: publishGithubRelease
     type: boolean
     default: false
-  - name: shouldPublish
-    type: boolean
-    default: true
+  - name: condition
+    default: succeeded()
   - name: dependsOn
     type: string
     default: ""
