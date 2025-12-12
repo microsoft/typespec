@@ -21,9 +21,10 @@ steps:
       $packageCount = ($manifest.packages | Get-Member -MemberType NoteProperty).Count
       if ($packageCount -gt 0) {
         Write-Output "Found $packageCount unpublished packages to publish."
-        Write-Host "##vso[task.setvariable variable=${{parameters.hasPackageVariables}}]true"
+        Write-Host "##vso[task.setvariable variable=${{ parameters.hasPackageVariables }};isOutput=true]true"
       } else {
         Write-Output "No unpublished packages found."
-        Write-Host "##vso[task.setvariable variable=${{parameters.hasPackageVariables}}]false"
+        Write-Host "##vso[task.setvariable variable=${{ parameters.hasPackageVariables }};isOutput=true]false"
       }
+    name: pack-${{ parameters.artifactName }}
     displayName: Pack packages ${{ parameters.artifactName }}
