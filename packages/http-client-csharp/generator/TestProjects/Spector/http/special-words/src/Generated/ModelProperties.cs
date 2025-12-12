@@ -22,5 +22,13 @@ namespace SpecialWords._ModelProperties
         public virtual ClientResult SameAsModel(SameAsModel body, CancellationToken cancellationToken = default) => throw null;
 
         public virtual Task<ClientResult> SameAsModelAsync(SameAsModel body, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual ClientResult DictMethods(BinaryContent content, RequestOptions options = null) => throw null;
+
+        public virtual Task<ClientResult> DictMethodsAsync(BinaryContent content, RequestOptions options = null) => throw null;
+
+        public virtual ClientResult DictMethods(DictMethods body, CancellationToken cancellationToken = default) => throw null;
+
+        public virtual Task<ClientResult> DictMethodsAsync(DictMethods body, CancellationToken cancellationToken = default) => throw null;
     }
 }
