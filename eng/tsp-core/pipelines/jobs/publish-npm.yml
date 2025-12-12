@@ -21,14 +21,16 @@ jobs:
     templateContext:
       type: releaseJob
       isProduction: true
+      inputs:
+        - input: pipelineArtifact
+          artifactName: ${{ parameters.artifactName }}
+          itemPattern: "**/*.tgz"
+          targetPath: $(Pipeline.Workspace)/${{ parameters.ArtifactName }}/
+
     strategy:
       runOnce:
         deploy:
           steps:
-            - download: current
-              artifact: ${{ parameters.artifactName }}
-              displayName: Download Npm Packages
-
             - template: ../templates/install.yml
 
             - script: ls $(Pipeline.Workspace)/${{ parameters.artifactName }}
