@@ -11,13 +11,16 @@ parameters:
     default: ""
 
 jobs:
-  - job: publish_npm_${{ parameters.tag }}
+  - deployment: publish_npm_${{ parameters.tag }}
     displayName: Publish Npm (${{ parameters.tag }})
     dependsOn: ${{ parameters.dependsOn }}
     pool:
       name: $(LINUXPOOL)
       image: $(LINUXVMIMAGE)
       os: linux
+    templateContext:
+      type: releaseJob
+      isProduction: true
 
     steps:
       - download: current
