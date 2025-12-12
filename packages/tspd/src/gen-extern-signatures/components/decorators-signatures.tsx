@@ -86,6 +86,7 @@ export function generateSignatures(
       target: NoTarget,
     });
   }
+
   const descriptor = Object.fromEntries(
     locations.map((l) => {
       return [l, { named: ["$decorators"] }];
@@ -97,13 +98,15 @@ export function generateSignatures(
     version: "0.0.0",
     descriptor,
   });
-  const refKeys = locations.map((d) => {
-    if (d === "." || !d) {
-      return userLib.$decorators;
-    } else {
-      return userLib[d].$decorators;
-    }
-  });
+  const refKey = locations
+    .map((d) => {
+      if (d === "." || !d) {
+        return userLib.$decorators;
+      } else {
+        return userLib[d].$decorators;
+      }
+    })
+    .shift()!;
 
   const jsxContent = (
     <TspdContext.Provider value={context}>
@@ -122,7 +125,7 @@ export function generateSignatures(
           >
             <DecoratorSignatureTests
               namespaceName={namespaceName}
-              refKeys={refKeys}
+              dollarDecoratorRefKey={refKey}
               dollarDecoratorsTypeRefKey={$decoratorsRef}
             />
           </ts.SourceFile>
