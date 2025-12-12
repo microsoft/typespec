@@ -48,7 +48,6 @@ extends:
 
         jobs:
           - job: debug
-            dependsOn: build
             variables:
               varFromA: stageDependencies.build.outputs['build.pack_npm_packages_stable.hasUnpublished']
               deps: $[convertToJson(dependencies)] # create a variable with the job dependencies
