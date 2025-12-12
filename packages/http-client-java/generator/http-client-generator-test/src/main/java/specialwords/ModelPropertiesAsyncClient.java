@@ -18,6 +18,7 @@ import com.azure.core.util.BinaryData;
 import com.azure.core.util.FluxUtil;
 import reactor.core.publisher.Mono;
 import specialwords.implementation.ModelPropertiesImpl;
+import specialwords.modelproperties.models.DictMethods;
 import specialwords.modelproperties.models.SameAsModel;
 
 /**
@@ -65,6 +66,41 @@ public final class ModelPropertiesAsyncClient {
     }
 
     /**
+     * The dictMethods operation.
+     * <p><strong>Request Body Schema</strong></p>
+     * 
+     * <pre>
+     * {@code
+     * {
+     *     keys: String (Required)
+     *     items: String (Required)
+     *     values: String (Required)
+     *     popitem: String (Required)
+     *     clear: String (Required)
+     *     update: String (Required)
+     *     setdefault: String (Required)
+     *     pop: String (Required)
+     *     get: String (Required)
+     *     copy: String (Required)
+     * }
+     * }
+     * </pre>
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> dictMethodsWithResponse(BinaryData body, RequestOptions requestOptions) {
+        return this.serviceClient.dictMethodsWithResponseAsync(body, requestOptions);
+    }
+
+    /**
      * The sameAsModel operation.
      * 
      * @param body The body parameter.
@@ -82,5 +118,25 @@ public final class ModelPropertiesAsyncClient {
         // Generated convenience method for sameAsModelWithResponse
         RequestOptions requestOptions = new RequestOptions();
         return sameAsModelWithResponse(BinaryData.fromObject(body), requestOptions).flatMap(FluxUtil::toMono);
+    }
+
+    /**
+     * The dictMethods operation.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return A {@link Mono} that completes when a successful response is received.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Void> dictMethods(DictMethods body) {
+        // Generated convenience method for dictMethodsWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return dictMethodsWithResponse(BinaryData.fromObject(body), requestOptions).flatMap(FluxUtil::toMono);
     }
 }
