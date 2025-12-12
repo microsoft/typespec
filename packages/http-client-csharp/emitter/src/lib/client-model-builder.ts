@@ -43,8 +43,8 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
   // TODO -- TCGC now does not have constants field in its sdkPackage, they might add it in the future.
   const constants = Array.from(sdkContext.__typeCache.constants.values());
 
-  // Fix naming conflicts for constants and constant-derived enums
-  fixConstantAndEnumNaming(models, constants);
+  // Fix naming conflicts for constants, enums, and models
+  fixNamingConflicts(models, constants);
 
   const clientModel: CodeModel = {
     // To ensure deterministic library name, customers would need to set the package-name property as the ordering of the namespaces could change
@@ -62,7 +62,7 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
 }
 
 /**
- * Fixes naming conflicts for constants and enums.
+ * Fixes naming conflicts for constants, enums, and models.
  *
  * TODO - TCGC has two issues which come from the same root cause: the name determination algorithm based on the typespec node of the constant.
  * Typespec itself will always use the same node/Type instance for the same value constant, therefore a lot of names are not correct.
@@ -74,7 +74,7 @@ export function createModel(sdkContext: CSharpEmitterContext): CodeModel {
  * @param enums - Array of input enum types
  * @param constants - Array of input literal types (constants)
  */
-function fixConstantAndEnumNaming(models: InputModelType[], constants: InputLiteralType[]): void {
+function fixNamingConflicts(models: InputModelType[], constants: InputLiteralType[]): void {
   // First, fix names for constants and constant-derived enums in model properties
   for (const model of models) {
     for (const property of model.properties) {
@@ -106,6 +106,22 @@ function fixConstantAndEnumNaming(models: InputModelType[], constants: InputLite
       constant.name = `${constant.name}${count}`;
     } else {
       constantNameMap.set(constant.name, 1);
+    }
+  }
+
+  // Third, handle duplicate model names within the same namespace
+  // This can occur when namespace option is specified and models from different
+  // source namespaces end up in the same target namespace
+  const modelNameMap = new Map<string, number>();
+  for (const model of models) {
+    // Use namespace + name as the key to detect duplicates within the same namespace
+    const key = `${model.namespace}.${model.name}`;
+    const count = modelNameMap.get(key);
+    if (count) {
+      modelNameMap.set(key, count + 1);
+      model.name = `${model.name}${count}`;
+    } else {
+      modelNameMap.set(key, 1);
     }
   }
 }

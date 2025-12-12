@@ -385,7 +385,7 @@ public final class ModelsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withAndWithResponse(And body, RequestContext requestContext) {
@@ -404,7 +404,7 @@ public final class ModelsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withAsWithResponse(As body, RequestContext requestContext) {
@@ -423,7 +423,7 @@ public final class ModelsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withAssertWithResponse(Assert body, RequestContext requestContext) {
@@ -442,7 +442,7 @@ public final class ModelsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withAsyncWithResponse(Async body, RequestContext requestContext) {
@@ -461,7 +461,7 @@ public final class ModelsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withAwaitWithResponse(Await body, RequestContext requestContext) {
@@ -480,7 +480,7 @@ public final class ModelsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withBreakWithResponse(Break body, RequestContext requestContext) {
@@ -499,7 +499,7 @@ public final class ModelsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withClassWithResponse(ClassModel body, RequestContext requestContext) {
@@ -518,7 +518,7 @@ public final class ModelsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withConstructorWithResponse(Constructor body, RequestContext requestContext) {
@@ -537,7 +537,7 @@ public final class ModelsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withContinueWithResponse(Continue body, RequestContext requestContext) {
@@ -556,7 +556,7 @@ public final class ModelsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withDefWithResponse(Def body, RequestContext requestContext) {
@@ -575,7 +575,7 @@ public final class ModelsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withDelWithResponse(Del body, RequestContext requestContext) {
@@ -594,7 +594,7 @@ public final class ModelsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withElifWithResponse(Elif body, RequestContext requestContext) {
@@ -613,7 +613,7 @@ public final class ModelsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withElseWithResponse(Else body, RequestContext requestContext) {
@@ -632,7 +632,7 @@ public final class ModelsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withExceptWithResponse(Except body, RequestContext requestContext) {
@@ -651,7 +651,7 @@ public final class ModelsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withExecWithResponse(Exec body, RequestContext requestContext) {
@@ -670,7 +670,7 @@ public final class ModelsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withFinallyWithResponse(Finally body, RequestContext requestContext) {
@@ -689,7 +689,7 @@ public final class ModelsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withForWithResponse(For body, RequestContext requestContext) {
@@ -708,7 +708,7 @@ public final class ModelsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withFromWithResponse(From body, RequestContext requestContext) {
@@ -727,7 +727,7 @@ public final class ModelsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withGlobalWithResponse(Global body, RequestContext requestContext) {
@@ -746,7 +746,7 @@ public final class ModelsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withIfWithResponse(If body, RequestContext requestContext) {
@@ -765,7 +765,7 @@ public final class ModelsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withImportWithResponse(Import body, RequestContext requestContext) {
@@ -784,7 +784,7 @@ public final class ModelsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withInWithResponse(In body, RequestContext requestContext) {
@@ -803,7 +803,7 @@ public final class ModelsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withIsWithResponse(Is body, RequestContext requestContext) {
@@ -822,7 +822,7 @@ public final class ModelsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withLambdaWithResponse(Lambda body, RequestContext requestContext) {
@@ -841,7 +841,7 @@ public final class ModelsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withNotWithResponse(Not body, RequestContext requestContext) {
@@ -860,7 +860,7 @@ public final class ModelsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withOrWithResponse(Or body, RequestContext requestContext) {
@@ -879,7 +879,7 @@ public final class ModelsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withPassWithResponse(Pass body, RequestContext requestContext) {
@@ -898,7 +898,7 @@ public final class ModelsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withRaiseWithResponse(Raise body, RequestContext requestContext) {
@@ -917,7 +917,7 @@ public final class ModelsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withReturnWithResponse(Return body, RequestContext requestContext) {
@@ -936,7 +936,7 @@ public final class ModelsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withTryWithResponse(Try body, RequestContext requestContext) {
@@ -955,7 +955,7 @@ public final class ModelsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withWhileWithResponse(While body, RequestContext requestContext) {
@@ -974,7 +974,7 @@ public final class ModelsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withWithWithResponse(With body, RequestContext requestContext) {
@@ -993,7 +993,7 @@ public final class ModelsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> withYieldWithResponse(Yield body, RequestContext requestContext) {

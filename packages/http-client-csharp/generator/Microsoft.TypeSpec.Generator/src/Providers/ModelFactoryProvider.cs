@@ -46,7 +46,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return docs;
         }
 
-        protected override MethodProvider[] BuildMethods()
+        protected internal override MethodProvider[] BuildMethods()
         {
             var methods = new List<MethodProvider>(_models.Count());
             foreach (var model in _models)

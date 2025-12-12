@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.template.azurevnext;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
@@ -13,6 +12,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Proxy
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaType;
 import com.microsoft.typespec.http.client.generator.core.template.clientcore.ClientCoreClientMethodTemplate;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.stream.Collectors;
 
 public class AzureVNextClientMethodTemplate extends ClientCoreClientMethodTemplate {

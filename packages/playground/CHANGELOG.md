@@ -1,5 +1,23 @@
 # Change Log - @typespec/playground
 
+## 0.11.3
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+
+## 0.11.2
+
+### Bump dependencies
+
+- [#8823](https://github.com/microsoft/typespec/pull/8823) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8714](https://github.com/microsoft/typespec/pull/8714) Fix regression in recent performance optimization of language server that crashed the playground when completing
+
+
 ## 0.11.1
 
 ### Bump dependencies

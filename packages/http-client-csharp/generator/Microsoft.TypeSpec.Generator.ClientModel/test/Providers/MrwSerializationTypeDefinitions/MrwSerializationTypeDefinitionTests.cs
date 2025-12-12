@@ -599,6 +599,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [Test]
+        public void GetUtf8BytesIsUsedForMrwFallback()
+        {
+            var property = InputFactory.Property(
+                "mockProperty",
+                InputFactory.Model("SomeExternalModel", external: new InputExternalTypeMetadata("System.IO.File", null, null)));
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: [property]);
+            var (_, serialization) = CreateModelAndSerialization(inputModel);
+
+            var deserializationMethod = serialization.Methods.Single(m => m.Signature.Name.StartsWith("Deserialize"));
+            var methodBody = deserializationMethod.BodyStatements!.ToDisplayString();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), methodBody);
+        }
+
+        [Test]
         public void TestBuildDeserializationMethodNestedSARD()
         {
             var baseModel = InputFactory.Model("BaseModel");
@@ -924,5 +939,306 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             MethodBodyStatements statements => statements.Statements.Any(s => HasMethodBodyStatement(s, predicate)),
             _ => predicate(statement)
         };
+
+        [Test]
+        public void TestGetDeserializationMethodInvocationForType_FrameworkType()
+        {
+            MockHelpers.LoadMockGenerator();
+            // Test that framework types are handled via DeserializeJsonValueCore
+            // which uses MRW.Read as a fallback for unsupported types
+            var jsonElementVar = new ScopedApi<JsonElement>(new VariableExpression(typeof(JsonElement), "element"));
+            var dataVar = new VariableExpression(typeof(BinaryData), "data");
+            var optionsVar = new VariableExpression(typeof(ModelReaderWriterOptions), "options");
+
+            // String is a framework type that should be handled by DeserializeJsonValueCore
+            var frameworkType = new CSharpType(typeof(string));
+            var result = MrwSerializationTypeDefinition.GetDeserializationMethodInvocationForType(
+                frameworkType,
+                jsonElementVar,
+                dataVar,
+                optionsVar);
+
+            Assert.IsNotNull(result);
+            var resultString = result.ToDisplayString();
+            // Framework types now go through the type's Deserialize method
+            Assert.IsTrue(resultString.Contains("Deserialize"));
+        }
+
+        [Test]
+        public void TestGetDeserializationMethodInvocationForType_ModelType()
+        {
+            MockHelpers.LoadMockGenerator();
+            // Test that model types use the model's deserialize method
+            var inputModel = InputFactory.Model("TestModel");
+            var (model, _) = CreateModelAndSerialization(inputModel);
+
+            var jsonElementVar = new ScopedApi<JsonElement>(new VariableExpression(typeof(JsonElement), "element"));
+            var dataVar = new VariableExpression(typeof(BinaryData), "data");
+            var optionsVar = new VariableExpression(typeof(ModelReaderWriterOptions), "options");
+
+            var result = MrwSerializationTypeDefinition.GetDeserializationMethodInvocationForType(
+                model.Type,
+                jsonElementVar,
+                dataVar,
+                optionsVar);
+
+            Assert.IsNotNull(result);
+            var resultString = result.ToDisplayString();
+            // Model types should use the Deserialize extension method
+            Assert.IsTrue(resultString.Contains("Deserialize"));
+            Assert.IsTrue(resultString.Contains("TestModel"));
+        }
+
+        [Test]
+        public void TestGetDeserializationMethodInvocationForType_NonModelCSharpType()
+        {
+            MockHelpers.LoadMockGenerator();
+            // Test that non-model CSharpTypes use the type's deserialize method
+            var jsonElementVar = new ScopedApi<JsonElement>(new VariableExpression(typeof(JsonElement), "element"));
+            var dataVar = new VariableExpression(typeof(BinaryData), "data");
+            var optionsVar = new VariableExpression(typeof(ModelReaderWriterOptions), "options");
+
+            // Use a type that's not in the type factory
+            var customType = new CSharpType(typeof(int));
+            var result = MrwSerializationTypeDefinition.GetDeserializationMethodInvocationForType(
+                customType,
+                jsonElementVar,
+                dataVar,
+                optionsVar);
+
+            Assert.IsNotNull(result);
+            var resultString = result.ToDisplayString();
+            // Should call Deserialize on the type
+            Assert.IsTrue(resultString.Contains("Deserialize"));
+        }
+
+        [Test]
+        public void TestGetDeserializationMethodInvocationForType_WithoutOptions()
+        {
+            MockHelpers.LoadMockGenerator();
+            // Test that the method works when options are not provided
+            var jsonElementVar = new ScopedApi<JsonElement>(new VariableExpression(typeof(JsonElement), "element"));
+            var dataVar = new VariableExpression(typeof(BinaryData), "data");
+
+            var frameworkType = new CSharpType(typeof(string));
+            var result = MrwSerializationTypeDefinition.GetDeserializationMethodInvocationForType(
+                frameworkType,
+                jsonElementVar,
+                dataVar,
+                null);
+
+            Assert.IsNotNull(result);
+            var resultString = result.ToDisplayString();
+            // Should still deserialize even without options parameter
+            Assert.IsTrue(resultString.Contains("Deserialize"));
+        }
+
+        [Test]
+        public void TestDeserializeJsonValueCore_FrameworkTypeWithMrwFallback()
+        {
+            MockHelpers.LoadMockGenerator();
+            // Test that DeserializeJsonValueCore uses MRW fallback for unsupported framework types
+            var jsonElementVar = new ScopedApi<JsonElement>(new VariableExpression(typeof(JsonElement), "element"));
+            var dataVar = new ScopedApi<BinaryData>(new VariableExpression(typeof(BinaryData), "data"));
+            var optionsVar = new ScopedApi<ModelReaderWriterOptions>(new VariableExpression(typeof(ModelReaderWriterOptions), "options"));
+
+            // Use a framework type that's not explicitly handled in DeserializeJsonValueCore
+            // This should fall back to ModelReaderWriter.Read
+            var unsupportedType = new CSharpType(typeof(System.Reflection.Assembly));
+            var result = MrwSerializationTypeDefinition.DeserializeJsonValueCore(
+                unsupportedType,
+                jsonElementVar,
+                dataVar,
+                optionsVar,
+                SerializationFormat.Default);
+
+            Assert.IsNotNull(result);
+            var resultString = result.ToDisplayString();
+            // Should use MRW.Read as fallback
+            Assert.IsTrue(resultString.Contains("global::System.ClientModel.Primitives.ModelReaderWriter.Read"));
+            Assert.IsTrue(resultString.Contains("data"));
+        }
+
+        [Test]
+        public void TestDeserializeJsonValueCore_SupportedFrameworkTypes()
+        {
+            MockHelpers.LoadMockGenerator();
+            // Test that common framework types are handled correctly without MRW fallback
+            var jsonElementVar = new ScopedApi<JsonElement>(new VariableExpression(typeof(JsonElement), "element"));
+            var dataVar = new ScopedApi<BinaryData>(new VariableExpression(typeof(BinaryData), "data"));
+            var optionsVar = new ScopedApi<ModelReaderWriterOptions>(new VariableExpression(typeof(ModelReaderWriterOptions), "options"));
+
+            // Test string
+            var stringResult = MrwSerializationTypeDefinition.DeserializeJsonValueCore(
+                new CSharpType(typeof(string)),
+                jsonElementVar,
+                dataVar,
+                optionsVar,
+                SerializationFormat.Default);
+            Assert.IsTrue(stringResult.ToDisplayString().Contains("GetString"));
+
+            // Test int
+            var intResult = MrwSerializationTypeDefinition.DeserializeJsonValueCore(
+                new CSharpType(typeof(int)),
+                jsonElementVar,
+                dataVar,
+                optionsVar,
+                SerializationFormat.Default);
+            Assert.IsTrue(intResult.ToDisplayString().Contains("GetInt32"));
+
+            // Test bool
+            var boolResult = MrwSerializationTypeDefinition.DeserializeJsonValueCore(
+                new CSharpType(typeof(bool)),
+                jsonElementVar,
+                dataVar,
+                optionsVar,
+                SerializationFormat.Default);
+            Assert.IsTrue(boolResult.ToDisplayString().Contains("GetBoolean"));
+        }
+
+        [Test]
+        public void TestGetDeserializationMethodInvocationForType_DynamicModel()
+        {
+            MockHelpers.LoadMockGenerator();
+            // Test that dynamic models handle data parameter correctly
+            var properties = new List<InputModelProperty>
+            {
+                InputFactory.Property("prop1", InputPrimitiveType.String, isRequired: true)
+            };
+
+            var inputModel = InputFactory.Model("DynamicModel", properties: properties, modelAsStruct: false);
+            MockHelpers.LoadMockGenerator();
+
+            // Create a model provider
+            var modelProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ModelProvider;
+            Assert.IsNotNull(modelProvider);
+
+            var jsonElementVar = new ScopedApi<JsonElement>(new VariableExpression(typeof(JsonElement), "element"));
+            var dataVar = new VariableExpression(typeof(BinaryData), "data");
+            var optionsVar = new VariableExpression(typeof(ModelReaderWriterOptions), "options");
+
+            // Call the internal method directly from the test assembly
+            var result = MrwSerializationTypeDefinition.GetDeserializationMethodInvocationForType(
+                modelProvider!.Type,
+                jsonElementVar,
+                dataVar,
+                optionsVar);
+
+            Assert.IsNotNull(result);
+            var resultString = result.ToDisplayString();
+            Assert.IsTrue(resultString.Contains("Deserialize"));
+        }
+
+        [Test]
+        public void TestGetDeserializationMethodInvocationForType_InDeserializationMethod()
+        {
+            MockHelpers.LoadMockGenerator();
+            // Test that GetDeserializationMethodInvocationForType is used correctly in the deserialization method
+            var properties = new List<InputModelProperty>
+            {
+                InputFactory.Property("modelProperty", InputFactory.Model("InnerModel"), isRequired: true)
+            };
+
+            var innerModel = InputFactory.Model("InnerModel");
+            var inputModel = InputFactory.Model("OuterModel", properties: properties);
+
+            var generator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [inputModel, innerModel],
+                createSerializationsCore: (inputType, typeProvider) =>
+                    inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, (typeProvider as ModelProvider)!)]: []);
+
+            generator.Object.TypeFactory.RootInputModels.Add(inputModel);
+            generator.Object.TypeFactory.RootOutputModels.Add(inputModel);
+            generator.Object.TypeFactory.RootInputModels.Add(innerModel);
+            generator.Object.TypeFactory.RootOutputModels.Add(innerModel);
+
+            var outerModel = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ModelProvider;
+            Assert.IsNotNull(outerModel);
+
+            var serialization = outerModel!.SerializationProviders.FirstOrDefault() as MrwSerializationTypeDefinition;
+            Assert.IsNotNull(serialization);
+
+            var deserializationMethod = serialization!.BuildDeserializationMethod();
+            Assert.IsNotNull(deserializationMethod);
+
+            var methodBody = deserializationMethod!.BodyStatements!.ToDisplayString();
+            // Verify that the deserialization method contains calls to deserialize the inner model
+            Assert.IsTrue(methodBody.Contains("InnerModel"));
+            Assert.IsTrue(methodBody.Contains("Deserialize"));
+        }
+
+        [Test]
+        public void TestGetDeserializationMethodInvocationForType_CollectionOfModels()
+        {
+            MockHelpers.LoadMockGenerator();
+            // Test deserialization of collections containing model types
+            var innerModel = InputFactory.Model("ItemModel");
+            var properties = new List<InputModelProperty>
+            {
+                InputFactory.Property("items", InputFactory.Array(innerModel), isRequired: true)
+            };
+
+            var inputModel = InputFactory.Model("CollectionModel", properties: properties);
+
+            var generator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [inputModel, innerModel],
+                createSerializationsCore: (inputType, typeProvider) =>
+                    inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, (typeProvider as ModelProvider)!)]: []);
+
+            generator.Object.TypeFactory.RootInputModels.Add(inputModel);
+            generator.Object.TypeFactory.RootOutputModels.Add(inputModel);
+            generator.Object.TypeFactory.RootInputModels.Add(innerModel);
+            generator.Object.TypeFactory.RootOutputModels.Add(innerModel);
+
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ModelProvider;
+            Assert.IsNotNull(model);
+
+            var serialization = model!.SerializationProviders.FirstOrDefault() as MrwSerializationTypeDefinition;
+            Assert.IsNotNull(serialization);
+
+            var deserializationMethod = serialization!.BuildDeserializationMethod();
+            Assert.IsNotNull(deserializationMethod);
+
+            var methodBody = deserializationMethod!.BodyStatements!.ToDisplayString();
+            // Verify that array deserialization includes item model deserialization
+            Assert.IsTrue(methodBody.Contains("ItemModel"));
+        }
+
+        [Test]
+        public void TestGetDeserializationMethodInvocationForType_DictionaryOfModels()
+        {
+            MockHelpers.LoadMockGenerator();
+            // Test deserialization of dictionaries with model values
+            var valueModel = InputFactory.Model("ValueModel");
+            var properties = new List<InputModelProperty>
+            {
+                InputFactory.Property("values", InputFactory.Dictionary(valueModel), isRequired: true)
+            };
+
+            var inputModel = InputFactory.Model("DictionaryModel", properties: properties);
+
+            var generator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [inputModel, valueModel],
+                createSerializationsCore: (inputType, typeProvider) =>
+                    inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, (typeProvider as ModelProvider)!)]: []);
+
+            generator.Object.TypeFactory.RootInputModels.Add(inputModel);
+            generator.Object.TypeFactory.RootOutputModels.Add(inputModel);
+            generator.Object.TypeFactory.RootInputModels.Add(valueModel);
+            generator.Object.TypeFactory.RootOutputModels.Add(valueModel);
+
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ModelProvider;
+            Assert.IsNotNull(model);
+
+            var serialization = model!.SerializationProviders.FirstOrDefault() as MrwSerializationTypeDefinition;
+            Assert.IsNotNull(serialization);
+
+            var deserializationMethod = serialization!.BuildDeserializationMethod();
+            Assert.IsNotNull(deserializationMethod);
+
+            var methodBody = deserializationMethod!.BodyStatements!.ToDisplayString();
+            // Verify that dictionary deserialization includes value model deserialization
+            Assert.IsTrue(methodBody.Contains("ValueModel"));
+        }
     }
 }

@@ -1,0 +1,162 @@
+{
+  "name": "SampleNamespace",
+  "doc": "Test namespace for multi-level inheritance with dynamic models",
+  "models": [
+    {
+      "$id": "1",
+      "kind": "model",
+      "name": "GrandparentModel",
+      "namespace": "SampleNamespace",
+      "crossLanguageDefinitionId": "SampleNamespace.GrandparentModel",
+      "usage": "Input,Output,Json",
+      "doc": "Grandparent model at the top of inheritance chain",
+      "decorators": [],
+      "discriminatorProperty": {
+        "$id": "1a",
+        "kind": "property",
+        "name": "kind",
+        "serializedName": "kind",
+        "doc": "Discriminator property",
+        "type": {
+          "$id": "1b",
+          "kind": "string",
+          "name": "string",
+          "crossLanguageDefinitionId": "TypeSpec.string",
+          "decorators": []
+        },
+        "optional": false,
+        "readOnly": false,
+        "discriminator": true,
+        "flatten": false,
+        "decorators": [],
+        "crossLanguageDefinitionId": "SampleNamespace.GrandparentModel.kind",
+        "serializationOptions": {
+          "json": {
+            "name": "kind"
+          }
+        },
+        "isHttpMetadata": false
+      },
+      "properties": [
+        {
+          "$ref": "1a"
+        },
+        {
+          "$id": "2",
+          "kind": "property",
+          "name": "grandparentProp",
+          "serializedName": "grandparentProp",
+          "doc": "Property in grandparent model",
+          "type": {
+            "$id": "3",
+            "kind": "string",
+            "name": "string",
+            "crossLanguageDefinitionId": "TypeSpec.string",
+            "decorators": []
+          },
+          "optional": false,
+          "readOnly": false,
+          "discriminator": false,
+          "flatten": false,
+          "decorators": [],
+          "crossLanguageDefinitionId": "SampleNamespace.GrandparentModel.grandparentProp",
+          "serializationOptions": {
+            "json": {
+              "name": "grandparentProp"
+            }
+          },
+          "isHttpMetadata": false
+        }
+      ]
+    },
+    {
+      "$id": "4",
+      "kind": "model",
+      "name": "ParentModel",
+      "namespace": "SampleNamespace",
+      "crossLanguageDefinitionId": "SampleNamespace.ParentModel",
+      "usage": "Input,Output,Json",
+      "doc": "Parent model in the middle of inheritance chain",
+      "decorators": [],
+      "baseModel": {
+        "$ref": "1"
+      },
+      "discriminatorValue": "parent",
+      "properties": [
+        {
+          "$id": "5",
+          "kind": "property",
+          "name": "parentProp",
+          "serializedName": "parentProp",
+          "doc": "Property in parent model",
+          "type": {
+            "$id": "6",
+            "kind": "int32",
+            "name": "int32",
+            "crossLanguageDefinitionId": "TypeSpec.int32",
+            "decorators": []
+          },
+          "optional": false,
+          "readOnly": false,
+          "discriminator": false,
+          "flatten": false,
+          "decorators": [],
+          "crossLanguageDefinitionId": "SampleNamespace.ParentModel.parentProp",
+          "serializationOptions": {
+            "json": {
+              "name": "parentProp"
+            }
+          },
+          "isHttpMetadata": false
+        }
+      ]
+    },
+    {
+      "$id": "7",
+      "kind": "model",
+      "name": "ChildModel",
+      "namespace": "SampleNamespace",
+      "crossLanguageDefinitionId": "SampleNamespace.ChildModel",
+      "usage": "Input,Output,Json",
+      "doc": "Child model with dynamic decorator",
+      "decorators": [
+        {
+          "name": "TypeSpec.HttpClient.CSharp.@dynamicModel",
+          "arguments": {}
+        }
+      ],
+      "baseModel": {
+        "$ref": "4"
+      },
+      "discriminatorValue": "child",
+      "properties": [
+        {
+          "$id": "8",
+          "kind": "property",
+          "name": "childProp",
+          "serializedName": "childProp",
+          "doc": "Property in child model",
+          "type": {
+            "$id": "9",
+            "kind": "boolean",
+            "name": "boolean",
+            "crossLanguageDefinitionId": "TypeSpec.boolean",
+            "decorators": []
+          },
+          "optional": false,
+          "readOnly": false,
+          "discriminator": false,
+          "flatten": false,
+          "decorators": [],
+          "crossLanguageDefinitionId": "SampleNamespace.ChildModel.childProp",
+          "serializationOptions": {
+            "json": {
+              "name": "childProp"
+            }
+          },
+          "isHttpMetadata": false
+        }
+      ]
+    }
+  ]
+}

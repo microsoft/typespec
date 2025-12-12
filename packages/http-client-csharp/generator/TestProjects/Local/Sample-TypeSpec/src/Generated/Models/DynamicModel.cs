@@ -12,6 +12,7 @@ using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace SampleTypeSpec
 {
@@ -102,6 +103,7 @@ namespace SampleTypeSpec
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
 
         /// <summary> Gets the Patch. </summary>
+        [JsonIgnore]
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Experimental("SCME0001")]
         public ref JsonPatch Patch => ref _patch;

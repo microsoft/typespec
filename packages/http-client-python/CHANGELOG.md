@@ -1,5 +1,42 @@
 # Change Log - @typespec/http-client-python
 
+## 0.22.0
+
+### Features
+
+- [#8767](https://github.com/microsoft/typespec/pull/8767) Support SDK users defined customized serialization/deserialization function for external models
+
+### Bug Fixes
+
+- [#9017](https://github.com/microsoft/typespec/pull/9017) Keep original client name for backcompat reasons when the name is only padded for tsp generations
+- [#9129](https://github.com/microsoft/typespec/pull/9129) Fix for optional properties in flatten model to keep compatibility
+- [#9144](https://github.com/microsoft/typespec/pull/9144) Fix multipart when files part is optional
+- [#9138](https://github.com/microsoft/typespec/pull/9138) Fix serialization name for multipart
+
+
+## 0.21.0
+
+### Features
+
+- [#9112](https://github.com/microsoft/typespec/pull/9112) Support customized http method to call next link for paging operation
+
+### Bug Fixes
+
+- [#9108](https://github.com/microsoft/typespec/pull/9108) fix logic about which scenario to add msrest as dependency
+- [#9107](https://github.com/microsoft/typespec/pull/9107) Fix @override to avoid duplicated subscriptionId or api-version signatures
+
+
+## 0.20.3
+
+### Bump dependencies
+
+- [#8992](https://github.com/microsoft/typespec/pull/8992) Bump typespec dependency
+
+### Bug Fixes
+
+- [#8948](https://github.com/microsoft/typespec/pull/8948) Fix subscriptionId missing for override
+
+
 ## 0.20.2
 
 ### Bug Fixes

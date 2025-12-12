@@ -276,7 +276,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
             protected override string BuildNamespace() => _namespace;
 
-            protected override PropertyProvider[] BuildProperties()
+            protected internal override PropertyProvider[] BuildProperties()
             {
                 var nullInputWireInfo = InputFactory.Property("NullWireInfo", InputPrimitiveType.String);
                 return
@@ -290,7 +290,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 ];
             }
 
-            protected override MethodProvider[] BuildMethods()
+            protected internal override MethodProvider[] BuildMethods()
             {
                 var intParam = new ParameterProvider("p", $"I have a wrong name", typeof(int));
                 var strParam = new ParameterProvider("strParam", $"I have the correct name", typeof(string));

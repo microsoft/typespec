@@ -122,6 +122,21 @@ export type Decorators = {
       });
     });
   });
+
+  it("union of union types", async () => {
+    await expectSignatures({
+      code: `extern dec simple(target: (int32 | string) | Model);`,
+      expected: `
+${importLine(["Model", "Scalar"])}
+
+export type SimpleDecorator = (context: DecoratorContext, target: Scalar | Model) => void;
+
+export type Decorators = {
+  simple: SimpleDecorator;
+};
+  `,
+    });
+  });
 });
 
 describe("generate parameter type", () => {
@@ -240,6 +255,21 @@ export type SimpleDecorator = (
     readonly age?: number;
   },
 ) => void;
+
+export type Decorators = {
+  simple: SimpleDecorator;
+};
+    `,
+      });
+    });
+
+    it("valueof int32 | string | utcDateTime", async () => {
+      await expectSignatures({
+        code: `extern dec simple(target, arg1: valueof int32 | string | utcDateTime);`,
+        expected: `
+${importLine(["ScalarValue", "Type"])}
+
+export type SimpleDecorator = (context: DecoratorContext, target: Type, arg1: number | string | ScalarValue) => void;
 
 export type Decorators = {
   simple: SimpleDecorator;

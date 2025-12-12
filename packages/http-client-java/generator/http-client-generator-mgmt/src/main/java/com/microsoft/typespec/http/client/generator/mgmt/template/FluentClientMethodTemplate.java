@@ -29,11 +29,10 @@ public class FluentClientMethodTemplate extends ClientMethodTemplate {
         final ProxyMethod restAPIMethod = clientMethod.getProxyMethod();
         boolean addContextParameter = !contextInParameters(clientMethod);
         boolean mergeContextParameter = contextInParameters(clientMethod);
-        boolean isLroPagination = GenericType.Mono(GenericType.Response(GenericType.FLUX_BYTE_BUFFER))
+        boolean isLroPagination = GenericType.mono(GenericType.response(GenericType.FLUX_BYTE_BUFFER))
             .equals(restAPIMethod.getReturnType().getClientType());
         String endOfLine = addContextParameter ? "" : ";";
-        String contextParam
-            = mergeContextParameter ? "context" : String.format("%s.getContext()", clientMethod.getClientReference());
+        String contextParam = mergeContextParameter ? "context" : clientMethod.getClientReference() + ".getContext()";
 
         typeBlock.annotation("ServiceMethod(returns = ReturnType.SINGLE)");
         String restAPIMethodArgumentList = String.join(", ", clientMethod.getProxyMethodArguments(settings));
@@ -45,8 +44,7 @@ public class FluentClientMethodTemplate extends ClientMethodTemplate {
                 applyParameterTransformations(function, clientMethod, settings);
                 convertClientTypesToWireTypes(function, clientMethod);
                 if (mergeContextParameter) {
-                    function
-                        .line(String.format("context = %s.mergeContext(context);", clientMethod.getClientReference()));
+                    function.line("context = %s.mergeContext(context);", clientMethod.getClientReference());
                 }
                 if (addContextParameter) {
                     if (!isLroPagination) {
@@ -218,7 +216,7 @@ public class FluentClientMethodTemplate extends ClientMethodTemplate {
         JavaSettings settings, JavaBlock function) {
         boolean contextInParameters = contextInParameters(clientMethod);
         boolean isLroPagination
-            = GenericType.Response(ClassType.BINARY_DATA).equals(restAPIMethod.getReturnType().getClientType());
+            = GenericType.response(ClassType.BINARY_DATA).equals(restAPIMethod.getReturnType().getClientType());
         if (isLroPagination && settings.isSyncStackEnabled()) {
             IType classType = clientMethod.getMethodPageDetails().getLroIntermediateType();
             // get final result
@@ -259,11 +257,9 @@ public class FluentClientMethodTemplate extends ClientMethodTemplate {
             }
             if (addContextParameter) {
                 function.line(String.format("return FluxUtil.withContext(context -> %s)", serviceMethodCall));
-                function.indent(() -> {
-                    function.line(String.format(
-                        ".contextWrite(context -> context.putAll(FluxUtil.toReactorContext(%s.getContext()).readOnly()));",
-                        clientMethod.getClientReference()));
-                });
+                function.indent(() -> function.line(String.format(
+                    ".contextWrite(context -> context.putAll(FluxUtil.toReactorContext(%s.getContext()).readOnly()));",
+                    clientMethod.getClientReference())));
             } else {
                 function.methodReturn(serviceMethodCall);
             }
@@ -281,8 +277,7 @@ public class FluentClientMethodTemplate extends ClientMethodTemplate {
             function.line("return %s(%s)", beginAsyncMethodName, clientMethod.getArgumentList());
             function.indent(() -> {
                 function.line(".last()");
-                function
-                    .line(String.format(".flatMap(%s::getLroFinalResultOrError);", clientMethod.getClientReference()));
+                function.line(".flatMap(%s::getLroFinalResultOrError);", clientMethod.getClientReference());
             });
         });
     }
@@ -308,7 +303,7 @@ public class FluentClientMethodTemplate extends ClientMethodTemplate {
     protected void generateLongRunningBeginAsync(ClientMethod clientMethod, JavaType typeBlock, JavaSettings settings) {
         boolean mergeContextParameter = contextInParameters(clientMethod);
         String contextParam
-            = mergeContextParameter ? "context" : String.format("%s.getContext()", clientMethod.getClientReference());;
+            = mergeContextParameter ? "context" : String.format("%s.getContext()", clientMethod.getClientReference());
 
         typeBlock.annotation("ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)");
         writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {

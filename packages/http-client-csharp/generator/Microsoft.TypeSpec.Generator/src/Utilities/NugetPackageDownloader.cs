@@ -265,6 +265,16 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 }
             }
 
+            // Fallback to any of the preferred versions if none of the target frameworks matched.
+            foreach (var preferredDotNetFrameworkVersion in PreferredDotNetFrameworkVersions)
+            {
+                var dotNetFolder = Path.Combine(packageLibraryPath, preferredDotNetFrameworkVersion);
+                if (DirectoryExists(dotNetFolder))
+                {
+                    return dotNetFolder;
+                }
+            }
+
             return null;
         }
 

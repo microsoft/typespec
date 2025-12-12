@@ -244,6 +244,7 @@ function addPagingInformation(
     nextLinkIsNested:
       method.pagingMetadata.nextLinkSegments && method.pagingMetadata.nextLinkSegments.length > 1,
     nextLinkReInjectedParameters,
+    nextLinkVerb: method.pagingMetadata.nextLinkVerb,
     itemType,
     description: method.doc ?? "",
     summary: method.summary,
@@ -457,10 +458,14 @@ function emitHttpParameters(
         if (parametersFromMethod.length > 0) {
           // TCGC doesn't set apiVersion in method parameters since TCGC already set it as client level parameter.
           // But Python emitter still need it as kwargs signature of operation so we need special logic to add it if needed.
+          // And same for subscriptionId.
           for (const param of operation.parameters) {
-            if (param.kind === "query" && param.isApiVersionParam) {
+            if (
+              ((param.kind === "query" && param.isApiVersionParam) ||
+                (param.serializedName === "subscriptionId" && param.kind === "path")) &&
+              !parametersFromMethod.find((p) => p.serializedName === param.serializedName)
+            ) {
               parametersFromMethod.push(param);
-              break;
             }
           }
           return parametersFromMethod;

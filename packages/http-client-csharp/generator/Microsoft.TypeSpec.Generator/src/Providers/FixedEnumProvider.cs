@@ -88,7 +88,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return values;
         }
 
-        protected override FieldProvider[] BuildFields()
+        protected internal override FieldProvider[] BuildFields()
             => EnumValues.Select(v => v.Field).ToArray();
 
         protected override bool GetIsEnum() => true;

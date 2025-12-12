@@ -92,10 +92,26 @@ public final class QueriesImpl {
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
+            path = "/encode/duration/query/int32-seconds-larger-unit",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> int32SecondsLargerUnit(@HostParam("endpoint") String endpoint, @QueryParam("input") long input,
+            RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
             path = "/encode/duration/query/float-seconds",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
         Response<Void> floatSeconds(@HostParam("endpoint") String endpoint, @QueryParam("input") double input,
+            RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/encode/duration/query/float-seconds-larger-unit",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> floatSecondsLargerUnit(@HostParam("endpoint") String endpoint, @QueryParam("input") double input,
             RequestContext requestContext);
 
         @HttpRequestInformation(
@@ -116,11 +132,27 @@ public final class QueriesImpl {
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
+            path = "/encode/duration/query/int32-milliseconds-larger-unit",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> int32MillisecondsLargerUnit(@HostParam("endpoint") String endpoint,
+            @QueryParam("input") int input, RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
             path = "/encode/duration/query/float-milliseconds",
             expectedStatusCodes = { 204 })
         @UnexpectedResponseExceptionDetail
         Response<Void> floatMilliseconds(@HostParam("endpoint") String endpoint, @QueryParam("input") double input,
             RequestContext requestContext);
+
+        @HttpRequestInformation(
+            method = HttpMethod.GET,
+            path = "/encode/duration/query/float-milliseconds-larger-unit",
+            expectedStatusCodes = { 204 })
+        @UnexpectedResponseExceptionDetail
+        Response<Void> floatMillisecondsLargerUnit(@HostParam("endpoint") String endpoint,
+            @QueryParam("input") double input, RequestContext requestContext);
 
         @HttpRequestInformation(
             method = HttpMethod.GET,
@@ -155,7 +187,7 @@ public final class QueriesImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> defaultMethodWithResponse(Duration input, RequestContext requestContext) {
@@ -173,7 +205,7 @@ public final class QueriesImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> iso8601WithResponse(Duration input, RequestContext requestContext) {
@@ -191,7 +223,7 @@ public final class QueriesImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> int32SecondsWithResponse(Duration input, RequestContext requestContext) {
@@ -203,6 +235,25 @@ public final class QueriesImpl {
     }
 
     /**
+     * The int32SecondsLargerUnit operation.
+     * 
+     * @param input The input parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> int32SecondsLargerUnitWithResponse(Duration input, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Query.int32SecondsLargerUnit",
+            requestContext, updatedContext -> {
+                long inputConverted = input.getSeconds();
+                return service.int32SecondsLargerUnit(this.client.getEndpoint(), inputConverted, updatedContext);
+            });
+    }
+
+    /**
      * The floatSeconds operation.
      * 
      * @param input The input parameter.
@@ -210,7 +261,7 @@ public final class QueriesImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> floatSecondsWithResponse(Duration input, RequestContext requestContext) {
@@ -222,6 +273,25 @@ public final class QueriesImpl {
     }
 
     /**
+     * The floatSecondsLargerUnit operation.
+     * 
+     * @param input The input parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> floatSecondsLargerUnitWithResponse(Duration input, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Query.floatSecondsLargerUnit",
+            requestContext, updatedContext -> {
+                double inputConverted = (double) input.toNanos() / 1000_000_000L;
+                return service.floatSecondsLargerUnit(this.client.getEndpoint(), inputConverted, updatedContext);
+            });
+    }
+
+    /**
      * The float64Seconds operation.
      * 
      * @param input The input parameter.
@@ -229,7 +299,7 @@ public final class QueriesImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> float64SecondsWithResponse(Duration input, RequestContext requestContext) {
@@ -248,13 +318,31 @@ public final class QueriesImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> int32MillisecondsWithResponse(int input, RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Encode.Duration.Query.int32Milliseconds", requestContext,
             updatedContext -> {
                 return service.int32Milliseconds(this.client.getEndpoint(), input, updatedContext);
+            });
+    }
+
+    /**
+     * The int32MillisecondsLargerUnit operation.
+     * 
+     * @param input The input parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> int32MillisecondsLargerUnitWithResponse(int input, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Query.int32MillisecondsLargerUnit",
+            requestContext, updatedContext -> {
+                return service.int32MillisecondsLargerUnit(this.client.getEndpoint(), input, updatedContext);
             });
     }
 
@@ -266,13 +354,31 @@ public final class QueriesImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> floatMillisecondsWithResponse(double input, RequestContext requestContext) {
         return this.instrumentation.instrumentWithResponse("Encode.Duration.Query.floatMilliseconds", requestContext,
             updatedContext -> {
                 return service.floatMilliseconds(this.client.getEndpoint(), input, updatedContext);
+            });
+    }
+
+    /**
+     * The floatMillisecondsLargerUnit operation.
+     * 
+     * @param input The input parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> floatMillisecondsLargerUnitWithResponse(double input, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Encode.Duration.Query.floatMillisecondsLargerUnit",
+            requestContext, updatedContext -> {
+                return service.floatMillisecondsLargerUnit(this.client.getEndpoint(), input, updatedContext);
             });
     }
 
@@ -284,7 +390,7 @@ public final class QueriesImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> float64MillisecondsWithResponse(double input, RequestContext requestContext) {
@@ -302,7 +408,7 @@ public final class QueriesImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> int32SecondsArrayWithResponse(List<Duration> input, RequestContext requestContext) {
@@ -352,7 +458,7 @@ public final class QueriesImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> int32MillisecondsArrayWithResponse(List<Integer> input, RequestContext requestContext) {

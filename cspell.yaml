@@ -6,13 +6,14 @@ dictionaries:
   - typescript
 words:
   - Adoptium
-  - Arize
-  - arizeaiobservabilityeval
   - agentic
   - aiohttp
   - alzimmer
   - amqp
   - AQID
+  - Arize
+  - arizeaiobservabilityeval
+  - Ablack
   - arraya
   - astimezone
   - astro
@@ -35,6 +36,8 @@ words:
   - cadl
   - cadleditor
   - cadleng
+  - Cblack
+  - Cbrown
   - cadlplayground
   - canonicalizer
   - clsx
@@ -139,8 +142,6 @@ words:
   - lropaging
   - lstrip
   - lzutf
-  - MACVMIMAGE
-  - MACVMIMAGEM
   - mday
   - methodsubscriptionid
   - mgmt
@@ -230,8 +231,8 @@ words:
   - rtype
   - rushx
   - safeint
-  - sdkcore
   - SCME
+  - sdkcore
   - segmentof
   - serde
   - setuppy
@@ -293,6 +294,7 @@ words:
   - wday
   - weidxu
   - westus
+  - WHATWG
   - WINDOWSARMVMIMAGE
   - WINDOWSVMIMAGE
   - xiangyan

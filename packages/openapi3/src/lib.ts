@@ -399,6 +399,13 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`Invalid key '${"value"}' used in a fixed field of the Component object. Only alphanumerics, dot (.), hyphen (-), and underscore (_) characters are allowed in keys.`,
       },
     },
+    "streams-not-supported": {
+      severity: "warning",
+      messages: {
+        default:
+          "Streams with itemSchema are only fully supported in OpenAPI 3.2.0 or above. The response will be emitted without itemSchema. Consider using OpenAPI 3.2.0 for full stream support.",
+      },
+    },
   },
   emitter: {
     options: EmitterOptionsSchema as JSONSchemaType<OpenAPI3EmitterOptions>,

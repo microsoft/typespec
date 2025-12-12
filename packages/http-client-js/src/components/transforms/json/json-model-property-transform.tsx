@@ -46,7 +46,7 @@ export function JsonModelPropertyTransform(props: JsonModelPropertyTransformProp
 
   return (
     <>
-      <ts.ObjectProperty name={JSON.stringify(targetName)} value={propertyValue} />
+      <ts.ObjectProperty name={targetName} value={propertyValue} />
     </>
   );
 }

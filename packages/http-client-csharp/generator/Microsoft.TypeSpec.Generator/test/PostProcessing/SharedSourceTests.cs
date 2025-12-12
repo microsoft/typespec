@@ -39,7 +39,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.PostProcessing
             protected override TypeSignatureModifiers BuildDeclarationModifiers() =>
                 TypeSignatureModifiers.Public | TypeSignatureModifiers.Class;
 
-            protected override MethodProvider[] BuildMethods()
+            protected internal override MethodProvider[] BuildMethods()
             {
                 return [new MethodProvider(
                     new MethodSignature(

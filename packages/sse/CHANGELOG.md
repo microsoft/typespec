@@ -1,5 +1,23 @@
 # Changelog - @typespec/sse
 
+## 0.77.0
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+
+## 0.76.0
+
+### Bump dependencies
+
+- [#8823](https://github.com/microsoft/typespec/pull/8823) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8951](https://github.com/microsoft/typespec/pull/8951) Validate SSE streams are defined as events unions
+
+
 ## 0.75.0
 
 No changes, version bump only.

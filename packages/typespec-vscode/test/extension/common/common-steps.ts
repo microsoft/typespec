@@ -148,8 +148,10 @@ export async function packPackages() {
   const outputFolder = path.join(repoRoot, "/temp/artifacts");
   const files = readdirSync(outputFolder);
 
-  function resolvePackage(start: string) {
-    const pkgName = files.find((x: string) => x.startsWith(start));
+  function resolvePackage(start: string, notStart?: string): string {
+    const pkgName = files.find(
+      (x: string) => x.startsWith(start) && (!notStart || !x.startsWith(notStart)),
+    );
     if (pkgName === undefined) {
       throw new Error(`Cannot resolve package starting with "${start}"`);
     }
@@ -160,7 +162,13 @@ export async function packPackages() {
     "@typespec/compiler": resolvePackage("typespec-compiler-"),
     "@typespec/openapi3": resolvePackage("typespec-openapi3-"),
     "@typespec/http": resolvePackage("typespec-http-"),
+    "@typespec/http-client": resolvePackage("typespec-http-client-", "typespec-http-client-js-"),
     "@typespec/http-client-js": resolvePackage("typespec-http-client-js-"),
+    "@typespec/streams": resolvePackage("typespec-streams-"),
+    "@typespec/rest": resolvePackage("typespec-rest-"),
+    "@typespec/emitter-framework": resolvePackage("typespec-emitter-framework-"),
+    "@typespec/openapi": resolvePackage("typespec-openapi-"),
+    "@typespec/asset-emitter": resolvePackage("typespec-asset-emitter-"),
   };
 }
 
@@ -188,15 +196,22 @@ export async function packagesInstall(packages: { [x: string]: string }, testTyp
       "@typespec/http": packages["@typespec/http"],
       "@typespec/openapi3": packages["@typespec/openapi3"],
       "@typespec/http-client-js": packages["@typespec/http-client-js"],
+      "@typespec/streams": packages["@typespec/streams"],
+      "@typespec/rest": packages["@typespec/rest"],
+      "@typespec/emitter-framework": packages["@typespec/emitter-framework"],
+      "@typespec/openapi": packages["@typespec/openapi"],
+      "@typespec/asset-emitter": packages["@typespec/asset-emitter"],
     },
     private: true,
+    overrides: {
+      // override to make sure to use local http-client package, otherwise it will be installed from npm registry and may
+      // cause issues from different version (i.e. multiple version alloy libraries being complained)
+      "@typespec/http-client": packages["@typespec/http-client"],
+    },
   };
   writeFileSync(path.join(testCurrentDir, "package.json"), JSON.stringify(packageJson, null, 2));
 
   await runTypeSpec(packages["@typespec/compiler"], ["install"], { cwd: testCurrentDir });
-  await runTypeSpec(packages["@typespec/http"], ["install"], { cwd: testCurrentDir });
-  await runTypeSpec(packages["@typespec/openapi3"], ["install"], { cwd: testCurrentDir });
-  await runTypeSpec(packages["@typespec/http-client-js"], ["install"], { cwd: testCurrentDir });
 }
 
 /**

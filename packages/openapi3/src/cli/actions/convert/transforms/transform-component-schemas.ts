@@ -141,10 +141,20 @@ export function transformComponentSchemas(context: Context, models: TypeSpecData
     // Extract description and decorators from meaningful union members
     const unionMetadata = extractUnionMetadata(schema);
 
+    let decorators = [...getDecoratorsForSchema(schema), ...unionMetadata.decorators];
+
+    // Check if this is an SSE event schema - if so, replace @oneOf with @events
+    const schemaRef = `#/components/schemas/${name}`;
+    if (context.isSSEEventSchema(schemaRef)) {
+      // Remove @oneOf decorator if present and add @events
+      decorators = decorators.filter((d) => d.name !== "oneOf");
+      decorators.push({ name: "events", args: [] });
+    }
+
     const union: TypeSpecUnion = {
       kind: "union",
       ...getScopeAndName(name),
-      decorators: [...getDecoratorsForSchema(schema), ...unionMetadata.decorators],
+      decorators,
       doc: schema.description ?? unionMetadata.description,
       schema,
     };

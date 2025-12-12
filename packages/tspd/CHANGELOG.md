@@ -1,5 +1,23 @@
 # Changelog - @typespec/tspd
 
+## 0.73.2
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+
+## 0.73.1
+
+### Bump dependencies
+
+- [#8823](https://github.com/microsoft/typespec/pull/8823) Upgrade dependencies
+
+### Bug Fixes
+
+- [#8580](https://github.com/microsoft/typespec/pull/8580) Handle union of union correctly for target type in decorator signature generation
+
+
 ## 0.73.0
 
 ### Features
