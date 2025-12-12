@@ -4108,3 +4108,267 @@ def test_multi_layer_discriminator():
 
     assert AnotherPet(name="Buddy", trained=True) == model_pet
     assert AnotherDog(name="Rex", trained=True, breed="German Shepherd") == model_dog
+
+
+def test_array_encode_comma_delimited():
+    """Test commaDelimited format for array of strings"""
+
+    class CommaDelimitedModel(Model):
+        colors: list[str] = rest_field(format="commaDelimited")
+
+        @overload
+        def __init__(self, *, colors: list[str]): ...
+
+        @overload
+        def __init__(self, mapping: Mapping[str, Any], /): ...
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+
+    # Test serialization: list[str] -> comma-delimited string
+    model = CommaDelimitedModel(colors=["blue", "red", "green"])
+    assert model.colors == ["blue", "red", "green"]
+    assert model["colors"] == "blue,red,green"
+
+    # Test deserialization: comma-delimited string -> list[str]
+    model = CommaDelimitedModel({"colors": "blue,red,green"})
+    assert model.colors == ["blue", "red", "green"]
+    assert model["colors"] == "blue,red,green"
+
+    # Test with empty list
+    model = CommaDelimitedModel(colors=[])
+    assert model.colors == []
+    assert model["colors"] == ""
+
+    # Test with single item
+    model = CommaDelimitedModel(colors=["blue"])
+    assert model.colors == ["blue"]
+    assert model["colors"] == "blue"
+
+
+def test_array_encode_pipe_delimited():
+    """Test pipeDelimited format for array of strings"""
+
+    class PipeDelimitedModel(Model):
+        colors: list[str] = rest_field(format="pipeDelimited")
+
+        @overload
+        def __init__(self, *, colors: list[str]): ...
+
+        @overload
+        def __init__(self, mapping: Mapping[str, Any], /): ...
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+
+    # Test serialization: list[str] -> pipe-delimited string
+    model = PipeDelimitedModel(colors=["blue", "red", "green"])
+    assert model.colors == ["blue", "red", "green"]
+    assert model["colors"] == "blue|red|green"
+
+    # Test deserialization: pipe-delimited string -> list[str]
+    model = PipeDelimitedModel({"colors": "blue|red|green"})
+    assert model.colors == ["blue", "red", "green"]
+    assert model["colors"] == "blue|red|green"
+
+    # Test with empty list
+    model = PipeDelimitedModel(colors=[])
+    assert model.colors == []
+    assert model["colors"] == ""
+
+
+def test_array_encode_space_delimited():
+    """Test spaceDelimited format for array of strings"""
+
+    class SpaceDelimitedModel(Model):
+        colors: list[str] = rest_field(format="spaceDelimited")
+
+        @overload
+        def __init__(self, *, colors: list[str]): ...
+
+        @overload
+        def __init__(self, mapping: Mapping[str, Any], /): ...
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+
+    # Test serialization: list[str] -> space-delimited string
+    model = SpaceDelimitedModel(colors=["blue", "red", "green"])
+    assert model.colors == ["blue", "red", "green"]
+    assert model["colors"] == "blue red green"
+
+    # Test deserialization: space-delimited string -> list[str]
+    model = SpaceDelimitedModel({"colors": "blue red green"})
+    assert model.colors == ["blue", "red", "green"]
+    assert model["colors"] == "blue red green"
+
+    # Test with empty list
+    model = SpaceDelimitedModel(colors=[])
+    assert model.colors == []
+    assert model["colors"] == ""
+
+
+def test_array_encode_newline_delimited():
+    """Test newlineDelimited format for array of strings"""
+
+    class NewlineDelimitedModel(Model):
+        colors: list[str] = rest_field(format="newlineDelimited")
+
+        @overload
+        def __init__(self, *, colors: list[str]): ...
+
+        @overload
+        def __init__(self, mapping: Mapping[str, Any], /): ...
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+
+    # Test serialization: list[str] -> newline-delimited string
+    model = NewlineDelimitedModel(colors=["blue", "red", "green"])
+    assert model.colors == ["blue", "red", "green"]
+    assert model["colors"] == "blue\nred\ngreen"
+
+    # Test deserialization: newline-delimited string -> list[str]
+    model = NewlineDelimitedModel({"colors": "blue\nred\ngreen"})
+    assert model.colors == ["blue", "red", "green"]
+    assert model["colors"] == "blue\nred\ngreen"
+
+    # Test with empty list
+    model = NewlineDelimitedModel(colors=[])
+    assert model.colors == []
+    assert model["colors"] == ""
+
+
+def test_array_encode_optional():
+    """Test array encoding with optional fields"""
+
+    class OptionalEncodedModel(Model):
+        colors: Optional[list[str]] = rest_field(default=None, format="commaDelimited")
+
+        @overload
+        def __init__(self, *, colors: Optional[list[str]] = None): ...
+
+        @overload
+        def __init__(self, mapping: Mapping[str, Any], /): ...
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+
+    # Test with None
+    model = OptionalEncodedModel(colors=None)
+    assert model.colors is None
+    assert model["colors"] is None
+
+    # Test with value
+    model = OptionalEncodedModel(colors=["blue", "red"])
+    assert model.colors == ["blue", "red"]
+    assert model["colors"] == "blue,red"
+
+    # Test deserialization with None
+    model = OptionalEncodedModel({"colors": None})
+    assert model.colors is None
+
+
+def test_array_encode_modification():
+    """Test modifying array-encoded fields"""
+
+    class ModifiableModel(Model):
+        colors: list[str] = rest_field(format="commaDelimited")
+
+        @overload
+        def __init__(self, *, colors: list[str]): ...
+
+        @overload
+        def __init__(self, mapping: Mapping[str, Any], /): ...
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+
+    model = ModifiableModel(colors=["blue", "red"])
+    assert model.colors == ["blue", "red"]
+    assert model["colors"] == "blue,red"
+
+    # Modify through property
+    model.colors = ["green", "yellow", "purple"]
+    assert model.colors == ["green", "yellow", "purple"]
+    assert model["colors"] == "green,yellow,purple"
+
+    # Modify through dict access
+    model["colors"] = "orange,pink"
+    assert model.colors == ["orange", "pink"]
+    assert model["colors"] == "orange,pink"
+
+
+def test_array_encode_json_roundtrip():
+    """Test JSON serialization and deserialization with array encoding"""
+
+    class JsonModel(Model):
+        pipe_colors: list[str] = rest_field(name="pipeColors", format="pipeDelimited")
+        comma_colors: list[str] = rest_field(name="commaColors", format="commaDelimited")
+
+        @overload
+        def __init__(
+            self,
+            *,
+            pipe_colors: list[str],
+            comma_colors: list[str],
+        ): ...
+
+        @overload
+        def __init__(self, mapping: Mapping[str, Any], /): ...
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+
+    model = JsonModel(
+        pipe_colors=["blue", "red", "green"],
+        comma_colors=["small", "medium", "large"],
+    )
+
+    # Serialize to JSON
+    json_str = json.dumps(dict(model), cls=SdkJSONEncoder)
+    assert json.loads(json_str) == {
+        "pipeColors": "blue|red|green",
+        "commaColors": "small,medium,large",
+    }
+
+    # Deserialize from JSON
+    deserialized = JsonModel(json.loads(json_str))
+    assert deserialized.pipe_colors == ["blue", "red", "green"]
+    assert deserialized.comma_colors == ["small", "medium", "large"]
+
+
+def test_array_encode_with_special_characters():
+    """Test array encoding with strings containing special characters"""
+
+    class SpecialCharsModel(Model):
+        comma_values: list[str] = rest_field(name="commaValues", format="commaDelimited")
+        pipe_values: list[str] = rest_field(name="pipeValues", format="pipeDelimited")
+
+        @overload
+        def __init__(
+            self,
+            *,
+            comma_values: list[str],
+            pipe_values: list[str],
+        ): ...
+
+        @overload
+        def __init__(self, mapping: Mapping[str, Any], /): ...
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+
+    # Test with strings that might contain delimiters
+    # Note: In real usage, the strings should not contain the delimiter character
+    # This test documents current behavior
+    model = SpecialCharsModel(
+        comma_values=["value with spaces", "another-value", "value_3"],
+        pipe_values=["path/to/file", "another-path", "final.path"],
+    )
+
+    assert model.comma_values == ["value with spaces", "another-value", "value_3"]
+    assert model["commaValues"] == "value with spaces,another-value,value_3"
+
+    assert model.pipe_values == ["path/to/file", "another-path", "final.path"]
+    assert model["pipeValues"] == "path/to/file|another-path|final.path"
