@@ -32,6 +32,8 @@ jobs:
       runOnce:
         deploy:
           steps:
+            - checkout: self
+
             - script: ls $(Pipeline.Workspace)/${{ parameters.artifactName }}
               displayName: List files in artifact
 
