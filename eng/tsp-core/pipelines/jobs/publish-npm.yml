@@ -14,6 +14,7 @@ jobs:
   - deployment: publish_npm_${{ parameters.tag }}
     displayName: Publish Npm (${{ parameters.tag }})
     dependsOn: ${{ parameters.dependsOn }}
+    environment: npm
     pool:
       name: $(LINUXPOOL)
       image: $(LINUXVMIMAGE)
