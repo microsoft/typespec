@@ -10,6 +10,7 @@ import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.instrumentation.Instrumentation;
 import specialwords.implementation.ModelPropertiesImpl;
+import specialwords.modelproperties.DictMethods;
 import specialwords.modelproperties.SameAsModel;
 
 /**
@@ -63,5 +64,36 @@ public final class ModelPropertiesClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void sameAsModel(SameAsModel body) {
         sameAsModelWithResponse(body, RequestContext.none());
+    }
+
+    /**
+     * The dictMethods operation.
+     * 
+     * @param body The body parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> dictMethodsWithResponse(DictMethods body, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("SpecialWords.ModelProperties.dictMethods", requestContext,
+            updatedContext -> this.serviceClient.dictMethodsWithResponse(body, updatedContext));
+    }
+
+    /**
+     * The dictMethods operation.
+     * 
+     * @param body The body parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void dictMethods(DictMethods body) {
+        dictMethodsWithResponse(body, RequestContext.none());
     }
 }
