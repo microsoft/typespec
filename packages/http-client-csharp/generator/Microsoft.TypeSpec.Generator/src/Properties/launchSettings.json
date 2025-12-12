@@ -45,6 +45,16 @@
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
     },
+    "http-documentation": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/documentation -g StubLibraryGenerator",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
+    },
+    "http-encode-array": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/encode/array -g StubLibraryGenerator",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
+    },
     "http-encode-bytes": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/encode/bytes -g StubLibraryGenerator",
       "commandName": "Executable",
