@@ -13,7 +13,7 @@ steps:
       $summaryFilePath = "$(Build.ArtifactStagingDirectory)/${{ parameters.artifactName }}/publish-summary.json"
       echo "Create manifest of unpublished packages in $summaryFilePath"
 
-      node eng/tsp-core/scripts/filter-unpublished-packages.ts "$(Pipeline.Workspace)/${{ parameters.artifactName }}" --manifest $summaryFilePath
+      node eng/tsp-core/scripts/filter-unpublished-packages.ts "$(Pipeline.Workspace)/${{ parameters.artifactName }}" "$(Pipeline.Workspace)/${{ parameters.artifactName }}-unpublished" --manifest $summaryFilePath
 
       # Check if there are unpublished packages and set the configuration variable accordingly   
       $manifest = Get-Content $summaryFilePath | ConvertFrom-Json
