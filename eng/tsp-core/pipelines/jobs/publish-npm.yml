@@ -15,9 +15,9 @@ jobs:
     displayName: Publish Npm (${{ parameters.tag }})
     dependsOn: ${{ parameters.dependsOn }}
     environment: npm
-    pool:
-      name: $(LINUXPOOL)
-      image: $(LINUXVMIMAGE)
+    pool: # hardcoding the pool and image name because deployment jobs do not support variable expansion in pool names
+      name: azsdk-pool
+      image: ubuntu-24.04
       os: linux
     templateContext:
       type: releaseJob
