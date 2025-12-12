@@ -8,31 +8,28 @@ import { OverviewIllustrationTerminalContent } from "./overview-illustration-ter
 
 <style>
   .card {
+    height: 542px;
     width: 723px;
     position: relative;
   }
 
   .terminal {
+    position: absolute;
+    top: 60px;
+    left: 50px;
     width: 420px;
     height: 320px;
   }
   .ide {
+    position: absolute;
+    top: 226px;
+    left: 183px;
     width: 420px;
   }
 
-  @media only screen and (min-width: 728px) {
+  @media only screen and (max-width: 600px) {
     .card {
-      height: 542px;
-    }
-    .terminal {
-      position: absolute;
-      top: 60px;
-      left: 50px;
-    }
-    .ide {
-      position: absolute;
-      top: 226px;
-      left: 183px;
+      display: none;
     }
   }
 </style>

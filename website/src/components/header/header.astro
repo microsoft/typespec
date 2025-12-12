@@ -261,8 +261,10 @@ const { noLinks } = Astro.props;
   button.addEventListener("click", () => {
     if (navcontent.dataset.open === "true") {
       navcontent.dataset.open = "false";
+      button.focus();
     } else {
       navcontent.dataset.open = "true";
+      navcontent.focus();
     }
   });
 
