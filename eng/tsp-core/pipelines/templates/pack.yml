@@ -7,13 +7,14 @@ parameters:
 
 steps:
   - pwsh: |
-      echo "Packing npm packages into $(Build.ArtifactStagingDirectory)/${{ parameters.artifactName }}"
-      pnpm chronus pack --exclude standalone --pack-destination $(Build.ArtifactStagingDirectory)/${{ parameters.artifactName }}
+      $outDir = "$(Build.ArtifactStagingDirectory)/${{ parameters.artifactName }}"
+      echo "Packing npm packages into $outDir"
+      pnpm chronus pack --exclude standalone --pack-destination $outDir
 
-      $summaryFilePath = "$(Build.ArtifactStagingDirectory)/${{ parameters.artifactName }}/publish-summary.json"
+      $summaryFilePath = "$outDir/publish-summary.json"
       echo "Create manifest of unpublished packages in $summaryFilePath"
 
-      node eng/tsp-core/scripts/filter-unpublished-packages.ts "$(Pipeline.Workspace)/${{ parameters.artifactName }}" "$(Pipeline.Workspace)/${{ parameters.artifactName }}-unpublished" --manifest $summaryFilePath
+      node eng/tsp-core/scripts/filter-unpublished-packages.ts "$outDir" "$outDir-unpublished" --manifest $summaryFilePath
 
       # Check if there are unpublished packages and set the configuration variable accordingly   
       $manifest = Get-Content $summaryFilePath | ConvertFrom-Json
