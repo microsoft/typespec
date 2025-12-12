@@ -10,11 +10,13 @@ steps:
       echo "Packing npm packages into $(Build.ArtifactStagingDirectory)/${{ parameters.artifactName }}"
       pnpm chronus pack --exclude standalone --pack-destination $(Build.ArtifactStagingDirectory)/${{ parameters.artifactName }}
 
-      echo "Create manifest of unpublished packages"
-      node eng/tsp-core/scripts/filter-unpublished-packages.ts "$(Pipeline.Workspace)/${{ parameters.artifactName }}" --manifest "$(Build.ArtifactStagingDirectory)/${{ parameters.artifactName }}/publish-summary.json"
+      $summaryFilePath = "$(Build.ArtifactStagingDirectory)/${{ parameters.artifactName }}/publish-summary.json"
+      echo "Create manifest of unpublished packages in $summaryFilePath"
+
+      node eng/tsp-core/scripts/filter-unpublished-packages.ts "$(Pipeline.Workspace)/${{ parameters.artifactName }}" --manifest $summaryFilePath
 
       # Check if there are unpublished packages and set the configuration variable accordingly   
-      $manifest = Get-Content "./publish-summary.json" | ConvertFrom-Json
+      $manifest = Get-Content $summaryFilePath | ConvertFrom-Json
       $packageCount = ($manifest.packages | Get-Member -MemberType NoteProperty).Count
       if ($packageCount -gt 0) {
         Write-Output "Found $packageCount unpublished packages to publish."
