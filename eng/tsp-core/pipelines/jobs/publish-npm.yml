@@ -32,13 +32,11 @@ jobs:
       runOnce:
         deploy:
           steps:
-            - template: ../templates/install.yml
-
             - script: ls $(Pipeline.Workspace)/${{ parameters.artifactName }}
               displayName: List files in artifact
 
             - script: |
-                npx tsx eng/tsp-core/scripts/filter-unpublished-packages.ts \
+                node eng/tsp-core/scripts/filter-unpublished-packages.ts \
                   "$(Pipeline.Workspace)/${{ parameters.artifactName }}" \
                   "$(Pipeline.Workspace)/${{ parameters.artifactName }}-unpublished" \
                   --manifest "./publish-summary.json"
