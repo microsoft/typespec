@@ -16,7 +16,7 @@ jobs:
   - deployment: publish_npm_${{ parameters.tag }}
     displayName: Publish Npm (${{ parameters.tag }})
     dependsOn: ${{ parameters.dependsOn }}
-    condition: ${{ parameters.shouldPublish }}}
+    condition: ${{ parameters.condition }}}
     environment: typespec-cli
     pool: # hardcoding the pool and image name because deployment jobs do not support variable expansion in pool names
       name: azsdk-pool
