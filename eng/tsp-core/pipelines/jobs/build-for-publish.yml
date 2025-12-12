@@ -23,7 +23,7 @@ jobs:
       - template: /eng/tsp-core/pipelines/templates/pack.yml
         parameters:
           artifactName: npm-packages-stable
-          hasPackageVariables: HAS_STABLE_PACKAGES_TO_PUBLISH
+          name: npm_packages_stable
 
       - task: CopyFiles@2
         displayName: "Copy VSCode extension .vsix to artifact directory"
@@ -57,7 +57,7 @@ jobs:
       - template: /eng/tsp-core/pipelines/templates/pack.yml
         parameters:
           artifactName: npm-packages-next
-          hasPackageVariables: HAS_NEXT_PACKAGES_TO_PUBLISH
+          name: npm_packages_next
 
       # Publish Next playground
       - task: AzureCLI@1

@@ -2,7 +2,7 @@
 parameters:
   - name: artifactName
     type: string
-  - name: hasPackageVariables
+  - name: name
     type: string
 
 steps:
@@ -26,5 +26,5 @@ steps:
         Write-Output "No unpublished packages found."
         Write-Host "##vso[task.setvariable variable=hasUnpublished;isOutput=true]false"
       }
-    name: pack-${{ parameters.artifactName }}
+    name: pack-${{ parameters.name }}
     displayName: Pack packages ${{ parameters.artifactName }}
