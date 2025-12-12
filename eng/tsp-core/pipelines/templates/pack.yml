@@ -26,5 +26,5 @@ steps:
         Write-Output "No unpublished packages found."
         Write-Host "##vso[task.setvariable variable=hasUnpublished;isOutput=true]false"
       }
-    name: pack-${{ parameters.name }}
+    name: pack_${{ parameters.name }}
     displayName: Pack packages ${{ parameters.artifactName }}
