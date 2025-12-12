@@ -407,4 +407,91 @@ describe("unixtime format conversion", () => {
       "Expected 'created?: string' but got: " + tsp,
     );
   });
+
+  it("should convert anyOf with integer unixtime and null to utcDateTime | null with @encode decorator", async () => {
+    const tsp = await convertOpenAPI3Document({
+      openapi: "3.1.0",
+      info: {
+        title: "Test Service",
+        version: "0.0.0",
+      },
+      paths: {},
+      components: {
+        schemas: {
+          Foo: {
+            type: "object",
+            properties: {
+              finished_at: {
+                anyOf: [
+                  {
+                    type: "integer",
+                    format: "unixtime",
+                  },
+                  {
+                    type: "null",
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+    });
+
+    // Should contain "@encode(DateTimeKnownEncoding.unixTimestamp, integer)" and "finished_at?: utcDateTime | null"
+    strictEqual(
+      tsp.includes("@encode(DateTimeKnownEncoding.unixTimestamp, integer)"),
+      true,
+      "Expected '@encode(DateTimeKnownEncoding.unixTimestamp, integer)' but got: " + tsp,
+    );
+    strictEqual(
+      tsp.includes("finished_at?: utcDateTime | null"),
+      true,
+      "Expected 'finished_at?: utcDateTime | null' but got: " + tsp,
+    );
+  });
+
+  it("should convert oneOf with integer unixtime and null to utcDateTime | null with @encode decorator", async () => {
+    const tsp = await convertOpenAPI3Document({
+      openapi: "3.1.0",
+      info: {
+        title: "Test Service",
+        version: "0.0.0",
+      },
+      paths: {},
+      components: {
+        schemas: {
+          Foo: {
+            type: "object",
+            properties: {
+              started_at: {
+                oneOf: [
+                  {
+                    type: "integer",
+                    format: "unixtime",
+                  },
+                  {
+                    type: "null",
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+    });
+
+    // Should contain "@encode(DateTimeKnownEncoding.unixTimestamp, integer)" and "@oneOf" and "started_at?: utcDateTime | null"
+    strictEqual(
+      tsp.includes("@encode(DateTimeKnownEncoding.unixTimestamp, integer)"),
+      true,
+      "Expected '@encode(DateTimeKnownEncoding.unixTimestamp, integer)' but got: " + tsp,
+    );
+    strictEqual(tsp.includes("@oneOf"), true, "Expected '@oneOf' but got: " + tsp);
+    strictEqual(
+      tsp.includes("started_at?: utcDateTime | null"),
+      true,
+      "Expected 'started_at?: utcDateTime | null' but got: " + tsp,
+    );
+  });
 });

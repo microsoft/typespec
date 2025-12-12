@@ -1,5 +1,23 @@
 # Change Log - @typespec/openapi3
 
+## 1.7.0
+
+### Features
+
+- [#9002](https://github.com/microsoft/typespec/pull/9002) Add `commaDelimited` and `newlineDelimited` values to `ArrayEncoding` enum for serializing arrays with comma and newline delimiters
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9164](https://github.com/microsoft/typespec/pull/9164) Import OpenAPI schemas with anyOf/oneOf containing unixtime format correctly emits `@encode(DateTimeKnownEncoding.unixTimestamp, integer)` decorator for nullable utcDateTime properties
+- [#9151](https://github.com/microsoft/typespec/pull/9151) Import OpenAPI 3.1/3.2 schemas with contentEncoding: base64 as bytes type with `@encode("base64", string)` decorator
+- [#9076](https://github.com/microsoft/typespec/pull/9076) Respect `@externalDocs` on properties
+- [#8961](https://github.com/microsoft/typespec/pull/8961) Support nested unions in operation return types
+
+
 ## 1.6.0
 
 ### Features
