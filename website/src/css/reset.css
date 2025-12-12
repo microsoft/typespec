@@ -14,7 +14,7 @@ a {
   transition: color var(--ifm-transition-fast) var(--ifm-transition-timing-default);
 }
 
-/* In markdown tables starlight doesn't underline text. This unsure that only links with multiple siblings get underlined but not the whole cell being a link */
+/* In markdown tables starlight doesn't underline text. This ensures that only links with multiple siblings get underlined but not the whole cell being a link */
 .sl-markdown-content td a:not(:only-child) {
   text-decoration: underline;
 }
