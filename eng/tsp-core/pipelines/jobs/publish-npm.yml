@@ -6,6 +6,9 @@ parameters:
   - name: publishGithubRelease
     type: boolean
     default: false
+  - name: shouldPublish
+    type: boolean
+    default: true
   - name: dependsOn
     type: string
     default: ""
@@ -14,6 +17,7 @@ jobs:
   - deployment: publish_npm_${{ parameters.tag }}
     displayName: Publish Npm (${{ parameters.tag }})
     dependsOn: ${{ parameters.dependsOn }}
+    condition: ${{ parameters.shouldPublish }}}
     environment: typespec-cli
     pool: # hardcoding the pool and image name because deployment jobs do not support variable expansion in pool names
       name: azsdk-pool
@@ -32,17 +36,8 @@ jobs:
       runOnce:
         deploy:
           steps:
-            - checkout: self
-
             - script: ls $(Pipeline.Workspace)/${{ parameters.artifactName }}
               displayName: List files in artifact
-
-            - script: |
-                node eng/tsp-core/scripts/filter-unpublished-packages.ts \
-                  "$(Pipeline.Workspace)/${{ parameters.artifactName }}" \
-                  "$(Pipeline.Workspace)/${{ parameters.artifactName }}-unpublished" \
-                  --manifest "./publish-summary.json"
-              displayName: Filter unpublished packages
 
             - pwsh: |
                 $manifest = Get-Content "./publish-summary.json" | ConvertFrom-Json

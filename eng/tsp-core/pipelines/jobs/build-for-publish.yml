@@ -20,9 +20,10 @@ jobs:
       #   displayName: Test
 
       - template: /eng/tsp-core/pipelines/templates/upload-coverage.yml
-
-      - script: pnpm chronus pack --exclude standalone --pack-destination $(Build.ArtifactStagingDirectory)/npm-packages-stable
-        displayName: Pack packages
+      - template: /eng/tsp-core/pipelines/templates/pack.yml
+        parameters:
+          artifactName: npm-packages-stable
+          hasPackageVariables: HAS_STABLE_PACKAGES_TO_PUBLISH
 
       - task: CopyFiles@2
         displayName: "Copy VSCode extension .vsix to artifact directory"
@@ -53,8 +54,10 @@ jobs:
         displayName: Regen manifest for compiler
         workingDirectory: ./packages/compiler
 
-      - script: pnpm chronus pack --exclude standalone --pack-destination $(Build.ArtifactStagingDirectory)/npm-packages-next
-        displayName: Pack next packages
+      - template: /eng/tsp-core/pipelines/templates/pack.yml
+        parameters:
+          artifactName: npm-packages-next
+          hasPackageVariables: HAS_NEXT_PACKAGES_TO_PUBLISH
 
       # Publish Next playground
       - task: AzureCLI@1
