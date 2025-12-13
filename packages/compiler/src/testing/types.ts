@@ -217,6 +217,7 @@ export interface PositionedMarkerInFile extends PositionedMarker {
 export interface TestHost
   extends Pick<
     TestFileSystem,
+    | "add"
     | "addTypeSpecFile"
     | "addJsFile"
     | "addRealTypeSpecFile"
