@@ -380,7 +380,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
                 else
                 {
-                    return response.Content().ToObjectFromJson(responseBodyType.OutputType);
+                    return ModelReaderWriterSnippets.Read(response.Content(), responseBodyType.OutputType);
                 }
             }
             if (responseBodyType.IsDictionary)
@@ -391,7 +391,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
                 else
                 {
-                    return response.Content().ToObjectFromJson(responseBodyType.OutputType);
+                   return ModelReaderWriterSnippets.Read(response.Content(), responseBodyType.OutputType);
                 }
             }
             if (responseBodyType.Equals(typeof(string)) && ServiceMethod.Operation.Responses.Any(r => r.IsErrorResponse is false && r.ContentTypes.Contains("text/plain")))
@@ -400,11 +400,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             if (responseBodyType.IsFrameworkType)
             {
-                return response.Content().ToObjectFromJson(responseBodyType);
+                return ModelReaderWriterSnippets.Read(response.Content(), responseBodyType);
             }
             if (responseBodyType.IsEnum)
             {
-                return responseBodyType.ToEnum(response.Content().ToObjectFromJson(responseBodyType.UnderlyingEnumType));
+                return responseBodyType.ToEnum(ModelReaderWriterSnippets.Read(response.Content(), responseBodyType.UnderlyingEnumType));
             }
             return result.CastTo(responseBodyType);
         }
