@@ -1133,5 +1133,85 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.IsNotNull(collectionResultDefinition, "CollectionResultDefinition should be added even when paging methods are customized");
         }
 
+        [TestCase(typeof(TimeSpan))]
+        [TestCase(typeof(BinaryData))]
+        public void ListOfPrimitivesUsesUtf8JsonReader(Type elementType)
+        {
+            InputType inputElementType = elementType switch
+            {
+                { } t when t == typeof(TimeSpan) => InputPrimitiveType.PlainTime,
+                { } t when t == typeof(BinaryData) => InputPrimitiveType.Base64,
+                _ => throw new ArgumentException("Unsupported type")
+            };
+
+            var inputOperation = InputFactory.Operation(
+                "GetList",
+                responses: [InputFactory.OperationResponse([200], InputFactory.Array(inputElementType))]);
+
+            var inputServiceMethod = InputFactory.BasicServiceMethod("GetList", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator();
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+            Assert.IsNotNull(methodCollection);
+
+            var convenienceMethod = methodCollection.FirstOrDefault(m
+                => !m.Signature.Parameters.Any(p => p.Name == "options")
+                   && m.Signature.Name == "GetList");
+            Assert.IsNotNull(convenienceMethod);
+
+            var bodyString = convenienceMethod!.BodyStatements!.ToDisplayString();
+            
+            // Verify Utf8JsonReader is used instead of JsonDocument.Parse
+            Assert.IsTrue(bodyString.Contains("global::System.Text.Json.Utf8JsonReader reader = new global::System.Text.Json.Utf8JsonReader(data.ToMemory().Span);"),
+                "Should use Utf8JsonReader for collections of primitives");
+            Assert.IsFalse(bodyString.Contains("using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(data);"),
+                "Should not use JsonDocument.Parse for collections of primitives");
+            Assert.IsTrue(bodyString.Contains("while (reader.Read())"),
+                "Should use while loop with reader.Read()");
+        }
+
+        [TestCase(typeof(TimeSpan))]
+        [TestCase(typeof(BinaryData))]
+        public void DictionaryOfPrimitivesUsesUtf8JsonReader(Type valueType)
+        {
+            InputType inputValueType = valueType switch
+            {
+                { } t when t == typeof(TimeSpan) => InputPrimitiveType.PlainTime,
+                { } t when t == typeof(BinaryData) => InputPrimitiveType.Base64,
+                _ => throw new ArgumentException("Unsupported type")
+            };
+
+            var inputOperation = InputFactory.Operation(
+                "GetDict",
+                responses: [InputFactory.OperationResponse([200], InputFactory.Dictionary(inputValueType))]);
+
+            var inputServiceMethod = InputFactory.BasicServiceMethod("GetDict", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+
+            MockHelpers.LoadMockGenerator();
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+
+            var methodCollection = new ScmMethodProviderCollection(inputServiceMethod, client!);
+            Assert.IsNotNull(methodCollection);
+
+            var convenienceMethod = methodCollection.FirstOrDefault(m
+                => !m.Signature.Parameters.Any(p => p.Name == "options")
+                   && m.Signature.Name == "GetDict");
+            Assert.IsNotNull(convenienceMethod);
+
+            var bodyString = convenienceMethod!.BodyStatements!.ToDisplayString();
+            
+            // Verify Utf8JsonReader is used instead of JsonDocument.Parse
+            Assert.IsTrue(bodyString.Contains("global::System.Text.Json.Utf8JsonReader reader = new global::System.Text.Json.Utf8JsonReader(data.ToMemory().Span);"),
+                "Should use Utf8JsonReader for dictionaries of primitives");
+            Assert.IsFalse(bodyString.Contains("using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(data);"),
+                "Should not use JsonDocument.Parse for dictionaries of primitives");
+            Assert.IsTrue(bodyString.Contains("while (reader.Read())"),
+                "Should use while loop with reader.Read()");
+        }
+
     }
 }
