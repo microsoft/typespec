@@ -897,6 +897,47 @@ describe("http: decorators", () => {
       });
     });
 
+    it("can specify OAuth2 with object scopes", async () => {
+      const { Foo, program } = await Tester.compile(t.code`
+        model MyFlow {
+          type: OAuth2FlowType.implicit;
+          authorizationUrl: "https://api.example.com/oauth2/authorize";
+          refreshUrl: "https://api.example.com/oauth2/refresh";
+          scopes: [
+            {value: "read", description: "read data"},
+            {value: "write", description: "write data"},
+          ];
+        }
+        @useAuth(OAuth2Auth<[MyFlow]>)
+        namespace ${t.namespace("Foo")} {}
+      `);
+
+      expect(getAuthentication(program, Foo)).toEqual({
+        options: [
+          {
+            schemes: [
+              {
+                id: "OAuth2Auth",
+                type: "oauth2",
+                flows: [
+                  {
+                    type: "implicit",
+                    authorizationUrl: "https://api.example.com/oauth2/authorize",
+                    refreshUrl: "https://api.example.com/oauth2/refresh",
+                    scopes: [
+                      { value: "read", description: "read data" },
+                      { value: "write", description: "write data" },
+                    ],
+                  },
+                ],
+                model: expect.objectContaining({ kind: "Model" }),
+              },
+            ],
+          },
+        ],
+      });
+    });
+
     it("can specify OAuth2 with scopes, which are default for every flow", async () => {
       const { Foo, program } = await Tester.compile(t.code`
         alias MyAuth<T extends string[]> = OAuth2Auth<Flows=[{
