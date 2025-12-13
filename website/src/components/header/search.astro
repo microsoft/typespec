@@ -6,6 +6,10 @@ import "@docsearch/css";
   sl-doc-search {
     --docsearch-muted-color: #6c727e;
   }
+
+  :global(.DocSearch-Button:focus) {
+    outline: 1px solid var(--colorBrandBackgroundHover);
+  }
 </style>
 
 <sl-doc-search>

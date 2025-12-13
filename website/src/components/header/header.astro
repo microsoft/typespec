@@ -5,10 +5,10 @@ import { Icon } from "@astrojs/starlight/components";
 import Search from "./search.astro";
 import ReleaseNotification from "../release-notification.astro";
 export interface Props {
-  noDrawer?: boolean;
+  noLinks?: boolean;
 }
 
-const { noDrawer } = Astro.props;
+const { noLinks } = Astro.props;
 ---
 
 <style>
@@ -183,23 +183,49 @@ const { noDrawer } = Astro.props;
   <span class="brand-item"><Link href="/" class="brand"><b>TypeSpec</b></Link></span>
 
   <div id="header-nav-content" class="nav-content">
-    <div class="items">
-      <details id="use-cases-menu" class="group">
-        <summary class="item"
-          ><span>Use cases</span> <Icon class="icon" name="down-caret" /></summary
-        >
-        <ul class="group-content">
-          <li><Link class="item link" href="/openapi">OpenAPI</Link></li>
-          <li><Link class="item link" href="/data-validation">Data Validation</Link></li>
-          <li><Link class="item link" href="/tooling">Tooling support</Link></li>
-        </ul>
-      </details>
-      <Link class="item link" href="/docs">Docs</Link>
-      <Link class="item link" href="/videos">Videos</Link>
-      <Link class="item link" href="/playground">Playground</Link>
-      <Link class="item link" href="/blog">Blog</Link>
-      <Link class="item link" href="/community">Community</Link>
-    </div>
+    {
+      !noLinks && (
+        <div class="items">
+          <details id="use-cases-menu" class="group">
+            <summary class="item">
+              <span>Use cases</span> <Icon class="icon" name="down-caret" />
+            </summary>
+            <ul class="group-content">
+              <li>
+                <Link class="item link" href="/openapi">
+                  OpenAPI
+                </Link>
+              </li>
+              <li>
+                <Link class="item link" href="/data-validation">
+                  Data Validation
+                </Link>
+              </li>
+              <li>
+                <Link class="item link" href="/tooling">
+                  Tooling support
+                </Link>
+              </li>
+            </ul>
+          </details>
+          <Link class="item link" href="/docs">
+            Docs
+          </Link>
+          <Link class="item link" href="/videos">
+            Videos
+          </Link>
+          <Link class="item link" href="/playground">
+            Playground
+          </Link>
+          <Link class="item link" href="/blog">
+            Blog
+          </Link>
+          <Link class="item link" href="/community">
+            Community
+          </Link>
+        </div>
+      )
+    }
     <div class="items right">
       <ReleaseNotification />
       <Link
@@ -221,7 +247,7 @@ const { noDrawer } = Astro.props;
   </div>
   <Search />
   {
-    !noDrawer && (
+    !noLinks && (
       <button id="header-drawer-button" type="button" class="lg:hidden icon" title="Show Menu">
         <Icon name="bars" />
       </button>
@@ -235,8 +261,10 @@ const { noDrawer } = Astro.props;
   button.addEventListener("click", () => {
     if (navcontent.dataset.open === "true") {
       navcontent.dataset.open = "false";
+      button.focus();
     } else {
       navcontent.dataset.open = "true";
+      navcontent.focus();
     }
   });
 
