@@ -12,6 +12,7 @@ import {
   createDiagnosticCollector,
   createSourceFile,
   getLocationContext,
+  getNamespaceFullName,
   getTypeName,
   joinPaths,
   navigateProgram,
@@ -73,6 +74,10 @@ export async function generateExternSignatures(
   return diagnostics.diagnostics;
 }
 
+function getFullyQualifiedDecoratorName(decorator: Decorator) {
+  return `${getNamespaceFullName(decorator.namespace)}.${decorator.name}`;
+}
+
 async function getDecoratorLocations(
   host: CompilerHost,
   packageName: string,
@@ -90,8 +95,9 @@ async function getDecoratorLocations(
         ) {
           return;
         }
-        if (!imports.has(dec.name)) {
-          imports.set(dec.name, key);
+        const fqName = getFullyQualifiedDecoratorName(dec);
+        if (!imports.has(fqName)) {
+          imports.set(fqName, key);
         }
       },
     };
@@ -107,10 +113,10 @@ export async function generateExternSignatureForExports(
   exports: string[],
   decoratorLocations: Map<string, string>,
 ): Promise<[undefined, readonly Diagnostic[]]> {
-  const [main] = exports;
+  const [main, ...additionalImports] = exports;
   const diagnostics = createDiagnosticCollector();
   const program = await compile(host, main, {
-    // additionalImports, See: github.com/microsoft/typespec/issues/8913 -- additional imports are disabled pending further design discussion.
+    additionalImports,
     parseOptions: { comments: true, docs: true },
   });
   const prettierConfig = await prettier.resolveConfig(libraryPath);
@@ -209,11 +215,12 @@ function resolveDecoratorSignature(
   decorator: Decorator,
   decoratorLocation: Map<string, string>,
 ): DecoratorSignature {
+  const fqName = getFullyQualifiedDecoratorName(decorator);
   return {
     decorator,
     name: decorator.name,
     jsName: "$" + decorator.name.slice(1),
     typeName: decorator.name[1].toUpperCase() + decorator.name.slice(2) + "Decorator",
-    exportName: decoratorLocation.get(decorator.name),
+    exportName: decoratorLocation.get(fqName),
   };
 }

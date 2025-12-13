@@ -1,7 +1,14 @@
 import { definePackageFlags } from "@typespec/compiler";
-import { createTestHost, expectDiagnosticEmpty } from "@typespec/compiler/testing";
+import {
+  createTestHost,
+  expectDiagnosticEmpty,
+  resolveVirtualPath,
+} from "@typespec/compiler/testing";
 import { describe, expect, it } from "vitest";
-import { generateExternDecorators } from "../../src/gen-extern-signatures/gen-extern-signatures.js";
+import {
+  generateExternDecorators,
+  generateExternSignatures,
+} from "../../src/gen-extern-signatures/gen-extern-signatures.js";
 
 async function generateDecoratorSignatures(code: string) {
   const host = await createTestHost();
@@ -420,6 +427,270 @@ export type Decorators = {
 };
   `,
     });
+  });
+});
+
+describe.only("multiple exports with decorators", () => {
+  it("should place decorators in correct export locations", async () => {
+    const host = await createTestHost();
+
+    host.add(
+      "package.json",
+      JSON.stringify({
+        name: "test-lib",
+        exports: {
+          ".": {
+            typespec: "./main.tsp",
+          },
+          "./experimental": {
+            typespec: "./experimental.tsp",
+          },
+        },
+      }),
+    );
+
+    host.add(
+      "main.tsp",
+      `
+      using TypeSpec.Reflection;
+
+      namespace Azure.Core {
+        /** Core decorator from main export */
+        extern dec coreDecorator(target: Model);
+      }
+      `,
+    );
+
+    host.add(
+      "experimental.tsp",
+      `
+      using TypeSpec.Reflection;
+
+      namespace Azure.Core.Experimental {
+        /** Experimental decorator */
+        extern dec experimentalDecorator(target: Operation);
+
+        /** Another experimental decorator */
+        extern dec betaFeature(target: Model, enabled: valueof boolean);
+      }
+      `,
+    );
+
+    // Generate signatures using the full generateExternSignatures flow
+    const rootDir = resolveVirtualPath(".");
+    const diagnostics = await generateExternSignatures(host.compilerHost, rootDir);
+
+    expectDiagnosticEmpty(diagnostics);
+
+    // Read generated files
+    const coreFile = await host.compilerHost.readFile(`${rootDir}/generated-defs/Azure.Core.ts`);
+    const expFile = await host.compilerHost.readFile(
+      `${rootDir}/generated-defs/Azure.Core.Experimental.ts`,
+    );
+
+    // Verify main export only has coreDecorator
+    expect(coreFile.text).toContain("CoreDecoratorDecorator");
+    expect(coreFile.text).toContain("Core decorator from main export");
+    expect(coreFile.text).not.toContain("experimentalDecorator");
+    expect(coreFile.text).not.toContain("betaFeature");
+
+    // Verify experimental export has experimental decorators
+    expect(expFile.text).toContain("ExperimentalDecoratorDecorator");
+    expect(expFile.text).toContain("BetaFeatureDecorator");
+    expect(expFile.text).toContain("Experimental decorator");
+    expect(expFile.text).toContain("enabled: boolean");
+  });
+
+  it("should handle secondary export importing from main export", async () => {
+    const host = await createTestHost();
+
+    host.add(
+      "package.json",
+      JSON.stringify({
+        name: "test-lib",
+        exports: {
+          ".": {
+            typespec: "./main.tsp",
+          },
+          "./testing": {
+            typespec: "./testing.tsp",
+          },
+        },
+      }),
+    );
+
+    // Main export
+    host.add(
+      "main.tsp",
+      `
+      using TypeSpec.Reflection;
+
+      namespace MyLib {
+        extern dec shared(target: Model);
+      }
+      `,
+    );
+
+    // Secondary export that imports main
+    host.add(
+      "testing.tsp",
+      `
+      import "./main.tsp";
+      using TypeSpec.Reflection;
+
+      namespace MyLib.Testing {
+        /** Testing decorator */
+        extern dec testHelper(target: Operation);
+      }
+      `,
+    );
+
+    const rootDir = resolveVirtualPath(".");
+    const diagnostics = await generateExternSignatures(host.compilerHost, rootDir);
+
+    expectDiagnosticEmpty(diagnostics);
+
+    // Read generated files
+    const mainFile = await host.compilerHost.readFile(`${rootDir}/generated-defs/MyLib.ts`);
+    const testingFile = await host.compilerHost.readFile(
+      `${rootDir}/generated-defs/MyLib.Testing.ts`,
+    );
+
+    // Main export should have shared decorator
+    expect(mainFile.text).toContain("SharedDecorator");
+
+    // Testing export should only have testHelper, not shared
+    // (shared is from main export and should not be duplicated)
+    expect(testingFile.text).toContain("TestHelperDecorator");
+    expect(testingFile.text).toContain("Testing decorator");
+    expect(testingFile.text).not.toContain("SharedDecorator");
+  });
+
+  it("should handle decorator with same name in different exports", async () => {
+    const host = await createTestHost();
+
+    host.add(
+      "package.json",
+      JSON.stringify({
+        name: "test-lib",
+        exports: {
+          ".": {
+            typespec: "./main.tsp",
+          },
+          "./experimental": {
+            typespec: "./experimental.tsp",
+          },
+        },
+      }),
+    );
+
+    // Main export
+    host.add(
+      "main.tsp",
+      `
+      using TypeSpec.Reflection;
+
+      namespace Main {
+        /** Main version of decorator */
+        extern dec feature(target: Model, version: valueof string);
+      }
+      `,
+    );
+
+    // Experimental export
+    host.add(
+      "experimental.tsp",
+      `
+      using TypeSpec.Reflection;
+
+      namespace Experimental {
+        /** Experimental version of decorator */
+        extern dec feature(target: Model, enabled: valueof boolean);
+      }
+      `,
+    );
+
+    const rootDir = resolveVirtualPath(".");
+    const diagnostics = await generateExternSignatures(host.compilerHost, rootDir);
+
+    expectDiagnosticEmpty(diagnostics);
+
+    // Read generated files
+    const mainFile = await host.compilerHost.readFile(`${rootDir}/generated-defs/Main.ts`);
+    const expFile = await host.compilerHost.readFile(`${rootDir}/generated-defs/Experimental.ts`);
+
+    // Both should have FeatureDecorator but with different signatures
+    expect(mainFile.text).toContain("FeatureDecorator");
+    expect(mainFile.text).toContain("version: string");
+    expect(mainFile.text).toContain("Main version of decorator");
+
+    expect(expFile.text).toContain("FeatureDecorator");
+    expect(expFile.text).toContain("enabled: boolean");
+    expect(expFile.text).toContain("Experimental version of decorator");
+  });
+
+  it("should handle same namespace across multiple exports", async () => {
+    const host = await createTestHost();
+
+    host.add(
+      "package.json",
+      JSON.stringify({
+        name: "test-lib",
+        exports: {
+          ".": {
+            typespec: "./main.tsp",
+          },
+          "./extra": {
+            typespec: "./extra.tsp",
+          },
+        },
+      }),
+    );
+
+    // Main export with Azure.Core namespace
+    host.add(
+      "main.tsp",
+      `
+      using TypeSpec.Reflection;
+
+      namespace Azure.Core {
+        /** Main decorator in Azure.Core */
+        extern dec mainDecorator(target: Model);
+      }
+      `,
+    );
+
+    // Extra export also uses Azure.Core namespace
+    host.add(
+      "extra.tsp",
+      `
+      using TypeSpec.Reflection;
+
+      namespace Azure.Core {
+        /** Extra decorator in same namespace */
+        extern dec extraDecorator(target: Operation);
+      }
+      `,
+    );
+
+    const rootDir = resolveVirtualPath(".");
+    const diagnostics = await generateExternSignatures(host.compilerHost, rootDir);
+
+    expectDiagnosticEmpty(diagnostics);
+
+    // Read generated file - should be a single Azure.Core.ts
+    const coreFile = await host.compilerHost.readFile(`${rootDir}/generated-defs/Azure.Core.ts`);
+
+    // Both decorators should be in the same file since they share the namespace
+    // but they should have different export locations
+    expect(coreFile.text).toContain("MainDecoratorDecorator");
+    expect(coreFile.text).toContain("Main decorator in Azure.Core");
+    expect(coreFile.text).toContain("ExtraDecoratorDecorator");
+    expect(coreFile.text).toContain("Extra decorator in same namespace");
+
+    // Verify the decorators are in the Decorators type
+    expect(coreFile.text).toContain("mainDecorator:");
+    expect(coreFile.text).toContain("extraDecorator:");
   });
 });
 
