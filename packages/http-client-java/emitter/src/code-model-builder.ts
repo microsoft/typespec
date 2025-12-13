@@ -69,6 +69,7 @@ import {
   SdkServiceMethod,
   SdkType,
   SdkUnionType,
+  UsageFlags,
   createSdkContext,
   getAllModels,
   getClientNameOverride,
@@ -101,6 +102,8 @@ import {
   HttpStatusCodesEntry,
   Visibility,
   getAuthentication,
+  isPathParam,
+  isQueryParam,
 } from "@typespec/http";
 import { getSegment } from "@typespec/rest";
 import { getAddedOnVersions } from "@typespec/versioning";
@@ -2806,8 +2809,17 @@ export class CodeModelBuilder {
     }
 
     // properties
+    const modelUsedInOutput = Boolean(type.usage & UsageFlags.Output);
     for (const prop of type.properties) {
-      if (!isHttpMetadata(this.sdkContext, prop) && !prop.discriminator) {
+      const isMetadata = isHttpMetadata(this.sdkContext, prop);
+      const propertyHasRead = prop.visibility?.includes(Visibility.Read);
+      const includeMetadata =
+        modelUsedInOutput &&
+        propertyHasRead &&
+        isMetadata &&
+        prop.__raw &&
+        (isPathParam(this.program, prop.__raw) || isQueryParam(this.program, prop.__raw));
+      if ((!isMetadata || includeMetadata) && !prop.discriminator) {
         objectSchema.addProperty(this.processModelProperty(prop));
       }
     }
@@ -3062,6 +3074,9 @@ export class CodeModelBuilder {
   private isReadOnly(target: SdkModelPropertyType): boolean {
     const segment = target.__raw ? getSegment(this.program, target.__raw) !== undefined : false;
     if (segment) {
+      return true;
+    } else if (isHttpMetadata(this.sdkContext, target)) {
+      // metadata (path/query) is always read-only
       return true;
     } else {
       const visibility = target.visibility;
