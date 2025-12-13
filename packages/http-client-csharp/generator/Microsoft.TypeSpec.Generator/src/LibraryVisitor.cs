@@ -44,6 +44,8 @@ namespace Microsoft.TypeSpec.Generator
                     }
                 }
 
+                methods = [ .. typeProvider.BuildMethodsForBackCompatibility(methods)];
+
                 var constructors = new List<ConstructorProvider>();
                 foreach (var constructorProvider in typeProvider.Constructors)
                 {
