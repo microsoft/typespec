@@ -56,6 +56,7 @@ import {
   DecoratorContext,
   DecoratorDeclarationStatementNode,
   DecoratorExpressionNode,
+  DecoratorValidatorCallbacks,
   Diagnostic,
   DiagnosticTarget,
   DocContent,
@@ -156,6 +157,7 @@ import {
   UnionVariantNode,
   UnknownType,
   UsingStatementNode,
+  ValidatorFn,
   Value,
   ValueWithTemplate,
   VoidType,
@@ -368,6 +370,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    * Key is the SymId of a node. It can be retrieved with getNodeSymId(node)
    */
   const pendingResolutions = new PendingResolutions();
+  const postCheckValidators: ValidatorFn[] = [];
 
   const typespecNamespaceBinding = resolver.symbols.global.exports!.get("TypeSpec");
   if (typespecNamespaceBinding) {
@@ -3485,6 +3488,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     internalDecoratorValidation();
     assertNoPendingResolutions();
+    runPostValidators(postCheckValidators);
   }
 
   function assertNoPendingResolutions() {
@@ -5955,17 +5959,40 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     stats.finishedTypes++;
 
     if (!options.skipDecorators) {
+      let postSelfValidators: ValidatorFn[] = [];
       if ("decorators" in typeDef) {
-        for (const decApp of typeDef.decorators) {
-          applyDecoratorToType(program, decApp, typeDef);
-        }
+        postSelfValidators = applyDecoratorsToType(typeDef);
       }
       typeDef.isFinished = true;
       Object.setPrototypeOf(typeDef, typePrototype);
+      runPostValidators(postSelfValidators);
     }
 
     markAsChecked(typeDef);
     return typeDef;
+  }
+
+  function applyDecoratorsToType(
+    typeDef: Type & { decorators: DecoratorApplication[] },
+  ): ValidatorFn[] {
+    const postSelfValidators: ValidatorFn[] = [];
+    for (const decApp of typeDef.decorators) {
+      const validators = applyDecoratorToType(program, decApp, typeDef);
+      if (validators?.onTargetFinish) {
+        postSelfValidators.push(validators.onTargetFinish);
+      }
+      if (validators?.onGraphFinish) {
+        postCheckValidators.push(validators.onGraphFinish);
+      }
+    }
+    return postSelfValidators;
+  }
+
+  /** Run a list of post validator */
+  function runPostValidators(validators: ValidatorFn[]) {
+    for (const validator of validators) {
+      program.reportDiagnostics(validator());
+    }
   }
 
   function markAsChecked<T extends Type>(type: T) {
@@ -6669,7 +6696,11 @@ function reportDeprecation(
   }
 }
 
-function applyDecoratorToType(program: Program, decApp: DecoratorApplication, target: Type) {
+function applyDecoratorToType(
+  program: Program,
+  decApp: DecoratorApplication,
+  target: Type,
+): DecoratorValidatorCallbacks | void {
   compilerAssert("decorators" in target, "Cannot apply decorator to non-decoratable type", target);
 
   for (const arg of decApp.args) {
@@ -6697,7 +6728,7 @@ function applyDecoratorToType(program: Program, decApp: DecoratorApplication, ta
     const args = decApp.args.map((x) => x.jsValue);
     const fn = decApp.decorator;
     const context = createDecoratorContext(program, decApp);
-    fn(context, target, ...args);
+    return fn(context, target, ...args);
   } catch (error: any) {
     // do not fail the language server for exceptions in decorators
     if (program.compilerOptions.designTimeBuild) {
