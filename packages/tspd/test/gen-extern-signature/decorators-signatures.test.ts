@@ -430,7 +430,7 @@ export type Decorators = {
   });
 });
 
-describe.only("multiple exports with decorators", () => {
+describe("multiple exports with decorators", () => {
   it("should place decorators in correct export locations", async () => {
     const host = await createTestHost();
 
