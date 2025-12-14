@@ -272,7 +272,7 @@ export class TspLanguageClient {
     const lc = new LanguageClient(id, name, { run: exe, debug: exe }, options);
 
     lc.onRequest("custom/chatCompletion", (params) =>
-      sendLmChatRequest(params.messages, params.modelName, params.id),
+      sendLmChatRequest(params.messages, params.modelFamily, params.id),
     );
 
     return new TspLanguageClient(lc, exe);

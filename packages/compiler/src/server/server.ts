@@ -14,8 +14,9 @@ import {
 } from "vscode-languageserver/node.js";
 import { NodeHost } from "../core/node-host.js";
 import { typespecVersion } from "../manifest.js";
+import { getEnvironmentVariable } from "../utils/misc.js";
 import { createClientConfigProvider } from "./client-config-provider.js";
-import { ENABLE_LM_LOGGING } from "./constants.js";
+import { DISABLE_LM_PROVIDER, ENABLE_LM_LOGGING } from "./constants.js";
 import { createServer } from "./serverlib.js";
 import { CustomRequestName, Server, ServerHost, ServerLog } from "./types.js";
 
@@ -154,53 +155,61 @@ function main() {
   documents.onDidClose(profile(s.documentClosed));
   documents.onDidOpen(profile(s.documentOpened));
 
-  let chatCompleteRequestId = 0;
-  const lmProvider = {
-    chatComplete: async (
-      messages: { role: "user" | "assist"; message: string }[],
-      modelName: string,
-    ): Promise<string | undefined> => {
-      const start = new Date();
-      const id = chatCompleteRequestId++;
-      const lmLogEnabled =
-        typeof process !== "undefined" &&
-        process?.env?.[ENABLE_LM_LOGGING]?.toLowerCase() === "true";
-      const lmLog = (log: ServerLog) => {
-        if (lmLogEnabled || log.level === "error" || log.level === "warning") {
-          host.log({
-            ...log,
-            message: `[ChatComplete #${id}] ${log.message}`,
-          });
-        }
-      };
+  const lmFuncDisabled = getEnvironmentVariable(DISABLE_LM_PROVIDER)?.toLowerCase() === "true";
+  if (!lmFuncDisabled) {
+    host.log({
+      level: "info",
+      message: `Experimental feature 'LM Provider' are enabled in the language server. set environment variable '${DISABLE_LM_PROVIDER}' to 'true' to disable it.`,
+    });
+    let chatCompleteRequestId = 0;
+    (globalThis as any).TspExLmProvider = {
+      chatComplete: async (
+        messages: { role: "user" | "assist"; message: string }[],
+        modelFamily: string,
+      ): Promise<string | undefined> => {
+        const start = new Date();
+        const id = chatCompleteRequestId++;
+        const lmLogEnabled = getEnvironmentVariable(ENABLE_LM_LOGGING)?.toLowerCase() === "true";
+        const lmLog = (log: ServerLog) => {
+          if (lmLogEnabled || log.level === "error" || log.level === "warning") {
+            host.log({
+              ...log,
+              message: `[ChatComplete #${id}] ${log.message}`,
+            });
+          }
+        };
 
-      lmLog({
-        level: "debug",
-        message: `[${start.toISOString()}] start sending custom/chatCompletion event`,
-      });
-      try {
-        return await connection.sendRequest("custom/chatCompletion", {
-          messages,
-          modelName,
-          id: id.toString(),
-        });
-      } catch (e) {
-        lmLog({
-          level: "error",
-          message: `chatComplete failed with error: ${inspect(e)}`,
-        });
-        return undefined;
-      } finally {
-        const end = new Date();
         lmLog({
           level: "debug",
-          message: `[${end.toISOString()}] custom/chatCompletion event finished in ${end.getTime() - start.getTime()} ms`,
+          message: `Start sending custom/chatCompletion event at ${start.toISOString()}`,
         });
-      }
-    },
-  };
-
-  (globalThis as any).TspExLmProvider = lmProvider;
+        try {
+          return await connection.sendRequest("custom/chatCompletion", {
+            messages,
+            modelFamily,
+            id: id.toString(),
+          });
+        } catch (e) {
+          lmLog({
+            level: "error",
+            message: `chatComplete failed with error: ${inspect(e)}`,
+          });
+          return undefined;
+        } finally {
+          const end = new Date();
+          lmLog({
+            level: "debug",
+            message: `End sending custom/chatCompletion event at ${end.toISOString()} in ${end.getTime() - start.getTime()} ms`,
+          });
+        }
+      },
+    };
+  } else {
+    host.log({
+      level: "info",
+      message: `Experimental feature 'LM Provider' are disabled in the language server, remove environment variable '${DISABLE_LM_PROVIDER}' or set it to 'false' to enable it.`,
+    });
+  }
 
   documents.listen(connection);
   connection.listen();

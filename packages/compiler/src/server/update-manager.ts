@@ -1,5 +1,6 @@
 import { TextDocumentIdentifier } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
+import { getEnvironmentVariable } from "../utils/misc.js";
 import { ENABLE_UPDATE_MANAGER_LOGGING } from "./constants.js";
 import { ServerLog } from "./types.js";
 
@@ -41,8 +42,7 @@ export class UpdateManager<T = void> {
     log: (sl: ServerLog) => void,
   ) {
     this._log =
-      typeof process !== "undefined" &&
-      process?.env?.[ENABLE_UPDATE_MANAGER_LOGGING]?.toLowerCase() === "true"
+      getEnvironmentVariable(ENABLE_UPDATE_MANAGER_LOGGING)?.toLowerCase() === "true"
         ? (sl: ServerLog) => {
             log({ ...sl, message: `#FromUpdateManager(${this.name}): ${sl.message}` });
           }

@@ -9,7 +9,7 @@ let lmParallelRequestCount = 0;
 
 export async function sendLmChatRequest(
   messages: { role: "user" | "assist"; message: string }[],
-  modelName?: string,
+  modelFamily: string,
   id?: string,
 ): Promise<string | undefined> {
   const logEnabled = process.env[ENABLE_LM_LOGGING] === "true";
@@ -23,8 +23,10 @@ export async function sendLmChatRequest(
       );
     }
   };
-  const family = modelName ?? "gpt-5";
-  lmLog({ level: "debug", message: `Model family used: ${family}` });
+  if (modelFamily === undefined || modelFamily.trim() === "") {
+    lmLog({ level: "warning", message: `No model family provided for chat completion.` });
+    return undefined;
+  }
   if (messages === undefined || messages.length === 0) {
     lmLog({ level: "warning", message: `No messages provided for chat completion.` });
     return undefined;
@@ -38,14 +40,14 @@ export async function sendLmChatRequest(
         await runWithTimingLog(
           "Model Selection",
           async () => {
-            let mp = lmModelCache.get(family);
+            let mp = lmModelCache.get(modelFamily);
             if (!mp) {
-              mp = lm.selectChatModels({ family });
-              lmModelCache.set(family, mp);
+              mp = lm.selectChatModels({ family: modelFamily });
+              lmModelCache.set(modelFamily, mp);
             }
             const m = await mp;
             if (!m || m.length === 0) {
-              lmModelCache.delete(family);
+              lmModelCache.delete(modelFamily);
               return RetryResult.Failed;
             }
             return m;
@@ -57,7 +59,7 @@ export async function sendLmChatRequest(
   } catch (e) {
     lmLog({
       level: "error",
-      message: `[ChatComplete #${id ?? "N/A"}] Error when selecting chat models for family ${family}`,
+      message: `Error when selecting chat models for family ${modelFamily}`,
       details: [e],
     });
     return undefined;
@@ -69,7 +71,13 @@ export async function sendLmChatRequest(
       "Send request to LM",
       async () => {
         lmLog({ level: "debug", message: `LM parallelism increased to ${lmParallelRequestCount}` });
-        const response = await models[0].sendRequest(
+        const selectedModel = models[0];
+        lmLog({
+          level: "debug",
+          message: `Requested model family: ${modelFamily}, selected: ${selectedModel.family}`,
+        });
+
+        const response = await selectedModel.sendRequest(
           messages.map((m) => {
             if (m.role === "user") {
               return LanguageModelChatMessage.User(m.message);
