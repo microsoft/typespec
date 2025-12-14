@@ -1,5 +1,12 @@
 # Changelog - @typespec/tspd
 
+## 0.73.2
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+
 ## 0.73.1
 
 ### Bump dependencies

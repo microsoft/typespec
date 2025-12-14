@@ -2,6 +2,7 @@ import { t, type TesterInstance } from "@typespec/compiler/testing";
 import { beforeEach, expect, it } from "vitest";
 import { Tester } from "../../test/test-host.js";
 import { getSubgraph } from "../../test/utils.js";
+
 let runner: TesterInstance;
 beforeEach(async () => {
   runner = await Tester.createInstance();
