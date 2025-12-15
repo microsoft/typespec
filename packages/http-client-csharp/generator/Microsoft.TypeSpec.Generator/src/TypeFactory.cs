@@ -220,6 +220,34 @@ namespace Microsoft.TypeSpec.Generator
             foreach (var visitor in Visitors)
             {
                 enumProvider = visitor.PreVisitEnum(enumType, enumProvider);
+                // visit the linked enum variants
+                if (enumProvider is FixedEnumProvider)
+                {
+                    enumProvider.ExtensibleEnumView = visitor.PreVisitEnum(enumType, enumProvider.ExtensibleEnumView);
+                }
+                else if (enumProvider is ExtensibleEnumProvider)
+                {
+                    enumProvider.FixedEnumView = visitor.PreVisitEnum(enumType, enumProvider.FixedEnumView);
+                }
+            }
+
+            if (enumProvider == null)
+            {
+                EnumCache.TryAdd(enumCacheKey, null);
+                return null;
+            }
+
+            // Check to see if there is custom code that customizes the enum
+            enumProvider = enumProvider.CustomCodeView switch
+            {
+                { Type: { IsValueType: true, IsStruct: true } } => enumProvider.ExtensibleEnumView ?? enumProvider,
+                { Type: { IsValueType: true, IsStruct: false } } => enumProvider.FixedEnumView ?? enumProvider,
+                _ => enumProvider,
+            };
+
+            if (enumType.Access == "public")
+            {
+                CodeModelGenerator.Instance.AddTypeToKeep(enumProvider);
             }
 
             EnumCache.Add(enumCacheKey, enumProvider);

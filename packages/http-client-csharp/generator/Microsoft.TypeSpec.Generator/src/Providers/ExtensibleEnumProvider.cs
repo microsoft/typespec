@@ -36,6 +36,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             _valueField = new FieldProvider(FieldModifiers.Private | FieldModifiers.ReadOnly, EnumUnderlyingType, "_value", this);
             _declaringType = declaringType;
+            ExtensibleEnumView = this;
         }
 
         private readonly FieldProvider _valueField;
