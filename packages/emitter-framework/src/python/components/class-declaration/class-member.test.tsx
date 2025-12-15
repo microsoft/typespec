@@ -20,6 +20,7 @@ describe("Python Class Members", () => {
           from dataclasses import dataclass
           from typing import Optional
 
+
           @dataclass(kw_only=True)
           class MyModel:
             name: str = "default"
@@ -44,6 +45,7 @@ describe("Python Class Members", () => {
           from dataclasses import dataclass
           from typing import Optional
 
+
           @dataclass(kw_only=True)
           class BooleanModel:
             is_active: bool = True
@@ -66,6 +68,7 @@ describe("Python Class Members", () => {
       expect(getOutput(program, [<ClassDeclaration type={ArrayModel} />])).toRenderTo(
         `
           from dataclasses import dataclass
+
 
           @dataclass(kw_only=True)
           class ArrayModel:
@@ -91,6 +94,7 @@ describe("Python Class Members", () => {
       expect(getOutput(program, [<ClassDeclaration type={IntegerModel} />])).toRenderTo(
         `
           from dataclasses import dataclass
+
 
           @dataclass(kw_only=True)
           class IntegerModel:
@@ -138,6 +142,7 @@ describe("Python Class Members", () => {
           from dataclasses import dataclass
           from decimal import Decimal
 
+
           @dataclass(kw_only=True)
           class NumericDefaults:
             float_base: float = 1.5
@@ -172,6 +177,7 @@ describe("Python Class Members", () => {
         `
           from dataclasses import dataclass
           from decimal import Decimal
+
 
           @dataclass(kw_only=True)
           class MixedNumeric:

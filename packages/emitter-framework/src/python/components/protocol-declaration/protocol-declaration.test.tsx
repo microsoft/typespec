@@ -20,6 +20,7 @@ describe("Python ProtocolDeclaration", () => {
     ).toRenderTo(`
       from typing import Protocol
 
+
       class GetName(Protocol):
         def __call__(self, id: str) -> str:
           ...
@@ -46,6 +47,7 @@ describe("Python ProtocolDeclaration", () => {
     expect(getOutput(program, [<ProtocolDeclaration type={getNameNoReturn} />])).toRenderTo(`
       from typing import Protocol
 
+
       class GetName(Protocol):
         def __call__(self, id: str):
           ...
@@ -64,6 +66,7 @@ describe("Python ProtocolDeclaration", () => {
 
     expect(getOutput(program, [<ProtocolDeclaration type={Greeter} />])).toRenderTo(`
       from typing import Protocol
+
 
       class Greeter(Protocol):
         def get_name(self, id: str) -> str:
@@ -89,6 +92,7 @@ describe("Python ProtocolDeclaration", () => {
     ).toRenderTo(`
       from typing import Callable
       from typing import Protocol
+
 
       class GetName(Protocol):
         def __call__(self, id: str) -> str:

@@ -42,7 +42,7 @@ describe("map Typespec types to Python built-in types", () => {
     `);
 
     expect(getOutput(program, [<TypeExpression type={Type} />])).toRenderTo(d`
-      ${extraImport ? `${extraImport}\n\n` : ""}${pythonType}
+      ${extraImport ? `${extraImport}\n\n\n` : ""}${pythonType}
     `);
   });
 });
@@ -97,6 +97,7 @@ describe("map operation (function type) to typing.Callable", () => {
     expect(getOutput(program, [<TypeExpression type={f} />])).toRenderTo(d`
       from typing import Callable
 
+
       Callable[[int, str], None]
     `);
   });
@@ -108,6 +109,7 @@ describe("map operation (function type) to typing.Callable", () => {
 
     expect(getOutput(program, [<TypeExpression type={g} />])).toRenderTo(d`
       from typing import Callable
+
 
       Callable[[], int]
     `);

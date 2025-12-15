@@ -19,6 +19,7 @@ describe("Python TypeDeclaration dispatcher", () => {
     expect(output).toRenderTo(d`
       from enum import IntEnum
 
+
       class Foo(IntEnum):
         ONE = 1
         TWO = 2
@@ -38,6 +39,7 @@ describe("Python TypeDeclaration dispatcher", () => {
       from datetime import datetime
       from typing import TypeAlias
 
+
       my_date: TypeAlias = datetime`);
   });
 
@@ -49,6 +51,7 @@ describe("Python TypeDeclaration dispatcher", () => {
     const output = getOutput(program, [<TypeDeclaration type={Items} />]);
     expect(output).toRenderTo(d`
       from typing import TypeAlias
+
 
       items: TypeAlias = list[int]`);
   });

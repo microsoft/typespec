@@ -20,6 +20,7 @@ describe("Python Enum Declaration", () => {
     expect(getOutput(program, [<EnumDeclaration type={Foo} />])).toRenderTo(d`
       from enum import IntEnum
 
+
       class Foo(IntEnum):
         ONE = 1
         TWO = 2
@@ -45,6 +46,7 @@ describe("Python Enum Declaration", () => {
 
     expect(output).toRenderTo(d`
       from enum import IntEnum
+
 
       class Foo(IntEnum):
         """
@@ -81,6 +83,7 @@ describe("Python Enum Declaration", () => {
     expect(output).toRenderTo(d`
       from enum import IntEnum
 
+
       class Foo(IntEnum):
         """
         This is an explicit doc
@@ -110,6 +113,7 @@ describe("Python Enum Declaration", () => {
     expect(output).toRenderTo(d`
       from enum import IntEnum
 
+
       class Foo(IntEnum):
         ONE = 1
         TWO = 2
@@ -138,6 +142,7 @@ describe("Python Enum Declaration", () => {
 
     expect(output).toRenderTo(d`
       from enum import IntEnum
+
 
       class Foo(IntEnum):
         ONE = 1
@@ -170,6 +175,7 @@ describe("Python Enum Declaration", () => {
     expect(output).toRenderTo(d`
       from enum import IntEnum
 
+
       class Foo(IntEnum):
         ONE = 1
         TWO = 2
@@ -195,6 +201,7 @@ describe("Python Enum Declaration", () => {
       expect(output).toRenderTo(d`
         from enum import IntEnum
 
+
         class StatusCode(IntEnum):
           SUCCESS = 200
           NOT_FOUND = 404
@@ -216,6 +223,7 @@ describe("Python Enum Declaration", () => {
 
       expect(output).toRenderTo(d`
         from enum import StrEnum
+
 
         class Color(StrEnum):
           RED = "red"
@@ -246,6 +254,7 @@ describe("Python Enum Declaration", () => {
       expect(output).toRenderTo(d`
         from enum import StrEnum
 
+
         class Color(StrEnum):
           RED = "This is red"
           GREEN = "This is green"
@@ -273,6 +282,7 @@ describe("Python Enum Declaration", () => {
         from enum import auto
         from enum import Enum
 
+
         class Mixed(Enum):
           STRING_VALUE = "hello"
           NUMERIC_VALUE = 42
@@ -295,6 +305,7 @@ describe("Python Enum Declaration", () => {
       expect(output).toRenderTo(d`
         from enum import auto
         from enum import Enum
+
 
         class EnumWithoutValues(Enum):
           SOME_VALUE = auto()

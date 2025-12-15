@@ -35,6 +35,7 @@ describe("Python Class from model", () => {
           from typing import Literal
           from typing import Optional
 
+
           @dataclass(kw_only=True)
           class Widget:
             id: str
@@ -68,6 +69,7 @@ describe("Python Class from model", () => {
           from dataclasses import dataclass
           from typing import Optional
 
+
           @dataclass(kw_only=True)
           class Widget:
             id: str
@@ -90,6 +92,7 @@ describe("Python Class from model", () => {
       `
           from dataclasses import dataclass
           from typing import Optional
+
 
           @dataclass(kw_only=True)
           class Widget:
@@ -114,6 +117,7 @@ describe("Python Class from model", () => {
     expect(getOutput(program, [<ClassDeclaration type={Foo} />])).toRenderTo(
       `
           from dataclasses import dataclass
+
 
           @dataclass(kw_only=True)
           class Foo:
@@ -150,6 +154,7 @@ describe("Python Class from model", () => {
       `
           from dataclasses import dataclass
 
+
           @dataclass(kw_only=True)
           class Foo:
             """
@@ -180,6 +185,7 @@ describe("Python Class from model", () => {
     ).toRenderTo(
       `
           from dataclasses import dataclass
+
 
           @dataclass(kw_only=True)
           class Foo:
@@ -213,6 +219,7 @@ describe("Python Class from model", () => {
       `
           from dataclasses import dataclass
 
+
           @dataclass(kw_only=True)
           class Foo:
             """
@@ -238,6 +245,7 @@ describe("Python Class from model", () => {
     expect(getOutput(program, [<ClassDeclaration type={Foo} />])).toRenderTo(
       `
           from dataclasses import dataclass
+
 
           @dataclass(kw_only=True)
           class Foo:
@@ -265,6 +273,7 @@ describe("Python Class from model", () => {
     expect(getOutput(program, [<ClassDeclaration type={Foo} />])).toRenderTo(
       `
           from dataclasses import dataclass
+
 
           @dataclass(kw_only=True)
           class Foo:
@@ -362,6 +371,7 @@ describe("Python Class from model", () => {
       from enum import StrEnum
       from typing import Literal
 
+
       class Color(StrEnum):
         RED = "RED"
         BLUE = "BLUE"
@@ -399,6 +409,7 @@ describe("Python Class from model", () => {
       from enum import StrEnum
       from typing import Literal
 
+
       class Color(StrEnum):
         RED = "RED"
         BLUE = "BLUE"
@@ -427,6 +438,7 @@ describe("Python Class from model", () => {
       from dataclasses import dataclass
       from typing import Literal
 
+
       @dataclass(kw_only=True)
       class Widget:
         id: str
@@ -448,6 +460,7 @@ describe("Python Class from model", () => {
       `
       from dataclasses import dataclass
       from typing import Literal
+
 
       @dataclass(kw_only=True)
       class Widget:
@@ -479,6 +492,7 @@ describe("Python Class from model", () => {
       from enum import StrEnum
       from typing import Literal
 
+
       class Color(StrEnum):
         RED = "RED"
         BLUE = "BLUE"
@@ -504,6 +518,7 @@ describe("Python Class from model", () => {
       from dataclasses import dataclass
       from typing import Never
 
+
       @dataclass(kw_only=True)
       class Widget:
         property: Never
@@ -524,6 +539,7 @@ describe("Python Class from model", () => {
       .toRenderTo(`
       from dataclasses import dataclass
       from typing import Literal
+
 
       @dataclass(kw_only=True)
       class MyOperations:
@@ -555,6 +571,7 @@ describe("Python Class from model", () => {
     ).toRenderTo(`
       from dataclasses import dataclass
       from typing import Literal
+
 
       @dataclass(kw_only=True)
       class MyOperations:
@@ -588,6 +605,7 @@ describe("Python Class from model", () => {
       from dataclasses import dataclass
       from typing import Literal
 
+
       @dataclass(kw_only=True)
       class Widget:
         id: str
@@ -615,6 +633,7 @@ describe("Python Class from interface", () => {
     expect(getOutput(program, [<ClassDeclaration type={WidgetOperations} />])).toRenderTo(`
       from abc import ABC
       from abc import abstractmethod
+
 
       class WidgetOperations(ABC):
         @abstractmethod
@@ -646,6 +665,7 @@ describe("Python Class from interface", () => {
       from abc import ABC
       from abc import abstractmethod
       from dataclasses import dataclass
+
 
       @dataclass(kw_only=True)
       class Foo:
@@ -700,6 +720,7 @@ describe("Python Class from interface", () => {
       from dataclasses import dataclass
       from typing import Literal
 
+
       class WidgetOperations(ABC):
         """
         Operations for Widget
@@ -753,6 +774,7 @@ describe("Python Class from interface", () => {
       from dataclasses import dataclass
       from typing import Literal
 
+
       class WidgetOperations(ABC):
         @abstractmethod
         def get_name(self, id: str) -> Widget:
@@ -803,6 +825,7 @@ describe("Python Class overrides", () => {
     ).toRenderTo(`
       from dataclasses import dataclass
 
+
       @dataclass(kw_only=True)
       class WidgetOperations:
         id: str
@@ -839,6 +862,7 @@ describe("Python Class overrides", () => {
     ).toRenderTo(`
       from dataclasses import dataclass
 
+
       @dataclass(kw_only=True)
       class WidgetOperations:
         id: str
@@ -874,6 +898,7 @@ describe("Python Class overrides", () => {
       ]),
     ).toRenderTo(`
       from dataclasses import dataclass
+
 
       @dataclass(kw_only=True)
       class WidgetOperations:
@@ -912,6 +937,7 @@ describe("Python Class overrides", () => {
     ).toRenderTo(`
       from dataclasses import dataclass
 
+
       @dataclass(kw_only=True)
       class WidgetOperations:
         id: str
@@ -939,6 +965,7 @@ describe("Python Class overrides", () => {
       from abc import ABC
       from abc import abstractmethod
 
+
       class WidgetOperations(ABC):
         @abstractmethod
         def get_name(self, id: str) -> str:
@@ -959,6 +986,7 @@ describe("Python Class overrides", () => {
       .toRenderTo(`
       from abc import ABC
       from abc import abstractmethod
+
 
       class WidgetOperations(ABC):
         @abstractmethod
@@ -981,6 +1009,7 @@ describe("Python Class overrides", () => {
       from abc import ABC
       from abc import abstractmethod
 
+
       class WidgetOperations(ABC):
         @classmethod
         @abstractmethod
@@ -1002,6 +1031,7 @@ describe("Python Class overrides", () => {
       .toRenderTo(`
       from abc import ABC
       from abc import abstractmethod
+
 
       class WidgetOperations(ABC):
         @staticmethod
@@ -1034,6 +1064,7 @@ describe("Python Class overrides", () => {
       from typing import TypeAlias
       from typing import TypeVar
 
+
       T = TypeVar("T")
 
       @dataclass(kw_only=True)
@@ -1059,6 +1090,7 @@ describe("Python Class overrides", () => {
       from typing import Generic
       from typing import TypeVar
 
+
       T = TypeVar("T")
       E = TypeVar("E")
 
@@ -1082,6 +1114,7 @@ describe("Python Class overrides", () => {
       from typing import Generic
       from typing import TypeVar
 
+
       T = TypeVar("T", bound=str)
 
       @dataclass(kw_only=True)
@@ -1103,6 +1136,7 @@ describe("Python Class overrides", () => {
       from dataclasses import dataclass
       from typing import Generic
       from typing import TypeVar
+
 
       T = TypeVar("T", bound=str)
       E = TypeVar("E")
@@ -1137,6 +1171,7 @@ describe("Python Class overrides", () => {
       from typing import Generic
       from typing import TypeVar
 
+
       T = TypeVar("T")
 
       @dataclass(kw_only=True)
@@ -1165,6 +1200,7 @@ describe("Python Class overrides", () => {
       from abc import abstractmethod
       from typing import Generic
       from typing import TypeVar
+
 
       T = TypeVar("T")
 
@@ -1203,6 +1239,7 @@ describe("Python Class overrides", () => {
       from abc import abstractmethod
       from typing import Generic
       from typing import TypeVar
+
 
       T = TypeVar("T")
 
@@ -1256,6 +1293,7 @@ describe("Python Class overrides", () => {
       from typing import Never
       from typing import TypeVar
 
+
       TState = TypeVar("TState")
 
       @dataclass(kw_only=True)
@@ -1297,6 +1335,7 @@ describe("Python Class overrides", () => {
       from typing import Never
       from typing import TypeVar
 
+
       TState = TypeVar("TState")
 
       @dataclass(kw_only=True)
@@ -1324,6 +1363,7 @@ describe("Python Class overrides", () => {
       .toRenderTo(`
       from abc import ABC
       from dataclasses import dataclass
+
 
       @dataclass(kw_only=True)
       class BaseEntity(ABC):
