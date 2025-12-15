@@ -52,8 +52,10 @@ azure-mgmt-core==1.6.0
 -e ./generated/authentication-oauth2
 -e ./generated/authentication-union
 -e ./generated/setuppy-authentication-union
+-e ./generated/specs-documentation
 -e ./generated/encode-duration
 -e ./generated/encode-numeric
+-e ./generated/encode-array
 -e ./generated/parameters-basic
 -e ./generated/parameters-collection-format
 -e ./generated/parameters-path

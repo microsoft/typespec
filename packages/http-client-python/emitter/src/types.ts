@@ -249,6 +249,7 @@ function emitProperty(
     flatten: property.flatten,
     isMultipartFileInput: isMultipartFileInput,
     xmlMetadata: getXmlMetadata(property),
+    encode: property.encode,
   };
 }
 
