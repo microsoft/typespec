@@ -2867,7 +2867,7 @@ export class CodeModelBuilder {
       extensions: extensions,
     });
     if (modelProperty.encode) {
-      (codeModelProperty as EncodedProperty).arrayEncode = modelProperty.encode;
+      (codeModelProperty as EncodedProperty).arrayEncoding = modelProperty.encode;
     }
 
     // xml

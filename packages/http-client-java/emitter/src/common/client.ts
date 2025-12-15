@@ -109,7 +109,7 @@ export interface EncodedProperty {
    * The encoding of array items.
    * The type for SDK would "SdkArrayType" with a "valueType", the type on wire be "string".
    */
-  arrayEncode?: ArrayKnownEncoding;
+  arrayEncoding?: ArrayKnownEncoding;
 }
 
 export class PageableContinuationToken {
