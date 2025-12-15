@@ -290,7 +290,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     var dataDeclaration = Declare("data", result.GetRawResponse().Content(), out var data);
 
                     // Create Utf8JsonReader from BinaryData
-                    var readerVar = new VariableExpression(typeof(Utf8JsonReader), "reader");
+                    var readerVar = new VariableExpression(typeof(Utf8JsonReader), "jsonReader");
                     var readerDeclaration = Declare(readerVar, New.Instance(typeof(Utf8JsonReader), data.ToMemory().Property("Span")));
 
                     // Create while loop to read array elements
@@ -329,7 +329,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     var dataDeclaration = Declare("data", result.GetRawResponse().Content(), out var data);
 
                     // Create Utf8JsonReader from BinaryData
-                    var readerVar = new VariableExpression(typeof(Utf8JsonReader), "reader");
+                    var readerVar = new VariableExpression(typeof(Utf8JsonReader), "jsonReader");
                     var readerDeclaration = Declare(readerVar, New.Instance(typeof(Utf8JsonReader), data.ToMemory().Property("Span")));
 
                     // For dictionaries, we need to read property name and value

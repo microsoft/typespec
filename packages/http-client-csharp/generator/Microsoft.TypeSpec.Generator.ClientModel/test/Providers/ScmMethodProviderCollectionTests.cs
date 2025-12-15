@@ -1165,12 +1165,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var bodyString = convenienceMethod!.BodyStatements!.ToDisplayString();
             
             // Verify Utf8JsonReader is used instead of JsonDocument.Parse
-            Assert.IsTrue(bodyString.Contains("global::System.Text.Json.Utf8JsonReader reader = new global::System.Text.Json.Utf8JsonReader(data.ToMemory().Span);"),
+            Assert.IsTrue(bodyString.Contains("global::System.Text.Json.Utf8JsonReader jsonReader = new global::System.Text.Json.Utf8JsonReader(data.ToMemory().Span);"),
                 "Should use Utf8JsonReader for collections of primitives");
             Assert.IsFalse(bodyString.Contains("using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(data);"),
                 "Should not use JsonDocument.Parse for collections of primitives");
-            Assert.IsTrue(bodyString.Contains("while (reader.Read())"),
-                "Should use while loop with reader.Read()");
+            Assert.IsTrue(bodyString.Contains("while (jsonReader.Read())"),
+                "Should use while loop with jsonReader.Read()");
         }
 
         [TestCase(typeof(TimeSpan))]
@@ -1205,12 +1205,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var bodyString = convenienceMethod!.BodyStatements!.ToDisplayString();
             
             // Verify Utf8JsonReader is used instead of JsonDocument.Parse
-            Assert.IsTrue(bodyString.Contains("global::System.Text.Json.Utf8JsonReader reader = new global::System.Text.Json.Utf8JsonReader(data.ToMemory().Span);"),
+            Assert.IsTrue(bodyString.Contains("global::System.Text.Json.Utf8JsonReader jsonReader = new global::System.Text.Json.Utf8JsonReader(data.ToMemory().Span);"),
                 "Should use Utf8JsonReader for dictionaries of primitives");
             Assert.IsFalse(bodyString.Contains("using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(data);"),
                 "Should not use JsonDocument.Parse for dictionaries of primitives");
-            Assert.IsTrue(bodyString.Contains("while (reader.Read())"),
-                "Should use while loop with reader.Read()");
+            Assert.IsTrue(bodyString.Contains("while (jsonReader.Read())"),
+                "Should use while loop with jsonReader.Read()");
         }
 
     }
