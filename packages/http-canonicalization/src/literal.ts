@@ -1,53 +1,82 @@
 import type { BooleanLiteral, MemberType, NumericLiteral, StringLiteral } from "@typespec/compiler";
-import { LiteralMutation } from "@typespec/mutator-framework";
+import {
+  LiteralMutation,
+  type MutationHalfEdge,
+  type MutationNodeForType,
+  type MutationTraits,
+} from "@typespec/mutator-framework";
+import type { Codec } from "./codecs.js";
 import type { HttpCanonicalizationMutations } from "./http-canonicalization-classes.js";
-import type { HttpCanonicalizer } from "./http-canonicalization.js";
+import type {
+  CanonicalizationPredicate,
+  HttpCanonicalizationCommon,
+  HttpCanonicalizationInfo,
+  HttpCanonicalizer,
+} from "./http-canonicalization.js";
 import { HttpCanonicalizationOptions } from "./options.js";
 
 /**
  * Canonicalizes literal types for HTTP.
  */
-export class LiteralHttpCanonicalization extends LiteralMutation<
-  HttpCanonicalizationOptions,
-  HttpCanonicalizationMutations,
-  HttpCanonicalizer
-> {
-  /**
-   * Canonicalization options.
-   */
-  options: HttpCanonicalizationOptions;
-  /**
-   * Indicates if the literal is defined as a named TypeSpec declaration. Always
-   * false for literals.
-   */
-  isDeclaration: boolean = false;
+export class LiteralHttpCanonicalization
+  extends LiteralMutation<
+    HttpCanonicalizationOptions,
+    HttpCanonicalizationMutations,
+    HttpCanonicalizer
+  >
+  implements HttpCanonicalizationCommon
+{
+  isDeclaration = false;
+  codec: Codec | null = null;
 
-  /**
-   * Mutation subgraph for language types.
-   */
-  get #languageSubgraph() {
-    return this.engine.getLanguageSubgraph(this.options);
+  #languageMutationNode: MutationNodeForType<StringLiteral | NumericLiteral | BooleanLiteral>;
+  #wireMutationNode: MutationNodeForType<StringLiteral | NumericLiteral | BooleanLiteral>;
+
+  get languageMutationNode() {
+    return this.#languageMutationNode;
   }
 
-  /**
-   * Mutation subgraph for wire types.
-   */
-  get #wireSubgraph() {
-    return this.engine.getWireSubgraph(this.options);
+  get wireMutationNode() {
+    return this.#wireMutationNode;
   }
 
-  /**
-   * The possibly mutated language type for this literal.
-   */
   get languageType() {
-    return this.getMutatedType(this.#languageSubgraph);
+    return this.#languageMutationNode.mutatedType;
+  }
+
+  get wireType() {
+    return this.#wireMutationNode.mutatedType;
   }
 
   /**
-   * The possibly mutated wire type for this literal.
+   * Tests whether the subgraph rooted at this canonicalization uses only
+   * the identity codec (no transformation).
    */
-  get wireType() {
-    return this.getMutatedType(this.#wireSubgraph);
+  subgraphUsesIdentityCodec(): boolean {
+    return this.engine.subgraphUsesIdentityCodec(this);
+  }
+
+  /**
+   * Tests whether the subgraph rooted at this canonicalization satisfies
+   * the provided predicate.
+   */
+  subgraphMatchesPredicate(predicate: CanonicalizationPredicate): boolean {
+    return this.engine.subgraphMatchesPredicate(this, predicate);
+  }
+
+  static mutationInfo(
+    engine: HttpCanonicalizer,
+    sourceType: StringLiteral | NumericLiteral | BooleanLiteral,
+    referenceTypes: MemberType[],
+    options: HttpCanonicalizationOptions,
+    halfEdge?: MutationHalfEdge<any, any>,
+    traits?: MutationTraits,
+  ): HttpCanonicalizationInfo {
+    return {
+      mutationKey: options.mutationKey,
+      codec: null as any, // Literals don't need a codec
+      isSynthetic: traits?.isSynthetic,
+    };
   }
 
   constructor(
@@ -55,8 +84,17 @@ export class LiteralHttpCanonicalization extends LiteralMutation<
     sourceType: StringLiteral | NumericLiteral | BooleanLiteral,
     referenceTypes: MemberType[],
     options: HttpCanonicalizationOptions,
+    info: HttpCanonicalizationInfo,
   ) {
-    super(engine, sourceType, referenceTypes, options);
+    super(engine, sourceType, referenceTypes, options, info);
     this.options = options;
+    this.#languageMutationNode = this.engine.getMutationNode(
+      this.sourceType,
+      info.mutationKey + "-language",
+    );
+    this.#wireMutationNode = this.engine.getMutationNode(
+      this.sourceType,
+      info.mutationKey + "-wire",
+    );
   }
 }

@@ -1,4 +1,6 @@
 export * from "./codecs.js";
+export * from "./enum-member.js";
+export * from "./enum.js";
 export * from "./http-canonicalization-classes.js";
 export * from "./http-canonicalization.js";
 export * from "./intrinsic.js";

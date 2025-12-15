@@ -1,11 +1,11 @@
-import type { MemberType, Scalar } from "@typespec/compiler";
+import type { Enum, MemberType } from "@typespec/compiler";
 import {
+  EnumMutation,
   MutationHalfEdge,
-  ScalarMutation,
   type MutationNodeForType,
   type MutationTraits,
 } from "@typespec/mutator-framework";
-import { type Codec, type EncodingInfo } from "./codecs.js";
+import type { Codec } from "./codecs.js";
 import type { HttpCanonicalizationMutations } from "./http-canonicalization-classes.js";
 import type {
   CanonicalizationPredicate,
@@ -16,26 +16,26 @@ import type {
 import { HttpCanonicalizationOptions } from "./options.js";
 
 /**
- * Canonicalizes scalar types by applying encoding-specific mutations.
+ * Canonicalizes enum types for HTTP.
  */
-export class ScalarHttpCanonicalization
-  extends ScalarMutation<
+export class EnumHttpCanonicalization
+  extends EnumMutation<
     HttpCanonicalizationOptions,
     HttpCanonicalizationMutations,
     HttpCanonicalizer
   >
   implements HttpCanonicalizationCommon
 {
-  codec: Codec;
-  #encodingInfo: EncodingInfo;
   isDeclaration: boolean = false;
+  codec: Codec | null = null;
 
-  #languageMutationNode: MutationNodeForType<Scalar>;
+  #languageMutationNode: MutationNodeForType<Enum>;
+  #wireMutationNode: MutationNodeForType<Enum>;
+
   get languageMutationNode() {
     return this.#languageMutationNode;
   }
 
-  #wireMutationNode: MutationNodeForType<Scalar>;
   get wireMutationNode() {
     return this.#wireMutationNode;
   }
@@ -66,70 +66,50 @@ export class ScalarHttpCanonicalization
 
   static mutationInfo(
     engine: HttpCanonicalizer,
-    sourceType: Scalar,
+    sourceType: Enum,
     referenceTypes: MemberType[],
     options: HttpCanonicalizationOptions,
     halfEdge?: MutationHalfEdge<any, any>,
     traits?: MutationTraits,
   ): HttpCanonicalizationInfo {
-    let mutationKey = options.mutationKey;
-    const encodingInfo = engine.codecs.encode(sourceType, referenceTypes);
-
-    if (encodingInfo.codec) {
-      mutationKey += `-codec-${encodingInfo.codec.id}`;
-    }
-
     return {
-      mutationKey,
-      encodingInfo,
+      mutationKey: options.mutationKey,
+      codec: null as any, // Enums don't need a codec
       isSynthetic: traits?.isSynthetic,
     };
   }
 
   constructor(
     engine: HttpCanonicalizer,
-    sourceType: Scalar,
+    sourceType: Enum,
     referenceTypes: MemberType[],
     options: HttpCanonicalizationOptions,
     info: HttpCanonicalizationInfo,
   ) {
     super(engine, sourceType, referenceTypes, options, info);
     this.options = options;
-    this.#languageMutationNode = this.engine.getMutationNode(
-      this.sourceType,
-      info.mutationKey + "-language",
-    );
-    this.#wireMutationNode = this.engine.getMutationNode(
-      this.sourceType,
-      info.mutationKey + "-wire",
-    );
+    this.#languageMutationNode = this.engine.getMutationNode(this.sourceType, {
+      mutationKey: info.mutationKey + "-language",
+      isSynthetic: info.isSynthetic,
+    });
+    this.#wireMutationNode = this.engine.getMutationNode(this.sourceType, {
+      mutationKey: info.mutationKey + "-wire",
+      isSynthetic: info.isSynthetic,
+    });
+    this.isDeclaration = !!this.sourceType.name;
+  }
 
-    this.#encodingInfo = info.encodingInfo!;
-    this.codec = info.encodingInfo!.codec;
-    this.isDeclaration = false;
+  protected startMemberEdge(): MutationHalfEdge {
+    return new MutationHalfEdge("member", this, (tail) => {
+      this.#languageMutationNode.connectMember(tail.languageMutationNode);
+      this.#wireMutationNode.connectMember(tail.wireMutationNode);
+    });
   }
 
   /**
-   * Canonicalize this scalar for HTTP.
+   * Canonicalize this enum for HTTP.
    */
   mutate() {
-    const { languageType, wireType } = this.#encodingInfo;
-    if (languageType !== this.sourceType) {
-      this.#languageMutationNode = this.#languageMutationNode.replace(
-        languageType as Scalar,
-      ) as MutationNodeForType<Scalar>;
-    }
-    if (wireType !== this.sourceType) {
-      this.#wireMutationNode = this.#wireMutationNode.replace(
-        wireType as Scalar,
-      ) as MutationNodeForType<Scalar>;
-    }
-  }
-
-  protected startBaseScalarEdge(): MutationHalfEdge {
-    return new MutationHalfEdge("base", this, (tail) => {
-      this.#languageMutationNode.connectBaseScalar(tail.languageMutationNode);
-      this.#wireMutationNode.connectBaseScalar(tail.wireMutationNode);
-    });
+    super.mutateMembers();
   }
 }

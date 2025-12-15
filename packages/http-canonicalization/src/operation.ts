@@ -1,18 +1,28 @@
 import type { MemberType, ModelProperty, Operation } from "@typespec/compiler";
 import {
-  type HttpOperation,
-  type HttpVerb,
   resolveRequestVisibility,
   Visibility,
+  type HttpOperation,
+  type HttpVerb,
 } from "@typespec/http";
 import "@typespec/http/experimental/typekit";
 
-import { OperationMutation } from "@typespec/mutator-framework";
+import {
+  MutationHalfEdge,
+  OperationMutation,
+  type MutationNodeForType,
+  type MutationTraits,
+} from "@typespec/mutator-framework";
 import type {
   HttpCanonicalization,
   HttpCanonicalizationMutations,
 } from "./http-canonicalization-classes.js";
-import type { HttpCanonicalizer } from "./http-canonicalization.js";
+import type {
+  CanonicalizationPredicate,
+  HttpCanonicalizationCommon,
+  HttpCanonicalizationInfo,
+  HttpCanonicalizer,
+} from "./http-canonicalization.js";
 import type { ModelPropertyHttpCanonicalization } from "./model-property.js";
 import type { ModelHttpCanonicalization } from "./model.js";
 import { HttpCanonicalizationOptions } from "./options.js";
@@ -170,12 +180,22 @@ export interface CanonicalHttpOperationBodyBase {
   readonly property?: ModelPropertyHttpCanonicalization;
 }
 
-export interface CanonicalHttpBody {
+export interface CanonicalHttpBodyForContentType {
+  /** The content type for this canonicalization. */
+  readonly contentType: string;
+  /** The canonicalized type for this content type. */
   readonly type: HttpCanonicalization;
+  /** The canonicalized property for this content type, if any. */
+  readonly property?: ModelPropertyHttpCanonicalization;
+}
+
+export interface CanonicalHttpBody {
   /** If the body was explicitly set with `@body`. */
   readonly isExplicit: boolean;
   /** If the body contains metadata annotations to ignore. */
   readonly containsMetadataAnnotations: boolean;
+  /** Canonicalized body for each content type. */
+  readonly bodies: CanonicalHttpBodyForContentType[];
 }
 
 export interface CanonicalHttpOperationBody
@@ -273,18 +293,19 @@ export interface CanonicalHttpOperationFileBody extends CanonicalHttpOperationBo
 /**
  * Canonicalizes operations by deriving HTTP-specific request and response shapes.
  */
-export class OperationHttpCanonicalization extends OperationMutation<
-  HttpCanonicalizationOptions,
-  HttpCanonicalizationMutations,
-  HttpCanonicalizer
-> {
+export class OperationHttpCanonicalization
+  extends OperationMutation<
+    HttpCanonicalizationOptions,
+    HttpCanonicalizationMutations,
+    HttpCanonicalizer
+  >
+  implements HttpCanonicalizationCommon
+{
   /**
    * Cached HTTP metadata for this operation.
    */
   #httpOperationInfo: HttpOperation;
-  /**
-   * Indicates if the operation corresponds to a named declaration. Always true.
-   */
+  codec = null;
   isDeclaration: boolean = true;
   /**
    * Canonicalized request parameters grouped by location.
@@ -331,32 +352,66 @@ export class OperationHttpCanonicalization extends OperationMutation<
    */
   name: string;
 
+  #languageMutationNode: MutationNodeForType<Operation>;
+  #wireMutationNode: MutationNodeForType<Operation>;
+
   /**
-   * Mutation subgraph for language types.
+   * The language mutation node for this operation.
    */
-  get #languageSubgraph() {
-    return this.engine.getLanguageSubgraph(this.options);
+  get languageMutationNode() {
+    return this.#languageMutationNode;
   }
 
   /**
-   * Mutation subgraph for wire types.
+   * The wire mutation node for this operation.
    */
-  get #wireSubgraph() {
-    return this.engine.getWireSubgraph(this.options);
+  get wireMutationNode() {
+    return this.#wireMutationNode;
   }
 
   /**
    * The language type for this operation.
    */
   get languageType() {
-    return this.getMutatedType(this.#languageSubgraph);
+    return this.#languageMutationNode.mutatedType;
   }
 
   /**
    * The wire type for this operation.
    */
   get wireType() {
-    return this.getMutatedType(this.#wireSubgraph);
+    return this.#wireMutationNode.mutatedType;
+  }
+
+  /**
+   * Tests whether the subgraph rooted at this canonicalization uses only
+   * the identity codec (no transformation).
+   */
+  subgraphUsesIdentityCodec(): boolean {
+    return this.engine.subgraphUsesIdentityCodec(this);
+  }
+
+  /**
+   * Tests whether the subgraph rooted at this canonicalization satisfies
+   * the provided predicate.
+   */
+  subgraphMatchesPredicate(predicate: CanonicalizationPredicate): boolean {
+    return this.engine.subgraphMatchesPredicate(this, predicate);
+  }
+
+  static mutationInfo(
+    engine: HttpCanonicalizer,
+    sourceType: Operation,
+    referenceTypes: MemberType[],
+    options: HttpCanonicalizationOptions,
+    halfEdge?: MutationHalfEdge<any, any>,
+    traits?: MutationTraits,
+  ): HttpCanonicalizationInfo {
+    return {
+      mutationKey: options.mutationKey,
+      codec: null as any, // Operations don't need a codec
+      isSynthetic: traits?.isSynthetic,
+    };
   }
 
   constructor(
@@ -364,8 +419,17 @@ export class OperationHttpCanonicalization extends OperationMutation<
     sourceType: Operation,
     referenceTypes: MemberType[] = [],
     options: HttpCanonicalizationOptions,
+    info: HttpCanonicalizationInfo,
   ) {
-    super(engine, sourceType, referenceTypes, options);
+    super(engine, sourceType, referenceTypes, options, info);
+    this.#languageMutationNode = this.engine.getMutationNode(
+      this.sourceType,
+      info.mutationKey + "-language",
+    );
+    this.#wireMutationNode = this.engine.getMutationNode(
+      this.sourceType,
+      info.mutationKey + "-wire",
+    );
 
     this.#httpOperationInfo = this.engine.$.httpOperation.get(this.sourceType);
     this.uriTemplate = this.#httpOperationInfo.uriTemplate;
@@ -378,6 +442,20 @@ export class OperationHttpCanonicalization extends OperationMutation<
     this.returnTypeVisibility = Visibility.Read;
     this.name = this.sourceType.name;
     this.method = this.#httpOperationInfo.verb;
+  }
+
+  protected startParametersEdge(): MutationHalfEdge {
+    return new MutationHalfEdge("parameters", this, (tail) => {
+      this.#languageMutationNode.connectParameters(tail.languageMutationNode);
+      this.#wireMutationNode.connectParameters(tail.wireMutationNode);
+    });
+  }
+
+  protected startReturnTypeEdge(): MutationHalfEdge {
+    return new MutationHalfEdge("returnType", this, (tail) => {
+      this.#languageMutationNode.connectReturnType(tail.languageMutationNode);
+      this.#wireMutationNode.connectReturnType(tail.wireMutationNode);
+    });
   }
 
   /**
@@ -413,7 +491,7 @@ export class OperationHttpCanonicalization extends OperationMutation<
 
     for (const param of paramInfo.properties) {
       this.requestParameters.properties.push(
-        this.#canonicalizeHttpProperty(param, this.parameterVisibility),
+        this.#canonicalizeHttpProperty(param, this.parameterVisibility, paramInfo.body),
       );
     }
 
@@ -466,9 +544,10 @@ export class OperationHttpCanonicalization extends OperationMutation<
 
     return {
       properties: content.properties.map((property) =>
-        this.#canonicalizeHttpProperty(property, this.returnTypeVisibility),
+        this.#canonicalizeHttpProperty(property, this.returnTypeVisibility, content.body),
       ),
       headers: Object.keys(canonicalHeaders).length > 0 ? canonicalHeaders : undefined,
+
       body: content.body
         ? this.#canonicalizeBody(content.body, this.returnTypeVisibility)
         : undefined,
@@ -481,8 +560,23 @@ export class OperationHttpCanonicalization extends OperationMutation<
   #canonicalizeHttpProperty(
     property: HttpOperationPropertyInfo,
     visibility: Visibility,
+    bodyInfo?: HttpPayloadBodyInfo,
   ): CanonicalHttpProperty {
-    const canonicalProperty = this.#canonicalizeModelProperty(property.property, visibility);
+    // For body-related properties, we need to pass the content type from the body info
+    const contentType =
+      bodyInfo &&
+      (property.kind === "body" ||
+        property.kind === "bodyRoot" ||
+        property.kind === "multipartBody" ||
+        property.kind === "bodyProperty")
+        ? bodyInfo.contentTypes[0]
+        : undefined;
+
+    const canonicalProperty = this.#canonicalizeModelProperty(
+      property.property,
+      visibility,
+      contentType,
+    );
 
     switch (property.kind) {
       case "header":
@@ -581,15 +675,18 @@ export class OperationHttpCanonicalization extends OperationMutation<
           contentTypeProperty: body.contentTypeProperty
             ? this.#canonicalizeModelProperty(body.contentTypeProperty, visibility)
             : undefined,
-          property: body.property
-            ? this.#canonicalizeModelProperty(body.property, visibility)
-            : undefined,
-          type: this.engine.canonicalize(body.type, {
-            visibility,
-            contentType: body.contentTypes[0],
-          }) as HttpCanonicalization,
           isExplicit: body.isExplicit,
           containsMetadataAnnotations: body.containsMetadataAnnotations,
+          bodies: body.contentTypes.map((contentType) => ({
+            contentType,
+            type: this.engine.canonicalize(body.type, {
+              visibility,
+              contentType,
+            }) as HttpCanonicalization,
+            property: body.property
+              ? this.#canonicalizeModelProperty(body.property, visibility, contentType)
+              : undefined,
+          })),
         } satisfies CanonicalHttpOperationBody;
       case "multipart":
         return this.#canonicalizeMultipartBody(body, visibility);
@@ -718,8 +815,12 @@ export class OperationHttpCanonicalization extends OperationMutation<
   #canonicalizeModelProperty(
     property: ModelProperty,
     visibility: Visibility,
+    contentType?: string,
   ): ModelPropertyHttpCanonicalization {
-    return this.engine.canonicalize(property, new HttpCanonicalizationOptions({ visibility }));
+    return this.engine.canonicalize(
+      property,
+      new HttpCanonicalizationOptions({ visibility, contentType }),
+    );
   }
 
   /**
