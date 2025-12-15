@@ -390,10 +390,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             else
             {
                 // For non-framework types, we need to parse into a JsonElement first
-                // Use JsonElement.ParseValue with the reader
+                // Use JsonElement.ParseValue with the reader (passed by ref)
+                var readerRef = new VariableExpression(reader.Type, reader.Declaration.RequestedName, isRef: true);
                 return new[]
                 {
-                    UsingDeclare("element", JsonDocumentSnippets.ParseValue(reader), out var element),
+                    UsingDeclare("element", JsonDocumentSnippets.ParseValue(readerRef), out var element),
                     AddElement(
                         dictKey,
                         MrwSerializationTypeDefinition.GetDeserializationMethodInvocationForType(elementType, element.RootElement(), data, ModelSerializationExtensionsSnippets.Wire),
