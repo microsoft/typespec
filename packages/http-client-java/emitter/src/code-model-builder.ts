@@ -108,6 +108,7 @@ import { fail } from "assert";
 import pkg from "lodash";
 import {
   Client as CodeModelClient,
+  EncodedProperty,
   EncodedSchema,
   PageableContinuationToken,
   Serializable,
@@ -2865,6 +2866,9 @@ export class CodeModelBuilder {
       serializedName: getPropertySerializedName(modelProperty),
       extensions: extensions,
     });
+    if (modelProperty.encode) {
+      (codeModelProperty as EncodedProperty).arrayEncode = modelProperty.encode;
+    }
 
     // xml
     if (modelProperty.serializationOptions.xml) {
