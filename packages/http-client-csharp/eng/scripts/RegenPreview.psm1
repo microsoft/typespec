@@ -516,7 +516,9 @@ function Update-OpenAIGenerator {
         -NuGetConfigPath $nugetConfigPath `
         -SourcePath $DebugFolder `
         -PackagePatterns @(
-            "Microsoft.TypeSpec.Generator.ClientModel"
+            "Microsoft.TypeSpec.Generator.ClientModel",
+            "Microsoft.TypeSpec.Generator.Input"
+            "Microsoft.TypeSpec.Generator"
         )
 
     # Update codegen/package.json
@@ -553,20 +555,20 @@ function Update-OpenAIGenerator {
         $packageJson | ConvertTo-Json -Depth 100 | Set-Content $codegenPackageJsonPath -Encoding UTF8
 
         # Delete package-lock.json to force regeneration with new dependencies
-        $packageLockPath = Join-Path $OpenAIRepoPath "codegen" "package-lock.json"
+        $packageLockPath = Join-Path $OpenAIRepoPath "package-lock.json"
         if (Test-Path $packageLockPath) {
-            Write-Host "Deleting codegen/package-lock.json..." -ForegroundColor Gray
+            Write-Host "Deleting package-lock.json..." -ForegroundColor Gray
             Remove-Item $packageLockPath -Force
         }
 
         # Run npm install to regenerate package-lock.json with local dependencies
-        Write-Host "Installing dependencies in codegen directory..." -ForegroundColor Gray
-        Push-Location (Join-Path $OpenAIRepoPath "codegen")
+        Write-Host "Installing dependencies in openai directory..." -ForegroundColor Gray
+        Push-Location $OpenAIRepoPath
         try {
-            $npmOutput = Invoke "npm install" (Join-Path $OpenAIRepoPath "codegen")
+            $npmOutput = Invoke "npm install" $OpenAIRepoPath
             if ($LASTEXITCODE -ne 0) {
                 Write-Host $npmOutput -ForegroundColor Red
-                throw "npm install failed in codegen directory"
+                throw "npm install failed"
             }
             Write-Host "  Dependencies installed" -ForegroundColor Green
         }

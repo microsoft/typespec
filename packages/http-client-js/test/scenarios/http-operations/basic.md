@@ -32,7 +32,6 @@ import { foo, type FooOptions } from "./api/testClientOperations.js";
 
 export class TestClient {
   #context: TestClientContext;
-
   constructor(endpoint: string, options?: TestClientOptions) {
     this.#context = createTestClientContext(endpoint, options);
   }

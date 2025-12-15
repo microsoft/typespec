@@ -329,9 +329,14 @@ class DpgModelSerializer(_ModelSerializer):
             args.append("is_multipart_file_input=True")
         elif hasattr(prop.type, "encode") and prop.type.encode:  # type: ignore
             args.append(f'format="{prop.type.encode}"')  # type: ignore
+        elif prop.encode:
+            args.append(f'format="{prop.encode}"')
 
         if prop.xml_metadata:
             args.append(f"xml={prop.xml_metadata}")
+
+        if prop.original_tsp_name:
+            args.append(f'original_tsp_name="{prop.original_tsp_name}"')
 
         field = "rest_discriminator" if prop.is_discriminator else "rest_field"
         type_ignore = (

@@ -104,7 +104,6 @@ it("Resolve custom converter", async () => {
     [JsonConverter(typeof(FakeJsonConverter))]
     public required string Prop1 { get; set; }
 
-
     internal sealed class FakeJsonConverter : JsonConverter<string>
     {
         public override string Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)

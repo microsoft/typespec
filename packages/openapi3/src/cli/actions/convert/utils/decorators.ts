@@ -172,8 +172,35 @@ export function getDecoratorsForSchema(
     : schema.type;
 
   // Handle unixtime format with @encode decorator
-  if (schema.format === "unixtime") {
-    decorators.push(...getUnixtimeSchemaDecorators(effectiveType));
+  // Check both direct format and format from anyOf/oneOf members
+  let formatToUse = schema.format;
+  let typeForFormat = effectiveType;
+
+  // If format is not directly on the schema, check anyOf/oneOf members for unixtime format
+  if (!formatToUse) {
+    const unionMembers = schema.anyOf || schema.oneOf;
+    if (unionMembers) {
+      for (const member of unionMembers) {
+        if ("$ref" in member) continue;
+        // Check if this is a non-null member with unixtime format
+        if (member.format === "unixtime" && member.type !== "null") {
+          formatToUse = member.format;
+          // Extract effective type from member (handle type arrays)
+          const memberType = Array.isArray(member.type)
+            ? member.type.find((t) => t !== "null")
+            : member.type;
+          // Only use if we found a valid type
+          if (memberType) {
+            typeForFormat = memberType;
+          }
+          break;
+        }
+      }
+    }
+  }
+
+  if (formatToUse === "unixtime") {
+    decorators.push(...getUnixtimeSchemaDecorators(typeForFormat));
   }
 
   switch (effectiveType) {
@@ -303,6 +330,14 @@ function getStringSchemaDecorators(schema: OpenAPI3Schema | OpenAPISchema3_1) {
 
   if (typeof schema.format === "string" && !knownStringFormats.has(schema.format)) {
     decorators.push({ name: "format", args: [schema.format] });
+  }
+
+  // Handle contentEncoding: base64 for OpenAPI 3.1+ (indicates binary data encoded as base64 string)
+  if ("contentEncoding" in schema && schema.contentEncoding === "base64") {
+    decorators.push({
+      name: "encode",
+      args: [createTSValue(`"base64"`), createTSValue("string")],
+    });
   }
 
   return decorators;
