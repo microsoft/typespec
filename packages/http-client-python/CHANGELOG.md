@@ -1,5 +1,16 @@
 # Change Log - @typespec/http-client-python
 
+## 0.23.0
+
+### Features
+
+- [#9146](https://github.com/microsoft/typespec/pull/9146) Support encode for array of string in serialization and deserialization
+
+### Bug Fixes
+
+- [#8927](https://github.com/microsoft/typespec/pull/8927) Fix bad indent
+
+
 ## 0.22.0
 
 ### Features
