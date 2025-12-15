@@ -8,14 +8,14 @@ export class EnumMemberMutationNode extends MutationNode<EnumMember> {
 
   startEnumEdge() {
     return new HalfEdge<EnumMember, Enum>(this, {
-      onTailMutation: (tail) => {
+      onTailMutation: ({ tail }) => {
         this.mutate();
         this.mutatedType.enum = tail.mutatedType;
       },
       onTailDeletion: () => {
         this.delete();
       },
-      onTailReplaced: (_oldTail, _newTail, head, _reconnect) => {
+      onTailReplaced: ({ head }) => {
         head.delete();
       },
     });

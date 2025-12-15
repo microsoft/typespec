@@ -7,19 +7,19 @@ export class EnumMutationNode extends MutationNode<Enum> {
 
   startMemberEdge() {
     return new HalfEdge<Enum, EnumMember>(this, {
-      onTailCreation: (tail) => {
+      onTailCreation: ({ tail }) => {
         tail.connectEnum(this);
       },
-      onTailMutation: (tail) => {
+      onTailMutation: ({ tail }) => {
         this.mutate();
         this.mutatedType.members.delete(tail.sourceType.name);
         this.mutatedType.members.set(tail.mutatedType.name, tail.mutatedType);
       },
-      onTailDeletion: (tail) => {
+      onTailDeletion: ({ tail }) => {
         this.mutate();
         this.mutatedType.members.delete(tail.sourceType.name);
       },
-      onTailReplaced: (oldTail, newTail, head, reconnect) => {
+      onTailReplaced: ({ oldTail, newTail, head, reconnect }) => {
         if (newTail.mutatedType.kind !== "EnumMember") {
           throw new Error("Cannot replace enum member with non-enum member type");
         }

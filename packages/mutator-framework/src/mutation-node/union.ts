@@ -7,19 +7,19 @@ export class UnionMutationNode extends MutationNode<Union> {
 
   startVariantEdge() {
     return new HalfEdge<Union, UnionVariant>(this, {
-      onTailCreation: (tail) => {
+      onTailCreation: ({ tail }) => {
         tail.connectUnion(this);
       },
-      onTailMutation: (tail) => {
+      onTailMutation: ({ tail }) => {
         this.mutate();
         this.mutatedType.variants.delete(tail.sourceType.name);
         this.mutatedType.variants.set(tail.mutatedType.name, tail.mutatedType);
       },
-      onTailDeletion: (tail) => {
+      onTailDeletion: ({ tail }) => {
         this.mutate();
         this.mutatedType.variants.delete(tail.sourceType.name);
       },
-      onTailReplaced: (oldTail, newTail, head, reconnect) => {
+      onTailReplaced: ({ oldTail, newTail, head, reconnect }) => {
         if (newTail.mutatedType.kind !== "UnionVariant") {
           throw new Error("Cannot replace union variant with non-union variant type");
         }

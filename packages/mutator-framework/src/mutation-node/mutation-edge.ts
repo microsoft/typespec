@@ -3,29 +3,29 @@ import type { MutationNodeForType } from "./factory.js";
 import { MutationNode } from "./mutation-node.js";
 import { traceEdge } from "./tracer.js";
 
-export interface MutationEdgeOptions<THead extends Type, TTAil extends Type> {
-  onTailCreation?: (tail: MutationNodeForType<TTAil>) => void;
-  onTailMutation: (tail: MutationNodeForType<TTAil>) => void;
-  onTailDeletion: (tail: MutationNodeForType<TTAil>) => void;
+export interface MutationEdgeOptions<THead extends Type, TTail extends Type> {
+  onTailCreation?: (args: { tail: MutationNodeForType<TTail> }) => void;
+  onTailMutation: (args: { tail: MutationNodeForType<TTail> }) => void;
+  onTailDeletion: (args: { tail: MutationNodeForType<TTail> }) => void;
   /**
    * Called when the tail node is replaced with a new node.
-   * @param oldTail - The original tail node that was replaced
-   * @param newTail - The new tail node
-   * @param head - The head node of this edge
-   * @param reconnect - If true, the callback should create a new edge to newTail.
+   * @param args.oldTail - The original tail node that was replaced
+   * @param args.newTail - The new tail node
+   * @param args.head - The head node of this edge
+   * @param args.reconnect - If true, the callback should create a new edge to newTail.
    *                    If false, an edge already exists and should not be recreated.
    */
-  onTailReplaced: (
-    oldTail: MutationNodeForType<TTAil>,
-    newTail: MutationNodeForType<Type>,
-    head: MutationNodeForType<THead>,
-    reconnect: boolean,
-  ) => void;
-  onHeadReplaced?: (
-    oldHead: MutationNodeForType<THead>,
-    newHead: MutationNodeForType<Type>,
-    tail: MutationNodeForType<TTAil>,
-  ) => void;
+  onTailReplaced: (args: {
+    oldTail: MutationNodeForType<TTail>;
+    newTail: MutationNodeForType<Type>;
+    head: MutationNodeForType<THead>;
+    reconnect: boolean;
+  }) => void;
+  onHeadReplaced?: (args: {
+    oldHead: MutationNodeForType<THead>;
+    newHead: MutationNodeForType<Type>;
+    tail: MutationNodeForType<TTail>;
+  }) => void;
 }
 
 export class MutationEdge<THead extends Type, TTail extends Type> {
@@ -52,12 +52,12 @@ export class MutationEdge<THead extends Type, TTail extends Type> {
     // Pass reconnect=false since the edge already exists.
     if (this.tail.replacedNode) {
       traceEdge(this, "Tail is a replacement node, notifying head.");
-      this.#options.onTailReplaced(
-        this.tail.replacedNode as any,
-        this.tail as any,
-        this.head as any,
-        false, // don't reconnect - edge already exists
-      );
+      this.#options.onTailReplaced({
+        oldTail: this.tail.replacedNode as any,
+        newTail: this.tail as any,
+        head: this.head as any,
+        reconnect: false, // don't reconnect - edge already exists
+      });
     } else if (this.tail.isMutated || this.tail.isSynthetic) {
       this.tailMutated();
     }
@@ -90,13 +90,13 @@ export class MutationEdge<THead extends Type, TTail extends Type> {
   tailMutated(): void {
     if (this.#deleted || this.head.isDeleted) return;
     traceEdge(this, "Tail mutated.");
-    this.#options.onTailMutation(this.tail as any);
+    this.#options.onTailMutation({ tail: this.tail as any });
   }
 
   tailDeleted() {
     if (this.#deleted || this.head.isDeleted) return;
     traceEdge(this, "Tail deleted.");
-    this.#options.onTailDeletion(this.tail as any);
+    this.#options.onTailDeletion({ tail: this.tail as any });
   }
 
   tailReplaced(newTail: MutationNode<Type>, oldTail?: MutationNode<TTail>) {
@@ -107,7 +107,12 @@ export class MutationEdge<THead extends Type, TTail extends Type> {
     // Delete this edge - the onTailReplaced callback is responsible for
     // creating a new edge if the head node needs to track the new tail's mutations
     this.delete();
-    this.#options.onTailReplaced(actualOldTail as any, newTail as any, head as any, true);
+    this.#options.onTailReplaced({
+      oldTail: actualOldTail as any,
+      newTail: newTail as any,
+      head: head as any,
+      reconnect: true,
+    });
   }
 
   headReplaced(newHead: MutationNode<Type>) {
@@ -118,7 +123,11 @@ export class MutationEdge<THead extends Type, TTail extends Type> {
     // Delete this edge - the onHeadReplaced callback is responsible for
     // creating a new edge if the replacement node needs to track tail mutations
     this.delete();
-    this.#options.onHeadReplaced?.(oldHead as any, newHead as any, tail as any);
+    this.#options.onHeadReplaced?.({
+      oldHead: oldHead as any,
+      newHead: newHead as any,
+      tail: tail as any,
+    });
   }
 
   toString() {
@@ -142,7 +151,7 @@ export class HalfEdge<THead extends Type, TTail extends Type> {
       throw new Error("HalfEdge already has a tail");
     }
     this.tail = tail;
-    this.#options.onTailCreation?.(tail as any);
+    this.#options.onTailCreation?.({ tail: tail as any });
     return MutationEdge.create(this.head, this.tail, this.#options);
   }
 }

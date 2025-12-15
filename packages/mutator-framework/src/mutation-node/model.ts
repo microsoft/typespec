@@ -15,7 +15,7 @@ export class ModelMutationNode extends MutationNode<Model> {
   readonly kind = "Model";
   startBaseModelEdge() {
     return new HalfEdge<Model, Model>(this, {
-      onTailMutation: (tail) => {
+      onTailMutation: ({ tail }) => {
         this.mutate();
         this.mutatedType!.baseModel = tail.mutatedType;
       },
@@ -23,7 +23,7 @@ export class ModelMutationNode extends MutationNode<Model> {
         this.mutate();
         this.mutatedType.baseModel = undefined;
       },
-      onTailReplaced: (_oldTail, newTail, head, reconnect) => {
+      onTailReplaced: ({ newTail, head, reconnect }) => {
         if (newTail.mutatedType.kind !== "Model") {
           throw new Error("Cannot replace base model with non-model type");
         }
@@ -41,10 +41,10 @@ export class ModelMutationNode extends MutationNode<Model> {
 
   startPropertyEdge() {
     return new HalfEdge<Model, ModelProperty>(this, {
-      onTailCreation: (tail) => {
+      onTailCreation: ({ tail }) => {
         tail.connectModel(this);
       },
-      onTailMutation: (tail) => {
+      onTailMutation: ({ tail }) => {
         this.mutate();
         traceNode(
           this,
@@ -53,11 +53,11 @@ export class ModelMutationNode extends MutationNode<Model> {
         this.mutatedType.properties.delete(tail.sourceType.name);
         this.mutatedType.properties.set(tail.mutatedType.name, tail.mutatedType);
       },
-      onTailDeletion: (tail) => {
+      onTailDeletion: ({ tail }) => {
         this.mutate();
         this.mutatedType.properties.delete(tail.sourceType.name);
       },
-      onTailReplaced: (oldTail, newTail, head, reconnect) => {
+      onTailReplaced: ({ oldTail, newTail, head, reconnect }) => {
         if (newTail.mutatedType.kind !== "ModelProperty") {
           throw new Error("Cannot replace model property with non-model property type");
         }
@@ -81,7 +81,7 @@ export class ModelMutationNode extends MutationNode<Model> {
 
   startIndexerValueEdge() {
     return new HalfEdge<Model, Type>(this, {
-      onTailMutation: (tail) => {
+      onTailMutation: ({ tail }) => {
         this.mutate();
         if (this.mutatedType.indexer) {
           this.mutatedType.indexer = {
@@ -99,7 +99,7 @@ export class ModelMutationNode extends MutationNode<Model> {
           };
         }
       },
-      onTailReplaced: (_oldTail, newTail, head, reconnect) => {
+      onTailReplaced: ({ newTail, head, reconnect }) => {
         head.mutate();
         if (head.mutatedType.indexer) {
           head.mutatedType.indexer = {
@@ -116,7 +116,7 @@ export class ModelMutationNode extends MutationNode<Model> {
 
   startIndexerKeyEdge() {
     return new HalfEdge<Model, Scalar>(this, {
-      onTailMutation: (tail) => {
+      onTailMutation: ({ tail }) => {
         this.mutate();
         if (this.mutatedType.indexer) {
           this.mutatedType.indexer = {
@@ -134,7 +134,7 @@ export class ModelMutationNode extends MutationNode<Model> {
           };
         }
       },
-      onTailReplaced: (_oldTail, newTail, head, reconnect) => {
+      onTailReplaced: ({ newTail, head, reconnect }) => {
         if (!head.$.scalar.is(newTail.mutatedType)) {
           throw new Error("Cannot replace indexer key with non-scalar type");
         }

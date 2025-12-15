@@ -14,7 +14,7 @@ export class OperationMutationNode extends MutationNode<Operation> {
 
   startParametersEdge() {
     return new HalfEdge<Operation, Model>(this, {
-      onTailMutation: (tail) => {
+      onTailMutation: ({ tail }) => {
         this.mutatedType!.parameters = tail.mutatedType;
       },
       onTailDeletion: () => {
@@ -23,7 +23,7 @@ export class OperationMutationNode extends MutationNode<Operation> {
           properties: {},
         });
       },
-      onTailReplaced: (_oldTail, newTail, head, reconnect) => {
+      onTailReplaced: ({ newTail, head, reconnect }) => {
         if (newTail.mutatedType.kind !== "Model") {
           throw new Error("Cannot replace parameters with non-model type");
         }
@@ -41,13 +41,13 @@ export class OperationMutationNode extends MutationNode<Operation> {
 
   startReturnTypeEdge() {
     return new HalfEdge<Operation, Type>(this, {
-      onTailMutation: (tail) => {
+      onTailMutation: ({ tail }) => {
         this.mutatedType!.returnType = tail.mutatedType;
       },
       onTailDeletion: () => {
         this.mutatedType.returnType = this.$.intrinsic.void;
       },
-      onTailReplaced: (_oldTail, newTail, head, reconnect) => {
+      onTailReplaced: ({ newTail, head, reconnect }) => {
         head.mutatedType.returnType = newTail.mutatedType;
         if (reconnect) {
           head.connectReturnType(newTail);
@@ -62,14 +62,14 @@ export class OperationMutationNode extends MutationNode<Operation> {
 
   startInterfaceEdge() {
     return new HalfEdge<Operation, Interface>(this, {
-      onTailMutation: (tail) => {
+      onTailMutation: ({ tail }) => {
         this.mutate();
         this.mutatedType.interface = tail.mutatedType;
       },
       onTailDeletion: () => {
         this.delete();
       },
-      onTailReplaced: (_oldTail, _newTail, head, _reconnect) => {
+      onTailReplaced: ({ head }) => {
         head.delete();
       },
     });

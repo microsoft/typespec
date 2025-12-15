@@ -14,7 +14,7 @@ export class TupleMutationNode extends MutationNode<Tuple> {
   startElementEdge(index: number) {
     this.#indexMap[index] = index;
     return new HalfEdge<Tuple, Type>(this, {
-      onTailMutation: (tail) => {
+      onTailMutation: ({ tail }) => {
         this.mutate();
         this.mutatedType.values[this.#indexMap[index]] = tail.mutatedType;
       },
@@ -26,7 +26,7 @@ export class TupleMutationNode extends MutationNode<Tuple> {
           this.#indexMap[i]--;
         }
       },
-      onTailReplaced: (_oldTail, newTail, head, reconnect) => {
+      onTailReplaced: ({ newTail, head, reconnect }) => {
         head.mutate();
         head.mutatedType.values[this.#indexMap[index]] = newTail.mutatedType;
         if (reconnect) {

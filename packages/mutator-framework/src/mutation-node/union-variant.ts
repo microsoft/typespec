@@ -12,7 +12,7 @@ export class UnionVariantMutationNode extends MutationNode<UnionVariant> {
 
   startTypeEdge() {
     return new HalfEdge<UnionVariant, Type>(this, {
-      onTailMutation: (tail) => {
+      onTailMutation: ({ tail }) => {
         this.mutate();
         this.mutatedType.type = tail.mutatedType;
       },
@@ -20,7 +20,7 @@ export class UnionVariantMutationNode extends MutationNode<UnionVariant> {
         this.mutate();
         this.mutatedType.type = this.$.intrinsic.any;
       },
-      onTailReplaced: (_oldTail, newTail, head, reconnect) => {
+      onTailReplaced: ({ newTail, head, reconnect }) => {
         head.mutate();
         head.mutatedType.type = newTail.mutatedType;
         if (reconnect) {
@@ -36,14 +36,14 @@ export class UnionVariantMutationNode extends MutationNode<UnionVariant> {
 
   startUnionEdge() {
     return new HalfEdge<UnionVariant, Union>(this, {
-      onTailMutation: (tail) => {
+      onTailMutation: ({ tail }) => {
         this.mutate();
         this.mutatedType.union = tail.mutatedType;
       },
       onTailDeletion: () => {
         this.delete();
       },
-      onTailReplaced: (_oldTail, _newTail, head, _reconnect) => {
+      onTailReplaced: ({ head }) => {
         head.delete();
       },
     });

@@ -12,17 +12,17 @@ export class InterfaceMutationNode extends MutationNode<Interface> {
 
   startOperationEdge() {
     return new HalfEdge<Interface, Operation>(this, {
-      onTailCreation: (tail) => {
+      onTailCreation: ({ tail }) => {
         tail.connectInterface(this);
       },
-      onTailMutation: (tail) => {
+      onTailMutation: ({ tail }) => {
         this.mutatedType.operations.delete(tail.sourceType.name);
         this.mutatedType.operations.set(tail.mutatedType.name, tail.mutatedType);
       },
-      onTailDeletion: (tail) => {
+      onTailDeletion: ({ tail }) => {
         this.mutatedType.operations.delete(tail.sourceType.name);
       },
-      onTailReplaced: (oldTail, newTail, head, reconnect) => {
+      onTailReplaced: ({ oldTail, newTail, head, reconnect }) => {
         if (newTail.mutatedType.kind !== "Operation") {
           throw new Error("Cannot replace operation with non-operation type");
         }

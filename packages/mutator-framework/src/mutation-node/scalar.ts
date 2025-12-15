@@ -12,7 +12,7 @@ export class ScalarMutationNode extends MutationNode<Scalar> {
 
   startBaseScalarEdge() {
     return new HalfEdge<Scalar, Scalar>(this, {
-      onTailReplaced: (_oldTail, newTail, head, reconnect) => {
+      onTailReplaced: ({ newTail, head, reconnect }) => {
         if (!head.$.scalar.is(newTail.mutatedType)) {
           throw new Error("Cannot replace base scalar with non-scalar type");
         }
@@ -22,7 +22,7 @@ export class ScalarMutationNode extends MutationNode<Scalar> {
           head.connectBaseScalar(newTail as MutationNode<Scalar>);
         }
       },
-      onTailMutation: (tail) => {
+      onTailMutation: ({ tail }) => {
         this.mutate();
         this.mutatedType.baseScalar = tail.mutatedType;
       },

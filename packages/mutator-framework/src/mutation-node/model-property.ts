@@ -14,23 +14,23 @@ export class ModelPropertyMutationNode extends MutationNode<ModelProperty> {
 
   startTypeEdge() {
     return new HalfEdge<ModelProperty, Type>(this, {
-      onTailMutation: (tail) => {
+      onTailMutation: ({ tail }) => {
         traceNode(this, "Model property type mutated.");
         this.mutate();
         this.mutatedType.type = tail.mutatedType;
       },
-      onTailDeletion: () => {
+      onTailDeletion: (_args) => {
         this.mutate();
         this.mutatedType.type = this.$.intrinsic.any;
       },
-      onTailReplaced: (_oldTail, newTail, head, reconnect) => {
+      onTailReplaced: ({ newTail, head, reconnect }) => {
         head.mutate();
         head.mutatedType.type = newTail.mutatedType;
         if (reconnect) {
           (head as ModelPropertyMutationNode).connectType(newTail);
         }
       },
-      onHeadReplaced: (_oldHead, newHead, tail) => {
+      onHeadReplaced: ({ newHead, tail }) => {
         // When this edge's head is replaced, have the new head establish
         // its own connection to the tail so it receives future mutations
         if (newHead instanceof SelfType) {
@@ -46,7 +46,7 @@ export class ModelPropertyMutationNode extends MutationNode<ModelProperty> {
 
   startModelEdge() {
     return new HalfEdge<ModelProperty, Model>(this, {
-      onTailMutation: (tail) => {
+      onTailMutation: ({ tail }) => {
         traceNode(this, "Model property model mutated.");
         this.mutate();
         this.mutatedType.model = tail.mutatedType;
@@ -54,7 +54,7 @@ export class ModelPropertyMutationNode extends MutationNode<ModelProperty> {
       onTailDeletion: () => {
         this.delete();
       },
-      onTailReplaced: (_oldTail, _newTail, head, _reconnect) => {
+      onTailReplaced: ({ head }) => {
         head.delete();
       },
     });
