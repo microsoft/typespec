@@ -12,6 +12,7 @@ import {
   createDiagnosticCollector,
   createSourceFile,
   getLocationContext,
+  getNamespaceFullName,
   getTypeName,
   joinPaths,
   navigateProgram,
@@ -48,9 +49,18 @@ export async function generateExternSignatures(
     }
   }
 
+  const decoratorLocations = await getDecoratorLocations(host, libraryPath, exportsMap);
   const exports = Object.values(exportsMap);
   if (exports.length > 0) {
-    diagnostics.pipe(await generateExternSignatureForExports(host, libraryPath, pkgJson, exports));
+    diagnostics.pipe(
+      await generateExternSignatureForExports(
+        host,
+        libraryPath,
+        pkgJson,
+        exports,
+        decoratorLocations,
+      ),
+    );
   } else {
     diagnostics.add(
       createDiagnostic({
@@ -64,16 +74,49 @@ export async function generateExternSignatures(
   return diagnostics.diagnostics;
 }
 
+function getFullyQualifiedDecoratorName(decorator: Decorator) {
+  return `${getNamespaceFullName(decorator.namespace)}.${decorator.name}`;
+}
+
+async function getDecoratorLocations(
+  host: CompilerHost,
+  packageName: string,
+  exports: Record<string, string>,
+) {
+  const imports: Map<string, string> = new Map();
+
+  for (const [key, value] of Object.entries(exports)) {
+    const program = await compile(host, value);
+    const listener: SemanticNodeListener = {
+      decorator(dec) {
+        if (
+          packageName !== "@typespec/compiler" &&
+          getLocationContext(program, dec).type !== "project"
+        ) {
+          return;
+        }
+        const fqName = getFullyQualifiedDecoratorName(dec);
+        if (!imports.has(fqName)) {
+          imports.set(fqName, key);
+        }
+      },
+    };
+    navigateProgram(program, listener);
+  }
+  return imports;
+}
+
 export async function generateExternSignatureForExports(
   host: CompilerHost,
   libraryPath: string,
   pkgJson: PackageJson,
   exports: string[],
+  decoratorLocations: Map<string, string>,
 ): Promise<[undefined, readonly Diagnostic[]]> {
-  const [main] = exports;
+  const [main, ...additionalImports] = exports;
   const diagnostics = createDiagnosticCollector();
   const program = await compile(host, main, {
-    // additionalImports, See: github.com/microsoft/typespec/issues/8913 -- additional imports are disabled pending further design discussion.
+    additionalImports,
     parseOptions: { comments: true, docs: true },
   });
   const prettierConfig = await prettier.resolveConfig(libraryPath);
@@ -84,7 +127,7 @@ export async function generateExternSignatureForExports(
   } catch (e) {}
   await host.mkdirp(outDir);
 
-  const files = await generateExternDecorators(program, pkgJson.name, {
+  const files = await generateExternDecorators(program, pkgJson.name, decoratorLocations, {
     prettierConfig: prettierConfig ?? undefined,
   });
   for (const [name, content] of Object.entries(files)) {
@@ -106,6 +149,7 @@ export interface GenerateExternDecoratorOptions {
 export async function generateExternDecorators(
   program: Program,
   packageName: string,
+  decoratorLocations: Map<string, string>,
   options?: GenerateExternDecoratorOptions,
 ): Promise<Record<string, string>> {
   const decorators = new Map<string, DecoratorSignature[]>();
@@ -124,7 +168,7 @@ export async function generateExternDecorators(
         decoratorForNamespace = [];
         decorators.set(namespaceName, decoratorForNamespace);
       }
-      decoratorForNamespace.push(resolveDecoratorSignature(dec));
+      decoratorForNamespace.push(resolveDecoratorSignature(dec, decoratorLocations));
     },
   };
   if (options?.namespaces) {
@@ -167,11 +211,16 @@ export async function generateExternDecorators(
   return files;
 }
 
-function resolveDecoratorSignature(decorator: Decorator): DecoratorSignature {
+function resolveDecoratorSignature(
+  decorator: Decorator,
+  decoratorLocation: Map<string, string>,
+): DecoratorSignature {
+  const fqName = getFullyQualifiedDecoratorName(decorator);
   return {
     decorator,
     name: decorator.name,
     jsName: "$" + decorator.name.slice(1),
     typeName: decorator.name[1].toUpperCase() + decorator.name.slice(2) + "Decorator",
+    exportName: decoratorLocation.get(fqName),
   };
 }
