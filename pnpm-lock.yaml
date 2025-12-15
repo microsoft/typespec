@@ -7,7 +7,7 @@ settings:
 overrides:
   cross-spawn@>=7.0.0 <7.0.5: ^7.0.5
   rollup: 4.49.0
-  '@alloy-js/python': 0.2.0
+  '@alloy-js/python': 0.3.0
   '@alloy-js/core': 0.22.0
   '@alloy-js/babel-plugin': 0.2.1
 
@@ -425,8 +425,8 @@ importers:
         specifier: 0.22.0
         version: 0.22.0
       '@alloy-js/python':
-        specifier: 0.2.0
-        version: 0.2.0
+        specifier: 0.3.0
+        version: 0.3.0
       '@alloy-js/rollup-plugin':
         specifier: ^0.1.0
         version: 0.1.0(@babel/core@7.28.5)(@types/babel__core@7.20.5)(rollup@4.49.0)
@@ -2738,8 +2738,8 @@ packages:
   '@alloy-js/msbuild@0.22.0':
     resolution: {integrity: sha512-Zi4bezFzQveW4u78qwSlIlscZd8y5OKCRitSOAiw0qLfF95L4+3wgQ6QpbYuqeRRZIa5kimhbogKTSrSxycrUg==}
 
-  '@alloy-js/python@0.2.0':
-    resolution: {integrity: sha512-KfRm5L1kFVIUjtHFepNq1Zc3QCrW2xUY2I+Db81HBuwWncANqD6wwlDwGDziODorOeDac456b9v4tlTHFHbvcw==}
+  '@alloy-js/python@0.3.0':
+    resolution: {integrity: sha512-VujQyh6aGC5oAXvmtKcDGYg3rRgU01IvN5uOu6u5m/kXR7rUTsndrv960r0bBniIL+EvRF3CMu7E6EEcbb3Pyg==}
 
   '@alloy-js/rollup-plugin@0.1.0':
     resolution: {integrity: sha512-MXR8mBdSh/pxMP8kIXAcMYKsm5yOWZ+igxcaRX1vBXFiHU4eK7gE/5q6Fk8Vdydh+MItWtgekwIhUWvcszdNFQ==}
@@ -14000,7 +14000,7 @@ snapshots:
       marked: 16.4.2
       pathe: 2.0.3
 
-  '@alloy-js/python@0.2.0':
+  '@alloy-js/python@0.3.0':
     dependencies:
       '@alloy-js/core': 0.22.0
       change-case: 5.4.4
