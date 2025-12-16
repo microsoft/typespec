@@ -1,11 +1,5 @@
 # Change Log - @typespec/http-client-python
 
-## Unreleased
-
-### Features
-
-- Add test case for constant query parameter
-
 ## 0.23.0
 
 ### Features
