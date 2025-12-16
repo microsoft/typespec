@@ -24,7 +24,7 @@ export type FunctionDeclarationProps =
  * function declaration by converting from a TypeSpec Operation. Any other props
  * provided will take precedence.
  *
- * Behavior notes:
+ * @remarks
  * - `parametersModel`: When provided, it replaces the function parameters, ignoring
  *   the `parameters` option.
  * - Model-derived parameters include default values when present on the model, and

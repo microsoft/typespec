@@ -1,5 +1,5 @@
 import { abcModule } from "#python/builtins.js";
-import { createContentSlot, For, mapJoin, type Children } from "@alloy-js/core";
+import { createContentSlot, For, type Children } from "@alloy-js/core";
 import * as py from "@alloy-js/python";
 import {
   isTemplateDeclarationOrInstance,
@@ -63,13 +63,7 @@ function getTypeMembers($: Typekit, type: Model | Interface): (ModelProperty | O
  */
 function createClassBody($: Typekit, props: ClassDeclarationProps, abstract: boolean) {
   if (!isTypedClassDeclarationProps(props)) {
-    const ContentSlot = createContentSlot();
-    return (
-      <>
-        <ContentSlot>{props.children}</ContentSlot>
-        <ContentSlot.WhenEmpty>{undefined}</ContentSlot.WhenEmpty>
-      </>
-    );
+    return props.children;
   }
 
   const validTypeMembers = getTypeMembers($, props.type);
@@ -88,12 +82,12 @@ function createClassBody($: Typekit, props: ClassDeclarationProps, abstract: boo
  *
  * @param $ - The Typekit.
  * @param type - The type to create the extends type for.
- * @returns The extends types for the class declaration, or undefined for interfaces.
+ * @returns Array of base types to extend, empty array if none.
  */
-function getExtendsType($: Typekit, type: Model | Interface): Children | undefined {
-  // For interfaces, return undefined because inheritance is flattened by TypeSpec
+function getExtendsType($: Typekit, type: Model | Interface): Children[] {
+  // For interfaces, return empty because inheritance is flattened by TypeSpec
   if (!$.model.is(type)) {
-    return undefined;
+    return [];
   }
 
   const extending: Children[] = [];
@@ -120,13 +114,7 @@ function getExtendsType($: Typekit, type: Model | Interface): Children | undefin
     extending.push(<TypeExpression type={indexType} />);
   }
 
-  return extending.length > 0
-    ? mapJoin(
-        () => extending,
-        (ext) => ext,
-        { joiner: "," },
-      )
-    : undefined;
+  return extending;
 }
 
 /**
@@ -138,7 +126,7 @@ function getExtendsType($: Typekit, type: Model | Interface): Children | undefin
  * @param props - The props for the class declaration.
  * @param abstract - Whether the class is abstract.
  * @param extraBases - Additional bases to include (e.g., Generic[T]). Will be mutated.
- * @returns The bases type for the class declaration, or undefined if no bases.
+ * @returns Array of base types for the class declaration, empty if none.
  */
 function createBasesType(
   $: Typekit,
@@ -148,23 +136,18 @@ function createBasesType(
 ) {
   // Add extends/inheritance from the TypeSpec type if present
   if (isTypedClassDeclarationProps(props)) {
-    const extend = getExtendsType($, props.type);
-    if (extend) {
-      extraBases.push(extend);
-    }
+    extraBases.push(...getExtendsType($, props.type));
   }
 
   // Combine explicit bases from props with extraBases (Generic, extends, etc.)
   const allBases = (props.bases ?? []).concat(extraBases);
 
-  // For non-abstract classes, return bases or undefined
-  if (!abstract) {
-    return allBases.length > 0 ? allBases : undefined;
+  // For abstract classes, always include ABC (last for proper MRO)
+  if (abstract) {
+    return [...allBases, abcModule["."]["ABC"]];
   }
 
-  // For abstract classes, add ABC (always last for proper MRO)
-  const abcBase = abcModule["."]["ABC"];
-  return allBases.length > 0 ? [...allBases, abcBase] : [abcBase];
+  return allBases;
 }
 
 // TODO: Implement Python generics support when TypeSpec adds true generics (not template macros).
@@ -210,7 +193,7 @@ export function ClassDeclaration(props: ClassDeclarationProps) {
       <py.ClassDeclaration
         {...props}
         doc={docElement}
-        {...(basesType ? { bases: basesType as Children[] } : {})}
+        {...(basesType.length ? { bases: basesType } : {})}
       />
     );
   }
@@ -262,7 +245,7 @@ export function ClassDeclaration(props: ClassDeclarationProps) {
       <ClassComponent
         {...(docElement ? { doc: docElement } : {})}
         name={name}
-        {...(basesType ? { bases: basesType as Children[] } : {})}
+        {...(basesType.length ? { bases: basesType } : {})}
         refkey={refkeys}
         kwOnly={useDataclass ? true : undefined}
       >
@@ -306,27 +289,13 @@ function ClassBody(
     <>
       <ContentSlot>
         <For each={validTypeMembers} line>
-          {(typeMember) => {
-            // Defensive check: ensure typeMember is valid
-            if (!typeMember || !typeMember.kind) {
-              return <></>;
-            }
-
-            const memberComponent = (
-              <ClassMember
-                type={typeMember}
-                abstract={props.abstract}
-                methodType={props.methodType}
-              />
-            );
-
-            // Defensive check: ensure ClassMember returned something valid
-            if (memberComponent === undefined || memberComponent === null) {
-              return <></>;
-            }
-
-            return memberComponent;
-          }}
+          {(typeMember) => (
+            <ClassMember
+              type={typeMember}
+              abstract={props.abstract}
+              methodType={props.methodType}
+            />
+          )}
         </For>
         {props.children ?? null}
       </ContentSlot>
