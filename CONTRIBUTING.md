@@ -70,7 +70,7 @@ TYPESPEC_VERBOSE_TEST_OUTPUT=true.
 ### Recommended extensions
 
 1. [Vitest Test Explorer](https://marketplace.visualstudio.com/items?itemName=vitest.explorer): Run tests from the IDE.
-2. [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode): Automatically keep code formatted correctly on save.
+2. [Prettier](https://marketplace.visualstudio.com/items?itemName=prettier.prettier-vscode): Automatically keep code formatted correctly on save.
 3. [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint): Show eslint errors in warnings in UI.
 4. [Code Spell Checker](https://marketplace.visualstudio.com/items?itemName=streetsidesoftware.code-spell-checker): Show spell check errors in document.
 
