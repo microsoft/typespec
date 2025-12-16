@@ -2,8 +2,8 @@ import { type Children, createContext, splitProps, useContext } from "@alloy-js/
 import * as py from "@alloy-js/python";
 import type { Operation } from "@typespec/compiler";
 import { useTsp } from "../../../core/index.js";
-import { createDocElement } from "../../utils/doc.js";
 import { buildParameterDescriptors, getReturnType } from "../../utils/operation.js";
+import { DocElement } from "../doc-element/doc-element.js";
 import { TypeExpression } from "../type-expression/type-expression.js";
 
 export const MethodContext = createContext<"method" | "static" | "class" | undefined>(undefined);
@@ -40,8 +40,11 @@ function getResolvedMethodType(props: MethodProps): "method" | "class" | "static
 export function Method(props: Readonly<MethodProps>) {
   const { $ } = useTsp();
   const isTypeSpecTyped = "type" in props;
-  const docSource = props.doc ?? (isTypeSpecTyped && $.type.getDoc(props.type)) ?? undefined;
-  const docElement = createDocElement(docSource, py.MethodDoc);
+  const type = isTypeSpecTyped ? props.type : undefined;
+  const docSource = props.doc ?? (type ? $.type.getDoc(type) : undefined);
+  const docElement = docSource ? (
+    <DocElement doc={docSource} component={py.MethodDoc} />
+  ) : undefined;
   const resolvedMethodType = getResolvedMethodType(props);
   const MethodComponent =
     resolvedMethodType === "static"

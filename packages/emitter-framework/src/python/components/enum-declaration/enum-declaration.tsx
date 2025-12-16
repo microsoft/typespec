@@ -1,9 +1,10 @@
 import { useTsp } from "#core/context/index.js";
-import { type Children, For, Prose, type Refkey } from "@alloy-js/core";
+import { For, Prose } from "@alloy-js/core";
 import * as py from "@alloy-js/python";
 import type { Enum, EnumMember as TspEnumMember, Union } from "@typespec/compiler";
 import { reportDiagnostic } from "../../../lib.js";
 import { declarationRefkeys, efRefkey } from "../../utils/refkey.js";
+import { EnumMember } from "./enum-member.js";
 
 export interface EnumDeclarationProps extends Omit<py.BaseDeclarationProps, "name"> {
   name?: string;
@@ -72,23 +73,5 @@ export function EnumDeclaration(props: EnumDeclarationProps) {
         }}
       </For>
     </py.ClassEnumDeclaration>
-  );
-}
-
-export interface EnumMemberProps {
-  type: TspEnumMember;
-  doc?: Children;
-  refkey?: Refkey;
-}
-
-export function EnumMember(props: EnumMemberProps) {
-  return (
-    <py.EnumMember
-      doc={props.doc}
-      name={props.type.name}
-      jsValue={props.type.value}
-      refkey={props.refkey}
-      auto={props.type.value === undefined}
-    />
   );
 }

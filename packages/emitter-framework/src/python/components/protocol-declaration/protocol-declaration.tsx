@@ -5,8 +5,8 @@ import { reportPythonDiagnostic } from "#python/lib.js";
 import { declarationRefkeys } from "#python/utils/refkey.js";
 import { mapJoin } from "@alloy-js/core";
 import * as py from "@alloy-js/python";
-import type { Interface, Model, Operation, Type } from "@typespec/compiler";
-import type { Typekit } from "@typespec/compiler/typekit";
+import type { Interface, Operation, Type } from "@typespec/compiler";
+import { CallableParameters } from "./callable-parameters.js";
 
 export function Ellipsis() {
   return <>...</>;
@@ -35,7 +35,7 @@ export function ProtocolDeclaration(props: ProtocolDeclarationProps) {
       () => Array.from(operations.values()) as any[],
       (op: any) => {
         const methodName = namePolicy.getName(op.name, "function");
-        const prm = buildCallableParameters($, op as Operation); // self injected by MethodDeclaration
+        const prm = CallableParameters({ type: op as Operation }); // self injected by MethodDeclaration
         const ret = (op as any)?.returnType ? (
           <TypeExpression type={(op as Operation).returnType as Type} />
         ) : undefined;
@@ -63,7 +63,7 @@ export function ProtocolDeclaration(props: ProtocolDeclarationProps) {
 
   // Operations will be converted to Callback protocol using a dunder __call__ method
   const op = props.type as Operation;
-  const cbParams = buildCallableParameters($, op);
+  const cbParams = CallableParameters({ type: op });
   const cbReturn = (op as any)?.returnType ? (
     <TypeExpression type={op.returnType as Type} />
   ) : undefined;
@@ -74,24 +74,4 @@ export function ProtocolDeclaration(props: ProtocolDeclarationProps) {
       </py.DunderMethodDeclaration>
     </py.ClassDeclaration>
   );
-}
-
-function buildCallableParameters($: Typekit, op: Operation) {
-  const paramsModel = op.parameters as unknown as Model | undefined;
-  const items: any[] = [];
-  if (paramsModel) {
-    try {
-      const props = $.model.getProperties(paramsModel);
-      for (const p of props.values()) {
-        items.push({
-          name: p.name,
-          type: <TypeExpression type={p.type} />,
-          optional: p.optional,
-        });
-      }
-    } catch {
-      // fallthrough, no params
-    }
-  }
-  return items as py.ParameterDescriptor[];
 }

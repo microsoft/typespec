@@ -1,21 +1,11 @@
-import { abcModule } from "#python/builtins.js";
-import { createContentSlot, For, type Children } from "@alloy-js/core";
 import * as py from "@alloy-js/python";
-import {
-  isTemplateDeclarationOrInstance,
-  type Interface,
-  type Model,
-  type ModelProperty,
-  type Operation,
-} from "@typespec/compiler";
-import type { Typekit } from "@typespec/compiler/typekit";
-import { createRekeyableMap } from "@typespec/compiler/utils";
+import { type Interface, type Model } from "@typespec/compiler";
 import { useTsp } from "../../../core/context/tsp-context.js";
 import { reportDiagnostic } from "../../../lib.js";
-import { createDocElement } from "../../utils/doc.js";
-import { declarationRefkeys, efRefkey } from "../../utils/refkey.js";
-import { TypeExpression } from "../type-expression/type-expression.js";
-import { ClassMember } from "./class-member.js";
+import { declarationRefkeys } from "../../utils/refkey.js";
+import { DocElement } from "../doc-element/doc-element.js";
+import { ClassBases } from "./class-bases.js";
+import { ClassBody } from "./class-body.js";
 import { MethodProvider } from "./class-method.js";
 
 export interface ClassDeclarationPropsWithType extends Omit<py.ClassDeclarationProps, "name"> {
@@ -32,130 +22,6 @@ function isTypedClassDeclarationProps(
 ): props is ClassDeclarationPropsWithType {
   return "type" in props;
 }
-
-/**
- * Gets type members (properties or operations) from a Model or Interface.
- * @param $ - The Typekit.
- * @param type - The model or interface type.
- * @returns Array of model properties or operations.
- */
-function getTypeMembers($: Typekit, type: Model | Interface): (ModelProperty | Operation)[] {
-  if ($.model.is(type)) {
-    // For models, extract properties to render as dataclass fields
-    return Array.from($.model.getProperties(type).values());
-  } else if (type.kind === "Interface") {
-    // For interfaces, extract operations to render as abstract methods
-    return Array.from(createRekeyableMap(type.operations).values());
-  } else {
-    throw new Error("Expected Model or Interface type");
-  }
-}
-
-/**
- * Creates the class body for the class declaration.
- * Returns a ClassBody component if there are members or children to render,
- * otherwise returns undefined (which will render "pass" in Python).
- *
- * @param $ - The Typekit.
- * @param props - The props for the class declaration.
- * @param abstract - Whether the class is abstract.
- * @returns The class body component, or undefined for an empty class.
- */
-function createClassBody($: Typekit, props: ClassDeclarationProps, abstract: boolean) {
-  if (!isTypedClassDeclarationProps(props)) {
-    return props.children;
-  }
-
-  const validTypeMembers = getTypeMembers($, props.type);
-
-  return <ClassBody {...props} validTypeMembers={validTypeMembers} abstract={abstract} />;
-}
-
-/**
- * Creates the extends types for the class declaration.
- *
- * - Template instances (e.g., `Response<string>` → `Response[str]`) - Use TypeExpression to render with type args
- * - Partial templates (e.g., `Response<T> -> Response[T]`) - Use TypeExpression to render with type args
- * - Regular models (e.g., `BaseWidget`) - Use py.Reference for simple name resolution
- * - Arrays - Use TypeExpression for `typing.Sequence[T]` rendering
- * - Records - Not supported, ignored
- *
- * @param $ - The Typekit.
- * @param type - The type to create the extends type for.
- * @returns Array of base types to extend, empty array if none.
- */
-function getExtendsType($: Typekit, type: Model | Interface): Children[] {
-  // For interfaces, return empty because inheritance is flattened by TypeSpec
-  if (!$.model.is(type)) {
-    return [];
-  }
-
-  const extending: Children[] = [];
-
-  if (type.baseModel) {
-    if ($.array.is(type.baseModel)) {
-      extending.push(<TypeExpression type={type.baseModel} />);
-    } else if ($.record.is(type.baseModel)) {
-      // Record-based scenarios are not supported, do nothing here
-    } else if (isTemplateDeclarationOrInstance(type.baseModel)) {
-      // Template type (declaration or instance) - needs TypeExpression for type parameter handling
-      // This covers: Response<string>, Response<T>, and other templated scenarios
-      extending.push(<TypeExpression type={type.baseModel} />);
-    } else {
-      // Regular model - use py.Reference for proper symbol resolution
-      extending.push(<py.Reference refkey={efRefkey(type.baseModel)} />);
-    }
-  }
-
-  // Handle index types: Arrays (int indexes) are supported, while Records (string indexes) are not
-  // Note: TypeSpec prevents array models from having properties, so indexType is only for empty arrays
-  const indexType = $.model.getIndexType(type);
-  if (indexType && !$.record.is(indexType)) {
-    extending.push(<TypeExpression type={indexType} />);
-  }
-
-  return extending;
-}
-
-/**
- * Creates the bases (inheritance) list for the class declaration.
- * Combines explicit bases from props, inherited bases from the type, and ABC if abstract.
- * ABC is always added last to maintain proper Python MRO.
- *
- * @param $ - The Typekit.
- * @param props - The props for the class declaration.
- * @param abstract - Whether the class is abstract.
- * @param extraBases - Additional bases to include (e.g., Generic[T]). Will be mutated.
- * @returns Array of base types for the class declaration, empty if none.
- */
-function createBasesType(
-  $: Typekit,
-  props: ClassDeclarationProps,
-  abstract: boolean,
-  extraBases: Children[] = [],
-) {
-  // Add extends/inheritance from the TypeSpec type if present
-  if (isTypedClassDeclarationProps(props)) {
-    extraBases.push(...getExtendsType($, props.type));
-  }
-
-  // Combine explicit bases from props with extraBases (Generic, extends, etc.)
-  const allBases = (props.bases ?? []).concat(extraBases);
-
-  // For abstract classes, always include ABC (last for proper MRO)
-  if (abstract) {
-    return [...allBases, abcModule["."]["ABC"]];
-  }
-
-  return allBases;
-}
-
-// TODO: Implement Python generics support when TypeSpec adds true generics (not template macros).
-// Currently, TypeSpec templates are compile-time macros that expand to concrete types, not true generics.
-// When TypeSpec adds opt-in generic syntax (e.g., `generic model Foo<T>`), this is where we would:
-// 1. Generate TypeVar declarations: `T = TypeVar("T")`
-// 2. Add Generic[T, ...] to class bases
-// 3. Handle bounded type parameters with TypeVar bounds
 
 /**
  * Converts TypeSpec Models and Interfaces to Python classes.
@@ -178,15 +44,18 @@ export function ClassDeclaration(props: ClassDeclarationProps) {
   const abstract =
     ("abstract" in props && props.abstract) || ("type" in props && !$.model.is(props.type));
 
-  const docSource = props.doc ?? ("type" in props ? $.type.getDoc(props.type) : undefined);
-  const docElement = createDocElement(docSource, py.ClassDoc);
+  const type = "type" in props ? props.type : undefined;
+  const docSource = props.doc ?? (type ? $.type.getDoc(type) : undefined);
+  const docElement = docSource ? <DocElement doc={docSource} component={py.ClassDoc} /> : undefined;
 
-  // TODO: When TypeSpec adds true generics support, build Generic[T, ...] bases here.
+  // TODO: When TypeSpec adds true generics support, pass extraBases with Generic[T, ...] here.
   // Currently, TypeSpec templates are macros that expand to concrete types, so we don't
   // generate Python generics (TypeVar/Generic) for template declarations.
-  const extraBases: Children[] = [];
-
-  const basesType = createBasesType($, props, abstract, extraBases);
+  const basesType = ClassBases({
+    type: "type" in props ? props.type : undefined,
+    bases: props.bases,
+    abstract,
+  });
 
   if (!isTypedClassDeclarationProps(props)) {
     return (
@@ -227,79 +96,21 @@ export function ClassDeclaration(props: ClassDeclarationProps) {
   const isInterface = props.type.kind === "Interface";
   const useDataclass = !isArrayModel && !isInterface;
 
-  const classBody = createClassBody($, props, abstract);
   const ClassComponent = useDataclass ? py.DataclassDeclaration : py.ClassDeclaration;
-
-  // Defensive: Ensure classBody is never undefined
-  if (classBody === undefined || classBody === null) {
-    // Return a minimal valid class instead of crashing
-    return (
-      <ClassComponent name={props.type.name} kwOnly={useDataclass ? true : undefined}>
-        {/* Empty class body */}
-      </ClassComponent>
-    );
-  }
 
   return (
     <MethodProvider value={props.methodType}>
       <ClassComponent
-        {...(docElement ? { doc: docElement } : {})}
+        doc={docElement}
         name={name}
         {...(basesType.length ? { bases: basesType } : {})}
         refkey={refkeys}
         kwOnly={useDataclass ? true : undefined}
       >
-        {classBody}
+        <ClassBody type={props.type} abstract={abstract} methodType={props.methodType}>
+          {props.children}
+        </ClassBody>
       </ClassComponent>
     </MethodProvider>
-  );
-}
-
-interface ClassBodyProps extends ClassDeclarationPropsWithType {
-  abstract?: boolean; // Global override for the abstract flag
-  methodType?: "method" | "class" | "static"; // Global override for the method type
-}
-
-/**
- * Renders the body of a class declaration.
- * For models, renders properties as dataclass fields.
- * For interfaces, renders operations as abstract methods.
- * Includes any additional children provided.
- */
-function ClassBody(
-  props: ClassBodyProps & { validTypeMembers?: (ModelProperty | Operation)[] },
-): Children {
-  const { $ } = useTsp();
-  const validTypeMembers = props.validTypeMembers ?? getTypeMembers($, props.type);
-  const ContentSlot = createContentSlot();
-
-  // Throw error for models with additional properties (Record-based scenarios)
-  // This is checked in ClassDeclaration before calling createClassBody, but kept here
-  // as a safety measure in case ClassBody is called directly
-  if ($.model.is(props.type)) {
-    const additionalPropsRecord = $.model.getAdditionalPropertiesRecord(props.type);
-    if (additionalPropsRecord) {
-      // Python dataclasses don't support dynamic properties, so an additionalProperties
-      // field would just be another fixed field, not a "catch-all" for arbitrary properties.
-      throw new Error("Models with additional properties (Record[…]) are not supported");
-    }
-  }
-
-  return (
-    <>
-      <ContentSlot>
-        <For each={validTypeMembers} line>
-          {(typeMember) => (
-            <ClassMember
-              type={typeMember}
-              abstract={props.abstract}
-              methodType={props.methodType}
-            />
-          )}
-        </For>
-        {props.children ?? null}
-      </ContentSlot>
-      <ContentSlot.WhenEmpty>{undefined}</ContentSlot.WhenEmpty>
-    </>
   );
 }

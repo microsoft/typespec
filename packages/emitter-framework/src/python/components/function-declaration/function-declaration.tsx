@@ -3,7 +3,7 @@ import { buildParameterDescriptors } from "#python/utils/operation.js";
 import { declarationRefkeys } from "#python/utils/refkey.js";
 import * as py from "@alloy-js/python";
 import type { Model, Operation } from "@typespec/compiler";
-import { createDocElement } from "../../utils/doc.js";
+import { DocElement } from "../doc-element/doc-element.js";
 import { TypeExpression } from "../type-expression/type-expression.js";
 
 export interface FunctionDeclarationPropsWithType
@@ -56,8 +56,10 @@ export function FunctionDeclaration(props: FunctionDeclarationProps) {
       replaceParameters: props.replaceParameters,
     });
   }
-  const rawDoc = props.doc ?? $.type.getDoc(props.type);
-  const docElement = createDocElement(rawDoc, py.FunctionDoc);
+  const docSource = props.doc ?? $.type.getDoc(props.type);
+  const docElement = docSource ? (
+    <DocElement doc={docSource} component={py.FunctionDoc} />
+  ) : undefined;
   const doc = docElement ? (
     <>
       {docElement}
