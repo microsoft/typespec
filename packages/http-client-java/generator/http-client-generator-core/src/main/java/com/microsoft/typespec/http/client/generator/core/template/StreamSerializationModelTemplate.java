@@ -29,10 +29,12 @@ import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import io.clientcore.core.utils.CoreUtils;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -93,6 +95,9 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
         imports.add(Base64.class.getName());
         imports.add(LinkedHashMap.class.getName());
         imports.add(List.class.getName());
+        imports.add(LinkedList.class.getName());
+        imports.add(Arrays.class.getName());
+        imports.add(Collectors.class.getName());
         imports.add(Map.class.getName());
         imports.add(Objects.class.getName());
     }
@@ -742,9 +747,21 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                         .line("jsonWriter.writeUntypedField(\"" + serializedName + "\", " + propertyValueGetter + ");");
                 }
             } else if (wireType instanceof IterableType) {
-                serializeJsonContainerProperty(methodBlock, "writeArrayField", wireType,
-                    ((IterableType) wireType).getElementType(), serializedName, propertyValueGetter, 0,
-                    isJsonMergePatch);
+                if (property.getArrayEncoding() == null) {
+                    serializeJsonContainerProperty(methodBlock, "writeArrayField", wireType,
+                        ((IterableType) wireType).getElementType(), serializedName, propertyValueGetter, 0,
+                        isJsonMergePatch);
+                } else {
+                    // wireType is String
+                    // at present, only String element is supported
+                    methodBlock.ifBlock(propertyValueGetter + " != null", ifBlock -> {
+                        String serializeExpression = propertyValueGetter
+                            + ".stream().map(element -> element == null ? \"\" : element).collect(Collectors.joining(\""
+                            + property.getArrayEncoding().getDelimiter() + "\"))";
+                        methodBlock.line("jsonWriter.writeStringField(\"%s\", %s);", serializedName,
+                            serializeExpression);
+                    });
+                }
             } else if (wireType instanceof MapType) {
                 // Assumption is that the key type for the Map is a String. This may not always hold true and when that
                 // becomes reality this will need to be reworked to handle that case.
@@ -1587,13 +1604,28 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                     deserializationBlock.line(property.getName() + " = reader.readUntyped();");
                 }
             } else if (wireType instanceof IterableType) {
+                final String propertyStringVariableName = property.getName() + "EncodedAsString";
+                if (property.getArrayEncoding() != null) {
+                    // need to prepare the expression for propertyStringVariableName,
+                    // to be used in "if (property.getArrayEncoding() == null)" block
+                    deserializationBlock.line("String " + propertyStringVariableName + " = reader.getString();");
+                }
+
                 if (!propertiesManager.hasConstructorArguments()) {
                     deserializationBlock.text(property.getClientType() + " ");
                 }
 
                 deserializationBlock.text(property.getName() + " = ");
-                deserializeJsonContainerProperty(deserializationBlock, "readArray", wireType,
-                    ((IterableType) wireType).getElementType(), ((IterableType) clientType).getElementType(), 0);
+                if (property.getArrayEncoding() == null) {
+                    deserializeJsonContainerProperty(deserializationBlock, "readArray", wireType,
+                        ((IterableType) wireType).getElementType(), ((IterableType) clientType).getElementType(), 0);
+                } else {
+                    // wireType is String
+                    // at present, only String element is supported
+                    deserializationBlock.text(propertyStringVariableName
+                        + " == null ? null : new LinkedList<>(Arrays.asList(" + propertyStringVariableName + ".split(\""
+                        + property.getArrayEncoding().getDelimiter() + "\")));");
+                }
 
                 if (!propertiesManager.hasConstructorArguments()) {
                     handleSettingDeserializedValue(deserializationBlock, property, property.getName(), fromSuper);

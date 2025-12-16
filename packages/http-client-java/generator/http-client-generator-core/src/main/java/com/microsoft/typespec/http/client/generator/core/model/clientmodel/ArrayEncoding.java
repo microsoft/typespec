@@ -7,19 +7,25 @@ package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
  * Known array encoding strategies supported by the generator.
  */
 public enum ArrayEncoding {
-    PIPE_DELIMITED("pipeDelimited"),
-    SPACE_DELIMITED("spaceDelimited"),
-    COMMA_DELIMITED("commaDelimited"),
-    NEWLINE_DELIMITED("newlineDelimited");
+    PIPE_DELIMITED("pipeDelimited", "|"),
+    SPACE_DELIMITED("spaceDelimited", " "),
+    COMMA_DELIMITED("commaDelimited", ","),
+    NEWLINE_DELIMITED("newlineDelimited", "\\n");
 
-    private final String arrayEncoding;
+    private final String value;
+    private final String delimiter;
 
-    ArrayEncoding(String value) {
-        this.arrayEncoding = value;
+    ArrayEncoding(String value, String delimiter) {
+        this.value = value;
+        this.delimiter = delimiter;
     }
 
     public String value() {
-        return this.arrayEncoding;
+        return this.value;
+    }
+
+    public String getDelimiter() {
+        return this.delimiter;
     }
 
     @Override
