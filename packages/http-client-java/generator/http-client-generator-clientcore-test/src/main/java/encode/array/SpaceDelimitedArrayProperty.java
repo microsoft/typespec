@@ -7,7 +7,10 @@ import io.clientcore.core.serialization.json.JsonSerializable;
 import io.clientcore.core.serialization.json.JsonToken;
 import io.clientcore.core.serialization.json.JsonWriter;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * The SpaceDelimitedArrayProperty model.
@@ -47,7 +50,10 @@ public final class SpaceDelimitedArrayProperty implements JsonSerializable<Space
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.writeStartObject();
-        jsonWriter.writeArrayField("value", this.value, (writer, element) -> writer.writeString(element));
+        if (this.value != null) {
+            jsonWriter.writeStringField("value",
+                this.value.stream().map(element -> element == null ? "" : element).collect(Collectors.joining(" ")));
+        }
         return jsonWriter.writeEndObject();
     }
 
@@ -69,7 +75,10 @@ public final class SpaceDelimitedArrayProperty implements JsonSerializable<Space
                 reader.nextToken();
 
                 if ("value".equals(fieldName)) {
-                    value = reader.readArray(reader1 -> reader1.getString());
+                    String valueEncodedAsString = reader.getString();
+                    value = valueEncodedAsString == null
+                        ? null
+                        : new LinkedList<>(Arrays.asList(valueEncodedAsString.split(" ")));
                 } else {
                     reader.skipChildren();
                 }
