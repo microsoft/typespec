@@ -27,7 +27,7 @@
     "astro": "^5.16.5"
   },
   "peerDependencies": {
-    "astro": "^5.16.4"
+    "astro": "^5.16.5"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",
