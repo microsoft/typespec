@@ -380,18 +380,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             else if (elementType.Equals(typeof(BinaryData)))
             {
+                // For BinaryData (unknown type), we need to capture the raw JSON for any token type
                 var tokenTypeProperty = reader.Property("TokenType");
-                var getString = reader.Invoke("GetString");
+                var readerRef = new VariableExpression(reader.Type, reader.Declaration, IsRef: true, IsOut: false);
                 return new IfElseStatement(
                     tokenTypeProperty.Equal(JsonTokenTypeSnippets.Null),
                     AddElement(dictKey, Null, value),
-                    AddElement(dictKey, BinaryDataSnippets.FromString(getString.As<string>()), value));
+                    new[]
+                    {
+                        UsingDeclare("element", JsonDocumentSnippets.ParseValue(readerRef), out var element),
+                        AddElement(dictKey, BinaryDataSnippets.FromString(element.RootElement().GetRawText()), value)
+                    });
             }
             else
             {
                 // For non-framework types, we need to parse into a JsonElement first
                 // Use JsonElement.ParseValue with the reader (passed by ref)
-                var readerRef = new VariableExpression(reader.Type, reader.Declaration.RequestedName, isRef: true);
+                var readerRef = new VariableExpression(reader.Type, reader.Declaration, IsRef: true, IsOut: false);
                 return new[]
                 {
                     UsingDeclare("element", JsonDocumentSnippets.ParseValue(readerRef), out var element),
