@@ -150,7 +150,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             Declare("element", jsonDocument.RootElement(), out var jsonElement),
                             Return(result.FromValue(
                                 ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(
-                                responseBodyType.FrameworkType,
+                                responseBodyType,
                                 jsonElement,
                                 data,
                                 ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition.WireOptionsField.As<ModelReaderWriterOptions>(),

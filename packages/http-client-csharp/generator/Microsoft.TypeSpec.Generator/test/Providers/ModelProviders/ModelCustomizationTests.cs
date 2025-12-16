@@ -621,9 +621,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 [("val1", 1), ("val2", 2), ("val3", 3)],
                 isExtensible: false
             );
-            var enumProvider = EnumProvider.Create(inputEnum);
+            var enumProvider = CodeModelGenerator.Instance.TypeFactory.CreateEnum(inputEnum);
 
-            Assert.IsTrue(enumProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Struct | TypeSignatureModifiers.ReadOnly));
+            Assert.IsNotNull(enumProvider);
+            Assert.IsTrue(enumProvider is ExtensibleEnumProvider);
+            Assert.IsTrue(enumProvider!.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Struct | TypeSignatureModifiers.ReadOnly));
         }
 
         [Test]
@@ -1439,6 +1441,38 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             Assert.AreEqual("MockInputModelBase", modelProvider.BaseType!.Name);
             Assert.AreEqual("Sample.Models", modelProvider.BaseType!.Namespace);
+        }
+
+        [Test]
+        public async Task CanCustomizeBaseModelWithSpecBase()
+        {
+            var specBaseModel = InputFactory.Model(
+                "specBaseModel",
+                properties: [InputFactory.Property("specBaseProp", InputPrimitiveType.String)],
+                usage: InputModelTypeUsage.Json);
+            var customBaseModel = InputFactory.Model(
+                "customBaseModel",
+                properties: [InputFactory.Property("customBaseProp", InputPrimitiveType.String)],
+                usage: InputModelTypeUsage.Json);
+            var childModel = InputFactory.Model(
+                "mockInputModel",
+                properties: [InputFactory.Property("childProp", InputPrimitiveType.String)],
+                baseModel: specBaseModel,
+                usage: InputModelTypeUsage.Json);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [childModel, specBaseModel, customBaseModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t.Name == "MockInputModel");
+
+            // should have customized base type, not the spec base type
+            Assert.IsNotNull(modelProvider.BaseType);
+            Assert.IsNotNull(modelProvider.BaseTypeProvider);
+            Assert.AreEqual("CustomBaseModel", modelProvider.BaseType!.Name);
+            Assert.AreEqual("Sample.Models", modelProvider.BaseType!.Namespace);
+            Assert.AreEqual(1, modelProvider.BaseTypeProvider!.Properties.Count);
+            Assert.AreEqual("CustomBaseProp", modelProvider.BaseTypeProvider.Properties[0].Name);
         }
 
         private class NameSpaceVisitor : LibraryVisitor

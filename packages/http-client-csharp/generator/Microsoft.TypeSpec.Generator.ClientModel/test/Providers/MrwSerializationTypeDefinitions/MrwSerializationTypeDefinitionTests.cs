@@ -599,6 +599,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [Test]
+        public void GetUtf8BytesIsUsedForMrwFallback()
+        {
+            var property = InputFactory.Property(
+                "mockProperty",
+                InputFactory.Model("SomeExternalModel", external: new InputExternalTypeMetadata("System.IO.File", null, null)));
+
+            var inputModel = InputFactory.Model("mockInputModel", properties: [property]);
+            var (_, serialization) = CreateModelAndSerialization(inputModel);
+
+            var deserializationMethod = serialization.Methods.Single(m => m.Signature.Name.StartsWith("Deserialize"));
+            var methodBody = deserializationMethod.BodyStatements!.ToDisplayString();
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), methodBody);
+        }
+
+        [Test]
         public void TestBuildDeserializationMethodNestedSARD()
         {
             var baseModel = InputFactory.Model("BaseModel");

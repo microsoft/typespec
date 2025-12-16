@@ -11,12 +11,22 @@ import type {
   UnionVariant,
 } from "@typespec/compiler";
 import { getVisibilitySuffix, Visibility } from "@typespec/http";
-import { UnionMutation } from "@typespec/mutator-framework";
+import {
+  MutationHalfEdge,
+  UnionMutation,
+  type MutationNodeForType,
+  type MutationTraits,
+} from "@typespec/mutator-framework";
 import type {
   HttpCanonicalization,
   HttpCanonicalizationMutations,
 } from "./http-canonicalization-classes.js";
-import type { HttpCanonicalizer } from "./http-canonicalization.js";
+import type {
+  CanonicalizationPredicate,
+  HttpCanonicalizationCommon,
+  HttpCanonicalizationInfo,
+  HttpCanonicalizer,
+} from "./http-canonicalization.js";
 import { ModelHttpCanonicalization } from "./model.js";
 import { HttpCanonicalizationOptions } from "./options.js";
 import type { UnionVariantHttpCanonicalization } from "./union-variant.jsx";
@@ -71,15 +81,15 @@ interface VariantTestDefinition {
 /**
  * Canonicalizes union types, tracking discriminators and runtime variant tests.
  */
-export class UnionHttpCanonicalization extends UnionMutation<
-  HttpCanonicalizationOptions,
-  HttpCanonicalizationMutations,
-  HttpCanonicalizer
-> {
-  /**
-   * Canonicalization options guiding union transformation.
-   */
-  options: HttpCanonicalizationOptions;
+export class UnionHttpCanonicalization
+  extends UnionMutation<
+    HttpCanonicalizationOptions,
+    HttpCanonicalizationMutations,
+    HttpCanonicalizer
+  >
+  implements HttpCanonicalizationCommon
+{
+  codec = null;
   /**
    * Indicates if this union corresponds to a named declaration.
    */
@@ -128,32 +138,66 @@ export class UnionHttpCanonicalization extends UnionMutation<
    */
   envelopePropertyName: string | null = null;
 
+  #languageMutationNode: MutationNodeForType<Union>;
+  #wireMutationNode: MutationNodeForType<Union>;
+
   /**
-   * Mutation subgraph for language types.
+   * The language mutation node for this union.
    */
-  get #languageSubgraph() {
-    return this.engine.getLanguageSubgraph(this.options);
+  get languageMutationNode() {
+    return this.#languageMutationNode;
   }
 
   /**
-   * Mutation subgraph for wire types.
+   * The wire mutation node for this union.
    */
-  get #wireSubgraph() {
-    return this.engine.getWireSubgraph(this.options);
+  get wireMutationNode() {
+    return this.#wireMutationNode;
   }
 
   /**
    * The potentially mutated language type for this union.
    */
   get languageType() {
-    return this.getMutatedType(this.#languageSubgraph);
+    return this.#languageMutationNode.mutatedType;
   }
 
   /**
    * The potentially mutated wire type for this union.
    */
   get wireType() {
-    return this.getMutatedType(this.#wireSubgraph);
+    return this.#wireMutationNode.mutatedType;
+  }
+
+  /**
+   * Tests whether the subgraph rooted at this canonicalization uses only
+   * the identity codec (no transformation).
+   */
+  subgraphUsesIdentityCodec(): boolean {
+    return this.engine.subgraphUsesIdentityCodec(this);
+  }
+
+  /**
+   * Tests whether the subgraph rooted at this canonicalization satisfies
+   * the provided predicate.
+   */
+  subgraphMatchesPredicate(predicate: CanonicalizationPredicate): boolean {
+    return this.engine.subgraphMatchesPredicate(this, predicate);
+  }
+
+  static mutationInfo(
+    engine: HttpCanonicalizer,
+    sourceType: Union,
+    referenceTypes: MemberType[],
+    options: HttpCanonicalizationOptions,
+    halfEdge?: MutationHalfEdge<any, any>,
+    traits?: MutationTraits,
+  ): HttpCanonicalizationInfo {
+    return {
+      mutationKey: options.mutationKey,
+      codec: null as any, // Unions don't need a codec
+      isSynthetic: traits?.isSynthetic,
+    };
   }
 
   constructor(
@@ -161,15 +205,37 @@ export class UnionHttpCanonicalization extends UnionMutation<
     sourceType: Union,
     referenceTypes: MemberType[],
     options: HttpCanonicalizationOptions,
+    info: HttpCanonicalizationInfo,
   ) {
-    super(engine, sourceType, referenceTypes, options);
+    super(engine, sourceType, referenceTypes, options, info);
+    this.#languageMutationNode = this.engine.getMutationNode(this.sourceType, {
+      mutationKey: info.mutationKey + "-language",
+      isSynthetic: info.isSynthetic,
+    });
+    this.#wireMutationNode = this.engine.getMutationNode(this.sourceType, {
+      mutationKey: info.mutationKey + "-wire",
+      isSynthetic: info.isSynthetic,
+    });
+
     this.options = options;
     this.isDeclaration = !!this.sourceType.name;
     this.#discriminatedUnionInfo = this.engine.$.union.getDiscriminatedUnion(sourceType) ?? null;
     this.isDiscriminated = !!this.#discriminatedUnionInfo;
-    this.envelopePropertyName = this.#discriminatedUnionInfo?.options.envelopePropertyName ?? null;
+    this.envelopeKind = this.#discriminatedUnionInfo?.options.envelope ?? "none";
+    this.envelopePropertyName = null;
+    if (this.#discriminatedUnionInfo?.options.envelope !== "none") {
+      this.envelopePropertyName =
+        this.#discriminatedUnionInfo?.options.envelopePropertyName ?? null;
+    }
     this.discriminatorPropertyName =
       this.#discriminatedUnionInfo?.options.discriminatorPropertyName ?? null;
+  }
+
+  protected startVariantEdge(): MutationHalfEdge {
+    return new MutationHalfEdge("variant", this, (tail) => {
+      this.#languageMutationNode.connectVariant(tail.languageMutationNode);
+      this.#wireMutationNode.connectVariant(tail.wireMutationNode);
+    });
   }
 
   /**
@@ -187,12 +253,8 @@ export class UnionHttpCanonicalization extends UnionMutation<
    * Canonicalize this union for HTTP.
    */
   mutate() {
-    const languageNode = this.getMutationNode(this.#languageSubgraph);
-    languageNode.whenMutated(this.#renameWhenMutated.bind(this));
-
-    const wireNode = this.getMutationNode(this.#wireSubgraph);
-    wireNode.whenMutated(this.#renameWhenMutated.bind(this));
-
+    this.#languageMutationNode.whenMutated(this.#renameWhenMutated.bind(this));
+    this.#wireMutationNode.whenMutated(this.#renameWhenMutated.bind(this));
     super.mutate();
 
     if (this.isDiscriminated) {
@@ -204,24 +266,28 @@ export class UnionHttpCanonicalization extends UnionMutation<
           throw new Error("symbolic variant names are not supported");
         }
 
+        const canonicalizedVariant = variant as UnionVariantHttpCanonicalization;
         const descriptor: VariantDescriptor = {
-          variant,
-          envelopeType: this.engine.canonicalize(
-            this.engine.$.model.create({
-              name: "",
-              properties: {
-                [discriminatorProp]: this.engine.$.modelProperty.create({
-                  name: discriminatorProp,
-                  type: this.engine.$.literal.create(variantName),
-                }),
-                [envelopeProp]: this.engine.$.modelProperty.create({
-                  name: envelopeProp,
-                  type: variant.languageType.type,
-                }),
-              },
-            }),
-            this.options,
-          ) as unknown as ModelHttpCanonicalization,
+          variant: canonicalizedVariant,
+          envelopeType:
+            this.envelopeKind === "none"
+              ? null
+              : (this.engine.canonicalize(
+                  this.engine.$.model.create({
+                    name: "",
+                    properties: {
+                      [discriminatorProp]: this.engine.$.modelProperty.create({
+                        name: discriminatorProp,
+                        type: this.engine.$.literal.create(variantName),
+                      }),
+                      [envelopeProp]: this.engine.$.modelProperty.create({
+                        name: envelopeProp,
+                        type: canonicalizedVariant.languageType.type,
+                      }),
+                    },
+                  }),
+                  this.options,
+                ) as unknown as ModelHttpCanonicalization),
           discriminatorValue: variantName,
         };
 
@@ -237,6 +303,10 @@ export class UnionHttpCanonicalization extends UnionMutation<
    */
   #renameWhenMutated(mutated: Union | null) {
     if (!mutated) {
+      return;
+    }
+
+    if (!mutated.name) {
       return;
     }
 
@@ -280,13 +350,15 @@ export class UnionHttpCanonicalization extends UnionMutation<
       return a.index - b.index;
     });
 
+    const alreadyTested: VariantAnalysis[] = [];
     return orderedAnalyses.map((analysis) => {
-      const selected = this.#selectTestsForVariant(analysis, analyses);
+      const selected = this.#selectTestsForVariant(analysis, analyses, alreadyTested, target);
       const tests = selected
         .slice()
         .sort((a, b) => this.#testPriority(a.test) - this.#testPriority(b.test))
         .map((definition) => definition.test);
 
+      alreadyTested.push(analysis);
       return { variant: analysis.variant, tests };
     });
   }
@@ -351,20 +423,32 @@ export class UnionHttpCanonicalization extends UnionMutation<
 
   /**
    * Chooses the minimal set of tests that uniquely identify a variant.
+   * Takes into account which variants have already been ruled out by earlier tests in the sequence.
    */
   #selectTestsForVariant(
     analysis: VariantAnalysis,
     analyses: VariantAnalysis[],
+    alreadyTestedAnalyses: VariantAnalysis[],
+    target: "language" | "wire",
   ): VariantTestDefinition[] {
-    const others = analyses.filter((candidate) => candidate !== analysis);
+    // Filter out variants that have already been tested earlier in the sequence
+    const others = analyses.filter(
+      (candidate) => candidate !== analysis && !alreadyTestedAnalyses.includes(candidate),
+    );
 
     if (analysis.availableTests.length === 0) {
       if (others.length === 0) {
         return [];
       }
 
+      const indistinguishableVariants = others
+        .map((other) => this.#getVariantDebugName(other.variant))
+        .join(", ");
+
       throw new Error(
-        `Unable to determine distinguishing runtime checks for union variant "${this.#getVariantDebugName(analysis.variant)}".`,
+        `Unable to determine distinguishing runtime checks for ${target} type of union variant "${this.#getVariantDebugName(analysis.variant)}". ` +
+          `Indistinguishable from: [${indistinguishableVariants}]. ` +
+          `Variant type category: ${analysis.typeCategory ?? "unknown"}.`,
       );
     }
 
@@ -376,14 +460,36 @@ export class UnionHttpCanonicalization extends UnionMutation<
     );
 
     if (remaining.length === 0) {
+      // If there are no remaining variants to distinguish from, but we have tests available,
+      // prefer literal tests over type tests for better specificity
+      if (required.length === 0 && optional.length > 0) {
+        // Prefer a literal test if available, otherwise fall back to type test
+        const literalTest = optional.find((test) => test.test.kind === "literal");
+        if (literalTest) {
+          return [literalTest];
+        }
+        const typeTest = optional.find((test) => test.test.kind === "type");
+        return typeTest ? [typeTest] : [optional[0]];
+      }
       return required;
     }
 
     const optionalSubset = this.#findCoveringSubset(optional, remaining);
 
     if (!optionalSubset) {
+      const indistinguishableVariants = remaining
+        .map((other) => this.#getVariantDebugName(other.variant))
+        .join(", ");
+
+      const availableTestsDescription = analysis.availableTests
+        .map((test) => `${test.test.kind}(${test.test.path.join(".")})`)
+        .join(", ");
+
       throw new Error(
-        `Unable to distinguish union variant "${this.#getVariantDebugName(analysis.variant)}" with available runtime checks.`,
+        `Unable to distinguish ${target} type of union variant "${this.#getVariantDebugName(analysis.variant)}" with available runtime checks. ` +
+          `Indistinguishable from: [${indistinguishableVariants}]. ` +
+          `Variant type category: ${analysis.typeCategory ?? "unknown"}. ` +
+          `Available tests: [${availableTestsDescription}].`,
       );
     }
 
@@ -626,22 +732,38 @@ export class UnionHttpCanonicalization extends UnionMutation<
 
   /**
    * Provides a deterministic priority used to order variants.
+   * Variants with const tests come first (more specific), followed by those with only type tests (more generic).
    */
   #variantPriority(analysis: VariantAnalysis) {
+    // Prioritize variants with const tests (literals) - they're more specific
+    const hasConstTests = analysis.constTests.length > 0;
+    const constTestPriority = hasConstTests ? 0 : 100;
+
+    // Then sort by type category
+    let typeCategoryPriority: number;
     switch (analysis.typeCategory) {
       case "number":
-        return 0;
+        typeCategoryPriority = 0;
+        break;
       case "boolean":
-        return 1;
+        typeCategoryPriority = 1;
+        break;
       case "string":
-        return 2;
+        typeCategoryPriority = 2;
+        break;
       case "array":
-        return 3;
+        typeCategoryPriority = 3;
+        break;
       case "object":
-        return 4;
+        typeCategoryPriority = 4;
+        break;
       default:
-        return 5;
+        typeCategoryPriority = 5;
+        break;
     }
+
+    // Combine priorities: const tests first, then type category
+    return constTestPriority + typeCategoryPriority;
   }
 
   /**

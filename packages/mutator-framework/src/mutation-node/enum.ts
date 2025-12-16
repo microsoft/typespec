@@ -1,33 +1,39 @@
 import type { Enum, EnumMember } from "@typespec/compiler";
-import { MutationEdge } from "./mutation-edge.js";
+import { HalfEdge } from "./mutation-edge.js";
 import { MutationNode } from "./mutation-node.js";
 
 export class EnumMutationNode extends MutationNode<Enum> {
   readonly kind = "Enum";
 
-  traverse() {
-    for (const member of this.sourceType.members.values()) {
-      const memberNode = this.subgraph.getNode(member);
-      this.connectMember(memberNode, member.name);
-    }
-  }
-
-  connectMember(memberNode: MutationNode<EnumMember>, sourcePropName: string) {
-    MutationEdge.create(this, memberNode, {
-      onTailMutation: () => {
-        this.mutatedType.members.delete(sourcePropName);
-        this.mutatedType.members.set(memberNode.mutatedType.name, memberNode.mutatedType);
+  startMemberEdge() {
+    return new HalfEdge<Enum, EnumMember>(this, {
+      onTailCreation: ({ tail }) => {
+        tail.connectEnum(this);
       },
-      onTailDeletion: () => {
-        this.mutatedType.members.delete(sourcePropName);
+      onTailMutation: ({ tail }) => {
+        this.mutate();
+        this.mutatedType.members.delete(tail.sourceType.name);
+        this.mutatedType.members.set(tail.mutatedType.name, tail.mutatedType);
       },
-      onTailReplaced: (newTail) => {
+      onTailDeletion: ({ tail }) => {
+        this.mutate();
+        this.mutatedType.members.delete(tail.sourceType.name);
+      },
+      onTailReplaced: ({ oldTail, newTail, head, reconnect }) => {
         if (newTail.mutatedType.kind !== "EnumMember") {
           throw new Error("Cannot replace enum member with non-enum member type");
         }
-        this.mutatedType.members.delete(sourcePropName);
-        this.mutatedType.members.set(newTail.mutatedType.name, newTail.mutatedType);
+        head.mutate();
+        head.mutatedType.members.delete(oldTail.sourceType.name);
+        head.mutatedType.members.set(newTail.mutatedType.name, newTail.mutatedType);
+        if (reconnect) {
+          head.connectMember(newTail as MutationNode<EnumMember>);
+        }
       },
     });
+  }
+
+  connectMember(memberNode: MutationNode<EnumMember>) {
+    this.startMemberEdge().setTail(memberNode);
   }
 }

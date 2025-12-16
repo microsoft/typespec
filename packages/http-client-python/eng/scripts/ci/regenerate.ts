@@ -22,7 +22,7 @@ const argv = parseArgs({
 });
 
 // Add this near the top with other constants
-const SKIP_SPECS = ["type/union/discriminated", "documentation"];
+const SKIP_SPECS = ["type/union/discriminated"];
 
 // Get the directory of the current file
 const PLUGIN_DIR = argv.values.pluginDir
@@ -271,6 +271,10 @@ const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, st
   "type/union": {
     "package-name": "typetest-union",
     namespace: "typetest.union",
+  },
+  documentation: {
+    "package-name": "specs-documentation",
+    namespace: "specs.documentation",
   },
 };
 

@@ -1,5 +1,12 @@
 # Change Log - @typespec/compiler
 
+## 1.7.1
+
+### Bug Fixes
+
+- [#9210](https://github.com/microsoft/typespec/pull/9210) Fix crash in `tsp init` introduced in `1.7.0`
+
+
 ## 1.7.0
 
 ### Features
