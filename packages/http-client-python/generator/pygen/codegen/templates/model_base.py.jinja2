@@ -382,6 +382,15 @@ class _MyMutableMapping(MutableMapping[str, typing.Any]):
         return key in self._data
 
     def __getitem__(self, key: str) -> typing.Any:
+      # Sync any cached deserialized value back to storage before returning
+      if hasattr(self, "_attr_to_rest_field"):
+          cache_attr = f"_deserialized_{key}"
+          if hasattr(self, cache_attr):
+              cached_value = object.__getattribute__(self, cache_attr)
+              rf = _get_rest_field(self._attr_to_rest_field, key)
+              if rf:
+                  # Serialize the cached value back to storage
+                  self._data[key] = _serialize(cached_value, rf._format)
         return self._data.__getitem__(key)
 
     def __setitem__(self, key: str, value: typing.Any) -> None:
@@ -1098,9 +1107,29 @@ class _RestField:
             return item
         if self._is_model:
             return item
-        return _deserialize(self._type, _serialize(item, self._format), rf=self)
+        # For mutable types (dict, list, set), cache the deserialized object to allow mutations to persist
+        cache_attr = f"_deserialized_{self._rest_name}"
+        if hasattr(obj, cache_attr):
+            return object.__getattribute__(obj, cache_attr)
+
+        deserialized = _deserialize(self._type, _serialize(item, self._format), rf=self)
+
+        # Cache mutable types so mutations persist
+        try:
+            if isinstance(deserialized, (dict, list, set)):
+                object.__setattr__(obj, cache_attr, deserialized)
+        except AttributeError:
+            pass
+
+        return deserialized
 
     def __set__(self, obj: Model, value) -> None:
+        # Clear the cached deserialized object when setting a new value
+        cache_attr = f"_deserialized_{self._rest_name}"
+        try:
+            object.__delattr__(obj, cache_attr)
+        except AttributeError:
+            pass
         if value is None:
             # we want to wipe out entries if users set attr to None
             try:
