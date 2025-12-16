@@ -7,8 +7,6 @@
 - [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
 
 
-
-
 ## 0.13.0
 
 ### Features
@@ -22,4 +20,3 @@
 ### Bug Fixes
 
 - [#8833](https://github.com/microsoft/typespec/pull/8833) Add forgotten index file.
-

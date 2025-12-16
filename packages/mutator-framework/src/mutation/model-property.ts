@@ -1,35 +1,28 @@
 import type { ModelProperty, Type } from "@typespec/compiler";
-import type { MutationSubgraph } from "../mutation-node/mutation-subgraph.js";
 import type {
   CustomMutationClasses,
   MutationEngine,
   MutationFor,
+  MutationHalfEdge,
   MutationOptions,
 } from "./mutation-engine.js";
 import { Mutation } from "./mutation.js";
 
-export class ModelPropertyMutation<
-  TOptions extends MutationOptions,
+export abstract class ModelPropertyMutation<
   TCustomMutations extends CustomMutationClasses,
+  TOptions extends MutationOptions,
   TEngine extends MutationEngine<TCustomMutations> = MutationEngine<TCustomMutations>,
 > extends Mutation<ModelProperty, TCustomMutations, TOptions, TEngine> {
   readonly kind = "ModelProperty";
   type!: MutationFor<TCustomMutations, Type["kind"]>;
 
-  mutate() {
-    this.type = this.engine.mutateReference(this.sourceType, this.options);
+  mutate(newOptions: MutationOptions = this.options) {
+    this.type = this.engine.mutateReference(
+      this.sourceType,
+      newOptions,
+      this.startTypeEdge(),
+    ) as MutationFor<TCustomMutations, Type["kind"]>;
   }
 
-  getReferenceMutationNode(
-    subgraph: MutationSubgraph = this.engine.getDefaultMutationSubgraph(this.options),
-  ) {
-    return subgraph.getReferenceNode(this.sourceType);
-  }
-
-  replaceReferencedType(subgraph: MutationSubgraph, newType: Type) {
-    // First, update the mutation node
-    subgraph.getReferenceNode(this.sourceType).replace(newType);
-    // then return a new reference mutation for the new type
-    return this.engine.mutateReference(this.sourceType, newType, this.options);
-  }
+  protected abstract startTypeEdge(): MutationHalfEdge;
 }
