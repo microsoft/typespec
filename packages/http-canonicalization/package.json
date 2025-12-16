@@ -1,6 +1,6 @@
 {
   "name": "@typespec/http-canonicalization",
-  "version": "0.13.0",
+  "version": "0.14.0",
   "type": "module",
   "main": "dist/src/index.js",
   "repository": {
@@ -31,6 +31,7 @@
   "license": "MIT",
   "description": "",
   "dependencies": {
+    "@typespec/emitter-framework": "workspace:^",
     "@typespec/mutator-framework": "workspace:^"
   },
   "peerDependencies": {

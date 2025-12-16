@@ -191,7 +191,15 @@ public final class CodeFormatterUtil {
     private static String formatCode(String file, String fileName, CodeFormatter codeFormatter) throws Exception {
         IDocument doc = new Document(file);
 
-        boolean isModuleInfo = IModule.MODULE_INFO_JAVA.equals(fileName);
+        boolean isModuleInfo = fileName.endsWith(IModule.MODULE_INFO_JAVA);
+        if (isModuleInfo) {
+            // candidate module-info.java, confirm by check file content about module declaration
+            CompilationUnit compilationUnit = StaticJavaParser.parse(file);
+            if (compilationUnit.getModule().isEmpty()) {
+                // not module-info.java
+                isModuleInfo = false;
+            }
+        }
         int kind = isModuleInfo ? CodeFormatter.K_MODULE_INFO : CodeFormatter.K_COMPILATION_UNIT;
         kind |= CodeFormatter.F_INCLUDE_COMMENTS;
         TextEdit edit = codeFormatter.format(kind, file, 0, file.length(), 0, Constants.NEW_LINE);

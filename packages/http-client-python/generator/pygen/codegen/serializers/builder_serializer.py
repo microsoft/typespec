@@ -403,7 +403,12 @@ class RequestBuilderSerializer(_BuilderBaseSerializer[RequestBuilderType]):
         builder: RequestBuilderType,
     ) -> list[str]:
         def _get_value(param):
-            declaration = param.get_declaration() if param.constant else None
+            if param.constant:
+                declaration = param.get_declaration()
+            elif param.client_default_value_declaration is not None:
+                declaration = param.client_default_value_declaration
+            else:
+                declaration = None
             if param.location in [ParameterLocation.HEADER, ParameterLocation.QUERY]:
                 kwarg_dict = "headers" if param.location == ParameterLocation.HEADER else "params"
                 return f"_{kwarg_dict}.pop('{param.wire_name}', {declaration})"
@@ -679,7 +684,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                     ")",
                     f"_file_fields: list[str] = {file_fields}",
                     f"_data_fields: list[str] = {data_fields}",
-                    "_files, _data = prepare_multipart_form_data(_body, _file_fields, _data_fields)",
+                    "_files = prepare_multipart_form_data(_body, _file_fields, _data_fields)",
                 ]
             )
             return retval
@@ -861,7 +866,6 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             retval.append(f"    {client_name}=_{client_name},")
         elif request_builder.has_form_data_body:
             retval.append("    files=_files,")
-            retval.append("    data=_data,")
         elif request_builder.overloads:
             seen_body_params = set()
             for overload in request_builder.overloads:
@@ -1331,7 +1335,7 @@ class _PagingOperationSerializer(_OperationSerializer[PagingOperationType]):
         except StopIteration:
             pass
 
-        retval.append(f'_request = HttpRequest("GET", {next_link_str}{query_str})')
+        retval.append(f'_request = HttpRequest("{builder.next_link_verb}", {next_link_str}{query_str})')
         retval.extend(self._postprocess_http_request(builder, "_request.url"))
 
         return retval

@@ -41,7 +41,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             IReadOnlyList<InputServiceMethod>? methods = null;
             IReadOnlyList<InputParameter>? parameters = null;
             int initializedByValue = 0;
-            bool hasInitializedBy = false;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
             string? crossLanguageDefinitionId = null;
             InputClient? parent = null;
@@ -56,7 +55,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString("doc", ref doc)
                     || reader.TryReadComplexType("methods", options, ref methods)
                     || reader.TryReadComplexType("parameters", options, ref parameters)
-                    || (hasInitializedBy = reader.TryReadInt32("initializedBy", ref initializedByValue))
+                    || reader.TryReadInt32("initializedBy", ref initializedByValue)
                     || reader.TryReadComplexType("decorators", options, ref decorators)
                     || reader.TryReadString("crossLanguageDefinitionId", ref crossLanguageDefinitionId)
                     || reader.TryReadComplexType("parent", options, ref parent)
@@ -76,7 +75,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             client.Doc = doc;
             client.Methods = methods ?? [];
             client.Parameters = parameters ?? [];
-            client.InitializedBy = hasInitializedBy ? (InputClientInitializedBy)initializedByValue : null;
+            client.InitializedBy = (InputClientInitializedBy)initializedByValue;
             client.Decorators = decorators ?? [];
             client.Parent = parent;
             client.Children = children ?? [];

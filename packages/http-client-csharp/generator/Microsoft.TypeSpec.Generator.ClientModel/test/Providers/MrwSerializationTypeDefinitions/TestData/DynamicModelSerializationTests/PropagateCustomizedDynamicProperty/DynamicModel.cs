@@ -1,5 +1,7 @@
 ﻿using SampleTypeSpec;
 
+using Microsoft.TypeSpec.Generator.Customizations;
+
 namespace Sample.Models
 {
     public partial class DynamicModel
