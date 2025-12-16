@@ -382,15 +382,15 @@ class _MyMutableMapping(MutableMapping[str, typing.Any]):
         return key in self._data
 
     def __getitem__(self, key: str) -> typing.Any:
-      # Sync any cached deserialized value back to storage before returning
-      if hasattr(self, "_attr_to_rest_field"):
-          cache_attr = f"_deserialized_{key}"
-          if hasattr(self, cache_attr):
-              cached_value = object.__getattribute__(self, cache_attr)
-              rf = _get_rest_field(self._attr_to_rest_field, key)
-              if rf:
-                  # Serialize the cached value back to storage
-                  self._data[key] = _serialize(cached_value, rf._format)
+        # Sync any cached deserialized value back to storage before returning
+        if hasattr(self, "_attr_to_rest_field"):
+            cache_attr = f"_deserialized_{key}"
+            if hasattr(self, cache_attr):
+                cached_value = object.__getattribute__(self, cache_attr)
+                rf = _get_rest_field(self._attr_to_rest_field, key)
+                if rf:
+                    # Serialize the cached value back to storage
+                    self._data[key] = _serialize(cached_value, rf._format)
         return self._data.__getitem__(key)
 
     def __setitem__(self, key: str, value: typing.Any) -> None:
