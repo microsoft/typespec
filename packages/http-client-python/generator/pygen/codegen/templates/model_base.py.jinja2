@@ -394,6 +394,12 @@ class _MyMutableMapping(MutableMapping[str, typing.Any]):
         return self._data.__getitem__(key)
 
     def __setitem__(self, key: str, value: typing.Any) -> None:
+        # Clear any cached deserialized value when setting through dictionary access
+        cache_attr = f"_deserialized_{key}"
+        try:
+            object.__delattr__(self, cache_attr)
+        except AttributeError:
+            pass
         self._data.__setitem__(key, value)
 
     def __delitem__(self, key: str) -> None:

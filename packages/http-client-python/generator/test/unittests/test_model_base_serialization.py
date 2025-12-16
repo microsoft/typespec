@@ -929,9 +929,7 @@ def test_deserialization_callback_override():
 
     model_with_callback = MyModel2(prop=[1.3, 2.4, 3.5])
     assert model_with_callback.prop == ["1.3", "2.4", "3.5"]
-    # since the deserialize function is not roundtrip-able, once we deserialize
-    # the serialized version is the same
-    assert model_with_callback["prop"] == [1.3, 2.4, 3.5]
+    assert model_with_callback["prop"] == ["1.3", "2.4", "3.5"]
 
 
 def test_deserialization_callback_override_parent():
@@ -967,7 +965,7 @@ def test_deserialization_callback_override_parent():
 
     child_model = ChildWithCallback(prop=[1, 1, 2, 3])
     assert child_model.prop == set(["1", "1", "2", "3"])
-    assert child_model["prop"] == [1, 1, 2, 3]
+    assert child_model["prop"] == set(["1", "1", "2", "3"])
 
 
 def test_inheritance_basic():
@@ -3268,7 +3266,7 @@ def test_complex_array_wrapper(model: ArrayWrapper):
 
     model["array"] = [1, 2, 3, 4, 5]
     assert model.array == ["1", "2", "3", "4", "5"]
-    assert model["array"] == [1, 2, 3, 4, 5]
+    assert model["array"] == ["1", "2", "3", "4", "5"]
 
 
 @pytest.mark.parametrize("model", [ArrayWrapper(array=[]), ArrayWrapper({"array": []})])
