@@ -82,7 +82,7 @@ public final class PipeDelimitedArrayProperty implements JsonSerializable<PipeDe
                     String valueEncodedAsString = reader.getString();
                     value = valueEncodedAsString == null
                         ? null
-                        : new LinkedList<>(Arrays.asList(valueEncodedAsString.split("|")));
+                        : new LinkedList<>(Arrays.asList(valueEncodedAsString.split("\\|")));
                 } else {
                     reader.skipChildren();
                 }

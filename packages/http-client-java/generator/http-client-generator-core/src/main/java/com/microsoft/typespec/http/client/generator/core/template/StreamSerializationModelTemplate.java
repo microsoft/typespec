@@ -1624,7 +1624,7 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                     // at present, only String element is supported
                     deserializationBlock.text(propertyStringVariableName
                         + " == null ? null : new LinkedList<>(Arrays.asList(" + propertyStringVariableName + ".split(\""
-                        + property.getArrayEncoding().getDelimiter() + "\")));");
+                        + property.getArrayEncoding().getEscapedDelimiter() + "\")));");
                 }
 
                 if (!propertiesManager.hasConstructorArguments()) {
