@@ -2,6 +2,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 # ------------------------------------
+from ast import Mod
 import copy
 import decimal
 import json
@@ -4372,3 +4373,256 @@ def test_array_encode_with_special_characters():
 
     assert model.pipe_values == ["path/to/file", "another-path", "final.path"]
     assert model["pipeValues"] == "path/to/file|another-path|final.path"
+
+
+def test_dictionary_set():
+    """Test that dictionary mutations via attribute syntax persist and sync to dictionary syntax."""
+
+    class MyModel(Model):
+        my_dict: dict[str, int] = rest_field(visibility=["read", "create", "update", "delete", "query"])
+
+    # Test 1: Basic mutation via attribute syntax
+    m = MyModel(my_dict={"a": 1, "b": 2})
+    assert m.my_dict == {"a": 1, "b": 2}
+
+    # Test 2: Add new key via attribute syntax and verify it persists
+    m.my_dict["c"] = 3
+    assert m.my_dict["c"] == 3
+    assert m.my_dict == {"a": 1, "b": 2, "c": 3}
+
+    # Test 3: Verify mutation is reflected in dictionary syntax
+    assert m["my_dict"] == {"a": 1, "b": 2, "c": 3}
+
+    # Test 4: Modify existing key via attribute syntax
+    m.my_dict["a"] = 100
+    assert m.my_dict["a"] == 100
+    assert m["my_dict"]["a"] == 100
+
+    # Test 5: Delete key via attribute syntax
+    del m.my_dict["b"]
+    assert "b" not in m.my_dict
+    assert "b" not in m["my_dict"]
+
+    # Test 6: Update via dict methods
+    m.my_dict.update({"d": 4, "e": 5})
+    assert m.my_dict["d"] == 4
+    assert m.my_dict["e"] == 5
+    assert m["my_dict"]["d"] == 4
+
+    # Test 7: Clear via attribute syntax and verify via dictionary syntax
+    m.my_dict.clear()
+    assert len(m.my_dict) == 0
+    assert len(m["my_dict"]) == 0
+
+    # Test 8: Reassign entire dictionary via attribute syntax
+    m.my_dict = {"x": 10, "y": 20}
+    assert m.my_dict == {"x": 10, "y": 20}
+    assert m["my_dict"] == {"x": 10, "y": 20}
+
+    # Test 9: Mutation after reassignment
+    m.my_dict["z"] = 30
+    assert m.my_dict["z"] == 30
+    assert m["my_dict"]["z"] == 30
+
+    # Test 10: Access via dictionary syntax first, then mutate via attribute syntax
+    m.my_dict["w"] = 40
+    assert m["my_dict"]["w"] == 40
+
+    # Test 11: Multiple accesses maintain same cached object
+    dict_ref1 = m.my_dict
+    dict_ref2 = m.my_dict
+    assert dict_ref1 is dict_ref2
+    dict_ref1["new_key"] = 999
+    assert dict_ref2["new_key"] == 999
+    assert m.my_dict["new_key"] == 999
+
+
+def test_list_set():
+    """Test that list mutations via attribute syntax persist and sync to dictionary syntax."""
+
+    class MyModel(Model):
+        my_list: list[int] = rest_field(visibility=["read", "create", "update", "delete", "query"])
+
+    # Test 1: Basic mutation via attribute syntax
+    m = MyModel(my_list=[1, 2, 3])
+    assert m.my_list == [1, 2, 3]
+
+    # Test 2: Append via attribute syntax and verify it persists
+    m.my_list.append(4)
+    assert m.my_list == [1, 2, 3, 4]
+
+    # Test 3: Verify mutation is reflected in dictionary syntax
+    assert m["my_list"] == [1, 2, 3, 4]
+
+    # Test 4: Modify existing element via attribute syntax
+    m.my_list[0] = 100
+    assert m.my_list[0] == 100
+    assert m["my_list"][0] == 100
+
+    # Test 5: Extend list via attribute syntax
+    m.my_list.extend([5, 6])
+    assert m.my_list == [100, 2, 3, 4, 5, 6]
+    assert m["my_list"] == [100, 2, 3, 4, 5, 6]
+
+    # Test 6: Remove element via attribute syntax
+    m.my_list.remove(2)
+    assert 2 not in m.my_list
+    assert 2 not in m["my_list"]
+
+    # Test 7: Pop element
+    popped = m.my_list.pop()
+    assert popped == 6
+    assert 6 not in m.my_list
+    assert 6 not in m["my_list"]
+
+    # Test 8: Insert element
+    m.my_list.insert(0, 999)
+    assert m.my_list[0] == 999
+    assert m["my_list"][0] == 999
+
+    # Test 9: Clear via attribute syntax
+    m.my_list.clear()
+    assert len(m.my_list) == 0
+    assert len(m["my_list"]) == 0
+
+    # Test 10: Reassign entire list via attribute syntax
+    m.my_list = [10, 20, 30]
+    assert m.my_list == [10, 20, 30]
+    assert m["my_list"] == [10, 20, 30]
+
+    # Test 11: Mutation after reassignment
+    m.my_list.append(40)
+    assert m.my_list == [10, 20, 30, 40]
+    assert m["my_list"] == [10, 20, 30, 40]
+
+    # Test 12: Multiple accesses maintain same cached object
+    list_ref1 = m.my_list
+    list_ref2 = m.my_list
+    assert list_ref1 is list_ref2
+    list_ref1.append(50)
+    assert 50 in list_ref2
+    assert 50 in m.my_list
+
+
+def test_set_collection():
+    """Test that set mutations via attribute syntax persist and sync to dictionary syntax."""
+
+    class MyModel(Model):
+        my_set: set[int] = rest_field(visibility=["read", "create", "update", "delete", "query"])
+
+    # Test 1: Basic mutation via attribute syntax
+    m = MyModel(my_set={1, 2, 3})
+    assert m.my_set == {1, 2, 3}
+
+    # Test 2: Add via attribute syntax and verify it persists
+    m.my_set.add(4)
+    assert 4 in m.my_set
+
+    # Test 3: Verify mutation is reflected in dictionary syntax
+    assert 4 in m["my_set"]
+
+    # Test 4: Remove element via attribute syntax
+    m.my_set.remove(2)
+    assert 2 not in m.my_set
+    assert 2 not in m["my_set"]
+
+    # Test 5: Update set via attribute syntax
+    m.my_set.update({5, 6, 7})
+    assert m.my_set == {1, 3, 4, 5, 6, 7}
+    assert m["my_set"] == {1, 3, 4, 5, 6, 7}
+
+    # Test 6: Discard element
+    m.my_set.discard(1)
+    assert 1 not in m.my_set
+    assert 1 not in m["my_set"]
+
+    # Test 7: Clear via attribute syntax
+    m.my_set.clear()
+    assert len(m.my_set) == 0
+    assert len(m["my_set"]) == 0
+
+    # Test 8: Reassign entire set via attribute syntax
+    m.my_set = {10, 20, 30}
+    assert m.my_set == {10, 20, 30}
+    assert m["my_set"] == {10, 20, 30}
+
+    # Test 9: Mutation after reassignment
+    m.my_set.add(40)
+    assert 40 in m.my_set
+    assert 40 in m["my_set"]
+
+    # Test 10: Multiple accesses maintain same cached object
+    set_ref1 = m.my_set
+    set_ref2 = m.my_set
+    assert set_ref1 is set_ref2
+    set_ref1.add(50)
+    assert 50 in set_ref2
+    assert 50 in m.my_set
+
+
+def test_dictionary_set_datetime():
+    """Test that dictionary with datetime values properly serializes/deserializes."""
+    from datetime import datetime, timezone
+
+    class MyModel(Model):
+        my_dict: dict[str, datetime] = rest_field(visibility=["read", "create", "update", "delete", "query"])
+
+    # Test 1: Initialize with datetime values
+    dt1 = datetime(2023, 1, 15, 10, 30, 45, tzinfo=timezone.utc)
+    dt2 = datetime(2023, 6, 20, 14, 15, 30, tzinfo=timezone.utc)
+    m = MyModel(my_dict={"created": dt1, "updated": dt2})
+
+    # Test 2: Access via attribute syntax returns datetime objects
+    assert isinstance(m.my_dict["created"], datetime)
+    assert isinstance(m.my_dict["updated"], datetime)
+    assert m.my_dict["created"] == dt1
+    assert m.my_dict["updated"] == dt2
+
+    # Test 3: Access via dictionary syntax returns serialized strings (ISO format)
+    dict_access = m["my_dict"]
+    assert isinstance(dict_access["created"], str)
+    assert isinstance(dict_access["updated"], str)
+    assert dict_access["created"] == "2023-01-15T10:30:45Z"
+    assert dict_access["updated"] == "2023-06-20T14:15:30Z"
+
+    # Test 4: Mutate via attribute syntax with new datetime
+    dt3 = datetime(2023, 12, 25, 18, 0, 0, tzinfo=timezone.utc)
+    m.my_dict["holiday"] = dt3
+    assert m.my_dict["holiday"] == dt3
+
+    # Test 5: Verify mutation is serialized in dictionary syntax
+    assert m["my_dict"]["holiday"] == "2023-12-25T18:00:00Z"
+
+    # Test 6: Update existing datetime via attribute syntax
+    dt4 = datetime(2024, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+    m.my_dict["created"] = dt4
+    assert m.my_dict["created"] == dt4
+    assert m["my_dict"]["created"] == "2024-01-01T00:00:00Z"
+
+    # Test 7: Verify all datetimes are deserialized correctly after mutation
+    assert isinstance(m.my_dict["created"], datetime)
+    assert isinstance(m.my_dict["updated"], datetime)
+    assert isinstance(m.my_dict["holiday"], datetime)
+
+    # Test 8: Use dict update method with datetimes
+    dt5 = datetime(2024, 6, 15, 12, 30, 0, tzinfo=timezone.utc)
+    dt6 = datetime(2024, 7, 4, 16, 45, 0, tzinfo=timezone.utc)
+    m.my_dict.update({"event1": dt5, "event2": dt6})
+    assert m.my_dict["event1"] == dt5
+    assert m["my_dict"]["event1"] == "2024-06-15T12:30:00Z"
+
+    # Test 9: Reassign entire dictionary with new datetimes
+    dt7 = datetime(2025, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+    dt8 = datetime(2025, 12, 31, 23, 59, 59, tzinfo=timezone.utc)
+    m.my_dict = {"start": dt7, "end": dt8}
+    assert m.my_dict["start"] == dt7
+    assert m.my_dict["end"] == dt8
+    assert m["my_dict"]["start"] == "2025-01-01T00:00:00Z"
+    assert m["my_dict"]["end"] == "2025-12-31T23:59:59Z"
+
+    # Test 10: Cached object maintains datetime type
+    dict_ref1 = m.my_dict
+    dict_ref2 = m.my_dict
+    assert dict_ref1 is dict_ref2
+    assert isinstance(dict_ref1["start"], datetime)
+    assert isinstance(dict_ref2["start"], datetime)
