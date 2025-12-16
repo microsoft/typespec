@@ -1,23 +1,13 @@
-import { abcModule, typingModule } from "#python/builtins.js";
-import {
-  code,
-  createContentSlot,
-  For,
-  mapJoin,
-  namekey,
-  Show,
-  type Children,
-} from "@alloy-js/core";
+import { abcModule } from "#python/builtins.js";
+import { createContentSlot, For, mapJoin, type Children } from "@alloy-js/core";
 import * as py from "@alloy-js/python";
 import {
-  isTemplateDeclaration,
   isTemplateDeclarationOrInstance,
   type Interface,
   type Model,
   type ModelProperty,
   type Operation,
 } from "@typespec/compiler";
-import type { TemplateDeclarationNode } from "@typespec/compiler/ast";
 import type { Typekit } from "@typespec/compiler/typekit";
 import { createRekeyableMap } from "@typespec/compiler/utils";
 import { useTsp } from "../../../core/context/tsp-context.js";
@@ -177,77 +167,12 @@ function createBasesType(
   return allBases.length > 0 ? [...allBases, abcBase] : [abcBase];
 }
 
-/**
- * Builds TypeVar declarations and the Generic[...] base for templated types.
- *
- * **Template Detection Logic**:
- * Only generates TypeVars for true template declarations (e.g., `model Response<T>` or `interface Foo<T>`).
- *
- * Skips TypeVars for:
- * - **Template Instances** - e.g., `Response<string>` (concrete type instantiation)
- * - **Operations in Template Interfaces** - e.g., `interface Foo<T> { op(item: T): T }` (operations inherit parent's template params)
- * - **Regular Types** - e.g., `model Widget` (no template parameters)
- *
- * @param $ - The Typekit
- * @param type - The model or interface type to analyze
- * @returns TypeVar declarations and Generic base, or null if not a template declaration
- */
-function buildTypeVarsAndGenericBase(
-  $: Typekit,
-  type: Model | Interface,
-): { typeVars: Children | null; genericBase?: Children } {
-  // Only generate TypeVars for true template declarations
-  // (skips template instances, operations in template interfaces, and regular types)
-  if (!isTemplateDeclaration(type)) {
-    return { typeVars: null };
-  }
-
-  // Get template parameters from the validated template declaration
-  const templateParameters = (type.node as TemplateDeclarationNode).templateParameters;
-
-  // Generate TypeVars for the template declaration
-  const typeVars = (
-    <>
-      <For each={templateParameters} hardline>
-        {(node) => {
-          // Build TypeVar arguments: name + optional bound
-          const typeVarArgs: Children[] = [<py.Atom jsValue={node.id.sv} />];
-
-          // Check if template parameter has a constraint (bound)
-          if (node.constraint) {
-            // Converts the AST node to a TypeSpec type
-            const constraintType = $.program.checker.getTypeForNode(node.constraint);
-            typeVarArgs.push(
-              <>
-                bound=
-                <TypeExpression type={constraintType} />
-              </>,
-            );
-          }
-
-          const typeVar = (
-            <py.FunctionCallExpression target={typingModule["."].TypeVar} args={typeVarArgs} />
-          );
-          return (
-            <py.VariableDeclaration
-              name={namekey(node.id.sv, { ignoreNamePolicy: true })}
-              initializer={typeVar}
-            />
-          );
-        }}
-      </For>
-    </>
-  );
-
-  const typeArgs: Children[] = [];
-  for (const templateParameter of templateParameters) {
-    typeArgs.push(code`${templateParameter.id.sv}`);
-  }
-
-  const genericBase = <py.TypeReference refkey={typingModule["."].Generic} typeArgs={typeArgs} />;
-
-  return { typeVars, genericBase };
-}
+// TODO: Implement Python generics support when TypeSpec adds true generics (not template macros).
+// Currently, TypeSpec templates are compile-time macros that expand to concrete types, not true generics.
+// When TypeSpec adds opt-in generic syntax (e.g., `generic model Foo<T>`), this is where we would:
+// 1. Generate TypeVar declarations: `T = TypeVar("T")`
+// 2. Add Generic[T, ...] to class bases
+// 3. Handle bounded type parameters with TypeVar bounds
 
 /**
  * Converts TypeSpec Models and Interfaces to Python classes.
@@ -273,16 +198,10 @@ export function ClassDeclaration(props: ClassDeclarationProps) {
   const docSource = props.doc ?? ("type" in props ? $.type.getDoc(props.type) : undefined);
   const docElement = createDocElement(docSource, py.ClassDoc);
 
-  // Build template-related bases (Generic[T, ...]) if this is a template declaration
+  // TODO: When TypeSpec adds true generics support, build Generic[T, ...] bases here.
+  // Currently, TypeSpec templates are macros that expand to concrete types, so we don't
+  // generate Python generics (TypeVar/Generic) for template declarations.
   const extraBases: Children[] = [];
-  let typeVars: Children | null = null;
-  if (isTypedClassDeclarationProps(props)) {
-    const generic = buildTypeVarsAndGenericBase($, props.type);
-    typeVars = generic.typeVars;
-    if (generic.genericBase) {
-      extraBases.push(generic.genericBase);
-    }
-  }
 
   const basesType = createBasesType($, props, abstract, extraBases);
 
@@ -339,24 +258,17 @@ export function ClassDeclaration(props: ClassDeclarationProps) {
   }
 
   return (
-    <>
-      <Show when={typeVars !== null}>
-        {typeVars}
-        <hbr />
-        <line />
-      </Show>
-      <MethodProvider value={props.methodType}>
-        <ClassComponent
-          {...(docElement ? { doc: docElement } : {})}
-          name={name}
-          {...(basesType ? { bases: basesType as Children[] } : {})}
-          refkey={refkeys}
-          kwOnly={useDataclass ? true : undefined}
-        >
-          {classBody}
-        </ClassComponent>
-      </MethodProvider>
-    </>
+    <MethodProvider value={props.methodType}>
+      <ClassComponent
+        {...(docElement ? { doc: docElement } : {})}
+        name={name}
+        {...(basesType ? { bases: basesType as Children[] } : {})}
+        refkey={refkeys}
+        kwOnly={useDataclass ? true : undefined}
+      >
+        {classBody}
+      </ClassComponent>
+    </MethodProvider>
   );
 }
 

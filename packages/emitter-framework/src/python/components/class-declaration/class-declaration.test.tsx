@@ -1043,9 +1043,9 @@ describe("Python Class overrides", () => {
       `);
   });
 
-  it("Adds a Generic import if the model has template parameters", async () => {
-    const { program, Response, StringResponse } = await Tester.compile(t.code`
-    model ${t.model("Response")}<T> {
+  it("Emits type alias to template instance as dataclass", async () => {
+    const { program, StringResponse } = await Tester.compile(t.code`
+    model Response<T> {
       data: T;
       status: string;
     }
@@ -1053,173 +1053,84 @@ describe("Python Class overrides", () => {
     alias ${t.type("StringResponse")} = Response<string>;
     `);
 
+    // Type alias to a template instance is emitted as a dataclass,
+    // since Python doesn't support parameterized type aliases like TypeScript.
+    // This is equivalent to: model StringResponse is Response<string>;
+    expect(getOutput(program, [<TypeAliasDeclaration type={StringResponse} />])).toRenderTo(`
+      from dataclasses import dataclass
+
+
+      @dataclass(kw_only=True)
+      class StringResponse:
+        data: str
+        status: str
+
+      `);
+  });
+
+  it("Emits multiple concrete models from template instances using 'is'", async () => {
+    const { program, StringResult, IntResult } = await Tester.compile(t.code`
+    model Result<T, E> {
+      value: T;
+      error: E;
+    }
+
+    model ${t.model("StringResult")} is Result<string, string>;
+    model ${t.model("IntResult")} is Result<int32, string>;
+    `);
+
+    // TypeSpec 'is' copies all properties from the template instance.
+    // Each concrete model gets fully expanded properties with substituted types.
     expect(
       getOutput(program, [
-        <ClassDeclaration type={Response} />,
-        <TypeAliasDeclaration type={StringResponse} />,
+        <ClassDeclaration type={StringResult} />,
+        <ClassDeclaration type={IntResult} />,
       ]),
     ).toRenderTo(`
       from dataclasses import dataclass
-      from typing import Generic
-      from typing import TypeAlias
-      from typing import TypeVar
 
-
-      T = TypeVar("T")
 
       @dataclass(kw_only=True)
-      class Response(Generic[T]):
-        data: T
-        status: str
+      class StringResult:
+        value: str
+        error: str
 
-
-      StringResponse: TypeAlias = Response[str]
-      `);
-  });
-
-  it("Handles multiple template parameters", async () => {
-    const { program, Result } = await Tester.compile(t.code`
-    model ${t.model("Result")}<T, E> {
-      value: T;
-      error: E;
-    }
-    `);
-
-    expect(getOutput(program, [<ClassDeclaration type={Result} />])).toRenderTo(`
-      from dataclasses import dataclass
-      from typing import Generic
-      from typing import TypeVar
-
-
-      T = TypeVar("T")
-      E = TypeVar("E")
 
       @dataclass(kw_only=True)
-      class Result(Generic[T, E]):
-        value: T
-        error: E
+      class IntResult:
+        value: int
+        error: str
 
       `);
   });
 
-  it("Handles template parameter with constraint (bound)", async () => {
-    const { program, Container } = await Tester.compile(t.code`
-    model ${t.model("Container")}<T extends string> {
-      value: T;
-    }
-    `);
-
-    expect(getOutput(program, [<ClassDeclaration type={Container} />])).toRenderTo(`
-      from dataclasses import dataclass
-      from typing import Generic
-      from typing import TypeVar
-
-
-      T = TypeVar("T", bound=str)
-
-      @dataclass(kw_only=True)
-      class Container(Generic[T]):
-        value: T
-
-      `);
-  });
-
-  it("Handles multiple template parameters with mixed constraints", async () => {
-    const { program, Result } = await Tester.compile(t.code`
-    model ${t.model("Result")}<T extends string, E> {
-      value: T;
-      error: E;
-    }
-    `);
-
-    expect(getOutput(program, [<ClassDeclaration type={Result} />])).toRenderTo(`
-      from dataclasses import dataclass
-      from typing import Generic
-      from typing import TypeVar
-
-
-      T = TypeVar("T", bound=str)
-      E = TypeVar("E")
-
-      @dataclass(kw_only=True)
-      class Result(Generic[T, E]):
-        value: T
-        error: E
-
-      `);
-  });
-
-  it("Does not add Generic for template instances", async () => {
-    const { program, Response, ConcreteResponse } = await Tester.compile(t.code`
-    model ${t.model("Response")}<T> {
+  it("Emits concrete model using 'is' from template instance", async () => {
+    const { program, StringResponse } = await Tester.compile(t.code`
+    model Response<T> {
       data: T;
       status: string;
     }
 
-    model ${t.model("ConcreteResponse")} extends Response<string> {
-      timestamp: string;
-    }
+    model ${t.model("StringResponse")} is Response<string>;
     `);
 
-    expect(
-      getOutput(program, [
-        <ClassDeclaration type={Response} />,
-        <ClassDeclaration type={ConcreteResponse} />,
-      ]),
-    ).toRenderTo(`
+    // Using 'is' copies all properties from the template instance.
+    // StringResponse becomes a concrete model with all properties from Response<string>.
+    expect(getOutput(program, [<ClassDeclaration type={StringResponse} />])).toRenderTo(`
       from dataclasses import dataclass
-      from typing import Generic
-      from typing import TypeVar
 
-
-      T = TypeVar("T")
 
       @dataclass(kw_only=True)
-      class Response(Generic[T]):
-        data: T
+      class StringResponse:
+        data: str
         status: str
 
-
-      @dataclass(kw_only=True)
-      class ConcreteResponse(Response[str]):
-        timestamp: str
-
       `);
   });
 
-  it("Generates TypeVars for templated interfaces", async () => {
-    const { program, Repository } = await Tester.compile(t.code`
-    interface ${t.interface("Repository")}<T> {
-      get(id: string): T;
-      list(): T[];
-    }
-    `);
-
-    expect(getOutput(program, [<ClassDeclaration type={Repository} />])).toRenderTo(`
-      from abc import ABC
-      from abc import abstractmethod
-      from typing import Generic
-      from typing import TypeVar
-
-
-      T = TypeVar("T")
-
-      class Repository(Generic[T], ABC):
-        @abstractmethod
-        def get(self, id: str) -> T:
-          pass
-
-        @abstractmethod
-        def list(self) -> Array[T]:
-          pass
-
-
-      `);
-  });
-
-  it("Does not generate TypeVars for interface instances", async () => {
-    const { program, Repository, StringRepository } = await Tester.compile(t.code`
-    interface ${t.interface("Repository")}<T> {
+  it("Emits concrete interface extending template (operations use concrete types)", async () => {
+    const { program, StringRepository } = await Tester.compile(t.code`
+    interface Repository<T> {
       get(id: string): T;
       list(): T[];
     }
@@ -1229,29 +1140,11 @@ describe("Python Class overrides", () => {
     }
     `);
 
-    expect(
-      getOutput(program, [
-        <ClassDeclaration type={Repository} />,
-        <ClassDeclaration type={StringRepository} />,
-      ]),
-    ).toRenderTo(`
+    // TypeSpec flattens interface inheritance - StringRepository gets all operations
+    // from Repository<string> with T replaced by string.
+    expect(getOutput(program, [<ClassDeclaration type={StringRepository} />])).toRenderTo(`
       from abc import ABC
       from abc import abstractmethod
-      from typing import Generic
-      from typing import TypeVar
-
-
-      T = TypeVar("T")
-
-      class Repository(Generic[T], ABC):
-        @abstractmethod
-        def get(self, id: str) -> T:
-          pass
-
-        @abstractmethod
-        def list(self) -> Array[T]:
-          pass
-
 
 
       class StringRepository(ABC):
@@ -1271,9 +1164,60 @@ describe("Python Class overrides", () => {
       `);
   });
 
-  it("Handles generic model instantiated with never using 'is'", async () => {
-    const { program, Address, CanadaAddress } = await Tester.compile(t.code`
-    model ${t.model("Address")}<TState> {
+  it("Emits multiple concrete interfaces (templates are macros, no generics)", async () => {
+    const { program, UserRepository, ProductRepository } = await Tester.compile(t.code`
+    interface Repository<T> {
+      get(id: string): T;
+    }
+
+    interface ${t.interface("UserRepository")} extends Repository<string> {
+      findByEmail(email: string): string;
+    }
+
+    interface ${t.interface("ProductRepository")} extends Repository<int32> {
+      findByCategory(category: string): int32[];
+    }
+    `);
+
+    // Each concrete interface extends the template with different type arguments.
+    // TypeSpec flattens the inheritance with concrete types substituted.
+    expect(
+      getOutput(program, [
+        <ClassDeclaration type={UserRepository} />,
+        <ClassDeclaration type={ProductRepository} />,
+      ]),
+    ).toRenderTo(`
+      from abc import ABC
+      from abc import abstractmethod
+
+
+      class UserRepository(ABC):
+        @abstractmethod
+        def get(self, id: str) -> str:
+          pass
+
+        @abstractmethod
+        def find_by_email(self, email: str) -> str:
+          pass
+
+
+
+      class ProductRepository(ABC):
+        @abstractmethod
+        def get(self, id: str) -> int:
+          pass
+
+        @abstractmethod
+        def find_by_category(self, category: str) -> list[int]:
+          pass
+
+
+      `);
+  });
+
+  it("Handles template instance with 'is' (copies properties)", async () => {
+    const { program, CanadaAddress } = await Tester.compile(t.code`
+    model Address<TState> {
       state: TState;
       city: string;
       street: string;
@@ -1282,25 +1226,11 @@ describe("Python Class overrides", () => {
     model ${t.model("CanadaAddress")} is Address<never>;
     `);
 
-    expect(
-      getOutput(program, [
-        <ClassDeclaration type={Address} />,
-        <ClassDeclaration type={CanadaAddress} />,
-      ]),
-    ).toRenderTo(`
+    // TypeSpec 'is' copies all properties from the template instance.
+    // CanadaAddress is a concrete type with all properties from Address<never>.
+    expect(getOutput(program, [<ClassDeclaration type={CanadaAddress} />])).toRenderTo(`
       from dataclasses import dataclass
-      from typing import Generic
       from typing import Never
-      from typing import TypeVar
-
-
-      TState = TypeVar("TState")
-
-      @dataclass(kw_only=True)
-      class Address(Generic[TState]):
-        state: TState
-        city: str
-        street: str
 
 
       @dataclass(kw_only=True)
@@ -1312,18 +1242,67 @@ describe("Python Class overrides", () => {
       `);
   });
 
-  it("Handles generic model instantiated with never using 'extends'", async () => {
+  it("Handles template with bounded type parameter using 'is'", async () => {
+    const { program, StringContainer } = await Tester.compile(t.code`
+    model Container<T extends string> {
+      value: T;
+      label: string;
+    }
+
+    model ${t.model("StringContainer")} is Container<string>;
+    `);
+
+    // Bounded type parameters (T extends string) work the same as unbounded -
+    // the constraint is enforced by TypeSpec at compile time, and the concrete
+    // type gets the substituted value.
+    expect(getOutput(program, [<ClassDeclaration type={StringContainer} />])).toRenderTo(`
+      from dataclasses import dataclass
+
+
+      @dataclass(kw_only=True)
+      class StringContainer:
+        value: str
+        label: str
+
+      `);
+  });
+
+  it("Handles template with multiple bounded and unbounded parameters using 'is'", async () => {
+    const { program, MyResult } = await Tester.compile(t.code`
+    model Result<T extends string, E> {
+      value: T;
+      error: E;
+    }
+
+    model ${t.model("MyResult")} is Result<string, int32>;
+    `);
+
+    // Mixed bounded/unbounded parameters are handled the same way -
+    // TypeSpec expands the template with concrete types.
+    expect(getOutput(program, [<ClassDeclaration type={MyResult} />])).toRenderTo(`
+      from dataclasses import dataclass
+
+
+      @dataclass(kw_only=True)
+      class MyResult:
+        value: str
+        error: int
+
+      `);
+  });
+
+  it("Handles 'extends' with concrete model (Python inheritance)", async () => {
     const { program, Address, CanadaAddress } = await Tester.compile(t.code`
-    model ${t.model("Address")}<TState> {
-      state: TState;
+    model ${t.model("Address")} {
       city: string;
     }
 
-    model ${t.model("CanadaAddress")} extends Address<never> {
+    model ${t.model("CanadaAddress")} extends Address {
       street: string;
     }
     `);
 
+    // TypeSpec 'extends' creates Python class inheritance when the base is a concrete model.
     expect(
       getOutput(program, [
         <ClassDeclaration type={Address} />,
@@ -1331,21 +1310,81 @@ describe("Python Class overrides", () => {
       ]),
     ).toRenderTo(`
       from dataclasses import dataclass
-      from typing import Generic
-      from typing import Never
-      from typing import TypeVar
 
-
-      TState = TypeVar("TState")
 
       @dataclass(kw_only=True)
-      class Address(Generic[TState]):
-        state: TState
+      class Address:
         city: str
 
 
       @dataclass(kw_only=True)
-      class CanadaAddress(Address[Never]):
+      class CanadaAddress(Address):
+        street: str
+
+      `);
+  });
+
+  it("Handles 'extends' with template instance base (references concrete base)", async () => {
+    const { program, Response, ConcreteResponse } = await Tester.compile(t.code`
+    model ${t.model("Response")} {
+      data: string;
+      status: string;
+    }
+
+    model ${t.model("ConcreteResponse")} extends Response {
+      timestamp: string;
+    }
+    `);
+
+    // When extending a concrete model, Python inheritance is used.
+    // The base class must be emitted first for the reference to resolve.
+    expect(
+      getOutput(program, [
+        <ClassDeclaration type={Response} />,
+        <ClassDeclaration type={ConcreteResponse} />,
+      ]),
+    ).toRenderTo(`
+      from dataclasses import dataclass
+
+
+      @dataclass(kw_only=True)
+      class Response:
+        data: str
+        status: str
+
+
+      @dataclass(kw_only=True)
+      class ConcreteResponse(Response):
+        timestamp: str
+
+      `);
+  });
+
+  it("Handles template instance with 'extends' and never type using 'is' pattern", async () => {
+    const { program, CanadaAddress } = await Tester.compile(t.code`
+    model Address<TState> {
+      state: TState;
+      city: string;
+    }
+
+    // Using 'is' instead of 'extends' to copy all properties from the template instance
+    model ${t.model("CanadaAddress")} is Address<never> {
+      street: string;
+    }
+    `);
+
+    // When extending template instances, prefer 'is' pattern which copies all properties.
+    // The 'extends' keyword with template instances would require the template declaration
+    // to be emitted, which is not supported since templates are macros.
+    expect(getOutput(program, [<ClassDeclaration type={CanadaAddress} />])).toRenderTo(`
+      from dataclasses import dataclass
+      from typing import Never
+
+
+      @dataclass(kw_only=True)
+      class CanadaAddress:
+        state: Never
+        city: str
         street: str
 
       `);

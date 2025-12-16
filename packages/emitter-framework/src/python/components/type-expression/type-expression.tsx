@@ -8,7 +8,6 @@ import {
   type IntrinsicType,
   type Model,
   type Scalar,
-  type TemplatedTypeBase,
   type Type,
 } from "@typespec/compiler";
 import type { TemplateParameterDeclarationNode } from "@typespec/compiler/ast";
@@ -83,21 +82,11 @@ export function TypeExpression(props: TypeExpressionProps) {
         return <RecordExpression elementType={elementType} />;
       }
 
-      if (isTemplateVar(type)) {
-        // Handles scenarios like Response<string>, rendering Response[str]
-        const args = (type.templateMapper?.args ?? []) as Type[];
-        const typeArgs = args.map((a) => <TypeExpression type={a} />);
-        const baseName = py.usePythonNamePolicy().getName((type as Model).name, "class");
-        return (
-          <>
-            {baseName}[
-            <For each={typeArgs} comma>
-              {(a) => a}
-            </For>
-            ]
-          </>
-        );
-      }
+      // TODO: When TypeSpec adds true generics support, handle generic type references here.
+      // Currently, TypeSpec templates are macros that expand to concrete types, so template
+      // instances (e.g., Response<string>) are treated as regular concrete types, not as
+      // parameterized generic types (e.g., Response[str]).
+      // When generics are implemented, this is where we would render: ClassName[TypeArg, ...]
 
       // Regular named models should be handled as references
       if (type.name) {
@@ -237,12 +226,11 @@ function getScalarIntrinsicExpression($: Typekit, type: Scalar | IntrinsicType):
   return pythonType;
 }
 
-function isTemplateVar(type: Type): boolean {
-  return (type as TemplatedTypeBase).templateMapper !== undefined;
-}
+// TODO: When TypeSpec adds true generics support, add helper to detect generic type instances.
+// Currently, TypeSpec templates expand to concrete types at compile time, so we treat all
+// template instances as regular concrete types.
 
 function isDeclaration($: Typekit, type: Type): boolean {
-  if (isTemplateVar(type)) return false;
   switch (type.kind) {
     case "Namespace":
     case "Interface":
