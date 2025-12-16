@@ -5,7 +5,7 @@ import type {
   MutationFor,
   MutationOptions,
 } from "./mutation-engine.js";
-import { Mutation } from "./mutation.js";
+import { Mutation, type MutationInfo } from "./mutation.js";
 
 export class EnumMutation<
   TOptions extends MutationOptions,
@@ -20,8 +20,9 @@ export class EnumMutation<
     sourceType: Enum,
     referenceTypes: MemberType[] = [],
     options: TOptions,
+    info: MutationInfo,
   ) {
-    super(engine, sourceType, referenceTypes, options);
+    super(engine, sourceType, referenceTypes, options, info);
   }
 
   protected mutateMembers() {

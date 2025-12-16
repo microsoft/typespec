@@ -8,8 +8,8 @@ import { OverviewIllustrationTerminalContent } from "./overview-illustration-ter
 
 <style>
   .card {
-    width: 723px;
     height: 542px;
+    width: 723px;
     position: relative;
   }
 
@@ -20,11 +20,17 @@ import { OverviewIllustrationTerminalContent } from "./overview-illustration-ter
     width: 420px;
     height: 320px;
   }
-
   .ide {
     position: absolute;
     top: 226px;
     left: 183px;
+    width: 420px;
+  }
+
+  @media only screen and (max-width: 600px) {
+    .card {
+      display: none;
+    }
   }
 </style>
 <IllustrationCard blend class="card">
