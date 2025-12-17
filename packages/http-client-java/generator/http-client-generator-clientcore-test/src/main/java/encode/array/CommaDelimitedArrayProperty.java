@@ -78,7 +78,9 @@ public final class CommaDelimitedArrayProperty implements JsonSerializable<Comma
                     String valueEncodedAsString = reader.getString();
                     value = valueEncodedAsString == null
                         ? null
-                        : new LinkedList<>(Arrays.asList(valueEncodedAsString.split(",")));
+                        : valueEncodedAsString.isEmpty()
+                            ? new LinkedList<>()
+                            : new LinkedList<>(Arrays.asList(valueEncodedAsString.split(",", -1)));
                 } else {
                     reader.skipChildren();
                 }

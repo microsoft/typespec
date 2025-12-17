@@ -1623,9 +1623,9 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                     // wireType is String
                     // at present, only String element is supported
                     // LinkedList is used to be consistent with internal code of core, e.g. "readArray" API
-                    deserializationBlock.text(propertyStringVariableName
-                        + " == null ? null : new LinkedList<>(Arrays.asList(" + propertyStringVariableName + ".split(\""
-                        + property.getArrayEncoding().getEscapedDelimiter() + "\")));");
+                    deserializationBlock.line(
+                        "%1$s == null ? null : %1$s.isEmpty() ? new LinkedList<>() : new LinkedList<>(Arrays.asList(%1$s.split(\"%2$s\", -1)));",
+                        propertyStringVariableName, property.getArrayEncoding().getEscapedDelimiter());
                 }
 
                 if (!propertiesManager.hasConstructorArguments()) {

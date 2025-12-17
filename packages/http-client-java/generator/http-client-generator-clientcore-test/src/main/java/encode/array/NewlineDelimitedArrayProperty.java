@@ -78,7 +78,9 @@ public final class NewlineDelimitedArrayProperty implements JsonSerializable<New
                     String valueEncodedAsString = reader.getString();
                     value = valueEncodedAsString == null
                         ? null
-                        : new LinkedList<>(Arrays.asList(valueEncodedAsString.split("\n")));
+                        : valueEncodedAsString.isEmpty()
+                            ? new LinkedList<>()
+                            : new LinkedList<>(Arrays.asList(valueEncodedAsString.split("\n", -1)));
                 } else {
                     reader.skipChildren();
                 }
