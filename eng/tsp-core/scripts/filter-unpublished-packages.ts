@@ -66,20 +66,31 @@ async function parsePackageFromTarball(
 }
 
 /**
- * Check if a package version is published on npm
+ * Check if a package version is published on npm using the registry API
  */
 async function isPackagePublished(name: string, version: string): Promise<boolean> {
   try {
-    const { stdout } = await execAsync(`npm view ${name}@${version} version`, {
-      encoding: "utf8",
-    });
-    return stdout.trim() === version;
-  } catch (error: any) {
-    // If npm view returns an error, the package version doesn't exist
-    if (error.code === 1 || error.message.includes("E404")) {
+    // Encode package name for URL (handles scoped packages like @typespec/compiler)
+    const encodedName = encodeURIComponent(name).replace(/%2F/g, "/");
+    const registryUrl = `https://registry.npmjs.org/${encodedName}`;
+
+    const response = await fetch(registryUrl);
+
+    if (response.status === 404) {
+      // Package doesn't exist at all
       return false;
     }
-    // For other errors, log and assume not published
+
+    if (!response.ok) {
+      console.warn(`Warning: Error checking ${name}@${version}: HTTP ${response.status}`);
+      return false;
+    }
+
+    const data = await response.json();
+
+    // Check if the specific version exists in the versions object
+    return data.versions && version in data.versions;
+  } catch (error: any) {
     console.warn(`Warning: Error checking ${name}@${version}: ${error.message}`);
     return false;
   }

@@ -58,14 +58,14 @@ extends:
             parameters:
               artifactName: npm-packages-stable
               tag: latest
-              condition: eq('true', stageDependencies.build.build.outputs['pack_npm_packages_stable.hasUnpublished'])
+              condition: eq('true', stageDependencies.build.build.outputs['pack_npm_packages_stable.PUBLISH_PKG_ANY'])
 
           - template: /eng/tsp-core/pipelines/jobs/publish-npm.yml
             parameters:
               dependsOn: publish_npm_latest
               artifactName: npm-packages-next
               tag: next
-              condition: eq('true', stageDependencies.build.build.outputs['pack_npm_packages_next.hasUnpublished'])
+              condition: eq('true', stageDependencies.build.build.outputs['pack_npm_packages_next.PUBLISH_PKG_ANY'])
 
           - template: /eng/tsp-core/pipelines/jobs/create-github-release.yml
             parameters:

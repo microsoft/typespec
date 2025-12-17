@@ -15,16 +15,5 @@ steps:
       echo "Create manifest of unpublished packages in $summaryFilePath"
 
       node eng/tsp-core/scripts/filter-unpublished-packages.ts "$outDir" --manifest $summaryFilePath
-
-      # Check if there are unpublished packages and set the configuration variable accordingly   
-      $manifest = Get-Content $summaryFilePath | ConvertFrom-Json
-      $packageCount = ($manifest.packages | Get-Member -MemberType NoteProperty).Count
-      if ($packageCount -gt 0) {
-        echo "Found $packageCount unpublished packages to publish."
-        echo "##vso[task.setvariable variable=hasUnpublished;isOutput=true]true"
-      } else {
-        echo "No unpublished packages found."
-        echo "##vso[task.setvariable variable=hasUnpublished;isOutput=true]false"
-      }
     name: pack_${{ parameters.name }}
     displayName: Pack packages ${{ parameters.artifactName }}
