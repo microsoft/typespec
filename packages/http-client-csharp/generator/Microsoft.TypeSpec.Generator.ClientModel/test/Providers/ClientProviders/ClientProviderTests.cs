@@ -2750,5 +2750,171 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 Assert.AreEqual("cancellationToken", parameters[3].Name);
             }
         }
+
+        [Test]
+        public void ServerTemplateWithBasePathOnly_DoesNotDuplicateBasePath()
+        {
+            // This tests a scenario where the server template includes a base path:
+            // - serverUrlTemplate = "{endpoint}/contentsafety"
+            // - operation.Uri = "{endpoint}/contentsafety" (same as server template, no additional segments)
+            // - operation.Path = "/text:analyze" (actual operation path)
+            // Expected: Should append both the base path from server template and the operation path
+            
+            MockHelpers.LoadMockGenerator();
+
+            var serverTemplate = "{endpoint}/contentsafety";
+            var operation = InputFactory.Operation(
+                name: "AnalyzeText",
+                uri: serverTemplate,
+                path: "/text:analyze",
+                httpMethod: "POST");
+
+            var serviceMethod = InputFactory.BasicServiceMethod("AnalyzeText", operation);
+            var client = InputFactory.Client(
+                "ContentSafety",
+                methods: [serviceMethod],
+                parameters: [InputFactory.EndpointParameter("endpoint", InputPrimitiveType.String, serverUrlTemplate: serverTemplate)]);
+            var clientProvider = new ClientProvider(client);
+            var createRequestMethod = clientProvider.RestClient.Methods.FirstOrDefault(m => m.Signature.Name == "CreateAnalyzeTextRequest");
+            Assert.IsNotNull(createRequestMethod);
+
+            var methodBody = createRequestMethod!.BodyStatements!.ToArray();
+            var bodyText = methodBody.Select(s => s.ToDisplayString()).ToArray();
+            var fullText = string.Join("\n", bodyText);
+
+            var contentsafetyCount = System.Text.RegularExpressions.Regex.Matches(fullText, "contentsafety", System.Text.RegularExpressions.RegexOptions.IgnoreCase).Count;
+        
+            var analyzeTextCount = System.Text.RegularExpressions.Regex.Matches(fullText, "text:analyze", System.Text.RegularExpressions.RegexOptions.IgnoreCase).Count;
+
+            Assert.AreEqual(1, contentsafetyCount, "Should append /contentsafety path segment from Uri (after endpoint)");
+            Assert.AreEqual(1, analyzeTextCount, "Should append the operation path /text:analyze exactly once");
+        }
+
+        [Test]
+        public void ServerTemplateWithPathParameter_OnlyAppendsSegmentsAfterEndpoint()
+        {
+            // This tests scenarios like:
+            // - serverUrlTemplate = "{endpoint}/{apiVersion}"
+            // - operation.Uri = "{endpoint}/{apiVersion}" (path parameter in Uri)
+            // - operation.Path = "/users/{userId}" (actual operation path with its own parameter)
+            // Expected: Should append apiVersion parameter and then the operation path
+            
+            MockHelpers.LoadMockGenerator();
+
+            var serverTemplate = "{endpoint}/{apiVersion}";
+            var apiVersionParam = InputFactory.PathParameter("apiVersion", InputPrimitiveType.String, serverUrlTemplate: serverTemplate);
+            var userIdParam = InputFactory.PathParameter("userId", InputPrimitiveType.String);
+
+            var operation = InputFactory.Operation(
+                name: "GetUser",
+                uri: serverTemplate,
+                path: "/users/{userId}",
+                httpMethod: "GET",
+                parameters: [apiVersionParam, userIdParam]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod("GetUser", operation);
+            var client = InputFactory.Client(
+                "UserService",
+                methods: [serviceMethod],
+                parameters: [InputFactory.EndpointParameter("endpoint", InputPrimitiveType.String, serverUrlTemplate: serverTemplate)]);
+            var clientProvider = new ClientProvider(client);
+            var createRequestMethod = clientProvider.RestClient.Methods.FirstOrDefault(m => m.Signature.Name == "CreateGetUserRequest");
+            Assert.IsNotNull(createRequestMethod);
+
+            var methodBody = createRequestMethod!.BodyStatements!.ToArray();
+            var bodyText = methodBody.Select(s => s.ToDisplayString()).ToArray();
+            var fullText = string.Join("\n", bodyText);
+
+            Assert.IsTrue(fullText.Contains("AppendPath(") && fullText.Contains("apiVersion"), 
+                "Should append apiVersion path parameter from Uri");
+            
+            Assert.IsTrue(fullText.Contains("/users/"), 
+                "Should append the operation path /users/");
+            Assert.IsTrue(fullText.Contains("userId"), 
+                "Should append userId path parameter from operation path");
+        }
+
+        [Test]
+        public void ServerTemplateWithMultipleSegments_HandlesCorrectly()
+        {
+            // This tests scenarios like:
+            // - serverUrlTemplate = "{endpoint}/v1/services"
+            // - operation.Uri = "{endpoint}/v1/services" (multiple static segments after endpoint)
+            // - operation.Path = "/operations/{operationId}"
+            // Expected: Should append /v1/services and then the operation path
+            
+            MockHelpers.LoadMockGenerator();
+
+            var serverTemplate = "{endpoint}/v1/services";
+            var operationIdParam = InputFactory.PathParameter("operationId", InputPrimitiveType.String);
+
+            var operation = InputFactory.Operation(
+                name: "GetOperation",
+                uri: serverTemplate,
+                path: "/operations/{operationId}",
+                httpMethod: "GET",
+                parameters: [operationIdParam]);
+
+            var serviceMethod = InputFactory.BasicServiceMethod("GetOperation", operation);
+            var client = InputFactory.Client(
+                "OperationService",
+                methods: [serviceMethod],
+                parameters: [InputFactory.EndpointParameter("endpoint", InputPrimitiveType.String, serverUrlTemplate: serverTemplate)]);
+            var clientProvider = new ClientProvider(client);
+            var createRequestMethod = clientProvider.RestClient.Methods.FirstOrDefault(m => m.Signature.Name == "CreateGetOperationRequest");
+            Assert.IsNotNull(createRequestMethod);
+
+            var methodBody = createRequestMethod!.BodyStatements!.ToArray();
+            var bodyText = methodBody.Select(s => s.ToDisplayString()).ToArray();
+            var fullText = string.Join("\n", bodyText);
+
+            // Should append /v1/services from Uri
+            Assert.IsTrue(fullText.Contains("/v1/services"), 
+                "Should append server template path segments /v1/services");
+            
+            Assert.IsTrue(fullText.Contains("/operations/"), 
+                "Should append the operation path /operations/");
+            Assert.IsTrue(fullText.Contains("operationId"), 
+                "Should append operationId path parameter");
+        }
+
+        [Test]
+        public void ServerTemplateEqualsEndpoint_OnlyAppendsOperationPath()
+        {
+            // This tests the simplest scenario:
+            // - serverUrlTemplate = "{endpoint}"
+            // - operation.Uri = "{endpoint}" (same as server template)
+            // - operation.Path = "/items"
+            // Expected: Should only append the operation path
+            
+            MockHelpers.LoadMockGenerator();
+
+            var serverTemplate = "{endpoint}";
+            var operation = InputFactory.Operation(
+                name: "GetItems",
+                uri: serverTemplate,
+                path: "/items",
+                httpMethod: "GET");
+
+            var serviceMethod = InputFactory.BasicServiceMethod("GetItems", operation);
+            var client = InputFactory.Client(
+                "ItemService",
+                methods: [serviceMethod],
+                parameters: [InputFactory.EndpointParameter("endpoint", InputPrimitiveType.String, serverUrlTemplate: serverTemplate)]);
+            var clientProvider = new ClientProvider(client);
+            var createRequestMethod = clientProvider.RestClient.Methods.FirstOrDefault(m => m.Signature.Name.Contains("GetItems"));
+            Assert.IsNotNull(createRequestMethod);
+
+            var methodBody = createRequestMethod!.BodyStatements!.ToArray();
+            var bodyText = methodBody.Select(s => s.ToDisplayString()).ToArray();
+            var fullText = string.Join("\n", bodyText);
+
+            var appendPathCount = System.Text.RegularExpressions.Regex.Matches(fullText, "AppendPath\\(").Count;
+            
+            Assert.GreaterOrEqual(appendPathCount, 1, 
+                "Should have at least one AppendPath call for the operation path");
+            Assert.IsTrue(fullText.Contains("/items"), 
+                "Should append the operation path /items");
+        }
     }
 }
