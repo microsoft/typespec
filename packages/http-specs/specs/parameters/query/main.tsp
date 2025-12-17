@@ -20,3 +20,20 @@ interface Constant {
     queryParam: "constantValue",
   ): void;
 }
+
+@doc("List query parameter verification")
+@route("/list")
+interface List {
+  /** send list query parameter */
+  @scenario
+  @scenarioDoc("""
+    Expect to handle a list of values for query parameter.
+    The list should be serialized as CSV (comma-separated values).
+    Pass array ["a", "b", "c"] and expect it to be serialized as "a,b,c".
+    """)
+  @post
+  post(
+    @query
+    listParameter: string[],
+  ): void;
+}
