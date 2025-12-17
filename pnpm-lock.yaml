@@ -7,9 +7,6 @@ settings:
 overrides:
   cross-spawn@>=7.0.0 <7.0.5: ^7.0.5
   rollup: 4.49.0
-  '@alloy-js/python': 0.3.0
-  '@alloy-js/core': 0.22.0
-  '@alloy-js/babel-plugin': 0.2.1
 
 importers:
 
@@ -422,10 +419,10 @@ importers:
         specifier: ^0.22.0
         version: 0.22.0
       '@alloy-js/core':
-        specifier: 0.22.0
+        specifier: ^0.22.0
         version: 0.22.0
       '@alloy-js/python':
-        specifier: 0.3.0
+        specifier: ^0.3.0
         version: 0.3.0
       '@alloy-js/rollup-plugin':
         specifier: ^0.1.0
@@ -692,7 +689,7 @@ importers:
         specifier: ^0.22.0
         version: 0.22.0
       '@alloy-js/core':
-        specifier: 0.22.0
+        specifier: ^0.22.0
         version: 0.22.0
       '@alloy-js/rollup-plugin':
         specifier: ^0.1.0
@@ -734,7 +731,7 @@ importers:
   packages/http-client-js:
     dependencies:
       '@alloy-js/core':
-        specifier: 0.22.0
+        specifier: ^0.22.0
         version: 0.22.0
       '@alloy-js/typescript':
         specifier: ^0.22.0
@@ -2269,7 +2266,7 @@ importers:
   packages/tspd:
     dependencies:
       '@alloy-js/core':
-        specifier: 0.22.0
+        specifier: ^0.22.0
         version: 0.22.0
       '@alloy-js/markdown':
         specifier: ^0.22.0
@@ -15296,7 +15293,7 @@ snapshots:
   '@expressive-code/plugin-shiki@0.41.3':
     dependencies:
       '@expressive-code/core': 0.41.3
-      shiki: 3.20.0
+      shiki: 3.15.0
 
   '@expressive-code/plugin-text-markers@0.41.3':
     dependencies:
