@@ -5,6 +5,8 @@ package encode.array;
 
 import com.azure.core.util.BinaryData;
 import encode.array.models.CommaDelimitedArrayProperty;
+
+import java.util.LinkedList;
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -36,5 +38,16 @@ public final class EncodeArraySerializationTests {
 
         model = BinaryData.fromString("{\"value\":\",\"}").toObject(CommaDelimitedArrayProperty.class);
         Assertions.assertEquals(2, model.getValue().size());
+    }
+
+    @Test
+    public void testNullElement() {
+        List<String> list = new LinkedList<>();
+        list.add("data1");
+        list.add(null);
+        list.add("data2");
+
+        CommaDelimitedArrayProperty model = new CommaDelimitedArrayProperty(list);
+        Assertions.assertEquals("{\"value\":\"data1,,data2\"}", BinaryData.fromObject(model).toString());
     }
 }
