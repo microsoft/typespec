@@ -545,9 +545,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             Dictionary<string, InputParameter> inputParamMap = new(operation.Parameters.ToDictionary(p => p.SerializedName));
             List<MethodBodyStatement> statements = new(operation.Parameters.Count);
+
+            // Only process operation.Uri segments that come AFTER the endpoint parameter
             int uriOffset = GetUriOffset(operation.Uri);
-            AddUriSegments(operation.Uri, uriOffset, uri, statements, inputParamMap, paramMap, operation);
-            AddUriSegments(operation.Path, 0, uri, statements, inputParamMap, paramMap, operation);
+            if (uriOffset < operation.Uri.Length)
+            {
+                AddUriSegments(operation.Uri, uriOffset, uri, statements, inputParamMap, paramMap, operation);
+            }
+
+            // Process operation.Path if it exists and is different from operation.Uri
+            if (!string.IsNullOrEmpty(operation.Path) && operation.Path != operation.Uri)
+            {
+                AddUriSegments(operation.Path, 0, uri, statements, inputParamMap, paramMap, operation);
+            }
+
             return statements;
         }
 
