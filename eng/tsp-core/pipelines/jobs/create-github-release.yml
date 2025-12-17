@@ -7,8 +7,8 @@ parameters:
 
 jobs:
   - job: build
-    dependsOn:
-    displayName: Build Packages
+    dependsOn: ${{ parameters.dependsOn }}
+    displayName: Create github release(s)
     pool:
       name: azsdk-pool
       image: ubuntu-24.04
