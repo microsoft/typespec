@@ -6,7 +6,6 @@ package encode.array;
 import com.azure.core.util.BinaryData;
 import encode.array.models.CommaDelimitedArrayProperty;
 import java.util.List;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
