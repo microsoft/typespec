@@ -68,6 +68,11 @@ extends:
               tag: next
               condition: eq('true', stageDependencies.build.build.outputs['pack_npm_packages_next.hasUnpublished'])
 
+          - template: /eng/tsp-core/pipelines/jobs/create-github-release.yml
+            parameters:
+              dependsOn: publish_npm_latest
+              artifactName: npm-packages-stable
+
       # - stage: publish_vscode
       #   displayName: Publish VSCode extension
       #   dependsOn: build
