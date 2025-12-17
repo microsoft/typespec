@@ -33,6 +33,7 @@ namespace Microsoft.TypeSpec.Generator
         private bool _atBeginningOfLine;
         private bool _writingXmlDocumentation;
         private bool _writingNewInstance;
+        private int _genericDepth;
 
         internal CodeWriter()
         {
@@ -661,6 +662,7 @@ namespace Microsoft.TypeSpec.Generator
             if (type.Arguments.Any())
             {
                 AppendRaw(_writingXmlDocumentation ? "{" : "<");
+                _genericDepth++;
                 for (int i = 0; i < type.Arguments.Count; i++)
                 {
                     AppendType(type.Arguments[i], false, writeTypeNameOnly);
@@ -669,10 +671,12 @@ namespace Microsoft.TypeSpec.Generator
                         AppendRaw(_writingXmlDocumentation ? "," : ", ");
                     }
                 }
+                _genericDepth--;
                 AppendRaw(_writingXmlDocumentation ? "}" : ">");
             }
 
-            if (!_writingNewInstance && !isDeclaration && type is { IsNullable: true, IsValueType: true })
+            // Add '?' for nullable value types, but skip if we're writing new instance UNLESS we're inside generic type arguments
+            if ((!_writingNewInstance || _genericDepth > 0) && !isDeclaration && type is { IsNullable: true, IsValueType: true })
             {
                 AppendRaw("?");
             }

@@ -284,9 +284,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (responseBodyType.IsList)
             {
                 var elementType = responseBodyType.Arguments[0];
-                if (!elementType.IsFrameworkType || elementType.Equals(typeof(TimeSpan)) || elementType.Equals(typeof(BinaryData)))
+                // Use Utf8JsonReader for all types to avoid reflection (AOT-safe)
+                if (true)
                 {
-                    var valueDeclaration = Declare("value", New.Instance(new CSharpType(typeof(List<>), elementType)).As(responseBodyType), out var value);
+                    // Create List with the exact element type to preserve nullability
+                    var listType = new CSharpType(typeof(List<>), elementType);
+                    var valueDeclaration = Declare("value", New.Instance(listType).As(listType), out var value);
                     var dataDeclaration = Declare("data", result.GetRawResponse().Content(), out var data);
 
                     // Create Utf8JsonReader from BinaryData
@@ -323,7 +326,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 var keyType = responseBodyType.Arguments[0];
                 var valueType = responseBodyType.Arguments[1];
-                if (!valueType.IsFrameworkType || valueType.Equals(typeof(TimeSpan)) || valueType.Equals(typeof(BinaryData)))
+                // Use Utf8JsonReader for all types to avoid reflection (AOT-safe)
+                if (true)
                 {
                     var valueDeclaration = Declare("value", New.Instance(new CSharpType(typeof(Dictionary<,>), keyType, valueType)).As(responseBodyType), out var value);
                     var dataDeclaration = Declare("data", result.GetRawResponse().Content(), out var data);
@@ -372,7 +376,95 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodBodyStatement GetElementConversionFromReader(CSharpType elementType, ScopedApi<BinaryData> data, VariableExpression reader, ScopedApi value, ValueExpression? dictKey = null)
         {
-            if (elementType.Equals(typeof(TimeSpan)))
+            // Handle primitive types directly with Utf8JsonReader for AOT safety
+            // Check both FrameworkType and IsNullable since CSharpType stores nullable separately
+            if (elementType.IsFrameworkType && elementType.FrameworkType == typeof(string))
+            {
+                var getString = reader.Invoke("GetString");
+                return AddElement(dictKey, getString.As<string>(), value);
+            }
+            else if (elementType.IsFrameworkType && elementType.FrameworkType == typeof(int) && !elementType.IsNullable)
+            {
+                return AddElement(dictKey, reader.Invoke("GetInt32"), value);
+            }
+            else if (elementType.IsFrameworkType && elementType.FrameworkType == typeof(int) && elementType.IsNullable)
+            {
+                // For nullable int, check if token is null, otherwise call GetInt32()
+                var nullCheck = reader.Property("TokenType").Equal(FrameworkEnumValue(JsonTokenType.Null));
+                var nullableValue = new TernaryConditionalExpression(nullCheck, Null, reader.Invoke("GetInt32").As<int?>());
+                return AddElement(dictKey, nullableValue, value);
+            }
+            else if (elementType.IsFrameworkType && elementType.FrameworkType == typeof(long) && !elementType.IsNullable)
+            {
+                return AddElement(dictKey, reader.Invoke("GetInt64"), value);
+            }
+            else if (elementType.IsFrameworkType && elementType.FrameworkType == typeof(long) && elementType.IsNullable)
+            {
+                var nullCheck = reader.Property("TokenType").Equal(FrameworkEnumValue(JsonTokenType.Null));
+                var nullableValue = new TernaryConditionalExpression(nullCheck, Null, reader.Invoke("GetInt64").As<long?>());
+                return AddElement(dictKey, nullableValue, value);
+            }
+            else if (elementType.IsFrameworkType && elementType.FrameworkType == typeof(bool) && !elementType.IsNullable)
+            {
+                return AddElement(dictKey, reader.Invoke("GetBoolean"), value);
+            }
+            else if (elementType.IsFrameworkType && elementType.FrameworkType == typeof(bool) && elementType.IsNullable)
+            {
+                var nullCheck = reader.Property("TokenType").Equal(FrameworkEnumValue(JsonTokenType.Null));
+                var nullableValue = new TernaryConditionalExpression(nullCheck, Null, reader.Invoke("GetBoolean").As<bool?>());
+                return AddElement(dictKey, nullableValue, value);
+            }
+            else if (elementType.IsFrameworkType && elementType.FrameworkType == typeof(double) && !elementType.IsNullable)
+            {
+                return AddElement(dictKey, reader.Invoke("GetDouble"), value);
+            }
+            else if (elementType.IsFrameworkType && elementType.FrameworkType == typeof(double) && elementType.IsNullable)
+            {
+                var nullCheck = reader.Property("TokenType").Equal(FrameworkEnumValue(JsonTokenType.Null));
+                var nullableValue = new TernaryConditionalExpression(nullCheck, Null, reader.Invoke("GetDouble").As<double?>());
+                return AddElement(dictKey, nullableValue, value);
+            }
+            else if (elementType.IsFrameworkType && elementType.FrameworkType == typeof(float) && !elementType.IsNullable)
+            {
+                return AddElement(dictKey, reader.Invoke("GetSingle"), value);
+            }
+            else if (elementType.IsFrameworkType && elementType.FrameworkType == typeof(float) && elementType.IsNullable)
+            {
+                var nullCheck = reader.Property("TokenType").Equal(FrameworkEnumValue(JsonTokenType.Null));
+                var nullableValue = new TernaryConditionalExpression(nullCheck, Null, reader.Invoke("GetSingle").As<float?>());
+                return AddElement(dictKey, nullableValue, value);
+            }
+            else if (elementType.IsFrameworkType && elementType.FrameworkType == typeof(decimal) && !elementType.IsNullable)
+            {
+                return AddElement(dictKey, reader.Invoke("GetDecimal"), value);
+            }
+            else if (elementType.IsFrameworkType && elementType.FrameworkType == typeof(decimal) && elementType.IsNullable)
+            {
+                var nullCheck = reader.Property("TokenType").Equal(FrameworkEnumValue(JsonTokenType.Null));
+                var nullableValue = new TernaryConditionalExpression(nullCheck, Null, reader.Invoke("GetDecimal").As<decimal?>());
+                return AddElement(dictKey, nullableValue, value);
+            }
+            else if (elementType.IsFrameworkType && elementType.FrameworkType == typeof(DateTimeOffset) && !elementType.IsNullable)
+            {
+                return AddElement(dictKey, reader.Invoke("GetDateTimeOffset"), value);
+            }
+            else if (elementType.IsFrameworkType && elementType.FrameworkType == typeof(DateTimeOffset) && elementType.IsNullable)
+            {
+                var nullCheck = reader.Property("TokenType").Equal(FrameworkEnumValue(JsonTokenType.Null));
+                var nullableValue = new TernaryConditionalExpression(nullCheck, Null, reader.Invoke("GetDateTimeOffset").As<DateTimeOffset?>());
+                return AddElement(dictKey, nullableValue, value);
+            }
+            else if (elementType.IsFrameworkType && elementType.FrameworkType == typeof(Guid) && !elementType.IsNullable)
+            {
+                return AddElement(dictKey, reader.Invoke("GetGuid"), value);
+            }
+            else if (elementType.IsFrameworkType && elementType.FrameworkType == typeof(Guid) && elementType.IsNullable)
+            {
+                var nullCheck = reader.Property("TokenType").Equal(FrameworkEnumValue(JsonTokenType.Null));
+                var nullableValue = new TernaryConditionalExpression(nullCheck, Null, reader.Invoke("GetGuid").As<Guid?>());
+                return AddElement(dictKey, nullableValue, value);
+            }
+            else if (elementType.Equals(typeof(TimeSpan)))
             {
                 // TimeSpan requires reading as string and parsing with TypeFormatters
                 var getString = reader.Invoke("GetString");
@@ -449,25 +541,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             if (responseBodyType.IsList)
             {
-                if (!responseBodyType.Arguments[0].IsFrameworkType || responseBodyType.Arguments[0].Equals(typeof(TimeSpan)) || responseBodyType.Arguments[0].Equals(typeof(BinaryData)))
-                {
-                    return declarations["value"].CastTo(new CSharpType(responseBodyType.OutputType.FrameworkType, responseBodyType.Arguments[0]));
-                }
-                else
-                {
-                    return response.Content().ToObjectFromJson(responseBodyType.OutputType);
-                }
+                // Always use Utf8JsonReader path for AOT safety
+                return declarations["value"].CastTo(new CSharpType(responseBodyType.OutputType.FrameworkType, responseBodyType.Arguments[0]));
             }
             if (responseBodyType.IsDictionary)
             {
-                if (!responseBodyType.Arguments[1].IsFrameworkType || responseBodyType.Arguments[1].Equals(typeof(TimeSpan)) || responseBodyType.Arguments[1].Equals(typeof(BinaryData)))
-                {
-                    return declarations["value"].CastTo(new CSharpType(responseBodyType.OutputType.FrameworkType, responseBodyType.Arguments[0], responseBodyType.Arguments[1]));
-                }
-                else
-                {
-                    return response.Content().ToObjectFromJson(responseBodyType.OutputType);
-                }
+                // Always use Utf8JsonReader path for AOT safety
+                return declarations["value"].CastTo(new CSharpType(responseBodyType.OutputType.FrameworkType, responseBodyType.Arguments[0], responseBodyType.Arguments[1]));
             }
             if (responseBodyType.Equals(typeof(string)) && ServiceMethod.Operation.Responses.Any(r => r.IsErrorResponse is false && r.ContentTypes.Contains("text/plain")))
             {
