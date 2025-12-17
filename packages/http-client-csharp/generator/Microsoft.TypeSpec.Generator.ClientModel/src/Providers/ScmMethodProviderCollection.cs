@@ -70,7 +70,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             Client = enclosingType as ClientProvider ?? throw new InvalidOperationException("Scm methods can only be built for client types.");
             _createRequestMethod = Client.RestClient.GetCreateRequestMethod(ServiceMethod.Operation);
             _generateConvenienceMethod = ServiceMethod.Operation is
-                { GenerateConvenienceMethod: true, IsMultipartFormData: false };
+            { GenerateConvenienceMethod: true, IsMultipartFormData: false };
 
             if (serviceMethod is InputPagingServiceMethod pagingServiceMethod)
             {
@@ -294,14 +294,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     var readerDeclaration = Declare(readerVar, New.Instance(typeof(Utf8JsonReader), data.ToMemory().Property("Span")));
 
                     // Create while loop to read array elements
-                    var readMethod = readerVar.Invoke("Read");
-                    var tokenTypeProperty = readerVar.Property("TokenType");
+                    var readMethod = readerVar.Invoke(nameof(Utf8JsonReader.Read));
+                    var tokenTypeProperty = readerVar.Property(nameof(Utf8JsonReader.TokenType));
 
                     var whileLoop = new WhileStatement(readMethod);
                     whileLoop.Add(new IfStatement(tokenTypeProperty.Equal(JsonTokenTypeSnippets.EndArray))
-                        {
-                            Break
-                        });
+                    {
+                        Break
+                    });
                     whileLoop.Add(GetElementConversionFromReader(elementType, data, readerVar, value));
 
                     MethodBodyStatement[] statements =
