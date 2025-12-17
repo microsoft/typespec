@@ -23,7 +23,7 @@ interface Constant {
 
 @doc("List query parameter verification")
 @route("/list")
-interface List {
+interface QueryList {
   /** send list query parameter */
   @scenario
   @scenarioDoc("""

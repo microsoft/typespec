@@ -1354,7 +1354,7 @@ Second request path:
 
 Expect to handle a constant value for query and mock api returns nothing
 
-### Parameters_Query_List_post
+### Parameters_Query_QueryList_post
 
 - Endpoint: `post /parameters/query/list`
 
