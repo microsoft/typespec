@@ -1,8 +1,8 @@
 import type { Model, Type } from "@typespec/compiler";
-import { t, type TesterInstance } from "@typespec/compiler/testing";
+import { expectTypeEquals, t, type TesterInstance } from "@typespec/compiler/testing";
 import { beforeEach, expect, it } from "vitest";
 import { Tester } from "../../test/test-host.js";
-import { getSubgraph } from "../../test/utils.js";
+import { getEngine } from "../../test/utils.js";
 
 let runner: TesterInstance;
 beforeEach(async () => {
@@ -15,12 +15,30 @@ it("handles mutation of properties", async () => {
         prop: string;
       }
     `);
-  const subgraph = getSubgraph(program);
-  const fooNode = subgraph.getNode(Foo);
-  const propNode = subgraph.getNode(Foo.properties.get("prop")!);
+  const engine = getEngine(program);
+  const fooNode = engine.getMutationNode(Foo);
+  const propNode = engine.getMutationNode(Foo.properties.get("prop")!);
+  fooNode.connectProperty(propNode);
   propNode.mutate();
   expect(fooNode.isMutated).toBe(true);
-  expect(fooNode.mutatedType.properties.get("prop") === propNode.mutatedType).toBe(true);
+  expectTypeEquals(fooNode.mutatedType.properties.get("prop")!, propNode.mutatedType);
+});
+
+it("handles mutation of properties lazily", async () => {
+  const { Foo, program } = await runner.compile(t.code`
+    model ${t.model("Foo")} {
+      prop: string;
+    }
+  `);
+  const engine = getEngine(program);
+  const fooNode = engine.getMutationNode(Foo);
+  fooNode.mutate();
+
+  const propNode = engine.getMutationNode(Foo.properties.get("prop")!);
+  fooNode.connectProperty(propNode);
+  expect(fooNode.isMutated).toBe(true);
+  expect(propNode.isMutated).toBe(true);
+  expectTypeEquals(fooNode.mutatedType.properties.get("prop")!, propNode.mutatedType);
 });
 
 it("handles deletion of properties", async () => {
@@ -29,9 +47,10 @@ it("handles deletion of properties", async () => {
         prop: string;
       }
     `);
-  const subgraph = getSubgraph(program);
-  const fooNode = subgraph.getNode(Foo);
-  const propNode = subgraph.getNode(Foo.properties.get("prop")!);
+  const engine = getEngine(program);
+  const fooNode = engine.getMutationNode(Foo);
+  const propNode = engine.getMutationNode(Foo.properties.get("prop")!);
+  fooNode.connectProperty(propNode);
   propNode.delete();
   expect(fooNode.isMutated).toBe(true);
   expect(fooNode.mutatedType.properties.get("prop")).toBeUndefined();
@@ -43,13 +62,14 @@ it("handles mutation of properties with name change", async () => {
         prop: string;
       }
     `);
-  const subgraph = getSubgraph(program);
-  const fooNode = subgraph.getNode(Foo);
-  const propNode = subgraph.getNode(Foo.properties.get("prop")!);
+  const engine = getEngine(program);
+  const fooNode = engine.getMutationNode(Foo);
+  const propNode = engine.getMutationNode(Foo.properties.get("prop")!);
+  fooNode.connectProperty(propNode);
   propNode.mutate((clone) => (clone.name = "propRenamed"));
   expect(fooNode.isMutated).toBe(true);
-  expect(fooNode.mutatedType.properties.get("prop") === undefined).toBe(true);
-  expect(fooNode.mutatedType.properties.get("propRenamed") === propNode.mutatedType).toBe(true);
+  expect(fooNode.mutatedType.properties.get("prop")).toBeUndefined();
+  expectTypeEquals(fooNode.mutatedType.properties.get("propRenamed")!, propNode.mutatedType);
 });
 
 it("handles mutation of base models", async () => {
@@ -62,10 +82,10 @@ it("handles mutation of base models", async () => {
         bazProp: string;
       }
     `);
-  const subgraph = getSubgraph(program);
-  const fooNode = subgraph.getNode(Foo);
-  const barNode = subgraph.getNode(Bar);
-
+  const engine = getEngine(program);
+  const fooNode = engine.getMutationNode(Foo);
+  const barNode = engine.getMutationNode(Bar);
+  fooNode.connectBase(barNode);
   barNode.mutate();
   expect(barNode.isMutated).toBe(true);
   expect(fooNode.isMutated).toBe(true);
@@ -82,9 +102,10 @@ it("handles deletion of base models", async () => {
         bazProp: string;
       }
     `);
-  const subgraph = getSubgraph(program);
-  const fooNode = subgraph.getNode(Foo);
-  const barNode = subgraph.getNode(Bar);
+  const engine = getEngine(program);
+  const fooNode = engine.getMutationNode(Foo);
+  const barNode = engine.getMutationNode(Bar);
+  fooNode.connectBase(barNode);
 
   barNode.delete();
   expect(barNode.isDeleted).toBe(true);
@@ -99,9 +120,10 @@ it("handles mutation of indexers", async () => {
         bazProp: string;
       }
     `);
-  const subgraph = getSubgraph(program);
-  const fooNode = subgraph.getNode(Foo);
-  const barNode = subgraph.getNode(Bar);
+  const engine = getEngine(program);
+  const fooNode = engine.getMutationNode(Foo);
+  const barNode = engine.getMutationNode(Bar);
+  fooNode.connectIndexerValue(barNode);
 
   barNode.mutate();
   expect(barNode.isMutated).toBe(true);
@@ -117,10 +139,15 @@ it("handles mutation of arrays", async () => {
       }
     `);
 
-  const subgraph = getSubgraph(program);
-  const fooNode = subgraph.getNode(Foo);
-  const barNode = subgraph.getNode(Bar);
-  const bazPropNode = subgraph.getNode(bazProp);
+  const engine = getEngine(program);
+  const fooNode = engine.getMutationNode(Foo);
+  const barNode = engine.getMutationNode(Bar);
+  const bazPropNode = engine.getMutationNode(bazProp);
+  barNode.connectProperty(bazPropNode);
+  const arrayType = bazProp.type as Model;
+  const arrayNode = engine.getMutationNode(arrayType);
+  bazPropNode.connectType(arrayNode);
+  arrayNode.connectIndexerValue(fooNode);
 
   fooNode.mutate();
   expect(fooNode.isMutated).toBe(true);
@@ -141,9 +168,15 @@ it("handles circular models", async () => {
       }
     `);
 
-  const subgraph = getSubgraph(program);
-  const fooNode = subgraph.getNode(Foo);
-  const barNode = subgraph.getNode(Bar);
+  const engine = getEngine(program);
+  const fooNode = engine.getMutationNode(Foo);
+  const barNode = engine.getMutationNode(Bar);
+  const fooPropBar = engine.getMutationNode(Foo.properties.get("bar")!);
+  const barPropFoo = engine.getMutationNode(Bar.properties.get("foo")!);
+  fooNode.connectProperty(fooPropBar);
+  fooPropBar.connectType(barNode);
+  barNode.connectProperty(barPropFoo);
+  barPropFoo.connectType(fooNode);
 
   fooNode.mutate();
   expect(fooNode.isMutated).toBe(true);

@@ -1,3 +1,4 @@
+import type { Model } from "@typespec/compiler";
 import { t, type TesterInstance } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/typekit";
 import { Visibility } from "@typespec/http";
@@ -10,6 +11,39 @@ let runner: TesterInstance;
 
 beforeEach(async () => {
   runner = await Tester.createInstance();
+});
+
+it("works with discriminated unions without envelope", async () => {
+  const { Choice, program } = await runner.compile(t.code`
+    model ${t.model("First")} { kind: "first"; }
+    model ${t.model("Second")} { kind: "second"; }
+
+    @discriminated(#{ envelope: "none", discriminatorPropertyName: "kind" })
+    union ${t.union("Choice")} {
+      first: First;
+      second: Second;
+    }
+  `);
+
+  const canonicalizer = new HttpCanonicalizer($(program));
+  const canonical = canonicalizer.canonicalize(Choice, {
+    visibility: Visibility.All,
+  }) as UnionHttpCanonicalization;
+
+  expect(canonical.languageVariantTests.length).toBe(0);
+  expect(canonical.variantDescriptors.length).toBe(2);
+
+  const [firstVariant, secondVariant] = canonical.variantDescriptors;
+
+  expect(firstVariant.variant.sourceType.type).toBeDefined();
+  expect((firstVariant.variant.sourceType.type as Model).name).toBe("First");
+  expect(firstVariant.envelopeType).toBe(null);
+  expect(firstVariant.discriminatorValue).toBe("first");
+
+  expect(secondVariant.variant.sourceType.type).toBeDefined();
+  expect((secondVariant.variant.sourceType.type as Model).name).toBe("Second");
+  expect(secondVariant.envelopeType).toBe(null);
+  expect(secondVariant.discriminatorValue).toBe("second");
 });
 
 describe("UnionCanonicalization variant detection", () => {
@@ -38,7 +72,7 @@ describe("UnionCanonicalization variant detection", () => {
     expect(canonical.wireVariantTests).toEqual(canonical.languageVariantTests);
   });
 
-  it("prioritizes primitives before object variants and prepends type guards", async () => {
+  it("orders and takes into account previous tests", async () => {
     const { Choice, First, Second, program } = await runner.compile(t.code`
       model ${t.model("First")} { kind: "first"; }
       model ${t.model("Second")} { kind: "second"; }
@@ -51,9 +85,7 @@ describe("UnionCanonicalization variant detection", () => {
     }) as UnionHttpCanonicalization;
 
     expect(canonical.languageVariantTests.length).toBe(3);
-
-    const [numberVariant, firstVariant, secondVariant] = canonical.languageVariantTests;
-
+    const [firstVariant, secondVariant, numberVariant] = canonical.languageVariantTests;
     expect(numberVariant.variant.sourceType.type.kind).toBe("Scalar");
     expect(numberVariant.tests).toEqual([{ kind: "type", path: [], type: "number" }]);
 
@@ -64,10 +96,7 @@ describe("UnionCanonicalization variant detection", () => {
     ]);
 
     expect(secondVariant.variant.sourceType.type).toBe(Second);
-    expect(secondVariant.tests).toEqual([
-      { kind: "type", path: [], type: "object" },
-      { kind: "literal", path: ["kind"], value: "second" },
-    ]);
+    expect(secondVariant.tests).toEqual([{ kind: "type", path: [], type: "object" }]);
 
     expect(canonical.wireVariantTests.map((entry) => entry.variant)).toEqual(
       canonical.languageVariantTests.map((entry) => entry.variant),
@@ -111,6 +140,28 @@ describe("UnionCanonicalization variant detection", () => {
       canonicalizer.canonicalize(Choice, {
         visibility: Visibility.All,
       });
-    }).rejects.toThrow(/Unable to distinguish union variant/);
+    }).rejects.toThrow(/Unable to distinguish language type/);
+  });
+
+  it("supports extensible union pattern", async () => {
+    const { Choice, program } = await runner.compile(t.code`
+      union ${t.union("Choice")} {
+        string;
+        "first";
+        "second";
+      }
+    `);
+
+    const canonicalizer = new HttpCanonicalizer($(program));
+    const canonical = canonicalizer.canonicalize(Choice, {
+      visibility: Visibility.All,
+    });
+
+    expect(canonical.languageVariantTests).toHaveLength(3);
+    expect(canonical.languageVariantTests.map((entry) => entry.tests)).toEqual([
+      [{ kind: "literal", path: [], value: "first" }],
+      [{ kind: "literal", path: [], value: "second" }],
+      [{ kind: "type", path: [], type: "string" }],
+    ]);
   });
 });
