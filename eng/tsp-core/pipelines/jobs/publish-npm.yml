@@ -51,10 +51,10 @@ jobs:
             - ${{ if eq(parameters.publishGithubRelease, true) }}:
                 - script: |
                     echo "Publish summary:"
-                    cat ./publish-summary.json
+                    cat "$(Pipeline.Workspace)/${{ parameters.artifactName }}/publish-summary.json"
                   displayName: Log publish summary
 
-                - script: pnpm chronus-github create-releases --repo microsoft/typespec --publish-summary ./publish-summary.json
+                - script: pnpm chronus-github create-releases --repo microsoft/typespec --publish-summary "$(Pipeline.Workspace)/${{ parameters.artifactName }}/publish-summary.json"
                   displayName: Create github releases
                   env:
                     GITHUB_TOKEN: $(azuresdk-github-pat)
