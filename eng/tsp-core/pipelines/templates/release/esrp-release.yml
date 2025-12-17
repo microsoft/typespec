@@ -22,5 +22,6 @@ steps:
       Owners: ${{ coalesce(variables['Build.RequestedForEmail'], 'azuresdk@microsoft.com') }}
       Approvers: ${{ coalesce(variables['Build.RequestedForEmail'], 'azuresdk@microsoft.com') }}
       ServiceEndpointUrl: "https://api.esrp.microsoft.com"
+      # cspell:ignore ESRPRELPACMANTEST
       MainPublisher: "ESRPRELPACMANTEST"
       productstate: ${{ parameters.tag }}
