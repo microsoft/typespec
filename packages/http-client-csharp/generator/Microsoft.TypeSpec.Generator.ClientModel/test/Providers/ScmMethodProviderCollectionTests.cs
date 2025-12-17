@@ -1133,12 +1133,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.IsNotNull(collectionResultDefinition, "CollectionResultDefinition should be added even when paging methods are customized");
         }
 
+        [TestCase(typeof(int))]
+        [TestCase(typeof(long))]
+        [TestCase(typeof(float))]
+        [TestCase(typeof(double))]
+        [TestCase(typeof(bool))]
+        [TestCase(typeof(string))]
+        [TestCase(typeof(Uri))]
+        [TestCase(typeof(DateTimeOffset))]
         [TestCase(typeof(TimeSpan))]
         [TestCase(typeof(BinaryData))]
         public void ListOfPrimitivesUsesUtf8JsonReader(Type elementType)
         {
             InputType inputElementType = elementType switch
             {
+                { } t when t == typeof(int) => InputPrimitiveType.Int32,
+                { } t when t == typeof(long) => InputPrimitiveType.Int64,
+                { } t when t == typeof(float) => InputPrimitiveType.Float32,
+                { } t when t == typeof(double) => InputPrimitiveType.Float64,
+                { } t when t == typeof(bool) => InputPrimitiveType.Boolean,
+                { } t when t == typeof(string) => InputPrimitiveType.String,
+                { } t when t == typeof(Uri) => InputPrimitiveType.Url,
+                { } t when t == typeof(DateTimeOffset) => InputPrimitiveType.PlainDate,
                 { } t when t == typeof(TimeSpan) => InputPrimitiveType.PlainTime,
                 { } t when t == typeof(BinaryData) => InputPrimitiveType.Base64,
                 _ => throw new ArgumentException("Unsupported type")
@@ -1162,23 +1178,33 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                    && m.Signature.Name == "GetList");
             Assert.IsNotNull(convenienceMethod);
 
-            var bodyString = convenienceMethod!.BodyStatements!.ToDisplayString();
+            var generatedCode = convenienceMethod!.BodyStatements!.ToDisplayString();
             
-            // Verify Utf8JsonReader is used instead of JsonDocument.Parse
-            Assert.IsTrue(bodyString.Contains("global::System.Text.Json.Utf8JsonReader jsonReader = new global::System.Text.Json.Utf8JsonReader(data.ToMemory().Span);"),
-                "Should use Utf8JsonReader for collections of primitives");
-            Assert.IsFalse(bodyString.Contains("using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(data);"),
-                "Should not use JsonDocument.Parse for collections of primitives");
-            Assert.IsTrue(bodyString.Contains("while (jsonReader.Read())"),
-                "Should use while loop with jsonReader.Read()");
+            Assert.AreEqual(Helpers.GetExpectedFromFile(elementType.Name), generatedCode);
         }
 
+        [TestCase(typeof(int))]
+        [TestCase(typeof(long))]
+        [TestCase(typeof(float))]
+        [TestCase(typeof(double))]
+        [TestCase(typeof(bool))]
+        [TestCase(typeof(string))]
+        [TestCase(typeof(Uri))]
+        [TestCase(typeof(DateTimeOffset))]
         [TestCase(typeof(TimeSpan))]
         [TestCase(typeof(BinaryData))]
         public void DictionaryOfPrimitivesUsesUtf8JsonReader(Type valueType)
         {
             InputType inputValueType = valueType switch
             {
+                { } t when t == typeof(int) => InputPrimitiveType.Int32,
+                { } t when t == typeof(long) => InputPrimitiveType.Int64,
+                { } t when t == typeof(float) => InputPrimitiveType.Float32,
+                { } t when t == typeof(double) => InputPrimitiveType.Float64,
+                { } t when t == typeof(bool) => InputPrimitiveType.Boolean,
+                { } t when t == typeof(string) => InputPrimitiveType.String,
+                { } t when t == typeof(Uri) => InputPrimitiveType.Url,
+                { } t when t == typeof(DateTimeOffset) => InputPrimitiveType.PlainDate,
                 { } t when t == typeof(TimeSpan) => InputPrimitiveType.PlainTime,
                 { } t when t == typeof(BinaryData) => InputPrimitiveType.Base64,
                 _ => throw new ArgumentException("Unsupported type")
@@ -1202,15 +1228,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                    && m.Signature.Name == "GetDict");
             Assert.IsNotNull(convenienceMethod);
 
-            var bodyString = convenienceMethod!.BodyStatements!.ToDisplayString();
+            var actualCode = convenienceMethod!.BodyStatements!.ToDisplayString();
             
-            // Verify Utf8JsonReader is used instead of JsonDocument.Parse
-            Assert.IsTrue(bodyString.Contains("global::System.Text.Json.Utf8JsonReader jsonReader = new global::System.Text.Json.Utf8JsonReader(data.ToMemory().Span);"),
-                "Should use Utf8JsonReader for dictionaries of primitives");
-            Assert.IsFalse(bodyString.Contains("using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(data);"),
-                "Should not use JsonDocument.Parse for dictionaries of primitives");
-            Assert.IsTrue(bodyString.Contains("while (jsonReader.Read())"),
-                "Should use while loop with jsonReader.Read()");
+            Assert.AreEqual(Helpers.GetExpectedFromFile(valueType.Name), actualCode);
         }
 
     }
