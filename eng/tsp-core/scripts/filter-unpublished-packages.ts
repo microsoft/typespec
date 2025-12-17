@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { exec } from "child_process";
 import { existsSync } from "fs";
-import { copyFile, mkdir, readdir, writeFile } from "fs/promises";
+import { readdir, writeFile } from "fs/promises";
 import { resolve } from "node:path";
 import { parseArgs } from "node:util";
 import { join } from "path";
@@ -86,6 +86,18 @@ async function isPackagePublished(name: string, version: string): Promise<boolea
 }
 
 /**
+ * Convert package name to environment variable name format
+ * Example: @typespec/compiler -> TYPESPEC_COMPILER
+ */
+function packageNameToEnvVar(packageName: string): string {
+  return packageName
+    .replace(/@/g, "") // Remove @
+    .replace(/\//g, "_") // Replace / with _
+    .replace(/-/g, "_") // Replace - with _
+    .toUpperCase(); // Convert to uppercase
+}
+
+/**
  * Main function
  */
 async function main() {
@@ -99,36 +111,25 @@ async function main() {
     allowPositionals: true,
   });
 
-  if (positionals.length < 2) {
+  if (positionals.length < 1) {
     console.error(
-      "Usage: filter-unpublished-packages <source-folder> <destination-folder> [--manifest <manifest-file>]",
+      "Usage: filter-unpublished-packages <source-folder> [--manifest <manifest-file>]",
     );
     console.error("");
     console.error("Options:");
-    console.error(
-      "  --manifest <file>  Path to the manifest file (default: <destination>/manifest.json)",
-    );
+    console.error("  --manifest <file>  Path to the manifest file (default: manifest.json)");
     process.exit(1);
   }
 
   const sourceFolder = positionals[0];
-  const destFolder = positionals[1];
 
   // Parse optional manifest path
-  const manifestPath = values.manifest
-    ? resolve(values.manifest)
-    : join(destFolder, "manifest.json");
+  const manifestPath = values.manifest ? resolve(values.manifest) : "manifest.json";
 
   // Validate source folder exists
   if (!existsSync(sourceFolder)) {
     console.error(`Error: Source folder '${sourceFolder}' does not exist`);
     process.exit(1);
-  }
-
-  // Create destination folder if it doesn't exist
-  if (!existsSync(destFolder)) {
-    await mkdir(destFolder, { recursive: true });
-    console.log(`Created destination folder: ${destFolder}`);
   }
 
   // Read all .tgz files from source folder
@@ -180,18 +181,21 @@ async function main() {
   const packages: Record<string, PublishPackageResult> = {};
 
   if (unpublishedPackages.length === 0) {
-    console.log("No unpublished packages to move.");
+    console.log("No unpublished packages found.");
   } else {
-    // Copy unpublished packages to destination
+    // Set environment variables for unpublished packages
     console.log("");
-    console.log(`Copying unpublished packages to ${destFolder}...`);
+    console.log("Setting environment variables for unpublished packages...");
+
+    // Set PUBLISH_PKG_ANY to indicate there's at least one package to publish
+    console.log("Set PUBLISH_PKG_ANY=true");
+    console.log("##vso[task.setvariable variable=PUBLISH_PKG_ANY;isOutput=true]true");
+    console.log("");
 
     for (const pkg of unpublishedPackages) {
-      const sourcePath = join(sourceFolder, pkg.filename);
-      const destPath = join(destFolder, pkg.filename);
-
-      await copyFile(sourcePath, destPath);
-      console.log(`Copied: ${pkg.filename}`);
+      const envVarName = `PUBLISH_PKG_${packageNameToEnvVar(pkg.name)}`;
+      console.log(`Set ${envVarName}=true for ${pkg.name}@${pkg.version}`);
+      console.log(`##vso[task.setvariable variable=${envVarName};isOutput=true]true`);
 
       packages[pkg.name] = {
         name: pkg.name,
@@ -215,7 +219,7 @@ async function main() {
   console.log("Summary:");
   console.log(`  Total packages scanned: ${packageInfos.length}`);
   console.log(`  Already published: ${packageInfos.length - unpublishedPackages.length}`);
-  console.log(`  Unpublished (copied): ${unpublishedPackages.length}`);
+  console.log(`  Need publishing (env vars set): ${unpublishedPackages.length}`);
 }
 
 main().catch((error) => {

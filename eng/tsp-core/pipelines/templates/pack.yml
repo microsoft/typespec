@@ -14,7 +14,7 @@ steps:
       $summaryFilePath = "$outDir/publish-summary.json"
       echo "Create manifest of unpublished packages in $summaryFilePath"
 
-      node eng/tsp-core/scripts/filter-unpublished-packages.ts "$outDir" "$outDir-unpublished" --manifest $summaryFilePath
+      node eng/tsp-core/scripts/filter-unpublished-packages.ts "$outDir" --manifest $summaryFilePath
 
       # Check if there are unpublished packages and set the configuration variable accordingly   
       $manifest = Get-Content $summaryFilePath | ConvertFrom-Json
