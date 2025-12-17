@@ -16,8 +16,8 @@ jobs:
 
       - template: /eng/tsp-core/pipelines/templates/build.yml
 
-      # - script: pnpm run test:ci
-      #   displayName: Test
+      - script: pnpm run test:ci
+        displayName: Test
 
       - template: /eng/tsp-core/pipelines/templates/upload-coverage.yml
       - template: /eng/tsp-core/pipelines/templates/pack.yml
@@ -46,20 +46,9 @@ jobs:
           scriptLocation: inlineScript
           inlineScript: node ./eng/tsp-core/scripts/upload-bundler-packages.js
 
-      - pwsh: |
-          $publishSummary = Get-Content "$(Build.ArtifactStagingDirectory)/npm-packages-stable/publish-summary.json" | ConvertFrom-Json
-          if ($publishSummary.packages.'@typespec/http-specs'.published -eq $true) {
-            Write-Output "Setting PublishHttpSpecs variable to true."
-            Write-Host "##vso[task.setvariable variable=PublishHttpSpecs]true"
-          } else {
-            Write-Output "Setting PublishHttpSpecs variable to false."
-            Write-Host "##vso[task.setvariable variable=PublishHttpSpecs]false"
-          }
-        displayName: "Check if @typespec/http-specs was published"
-
       - task: AzureCLI@2
         displayName: Upload scenario manifest
-        condition: eq(variables['PublishHttpSpecs'], 'true')
+        condition: eq(variables['PUBLISH_PKG_TYPESPEC_HTTP_SPECS'], 'true')
         inputs:
           workingDirectory: packages/http-specs
           azureSubscription: "TypeSpec Storage"
