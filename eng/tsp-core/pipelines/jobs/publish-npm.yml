@@ -35,10 +35,10 @@ jobs:
             - script: ls $(Pipeline.Workspace)/${{ parameters.artifactName }}
               displayName: List files in artifact
 
-            # - template: /eng/tsp-core/pipelines/templates/release/esrp-release.yml
-            #   parameters:
-            #     tag: ${{ parameters.tag }}
-            #     path: "$(Pipeline.Workspace)/${{ parameters.artifactName }}"
+            - template: /eng/tsp-core/pipelines/templates/release/esrp-release.yml
+              parameters:
+                tag: ${{ parameters.tag }}
+                path: "$(Pipeline.Workspace)/${{ parameters.artifactName }}"
 
             - script: |
                 echo "ESRP_RELEASE_DETAILS:"
