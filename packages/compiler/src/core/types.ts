@@ -2363,8 +2363,10 @@ interface LinterRuleDefinitionBase<N extends string, DM extends DiagnosticMessag
   messages: DM;
 }
 
-interface LinterRuleDefinitionSync<N extends string, DM extends DiagnosticMessages>
-  extends LinterRuleDefinitionBase<N, DM> {
+interface LinterRuleDefinitionSync<
+  N extends string,
+  DM extends DiagnosticMessages,
+> extends LinterRuleDefinitionBase<N, DM> {
   /** Whether this is an async rule. Default is false */
   async?: false;
   /** Creator */
@@ -2373,8 +2375,10 @@ interface LinterRuleDefinitionSync<N extends string, DM extends DiagnosticMessag
   ): SemanticNodeListener & { exit?: (context: Program) => void | undefined };
 }
 
-interface LinterRuleDefinitionAsync<N extends string, DM extends DiagnosticMessages>
-  extends LinterRuleDefinitionBase<N, DM> {
+interface LinterRuleDefinitionAsync<
+  N extends string,
+  DM extends DiagnosticMessages,
+> extends LinterRuleDefinitionBase<N, DM> {
   /** Whether this is an async rule. Default is false */
   async: true;
   /** Creator */

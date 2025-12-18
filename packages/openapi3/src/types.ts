@@ -1169,11 +1169,10 @@ export interface OpenAPIComponents3_1 extends Extensions {
   pathItems?: Record<string, OpenAPI3PathItem>;
 }
 
-export interface OpenAPIDocument3_2
-  extends Omit<
-    OpenAPIDocument3_1,
-    "openapi" | "servers" | "components" | "webhooks" | "paths" | "tags"
-  > {
+export interface OpenAPIDocument3_2 extends Omit<
+  OpenAPIDocument3_1,
+  "openapi" | "servers" | "components" | "webhooks" | "paths" | "tags"
+> {
   openapi: "3.2.0";
   /**
    * This string MUST be in the form of a URI reference as defined.
@@ -1260,18 +1259,17 @@ export interface OpenAPIMediaType3_2 extends Omit<OpenAPI3MediaType, "examples" 
   examples?: Record<string, Refable<OpenAPIExample3_2>>;
 }
 
-export interface OpenAPIComponents3_2
-  extends Omit<
-    OpenAPIComponents3_1,
-    | "responses"
-    | "securitySchemes"
-    | "examples"
-    | "schemas"
-    | "callbacks"
-    | "pathItems"
-    | "parameters"
-    | "requestBodies"
-  > {
+export interface OpenAPIComponents3_2 extends Omit<
+  OpenAPIComponents3_1,
+  | "responses"
+  | "securitySchemes"
+  | "examples"
+  | "schemas"
+  | "callbacks"
+  | "pathItems"
+  | "parameters"
+  | "requestBodies"
+> {
   /**
    * An object to hold reusable {@link OpenAPIMediaType3_2} objects
    * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-5
@@ -1343,23 +1341,19 @@ export interface OpenAPISecuritySchemeBase3_2 extends OpenAPI3SecuritySchemeBase
 }
 
 export interface OpenAPIApiKeySecurityScheme3_2
-  extends OpenAPISecuritySchemeBase3_2,
-    OpenAPI3ApiKeySecurityScheme {}
+  extends OpenAPISecuritySchemeBase3_2, OpenAPI3ApiKeySecurityScheme {}
 
 export interface OpenAPIOAuth2SecurityScheme3_2
-  extends OpenAPISecuritySchemeBase3_2,
-    Omit<OpenAPI3OAuth2SecurityScheme, "flows"> {
+  extends OpenAPISecuritySchemeBase3_2, Omit<OpenAPI3OAuth2SecurityScheme, "flows"> {
   /** An object containing configuration information for the flow types supported. */
   flows: OpenAPIOAuthFlows3_2;
 }
 
 export interface OpenAPIOpenIdConnectSecurityScheme3_2
-  extends OpenAPISecuritySchemeBase3_2,
-    OpenAPI3OpenIdConnectSecurityScheme {}
+  extends OpenAPISecuritySchemeBase3_2, OpenAPI3OpenIdConnectSecurityScheme {}
 
 export interface OpenAPIHttpSecurityScheme3_2
-  extends OpenAPISecuritySchemeBase3_2,
-    OpenAPI3HttpSecurityScheme {}
+  extends OpenAPISecuritySchemeBase3_2, OpenAPI3HttpSecurityScheme {}
 
 export type OpenAPISecurityScheme3_2 =
   | OpenAPIApiKeySecurityScheme3_2
