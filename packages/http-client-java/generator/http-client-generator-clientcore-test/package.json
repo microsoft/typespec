@@ -20,7 +20,7 @@
     "@typespec/http-client-java-tests": "file:"
   },
   "overrides": {
-    "@typespec/compiler": "1.7.0",
+    "@typespec/compiler": "1.7.1",
     "@typespec/http": "1.7.0",
     "@typespec/rest": "0.77.0",
     "@typespec/versioning": "0.77.0",

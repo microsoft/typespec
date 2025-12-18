@@ -108,6 +108,7 @@ import { fail } from "assert";
 import pkg from "lodash";
 import {
   Client as CodeModelClient,
+  EncodedProperty,
   EncodedSchema,
   PageableContinuationToken,
   Serializable,
@@ -2865,6 +2866,18 @@ export class CodeModelBuilder {
       serializedName: getPropertySerializedName(modelProperty),
       extensions: extensions,
     });
+    if (modelProperty.encode) {
+      if (schema instanceof ArraySchema) {
+        const elementSchema = schema.elementType;
+        if (!(elementSchema instanceof StringSchema)) {
+          reportDiagnostic(this.program, {
+            code: "non-string-array-encoding-element-notsupported",
+            target: modelProperty.__raw ?? NoTarget,
+          });
+        }
+      }
+      (codeModelProperty as EncodedProperty).arrayEncoding = modelProperty.encode;
+    }
 
     // xml
     if (modelProperty.serializationOptions.xml) {
