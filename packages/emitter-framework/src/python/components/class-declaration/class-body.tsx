@@ -1,4 +1,4 @@
-import { createContentSlot, For, type Children } from "@alloy-js/core";
+import { For, type Children } from "@alloy-js/core";
 import { type Interface, type Model, type ModelProperty, type Operation } from "@typespec/compiler";
 import type { Typekit } from "@typespec/compiler/typekit";
 import { createRekeyableMap } from "@typespec/compiler/utils";
@@ -34,7 +34,6 @@ function getTypeMembers($: Typekit, type: Model | Interface): (ModelProperty | O
 export function ClassBody(props: ClassBodyProps): Children {
   const { $ } = useTsp();
   const typeMembers = getTypeMembers($, props.type);
-  const ContentSlot = createContentSlot();
 
   // Throw error for models with additional properties (Record-based scenarios)
   if ($.model.is(props.type)) {
@@ -46,19 +45,12 @@ export function ClassBody(props: ClassBodyProps): Children {
 
   return (
     <>
-      <ContentSlot>
-        <For each={typeMembers} line>
-          {(typeMember) => (
-            <ClassMember
-              type={typeMember}
-              abstract={props.abstract}
-              methodType={props.methodType}
-            />
-          )}
-        </For>
-        {props.children ?? null}
-      </ContentSlot>
-      <ContentSlot.WhenEmpty>{undefined}</ContentSlot.WhenEmpty>
+      <For each={typeMembers} line>
+        {(typeMember) => (
+          <ClassMember type={typeMember} abstract={props.abstract} methodType={props.methodType} />
+        )}
+      </For>
+      {props.children}
     </>
   );
 }

@@ -58,7 +58,7 @@ export function EnumDeclaration(props: EnumDeclarationProps) {
 
   return (
     <py.ClassEnumDeclaration doc={docElement} name={name} refkey={refkeys} baseType={enumType}>
-      <For each={members} joiner={"\n"}>
+      <For each={members} hardline>
         {([key, value]) => {
           const memberDoc = $.type.getDoc(value);
           return (

@@ -1,6 +1,7 @@
 import { type Children } from "@alloy-js/core";
 import * as py from "@alloy-js/python";
 import { compilerAssert, type Value } from "@typespec/compiler";
+import { datetimeModule } from "../../builtins.js";
 
 /**
  * Base properties for the {@link Atom} component.
@@ -20,7 +21,7 @@ interface NumericAtomProps extends BaseAtomProps {
    * Hint that this numeric value should be emitted as a float (e.g., 42 -> 42.0).
    * Only affects NumericValue.
    */
-  assumeFloat?: boolean;
+  float?: boolean;
 }
 
 /**
@@ -43,7 +44,7 @@ export function Atom(props: Readonly<AtomProps>): Children {
       const num = props.value.value.asNumber();
       const isNonInteger = num != null && !Number.isInteger(num);
       const numericProps = props as NumericAtomProps;
-      const asFloat = isNonInteger || numericProps.assumeFloat === true;
+      const asFloat = isNonInteger || numericProps.float;
       return <py.Atom jsValue={num} asFloat={asFloat} />;
     }
     case "ArrayValue":
@@ -84,7 +85,11 @@ function handleISOStringValue(value: Value & { valueKind: "ScalarValue" }): Chil
   }
   const isoString = arg0.value;
   const date = new Date(isoString);
-  // Convert datetime to a module
-  const pyDatetime = `datetime.datetime(${date.getUTCFullYear()}, ${date.getUTCMonth() + 1}, ${date.getUTCDate()}, ${date.getUTCHours()}, ${date.getUTCMinutes()}, ${date.getUTCSeconds()}, tzinfo=datetime.timezone.utc)`;
-  return <py.Atom jsValue={pyDatetime} />;
+  return (
+    <>
+      {datetimeModule["."]["datetime"]}({date.getUTCFullYear()}, {date.getUTCMonth() + 1},{" "}
+      {date.getUTCDate()}, {date.getUTCHours()}, {date.getUTCMinutes()}, {date.getUTCSeconds()},
+      tzinfo={datetimeModule["."]["timezone"]}.utc)
+    </>
+  );
 }

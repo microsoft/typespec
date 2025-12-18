@@ -67,9 +67,9 @@ describe("NumericValue", () => {
     await testValueExpression(value, `42`);
   });
 
-  it("decimals with .0 when assumeFloat", async () => {
+  it("decimals with .0 when float", async () => {
     const value = $(program).value.createNumeric(42.0);
-    expect(getOutput(program, [<Atom value={value} assumeFloat />])).toRenderTo(`42.0`);
+    expect(getOutput(program, [<Atom value={value} float />])).toRenderTo(`42.0`);
   });
 
   it("negative integers", async () => {
@@ -87,9 +87,9 @@ describe("NumericValue", () => {
     await testValueExpression(value, `0`);
   });
 
-  it("zero with assumeFloat", async () => {
+  it("zero with float", async () => {
     const value = $(program).value.createNumeric(0);
-    expect(getOutput(program, [<Atom value={value} assumeFloat />])).toRenderTo(`0.0`);
+    expect(getOutput(program, [<Atom value={value} float />])).toRenderTo(`0.0`);
   });
 
   it("exponent that resolves to integer", async () => {
@@ -97,9 +97,9 @@ describe("NumericValue", () => {
     await testValueExpression(value, `1000`);
   });
 
-  it("exponent that resolves to integer with assumeFloat", async () => {
+  it("exponent that resolves to integer with float", async () => {
     const value = $(program).value.createNumeric(1e3);
-    expect(getOutput(program, [<Atom value={value} assumeFloat />])).toRenderTo(`1000.0`);
+    expect(getOutput(program, [<Atom value={value} float />])).toRenderTo(`1000.0`);
   });
 
   it("small decimal via exponent", async () => {
@@ -153,7 +153,11 @@ describe("ScalarValue", () => {
     `);
     await testValueExpression(
       minDate.defaultValue!,
-      `"datetime.datetime(2024, 2, 15, 18, 36, 3, tzinfo=datetime.timezone.utc)"`,
+      `from datetime import datetime
+from datetime import timezone
+
+
+datetime(2024, 2, 15, 18, 36, 3, tzinfo=timezone.utc)`,
     );
   });
 

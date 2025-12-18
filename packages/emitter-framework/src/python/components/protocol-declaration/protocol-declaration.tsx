@@ -8,10 +8,6 @@ import * as py from "@alloy-js/python";
 import type { Interface, Operation, Type } from "@typespec/compiler";
 import { CallableParameters } from "./callable-parameters.js";
 
-export function Ellipsis() {
-  return <>...</>;
-}
-
 export interface ProtocolDeclarationProps extends Omit<py.ClassDeclarationProps, "name"> {
   type: Interface | Operation;
   name?: string;
@@ -41,7 +37,7 @@ export function ProtocolDeclaration(props: ProtocolDeclarationProps) {
         ) : undefined;
         return (
           <py.MethodDeclaration name={methodName} parameters={prm} returnType={ret}>
-            <Ellipsis />
+            ...
           </py.MethodDeclaration>
         );
       },
@@ -70,7 +66,7 @@ export function ProtocolDeclaration(props: ProtocolDeclarationProps) {
   return (
     <py.ClassDeclaration name={name} bases={[protocolBase]} refkey={refkeys} doc={props.doc}>
       <py.DunderMethodDeclaration name="__call__" returnType={cbReturn} parameters={cbParams}>
-        <Ellipsis />
+        ...
       </py.DunderMethodDeclaration>
     </py.ClassDeclaration>
   );
