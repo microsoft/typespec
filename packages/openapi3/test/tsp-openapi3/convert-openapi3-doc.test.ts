@@ -597,3 +597,65 @@ describe("unixtime format conversion", () => {
     );
   });
 });
+
+describe.each(versions)("Extension with JSON-like string values v%s", (version) => {
+  it("should treat JSON-like string in extension property as an escaped string literal", async () => {
+    const tsp = await convertOpenAPI3Document({
+      openapi: version,
+      info: {
+        title: "Test Service",
+        version: "1.0.0",
+      },
+      paths: {},
+      components: {
+        schemas: {
+          GraderPython: {
+            type: "object",
+            "x-oaiMeta": {
+              name: "Python Grader",
+              group: "graders",
+              example: `{
+  "type": "python",
+  "name": "Example python grader",
+  "image_tag": "2025-05-08",
+  "source": """
+def grade(sample: dict, item: dict) -> float:
+    \"""
+    Returns 1.0 if \`output_text\` equals \`label\`, otherwise 0.0.
+    \"""
+    output = sample.get("output_text")
+    label = item.get("label")
+    return 1.0 if output == label else 0.0
+""",
+}`,
+            },
+          },
+        },
+      },
+    } as any);
+
+    // The example property should be a single-line escaped string with \n for newlines
+    strictEqual(
+      tsp.includes('example: "{\\n  \\"type\\": \\"python\\"') ||
+        tsp.includes('example: "{\n  "type": "python"'),
+      true,
+      "Expected 'example' to be an escaped string literal with newlines represented as \\n, but got: " +
+        tsp,
+    );
+
+    // Should NOT use triple-quoted strings for object literal values
+    strictEqual(
+      tsp.includes('example: """'),
+      false,
+      "Should not use triple-quoted strings in object literals as they can break with nested quotes. Got: " +
+        tsp,
+    );
+
+    // Should NOT have nested object structure
+    strictEqual(
+      tsp.includes("example: #{"),
+      false,
+      "Should not parse JSON string as object literal. Got: " + tsp,
+    );
+  });
+});
