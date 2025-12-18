@@ -840,6 +840,136 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return [.. methods];
         }
 
+        protected sealed override IReadOnlyList<MethodProvider> BuildMethodsForBackCompatibility(IEnumerable<MethodProvider> originalMethods)
+        {
+            if (LastContractView?.Methods == null || LastContractView.Methods.Count == 0)
+            {
+                return [.. originalMethods];
+            }
+
+            var currentMethodSignatures = BuildCurrentMethodSignatures(originalMethods);
+            var updatedSignatureToOriginal = new Dictionary<MethodSignature, MethodSignature>(MethodSignature.MethodSignatureComparer);
+            var methodsWithReorderedParams = new List<MethodProvider>();
+
+            foreach (var previousMethod in LastContractView.Methods)
+            {
+                if (!ShouldProcessMethodForBackCompat(previousMethod.Signature, currentMethodSignatures))
+                {
+                    continue;
+                }
+
+                var methodToUpdate = FindMethodWithSameParametersButDifferentOrder(
+                    previousMethod.Signature,
+                    currentMethodSignatures);
+
+                if (methodToUpdate != null && TryReorderCurrentMethodParameters(
+                    methodToUpdate,
+                    previousMethod.Signature,
+                    updatedSignatureToOriginal))
+                {
+                    methodsWithReorderedParams.Add(methodToUpdate);
+                    CodeModelGenerator.Instance.Emitter.Debug(
+                        $"Preserved method {Name}.{methodToUpdate.Signature.Name} signature to match last contract.");
+                }
+            }
+
+            if (methodsWithReorderedParams.Count > 0)
+            {
+                UpdateConvenienceMethodsForBackCompat(originalMethods, methodsWithReorderedParams, updatedSignatureToOriginal);
+            }
+
+            return [.. originalMethods];
+        }
+
+        private Dictionary<MethodSignature, MethodProvider> BuildCurrentMethodSignatures(IEnumerable<MethodProvider> originalMethods)
+        {
+            var allMethods = CustomCodeView?.Methods != null
+                ? originalMethods.Concat(CustomCodeView.Methods)
+                : originalMethods;
+
+            return allMethods.ToDictionary(m => m.Signature, m => m, MethodSignature.MethodSignatureComparer);
+        }
+
+        private static bool ShouldProcessMethodForBackCompat(
+            MethodSignature previousSignature,
+            Dictionary<MethodSignature, MethodProvider> currentMethodSignatures)
+        {
+            if (currentMethodSignatures.ContainsKey(previousSignature))
+            {
+                return false;
+            }
+
+            var modifiers = previousSignature.Modifiers;
+            return modifiers.HasFlag(MethodSignatureModifiers.Public) ||
+                   modifiers.HasFlag(MethodSignatureModifiers.Protected);
+        }
+
+        private static MethodProvider? FindMethodWithSameParametersButDifferentOrder(
+            MethodSignature previousSignature,
+            Dictionary<MethodSignature, MethodProvider> currentMethodSignatures)
+        {
+            foreach (var kvp in currentMethodSignatures)
+            {
+                var currentSignature = kvp.Key;
+                if (currentSignature.Name.Equals(previousSignature.Name)
+                    && currentSignature.ReturnType?.AreNamesEqual(previousSignature.ReturnType) == true
+                    && MethodSignatureHelper.ContainsSameParameters(previousSignature, currentSignature))
+                {
+                    return kvp.Value;
+                }
+            }
+
+            return null;
+        }
+
+        private bool TryReorderCurrentMethodParameters(
+            MethodProvider methodToUpdate,
+            MethodSignature previousSignature,
+            Dictionary<MethodSignature, MethodSignature> updatedSignatureToOriginal)
+        {
+            var currentSignature = methodToUpdate.Signature;
+            // Early exit: Check if parameters are already in the same order
+            if (MethodSignatureHelper.HaveSameParametersInSameOrder(currentSignature, previousSignature))
+            {
+                return false;
+            }
+
+            var parametersByName = currentSignature.Parameters.ToDictionary(p => p.Name.ToVariableName());
+            var reorderedParameters = new List<ParameterProvider>(currentSignature.Parameters.Count);
+
+            foreach (var previousParam in previousSignature.Parameters)
+            {
+                if (parametersByName.TryGetValue(previousParam.Name, out var matchingParam))
+                {
+                    reorderedParameters.Add(matchingParam);
+                }
+            }
+
+            if (reorderedParameters.Count != currentSignature.Parameters.Count)
+            {
+                return false;
+            }
+
+            var updatedSignature = new MethodSignature(
+                currentSignature.Name,
+                currentSignature.Description,
+                currentSignature.Modifiers,
+                currentSignature.ReturnType,
+                currentSignature.ReturnDescription,
+                reorderedParameters,
+                currentSignature.Attributes,
+                currentSignature.GenericArguments,
+                currentSignature.GenericParameterConstraints,
+                currentSignature.ExplicitInterface,
+                currentSignature.NonDocumentComment);
+            updatedSignatureToOriginal.TryAdd(updatedSignature, currentSignature);
+
+            UpdateXmlDocProviderForParamReorder(methodToUpdate.XmlDocs, updatedSignature);
+            methodToUpdate.Update(signature: updatedSignature, xmlDocProvider: methodToUpdate.XmlDocs);
+
+            return true;
+        }
+
         private ParameterProvider BuildClientEndpointParameter()
         {
             _inputEndpointParam = _inputClient.Parameters
@@ -967,6 +1097,127 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 TokenCredentialScopesFieldName,
                 this,
                 initializationValue: New.Array(typeof(string), [.. scopes.Select(Literal)]));
+        }
+
+        private static void UpdateConvenienceMethodsForBackCompat(
+            IEnumerable<MethodProvider> currentMethods,
+            List<MethodProvider> methodsWithReorderedParams,
+            Dictionary<MethodSignature, MethodSignature> updatedSignatureToOriginal)
+        {
+            var updatedProtocolMethods = methodsWithReorderedParams
+                .OfType<ScmMethodProvider>()
+                .Where(m => m.Kind is ScmMethodKind.Protocol)
+                .ToDictionary(m => m.Signature.Name);
+
+            if (updatedProtocolMethods.Count == 0)
+            {
+                return;
+            }
+
+            foreach (var method in currentMethods)
+            {
+                if (method.BodyStatements is null || method is not ScmMethodProvider { Kind: ScmMethodKind.Convenience })
+                {
+                    continue;
+                }
+
+                if (!updatedProtocolMethods.TryGetValue(method.Signature.Name, out var protocolMethod)
+                    || !updatedSignatureToOriginal.TryGetValue(protocolMethod.Signature, out var originalSignature))
+                {
+                    continue;
+                }
+
+                foreach (var statement in method.BodyStatements)
+                {
+                    if (statement is ExpressionStatement expressionStatement)
+                    {
+                        UpdateProtocolMethodInvocation(
+                            expressionStatement.Expression,
+                            originalSignature,
+                            protocolMethod.Signature);
+                    }
+                }
+            }
+        }
+
+        private static void UpdateProtocolMethodInvocation(
+            ValueExpression expression,
+            MethodSignature originalSignature,
+            MethodSignature updatedSignature)
+        {
+            switch (expression)
+            {
+                case ClientResponseApi clientResponseApi:
+                    UpdateProtocolMethodInvocation(clientResponseApi.Original, originalSignature, updatedSignature);
+                    break;
+                case ScopedApi scopedApi:
+                    UpdateProtocolMethodInvocation(scopedApi.Original, originalSignature, updatedSignature);
+                    break;
+                case InvokeMethodExpression invokeExpr when invokeExpr.MethodSignature?.Name.Equals(updatedSignature.Name) == true:
+                    ReorderMethodInvocationArguments(invokeExpr, originalSignature, updatedSignature);
+                    break;
+                case AssignmentExpression assignmentExpr:
+                    UpdateProtocolMethodInvocation(assignmentExpr.Value, originalSignature, updatedSignature);
+                    break;
+                case KeywordExpression keywordExpr when keywordExpr.Expression != null:
+                    UpdateProtocolMethodInvocation(keywordExpr.Expression, originalSignature, updatedSignature);
+                    break;
+            }
+        }
+
+        private static void ReorderMethodInvocationArguments(
+            InvokeMethodExpression invocation,
+            MethodSignature originalSignature,
+            MethodSignature updatedSignature)
+        {
+            var argumentCount = invocation.Arguments.Count;
+            if (argumentCount != originalSignature.Parameters.Count)
+            {
+                return;
+            }
+
+            var argumentsByName = new Dictionary<string, ValueExpression>(argumentCount);
+            for (int i = 0; i < argumentCount; i++)
+            {
+                argumentsByName.TryAdd(originalSignature.Parameters[i].Name, invocation.Arguments[i]);
+            }
+
+            var reorderedArgs = new List<ValueExpression>(updatedSignature.Parameters.Count);
+            foreach (var param in updatedSignature.Parameters)
+            {
+                if (argumentsByName.TryGetValue(param.Name, out var arg))
+                {
+                    reorderedArgs.Add(arg);
+                }
+            }
+
+            if (reorderedArgs.Count == invocation.Arguments.Count
+                && !reorderedArgs.SequenceEqual(invocation.Arguments))
+            {
+                invocation.Update(arguments: reorderedArgs);
+            }
+        }
+
+        private static void UpdateXmlDocProviderForParamReorder(
+            XmlDocProvider xmlDocs,
+            MethodSignature updatedSignature)
+        {
+            var paramDocsByName = xmlDocs.Parameters.ToDictionary(s => s.Parameter.Name);
+            var reorderedParamDocs = new List<XmlDocParamStatement>(updatedSignature.Parameters.Count);
+
+            foreach (var param in updatedSignature.Parameters)
+            {
+                if (paramDocsByName.TryGetValue(param.Name, out var paramDoc))
+                {
+                    reorderedParamDocs.Add(paramDoc);
+                }
+            }
+
+            if (reorderedParamDocs.Count == xmlDocs.Parameters.Count &&
+                !reorderedParamDocs.SequenceEqual(xmlDocs.Parameters))
+            {
+                xmlDocs.Update(parameters: reorderedParamDocs);
+            }
         }
     }
 }
