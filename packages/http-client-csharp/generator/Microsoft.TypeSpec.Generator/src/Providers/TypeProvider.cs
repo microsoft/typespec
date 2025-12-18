@@ -6,11 +6,13 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Utilities;
 
 namespace Microsoft.TypeSpec.Generator.Providers
 {
@@ -19,6 +21,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private Lazy<TypeProvider?> _customCodeView;
         private Lazy<TypeProvider?> _lastContractView;
         private Lazy<CanonicalTypeProvider> _canonicalView;
+        private Lazy<TypeProvider> _specView;
         private readonly InputType? _inputType;
 
         protected TypeProvider(InputType? inputType = default)
@@ -26,6 +29,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _customCodeView = new(() => BuildCustomCodeView());
             _canonicalView = new(BuildCanonicalView);
             _lastContractView = new(() => BuildLastContractView());
+            _specView = new(BuildSpecView);
             _inputType = inputType;
         }
 
@@ -49,8 +53,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 generatedTypeName ?? CustomCodeView?.Name ?? BuildName(),
                 DeclaringTypeProvider?.Type.Name);
 
+        private protected virtual TypeProvider BuildSpecView() => new SpecTypeProvider(this);
+
         public TypeProvider? CustomCodeView => _customCodeView.Value;
         public TypeProvider? LastContractView => _lastContractView.Value;
+        public TypeProvider SpecView => _specView.Value;
 
         private IReadOnlyList<PropertyProvider> BuildAllCustomProperties()
         {
@@ -182,7 +189,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // mask & (mask - 1) gives us 0 if mask is a power of 2, it means we have exactly one flag of above when the mask is a power of 2
             if ((mask & (mask - 1)) != 0)
             {
-                throw new InvalidOperationException($"Invalid modifier {modifiers} on TypeProvider {Name}");
+                CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                   DiagnosticCodes.InvalidAccessModifier,
+                   $"Invalid modifiers {modifiers} detected.",
+                   severity: EmitterDiagnosticSeverity.Warning);
             }
 
             // we always add partial when possible
@@ -197,6 +207,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
         internal virtual TypeProvider? BaseTypeProvider => null;
 
         protected virtual CSharpType? BuildBaseType() => null;
+
+        private protected virtual bool FilterCustomizedMembers => true;
 
         public CSharpType? BaseType => _baseType ??= BuildBaseType() ?? CustomCodeView?.BaseType;
         private CSharpType? _baseType;
@@ -215,17 +227,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private IReadOnlyList<PropertyProvider>? _properties;
 
-        public IReadOnlyList<PropertyProvider> Properties => _properties ??= FilterCustomizedProperties(BuildProperties());
+        public IReadOnlyList<PropertyProvider> Properties => _properties ??= FilterCustomizedMembers ? FilterCustomizedProperties(BuildProperties()) : BuildProperties();
 
         private IReadOnlyList<MethodProvider>? _methods;
-        public IReadOnlyList<MethodProvider> Methods => _methods ??= FilterCustomizedMethods(BuildMethods());
+        public IReadOnlyList<MethodProvider> Methods => _methods ??= FilterCustomizedMembers ? FilterCustomizedMethods(BuildMethods()) : BuildMethods();
 
         private IReadOnlyList<ConstructorProvider>? _constructors;
 
-        public IReadOnlyList<ConstructorProvider> Constructors => _constructors ??= FilterCustomizedConstructors(BuildConstructors());
+        public IReadOnlyList<ConstructorProvider> Constructors => _constructors ??= FilterCustomizedMembers ? FilterCustomizedConstructors(BuildConstructors()) : BuildConstructors();
 
         private IReadOnlyList<FieldProvider>? _fields;
-        public IReadOnlyList<FieldProvider> Fields => _fields ??= FilterCustomizedFields(BuildFields());
+        public IReadOnlyList<FieldProvider> Fields => _fields ??= FilterCustomizedMembers ? FilterCustomizedFields(BuildFields()) : BuildFields();
 
         private IReadOnlyList<TypeProvider>? _nestedTypes;
         public IReadOnlyList<TypeProvider> NestedTypes => _nestedTypes ??= BuildNestedTypesInternal();
@@ -257,7 +269,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected virtual CSharpType[] GetTypeArguments() => [];
 
-        internal virtual PropertyProvider[] FilterCustomizedProperties(IEnumerable<PropertyProvider> specProperties)
+        internal PropertyProvider[] FilterCustomizedProperties(IEnumerable<PropertyProvider> specProperties)
         {
             var properties = new List<PropertyProvider>();
             var customProperties = new HashSet<string>();
@@ -288,10 +300,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
             }
 
-            return [..properties];
+            return [.. properties];
         }
 
-        internal virtual FieldProvider[] FilterCustomizedFields(IEnumerable<FieldProvider> specFields)
+        internal FieldProvider[] FilterCustomizedFields(IEnumerable<FieldProvider> specFields)
         {
             var fields = new List<FieldProvider>();
             var customFields = new HashSet<string>();
@@ -316,7 +328,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return [.. fields];
         }
 
-        internal virtual MethodProvider[] FilterCustomizedMethods(IEnumerable<MethodProvider> specMethods)
+        internal MethodProvider[] FilterCustomizedMethods(IEnumerable<MethodProvider> specMethods)
         {
             var methods = new List<MethodProvider>();
             foreach (var method in specMethods)
@@ -327,10 +339,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
             }
 
-            return [..methods];
+            return [.. methods];
         }
 
-        internal virtual ConstructorProvider[] FilterCustomizedConstructors(IEnumerable<ConstructorProvider> specConstructors)
+        internal ConstructorProvider[] FilterCustomizedConstructors(IEnumerable<ConstructorProvider> specConstructors)
         {
             var constructors = new List<ConstructorProvider>();
             foreach (var constructor in specConstructors)
@@ -341,7 +353,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
             }
 
-            return [..constructors];
+            return [.. constructors];
         }
 
         private TypeProvider[] BuildNestedTypesInternal()
@@ -358,15 +370,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return [.. nestedTypes];
         }
 
-        protected virtual PropertyProvider[] BuildProperties() => [];
+        protected internal virtual PropertyProvider[] BuildProperties() => [];
 
-        protected virtual FieldProvider[] BuildFields() => [];
+        protected internal virtual FieldProvider[] BuildFields() => [];
 
-        protected virtual CSharpType[] BuildImplements() => [];
+        protected internal virtual CSharpType[] BuildImplements() => [];
 
-        protected virtual MethodProvider[] BuildMethods() => [];
+        protected internal virtual MethodProvider[] BuildMethods() => [];
 
-        protected virtual ConstructorProvider[] BuildConstructors() => [];
+        protected internal virtual ConstructorProvider[] BuildConstructors() => [];
 
         protected virtual TypeProvider[] BuildNestedTypes() => [];
 
@@ -509,6 +521,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // Reset the custom code view to reflect the new namespace
                 _customCodeView = new(BuildCustomCodeView(Type.Name, @namespace));
                 _lastContractView = new(BuildLastContractView(Type.Name, @namespace));
+                _declarationModifiers = BuildDeclarationModifiersInternal(); // recalculate declaration modifiers
                 Type.Update(@namespace: _customCodeView.Value?.Type.Namespace ?? @namespace);
             }
 
@@ -540,6 +553,19 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 type.EnsureBuilt();
             }
         }
+
+        internal void ProcessTypeForBackCompatibility()
+        {
+            if (LastContractView?.Methods == null || LastContractView?.Methods.Count == 0)
+            {
+                return;
+            }
+
+            Update(methods: BuildMethodsForBackCompatibility(Methods));
+        }
+
+        protected internal virtual IReadOnlyList<MethodProvider> BuildMethodsForBackCompatibility(IEnumerable<MethodProvider> originalMethods)
+            => [.. originalMethods];
 
         private IReadOnlyList<EnumTypeMember>? _enumValues;
 
@@ -653,7 +679,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
             else if (attribute.ConstructorArguments[1].Kind != TypedConstantKind.Array)
             {
-                parameterTypes = attribute.ConstructorArguments[1..].Select(a => (ISymbol?) a.Value).ToArray();
+                parameterTypes = attribute.ConstructorArguments[1..].Select(a => (ISymbol?)a.Value).ToArray();
             }
             else
             {

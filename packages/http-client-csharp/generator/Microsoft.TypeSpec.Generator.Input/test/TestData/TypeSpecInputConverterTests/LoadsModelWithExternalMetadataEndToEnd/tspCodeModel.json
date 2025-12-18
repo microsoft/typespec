@@ -1,0 +1,23 @@
+{
+  "$id": "1",
+  "name": "TestNamespace",
+  "models": [
+    {
+      "$id": "2",
+      "kind": "model",
+      "name": "ExternalModel",
+      "namespace": "TestNamespace",
+      "crossLanguageDefinitionId": "TestNamespace.ExternalModel",
+      "usage": "None",
+      "properties": [],
+      "external": {
+        "identity": "System.Text.Json.JsonElement",
+        "package": "System.Text.Json",
+        "minVersion": "8.0.0"
+      }
+    }
+  ],
+  "clients": [],
+  "enums": []
+}
+

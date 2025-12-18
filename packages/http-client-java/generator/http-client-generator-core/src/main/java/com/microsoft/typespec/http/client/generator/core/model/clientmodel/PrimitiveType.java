@@ -3,6 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
+import com.microsoft.typespec.http.client.generator.core.util.WireTypeClientTypeConverter;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.Set;
@@ -224,35 +225,12 @@ public class PrimitiveType implements IType {
 
     @Override
     public final String convertToClientType(String expression) {
-        if (getClientType() == this) {
-            return expression;
-        }
-
-        if (this == PrimitiveType.UNIX_TIME_LONG) {
-            expression
-                = String.format("OffsetDateTime.ofInstant(Instant.ofEpochSecond(%1$s), ZoneOffset.UTC)", expression);
-        } else if (this == PrimitiveType.DURATION_LONG) {
-            expression = String.format("Duration.ofSeconds(%s)", expression);
-        } else if (this == PrimitiveType.DURATION_DOUBLE) {
-            expression = String.format("Duration.ofNanos((long) (%s * 1000_000_000L))", expression);
-        }
-        return expression;
+        return WireTypeClientTypeConverter.convertToClientTypeExpression(this, expression);
     }
 
     @Override
     public final String convertFromClientType(String expression) {
-        if (getClientType() == this) {
-            return expression;
-        }
-
-        if (this == PrimitiveType.UNIX_TIME_LONG) {
-            expression = String.format("%1$s.toEpochSecond()", expression);
-        } else if (this == PrimitiveType.DURATION_LONG) {
-            expression = String.format("%s.getSeconds()", expression);
-        } else if (this == PrimitiveType.DURATION_DOUBLE) {
-            expression = String.format("(double) %s.toNanos() / 1000_000_000L", expression);
-        }
-        return expression;
+        return WireTypeClientTypeConverter.convertToWireTypeExpression(this, expression);
     }
 
     @Override

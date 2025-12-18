@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.fluent;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.JavaSettingsAccessor;
 import com.microsoft.typespec.http.client.generator.TypeSpecPlugin;
 import com.microsoft.typespec.http.client.generator.core.extension.model.Message;
@@ -24,6 +23,7 @@ import com.microsoft.typespec.http.client.generator.model.EmitterOptions;
 import com.microsoft.typespec.http.client.generator.util.FileUtil;
 import com.microsoft.typespec.http.client.generator.util.MetadataUtil;
 import io.clientcore.core.serialization.json.JsonReader;
+import io.clientcore.core.utils.CoreUtils;
 import io.clientcore.core.utils.IOExceptionCheckedFunction;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -178,6 +178,8 @@ public class TypeSpecFluentPlugin extends FluentGen {
         SETTINGS_MAP.put("graal-vm-config", true);
         SETTINGS_MAP.put("sync-methods", "all");
         SETTINGS_MAP.put("stream-style-serialization", false);
+
+        SETTINGS_MAP.put("polling", new HashMap<String, Object>());
     }
 
     @SuppressWarnings("unchecked")

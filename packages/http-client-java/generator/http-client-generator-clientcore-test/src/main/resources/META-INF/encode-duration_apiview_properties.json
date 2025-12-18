@@ -10,10 +10,14 @@
     "encode.duration.property.Float64SecondsDurationProperty": "Encode.Duration.Property.Float64SecondsDurationProperty",
     "encode.duration.property.FloatMillisecondsDurationArrayProperty": "Encode.Duration.Property.FloatMillisecondsDurationArrayProperty",
     "encode.duration.property.FloatMillisecondsDurationProperty": "Encode.Duration.Property.FloatMillisecondsDurationProperty",
+    "encode.duration.property.FloatMillisecondsLargerUnitDurationProperty": "Encode.Duration.Property.FloatMillisecondsLargerUnitDurationProperty",
     "encode.duration.property.FloatSecondsDurationArrayProperty": "Encode.Duration.Property.FloatSecondsDurationArrayProperty",
     "encode.duration.property.FloatSecondsDurationProperty": "Encode.Duration.Property.FloatSecondsDurationProperty",
+    "encode.duration.property.FloatSecondsLargerUnitDurationProperty": "Encode.Duration.Property.FloatSecondsLargerUnitDurationProperty",
     "encode.duration.property.ISO8601DurationProperty": "Encode.Duration.Property.ISO8601DurationProperty",
     "encode.duration.property.Int32MillisecondsDurationProperty": "Encode.Duration.Property.Int32MillisecondsDurationProperty",
-    "encode.duration.property.Int32SecondsDurationProperty": "Encode.Duration.Property.Int32SecondsDurationProperty"
+    "encode.duration.property.Int32MillisecondsLargerUnitDurationProperty": "Encode.Duration.Property.Int32MillisecondsLargerUnitDurationProperty",
+    "encode.duration.property.Int32SecondsDurationProperty": "Encode.Duration.Property.Int32SecondsDurationProperty",
+    "encode.duration.property.Int32SecondsLargerUnitDurationProperty": "Encode.Duration.Property.Int32SecondsLargerUnitDurationProperty"
   }
 }

@@ -287,5 +287,178 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(1, testTypeProvider.CanonicalView.Properties.Count);
             Assert.AreEqual(typeof(System.Int32), testTypeProvider.CanonicalView.Properties[0].Type.FrameworkType);
         }
+
+        [Test]
+        public void TestSpecViewReturnsAllProperties()
+        {
+            var property1 = new PropertyProvider($"", MethodSignatureModifiers.Public, typeof(string), "Prop1",
+                new AutoPropertyBody(HasSetter: true), new TestTypeProvider());
+            var property2 = new PropertyProvider($"", MethodSignatureModifiers.Public, typeof(int), "Prop2",
+                new AutoPropertyBody(HasSetter: true), new TestTypeProvider());
+            var property3 = new PropertyProvider($"", MethodSignatureModifiers.Public, typeof(bool), "Prop3",
+                new AutoPropertyBody(HasSetter: true), new TestTypeProvider());
+
+            var typeProvider = new TestTypeProvider(properties: [property1, property2, property3]);
+
+            // Regular Properties view returns all 3 (no customization)
+            Assert.AreEqual(3, typeProvider.Properties.Count);
+
+            // SpecView should also return all 3
+            var specView = typeProvider.SpecView;
+            Assert.IsNotNull(specView);
+            Assert.AreEqual(3, specView.Properties.Count);
+            Assert.AreEqual("Prop1", specView.Properties[0].Name);
+            Assert.AreEqual("Prop2", specView.Properties[1].Name);
+            Assert.AreEqual("Prop3", specView.Properties[2].Name);
+        }
+
+        [Test]
+        public async Task TestSpecViewReturnsAllPropertiesEvenWhenCustomized()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var property1 = new PropertyProvider($"", MethodSignatureModifiers.Public, typeof(string), "Prop1",
+                new AutoPropertyBody(HasSetter: true), new TestTypeProvider());
+            var property2 = new PropertyProvider($"", MethodSignatureModifiers.Public, typeof(int), "Prop2",
+                new AutoPropertyBody(HasSetter: true), new TestTypeProvider());
+            var property3 = new PropertyProvider($"", MethodSignatureModifiers.Public, typeof(bool), "Prop3",
+                new AutoPropertyBody(HasSetter: true), new TestTypeProvider());
+
+            var typeProvider = new TestTypeProvider(name: "TestSpecViewWithCustomization", properties: [property1, property2, property3]);
+
+            // CustomCodeView has Prop1 customized, so regular Properties view should filter it out
+            Assert.IsNotNull(typeProvider.CustomCodeView);
+            Assert.AreEqual(2, typeProvider.Properties.Count); // Only Prop2 and Prop3
+            Assert.AreEqual("Prop2", typeProvider.Properties[0].Name);
+            Assert.AreEqual("Prop3", typeProvider.Properties[1].Name);
+
+            // SpecView should return all 3 properties (unfiltered)
+            var specView = typeProvider.SpecView;
+            Assert.IsNotNull(specView);
+            Assert.AreEqual(3, specView.Properties.Count);
+            Assert.AreEqual("Prop1", specView.Properties[0].Name);
+            Assert.AreEqual("Prop2", specView.Properties[1].Name);
+            Assert.AreEqual("Prop3", specView.Properties[2].Name);
+        }
+
+        [Test]
+        public void TestSpecViewReturnsAllMethods()
+        {
+            // Create a type provider with 3 methods
+            var method1 = new MethodProvider(
+                new MethodSignature("Method1", $"", MethodSignatureModifiers.Public, null, $"", []),
+                Snippet.Throw(Snippet.Null), new TestTypeProvider());
+            var method2 = new MethodProvider(
+                new MethodSignature("Method2", $"", MethodSignatureModifiers.Public, null, $"", []),
+                Snippet.Throw(Snippet.Null), new TestTypeProvider());
+            var method3 = new MethodProvider(
+                new MethodSignature("Method3", $"", MethodSignatureModifiers.Public, null, $"", []),
+                Snippet.Throw(Snippet.Null), new TestTypeProvider());
+
+            var typeProvider = new TestTypeProvider(methods: [method1, method2, method3]);
+
+            // Regular Methods view returns all 3 (no customization)
+            Assert.AreEqual(3, typeProvider.Methods.Count);
+
+            // SpecView should also return all 3
+            var specView = typeProvider.SpecView;
+            Assert.IsNotNull(specView);
+            Assert.AreEqual(3, specView.Methods.Count);
+            Assert.AreEqual("Method1", specView.Methods[0].Signature.Name);
+            Assert.AreEqual("Method2", specView.Methods[1].Signature.Name);
+            Assert.AreEqual("Method3", specView.Methods[2].Signature.Name);
+        }
+
+        [Test]
+        public async Task TestSpecViewReturnsAllMethodsEvenWhenCustomized()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            // Create a type provider with 3 methods
+            var typeProvider = new TestTypeProvider(name: "TestSpecViewWithCustomization");
+            var method1 = new MethodProvider(
+                new MethodSignature("Method1", $"", MethodSignatureModifiers.Public, null, $"", []),
+                Snippet.Throw(Snippet.Null), typeProvider);
+            var method2 = new MethodProvider(
+                new MethodSignature("Method2", $"", MethodSignatureModifiers.Public, null, $"", []),
+                Snippet.Throw(Snippet.Null), typeProvider);
+            var method3 = new MethodProvider(
+                new MethodSignature("Method3", $"", MethodSignatureModifiers.Public, null, $"", []),
+                Snippet.Throw(Snippet.Null), typeProvider);
+
+            typeProvider = new TestTypeProvider(name: "TestSpecViewWithCustomization", methods: [method1, method2, method3]);
+
+            // CustomCodeView has Method1 customized, so regular Methods view should filter it out
+            Assert.IsNotNull(typeProvider.CustomCodeView);
+            Assert.AreEqual(2, typeProvider.Methods.Count); // Only Method2 and Method3
+            Assert.AreEqual("Method2", typeProvider.Methods[0].Signature.Name);
+            Assert.AreEqual("Method3", typeProvider.Methods[1].Signature.Name);
+
+            // SpecView should return all 3 methods (unfiltered)
+            var specView = typeProvider.SpecView;
+            Assert.IsNotNull(specView);
+            Assert.AreEqual(3, specView.Methods.Count);
+            Assert.AreEqual("Method1", specView.Methods[0].Signature.Name);
+            Assert.AreEqual("Method2", specView.Methods[1].Signature.Name);
+            Assert.AreEqual("Method3", specView.Methods[2].Signature.Name);
+        }
+
+        [Test]
+        public async Task TestSpecViewReturnsAllPropertiesEvenWhenSuppressed()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var property1 = new PropertyProvider($"", MethodSignatureModifiers.Public, typeof(string), "SuppressedProp",
+                new AutoPropertyBody(HasSetter: true), new TestTypeProvider());
+            var property2 = new PropertyProvider($"", MethodSignatureModifiers.Public, typeof(string), "Prop2",
+                new AutoPropertyBody(HasSetter: true), new TestTypeProvider());
+
+            var typeProvider = new TestTypeProvider(name: "TestSpecViewWithSuppression", properties: [property1, property2]);
+
+            // CustomCodeView has SuppressedProp marked with CodeGenSuppress attribute
+            Assert.IsNotNull(typeProvider.CustomCodeView);
+            Assert.AreEqual(1, typeProvider.Properties.Count); // Only Prop2
+            Assert.AreEqual("Prop2", typeProvider.Properties[0].Name);
+
+            // SpecView should return all 2 properties (unfiltered)
+            var specView = typeProvider.SpecView;
+            Assert.IsNotNull(specView);
+            Assert.AreEqual(2, specView.Properties.Count);
+            Assert.AreEqual("SuppressedProp", specView.Properties[0].Name);
+            Assert.AreEqual("Prop2", specView.Properties[1].Name);
+        }
+
+        [Test]
+        public void TestSpecViewIsNotNull()
+        {
+            var typeProvider = new TestTypeProvider();
+            var specView = typeProvider.SpecView;
+
+            Assert.IsNotNull(specView);
+            Assert.IsInstanceOf<TypeProvider>(specView);
+        }
+
+        [Test]
+        public void TestSpecViewDelegatesCorrectly()
+        {
+            // Create a type provider with properties and methods
+            var method = new MethodProvider(
+                new MethodSignature("TestMethod", $"", MethodSignatureModifiers.Public, null, $"", []),
+                Snippet.Throw(Snippet.Null), new TestTypeProvider());
+
+            var typeProvider = new TestTypeProvider(
+                name: "TestType",
+                properties: [new PropertyProvider($"", MethodSignatureModifiers.Public, typeof(string), "TestProp", new AutoPropertyBody(HasSetter: true), new TestTypeProvider())],
+                methods: [method]);
+
+            var specView = typeProvider.SpecView;
+
+            // Verify that SpecView delegates to the underlying provider's Build methods
+            Assert.AreEqual(1, specView.Properties.Count);
+            Assert.AreEqual(1, specView.Methods.Count);
+            Assert.AreEqual("TestProp", specView.Properties[0].Name);
+            Assert.AreEqual("TestMethod", specView.Methods[0].Signature.Name);
+            Assert.AreEqual("TestType", specView.Name);
+        }
     }
 }

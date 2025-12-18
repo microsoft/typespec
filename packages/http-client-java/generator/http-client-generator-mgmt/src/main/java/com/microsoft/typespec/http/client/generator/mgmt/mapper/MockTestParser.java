@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.mgmt.mapper;
 
-import com.azure.core.http.HttpMethod;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
@@ -27,6 +26,7 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.examp
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.examplemodel.FluentResourceCreateExample;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.create.ResourceCreate;
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
+import io.clientcore.core.http.models.HttpMethod;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;

@@ -244,6 +244,7 @@ function addPagingInformation(
     nextLinkIsNested:
       method.pagingMetadata.nextLinkSegments && method.pagingMetadata.nextLinkSegments.length > 1,
     nextLinkReInjectedParameters,
+    nextLinkVerb: method.pagingMetadata.nextLinkVerb,
     itemType,
     description: method.doc ?? "",
     summary: method.summary,
@@ -460,8 +461,9 @@ function emitHttpParameters(
           // And same for subscriptionId.
           for (const param of operation.parameters) {
             if (
-              (param.kind === "query" && param.isApiVersionParam) ||
-              (param.serializedName === "subscriptionId" && param.kind === "path")
+              ((param.kind === "query" && param.isApiVersionParam) ||
+                (param.serializedName === "subscriptionId" && param.kind === "path")) &&
+              !parametersFromMethod.find((p) => p.serializedName === param.serializedName)
             ) {
               parametersFromMethod.push(param);
             }

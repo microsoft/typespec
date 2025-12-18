@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.util;
 
-import com.azure.core.util.CoreUtils;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ApiVersion;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Client;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
@@ -30,6 +29,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Metho
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModelPropertySegment;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ServiceClient;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
+import io.clientcore.core.utils.CoreUtils;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -1,0 +1,28 @@
+{
+  "flavor": "Azure", 
+  "CrossLanguageDefinitionId": {
+    "encode.array.ArrayAsyncClient": "Encode.Array.Property",
+    "encode.array.ArrayAsyncClient.commaDelimited": "Encode.Array.Property.commaDelimited",
+    "encode.array.ArrayAsyncClient.commaDelimitedWithResponse": "Encode.Array.Property.commaDelimited",
+    "encode.array.ArrayAsyncClient.newlineDelimited": "Encode.Array.Property.newlineDelimited",
+    "encode.array.ArrayAsyncClient.newlineDelimitedWithResponse": "Encode.Array.Property.newlineDelimited",
+    "encode.array.ArrayAsyncClient.pipeDelimited": "Encode.Array.Property.pipeDelimited",
+    "encode.array.ArrayAsyncClient.pipeDelimitedWithResponse": "Encode.Array.Property.pipeDelimited",
+    "encode.array.ArrayAsyncClient.spaceDelimited": "Encode.Array.Property.spaceDelimited",
+    "encode.array.ArrayAsyncClient.spaceDelimitedWithResponse": "Encode.Array.Property.spaceDelimited",
+    "encode.array.ArrayClient": "Encode.Array.Property",
+    "encode.array.ArrayClient.commaDelimited": "Encode.Array.Property.commaDelimited",
+    "encode.array.ArrayClient.commaDelimitedWithResponse": "Encode.Array.Property.commaDelimited",
+    "encode.array.ArrayClient.newlineDelimited": "Encode.Array.Property.newlineDelimited",
+    "encode.array.ArrayClient.newlineDelimitedWithResponse": "Encode.Array.Property.newlineDelimited",
+    "encode.array.ArrayClient.pipeDelimited": "Encode.Array.Property.pipeDelimited",
+    "encode.array.ArrayClient.pipeDelimitedWithResponse": "Encode.Array.Property.pipeDelimited",
+    "encode.array.ArrayClient.spaceDelimited": "Encode.Array.Property.spaceDelimited",
+    "encode.array.ArrayClient.spaceDelimitedWithResponse": "Encode.Array.Property.spaceDelimited",
+    "encode.array.ArrayClientBuilder": "Encode.Array",
+    "encode.array.models.CommaDelimitedArrayProperty": "Encode.Array.CommaDelimitedArrayProperty",
+    "encode.array.models.NewlineDelimitedArrayProperty": "Encode.Array.NewlineDelimitedArrayProperty",
+    "encode.array.models.PipeDelimitedArrayProperty": "Encode.Array.PipeDelimitedArrayProperty",
+    "encode.array.models.SpaceDelimitedArrayProperty": "Encode.Array.SpaceDelimitedArrayProperty"
+  }
+}

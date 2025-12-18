@@ -14,10 +14,8 @@ import com.azure.json.JsonWriter;
 import java.io.IOException;
 import java.util.Map;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-@Disabled("Fix in spector has not been released")
 public class AlternateTypeTests {
 
     private final AlternateTypeClient client = new AlternateTypeClientBuilder().buildClient();
