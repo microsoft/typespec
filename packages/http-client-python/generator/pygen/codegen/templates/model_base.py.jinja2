@@ -396,8 +396,8 @@ class _MyMutableMapping(MutableMapping[str, typing.Any]):
                         serialized = _serialize(value, rf._format)
                         # If serialized form is same type (no transformation needed),
                         # return _data directly so mutations work
-                        if type(serialized) == type(value) and serialized == value: # pyright: ignore
-                            return self._data.get(key)
+                        if isinstance(serialized, type(value)) and serialized == value:
+                          return self._data.get(key)
                         # Otherwise return serialized copy and clear flag
                         try:
                             object.__delattr__(self, cache_attr)
