@@ -753,7 +753,7 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                         isJsonMergePatch);
                 } else {
                     // wireType is String
-                    // at present, only String element is supported
+                    // at present, only String element is supported. this check is in ts code.
                     methodBlock.ifBlock(propertyValueGetter + " != null", ifBlock -> {
                         String serializeExpression = propertyValueGetter
                             + ".stream().map(element -> element == null ? \"\" : element).collect(Collectors.joining(\""
@@ -1621,7 +1621,7 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                         ((IterableType) wireType).getElementType(), ((IterableType) clientType).getElementType(), 0);
                 } else {
                     // wireType is String
-                    // at present, only String element is supported
+                    // at present, only String element is supported. this check is in ts code.
                     // LinkedList is used to be consistent with internal code of core, e.g. "readArray" API
                     deserializationBlock.line(
                         "%1$s == null ? null : %1$s.isEmpty() ? new LinkedList<>() : new LinkedList<>(Arrays.asList(%1$s.split(\"%2$s\", -1)));",
