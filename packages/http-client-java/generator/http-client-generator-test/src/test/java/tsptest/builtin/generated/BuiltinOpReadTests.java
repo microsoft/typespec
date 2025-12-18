@@ -56,5 +56,6 @@ public final class BuiltinOpReadTests extends BuiltinClientTestBase {
         Assertions.assertNotNull(responseEncoded.getUnixTimestamp());
         Assertions.assertNotNull(responseEncoded.getBase64());
         Assertions.assertNotNull(responseEncoded.getBase64url());
+        Assertions.assertNotNull(responseEncoded.getCommaDeliminatedArray());
     }
 }
