@@ -24,13 +24,14 @@
         "url": "https://www.github.com",
         "stringList": ["a", "b", "c"],
         "encoded": {
-          "timeInSeconds": "PT15M",
-          "timeInSecondsFraction": "PT20.345S",
+          "timeInSeconds": "900",
+          "timeInSecondsFraction": "1200.345",
           "dateTime": "1966-03-03T00:06:56.52Z",
           "dateTimeRfc7231": "Sun, 06 Nov 1994 08:49:37 GMT",
           "unixTimestamp": "1693362903",
           "base64": "aHR0cHM6Ly93d3cuZ2l0aHViLmNvbQ==",
-          "base64url": "aHR0cHM6Ly93d3cuZ2l0aHViLmNvbQ=="
+          "base64url": "aHR0cHM6Ly93d3cuZ2l0aHViLmNvbQ==",
+          "commaDeliminatedArray": "a,b,c"
         }
       }
     },
