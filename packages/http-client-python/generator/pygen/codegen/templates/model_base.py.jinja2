@@ -386,7 +386,7 @@ class _MyMutableMapping(MutableMapping[str, typing.Any]):
         if hasattr(self, "_attr_to_rest_field"):
             cache_attr = f"_deserialized_{key}"
             if hasattr(self, cache_attr):
-                rf = _get_rest_field(self._attr_to_rest_field, key)
+                rf = _get_rest_field(getattr(self, "_attr_to_rest_field"), key)
                 if rf:
                     value = self._data.get(key)
                     if isinstance(value, (dict, list, set)):
