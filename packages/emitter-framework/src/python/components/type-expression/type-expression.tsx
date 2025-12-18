@@ -1,7 +1,7 @@
 import { Experimental_OverridableComponent } from "#core/components/index.js";
 import { useTsp } from "#core/context/index.js";
 import { reportPythonDiagnostic } from "#python/lib.js";
-import { code, For, mapJoin } from "@alloy-js/core";
+import { code, For, List, mapJoin } from "@alloy-js/core";
 import * as py from "@alloy-js/python";
 import {
   isNeverType,
@@ -49,7 +49,12 @@ export function TypeExpression(props: TypeExpressionProps) {
     case "Boolean":
     case "Number":
     case "String":
-      return <py.Atom jsValue={type.value} />;
+      // Single literal values are wrapped in Literal[...]
+      return (
+        <>
+          {typingModule["."]["Literal"]}[{formatLiteralValue(type)}]
+        </>
+      );
     case "Tuple":
       return (
         <>
@@ -62,13 +67,64 @@ export function TypeExpression(props: TypeExpressionProps) {
       );
     case "Union": {
       const variants = Array.from((type as any).variants?.values?.() ?? []);
+
+      // Check if all variants are literals or named union variant refs with literal values
+      const isLiteralOrVariantRef = (t: Type): boolean => {
+        if (!t) return false;
+        if (isLiteral($, t)) return true;
+        // Named union variant with a literal inner value
+        if (t.kind === "UnionVariant" && (t as any).union?.name) {
+          return isLiteral($, (t as any).type);
+        }
+        return false;
+      };
+
+      const innerTypes = variants.map((v: any) => v.type);
+      if (innerTypes.every(isLiteralOrVariantRef)) {
+        // All literals - render as Literal[...]
+        const literalValues = variants
+          .map((v: any) => {
+            const innerType = v.type;
+            // Named union variant ref with literal value
+            if (innerType.kind === "UnionVariant" && innerType.union?.name) {
+              const variantName = String(innerType.name).toUpperCase();
+              return code`${efRefkey(innerType.union)}.${variantName}`;
+            }
+            if (isLiteral($, innerType)) {
+              return formatLiteralValue(innerType);
+            }
+            return undefined;
+          })
+          .filter(Boolean);
+
+        return (
+          <>
+            {typingModule["."]["Literal"]}[<List children={literalValues} joiner=", " />]
+          </>
+        );
+      }
+
+      // Not all literals - render as union type
       return mapJoin(
         () => variants,
         (v: any) => <TypeExpression type={v.type} />,
         { joiner: " | " },
       );
     }
-    case "UnionVariant":
+    case "UnionVariant": {
+      // Union variant from a named union with a literal value
+      if (type.union && (type.union as any).name && isLiteral($, type.type)) {
+        // Use the variant's name (e.g., "red", "active"), converted to UPPER_CASE by the enum
+        const variantName = String(type.name).toUpperCase();
+        return (
+          <>
+            {typingModule["."]["Literal"]}[{efRefkey(type.union)}.{variantName}]
+          </>
+        );
+      }
+      // Unnamed union variant or non-literal value, unwrap to its inner type
+      return <TypeExpression type={type.type} />;
+    }
     case "ModelProperty":
       return <TypeExpression type={type.type} />;
     case "Model":
@@ -145,6 +201,29 @@ export function TypeExpression(props: TypeExpressionProps) {
       reportPythonDiagnostic($.program, { code: "python-unsupported-type", target: type });
       // Return empty fragment - the diagnostic has already been reported
       return <></>;
+  }
+}
+
+/**
+ * Checks if a type is a literal (string, numeric, or boolean).
+ */
+function isLiteral($: Typekit, type: Type): boolean {
+  return $.literal.isString(type) || $.literal.isNumeric(type) || $.literal.isBoolean(type);
+}
+
+/**
+ * Formats a literal type value for use in Python's Literal[...] syntax.
+ */
+function formatLiteralValue(type: { kind: string; value: unknown }): string {
+  switch (type.kind) {
+    case "String":
+      return JSON.stringify(type.value);
+    case "Boolean":
+      return type.value ? "True" : "False";
+    case "Number":
+      return String(type.value);
+    default:
+      return String(type.value);
   }
 }
 

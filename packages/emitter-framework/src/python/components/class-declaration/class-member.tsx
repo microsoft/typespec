@@ -3,7 +3,7 @@ import { type Children } from "@alloy-js/core";
 import * as py from "@alloy-js/python";
 import { type ModelProperty, type Operation } from "@typespec/compiler";
 import { useTsp } from "../../../core/context/tsp-context.js";
-import { LiteralTypeExpression } from "../type-expression/literal-type-expression.js";
+import { TypeExpression } from "../type-expression/type-expression.js";
 import { Method } from "./class-method.js";
 import { PrimitiveInitializer } from "./primitive-initializer.js";
 
@@ -35,8 +35,7 @@ export function ClassMember(props: ClassMemberProps) {
     const initializer = defaultValue ? (
       <PrimitiveInitializer defaultValue={defaultValue} propertyType={unpackedType} />
     ) : undefined;
-    // Use LiteralTypeExpression to render enum references and literal unions as Literal[...]
-    const unpackedTypeNode: Children = <LiteralTypeExpression type={unpackedType} />;
+    const unpackedTypeNode: Children = <TypeExpression type={unpackedType} />;
     const typeNode = isOptional ? (
       <py.TypeReference
         refkey={typingModule["."].Optional}
