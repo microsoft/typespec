@@ -37,14 +37,14 @@ public final class BarsImpl {
     /**
      * The service client containing this operation class.
      */
-    private final CombinedClientImpl client;
+    private final CombinedImpl client;
 
     /**
      * Initializes an instance of BarsImpl.
      * 
      * @param client the instance of the service client containing this operation class.
      */
-    BarsImpl(CombinedClientImpl client) {
+    BarsImpl(CombinedImpl client) {
         this.service = RestProxy.create(BarsService.class, client.getHttpPipeline(), client.getSerializerAdapter());
         this.client = client;
     }

@@ -37,14 +37,14 @@ public final class FoosImpl {
     /**
      * The service client containing this operation class.
      */
-    private final CombinedClientImpl client;
+    private final CombinedImpl client;
 
     /**
      * Initializes an instance of FoosImpl.
      * 
      * @param client the instance of the service client containing this operation class.
      */
-    FoosImpl(CombinedClientImpl client) {
+    FoosImpl(CombinedImpl client) {
         this.service = RestProxy.create(FoosService.class, client.getHttpPipeline(), client.getSerializerAdapter());
         this.client = client;
     }
