@@ -17,6 +17,7 @@ azure-mgmt-core==1.6.0
 -e ./generated/azure-client-generator-core-client-location-move-to-existing-sub-client
 -e ./generated/azure-client-generator-core-client-location-move-to-new-sub-client
 -e ./generated/azure-client-generator-core-client-location-move-to-root-client
+-e ./generated/azure-client-generator-core-client-default-value
 -e ./generated/azure-client-generator-core-alternate-type
 -e ./generated/azure-client-generator-core-next-link-verb
 -e ./generated/azure-core-basic
