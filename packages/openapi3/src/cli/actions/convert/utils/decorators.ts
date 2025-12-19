@@ -9,7 +9,7 @@ import {
   OpenAPISchema3_2,
   Refable,
 } from "../../../../types.js";
-import { escapedStringLiteral } from "../generators/common.js";
+import { stringLiteral } from "../generators/common.js";
 import { TSValue, TypeSpecDecorator } from "../interfaces.js";
 
 const validLocations = ["header", "query", "path"];
@@ -103,8 +103,7 @@ export function normalizeObjectValueToTSValueExpression(value: any): string {
   } else if (Array.isArray(value)) {
     return `#[${value.map((v) => normalizeObjectValueToTSValueExpression(v)).join(", ")}]`;
   } else if (typeof value === "string") {
-    // Use escapedStringLiteral for object literal values to avoid issues with nested triple-quotes
-    return escapedStringLiteral(value);
+    return stringLiteral(value);
   } else return `${JSON.stringify(value)}`;
 }
 
