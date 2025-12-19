@@ -16,43 +16,41 @@ namespace SampleTypeSpec
     public static partial class SampleTypeSpecModelFactory
     {
         /// <summary> A model with a few properties of literal types. </summary>
+        /// <param name="rename"> name of the Thing. </param>
         /// <param name="requiredUnion"> required Union. </param>
-        /// <param name="requiredLiteralString"> required literal string. </param>
         /// <param name="requiredNullableString"> required nullable string. </param>
         /// <param name="optionalNullableString"> required optional string. </param>
-        /// <param name="requiredLiteralInt"> required literal int. </param>
-        /// <param name="requiredLiteralFloat"> required literal float. </param>
-        /// <param name="requiredLiteralBool"> required literal bool. </param>
         /// <param name="optionalLiteralString"> optional literal string. </param>
+        /// <param name="requiredNullableLiteralString"> required nullable literal string. </param>
         /// <param name="optionalLiteralInt"> optional literal int. </param>
         /// <param name="optionalLiteralFloat"> optional literal float. </param>
         /// <param name="optionalLiteralBool"> optional literal bool. </param>
         /// <param name="requiredBadDescription"> description with xml &lt;|endoftext|&gt;. </param>
         /// <param name="optionalNullableList"> optional nullable collection. </param>
         /// <param name="requiredNullableList"> required nullable collection. </param>
-        /// <param name="rename"></param>
         /// <returns> A new <see cref="SampleTypeSpec.Thing"/> instance for mocking. </returns>
-        public static Thing Thing(BinaryData requiredUnion = default, string requiredLiteralString = default, string requiredNullableString = default, string optionalNullableString = default, int requiredLiteralInt = default, float requiredLiteralFloat = default, bool requiredLiteralBool = default, string optionalLiteralString = default, int? optionalLiteralInt = default, float? optionalLiteralFloat = default, bool? optionalLiteralBool = default, string requiredBadDescription = default, IEnumerable<int> optionalNullableList = default, IEnumerable<int> requiredNullableList = default, string rename = default)
+        public static Thing Thing(string rename = default, BinaryData requiredUnion = default, string requiredNullableString = default, string optionalNullableString = default, ThingOptionalLiteralString? optionalLiteralString = default, ThingRequiredNullableLiteralString1? requiredNullableLiteralString = default, ThingOptionalLiteralInt? optionalLiteralInt = default, ThingOptionalLiteralFloat? optionalLiteralFloat = default, bool? optionalLiteralBool = default, string requiredBadDescription = default, IEnumerable<int> optionalNullableList = default, IEnumerable<int> requiredNullableList = default)
         {
             optionalNullableList ??= new ChangeTrackingList<int>();
             requiredNullableList ??= new ChangeTrackingList<int>();
 
             return new Thing(
+                rename,
                 requiredUnion,
-                requiredLiteralString,
+                "accept",
                 requiredNullableString,
                 optionalNullableString,
-                requiredLiteralInt,
-                requiredLiteralFloat,
-                requiredLiteralBool,
+                123,
+                1.23F,
+                false,
                 optionalLiteralString,
+                requiredNullableLiteralString,
                 optionalLiteralInt,
                 optionalLiteralFloat,
                 optionalLiteralBool,
                 requiredBadDescription,
                 optionalNullableList.ToList(),
                 requiredNullableList.ToList(),
-                rename,
                 additionalBinaryDataProperties: null);
         }
 
@@ -142,11 +140,12 @@ namespace SampleTypeSpec
         }
 
         /// <summary> this is a model with a client name. </summary>
-        /// <param name="name"> name of the ModelWithClientName. </param>
+        /// <param name="name"> name of the NotFriend. </param>
+        /// <param name="otherName"> name of the ModelWithClientName. </param>
         /// <returns> A new <see cref="SampleTypeSpec.RenamedModelCustom"/> instance for mocking. </returns>
-        public static RenamedModelCustom RenamedModelCustom(string name = default)
+        public static RenamedModelCustom RenamedModelCustom(string name = default, string otherName = default)
         {
-            return new RenamedModelCustom(name, additionalBinaryDataProperties: null);
+            return new RenamedModelCustom(name, additionalBinaryDataProperties: null, otherName);
         }
 
         /// <summary> The ReturnsAnonymousModelResponse. </summary>
@@ -172,6 +171,104 @@ namespace SampleTypeSpec
                 requiredQuery,
                 optionalQuery,
                 additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> A sample dynamic model. </summary>
+        /// <param name="name"></param>
+        /// <param name="optionalUnknown"></param>
+        /// <param name="optionalInt"></param>
+        /// <param name="optionalNullableList"></param>
+        /// <param name="requiredNullableList"></param>
+        /// <param name="optionalNullableDictionary"></param>
+        /// <param name="requiredNullableDictionary"></param>
+        /// <param name="primitiveDictionary"></param>
+        /// <param name="foo"></param>
+        /// <param name="listFoo"></param>
+        /// <param name="listOfListFoo"></param>
+        /// <param name="dictionaryFoo"></param>
+        /// <param name="dictionaryOfDictionaryFoo"></param>
+        /// <param name="dictionaryListFoo"></param>
+        /// <param name="listOfDictionaryFoo"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.DynamicModel"/> instance for mocking. </returns>
+        public static DynamicModel DynamicModel(string name = default, BinaryData optionalUnknown = default, int? optionalInt = default, IEnumerable<int> optionalNullableList = default, IEnumerable<int> requiredNullableList = default, IDictionary<string, int> optionalNullableDictionary = default, IDictionary<string, int> requiredNullableDictionary = default, IDictionary<string, int> primitiveDictionary = default, AnotherDynamicModel foo = default, IEnumerable<AnotherDynamicModel> listFoo = default, IEnumerable<IList<AnotherDynamicModel>> listOfListFoo = default, IDictionary<string, AnotherDynamicModel> dictionaryFoo = default, IDictionary<string, IDictionary<string, AnotherDynamicModel>> dictionaryOfDictionaryFoo = default, IDictionary<string, IList<AnotherDynamicModel>> dictionaryListFoo = default, IEnumerable<IDictionary<string, AnotherDynamicModel>> listOfDictionaryFoo = default)
+        {
+            optionalNullableList ??= new ChangeTrackingList<int>();
+            requiredNullableList ??= new ChangeTrackingList<int>();
+            optionalNullableDictionary ??= new ChangeTrackingDictionary<string, int>();
+            requiredNullableDictionary ??= new ChangeTrackingDictionary<string, int>();
+            primitiveDictionary ??= new ChangeTrackingDictionary<string, int>();
+            listFoo ??= new ChangeTrackingList<AnotherDynamicModel>();
+            listOfListFoo ??= new ChangeTrackingList<IList<AnotherDynamicModel>>();
+            dictionaryFoo ??= new ChangeTrackingDictionary<string, AnotherDynamicModel>();
+            dictionaryOfDictionaryFoo ??= new ChangeTrackingDictionary<string, IDictionary<string, AnotherDynamicModel>>();
+            dictionaryListFoo ??= new ChangeTrackingDictionary<string, IList<AnotherDynamicModel>>();
+            listOfDictionaryFoo ??= new ChangeTrackingList<IDictionary<string, AnotherDynamicModel>>();
+
+            return new DynamicModel(
+                name,
+                optionalUnknown,
+                optionalInt,
+                optionalNullableList.ToList(),
+                requiredNullableList.ToList(),
+                optionalNullableDictionary,
+                requiredNullableDictionary,
+                primitiveDictionary,
+                foo,
+                listFoo.ToList(),
+                listOfListFoo.ToList(),
+                dictionaryFoo,
+                dictionaryOfDictionaryFoo,
+                dictionaryListFoo,
+                listOfDictionaryFoo.ToList(),
+                default);
+        }
+
+        /// <summary> Another sample dynamic model. </summary>
+        /// <param name="bar"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.AnotherDynamicModel"/> instance for mocking. </returns>
+        public static AnotherDynamicModel AnotherDynamicModel(string bar = default)
+        {
+            return new AnotherDynamicModel(bar, default);
+        }
+
+        /// <summary>
+        /// Base animal with discriminator
+        /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="SampleTypeSpec.Pet"/> and <see cref="SampleTypeSpec.Dog"/>.
+        /// </summary>
+        /// <param name="kind"> The kind of animal. </param>
+        /// <param name="name"> Name of the animal. </param>
+        /// <returns> A new <see cref="SampleTypeSpec.Animal"/> instance for mocking. </returns>
+        public static Animal Animal(string kind = default, string name = default)
+        {
+            return new UnknownAnimal(kind, name, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> Pet is a discriminated animal. </summary>
+        /// <param name="name"> Name of the animal. </param>
+        /// <param name="trained"> Whether the pet is trained. </param>
+        /// <returns> A new <see cref="SampleTypeSpec.Pet"/> instance for mocking. </returns>
+        public static Pet Pet(string name = default, bool trained = default)
+        {
+            return new Pet("pet", name, additionalBinaryDataProperties: null, trained);
+        }
+
+        /// <summary> Dog is a specific type of pet with hierarchy building. </summary>
+        /// <param name="name"> Name of the animal. </param>
+        /// <param name="trained"> Whether the pet is trained. </param>
+        /// <param name="breed"> The breed of the dog. </param>
+        /// <returns> A new <see cref="SampleTypeSpec.Dog"/> instance for mocking. </returns>
+        public static Dog Dog(string name = default, bool trained = default, string breed = default)
+        {
+            return new Dog("pet", name, additionalBinaryDataProperties: null, trained, breed);
+        }
+
+        /// <summary> The GetWidgetMetricsResponse. </summary>
+        /// <param name="numSold"></param>
+        /// <param name="averagePrice"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.GetWidgetMetricsResponse"/> instance for mocking. </returns>
+        public static GetWidgetMetricsResponse GetWidgetMetricsResponse(int numSold = default, float averagePrice = default)
+        {
+            return new GetWidgetMetricsResponse(numSold, averagePrice, additionalBinaryDataProperties: null);
         }
     }
 }

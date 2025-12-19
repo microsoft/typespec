@@ -1,3 +1,4 @@
+import { Numeric } from "../../core/numeric.js";
 import type { BooleanLiteral, Entity, NumericLiteral, StringLiteral } from "../../core/types.js";
 import { defineKit } from "../define-kit.js";
 
@@ -26,7 +27,7 @@ export interface LiteralKit {
    *
    * @param value The numeric value.
    */
-  createNumeric(value: number): NumericLiteral;
+  createNumeric(value: number | Numeric): NumericLiteral;
 
   /**
    * Create a boolean literal type from a JavaScript boolean value.

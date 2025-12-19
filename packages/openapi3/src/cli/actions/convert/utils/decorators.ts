@@ -1,5 +1,15 @@
+import { printIdentifier } from "@typespec/compiler";
 import { ExtensionKey } from "@typespec/openapi";
-import { Extensions, OpenAPI3Parameter, OpenAPI3Schema, Refable } from "../../../../types.js";
+import {
+  Extensions,
+  OpenAPI3Parameter,
+  OpenAPI3Schema,
+  OpenAPIParameter3_2,
+  OpenAPISchema3_1,
+  OpenAPISchema3_2,
+  Refable,
+} from "../../../../types.js";
+import { stringLiteral } from "../generators/common.js";
 import { TSValue, TypeSpecDecorator } from "../interfaces.js";
 
 const validLocations = ["header", "query", "path"];
@@ -12,23 +22,34 @@ export function getExtensions(element: Extensions): TypeSpecDecorator[] {
     if (isExtensionKey(key)) {
       decorators.push({
         name: extensionDecoratorName,
-        args: [key, element[key]],
+        args: [key, normalizeObjectValue(element[key])],
       });
     }
   }
 
   return decorators;
 }
+function normalizeObjectValue(source: unknown): string | number | object | TSValue {
+  if (source !== null && typeof source === "object") {
+    const result = createTSValueFromObjectValue(source);
+    if (result) {
+      return result;
+    }
+  }
+  return source as string | number;
+}
 
 function isExtensionKey(key: string): key is ExtensionKey {
   return key.startsWith("x-");
 }
 
-export function getParameterDecorators(parameter: OpenAPI3Parameter) {
+export function getParameterDecorators(parameter: OpenAPI3Parameter | OpenAPIParameter3_2) {
   const decorators: TypeSpecDecorator[] = [];
 
   decorators.push(...getExtensions(parameter));
-  decorators.push(...getDecoratorsForSchema(parameter.schema));
+  if ("schema" in parameter && parameter.schema) {
+    decorators.push(...getDecoratorsForSchema(parameter.schema));
+  }
 
   const locationDecorator = getLocationDecorator(parameter);
   if (locationDecorator) decorators.push(locationDecorator);
@@ -36,7 +57,9 @@ export function getParameterDecorators(parameter: OpenAPI3Parameter) {
   return decorators;
 }
 
-function getLocationDecorator(parameter: OpenAPI3Parameter): TypeSpecDecorator | undefined {
+function getLocationDecorator(
+  parameter: OpenAPI3Parameter | OpenAPIParameter3_2,
+): TypeSpecDecorator | undefined {
   if (!validLocations.includes(parameter.in)) return;
 
   const decorator: TypeSpecDecorator = {
@@ -47,10 +70,10 @@ function getLocationDecorator(parameter: OpenAPI3Parameter): TypeSpecDecorator |
   let decoratorArgs: TypeSpecDecorator["args"][0] | undefined;
   switch (parameter.in) {
     case "header":
-      decoratorArgs = getHeaderArgs(parameter);
+      decoratorArgs = getHeaderArgs(parameter.explode ?? false);
       break;
     case "query":
-      decoratorArgs = getQueryArgs(parameter);
+      decoratorArgs = getQueryArgs({ explode: parameter.explode ?? true, style: parameter.style });
       break;
   }
 
@@ -61,20 +84,32 @@ function getLocationDecorator(parameter: OpenAPI3Parameter): TypeSpecDecorator |
   return decorator;
 }
 
-function getQueryArgs(parameter: OpenAPI3Parameter): TSValue | undefined {
-  const queryOptions = getNormalizedQueryOptions(parameter);
-  if (Object.keys(queryOptions).length) {
+function createTSValueFromObjectValue(value: object): TSValue | undefined {
+  if (Object.keys(value).length || Array.isArray(value)) {
     return {
       __kind: "value",
-      value: `#{${Object.entries(queryOptions)
-        .map(([key, value]) => {
-          return `${key}: ${JSON.stringify(value)}`;
-        })
-        .join(", ")}}`,
+      value: normalizeObjectValueToTSValueExpression(value),
     };
   }
+  return undefined;
+}
+export function normalizeObjectValueToTSValueExpression(value: any): string {
+  if (value !== null && typeof value === "object" && !Array.isArray(value)) {
+    return `#{${Object.entries(value)
+      .map(([key, v]) => {
+        return `${printIdentifier(key, "disallow-reserved")}: ${normalizeObjectValueToTSValueExpression(v)}`;
+      })
+      .join(", ")}}`;
+  } else if (Array.isArray(value)) {
+    return `#[${value.map((v) => normalizeObjectValueToTSValueExpression(v)).join(", ")}]`;
+  } else if (typeof value === "string") {
+    return stringLiteral(value);
+  } else return `${JSON.stringify(value)}`;
+}
 
-  return;
+function getQueryArgs(parameter: { explode: boolean; style?: string }): TSValue | undefined {
+  const queryOptions = getNormalizedQueryOptions(parameter);
+  return createTSValueFromObjectValue(queryOptions);
 }
 
 type QueryOptions = { explode?: boolean; format?: string };
@@ -114,15 +149,17 @@ function getNormalizedQueryOptions({
   return queryOptions;
 }
 
-function getHeaderArgs({ explode }: OpenAPI3Parameter): TSValue | undefined {
+function getHeaderArgs(explode: boolean): TSValue | undefined {
   if (explode === true) {
     return createTSValue(`#{ explode: true }`);
   }
 
-  return;
+  return undefined;
 }
 
-export function getDecoratorsForSchema(schema: Refable<OpenAPI3Schema>): TypeSpecDecorator[] {
+export function getDecoratorsForSchema(
+  schema: Refable<OpenAPI3Schema | OpenAPISchema3_1 | OpenAPISchema3_2>,
+): TypeSpecDecorator[] {
   const decorators: TypeSpecDecorator[] = [];
 
   if ("$ref" in schema) {
@@ -131,7 +168,45 @@ export function getDecoratorsForSchema(schema: Refable<OpenAPI3Schema>): TypeSpe
 
   decorators.push(...getExtensions(schema));
 
-  switch (schema.type) {
+  // Handle OpenAPI 3.1 type arrays like ["integer", "null"]
+  // Extract the non-null type to determine which decorators to apply
+  const effectiveType = Array.isArray(schema.type)
+    ? schema.type.find((t) => t !== "null")
+    : schema.type;
+
+  // Handle unixtime format with @encode decorator
+  // Check both direct format and format from anyOf/oneOf members
+  let formatToUse = schema.format;
+  let typeForFormat = effectiveType;
+
+  // If format is not directly on the schema, check anyOf/oneOf members for unixtime format
+  if (!formatToUse) {
+    const unionMembers = schema.anyOf || schema.oneOf;
+    if (unionMembers) {
+      for (const member of unionMembers) {
+        if ("$ref" in member) continue;
+        // Check if this is a non-null member with unixtime format
+        if (member.format === "unixtime" && member.type !== "null") {
+          formatToUse = member.format;
+          // Extract effective type from member (handle type arrays)
+          const memberType = Array.isArray(member.type)
+            ? member.type.find((t) => t !== "null")
+            : member.type;
+          // Only use if we found a valid type
+          if (memberType) {
+            typeForFormat = memberType;
+          }
+          break;
+        }
+      }
+    }
+  }
+
+  if (formatToUse === "unixtime") {
+    decorators.push(...getUnixtimeSchemaDecorators(typeForFormat));
+  }
+
+  switch (effectiveType) {
     case "array":
       decorators.push(...getArraySchemaDecorators(schema));
       break;
@@ -176,11 +251,11 @@ function createTSValue(value: string): TSValue {
   return { __kind: "value", value };
 }
 
-function getOneOfSchemaDecorators(schema: OpenAPI3Schema): TypeSpecDecorator[] {
+function getOneOfSchemaDecorators(schema: OpenAPI3Schema | OpenAPISchema3_1): TypeSpecDecorator[] {
   return [{ name: "oneOf", args: [] }];
 }
 
-function getArraySchemaDecorators(schema: OpenAPI3Schema) {
+function getArraySchemaDecorators(schema: OpenAPI3Schema | OpenAPISchema3_1) {
   const decorators: TypeSpecDecorator[] = [];
 
   if (typeof schema.minItems === "number") {
@@ -194,7 +269,7 @@ function getArraySchemaDecorators(schema: OpenAPI3Schema) {
   return decorators;
 }
 
-function getNumberSchemaDecorators(schema: OpenAPI3Schema) {
+function getNumberSchemaDecorators(schema: OpenAPI3Schema | OpenAPISchema3_1) {
   const decorators: TypeSpecDecorator[] = [];
 
   if (typeof schema.minimum === "number") {
@@ -216,6 +291,21 @@ function getNumberSchemaDecorators(schema: OpenAPI3Schema) {
   return decorators;
 }
 
+function getUnixtimeSchemaDecorators(effectiveType: string | undefined) {
+  const decorators: TypeSpecDecorator[] = [];
+
+  // Only add @encode decorator for integer types
+  // unixTimestamp encoding on utcDateTime must be serialized as integer
+  if (effectiveType === "integer") {
+    decorators.push({
+      name: "encode",
+      args: [createTSValue("DateTimeKnownEncoding.unixTimestamp"), createTSValue("integer")],
+    });
+  }
+
+  return decorators;
+}
+
 const knownStringFormats = new Set([
   "binary",
   "byte",
@@ -226,7 +316,7 @@ const knownStringFormats = new Set([
   "uri",
 ]);
 
-function getStringSchemaDecorators(schema: OpenAPI3Schema) {
+function getStringSchemaDecorators(schema: OpenAPI3Schema | OpenAPISchema3_1) {
   const decorators: TypeSpecDecorator[] = [];
 
   if (typeof schema.minLength === "number") {
@@ -243,6 +333,14 @@ function getStringSchemaDecorators(schema: OpenAPI3Schema) {
 
   if (typeof schema.format === "string" && !knownStringFormats.has(schema.format)) {
     decorators.push({ name: "format", args: [schema.format] });
+  }
+
+  // Handle contentEncoding: base64 for OpenAPI 3.1+ (indicates binary data encoded as base64 string)
+  if ("contentEncoding" in schema && schema.contentEncoding === "base64") {
+    decorators.push({
+      name: "encode",
+      args: [createTSValue(`"base64"`), createTSValue("string")],
+    });
   }
 
   return decorators;

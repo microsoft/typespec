@@ -1,5 +1,217 @@
 # Change Log - @typespec/http-client-python
 
+## 0.23.0
+
+### Features
+
+- [#9146](https://github.com/microsoft/typespec/pull/9146) Support encode for array of string in serialization and deserialization
+
+### Bug Fixes
+
+- [#8927](https://github.com/microsoft/typespec/pull/8927) Fix bad indent
+
+
+## 0.22.0
+
+### Features
+
+- [#8767](https://github.com/microsoft/typespec/pull/8767) Support SDK users defined customized serialization/deserialization function for external models
+
+### Bug Fixes
+
+- [#9017](https://github.com/microsoft/typespec/pull/9017) Keep original client name for backcompat reasons when the name is only padded for tsp generations
+- [#9129](https://github.com/microsoft/typespec/pull/9129) Fix for optional properties in flatten model to keep compatibility
+- [#9144](https://github.com/microsoft/typespec/pull/9144) Fix multipart when files part is optional
+- [#9138](https://github.com/microsoft/typespec/pull/9138) Fix serialization name for multipart
+
+
+## 0.21.0
+
+### Features
+
+- [#9112](https://github.com/microsoft/typespec/pull/9112) Support customized http method to call next link for paging operation
+
+### Bug Fixes
+
+- [#9108](https://github.com/microsoft/typespec/pull/9108) fix logic about which scenario to add msrest as dependency
+- [#9107](https://github.com/microsoft/typespec/pull/9107) Fix @override to avoid duplicated subscriptionId or api-version signatures
+
+
+## 0.20.3
+
+### Bump dependencies
+
+- [#8992](https://github.com/microsoft/typespec/pull/8992) Bump typespec dependency
+
+### Bug Fixes
+
+- [#8948](https://github.com/microsoft/typespec/pull/8948) Fix subscriptionId missing for override
+
+
+## 0.20.2
+
+### Bug Fixes
+
+- [#8905](https://github.com/microsoft/typespec/pull/8905) Avoid duplicated delete operation for autorest emitter
+
+
+## 0.20.1
+
+### Bug Fixes
+
+- [7eda352](https://github.com/microsoft/typespec/commit/7eda3523a429568b5c713d70d45976c2676fa702) [python] add flag for clear output folder and set default to false
+
+
+## 0.20.0
+
+### Features
+
+- [#8716](https://github.com/microsoft/typespec/pull/8716) Add logic to clear output folder
+
+### Bug Fixes
+
+- [#8866](https://github.com/microsoft/typespec/pull/8866) Fix bad indent
+- [#8867](https://github.com/microsoft/typespec/pull/8867) Fix setting attribute of flattened property when flattened property's name is not `properties`
+
+
+## 0.19.2
+
+### Bug Fixes
+
+- [#8720](https://github.com/microsoft/typespec/pull/8720) Fix api-version for @override
+- [#8806](https://github.com/microsoft/typespec/pull/8806) Fix runtime error for constant query parameter
+- [#8749](https://github.com/microsoft/typespec/pull/8749) Additional fixes to documentation with bullet points
+
+
+## 0.19.1
+
+### Bump dependencies
+
+- [#8638](https://github.com/microsoft/typespec/pull/8638) Bump dep of `@azure-tools/typespec-client-generator-core` to hotfix `0.60.3`
+
+### Bug Fixes
+
+- [#8647](https://github.com/microsoft/typespec/pull/8647) Fix outputted bullet-point documentation to pass sphinx
+- [#8680](https://github.com/microsoft/typespec/pull/8680) Fix indentation issue when deserializing internal error model
+- [#8679](https://github.com/microsoft/typespec/pull/8679) Exclude `generated_samples` and `generated_tests` from wheel
+
+
+## 0.19.0
+
+### Features
+
+- [#8558](https://github.com/microsoft/typespec/pull/8558) Support move method level signature to client level
+
+### Bug Fixes
+
+- [#8603](https://github.com/microsoft/typespec/pull/8603) support `@override` completely
+- [#8607](https://github.com/microsoft/typespec/pull/8607) [python] ensure first line in param description wrap around is a space
+- [#8381](https://github.com/microsoft/typespec/pull/8381) Fix bugs related to import and pylint for libraries with only internal models
+
+
+## 0.18.1
+
+### Bug Fixes
+
+- [#8531](https://github.com/microsoft/typespec/pull/8531) [python] fix peer reps
+
+
+## 0.18.0
+
+### Features
+
+- [#8454](https://github.com/microsoft/typespec/pull/8454) Support nested nextLink for paging operation
+
+### Bug Fixes
+
+- [#8516](https://github.com/microsoft/typespec/pull/8516) Add overload for operation when body type is array of model
+
+
+## 0.17.0
+
+### Features
+
+- [#8130](https://github.com/microsoft/typespec/pull/8130) DPG model supports multi-layer discriminator.
+
+### Bump dependencies
+
+- [#8407](https://github.com/microsoft/typespec/pull/8407) bump tsp
+
+### Bug Fixes
+
+- [#8339](https://github.com/microsoft/typespec/pull/8339) fail installation when fail to create virtual environment
+- [#8376](https://github.com/microsoft/typespec/pull/8376) fix black for windows os
+- [#8395](https://github.com/microsoft/typespec/pull/8395) Fix line break across OS
+- [#8359](https://github.com/microsoft/typespec/pull/8359) Fix import of typing `List` for ARM SDK
+- [#8349](https://github.com/microsoft/typespec/pull/8349) Fix dependencies of pyproject.toml for ARM SDK
+- [#8319](https://github.com/microsoft/typespec/pull/8319) Add imports for readonly and constant props for msrest model generation
+
+
+## 0.16.0
+
+### Deprecations
+
+- [#8311](https://github.com/microsoft/typespec/pull/8311) Deprecate multiapi
+
+### Features
+
+- [#8209](https://github.com/microsoft/typespec/pull/8209) Add keyword only signature `cloud_setting` into ARM client
+- [#7824](https://github.com/microsoft/typespec/pull/7824) Upgrade typing for dict, list, set, and tuple to be from stdlib
+
+### Bump dependencies
+
+- [#8233](https://github.com/microsoft/typespec/pull/8233) Upgrade azure-http-specs version.
+
+### Bug Fixes
+
+- [#8189](https://github.com/microsoft/typespec/pull/8189) fix to keep some existing parts of pyproject.toml
+- [#8248](https://github.com/microsoft/typespec/pull/8248) Generated model which is not only used in paging response
+- [#8250](https://github.com/microsoft/typespec/pull/8250) don't send content-type when no request body
+
+
+## 0.15.2
+
+### Bug Fixes
+
+- [#8175](https://github.com/microsoft/typespec/pull/8175) fix generated output folder for `generated_samples/generated_tests`
+- [#8117](https://github.com/microsoft/typespec/pull/8117) keep declaration of pyproject.toml same with existing setup.py of ARM SDK
+
+
+## 0.15.1
+
+### Bump dependencies
+
+- [#7968](https://github.com/microsoft/typespec/pull/7968) Adopt latest TCGC.
+- [#8135](https://github.com/microsoft/typespec/pull/8135) Bump tsp packages to 1.3.0 and 0.59.0
+
+### Bug Fixes
+
+- [#7911](https://github.com/microsoft/typespec/pull/7911) [python] don't fail on response body consumption in `_failsafe_deserialize`
+- [#8124](https://github.com/microsoft/typespec/pull/8124) Don't include folder suffixes in documentation generated with `generation-subdir`
+- [#8114](https://github.com/microsoft/typespec/pull/8114) Exclude doc folder in pyproject.toml
+
+
+## 0.15.0
+
+### Features
+
+- [#7829](https://github.com/microsoft/typespec/pull/7829) Adding pyproject.toml generation and optional keep-setup-py flag
+- [#7994](https://github.com/microsoft/typespec/pull/7994) add `generation-subdir` flag
+
+### Bug Fixes
+
+- [#8070](https://github.com/microsoft/typespec/pull/8070) fix import for error model in multi namespace
+- [#8091](https://github.com/microsoft/typespec/pull/8091) Don't hardcode `emit-cross-language-definition-file` as `true` for azure generations
+- [#8006](https://github.com/microsoft/typespec/pull/8006) Ensure necessary typing imports for internal models
+
+
+## 0.14.2
+
+### Bug Fixes
+
+- [#8058](https://github.com/microsoft/typespec/pull/8058) fix outputfolder of packaging files for arm sdk
+
+
 ## 0.14.1
 
 ### Bump dependencies

@@ -6,7 +6,6 @@
 from typing import (
     Any,
     Callable,
-    Dict,
     TypeVar,
     TYPE_CHECKING,
     Union,
@@ -38,7 +37,7 @@ ParameterListType = TypeVar(
 class RequestBuilderBase(BaseBuilder[ParameterListType, Sequence["RequestBuilder"]]):
     def __init__(
         self,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         code_model: "CodeModel",
         client: "Client",
         name: str,
@@ -116,13 +115,13 @@ class RequestBuilderBase(BaseBuilder[ParameterListType, Sequence["RequestBuilder
 
     @staticmethod
     @abstractmethod
-    def parameter_list_type() -> Callable[[Dict[str, Any], "CodeModel"], ParameterListType]: ...
+    def parameter_list_type() -> Callable[[dict[str, Any], "CodeModel"], ParameterListType]: ...
 
     @classmethod
     def get_name(
         cls,
         name: str,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         code_model: "CodeModel",
         client: "Client",
     ) -> str:
@@ -140,7 +139,7 @@ class RequestBuilderBase(BaseBuilder[ParameterListType, Sequence["RequestBuilder
     @classmethod
     def from_yaml(
         cls,
-        yaml_data: Dict[str, Any],
+        yaml_data: dict[str, Any],
         code_model: "CodeModel",
         client: "Client",
     ):
@@ -165,18 +164,18 @@ class RequestBuilderBase(BaseBuilder[ParameterListType, Sequence["RequestBuilder
 
 class RequestBuilder(RequestBuilderBase[RequestBuilderParameterList]):
     @staticmethod
-    def parameter_list_type() -> Callable[[Dict[str, Any], "CodeModel"], RequestBuilderParameterList]:
+    def parameter_list_type() -> Callable[[dict[str, Any], "CodeModel"], RequestBuilderParameterList]:
         return RequestBuilderParameterList.from_yaml
 
 
 class OverloadedRequestBuilder(RequestBuilderBase[OverloadedRequestBuilderParameterList]):
     @staticmethod
-    def parameter_list_type() -> Callable[[Dict[str, Any], "CodeModel"], OverloadedRequestBuilderParameterList]:
+    def parameter_list_type() -> Callable[[dict[str, Any], "CodeModel"], OverloadedRequestBuilderParameterList]:
         return OverloadedRequestBuilderParameterList.from_yaml
 
 
 def get_request_builder(
-    yaml_data: Dict[str, Any], code_model: "CodeModel", client: "Client"
+    yaml_data: dict[str, Any], code_model: "CodeModel", client: "Client"
 ) -> Union[RequestBuilder, OverloadedRequestBuilder]:
     if yaml_data.get("overloads"):
         return OverloadedRequestBuilder.from_yaml(yaml_data, code_model, client)

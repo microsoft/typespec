@@ -1,0 +1,32 @@
+{
+  "name": "Sample.TypeSpec",
+  "clients": [
+    {
+      "$id": "1",
+      "kind": "client",
+      "name": "ParentClient",
+      "namespace": "Sample.TypeSpec",
+      "doc": "Parent client documentation",
+      "crossLanguageDefinitionId": "Sample.TypeSpec.ParentClient",
+      "methods": [],
+      "parameters": [],
+      "initializedBy": 1,
+      "children": [
+          {
+              "$id": "2",
+              "kind": "client",
+              "name": "SubClient",
+              "namespace": "Sample.TypeSpec",
+              "doc": "Sub client documentation",
+              "crossLanguageDefinitionId": "Sample.TypeSpec.SubClient",
+              "methods": [],
+              "parameters": [],
+              "initializedBy": 3,
+              "parent": {
+                  "$ref": "1"
+              }
+          }
+      ]
+    },
+  ]
+}

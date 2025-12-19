@@ -1,6 +1,7 @@
 #nullable disable
 
 using SampleTypeSpec;
+using Microsoft.TypeSpec.Generator.Customizations;
 
 namespace Sample.Models
 {

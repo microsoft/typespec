@@ -6,6 +6,7 @@
     "specialwords.OperationsClient": "SpecialWords.Operations",
     "specialwords.ParametersClient": "SpecialWords.Parameters",
     "specialwords.SpecialWordsClientBuilder": "SpecialWords",
+    "specialwords.modelproperties.DictMethods": "SpecialWords.ModelProperties.DictMethods",
     "specialwords.modelproperties.SameAsModel": "SpecialWords.ModelProperties.SameAsModel",
     "specialwords.models.And": "SpecialWords.Models.and",
     "specialwords.models.As": "SpecialWords.Models.as",

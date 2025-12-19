@@ -292,6 +292,61 @@ describe("@opExample", () => {
       name: "Fluffy",
     });
   });
+  it("provide return type for union of unions", async () => {
+    const { program, examples, target } = await getOpExamplesFor(`
+      model Foo {
+        type: "FOO";
+      }
+
+      model Bar {
+        type: "BAR";
+      }
+
+      model One {
+        type: "ONE";
+      }
+
+      model Two {
+        type: "TWO";
+      }
+
+      @discriminated(#{ discriminatorPropertyName: "type", envelope: "none" })
+      union FooOrBar {
+        FOO: Foo,
+        BAR: Bar,
+      }
+
+      @discriminated(#{ discriminatorPropertyName: "type", envelope: "none" })
+      union OneOrTwo {
+        ONE: One,
+        TWO: Two
+      }
+
+      @opExample(#{ returnType: #{ type: "FOO" } })
+      @opExample(#{ returnType: #{ type: "BAR" } })
+      @opExample(#{ returnType: #{ type: "ONE" } })
+      @opExample(#{ returnType: #{ type: "TWO" } })
+      @test op test(): FooOrBar | OneOrTwo;
+    `);
+
+    expect(examples).toHaveLength(4);
+    ok(examples[0].returnType);
+    expect(serializeValueAsJson(program, examples[0].returnType, target.returnType)).toEqual({
+      type: "TWO",
+    });
+    ok(examples[1].returnType);
+    expect(serializeValueAsJson(program, examples[1].returnType, target.returnType)).toEqual({
+      type: "ONE",
+    });
+    ok(examples[2].returnType);
+    expect(serializeValueAsJson(program, examples[2].returnType, target.returnType)).toEqual({
+      type: "BAR",
+    });
+    ok(examples[3].returnType);
+    expect(serializeValueAsJson(program, examples[3].returnType, target.returnType)).toEqual({
+      type: "FOO",
+    });
+  });
 
   it("emit diagnostic for unassignable value", async () => {
     const diagnostics = await diagnoseCode(`

@@ -51,6 +51,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             }
         }
 
+        internal bool HasDynamicModels
+            => _hasDynamicModels ??= ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Models.Any(m => m.IsDynamicModel);
+        private bool? _hasDynamicModels;
+
         private HashSet<InputModelType>? _rootInputModels;
 
         internal HashSet<InputModelType> RootOutputModels
@@ -83,10 +87,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                     {
                         _rootOutputModels.Add(inputModelType);
                     }
-                    if (method.Response.Type is InputModelType outputModelType)
-                    {
-                        _rootOutputModels.Add(outputModelType);
-                    }
+
+                    PopulateRootOutputModelsFromTypeRecursive(method.Response.Type, _rootOutputModels, []);
 
                     if (operation.GenerateConvenienceMethod)
                     {
@@ -100,6 +102,35 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                         }
                     }
                 }
+            }
+        }
+
+        private static void PopulateRootOutputModelsFromTypeRecursive(InputType? type, HashSet<InputModelType> targetSet, HashSet<InputType> visited)
+        {
+            if (type == null)
+            {
+                return;
+            }
+
+            if (!visited.Add(type))
+            {
+                return;
+            }
+
+            switch (type)
+            {
+                case InputModelType modelType:
+                    targetSet.Add(modelType);
+                    break;
+                case InputNullableType nullableType:
+                    PopulateRootOutputModelsFromTypeRecursive(nullableType.Type, targetSet, visited);
+                    break;
+                case InputUnionType unionType:
+                    foreach (var variantType in unionType.VariantTypes)
+                    {
+                        PopulateRootOutputModelsFromTypeRecursive(variantType, targetSet, visited);
+                    }
+                    break;
             }
         }
 
@@ -164,17 +195,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             }
 
             ClientCache[inputClient] = client;
+
+            if (client != null)
+            {
+                CSharpTypeMap[client.Type] = client;
+            }
+
             return client;
         }
 
         protected virtual ClientProvider? CreateClientCore(InputClient inputClient) => new ClientProvider(inputClient);
 
         /// <summary>
-        /// Factory method for creating a <see cref="MethodProviderCollection"/> based on an input method <paramref name="serviceMethod"/>.
+        /// Factory method for creating a <see cref="ScmMethodProviderCollection"/> based on an input method <paramref name="serviceMethod"/>.
         /// </summary>
         /// <param name="serviceMethod">The <see cref="InputServiceMethod"/> to convert.</param>
         /// <param name="enclosingType">The <see cref="TypeProvider"/> that will contain the methods.</param>
-        /// <returns>An instance of <see cref="MethodProviderCollection"/> containing the chain of methods
+        /// <returns>An instance of <see cref="ScmMethodProviderCollection"/> containing the chain of methods
         /// associated with the input service method, or <c>null</c> if no methods are constructed.
         /// </returns>
         internal ScmMethodProviderCollection? CreateMethods(InputServiceMethod serviceMethod, ClientProvider enclosingType)
@@ -192,15 +229,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             return methods;
         }
 
-        public virtual ValueExpression DeserializeJsonValue(Type valueType, ScopedApi<JsonElement> element, SerializationFormat format)
-            => MrwSerializationTypeDefinition.DeserializeJsonValueCore(valueType, element, format);
+        public virtual ValueExpression DeserializeJsonValue(
+            CSharpType valueType,
+            ScopedApi<JsonElement> element,
+            ScopedApi<BinaryData> data,
+            ScopedApi<ModelReaderWriterOptions> mrwOptionsParameter,
+            SerializationFormat format)
+            => MrwSerializationTypeDefinition.DeserializeJsonValueCore(valueType, element, data, mrwOptionsParameter, format);
 
         public virtual MethodBodyStatement SerializeJsonValue(
-            Type valueType,
+            CSharpType valueType,
             ValueExpression value,
             ScopedApi<Utf8JsonWriter> utf8JsonWriter,
             ScopedApi<ModelReaderWriterOptions> mrwOptionsParameter,
             SerializationFormat serializationFormat)
             => MrwSerializationTypeDefinition.SerializeJsonValueCore(valueType, value, utf8JsonWriter, mrwOptionsParameter, serializationFormat);
+
+        protected override ModelProvider? CreateModelCore(InputModelType model) => new ScmModelProvider(model);
     }
 }

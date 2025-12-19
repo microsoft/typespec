@@ -9,11 +9,12 @@ export const serverOptions: CompilerOptions = {
   },
 };
 
-/**
- * Time in milliseconds to wait after a file change before recompiling.
- */
-export const UPDATE_DEBOUNCE_TIME = 200;
-
 export const Commands = {
   APPLY_CODE_FIX: "typespec.applyCodeFix",
 };
+
+/**
+ * Environment variables to enable some logging when needed
+ */
+export const ENABLE_SERVER_COMPILE_LOGGING = "ENABLE_SERVER_COMPILE_LOGGING";
+export const ENABLE_UPDATE_MANAGER_LOGGING = "ENABLE_UPDATE_MANAGER_LOGGING";

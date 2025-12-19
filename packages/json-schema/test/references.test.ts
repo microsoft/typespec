@@ -28,7 +28,6 @@ describe("referencing non-JSON Schema types", () => {
       {},
       {
         emitNamespace: false,
-        emitTypes: ["testModel", "testArray", "testUnion", "testEnum", "testScalar"],
       },
     );
 
@@ -144,7 +143,7 @@ describe("referencing non-JSON Schema types", () => {
       }
     `,
       {},
-      { emitNamespace: false, emitTypes: ["C", "D"] },
+      { emitNamespace: false },
     );
 
     const depSchemas = {
@@ -175,7 +174,7 @@ describe("referencing non-JSON Schema types", () => {
       model B {}
     `,
       {},
-      { emitNamespace: false, emitTypes: ["A"] },
+      { emitNamespace: false },
     );
 
     assert(schemas["A.json"] !== undefined);
@@ -189,7 +188,7 @@ describe("referencing non-JSON Schema types", () => {
       model B {}
     `,
       { emitAllModels: true },
-      { emitNamespace: false, emitTypes: ["A"] },
+      { emitNamespace: false },
     );
 
     assert(amSchemas["A.json"] !== undefined);
@@ -214,7 +213,7 @@ describe("referencing non-JSON Schema types", () => {
       }
     `,
       {},
-      { emitNamespace: false, emitTypes: ["R"] },
+      { emitNamespace: false },
     );
     assert(schemas["R.json"] !== undefined);
     assert(Object.keys(schemas).length === 1);

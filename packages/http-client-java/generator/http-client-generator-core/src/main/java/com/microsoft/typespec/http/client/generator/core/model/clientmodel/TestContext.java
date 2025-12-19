@@ -26,7 +26,7 @@ public class TestContext<TExample> {
      * @param testContext test context
      * @param testCase an example as test case
      */
-    public TestContext(TestContext testContext, TExample testCase) {
+    public TestContext(TestContext<?> testContext, TExample testCase) {
         this.serviceClients = Objects.requireNonNull(testContext.getServiceClients());
         this.syncClients = Objects.requireNonNull(testContext.getSyncClients());
         this.testCase = testCase;

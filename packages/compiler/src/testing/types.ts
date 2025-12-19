@@ -1,6 +1,7 @@
 import type { CompilerOptions } from "../core/options.js";
 import type { Program } from "../core/program.js";
 import type { CompilerHost, Diagnostic, Entity, Type } from "../core/types.js";
+import { PositionedMarker } from "./fourslash.js";
 import { GetMarkedEntities, TemplateWithMarkers } from "./marked-template.js";
 
 // #region Test file system
@@ -54,6 +55,9 @@ export type TestCompileResult<T extends Record<string, Entity>> = T & {
 
   /** File system */
   readonly fs: TestFileSystem;
+
+  /** Position of all markers */
+  readonly pos: Record<keyof T | string, PositionedMarkerInFile>;
 } & Record<string, Entity>;
 
 export interface TestCompileOptions {
@@ -168,8 +172,7 @@ export interface OutputTestable<Result> {
 
 /** Alternate version of the tester which runs the configured emitter */
 export interface EmitterTester<Result = TestEmitterCompileResult>
-  extends OutputTestable<Result>,
-    TesterBuilder<EmitterTester<Result>> {
+  extends OutputTestable<Result>, TesterBuilder<EmitterTester<Result>> {
   /**
    * Pipe the output of the emitter into a different structure
    *
@@ -202,21 +205,25 @@ export interface TesterInstance extends TesterInstanceBase, Testable {}
 /** Instance of an emitter tester */
 export interface EmitterTesterInstance<Result> extends TesterInstanceBase, OutputTestable<Result> {}
 
+export interface PositionedMarkerInFile extends PositionedMarker {
+  /** The file where the marker is located */
+  readonly filename: string;
+}
+
 // #endregion
 
 // #region Legacy Test host
-export interface TestHost
-  extends Pick<
-    TestFileSystem,
-    | "addTypeSpecFile"
-    | "addJsFile"
-    | "addRealTypeSpecFile"
-    | "addRealJsFile"
-    | "addRealFolder"
-    | "addTypeSpecLibrary"
-    | "compilerHost"
-    | "fs"
-  > {
+export interface TestHost extends Pick<
+  TestFileSystem,
+  | "addTypeSpecFile"
+  | "addJsFile"
+  | "addRealTypeSpecFile"
+  | "addRealJsFile"
+  | "addRealFolder"
+  | "addTypeSpecLibrary"
+  | "compilerHost"
+  | "fs"
+> {
   program: Program;
   libraries: TypeSpecTestLibrary[];
   testTypes: Record<string, Type>;

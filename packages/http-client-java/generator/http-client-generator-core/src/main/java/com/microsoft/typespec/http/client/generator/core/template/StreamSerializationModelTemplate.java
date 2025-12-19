@@ -6,8 +6,6 @@ package com.microsoft.typespec.http.client.generator.core.template;
 import static com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil.JSON_MERGE_PATCH_HELPER_CLASS_NAME;
 import static com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil.includePropertyInConstructor;
 
-import com.azure.core.util.CoreUtils;
-import com.azure.xml.XmlSerializable;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.implementation.ClientModelPropertiesManager;
 import com.microsoft.typespec.http.client.generator.core.implementation.ClientModelPropertyWithMetadata;
@@ -28,12 +26,15 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaIfB
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaJavadocComment;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
+import io.clientcore.core.utils.CoreUtils;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -94,6 +95,9 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
         imports.add(Base64.class.getName());
         imports.add(LinkedHashMap.class.getName());
         imports.add(List.class.getName());
+        imports.add(LinkedList.class.getName());
+        imports.add(Arrays.class.getName());
+        imports.add(Collectors.class.getName());
         imports.add(Map.class.getName());
         imports.add(Objects.class.getName());
     }
@@ -110,7 +114,7 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
         }
 
         String interfaceName = (model.getXmlName() != null)
-            ? XmlSerializable.class.getSimpleName()
+            ? ClassType.XML_SERIALIZABLE.getName()
             : ClassType.JSON_SERIALIZABLE.getName();
 
         return classSignature + " implements " + interfaceName + "<" + model.getName() + ">";
@@ -372,7 +376,7 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
             .writeStreamStyleSerialization(classBlock);
     }
 
-    private static final class StreamSerializationGenerator {
+    protected static class StreamSerializationGenerator {
         private final ClientModelPropertiesManager propertiesManager;
         private final ClientModel model;
         private final JavaSettings settings;
@@ -382,7 +386,7 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
         private final boolean isJsonMergePatchModel;
         private final boolean useFromJsonShared;
 
-        private StreamSerializationGenerator(ClientModelPropertiesManager propertiesManager,
+        protected StreamSerializationGenerator(ClientModelPropertiesManager propertiesManager,
             Predicate<ClientModel> isManagementErrorSubclass) {
             this.propertiesManager = propertiesManager;
             this.model = propertiesManager.getModel();
@@ -394,7 +398,7 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
             this.useFromJsonShared = canUseFromJsonShared(propertiesManager);
         }
 
-        private void writeStreamStyleSerialization(JavaClass classBlock) {
+        public void writeStreamStyleSerialization(JavaClass classBlock) {
             if (model.getXmlName() != null) {
                 writeToXml(classBlock);
                 if (isSuperTypeWithDiscriminator(model)) {
@@ -647,8 +651,8 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
          * terminal location of a flattened structure.
          * @param isJsonMergePatch Whether the serialization is for a JSON Merge Patch model.
          */
-        private static void serializeJsonProperty(JavaBlock methodBlock, ClientModelProperty property,
-            String serializedName, boolean fromSuperType, boolean ignoreFlattening, boolean isJsonMergePatch) {
+        private void serializeJsonProperty(JavaBlock methodBlock, ClientModelProperty property, String serializedName,
+            boolean fromSuperType, boolean ignoreFlattening, boolean isJsonMergePatch) {
             if ((ignoreFlattening && property.getNeedsFlatten()) || property.isAdditionalProperties()) {
                 // Property will be handled later by flattened or additional properties serialization.
                 return;
@@ -697,8 +701,8 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
          * directly.
          * @param isJsonMergePatch Whether the serialization is for a JSON Merge Patch model.
          */
-        private static void serializeJsonProperty(JavaBlock methodBlock, ClientModelProperty property,
-            String serializedName, boolean fromSuperType, boolean isJsonMergePatch) {
+        private void serializeJsonProperty(JavaBlock methodBlock, ClientModelProperty property, String serializedName,
+            boolean fromSuperType, boolean isJsonMergePatch) {
             IType clientType = property.getClientType();
             IType wireType = property.getWireType();
             String propertyValueGetter = getPropertyGetterStatement(property, fromSuperType);
@@ -726,15 +730,8 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                     methodBlock.line("JsonMergePatchHelper.get" + clientType.toString()
                         + "Accessor().prepareModelForJsonMergePatch(" + propertyValueGetter + ", true);");
                 }
-                if (fromSuperType && clientType != wireType && clientType.isNullable()) {
-                    // If the property is from a super type and the client type is different from the wire type then a
-                    // null
-                    // check is required to prevent a NullPointerException when converting the value.
-                    methodBlock.ifBlock(property.getGetterName() + "() != null",
-                        ifAction -> ifAction.line(fieldSerializationMethod + ";"));
-                } else {
-                    methodBlock.line(fieldSerializationMethod + ";");
-                }
+                writeSerializeJsonPropertyViaFieldSerializationMethod(methodBlock, property, model, serializedName,
+                    fieldSerializationMethod, fromSuperType);
                 if (isJsonMergePatch && wireType instanceof ClassType && ((ClassType) wireType).isSwaggerType()) {
                     methodBlock.line("JsonMergePatchHelper.get" + clientType.toString()
                         + "Accessor().prepareModelForJsonMergePatch(" + propertyValueGetter + ", false);");
@@ -750,9 +747,21 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                         .line("jsonWriter.writeUntypedField(\"" + serializedName + "\", " + propertyValueGetter + ");");
                 }
             } else if (wireType instanceof IterableType) {
-                serializeJsonContainerProperty(methodBlock, "writeArrayField", wireType,
-                    ((IterableType) wireType).getElementType(), serializedName, propertyValueGetter, 0,
-                    isJsonMergePatch);
+                if (property.getArrayEncoding() == null) {
+                    serializeJsonContainerProperty(methodBlock, "writeArrayField", wireType,
+                        ((IterableType) wireType).getElementType(), serializedName, propertyValueGetter, 0,
+                        isJsonMergePatch);
+                } else {
+                    // wireType is String
+                    // at present, only String element is supported. this check is in ts code.
+                    methodBlock.ifBlock(propertyValueGetter + " != null", ifBlock -> {
+                        String serializeExpression = propertyValueGetter
+                            + ".stream().map(element -> element == null ? \"\" : element).collect(Collectors.joining(\""
+                            + property.getArrayEncoding().getDelimiter() + "\"))";
+                        methodBlock.line("jsonWriter.writeStringField(\"%s\", %s);", serializedName,
+                            serializeExpression);
+                    });
+                }
             } else if (wireType instanceof MapType) {
                 // Assumption is that the key type for the Map is a String. This may not always hold true and when that
                 // becomes reality this will need to be reworked to handle that case.
@@ -762,6 +771,32 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                 // TODO (alzimmer): Resolve this as deserialization logic generation needs to handle all cases.
                 throw new RuntimeException(
                     "Unknown wire type " + wireType + " in serialization. Need to add support for it.");
+            }
+        }
+
+        /**
+         * Writes the serialization of a JSON property via the fieldSerializationMethod.
+         *
+         * @param methodBlock the code block.
+         * @param property the model property.
+         * @param model the model.
+         * @param serializedName the serialized name of the property.
+         * @param fieldSerializationMethod the method to call for serialization of the field.
+         * @param fromSuperType whether the property is defined in super type.
+         */
+        protected void writeSerializeJsonPropertyViaFieldSerializationMethod(JavaBlock methodBlock,
+            ClientModelProperty property, ClientModel model, String serializedName, String fieldSerializationMethod,
+            boolean fromSuperType) {
+
+            IType clientType = property.getClientType();
+            IType wireType = property.getWireType();
+            if (fromSuperType && clientType != wireType && clientType.isNullable()) {
+                // If the property is from a super type and the client type is different from the wire type then a
+                // null check is required to prevent a NullPointerException when converting the value.
+                methodBlock.ifBlock(property.getGetterName() + "() != null",
+                    ifAction -> ifAction.line(fieldSerializationMethod + ";"));
+            } else {
+                methodBlock.line(fieldSerializationMethod + ";");
             }
         }
 
@@ -901,7 +936,7 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
             }
         }
 
-        private static void handleFlattenedPropertiesSerializationHelper(JavaBlock methodBlock,
+        private void handleFlattenedPropertiesSerializationHelper(JavaBlock methodBlock,
             JsonFlattenedPropertiesTree flattenedProperties, boolean isJsonMergePatch,
             boolean callToJsonSharedForParentProperties) {
             ClientModelPropertyWithMetadata flattenedProperty = flattenedProperties.getProperty();
@@ -1569,13 +1604,29 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                     deserializationBlock.line(property.getName() + " = reader.readUntyped();");
                 }
             } else if (wireType instanceof IterableType) {
+                final String propertyStringVariableName = property.getName() + "EncodedAsString";
+                if (property.getArrayEncoding() != null) {
+                    // need to prepare the expression for propertyStringVariableName,
+                    // to be used in "if (property.getArrayEncoding() == null)" block
+                    deserializationBlock.line("String " + propertyStringVariableName + " = reader.getString();");
+                }
+
                 if (!propertiesManager.hasConstructorArguments()) {
                     deserializationBlock.text(property.getClientType() + " ");
                 }
 
                 deserializationBlock.text(property.getName() + " = ");
-                deserializeJsonContainerProperty(deserializationBlock, "readArray", wireType,
-                    ((IterableType) wireType).getElementType(), ((IterableType) clientType).getElementType(), 0);
+                if (property.getArrayEncoding() == null) {
+                    deserializeJsonContainerProperty(deserializationBlock, "readArray", wireType,
+                        ((IterableType) wireType).getElementType(), ((IterableType) clientType).getElementType(), 0);
+                } else {
+                    // wireType is String
+                    // at present, only String element is supported. this check is in ts code.
+                    // LinkedList is used to be consistent with internal code of core, e.g. "readArray" API
+                    deserializationBlock.line(
+                        "%1$s == null ? null : %1$s.isEmpty() ? new LinkedList<>() : new LinkedList<>(Arrays.asList(%1$s.split(\"%2$s\", -1)));",
+                        propertyStringVariableName, property.getArrayEncoding().getEscapedDelimiter());
+                }
 
                 if (!propertiesManager.hasConstructorArguments()) {
                     handleSettingDeserializedValue(deserializationBlock, property, property.getName(), fromSuper);

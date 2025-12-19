@@ -19,6 +19,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         public async Task CanReplaceModelMethod()
         {
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+               inputNamespaceName: "Sample.Namespace",
                inputModelTypes: [
                     InputFactory.Model(
                         "mockInputModel",
@@ -98,6 +99,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         public async Task CanChangeAccessibilityOfModelFactory()
         {
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
                 inputModelTypes: [
                     InputFactory.Model(
                         "mockInputModel",

@@ -51,6 +51,18 @@ export default defineConfig({
           },
         },
       ],
+      social: [
+        {
+          label: "GitHub",
+          icon: "github",
+          href: "https://github.com/microsoft/typespec",
+        },
+        {
+          label: "Discord",
+          icon: "discord",
+          href: "https://aka.ms/typespec/discord",
+        },
+      ],
       plugins: [],
     }),
     react(),
@@ -68,6 +80,7 @@ export default defineConfig({
   },
   vite: {
     plugins: [
+      // @ts-expect-error incompatible types due to version mismatch
       nodePolyfills({
         include: ["buffer"],
         globals: {

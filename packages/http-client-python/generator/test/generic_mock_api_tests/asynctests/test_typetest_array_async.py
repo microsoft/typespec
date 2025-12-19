@@ -58,10 +58,19 @@ async def test_model_value(client: ArrayClient):
         models.InnerModel(property="hello"),
         models.InnerModel(property="world"),
     ]
+    # test list[model]
     await client.model_value.put(
         [
             models.InnerModel(property="hello"),
             models.InnerModel(property="world"),
+        ]
+    )
+
+    # test list[JSON]
+    await client.model_value.put(
+        [
+            {"property": "hello"},
+            {"property": "world"},
         ]
     )
 

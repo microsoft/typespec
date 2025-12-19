@@ -30,6 +30,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             InputPrimitiveType? wireType = null;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
             InputDurationType? baseType = null;
+            InputExternalTypeMetadata? external = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
@@ -39,7 +40,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString("encode", ref encode)
                     || reader.TryReadComplexType("wireType", options, ref wireType)
                     || reader.TryReadComplexType("baseType", options, ref baseType)
-                    || reader.TryReadComplexType("decorators", options, ref decorators);
+                    || reader.TryReadComplexType("decorators", options, ref decorators)
+                    || reader.TryReadComplexType("external", options, ref external);
 
                 if (!isKnownProperty)
                 {
@@ -53,7 +55,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             wireType = wireType ?? throw new JsonException("Duration type must have wireType");
 
             var dateTimeType = DurationKnownEncodingExtensions.TryParse(encode, out var encodeKind)
-                ? new InputDurationType(encodeKind.Value, name, crossLanguageDefinitionId, wireType, baseType) { Decorators = decorators ?? [] }
+                ? new InputDurationType(encodeKind.Value, name, crossLanguageDefinitionId, wireType, baseType) { Decorators = decorators ?? [], External = external }
                 : throw new JsonException($"Encoding of Duration type {encode} is unknown.");
 
             if (id != null)

@@ -21,6 +21,9 @@ const argv = parseArgs({
   },
 });
 
+// Add this near the top with other constants
+const SKIP_SPECS = ["type/union/discriminated"];
+
 // Get the directory of the current file
 const PLUGIN_DIR = argv.values.pluginDir
   ? resolve(argv.values.pluginDir)
@@ -39,6 +42,9 @@ interface TspCommand {
 const AZURE_EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, string>[]> = {
   "azure/client-generator-core/access": {
     namespace: "specs.azure.clientgenerator.core.access",
+  },
+  "azure/client-generator-core/alternate-type": {
+    namespace: "specs.azure.clientgenerator.core.alternatetype",
   },
   "azure/client-generator-core/api-version": {
     namespace: "specs.azure.clientgenerator.core.apiversion",
@@ -60,6 +66,9 @@ const AZURE_EMITTER_OPTIONS: Record<string, Record<string, string> | Record<stri
   },
   "azure/client-generator-core/override": {
     namespace: "specs.azure.clientgenerator.core.override",
+  },
+  "azure/client-generator-core/hierarchy-building": {
+    namespace: "specs.azure.clientgenerator.core.hierarchybuilding",
   },
   "azure/core/basic": {
     namespace: "specs.azure.core.basic",
@@ -91,8 +100,15 @@ const AZURE_EMITTER_OPTIONS: Record<string, Record<string, string> | Record<stri
   "azure/payload/pageable": {
     namespace: "specs.azure.payload.pageable",
   },
+  "azure/versioning/previewVersion": {
+    namespace: "specs.azure.versioning.previewversion",
+  },
   "client/structure/default": {
     namespace: "client.structure.service",
+  },
+  "client/structure/client-operation-group": {
+    "package-name": "client-structure-clientoperationgroup",
+    namespace: "client.structure.clientoperationgroup",
   },
   "client/structure/multi-client": {
     "package-name": "client-structure-multiclient",
@@ -107,7 +123,10 @@ const AZURE_EMITTER_OPTIONS: Record<string, Record<string, string> | Record<stri
     namespace: "client.structure.twooperationgroup",
   },
   "client/naming": {
-    namespace: "client.naming",
+    namespace: "client.naming.main",
+  },
+  "client/overload": {
+    namespace: "client.overload",
   },
   "encode/duration": {
     namespace: "encode.duration",
@@ -148,15 +167,25 @@ const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, st
     "package-mode": "azure-dataplane",
     "package-pprint-name": "ResiliencySrvDriven2",
   },
+  "authentication/api-key": {
+    "clear-output-folder": "true",
+  },
   "authentication/http/custom": {
     "package-name": "authentication-http-custom",
     namespace: "authentication.http.custom",
     "package-pprint-name": "Authentication Http Custom",
   },
-  "authentication/union": {
-    "package-name": "authentication-union",
-    namespace: "authentication.union",
-  },
+  "authentication/union": [
+    {
+      "package-name": "authentication-union",
+      namespace: "authentication.union",
+    },
+    {
+      "package-name": "setuppy-authentication-union",
+      namespace: "setuppy.authentication.union",
+      "keep-setup-py": "true",
+    },
+  ],
   "type/array": {
     "package-name": "typetest-array",
     namespace: "typetest.array",
@@ -243,6 +272,10 @@ const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, st
     "package-name": "typetest-union",
     namespace: "typetest.union",
   },
+  documentation: {
+    "package-name": "specs-documentation",
+    namespace: "specs.documentation",
+  },
 };
 
 function toPosix(dir: string): string {
@@ -309,14 +342,8 @@ async function getSubdirectories(baseDir: string, flags: RegenerateFlags): Promi
 
         const mainTspRelativePath = toPosix(relative(baseDir, mainTspPath));
 
-        // after support discriminated union, remove this check
-        if (mainTspRelativePath.includes("type/union/discriminated")) return;
-
-        // after fix test generation for nested operation group, remove this check
-        if (mainTspRelativePath.includes("client-operation-group")) return;
-
-        // after https://github.com/Azure/autorest.python/issues/3043 fixed, remove this check
-        if (mainTspRelativePath.includes("azure/client-generator-core/api-version")) return;
+        // Replace the individual skip checks with:
+        if (SKIP_SPECS.some((skipSpec) => mainTspRelativePath.includes(skipSpec))) return;
 
         const hasMainTsp = await promises
           .access(mainTspPath)
@@ -427,11 +454,35 @@ async function runTaskPool(tasks: Array<() => Promise<void>>, poolLimit: number)
   await Promise.all(workers);
 }
 
+// create some files before regeneration. After regeneration, these files should be deleted and we will test it
+// in test case
+async function preprocess(flags: RegenerateFlagsInput): Promise<void> {
+  if (flags.flavor === "azure") {
+    // create folder if not exists
+    const folderParts = [
+      "test",
+      "azure",
+      "generated",
+      "authentication-api-key",
+      "authentication",
+      "apikey",
+      "_operations",
+    ];
+    await promises.mkdir(join(GENERATED_FOLDER, ...folderParts), { recursive: true });
+    await promises.writeFile(
+      join(GENERATED_FOLDER, ...folderParts, "to_be_deleted.py"),
+      "# This file is to be deleted after regeneration",
+    );
+  }
+}
+
 async function regenerate(flags: RegenerateFlagsInput): Promise<void> {
   if (flags.flavor === undefined) {
     await regenerate({ flavor: "azure", ...flags });
     await regenerate({ flavor: "unbranded", ...flags });
   } else {
+    await preprocess(flags);
+
     const flagsResolved = { debug: false, flavor: flags.flavor, ...flags };
     const subdirectoriesForAzure = await getSubdirectories(AZURE_HTTP_SPECS, flagsResolved);
     const subdirectoriesForNonAzure = await getSubdirectories(HTTP_SPECS, flagsResolved);

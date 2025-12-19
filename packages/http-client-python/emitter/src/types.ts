@@ -1,6 +1,6 @@
 import {
+  isHttpMetadata,
   SdkArrayType,
-  SdkBodyModelPropertyType,
   SdkBuiltInType,
   SdkConstantType,
   SdkCredentialType,
@@ -10,6 +10,7 @@ import {
   SdkEndpointType,
   SdkEnumType,
   SdkEnumValueType,
+  SdkModelPropertyType,
   SdkModelType,
   SdkType,
   SdkUnionType,
@@ -223,28 +224,21 @@ function addDisableGenerationMap(type: SdkType): void {
 
 function emitProperty(
   context: PythonSdkContext,
-  model: SdkModelType,
-  property: SdkBodyModelPropertyType,
+  property: SdkModelPropertyType,
 ): Record<string, any> {
   const isMultipartFileInput = property.serializationOptions?.multipart?.isFilePart;
   let sourceType: SdkType | MultiPartFileType = property.type;
   if (isMultipartFileInput) {
     sourceType = createMultiPartFileType(property.type);
-  } else if (property.type.kind === "model") {
-    const body = property.type.properties.find((x) => x.kind === "body");
-    if (body) {
-      // for `temperature: HttpPart<{@body body: float64, @header contentType: "text/plain"}>`, the real type is float64
-      sourceType = body.type;
-      addDisableGenerationMap(property.type);
-    }
-  }
-  if (isMultipartFileInput) {
     // Python convert all the type of file part to FileType so clear these models' usage so that they won't be generated
     addDisableGenerationMap(property.type);
   }
   return {
     clientName: camelToSnakeCase(property.name),
-    wireName: property.serializationOptions.json?.name ?? property.name,
+    wireName:
+      (property.serializationOptions?.multipart
+        ? property.serializationOptions?.multipart?.name
+        : property.serializationOptions?.json?.name) ?? property.name,
     type: getType(context, sourceType),
     optional: property.optional,
     description: property.summary ? property.summary : property.doc,
@@ -255,6 +249,7 @@ function emitProperty(
     flatten: property.flatten,
     isMultipartFileInput: isMultipartFileInput,
     xmlMetadata: getXmlMetadata(property),
+    encode: property.encode,
   };
 }
 
@@ -279,6 +274,12 @@ function emitModel(context: PythonSdkContext, type: SdkModelType): Record<string
       submodule: "exceptions",
     };
   }
+  if (type.external) {
+    return getSimpleTypeResult({
+      type: "external",
+      externalTypeInfo: type.external,
+    });
+  }
   const parents: Record<string, any>[] = [];
   const newValue = {
     type: type.kind,
@@ -301,8 +302,8 @@ function emitModel(context: PythonSdkContext, type: SdkModelType): Record<string
   typesMap.set(type, newValue);
   newValue.parents = type.baseModel ? [getType(context, type.baseModel)] : newValue.parents;
   for (const property of type.properties.values()) {
-    if (property.kind === "property") {
-      newValue.properties.push(emitProperty(context, type, property));
+    if (property.kind === "property" && !isHttpMetadata(context, property)) {
+      newValue.properties.push(emitProperty(context, property));
       // type for base discriminator returned by TCGC changes from constant to string while
       // autorest treat all discriminator as constant type, so we need to change to constant type here
       if (type.discriminatedSubtypes && property.discriminator) {
@@ -533,7 +534,7 @@ export function emitEndpointType(
 }
 
 function getXmlMetadata(
-  type: SdkModelType | SdkBodyModelPropertyType,
+  type: SdkModelType | SdkModelPropertyType,
 ): Record<string, any> | undefined {
   if (type.serializationOptions.xml) {
     return {

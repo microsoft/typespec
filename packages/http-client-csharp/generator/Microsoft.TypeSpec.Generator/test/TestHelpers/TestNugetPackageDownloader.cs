@@ -19,6 +19,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.TestHelpers
         private const string DefaultTargetFramework = "netstandard2.0";
         private readonly SourceRepository _mockPackageSourceRepo;
         private readonly bool _mockDirectoryExists;
+        private readonly HashSet<string>? _existingDirectories;
         private readonly bool _mockTryFindPackageInCache;
         private readonly bool _mockPackageExistsInSource;
         private readonly LocalPackageInfo? _mockLocalPackageInfo;
@@ -39,10 +40,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.TestHelpers
             bool directoryExists,
             bool packageExistsInSource,
             IEnumerable<string>? targetFrameworks = null,
-            LocalPackageInfo? localPackageInfo = null) : base(packageName, version, targetFrameworks ?? [DefaultTargetFramework], settings)
+            LocalPackageInfo? localPackageInfo = null,
+            HashSet<string>? existingDirectories = null) : base(packageName, version, targetFrameworks ?? [DefaultTargetFramework], settings)
         {
             _mockPackageSourceRepo = sourceRepository;
             _mockDirectoryExists = directoryExists;
+            _existingDirectories = existingDirectories;
             _mockLocalPackageInfo = localPackageInfo;
             _mockTryFindPackageInCache = _mockLocalPackageInfo != null;
             _mockPackageExistsInSource = packageExistsInSource;
@@ -55,6 +58,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.TestHelpers
 
         protected override bool DirectoryExists(string path)
         {
+            if (_existingDirectories != null)
+            {
+                return _existingDirectories.Contains(path);
+            }
             return _mockDirectoryExists;
         }
 

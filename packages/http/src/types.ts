@@ -101,8 +101,10 @@ type ApiKeyLocation = "header" | "query" | "cookie";
  * Cookie: X-API-KEY=abcdef12345
  * ```
  */
-export interface ApiKeyAuth<TLocation extends ApiKeyLocation, TName extends string>
-  extends HttpAuthBase {
+export interface ApiKeyAuth<
+  TLocation extends ApiKeyLocation,
+  TName extends string,
+> extends HttpAuthBase {
   type: "apiKey";
   in: TLocation;
   name: TName;

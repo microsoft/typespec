@@ -45,9 +45,7 @@ export interface MatchRule<Scope extends string = string> extends RuleScope<Scop
 }
 
 export interface BeginEndRule<Scope extends string = string>
-  extends RuleKey,
-    RuleScope<Scope>,
-    Partial<RulePatterns<Scope>> {
+  extends RuleKey, RuleScope<Scope>, Partial<RulePatterns<Scope>> {
   begin: string;
   end: string;
   beginCaptures?: Captures<Scope>;

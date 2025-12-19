@@ -1,6 +1,7 @@
 
 using System;
 using SampleTypeSpec;
+using Microsoft.TypeSpec.Generator.Customizations;
 
 namespace Sample
 {

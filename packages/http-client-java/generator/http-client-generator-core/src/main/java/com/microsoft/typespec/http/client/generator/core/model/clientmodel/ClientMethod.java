@@ -3,10 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
-import com.azure.core.http.rest.SimpleResponse;
-import com.azure.core.util.CoreUtils;
-import com.azure.core.util.UrlBuilder;
-import com.azure.core.util.serializer.TypeReference;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.implementation.OperationInstrumentationInfo;
@@ -14,6 +10,7 @@ import com.microsoft.typespec.http.client.generator.core.mapper.CollectionUtil;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
+import io.clientcore.core.utils.CoreUtils;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
@@ -118,6 +115,8 @@ public class ClientMethod {
     private final String argumentList;
     private final OperationInstrumentationInfo instrumentationInfo;
 
+    private final ClientMethod overloadedClientMethod;
+
     public ClientMethod.Builder newBuilder() {
         return new ClientMethod.Builder().description(description)
             .returnValue(returnValue)
@@ -140,7 +139,8 @@ public class ClientMethod {
             .methodDocumentation(externalDocumentation)
             .operationInstrumentationInfo(instrumentationInfo)
             .setCrossLanguageDefinitionId(crossLanguageDefinitionId)
-            .hasWithContextOverload(hasWithContextOverload);
+            .hasWithContextOverload(hasWithContextOverload)
+            .overloadedClientMethod(overloadedClientMethod);
     }
 
     /**
@@ -174,7 +174,7 @@ public class ClientMethod {
         JavaVisibility methodVisibilityInWrapperClient, ImplementationDetails implementationDetails,
         MethodPollingDetails methodPollingDetails, ExternalDocumentation externalDocumentation,
         String crossLanguageDefinitionId, boolean hasWithContextOverload,
-        OperationInstrumentationInfo instrumentationInfo) {
+        OperationInstrumentationInfo instrumentationInfo, ClientMethod overloadedClientMethod) {
         this.description = description;
         this.returnValue = returnValue;
         this.name = name;
@@ -219,6 +219,7 @@ public class ClientMethod {
         this.argumentList
             = getMethodParameters().stream().map(ClientMethodParameter::getName).collect(Collectors.joining(", "));
         this.instrumentationInfo = instrumentationInfo;
+        this.overloadedClientMethod = overloadedClientMethod;
     }
 
     @Override
@@ -447,6 +448,15 @@ public class ClientMethod {
     }
 
     /**
+     * Get the overloaded client method associated with this ClientMethod.
+     * 
+     * @return the overloaded client method.
+     */
+    public ClientMethod getOverloadedClientMethod() {
+        return overloadedClientMethod;
+    }
+
+    /**
      * Add this ClientMethod's imports to the provided set of imports.
      *
      * @param imports The set of imports to add to.
@@ -469,7 +479,7 @@ public class ClientMethod {
             // for some processing on RequestOptions (get/set header)
 
             // for query parameter modification in RequestOptions (UrlBuilder.parse)
-            imports.add(UrlBuilder.class.getName());
+            imports.add(ClassType.URL_BUILDER.getFullName());
             imports.add("io.clientcore.core.utils.UriBuilder");
         }
 
@@ -499,11 +509,11 @@ public class ClientMethod {
                 && !proxyMethod.isSync()
                 && (CoreUtils.isNullOrEmpty(parameters)
                     || parameters.get(parameters.size() - 1) != ClientMethodParameter.CONTEXT_PARAMETER)) {
-                imports.add("com.azure.core.util.FluxUtil");
+                imports.add(ClassType.FLUX_UTIL.getFullName());
             }
 
             if (getMethodPageDetails() != null) {
-                imports.add("com.azure.core.http.rest.PagedResponseBase");
+                imports.add(ClassType.PAGED_RESPONSE_BASE.getFullName());
 
                 if (settings.isDataPlaneClient()) {
                     imports.add("java.util.List");
@@ -518,13 +528,13 @@ public class ClientMethod {
                         .getTypeArguments()[0] instanceof GenericType) {
                         // pageable LRO
                         if (settings.isStreamStyleSerialization()) {
-                            imports.add(TypeReference.class.getName());
+                            imports.add(ClassType.TYPE_REFERENCE.getFullName());
                         } else {
                             imports.add("com.fasterxml.jackson.core.type.TypeReference");
                         }
                     }
                 } else {
-                    imports.add(TypeReference.class.getName());
+                    imports.add(ClassType.TYPE_REFERENCE.getFullName());
                     if (!JavaSettings.getInstance().isAzureV1()) {
                         imports.add(Type.class.getName());
                         imports.add(ParameterizedType.class.getName());
@@ -570,7 +580,7 @@ public class ClientMethod {
             }
 
             if (type == ClientMethodType.SendRequestAsync || type == ClientMethodType.SendRequestSync) {
-                imports.add(SimpleResponse.class.getName());
+                imports.add(ClassType.SIMPLE_RESPONSE.getFullName());
                 ClassType.BINARY_DATA.addImportsTo(imports, false);
                 ClassType.HTTP_REQUEST.addImportsTo(imports, false);
             }
@@ -578,7 +588,7 @@ public class ClientMethod {
             if (settings.isSyncStackEnabled() && settings.isFluent()) {
                 boolean isLroPageable = (type == ClientMethodType.PagingSyncSinglePage
                     && proxyMethod != null
-                    && GenericType.Response(ClassType.BINARY_DATA).equals(proxyMethod.getReturnType().getClientType()));
+                    && GenericType.response(ClassType.BINARY_DATA).equals(proxyMethod.getReturnType().getClientType()));
                 if (type == ClientMethodType.LongRunningBeginSync || isLroPageable) {
                     ClassType.SYNC_POLLER_FACTORY.addImportsTo(imports, false);
                 }
@@ -595,7 +605,7 @@ public class ClientMethod {
             .type(ClientMethodType.SendRequestAsync)
             .parameters(ClientMethodParameter.HTTP_REQUEST_PARAMETER)
             .returnValue(new ReturnValue("the response body on successful completion of {@link Mono}",
-                GenericType.Mono(GenericType.Response(ClassType.BINARY_DATA))))
+                GenericType.mono(GenericType.response(ClassType.BINARY_DATA))))
             .build();
     }
 
@@ -608,7 +618,7 @@ public class ClientMethod {
             .type(ClientMethodType.SendRequestSync)
             .parameters(ClientMethodParameter.HTTP_REQUEST_PARAMETER, ClientMethodParameter.CONTEXT_PARAMETER)
             .returnValue(new ReturnValue("the response body along with {@link Response}",
-                GenericType.Response(ClassType.BINARY_DATA)))
+                GenericType.response(ClassType.BINARY_DATA)))
             .build();
     }
 
@@ -636,6 +646,7 @@ public class ClientMethod {
         protected boolean hasWithContextOverload;
         protected boolean hidePageableParams;
         protected OperationInstrumentationInfo instrumentationInfo;
+        protected ClientMethod overloadedClientMethod;
 
         public Builder setCrossLanguageDefinitionId(String crossLanguageDefinitionId) {
             this.crossLanguageDefinitionId = crossLanguageDefinitionId;
@@ -886,6 +897,17 @@ public class ClientMethod {
         }
 
         /**
+         * Sets the overloaded client method associated with this ClientMethod.
+         *
+         * @param overloadedClientMethod the overloaded client method
+         * @return the Builder itself
+         */
+        public Builder overloadedClientMethod(ClientMethod overloadedClientMethod) {
+            this.overloadedClientMethod = overloadedClientMethod;
+            return this;
+        }
+
+        /**
          * @return an immutable ClientMethod instance with the configurations on this builder.
          */
         public ClientMethod build() {
@@ -894,7 +916,8 @@ public class ClientMethod {
                 clientReference, CollectionUtil.toImmutableList(requiredNullableParameterExpressions),
                 isGroupedParameterRequired, groupedParameterTypeName, methodPageDetails, parameterTransformations,
                 methodVisibility, methodVisibilityInWrapperClient, implementationDetails, methodPollingDetails,
-                externalDocumentation, crossLanguageDefinitionId, hasWithContextOverload, instrumentationInfo);
+                externalDocumentation, crossLanguageDefinitionId, hasWithContextOverload, instrumentationInfo,
+                overloadedClientMethod);
         }
     }
 }

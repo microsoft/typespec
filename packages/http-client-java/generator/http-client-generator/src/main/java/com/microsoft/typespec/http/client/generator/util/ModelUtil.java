@@ -21,9 +21,9 @@ public final class ModelUtil {
             return model.getImplementationDetails() != null
                 && (model.getImplementationDetails().isPublic()
                     || model.getImplementationDetails().isInternal()
-                    || model.getImplementationDetails().isInput())
-                && !(isExternalModel(model.getImplementationDetails()))
-                && !(JavaSettings.getInstance().isAzureV1() && isPagedModel(model.getImplementationDetails()));
+                    || model.getImplementationDetails().isInput()
+                    || model.getImplementationDetails().isException())
+                && !(isExternalModel(model.getImplementationDetails()));
         }
         return model.getImplementationDetails() != null
             && (model.getImplementationDetails().isPublic() || model.getImplementationDetails().isInternal())

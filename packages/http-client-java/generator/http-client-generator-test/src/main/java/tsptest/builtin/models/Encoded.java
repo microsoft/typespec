@@ -19,7 +19,11 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * The Encoded model.
@@ -85,6 +89,12 @@ public final class Encoded implements JsonSerializable<Encoded> {
      */
     @Generated
     private String unknownBytes;
+
+    /*
+     * The commaDeliminatedArray property.
+     */
+    @Generated
+    private List<String> commaDeliminatedArray;
 
     /**
      * Creates an instance of Encoded class.
@@ -349,6 +359,28 @@ public final class Encoded implements JsonSerializable<Encoded> {
     }
 
     /**
+     * Get the commaDeliminatedArray property: The commaDeliminatedArray property.
+     * 
+     * @return the commaDeliminatedArray value.
+     */
+    @Generated
+    public List<String> getCommaDeliminatedArray() {
+        return this.commaDeliminatedArray;
+    }
+
+    /**
+     * Set the commaDeliminatedArray property: The commaDeliminatedArray property.
+     * 
+     * @param commaDeliminatedArray the commaDeliminatedArray value to set.
+     * @return the Encoded object itself.
+     */
+    @Generated
+    public Encoded setCommaDeliminatedArray(List<String> commaDeliminatedArray) {
+        this.commaDeliminatedArray = commaDeliminatedArray;
+        return this;
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Generated
@@ -366,6 +398,12 @@ public final class Encoded implements JsonSerializable<Encoded> {
         jsonWriter.writeStringField("unknownDurationFormat", this.unknownDurationFormat);
         jsonWriter.writeStringField("unknownDateTimeFormat", this.unknownDateTimeFormat);
         jsonWriter.writeStringField("unknownBytes", this.unknownBytes);
+        if (this.commaDeliminatedArray != null) {
+            jsonWriter.writeStringField("commaDeliminatedArray",
+                this.commaDeliminatedArray.stream()
+                    .map(element -> element == null ? "" : element)
+                    .collect(Collectors.joining(",")));
+        }
         return jsonWriter.writeEndObject();
     }
 
@@ -408,6 +446,14 @@ public final class Encoded implements JsonSerializable<Encoded> {
                     deserializedEncoded.unknownDateTimeFormat = reader.getString();
                 } else if ("unknownBytes".equals(fieldName)) {
                     deserializedEncoded.unknownBytes = reader.getString();
+                } else if ("commaDeliminatedArray".equals(fieldName)) {
+                    String commaDeliminatedArrayEncodedAsString = reader.getString();
+                    List<String> commaDeliminatedArray = commaDeliminatedArrayEncodedAsString == null
+                        ? null
+                        : commaDeliminatedArrayEncodedAsString.isEmpty()
+                            ? new LinkedList<>()
+                            : new LinkedList<>(Arrays.asList(commaDeliminatedArrayEncodedAsString.split(",", -1)));
+                    deserializedEncoded.commaDeliminatedArray = commaDeliminatedArray;
                 } else {
                     reader.skipChildren();
                 }

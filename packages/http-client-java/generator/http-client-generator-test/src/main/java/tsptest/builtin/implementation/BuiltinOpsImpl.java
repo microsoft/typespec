@@ -157,7 +157,11 @@ public final class BuiltinOpsImpl {
      *         unknownDurationFormat: String (Optional)
      *         unknownDateTimeFormat: String (Optional)
      *         unknownBytes: String (Optional)
+     *         commaDeliminatedArray (Optional): [
+     *             String (Optional)
+     *         ]
      *     }
+     *     uuid: String (Required)
      * }
      * }
      * </pre>
@@ -235,7 +239,11 @@ public final class BuiltinOpsImpl {
      *         unknownDurationFormat: String (Optional)
      *         unknownDateTimeFormat: String (Optional)
      *         unknownBytes: String (Optional)
+     *         commaDeliminatedArray (Optional): [
+     *             String (Optional)
+     *         ]
      *     }
+     *     uuid: String (Required)
      * }
      * }
      * </pre>
@@ -297,7 +305,11 @@ public final class BuiltinOpsImpl {
      *         unknownDurationFormat: String (Optional)
      *         unknownDateTimeFormat: String (Optional)
      *         unknownBytes: String (Optional)
+     *         commaDeliminatedArray (Optional): [
+     *             String (Optional)
+     *         ]
      *     }
+     *     uuid: String (Required)
      * }
      * }
      * </pre>
@@ -357,7 +369,11 @@ public final class BuiltinOpsImpl {
      *         unknownDurationFormat: String (Optional)
      *         unknownDateTimeFormat: String (Optional)
      *         unknownBytes: String (Optional)
+     *         commaDeliminatedArray (Optional): [
+     *             String (Optional)
+     *         ]
      *     }
+     *     uuid: String (Required)
      * }
      * }
      * </pre>

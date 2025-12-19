@@ -12,10 +12,10 @@ namespace Microsoft.TypeSpec.Generator
 {
     internal static class MethodProviderHelpers
     {
-        public static Dictionary<ParameterValidationType, List<ParameterProvider>>? GetParamHash(MethodSignatureBase signature)
+        public static Dictionary<ParameterValidationType, List<ParameterProvider>>? GetParamHash(MethodSignatureBase signature, TypeProvider enclosingType)
         {
             Dictionary<ParameterValidationType, List<ParameterProvider>>? paramHash = null;
-            if (!ShouldSkipParameterValidation(signature))
+            if (!ShouldSkipParameterValidation(signature, enclosingType))
             {
                 paramHash = new();
                 foreach (var parameter in signature.Parameters)
@@ -65,7 +65,7 @@ namespace Microsoft.TypeSpec.Generator
             return statements;
         }
 
-        public static XmlDocProvider BuildXmlDocs(MethodSignatureBase signature)
+        public static XmlDocProvider BuildXmlDocs(MethodSignatureBase signature, TypeProvider enclosingType)
         {
             var parametersList = new List<XmlDocParamStatement>();
             foreach (var parameter in signature.Parameters)
@@ -74,7 +74,7 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             var exceptionHash = new Dictionary<Type, List<ParameterProvider>>();
-            if (!ShouldSkipParameterValidation(signature))
+            if (!ShouldSkipParameterValidation(signature, enclosingType))
             {
                 foreach (var parameter in signature.Parameters)
                 {
@@ -126,9 +126,20 @@ namespace Microsoft.TypeSpec.Generator
             }
         }
 
-        private static bool ShouldSkipParameterValidation(MethodSignatureBase signature)
+        private static bool ShouldSkipParameterValidation(MethodSignatureBase signature, TypeProvider enclosingType)
         {
-            // Skip parameter validation for private methods, as they are not exposed to the public API.
+            // Skip parameter validation for methods that are not public or protected on a public type.
+            if (!enclosingType.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
+            {
+                return true;
+            }
+
+            if (signature.Modifiers.HasFlag(MethodSignatureModifiers.Protected) &&
+                !signature.Modifiers.HasFlag(MethodSignatureModifiers.Private))
+            {
+                return false;
+            }
+
             return !signature.Modifiers.HasFlag(MethodSignatureModifiers.Public);
         }
     }

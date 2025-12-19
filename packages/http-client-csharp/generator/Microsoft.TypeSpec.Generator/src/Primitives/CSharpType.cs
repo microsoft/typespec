@@ -45,7 +45,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         internal bool IsReadOnlyList => _isReadOnlyList ??= TypeIsReadOnlyList();
         internal bool IsReadWriteList => _isReadWriteList ??= TypeIsReadWriteList();
         public bool IsDictionary => _isDictionary ??= TypeIsDictionary();
-        internal bool IsReadOnlyDictionary => _isReadOnlyDictionary ??= TypeIsReadOnlyDictionary();
+        public bool IsReadOnlyDictionary => _isReadOnlyDictionary ??= TypeIsReadOnlyDictionary();
         internal bool IsReadWriteDictionary => _isReadWriteDictionary ??= TypeIsReadWriteDictionary();
         internal bool IsIEnumerableOfT => _isIEnumerableOfT ??= TypeIsIEnumerableOfT();
         internal bool IsIAsyncEnumerableOfT => _isIAsyncEnumerableOfT ??= TypeIsIAsyncEnumerableOfT();
@@ -165,7 +165,12 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         /// Gets or sets the name of the type.
         /// </summary>
         public string Name { get; private set; }
-        internal string FullyQualifiedName => DeclaringType is null
+
+        /// <summary>
+        /// Gets the fully qualified name of the type, including namespace and any declaring types.
+        /// For nested types, this includes the declaring type name (e.g., "Namespace.DeclaringType.Name").
+        /// </summary>
+        public string FullyQualifiedName => DeclaringType is null
             ? $"{Namespace}.{Name}"
             : $"{Namespace}.{DeclaringType.Name}.{Name}";
         public CSharpType? DeclaringType { get; private init; }
@@ -179,7 +184,28 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         public bool IsGenericType => Arguments.Count > 0;
         public bool IsCollection => _isCollection ??= TypeIsCollection();
         public IReadOnlyList<CSharpType> Arguments { get; private init; }
-        public CSharpType? BaseType { get; }
+
+        public CSharpType? BaseType
+        {
+            get => _baseType;
+            private init
+            {
+                if (value is { IsFrameworkType: true }
+                    // Special base types that we want to ignore - kept in sync with NamedTypeSymbolProvider.BuildBaseType
+                    && (value.FrameworkType == typeof(object)
+                        || value.FrameworkType == typeof(ValueType)
+                        || value.FrameworkType == typeof(Array)
+                        || value.FrameworkType == typeof(Enum)))
+                {
+                    _baseType = null;
+                }
+                else
+                {
+                    _baseType = value;
+                }
+            }
+        }
+        private readonly CSharpType? _baseType;
         public bool IsStruct { get; private init; }
         public Type FrameworkType => _type ?? throw new InvalidOperationException("Not a framework type");
         public object Literal => _literal ?? throw new InvalidOperationException("Not a literal type");
@@ -231,6 +257,11 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             }
 
             return IsFrameworkType && FrameworkType == typeof(BinaryData);
+        }
+
+        public CSharpType GetNestedElementType()
+        {
+            return IsCollection || IsArray ? ElementType.GetNestedElementType() : this;
         }
 
         /// <summary>
@@ -644,20 +675,6 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             }
         }
 
-        private CSharpType? _rootType;
-        public CSharpType RootType => _rootType ??= GetRootType();
-
-        private CSharpType GetRootType()
-        {
-            CSharpType returnType = this;
-            while (returnType.BaseType != null)
-            {
-                returnType = returnType.BaseType;
-            }
-
-            return returnType;
-        }
-
         /// <summary>
         /// Update the instance with given parameters.
         /// </summary>
@@ -672,6 +689,36 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             if (@namespace != null)
             {
                 Namespace = @namespace;
+            }
+        }
+
+        internal static readonly IEqualityComparer<CSharpType> IgnoreNullableComparer = new CSharpTypeIgnoreNullableComparer();
+
+        public sealed class CSharpTypeIgnoreNullableComparer : IEqualityComparer<CSharpType>
+        {
+            public bool Equals(CSharpType? x, CSharpType? y)
+            {
+                if (x is null && y is null)
+                {
+                    return true;
+                }
+                if (x is null || y is null)
+                {
+                    return false;
+                }
+
+                return x.Equals(y, ignoreNullable: true);
+            }
+
+            public int GetHashCode(CSharpType obj)
+            {
+                HashCode hashCode = new HashCode();
+                hashCode.Add(obj.Namespace);
+                hashCode.Add(obj.Name);
+                hashCode.Add(obj.IsValueType);
+                hashCode.Add(obj.IsEnum);
+                hashCode.Add(obj.IsStruct);
+                return hashCode.ToHashCode();
             }
         }
     }

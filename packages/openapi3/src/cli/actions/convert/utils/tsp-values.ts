@@ -1,3 +1,5 @@
+import { stringLiteral } from "../generators/common.js";
+
 /** Convert a JS object to a tsp value */
 export function toTspValues(item: unknown): string {
   if (typeof item === "object") {
@@ -8,7 +10,7 @@ export function toTspValues(item: unknown): string {
         .filter(([, value]) => value !== undefined)
         .map(([key, value]) => {
           if (typeof value === "string") {
-            return `${key}: "${value}"`;
+            return `${key}: ${stringLiteral(value)}`;
           }
 
           return `${key}: ${toTspValues(value)}`;
@@ -17,6 +19,8 @@ export function toTspValues(item: unknown): string {
 
       return `#{${content}}`;
     }
+  } else if (typeof item === "string") {
+    return stringLiteral(item);
   } else {
     return JSON.stringify(item);
   }

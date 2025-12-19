@@ -1,5 +1,63 @@
 # @typespec/http-specs
 
+## 0.1.0-alpha.29
+
+### Features
+
+- [#9106](https://github.com/microsoft/typespec/pull/9106) Add tests for array encode.
+- [#8929](https://github.com/microsoft/typespec/pull/8929) add test for documentation generation
+- [#9019](https://github.com/microsoft/typespec/pull/9019) Add test case for special words about model property name
+
+### Bump dependencies
+
+- [#9046](https://github.com/microsoft/typespec/pull/9046) Upgrade dependencies
+
+### Bug Fixes
+
+- [#9039](https://github.com/microsoft/typespec/pull/9039) Fix EncodeDuration tests with larger unit durations being too strict by making query parameter expectations match input types as numbers instead of strings
+- [#8985](https://github.com/microsoft/typespec/pull/8985) Add new `sourceUrl` handling for the go to source navigation
+
+
+## 0.1.0-alpha.28
+
+### Features
+
+- [#8729](https://github.com/microsoft/typespec/pull/8729) Add scenario for encode duration with larger units
+- [#8938](https://github.com/microsoft/typespec/pull/8938) Resolve packageName and spec display name from spec set package.json
+
+### Bump dependencies
+
+- [#8823](https://github.com/microsoft/typespec/pull/8823) Upgrade dependencies
+
+
+## 0.1.0-alpha.27
+
+### Features
+
+- [#8307](https://github.com/microsoft/typespec/pull/8307) Add `@pageSize` parameter tests for pageable payload specs
+- [#8498](https://github.com/microsoft/typespec/pull/8498) Add specs for DurationKnownEncoding.milliseconds
+
+
+## 0.1.0-alpha.26
+
+### Features
+
+- [#8200](https://github.com/microsoft/typespec/pull/8200) Add spector scenario for nextLink defined as string
+- [#8255](https://github.com/microsoft/typespec/pull/8255) Enhanced body-optionality scenario to validate Content-Type header presence/absence based on optional body parameters
+- [#7651](https://github.com/microsoft/typespec/pull/7651) Add Spector scenario for simple pagination without nextlink or continuationToken. This covers basic pagination patterns using only @pageItems decorator without any continuation mechanism.
+
+### Bump dependencies
+
+- [#8317](https://github.com/microsoft/typespec/pull/8317) Upgrade dependencies
+
+
+## 0.1.0-alpha.25
+
+### Bump dependencies
+
+- [#7978](https://github.com/microsoft/typespec/pull/7978) Upgrade dependencies
+
+
 ## 0.1.0-alpha.24
 
 ### Features

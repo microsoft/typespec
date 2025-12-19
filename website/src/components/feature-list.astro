@@ -9,6 +9,7 @@ interface FeatureListItem {
   description?: string;
   image?: FluentImageName;
   link?: string;
+  learnMoreText?: string;
 }
 
 export interface Props {
@@ -46,7 +47,7 @@ const { items } = Astro.props;
 
 <div class="items-list">
   {
-    items?.map(({ image, description, link, title }) => (
+    items?.map(({ image, description, link, title, learnMoreText }) => (
       <div class="item">
         {image && <FluentImg class="item-image" name={image} />}
         <div class="item-content">
@@ -54,7 +55,7 @@ const { items } = Astro.props;
           <DescriptionText>{description}</DescriptionText>
           {link && (
             <Link href={link}>
-              <Text>Learn more →</Text>
+              <Text>{learnMoreText ?? "Learn more"} →</Text>
             </Link>
           )}
         </div>

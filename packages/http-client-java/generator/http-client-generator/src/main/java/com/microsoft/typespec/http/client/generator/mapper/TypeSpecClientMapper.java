@@ -5,12 +5,14 @@ package com.microsoft.typespec.http.client.generator.mapper;
 
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Client;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Header;
 import com.microsoft.typespec.http.client.generator.core.mapper.ClientMapper;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientResponse;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ServiceClient;
 import com.microsoft.typespec.http.client.generator.util.ModelUtil;
+import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -62,5 +64,22 @@ public class TypeSpecClientMapper extends ClientMapper {
             .collect(Collectors.toSet()));
 
         return new ArrayList<>(packages);
+    }
+
+    @Override
+    protected String getResponseHeaderName(Header header) {
+        String clientName;
+        if (header.getLanguage() != null
+            && header.getLanguage().getJava() != null
+            && !CoreUtils.isNullOrEmpty(header.getLanguage().getJava().getName())) {
+            clientName = header.getLanguage().getJava().getName();
+        } else if (header.getLanguage() != null
+            && header.getLanguage().getDefault() != null
+            && !CoreUtils.isNullOrEmpty(header.getLanguage().getDefault().getName())) {
+            clientName = header.getLanguage().getDefault().getName();
+        } else {
+            clientName = header.getHeader();
+        }
+        return clientName;
     }
 }

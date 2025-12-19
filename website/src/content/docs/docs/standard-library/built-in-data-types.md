@@ -1,5 +1,6 @@
 ---
 title: "Built-in Data types"
+description: "Data types exported by TypeSpec"
 ---
 ## TypeSpec
 ### `Array` {#Array}
@@ -489,8 +490,10 @@ enum ArrayEncoding
 
 | Name | Value | Description |
 |------|-------|-------------|
-| pipeDelimited |  | Each values of the array is separated by a \| |
-| spaceDelimited |  | Each values of the array is separated by a <space> |
+| pipeDelimited |  | Each value of the array is separated by a pipe character (\|).<br />Values can only contain \| if the underlying protocol supports encoding them.<br />- json -> error<br />- http -> %7C |
+| spaceDelimited |  | Each value of the array is separated by a space character.<br />Values can only contain spaces if the underlying protocol supports encoding them.<br />- json -> error<br />- http -> %20 |
+| commaDelimited |  | Each value of the array is separated by a comma (,).<br />Values can only contain commas if the underlying protocol supports encoding them.<br />- json -> error<br />- http -> %2C |
+| newlineDelimited |  | Each value of the array is separated by a newline character (\n).<br />Values can only contain newlines if the underlying protocol supports encoding them.<br />- json -> error<br />- http -> %0A |
 
 
 ### `BytesKnownEncoding` {#BytesKnownEncoding}
@@ -530,7 +533,8 @@ enum DurationKnownEncoding
 | Name | Value | Description |
 |------|-------|-------------|
 | ISO8601 | `"ISO8601"` | ISO8601 duration |
-| seconds | `"seconds"` | Encode to integer or float |
+| seconds | `"seconds"` | Encode to integer or float as seconds |
+| milliseconds | `"milliseconds"` | Encode to integer or float as milliseconds |
 
 
 ### `Lifecycle` {#Lifecycle}

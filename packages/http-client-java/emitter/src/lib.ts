@@ -107,6 +107,24 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`Namespace '${"namespace"}' contains reserved Java keywords, replaced it with '${"processedNamespace"}'.`,
       },
     },
+    "nested-page-items-not-supported": {
+      severity: "warning",
+      messages: {
+        default: "Nested pageItems is not supported in Azure V1.",
+      },
+    },
+    "constant-header-in-response-removed": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`Constant header '${"headerName"}' is removed from response headers.`,
+      },
+    },
+    "non-string-array-encoding-element-notsupported": {
+      severity: "error",
+      messages: {
+        default: "Element of type other than 'string' is not supported for 'ArrayEncoding'.",
+      },
+    },
   },
   emitter: {
     options: EmitterOptionsSchema,

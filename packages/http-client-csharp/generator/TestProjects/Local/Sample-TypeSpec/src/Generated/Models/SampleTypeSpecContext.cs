@@ -14,17 +14,26 @@ namespace SampleTypeSpec
     /// Context class which will be filled in by the System.ClientModel.SourceGeneration.
     /// For more information <see href='https://github.com/Azure/azure-sdk-for-net/blob/main/sdk/core/System.ClientModel/src/docs/ModelReaderWriterContext.md' />
     /// </summary>
-    [ModelReaderWriterBuildable(typeof(Thing))]
-    [ModelReaderWriterBuildable(typeof(RoundTripModel))]
-    [ModelReaderWriterBuildable(typeof(ModelWithRequiredNullableProperties))]
+    [ModelReaderWriterBuildable(typeof(Animal))]
+    [ModelReaderWriterBuildable(typeof(AnotherDynamicModel))]
+    [ModelReaderWriterBuildable(typeof(Dog))]
+    [ModelReaderWriterBuildable(typeof(DynamicModel))]
     [ModelReaderWriterBuildable(typeof(Friend))]
+    [ModelReaderWriterBuildable(typeof(GetWidgetMetricsResponse))]
+    [ModelReaderWriterBuildable(typeof(ListWithContinuationTokenHeaderResponseResponse))]
+    [ModelReaderWriterBuildable(typeof(ListWithContinuationTokenResponse))]
+    [ModelReaderWriterBuildable(typeof(ListWithNextLinkResponse))]
+    [ModelReaderWriterBuildable(typeof(ListWithStringNextLinkResponse))]
+    [ModelReaderWriterBuildable(typeof(ModelWithEmbeddedNonBodyParameters))]
+    [ModelReaderWriterBuildable(typeof(ModelWithRequiredNullableProperties))]
+    [ModelReaderWriterBuildable(typeof(PageThing))]
+    [ModelReaderWriterBuildable(typeof(Pet))]
     [ModelReaderWriterBuildable(typeof(RenamedModelCustom))]
     [ModelReaderWriterBuildable(typeof(ReturnsAnonymousModelResponse))]
-    [ModelReaderWriterBuildable(typeof(ListWithNextLinkResponse))]
-    [ModelReaderWriterBuildable(typeof(ListWithContinuationTokenResponse))]
-    [ModelReaderWriterBuildable(typeof(ListWithContinuationTokenHeaderResponseResponse))]
-    [ModelReaderWriterBuildable(typeof(PageThing))]
-    [ModelReaderWriterBuildable(typeof(ModelWithEmbeddedNonBodyParameters))]
+    [ModelReaderWriterBuildable(typeof(RoundTripModel))]
+    [ModelReaderWriterBuildable(typeof(Thing))]
+    [ModelReaderWriterBuildable(typeof(UnknownAnimal))]
+    [ModelReaderWriterBuildable(typeof(UnknownPet))]
     public partial class SampleTypeSpecContext : ModelReaderWriterContext
     {
     }

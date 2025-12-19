@@ -1,7 +1,7 @@
 import { createTypeSpecLibrary, JSONSchemaType, paramMessage } from "@typespec/compiler";
 
 export type FileType = "yaml" | "json";
-export type OpenAPIVersion = "3.0.0" | "3.1.0";
+export type OpenAPIVersion = "3.0.0" | "3.1.0" | "3.2.0";
 export type ExperimentalParameterExamplesStrategy = "data" | "serialized";
 export interface OpenAPI3EmitterOptions {
   /**
@@ -44,7 +44,7 @@ export interface OpenAPI3EmitterOptions {
    * If more than one version is specified, then the output file
    * will be created inside a directory matching each specification version.
    *
-   * @default ["v3.0"]
+   * @default ["3.0.0"]
    * @internal
    */
   "openapi-versions"?: OpenAPIVersion[];
@@ -91,7 +91,39 @@ export interface OpenAPI3EmitterOptions {
    * @see https://github.com/OAI/OpenAPI-Specification/discussions/4622 for discussion on handling parameter examples.
    */
   "experimental-parameter-examples"?: ExperimentalParameterExamplesStrategy;
+
+  /**
+   * How should operation ID be generated when `@operationId` is not used.
+   * Available options are
+   * - `parent-container`: Uses the parent namespace/interface and operation name to generate the ID.
+   * - `fqn`: Uses the fully qualified name(from service root) of the operation to generate the ID.
+   * - `explicit-only`: Only use explicitly defined operation IDs.
+   * @default parent-container
+   */
+  "operation-id-strategy"?:
+    | OperationIdStrategy
+    | {
+        /** Strategy used to generate the operation ID. */
+        kind: OperationIdStrategy;
+        /** Separator used to join segment in the operation name. */
+        separator?: string;
+      };
 }
+
+export type OperationIdStrategy = "parent-container" | "fqn" | "explicit-only";
+
+const operationIdStrategySchema = {
+  type: "string",
+  enum: ["parent-container", "fqn", "explicit-only"],
+  default: "parent-container",
+  description: [
+    "Determines how to generate operation IDs when `@operationId` is not used.",
+    "Avaliable options are:",
+    " - `parent-container`: Uses the parent namespace and operation name to generate the ID.",
+    " - `fqn`: Uses the fully qualified name of the operation to generate the ID.",
+    " - `explicit-only`: Only use explicitly defined operation IDs.",
+  ].join("\n"),
+} as const;
 
 const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
   type: "object",
@@ -135,16 +167,18 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
       ].join("\n"),
     },
     "openapi-versions": {
+      title: "OpenAPI Versions",
       type: "array",
       items: {
         type: "string",
-        enum: ["3.0.0", "3.1.0"],
+        enum: ["3.0.0", "3.1.0", "3.2.0"],
         nullable: true,
         description: "The versions of OpenAPI to emit. Defaults to `[3.0.0]`",
       },
       nullable: true,
       uniqueItems: true,
       minItems: 1,
+      default: ["3.0.0"],
     },
     "new-line": {
       type: "string",
@@ -201,6 +235,23 @@ const EmitterOptionsSchema: JSONSchemaType<OpenAPI3EmitterOptions> = {
         "See https://github.com/OAI/OpenAPI-Specification/discussions/4622 for discussion on handling parameter examples.",
       ].join("\n"),
     },
+    "operation-id-strategy": {
+      oneOf: [
+        operationIdStrategySchema,
+        {
+          type: "object",
+          properties: {
+            kind: operationIdStrategySchema,
+            separator: {
+              type: "string",
+              nullable: true,
+              description: "Separator used to join segment in the operation name.",
+            },
+          },
+          required: ["kind"],
+        },
+      ],
+    } as any,
   },
   required: [],
 };
@@ -346,6 +397,13 @@ export const $lib = createTypeSpecLibrary({
       severity: "warning",
       messages: {
         default: paramMessage`Invalid key '${"value"}' used in a fixed field of the Component object. Only alphanumerics, dot (.), hyphen (-), and underscore (_) characters are allowed in keys.`,
+      },
+    },
+    "streams-not-supported": {
+      severity: "warning",
+      messages: {
+        default:
+          "Streams with itemSchema are only fully supported in OpenAPI 3.2.0 or above. The response will be emitted without itemSchema. Consider using OpenAPI 3.2.0 for full stream support.",
       },
     },
   },

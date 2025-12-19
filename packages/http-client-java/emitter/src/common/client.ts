@@ -9,6 +9,7 @@ import {
   Security,
 } from "@autorest/codemodel";
 import { DeepPartial } from "@azure-tools/codegen";
+import { ArrayKnownEncoding } from "@azure-tools/typespec-client-generator-core";
 import { XmlSerializationFormat } from "./formats/xml.js";
 
 export interface Client extends Aspect {
@@ -101,6 +102,14 @@ export interface EncodedSchema {
    * E.g., the type for SDK maybe "int32", but type on wire be "string".
    */
   encode?: string;
+}
+
+export interface EncodedProperty {
+  /**
+   * The encoding of array items.
+   * The type for SDK would "SdkArrayType" with a "valueType", the type on wire be "string".
+   */
+  arrayEncoding?: ArrayKnownEncoding;
 }
 
 export class PageableContinuationToken {

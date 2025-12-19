@@ -44,4 +44,8 @@ export default defineConfig({
       strict: false,
     },
   },
+  test: {
+    environment: "node",
+    globals: true,
+  },
 });

@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 package tsptest.armstreamstyleserialization;
 
 import com.azure.core.http.HttpClient;
@@ -12,11 +15,14 @@ import com.azure.json.JsonWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.utils.ArmUtils;
 import reactor.core.publisher.Mono;
+import tsptest.armstreamstyleserialization.fluent.models.FunctionConfiguration;
 import tsptest.armstreamstyleserialization.models.Error;
 import tsptest.armstreamstyleserialization.models.Priority;
 import tsptest.armstreamstyleserialization.models.SawShark;
@@ -83,6 +89,28 @@ public class StreamStyleSerializationTests {
         // exception case, expected number, but received string
         // azure-json wraps IllegalArgumentException
         Assertions.assertThrows(RuntimeException.class, () -> manager.priorities().setPriority(Priority.HIGH));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testPropertyWithNullValue() {
+        FunctionConfiguration functionConfiguration = new FunctionConfiguration();
+        Map<String, Object> jsonDict
+            = (Map<String, Object>) BinaryData.fromObject(functionConfiguration).toObject(Map.class);
+        Assertions.assertTrue(jsonDict.containsKey("input"));
+        Assertions.assertNull(jsonDict.get("input"));
+        Assertions.assertFalse(jsonDict.containsKey("output"));
+
+        functionConfiguration = new FunctionConfiguration().withInput("input");
+        jsonDict = (Map<String, Object>) BinaryData.fromObject(functionConfiguration).toObject(Map.class);
+        Assertions.assertTrue(jsonDict.containsKey("input"));
+        Assertions.assertEquals("input", jsonDict.get("input"));
+    }
+
+    @Test
+    public void ensureInstantMaxValue() {
+        // ensure Integer.MAX_VALUE doesn't exceeds Instant.MAX
+        Instant.ofEpochSecond(Integer.MAX_VALUE);
     }
 
     private static HttpClient createExpandableEnumHttpClient() {

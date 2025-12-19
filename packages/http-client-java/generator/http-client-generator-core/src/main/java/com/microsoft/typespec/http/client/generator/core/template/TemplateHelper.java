@@ -3,9 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.template;
 
-import com.azure.core.util.CoreUtils;
-import com.azure.core.util.serializer.JsonSerializer;
-import com.azure.core.util.serializer.JsonSerializerProviders;
 import com.microsoft.typespec.http.client.generator.core.Javagen;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Scheme;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
@@ -14,7 +11,12 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Class
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PipelinePolicyDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.SecurityInfo;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
-import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
+import io.clientcore.core.serialization.json.JsonWriter;
+import io.clientcore.core.utils.CoreUtils;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import org.slf4j.Logger;
 
 public final class TemplateHelper {
@@ -22,23 +24,20 @@ public final class TemplateHelper {
         = new PluginLogger(Javagen.getPluginInstance(), ServiceClientBuilderTemplate.class);
 
     public static String getPomProjectName(String serviceName) {
-        return String.format(JavaSettings.getInstance().isAzureV1() ? "Microsoft Azure SDK for %s" : "SDK for %s",
-            serviceName);
+        return JavaSettings.getInstance().isAzureV1()
+            ? "Microsoft Azure SDK for " + serviceName
+            : "SDK for " + serviceName;
     }
 
     public static String getPomProjectDescription(String serviceName) {
-        return String.format(JavaSettings.getInstance().isAzureV1()
-            ? "This package contains Microsoft Azure %1$s client library."
-            : "This package contains %1$s client library.", serviceName);
+        return JavaSettings.getInstance().isAzureV1()
+            ? "This package contains Microsoft Azure " + serviceName + " client library."
+            : "This package contains " + serviceName + " client library.";
     }
 
     public static String getByteCloneExpression(String propertyName) {
-        if (JavaSettings.getInstance().isAzureV1()) {
-            return String.format("CoreUtils.clone(%s)", propertyName);
-        } else {
-            // TODO: generic not having CoreUtils
-            return propertyName;
-        }
+        // TODO: generic not having CoreUtils
+        return JavaSettings.getInstance().isAzureV1() ? "CoreUtils.clone(" + propertyName + ")" : propertyName;
     }
 
     public static void createHttpPipelineMethod(JavaSettings settings, String defaultCredentialScopes,
@@ -60,10 +59,8 @@ public final class TemplateHelper {
         SecurityInfo securityInfo, PipelinePolicyDetails pipelinePolicyDetails, JavaBlock function) {
         function.line("Configuration buildConfiguration = (configuration == null) ? Configuration"
             + ".getGlobalConfiguration() : configuration;");
-        String localHttpInstrumentationOptionsName = "local" + CodeNamer.toPascalCase("httpInstrumentationOptions");
-        function.line(String.format(
-            "HttpInstrumentationOptions %s = this.httpInstrumentationOptions == null ? new HttpInstrumentationOptions() : this.httpInstrumentationOptions;",
-            localHttpInstrumentationOptionsName));
+        function.line("HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions "
+            + "== null ? new HttpInstrumentationOptions() : this.httpInstrumentationOptions;");
 
         function.line("HttpPipelineBuilder httpPipelineBuilder = new HttpPipelineBuilder();");
         function.line("List<HttpPipelinePolicy> policies = new ArrayList<>();");
@@ -77,21 +74,24 @@ public final class TemplateHelper {
                 final String prefixExpr = CoreUtils.isNullOrEmpty(securityInfo.getHeaderValuePrefix())
                     ? "null"
                     : ClassType.STRING.defaultValueExpression(securityInfo.getHeaderValuePrefix());
-                function.line("policies.add(new KeyCredentialPolicy(\"" + securityInfo.getHeaderName()
+                action.line("policies.add(new KeyCredentialPolicy(\"" + securityInfo.getHeaderName()
                     + "\", keyCredential, " + prefixExpr + "));");
             });
         }
         if (securityInfo.getSecurityTypes().contains(Scheme.SecuritySchemeType.OAUTH2)) {
             function.ifBlock("tokenCredential != null", action -> {
-                JsonSerializer jsonSerializer = JsonSerializerProviders.createInstance(true);
-                String authFlows
-                    = new String(jsonSerializer.serializeToBytes(securityInfo.getFlows())).replace("\"", "\\\"");
-                function.line(
-                    "policies.add(new OAuthBearerTokenAuthenticationPolicy(tokenCredential, new OAuthTokenRequestContext().setParam(\"auth_flows\", \""
-                        + authFlows + "\")));");
+                try (ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    JsonWriter jsonWriter = JsonWriter.toStream(stream)) {
+                    jsonWriter.writeArray(securityInfo.getFlows(), JsonWriter::writeJson).flush();
+                    String authFlows = stream.toString(StandardCharsets.UTF_8).replace("\"", "\\\"");
+                    action.line("policies.add(new OAuthBearerTokenAuthenticationPolicy(tokenCredential, "
+                        + "new OAuthTokenRequestContext().setParam(\"auth_flows\", \"" + authFlows + "\")));");
+                } catch (IOException ex) {
+                    throw new UncheckedIOException(ex);
+                }
             });
         }
-        function.line("policies.add(new HttpInstrumentationPolicy(%s));", localHttpInstrumentationOptionsName);
+        function.line("policies.add(new HttpInstrumentationPolicy(localHttpInstrumentationOptions));");
         function.line("policies.forEach(httpPipelineBuilder::addPolicy);");
         function.methodReturn("httpPipelineBuilder.httpClient(httpClient).build()");
     }
@@ -100,10 +100,8 @@ public final class TemplateHelper {
         SecurityInfo securityInfo, PipelinePolicyDetails pipelinePolicyDetails, JavaBlock function) {
         function.line("Configuration buildConfiguration = (configuration == null) ? Configuration"
             + ".getGlobalConfiguration() : configuration;");
-        String localHttpInstrumentationOptionsName = "local" + CodeNamer.toPascalCase("httpInstrumentationOptions");
-        function.line(String.format(
-            "HttpInstrumentationOptions %s = this.httpInstrumentationOptions == null ? new HttpInstrumentationOptions() : this.httpInstrumentationOptions;",
-            localHttpInstrumentationOptionsName));
+        function.line(
+            "HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null ? new HttpInstrumentationOptions() : this.httpInstrumentationOptions;");
 
         function.line("String clientName = PROPERTIES.getOrDefault(SDK_NAME, \"UnknownName\");");
         function.line("String clientVersion = PROPERTIES.getOrDefault(SDK_VERSION, \"UnknownVersion\");");
@@ -122,17 +120,16 @@ public final class TemplateHelper {
                 final String prefixExpr = CoreUtils.isNullOrEmpty(securityInfo.getHeaderValuePrefix())
                     ? "null"
                     : ClassType.STRING.defaultValueExpression(securityInfo.getHeaderValuePrefix());
-                function.line("policies.add(new KeyCredentialPolicy(\"" + securityInfo.getHeaderName()
+                action.line("policies.add(new KeyCredentialPolicy(\"" + securityInfo.getHeaderName()
                     + "\", keyCredential, " + prefixExpr + "));");
             });
         }
         if (securityInfo.getSecurityTypes().contains(Scheme.SecuritySchemeType.OAUTH2)) {
-            function.ifBlock("tokenCredential != null", action -> {
-                function.line("policies.add(new BearerTokenAuthenticationPolicy(tokenCredential, %s));",
-                    defaultCredentialScopes);
-            });
+            function.ifBlock("tokenCredential != null",
+                action -> action.line("policies.add(new BearerTokenAuthenticationPolicy(tokenCredential, %s));",
+                    defaultCredentialScopes));
         }
-        function.line("policies.add(new HttpInstrumentationPolicy(%s));", localHttpInstrumentationOptionsName);
+        function.line("policies.add(new HttpInstrumentationPolicy(localHttpInstrumentationOptions));");
         function.line("policies.forEach(httpPipelineBuilder::addPolicy);");
         function.methodReturn("httpPipelineBuilder.httpClient(httpClient).build()");
     }
@@ -142,22 +139,17 @@ public final class TemplateHelper {
         function.line("Configuration buildConfiguration = (configuration == null) ? Configuration"
             + ".getGlobalConfiguration() : configuration;");
 
-        String localHttpLogOptionsName = "local" + CodeNamer.toPascalCase("httpLogOptions");
-        String localClientOptionsName = "local" + CodeNamer.toPascalCase("ClientOptions");
-        function.line(String.format(
-            "HttpLogOptions %s = this.httpLogOptions == null ? new HttpLogOptions() : this.httpLogOptions;",
-            localHttpLogOptionsName));
         function.line(
-            String.format("ClientOptions %s = this.clientOptions == null ? new ClientOptions() : this.clientOptions;",
-                localClientOptionsName));
+            "HttpLogOptions localHttpLogOptions = this.httpLogOptions == null ? new HttpLogOptions() : this.httpLogOptions;");
+        function.line(
+            "ClientOptions localClientOptions = this.clientOptions == null ? new ClientOptions() : this.clientOptions;");
 
         function.line("List<HttpPipelinePolicy> policies = new ArrayList<>();");
 
         function.line("String clientName = PROPERTIES.getOrDefault(SDK_NAME, \"UnknownName\");");
         function.line("String clientVersion = PROPERTIES.getOrDefault(SDK_VERSION, \"UnknownVersion\");");
 
-        function.line(String.format("String applicationId = CoreUtils.getApplicationId(%s, %s);",
-            localClientOptionsName, localHttpLogOptionsName));
+        function.line("String applicationId = CoreUtils.getApplicationId(localClientOptions, localHttpLogOptions);");
         function.line(
             "policies.add(new UserAgentPolicy(applicationId, clientName, " + "clientVersion, buildConfiguration));");
 
@@ -170,8 +162,7 @@ public final class TemplateHelper {
         function.line("policies.add(new AddHeadersFromContextPolicy());");
 
         // clientOptions header
-        function.line(
-            "HttpHeaders headers = CoreUtils.createHttpHeadersFromClientOptions(" + localClientOptionsName + ");");
+        function.line("HttpHeaders headers = CoreUtils.createHttpHeadersFromClientOptions(localClientOptions);");
         function.ifBlock("headers != null", block -> block.line("policies.add(new AddHeadersPolicy(headers));"));
 
         function.line(
@@ -192,41 +183,40 @@ public final class TemplateHelper {
             if (settings.isUseKeyCredential()) {
                 function.ifBlock("keyCredential != null", action -> {
                     if (CoreUtils.isNullOrEmpty(securityInfo.getHeaderValuePrefix())) {
-                        function.line("policies.add(new KeyCredentialPolicy(\"" + securityInfo.getHeaderName()
+                        action.line("policies.add(new KeyCredentialPolicy(\"" + securityInfo.getHeaderName()
                             + "\", keyCredential));");
                     } else {
-                        function.line("policies.add(new KeyCredentialPolicy(\"" + securityInfo.getHeaderName()
+                        action.line("policies.add(new KeyCredentialPolicy(\"" + securityInfo.getHeaderName()
                             + "\", keyCredential, \"" + securityInfo.getHeaderValuePrefix() + "\"));");
                     }
                 });
             } else {
                 function.ifBlock("azureKeyCredential != null", action -> {
                     if (CoreUtils.isNullOrEmpty(securityInfo.getHeaderValuePrefix())) {
-                        function.line("policies.add(new AzureKeyCredentialPolicy(\"" + securityInfo.getHeaderName()
+                        action.line("policies.add(new AzureKeyCredentialPolicy(\"" + securityInfo.getHeaderName()
                             + "\", azureKeyCredential));");
                     } else {
-                        function.line("policies.add(new AzureKeyCredentialPolicy(\"" + securityInfo.getHeaderName()
+                        action.line("policies.add(new AzureKeyCredentialPolicy(\"" + securityInfo.getHeaderName()
                             + "\", azureKeyCredential, \"" + securityInfo.getHeaderValuePrefix() + "\"));");
                     }
                 });
             }
         }
         if (securityInfo.getSecurityTypes().contains(Scheme.SecuritySchemeType.OAUTH2)) {
-            function.ifBlock("tokenCredential != null", action -> {
-                function.line("policies.add(new BearerTokenAuthenticationPolicy(tokenCredential, %s));",
-                    defaultCredentialScopes);
-            });
+            function.ifBlock("tokenCredential != null",
+                action -> action.line("policies.add(new BearerTokenAuthenticationPolicy(tokenCredential, %s));",
+                    defaultCredentialScopes));
         }
         function.line(
-            "this.pipelinePolicies.stream()" + ".filter(p -> p.getPipelinePosition() == HttpPipelinePosition.PER_RETRY)"
+            "this.pipelinePolicies.stream().filter(p -> p.getPipelinePosition() == HttpPipelinePosition.PER_RETRY)"
                 + ".forEach(p -> policies.add(p));");
         function.line("HttpPolicyProviders.addAfterRetryPolicies(policies);");
 
-        function.line("policies.add(new HttpLoggingPolicy(%s));", localHttpLogOptionsName);
+        function.line("policies.add(new HttpLoggingPolicy(localHttpLogOptions));");
 
         function.line("HttpPipeline httpPipeline = new HttpPipelineBuilder()"
-            + ".policies(policies.toArray(new HttpPipelinePolicy[0]))" + ".httpClient(httpClient)"
-            + String.format(".clientOptions(%s)", localClientOptionsName) + ".build();");
+            + ".policies(policies.toArray(new HttpPipelinePolicy[0])).httpClient(httpClient)"
+            + ".clientOptions(localClientOptions).build();");
         function.methodReturn("httpPipeline");
     }
 }

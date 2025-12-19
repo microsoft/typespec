@@ -1,0 +1,11 @@
+{
+  "flavor": "generic", 
+  "CrossLanguageDefinitionId": {
+    "encode.array.ArrayClient": "Encode.Array.Property",
+    "encode.array.ArrayClientBuilder": "Encode.Array",
+    "encode.array.CommaDelimitedArrayProperty": "Encode.Array.CommaDelimitedArrayProperty",
+    "encode.array.NewlineDelimitedArrayProperty": "Encode.Array.NewlineDelimitedArrayProperty",
+    "encode.array.PipeDelimitedArrayProperty": "Encode.Array.PipeDelimitedArrayProperty",
+    "encode.array.SpaceDelimitedArrayProperty": "Encode.Array.SpaceDelimitedArrayProperty"
+  }
+}

@@ -59,6 +59,7 @@ interface ContainerProps {
 const Container = ({ children, className, status, onClick, collaped }: ContainerProps) => {
   return (
     <div
+      role="button"
       tabIndex={onClick === undefined ? undefined : 0}
       className={mergeClasses(
         style["header"],
@@ -67,6 +68,7 @@ const Container = ({ children, className, status, onClick, collaped }: Container
         className,
       )}
       onClick={onClick}
+      onKeyDown={(evt) => (evt.code === "Enter" || evt.code === "Space") && onClick?.(evt as any)}
     >
       <div className={style["header-content"]}>{children}</div>
       <ChevronDown16Regular

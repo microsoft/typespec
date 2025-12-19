@@ -95,7 +95,7 @@ setup(
     include_package_data=True,
     {% endif %}
     install_requires=[
-        {% if code_model.is_legacy %}
+        {% if code_model.is_legacy and not code_model.need_utils_serialization %}
         "msrest>={{ VERSION_MAP["msrest"] }}",
         {% else %}
         "isodate>={{ VERSION_MAP["isodate"] }}",
@@ -108,6 +108,9 @@ setup(
         "corehttp[requests]>={{ VERSION_MAP["corehttp"] }}",
         {% endif %}
         "typing-extensions>={{ VERSION_MAP['typing-extensions'] }}",
+        {% for dep in ADDITIONAL_DEPENDENCIES %}
+        {{ dep }},
+        {% endfor %}
     ],
     {% if options["package-mode"] %}
     python_requires=">={{  MIN_PYTHON_VERSION }}",

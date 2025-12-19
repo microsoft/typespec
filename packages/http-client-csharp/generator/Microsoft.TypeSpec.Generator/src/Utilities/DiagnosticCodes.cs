@@ -6,5 +6,6 @@ namespace Microsoft.TypeSpec.Generator.Utilities
     internal static class DiagnosticCodes
     {
         public const string BaselineContractMissing = "baseline-contract-missing";
+        public const string InvalidAccessModifier = "invalid-access-modifier";
     }
 }

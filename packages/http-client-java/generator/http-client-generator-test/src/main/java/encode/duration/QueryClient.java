@@ -88,6 +88,23 @@ public final class QueryClient {
     }
 
     /**
+     * The int32SecondsLargerUnit operation.
+     * 
+     * @param input The input parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> int32SecondsLargerUnitWithResponse(Duration input, RequestOptions requestOptions) {
+        return this.serviceClient.int32SecondsLargerUnitWithResponse(input, requestOptions);
+    }
+
+    /**
      * The floatSeconds operation.
      * 
      * @param input The input parameter.
@@ -102,6 +119,23 @@ public final class QueryClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> floatSecondsWithResponse(Duration input, RequestOptions requestOptions) {
         return this.serviceClient.floatSecondsWithResponse(input, requestOptions);
+    }
+
+    /**
+     * The floatSecondsLargerUnit operation.
+     * 
+     * @param input The input parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> floatSecondsLargerUnitWithResponse(Duration input, RequestOptions requestOptions) {
+        return this.serviceClient.floatSecondsLargerUnitWithResponse(input, requestOptions);
     }
 
     /**
@@ -122,6 +156,91 @@ public final class QueryClient {
     }
 
     /**
+     * The int32Milliseconds operation.
+     * 
+     * @param input The input parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> int32MillisecondsWithResponse(int input, RequestOptions requestOptions) {
+        return this.serviceClient.int32MillisecondsWithResponse(input, requestOptions);
+    }
+
+    /**
+     * The int32MillisecondsLargerUnit operation.
+     * 
+     * @param input The input parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> int32MillisecondsLargerUnitWithResponse(int input, RequestOptions requestOptions) {
+        return this.serviceClient.int32MillisecondsLargerUnitWithResponse(input, requestOptions);
+    }
+
+    /**
+     * The floatMilliseconds operation.
+     * 
+     * @param input The input parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> floatMillisecondsWithResponse(double input, RequestOptions requestOptions) {
+        return this.serviceClient.floatMillisecondsWithResponse(input, requestOptions);
+    }
+
+    /**
+     * The floatMillisecondsLargerUnit operation.
+     * 
+     * @param input The input parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> floatMillisecondsLargerUnitWithResponse(double input, RequestOptions requestOptions) {
+        return this.serviceClient.floatMillisecondsLargerUnitWithResponse(input, requestOptions);
+    }
+
+    /**
+     * The float64Milliseconds operation.
+     * 
+     * @param input The input parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> float64MillisecondsWithResponse(double input, RequestOptions requestOptions) {
+        return this.serviceClient.float64MillisecondsWithResponse(input, requestOptions);
+    }
+
+    /**
      * The int32SecondsArray operation.
      * 
      * @param input The input parameter.
@@ -136,6 +255,23 @@ public final class QueryClient {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> int32SecondsArrayWithResponse(List<Duration> input, RequestOptions requestOptions) {
         return this.serviceClient.int32SecondsArrayWithResponse(input, requestOptions);
+    }
+
+    /**
+     * The int32MillisecondsArray operation.
+     * 
+     * @param input The input parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> int32MillisecondsArrayWithResponse(List<Integer> input, RequestOptions requestOptions) {
+        return this.serviceClient.int32MillisecondsArrayWithResponse(input, requestOptions);
     }
 
     /**
@@ -196,6 +332,25 @@ public final class QueryClient {
     }
 
     /**
+     * The int32SecondsLargerUnit operation.
+     * 
+     * @param input The input parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void int32SecondsLargerUnit(Duration input) {
+        // Generated convenience method for int32SecondsLargerUnitWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        int32SecondsLargerUnitWithResponse(input, requestOptions).getValue();
+    }
+
+    /**
      * The floatSeconds operation.
      * 
      * @param input The input parameter.
@@ -212,6 +367,25 @@ public final class QueryClient {
         // Generated convenience method for floatSecondsWithResponse
         RequestOptions requestOptions = new RequestOptions();
         floatSecondsWithResponse(input, requestOptions).getValue();
+    }
+
+    /**
+     * The floatSecondsLargerUnit operation.
+     * 
+     * @param input The input parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void floatSecondsLargerUnit(Duration input) {
+        // Generated convenience method for floatSecondsLargerUnitWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        floatSecondsLargerUnitWithResponse(input, requestOptions).getValue();
     }
 
     /**
@@ -234,6 +408,101 @@ public final class QueryClient {
     }
 
     /**
+     * The int32Milliseconds operation.
+     * 
+     * @param input The input parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void int32Milliseconds(int input) {
+        // Generated convenience method for int32MillisecondsWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        int32MillisecondsWithResponse(input, requestOptions).getValue();
+    }
+
+    /**
+     * The int32MillisecondsLargerUnit operation.
+     * 
+     * @param input The input parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void int32MillisecondsLargerUnit(int input) {
+        // Generated convenience method for int32MillisecondsLargerUnitWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        int32MillisecondsLargerUnitWithResponse(input, requestOptions).getValue();
+    }
+
+    /**
+     * The floatMilliseconds operation.
+     * 
+     * @param input The input parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void floatMilliseconds(double input) {
+        // Generated convenience method for floatMillisecondsWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        floatMillisecondsWithResponse(input, requestOptions).getValue();
+    }
+
+    /**
+     * The floatMillisecondsLargerUnit operation.
+     * 
+     * @param input The input parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void floatMillisecondsLargerUnit(double input) {
+        // Generated convenience method for floatMillisecondsLargerUnitWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        floatMillisecondsLargerUnitWithResponse(input, requestOptions).getValue();
+    }
+
+    /**
+     * The float64Milliseconds operation.
+     * 
+     * @param input The input parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void float64Milliseconds(double input) {
+        // Generated convenience method for float64MillisecondsWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        float64MillisecondsWithResponse(input, requestOptions).getValue();
+    }
+
+    /**
      * The int32SecondsArray operation.
      * 
      * @param input The input parameter.
@@ -250,5 +519,24 @@ public final class QueryClient {
         // Generated convenience method for int32SecondsArrayWithResponse
         RequestOptions requestOptions = new RequestOptions();
         int32SecondsArrayWithResponse(input, requestOptions).getValue();
+    }
+
+    /**
+     * The int32MillisecondsArray operation.
+     * 
+     * @param input The input parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public void int32MillisecondsArray(List<Integer> input) {
+        // Generated convenience method for int32MillisecondsArrayWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        int32MillisecondsArrayWithResponse(input, requestOptions).getValue();
     }
 }

@@ -60,6 +60,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             InputPrimitiveType? valueType = null;
             IReadOnlyList<InputEnumTypeValue>? values = null;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
+            InputExternalTypeMetadata? external = null;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadString("name", ref name)
@@ -73,7 +74,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadBoolean("isFixed", ref isFixed)
                     || reader.TryReadComplexType("valueType", options, ref valueType)
                     || reader.TryReadComplexType("values", options, ref values)
-                    || reader.TryReadComplexType("decorators", options, ref decorators);
+                    || reader.TryReadComplexType("decorators", options, ref decorators)
+                    || reader.TryReadComplexType("external", options, ref external);
 
                 if (!isKnownProperty)
                 {
@@ -97,6 +99,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             enumType.ValueType = valueType ?? throw new JsonException("Enum must have valueType");
             enumType.IsExtensible = !isFixed;
             enumType.Decorators = decorators ?? [];
+            enumType.External = external;
 
             return enumType;
         }

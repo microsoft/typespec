@@ -1,9 +1,9 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual } from "assert";
 import { it } from "vitest";
-import { worksFor } from "./works-for.js";
+import { supportedVersions, worksFor } from "./works-for.js";
 
-worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
+worksFor(supportedVersions, ({ diagnoseOpenApiFor, openApiFor }) => {
   async function expectStatusCodes(code: string, statusCodes: string[]) {
     const res = await openApiFor(code);
     deepStrictEqual(Object.keys(res.paths["/"].get.responses), statusCodes);
@@ -57,5 +57,54 @@ worksFor(["3.0.0", "3.1.0"], ({ diagnoseOpenApiFor, openApiFor }) => {
           "Status code range '455 to '495' is not supported. OpenAPI 3.0 can only represent range 1XX, 2XX, 3XX, 4XX and 5XX. Example: `@minValue(400) @maxValue(499)` for 4XX.",
       },
     ]);
+  });
+
+  it("extracts status codes from models in a named union", async () => {
+    await expectStatusCodes(
+      `
+      model A {
+        @statusCode _: 418;
+      }
+
+      model B {
+        @statusCode _: 200;
+      }
+
+      union R {
+        A: A;
+        B: B;
+      };
+
+      op read(): R;
+      `,
+      ["200", "418"],
+    );
+  });
+
+  it("deduplicates status codes when multiple models in union have same code", async () => {
+    await expectStatusCodes(
+      `
+      model A {
+        @statusCode _: 418;
+      }
+
+      model B {
+        @statusCode _: 418;
+      }
+
+      model C {
+        @statusCode _: 200;
+      }
+
+      union R {
+        A: A;
+        B: B;
+        C: C;
+      };
+
+      op read(): R;
+      `,
+      ["200", "418"],
+    );
   });
 });

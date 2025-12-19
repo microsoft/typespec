@@ -34,7 +34,7 @@ public class ClientCoreClientMethodMapper extends ClientMethodMapper {
     }
 
     @Override
-    protected void addClientMethodWithContext(List<ClientMethod> methods, ClientMethod baseMethod,
+    protected ClientMethod addClientMethodWithContext(List<ClientMethod> methods, ClientMethod baseMethod,
         JavaVisibility visibility, boolean isProtocolMethod) {
         final ClientMethodParameter contextParameter = getContextParameter(isProtocolMethod);
         final List<ClientMethodParameter> parameters = new ArrayList<>(baseMethod.getParameters());
@@ -48,5 +48,6 @@ public class ClientCoreClientMethodMapper extends ClientMethodMapper {
             .hasWithContextOverload(false)
             .build();
         methods.add(withContextMethod);
+        return withContextMethod;
     }
 }

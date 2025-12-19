@@ -1,7 +1,7 @@
 ---
 import FluentImg from "./fluent-img.astro";
 import Link from "@typespec/astro-utils/components/link.astro";
-import { NeutralText, DescriptionText, Text } from "./text/text";
+import { NeutralText, DescriptionText } from "./text/text";
 import type { FluentImageName } from "./types";
 
 export interface Props {
@@ -24,6 +24,7 @@ const { image, title, description, link } = Astro.props;
     display: flex;
     gap: 12px;
     border: 2px solid transparent;
+    display: flex;
   }
 
   .item:hover {
@@ -44,16 +45,25 @@ const { image, title, description, link } = Astro.props;
 
   .item-content {
     display: flex;
+    flex: 1;
     flex-direction: column;
-    gap: 12px;
+  }
+
+  .title {
+    font-size: 20px;
+    font-weight: 600;
+  }
+  .arrow {
+    font-size: 24px;
+    color: var(--colorNeutralForeground3);
   }
 </style>
 
 <Link href={link} class="item">
   {image && <FluentImg class="item-image" name={image} />}
-  <div class={"item-content"}>
-    <NeutralText>{title}</NeutralText>
-    <DescriptionText>{description}</DescriptionText>
-    <Text>Learn more →</Text>
+  <div class="item-content">
+    <NeutralText className="title">{title}</NeutralText>
+    <DescriptionText>{description ?? "Learn more about supported features"}</DescriptionText>
   </div>
+  <div class="arrow">→</div>
 </Link>

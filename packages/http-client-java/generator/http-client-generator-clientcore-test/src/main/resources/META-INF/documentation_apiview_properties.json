@@ -1,0 +1,11 @@
+{
+  "flavor": "generic", 
+  "CrossLanguageDefinitionId": {
+    "documentation.DocumentationClientBuilder": "Documentation",
+    "documentation.ListsClient": "Documentation.Lists",
+    "documentation.TextFormattingClient": "Documentation.TextFormatting",
+    "documentation.lists.BulletPointsEnum": "Documentation.Lists.BulletPointsEnum",
+    "documentation.lists.BulletPointsModel": "Documentation.Lists.BulletPointsModel",
+    "documentation.lists.implementation.BulletPointsModelRequest": "Documentation.Lists.bulletPointsModel.Request.anonymous"
+  }
+}

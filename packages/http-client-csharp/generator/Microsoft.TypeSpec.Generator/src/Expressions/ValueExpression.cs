@@ -7,6 +7,7 @@ using System.Diagnostics;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
+using Microsoft.TypeSpec.Generator.Statements;
 
 namespace Microsoft.TypeSpec.Generator.Expressions
 {
@@ -58,6 +59,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
         public ValueExpression NullableStructValue(CSharpType candidateType)
             => candidateType is { IsNullable: true, IsValueType: true } ? new MemberExpression(this, nameof(Nullable<int>.Value)) : this;
         public ScopedApi<string> InvokeToString() => Invoke(nameof(ToString)).As<string>();
+        public ScopedApi<string> InvokeToString(ValueExpression culture) => Invoke(nameof(ToString), culture).As<string>();
         public ValueExpression InvokeGetType() => Invoke(nameof(GetType));
         public ValueExpression InvokeGetHashCode() => Invoke(nameof(GetHashCode));
 
@@ -129,6 +131,8 @@ namespace Microsoft.TypeSpec.Generator.Expressions
         public ValueExpression AndExpr(ValueExpression other) => new BinaryOperatorExpression("and", this, other);
 
         public ValueExpression NullConditional() => new NullConditionalExpression(this);
+
+        public MethodBodyStatement AddAndAssign(ValueExpression value) => new BinaryOperatorExpression("+=", this, value).As<int>().Terminate();
 
         public AssignmentExpression Assign(ValueExpression value, bool nullCoalesce = false) => new AssignmentExpression(this, value, nullCoalesce);
 

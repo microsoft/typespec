@@ -1,0 +1,85 @@
+package documentation.lists;
+
+/**
+ * This tests really long bullet points in enum documentation to see how wrapping and formatting are handled. This
+ * should wrap around correctly and maintain proper indentation for each line.
+ * - Simple bullet point. This bullet point is going to be very long to test how text wrapping is handled in bullet
+ * points within documentation comments. It should properly indent the wrapped lines.
+ * - Another bullet point with **bold text**. This bullet point is also intentionally long to see how the formatting is
+ * preserved when the text wraps onto multiple lines in the generated documentation.
+ * - Third bullet point with *italic text*. Similar to the previous points, this one is extended to ensure that the
+ * wrapping and formatting are correctly applied in the output.
+ * - Complex bullet point with **bold** and *italic* combined. This bullet point combines both bold and italic
+ * formatting and is long enough to test the wrapping behavior in such cases.
+ * - **Bold bullet point**: A bullet point that is entirely bolded. This point is also made lengthy to observe how the
+ * bold formatting is maintained across wrapped lines.
+ * - *Italic bullet point*: A bullet point that is entirely italicized. This final point is extended to verify that
+ * italic formatting is correctly applied even when the text spans multiple lines.
+ */
+public enum BulletPointsEnum {
+    /**
+     * Simple bullet point. This line is intentionally long to test text wrapping in bullet points within enum
+     * documentation comments. It should properly indent the wrapped lines.
+     * - One: one. This line is intentionally long to test text wrapping in bullet points within enum documentation
+     * comments. It should properly indent the wrapped lines.
+     * - Two: two. This line is intentionally long to test text wrapping in bullet points within enum documentation
+     * comments. It should properly indent the wrapped lines.
+     */
+    SIMPLE("Simple"),
+
+    /**
+     * Bullet point with **bold text**. This line is intentionally long to test text wrapping in bullet points within
+     * enum documentation comments. It should properly indent the wrapped lines.
+     * - **One**: one. This line is intentionally long to test text wrapping in bullet points within enum documentation
+     * comments. It should properly indent the wrapped lines.
+     * - **Two**: two. This line is intentionally long to test text wrapping in bullet points within enum documentation
+     * comments. It should properly indent the wrapped lines.
+     */
+    BOLD("Bold"),
+
+    /**
+     * Bullet point with *italic text*. This line is intentionally long to test text wrapping in bullet points within
+     * enum documentation comments. It should properly indent the wrapped lines.
+     * - *One*: one. This line is intentionally long to test text wrapping in bullet points within enum documentation
+     * comments. It should properly indent the wrapped lines.
+     * - *Two*: two. This line is intentionally long to test text wrapping in bullet points within enum documentation
+     * comments. It should properly indent the wrapped lines.
+     */
+    ITALIC("Italic");
+
+    /**
+     * The actual serialized value for a BulletPointsEnum instance.
+     */
+    private final String value;
+
+    BulletPointsEnum(String value) {
+        this.value = value;
+    }
+
+    /**
+     * Parses a serialized value to a BulletPointsEnum instance.
+     * 
+     * @param value the serialized value to parse.
+     * @return the parsed BulletPointsEnum object, or null if unable to parse.
+     */
+    public static BulletPointsEnum fromString(String value) {
+        if (value == null) {
+            return null;
+        }
+        BulletPointsEnum[] items = BulletPointsEnum.values();
+        for (BulletPointsEnum item : items) {
+            if (item.toString().equalsIgnoreCase(value)) {
+                return item;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return this.value;
+    }
+}
