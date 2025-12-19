@@ -634,20 +634,19 @@ def grade(sample: dict, item: dict) -> float:
       },
     } as any);
 
-    // The example property should be a single-line escaped string with \n for newlines
+    // the example should escape the literal syntax contained withing the string value
     strictEqual(
-      tsp.includes('example: "{\\n  \\"type\\": \\"python\\"') ||
-        tsp.includes('example: "{\n  "type": "python"'),
+      tsp.includes('source": \\"""'),
       true,
       "Expected 'example' to be an escaped string literal with newlines represented as \\n, but got: " +
         tsp,
     );
 
-    // Should NOT use triple-quoted strings for object literal values
+    // Should use triple-quoted strings for object literal values
     strictEqual(
       tsp.includes('example: """'),
-      false,
-      "Should not use triple-quoted strings in object literals as they can break with nested quotes. Got: " +
+      true,
+      "Should use triple-quoted strings in object literals as they can break with nested quotes. Got: " +
         tsp,
     );
 
