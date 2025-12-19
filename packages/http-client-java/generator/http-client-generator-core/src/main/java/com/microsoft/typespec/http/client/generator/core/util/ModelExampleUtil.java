@@ -71,6 +71,19 @@ public class ModelExampleUtil {
                     ExampleNode childNode = parseNode(elementType, childObjectValue);
                     node.getChildNodes().add(childNode);
                 }
+            } else if (objectValue instanceof String) {
+                // there is ArrayEncoding that serializes array to string
+                // for simplicity, treat it as CSV
+                ListNode listNode = new ListNode(elementType, objectValue);
+                if (!((String) objectValue).isEmpty()) {
+                    String value = (String) objectValue;
+                    String[] elements = value.split(",", -1);
+                    for (String childObjectValue : elements) {
+                        ExampleNode childNode = parseNode(elementType, childObjectValue);
+                        listNode.getChildNodes().add(childNode);
+                    }
+                }
+                node = listNode;
             } else {
                 throw new IllegalStateException("Example value is not List type: " + objectValue);
             }

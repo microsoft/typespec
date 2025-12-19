@@ -199,8 +199,7 @@ export interface CanonicalHttpBody {
 }
 
 export interface CanonicalHttpOperationBody
-  extends CanonicalHttpOperationBodyBase,
-    CanonicalHttpBody {
+  extends CanonicalHttpOperationBodyBase, CanonicalHttpBody {
   readonly bodyKind: "single";
 }
 
@@ -215,15 +214,13 @@ export interface CanonicalHttpOperationMultipartBodyCommon extends CanonicalHttp
   readonly parts: CanonicalHttpOperationPart[];
 }
 
-export interface CanonicalHttpOperationMultipartBodyModel
-  extends CanonicalHttpOperationMultipartBodyCommon {
+export interface CanonicalHttpOperationMultipartBodyModel extends CanonicalHttpOperationMultipartBodyCommon {
   readonly multipartKind: "model";
   readonly type: ModelHttpCanonicalization;
   readonly parts: CanonicalHttpOperationModelPart[];
 }
 
-export interface CanonicalHttpOperationMultipartBodyTuple
-  extends CanonicalHttpOperationMultipartBodyCommon {
+export interface CanonicalHttpOperationMultipartBodyTuple extends CanonicalHttpOperationMultipartBodyCommon {
   readonly multipartKind: "tuple";
   readonly type: HttpCanonicalization;
   readonly parts: CanonicalHttpOperationTuplePart[];
