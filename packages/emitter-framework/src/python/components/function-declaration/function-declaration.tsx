@@ -6,8 +6,10 @@ import type { Model, Operation } from "@typespec/compiler";
 import { DocElement } from "../doc-element/doc-element.js";
 import { TypeExpression } from "../type-expression/type-expression.js";
 
-export interface FunctionDeclarationPropsWithType
-  extends Omit<py.FunctionDeclarationProps, "name"> {
+export interface FunctionDeclarationPropsWithType extends Omit<
+  py.FunctionDeclarationProps,
+  "name"
+> {
   type: Operation;
   name?: string;
   parametersModel?: Model;
