@@ -1434,8 +1434,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ScopedApi<JsonElement> jsonElement)
         {
             var data = jsonElement.GetUtf8Bytes();
-
-            return valueType switch
+            var result = valueType switch
             {
                 { IsFrameworkType: true } when valueType.FrameworkType == typeof(Nullable<>) =>
                     ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(
@@ -1452,6 +1451,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 _ => GetDeserializationMethodInvocationForType(valueType, jsonElement, data,
                     _mrwOptionsParameterSnippet)
             };
+
+            if (valueType.IsFrameworkType && valueType.FrameworkType == typeof(Uri))
+            {
+                return new TernaryConditionalExpression(
+                       Static<string>().Invoke(nameof(string.IsNullOrEmpty), jsonElement.GetString()),
+                       Null,
+                       result);
+            }
+
+            return result;
         }
 
         private MethodBodyStatement CreateDeserializeDictionaryValueStatement(
@@ -1954,10 +1963,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ValueExpression? exp = frameworkType switch
             {
                 Type t when t == typeof(Uri) =>
-                    new TernaryConditionalExpression(
-                        Static(typeof(string)).Invoke("IsNullOrEmpty", element.GetString()),
-                        Null,
-                        New.Instance(frameworkType, element.GetString())),
+                    New.Instance(frameworkType, element.GetString()),
                 Type t when t == typeof(IPAddress) =>
                     Static<IPAddress>().Invoke(nameof(IPAddress.Parse), element.GetString()),
                 Type t when t == typeof(BinaryData) =>
