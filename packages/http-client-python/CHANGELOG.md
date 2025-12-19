@@ -1,5 +1,12 @@
 # Change Log - @typespec/http-client-python
 
+## 0.23.2
+
+### Bump dependencies
+
+- [#9245](https://github.com/microsoft/typespec/pull/9245) Bump generated code's dependency on `azure-core` to `1.37.0`
+
+
 ## 0.23.1
 
 ### Bug Fixes
