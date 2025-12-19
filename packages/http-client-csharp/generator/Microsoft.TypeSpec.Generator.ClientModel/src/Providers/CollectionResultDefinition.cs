@@ -316,7 +316,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 case InputResponseLocation.Body:
                     var resultExpression = GetPropertyExpression(nextPagePropertySegments!, PageParameter.AsVariable());
 
-                    // For URI type, check for null only. For string types, check for null or empty.
                     var ifElseStatement = nextPageType.Equals(typeof(Uri))
                         ? new IfElseStatement(new IfStatement(nextPageVariable.NotEqual(Null))
                             {
@@ -325,7 +324,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                                     nextPageVariable.Property("AbsoluteUri"))))
                             },
                             Return(Null))
-                        : new IfElseStatement(new IfStatement(Not(Static(typeof(string)).Invoke("IsNullOrEmpty", nextPageVariable)))
+                        : new IfElseStatement(new IfStatement(Not(Static<string>().Invoke(nameof(string.IsNullOrEmpty), nextPageVariable)))
                             {
                                 Return(Static(typeof(ContinuationToken))
                                 .Invoke("FromBytes", BinaryDataSnippets.FromString(nextPageVariable)))
@@ -343,7 +342,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         new IfElseStatement(
                             new IfStatement(PageParameter.ToApi<ClientResponseApi>().GetRawResponse()
                                 .TryGetHeader(nextPagePropertySegments![0], out var nextLinkHeader)
-                                .And(Not(Static(typeof(string)).Invoke("IsNullOrEmpty", nextLinkHeader!))))
+                                .And(Not(Static<string>().Invoke(nameof(string.IsNullOrEmpty), nextLinkHeader!))))
                             {
                                 Return(Static(typeof(ContinuationToken)).Invoke("FromBytes", BinaryDataSnippets.FromString(nextLinkHeader!)))
                             },
@@ -458,38 +457,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 case InputResponseLocation.Body:
                     var resultExpression = BuildGetPropertyExpression(NextPagePropertySegments, responseModel);
-
-                    // For URI types, check for null only
-                    if (NextPagePropertyType.Equals(typeof(Uri)))
+                    if (Paging.ContinuationToken != null || NextPagePropertyType.Equals(typeof(Uri)))
                     {
+                        IfStatement condition = NextPagePropertyType.Equals(typeof(Uri))
+                            ? new IfStatement(nextPage.Equal(Null))
+                            : new IfStatement(Static<string>().Invoke(nameof(string.IsNullOrEmpty), nextPage));
+                        condition.Add(YieldBreak());
+
                         return
                         [
                             nextPage.Assign(resultExpression).Terminate(),
-                            new IfStatement(nextPage.Equal(Null))
-                            {
-                                YieldBreak()
-                            }
+                            condition,
                         ];
                     }
 
-                    // For string continuation tokens, check for null or empty
-                    if (Paging.ContinuationToken != null)
-                    {
-                        return
-                        [
-                            nextPage.Assign(resultExpression).Terminate(),
-                            new IfStatement(Static(typeof(string)).Invoke("IsNullOrEmpty", nextPage))
-                            {
-                                YieldBreak()
-                            }
-                        ];
-                    }
-
-                    // For string-based nextLink that needs to be converted to URI, check for null or empty before conversion
                     return
                     [
                         Declare("nextPageString", resultExpression.As<string>(), out ScopedApi<string> nextPageString),
-                        new IfStatement(Static(typeof(string)).Invoke("IsNullOrEmpty", nextPageString))
+                        new IfStatement(Static<string>().Invoke(nameof(string.IsNullOrEmpty), nextPageString))
                         {
                             YieldBreak()
                         },
@@ -500,7 +485,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         [
                             new IfElseStatement(
                                 new IfStatement(result.GetRawResponse().TryGetHeader(NextPagePropertySegments[0], out var nextLinkHeader)
-                                    .And(Not(Static(typeof(string)).Invoke("IsNullOrEmpty", nextLinkHeader!))))
+                                    .And(Not(Static<string>().Invoke(nameof(string.IsNullOrEmpty), nextLinkHeader!))))
                                 {
                                         nextPage.Type.Equals(typeof(Uri)) ?
                                             nextPage.Assign(New.Instance<Uri>(nextLinkHeader!)).Terminate() :
