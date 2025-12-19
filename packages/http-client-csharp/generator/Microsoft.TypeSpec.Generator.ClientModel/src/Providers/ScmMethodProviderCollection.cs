@@ -154,8 +154,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                                 jsonElement,
                                 data,
                                 ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition.WireOptionsField.As<ModelReaderWriterOptions>(),
-                                SerializationFormat.Default,
-                                isPropertyDeserialization: false),
+                                SerializationFormat.Default),
                                 result.GetRawResponse()))
                         },
                 ];

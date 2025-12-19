@@ -235,16 +235,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
             ScopedApi<BinaryData> data,
             ScopedApi<ModelReaderWriterOptions> mrwOptionsParameter,
             SerializationFormat format)
-            => MrwSerializationTypeDefinition.DeserializeJsonValueCore(valueType, element, data, mrwOptionsParameter, format, isPropertyDeserialization: true);
-
-        public virtual ValueExpression DeserializeJsonValue(
-            CSharpType valueType,
-            ScopedApi<JsonElement> element,
-            ScopedApi<BinaryData> data,
-            ScopedApi<ModelReaderWriterOptions> mrwOptionsParameter,
-            SerializationFormat format,
-            bool isPropertyDeserialization)
-            => MrwSerializationTypeDefinition.DeserializeJsonValueCore(valueType, element, data, mrwOptionsParameter, format, isPropertyDeserialization);
+            => MrwSerializationTypeDefinition.DeserializeJsonValueCore(valueType, element, data, mrwOptionsParameter, format);
 
         public virtual MethodBodyStatement SerializeJsonValue(
             CSharpType valueType,
