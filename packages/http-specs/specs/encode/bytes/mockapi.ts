@@ -12,6 +12,10 @@ import { fileURLToPath } from "url";
 const root = resolvePath(fileURLToPath(import.meta.url), "../../../../../");
 
 const pngFile = readFileSync(resolvePath(root, "assets/image.png"));
+const coseData = Buffer.from([
+  0xd2, 0x84, 0x43, 0xa1, 0x01, 0x26, 0xa0, 0x50, 0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x57, 0x6f,
+  0x72, 0x6c, 0x64, 0x21, 0x58, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+]);
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
@@ -276,4 +280,20 @@ Scenarios.Encode_Bytes_ResponseBody_octetStream = createResponseBodyServerTests(
   },
   pngFile,
   "application/octet-stream",
+);
+
+Scenarios.Encode_Bytes_RequestBodyContentType_cose = createRequestBodyServerTests(
+  "/encode/bytes/body/request/content-type/cose",
+  coseData,
+  "application/cose",
+);
+
+Scenarios.Encode_Bytes_ResponseBodyContentType_cose = createResponseBodyServerTests(
+  "/encode/bytes/body/response/content-type/cose",
+  coseData,
+  {
+    "Content-Type": "application/cose",
+  },
+  coseData,
+  "application/cose",
 );
