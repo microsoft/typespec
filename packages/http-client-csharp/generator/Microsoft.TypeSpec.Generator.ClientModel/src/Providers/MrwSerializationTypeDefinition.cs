@@ -1954,7 +1954,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ValueExpression? exp = frameworkType switch
             {
                 Type t when t == typeof(Uri) =>
-                    New.Instance(frameworkType, element.GetString()),
+                    new TernaryConditionalExpression(
+                        Static(typeof(string)).Invoke("IsNullOrEmpty", element.GetString()),
+                        Null,
+                        New.Instance(frameworkType, element.GetString())),
                 Type t when t == typeof(IPAddress) =>
                     Static<IPAddress>().Invoke(nameof(IPAddress.Parse), element.GetString()),
                 Type t when t == typeof(BinaryData) =>
