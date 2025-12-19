@@ -1923,7 +1923,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ScopedApi<JsonElement> element,
             ScopedApi<BinaryData> data,
             ScopedApi<ModelReaderWriterOptions> mrwOptions,
-            SerializationFormat format)
+            SerializationFormat format,
+            bool isPropertyDeserialization = true)
         {
             // Handle enums
             if (valueType.IsEnum)
@@ -1933,14 +1934,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     element,
                     data,
                     mrwOptions,
-                    format);
+                    format,
+                    isPropertyDeserialization);
                 return valueType.ToEnum(underlyingValue);
             }
 
             // Handle nullable types
             if (valueType.IsFrameworkType && valueType.FrameworkType == typeof(Nullable<>))
             {
-                return DeserializeJsonValueCore(valueType.Arguments[0], element, data, mrwOptions, format);
+                return DeserializeJsonValueCore(valueType.Arguments[0], element, data, mrwOptions, format, isPropertyDeserialization);
             }
 
             // Handle non-framework types
@@ -1954,10 +1956,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ValueExpression? exp = frameworkType switch
             {
                 Type t when t == typeof(Uri) =>
-                    new TernaryConditionalExpression(
-                        Static(typeof(string)).Invoke("IsNullOrEmpty", element.GetString()),
-                        Null,
-                        New.Instance(frameworkType, element.GetString())),
+                    // Only check for empty strings when deserializing model properties, not for direct return values
+                    isPropertyDeserialization
+                        ? new TernaryConditionalExpression(
+                            Static(typeof(string)).Invoke("IsNullOrEmpty", element.GetString()),
+                            Null,
+                            New.Instance(frameworkType, element.GetString()))
+                        : New.Instance(frameworkType, element.GetString()),
                 Type t when t == typeof(IPAddress) =>
                     Static<IPAddress>().Invoke(nameof(IPAddress.Parse), element.GetString()),
                 Type t when t == typeof(BinaryData) =>
