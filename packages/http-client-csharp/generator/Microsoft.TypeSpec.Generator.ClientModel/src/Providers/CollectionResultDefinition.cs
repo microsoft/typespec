@@ -317,34 +317,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     var resultExpression = GetPropertyExpression(nextPagePropertySegments!, PageParameter.AsVariable());
 
                     // For URI type, check for null only. For string types, check for null or empty.
-                    if (nextPageType.Equals(typeof(Uri)))
-                    {
-                        return
-                        [
-                            Declare(nextPageVariable, resultExpression),
-                            new IfElseStatement(new IfStatement(nextPageVariable.NotEqual(Null))
-                                {
-                                    Return(Static(typeof(ContinuationToken))
-                                    .Invoke("FromBytes", BinaryDataSnippets.FromString(
-                                        nextPageVariable.Property("AbsoluteUri"))))
-                                },
-                                Return(Null))
-                        ];
-                    }
-                    else
-                    {
-                        // For string types (continuation tokens), check for null or empty
-                        return
-                        [
-                            Declare(nextPageVariable, resultExpression),
-                            new IfElseStatement(new IfStatement(Not(Static(typeof(string)).Invoke("IsNullOrEmpty", nextPageVariable)))
-                                {
-                                    Return(Static(typeof(ContinuationToken))
-                                    .Invoke("FromBytes", BinaryDataSnippets.FromString(nextPageVariable)))
-                                },
-                                Return(Null))
-                        ];
-                    }
+                    var ifElseStatement = nextPageType.Equals(typeof(Uri))
+                        ? new IfElseStatement(new IfStatement(nextPageVariable.NotEqual(Null))
+                            {
+                                Return(Static(typeof(ContinuationToken))
+                                .Invoke("FromBytes", BinaryDataSnippets.FromString(
+                                    nextPageVariable.Property("AbsoluteUri"))))
+                            },
+                            Return(Null))
+                        : new IfElseStatement(new IfStatement(Not(Static(typeof(string)).Invoke("IsNullOrEmpty", nextPageVariable)))
+                            {
+                                Return(Static(typeof(ContinuationToken))
+                                .Invoke("FromBytes", BinaryDataSnippets.FromString(nextPageVariable)))
+                            },
+                            Return(Null));
+
+                    return
+                    [
+                        Declare(nextPageVariable, resultExpression),
+                        ifElseStatement
+                    ];
                 case InputResponseLocation.Header:
                     return
                     [
