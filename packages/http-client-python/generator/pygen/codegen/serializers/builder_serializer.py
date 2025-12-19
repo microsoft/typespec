@@ -403,7 +403,12 @@ class RequestBuilderSerializer(_BuilderBaseSerializer[RequestBuilderType]):
         builder: RequestBuilderType,
     ) -> list[str]:
         def _get_value(param):
-            declaration = param.get_declaration() if param.constant else None
+            if param.constant:
+                declaration = param.get_declaration()
+            elif param.client_default_value_declaration is not None:
+                declaration = param.client_default_value_declaration
+            else:
+                declaration = None
             if param.location in [ParameterLocation.HEADER, ParameterLocation.QUERY]:
                 kwarg_dict = "headers" if param.location == ParameterLocation.HEADER else "params"
                 return f"_{kwarg_dict}.pop('{param.wire_name}', {declaration})"

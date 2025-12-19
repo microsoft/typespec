@@ -91,6 +91,7 @@ public class ClientModelProperty implements ClientModelPropertyAccess {
     private final String xmlPrefix;
 
     private final Boolean requiredForCreate;
+    private final ArrayEncoding arrayEncoding;
 
     /**
      * Create a new ClientModelProperty with the provided properties.
@@ -115,13 +116,16 @@ public class ClientModelProperty implements ClientModelPropertyAccess {
      * @param polymorphicDiscriminator Whether this property is a polymorphic discriminator.
      * @param isXmlText Whether this property uses the value of an XML tag.
      * @param xmlPrefix The prefix of the XML attribute or element this property represents.
+     * @param requiredForCreate Whether this property is required when create the resource.
+     * @param arrayEncoding The array encoding metadata of this property.
      */
     private ClientModelProperty(String name, String description, String annotationArguments, boolean isXmlAttribute,
         String xmlName, String xmlNamespace, String serializedName, boolean isXmlWrapper, String xmlListElementName,
         String xmlListElementNamespace, String xmlListElementPrefix, IType wireType, IType clientType,
         boolean isConstant, String defaultValue, boolean isReadOnly, List<Mutability> mutabilities, boolean isRequired,
         String headerCollectionPrefix, boolean isAdditionalProperties, boolean needsFlatten, boolean clientFlatten,
-        boolean polymorphicDiscriminator, boolean isXmlText, String xmlPrefix, Boolean requiredForCreate) {
+        boolean polymorphicDiscriminator, boolean isXmlText, String xmlPrefix, Boolean requiredForCreate,
+        ArrayEncoding arrayEncoding) {
         this.name = name;
         this.description = description;
         this.annotationArguments = annotationArguments;
@@ -148,6 +152,7 @@ public class ClientModelProperty implements ClientModelPropertyAccess {
         this.isXmlText = isXmlText;
         this.xmlPrefix = xmlPrefix;
         this.requiredForCreate = requiredForCreate;
+        this.arrayEncoding = arrayEncoding;
     }
 
     public final String getName() {
@@ -282,6 +287,10 @@ public class ClientModelProperty implements ClientModelPropertyAccess {
         return requiredForCreate == null ? this.isRequired() : requiredForCreate;
     }
 
+    public ArrayEncoding getArrayEncoding() {
+        return arrayEncoding;
+    }
+
     /**
      * Add this ServiceModelProperty's imports to the provided set of imports.
      * 
@@ -393,6 +402,7 @@ public class ClientModelProperty implements ClientModelPropertyAccess {
         private boolean isXmlText = false;
         private String xmlPrefix;
         private Boolean requiredForCreate;
+        private ArrayEncoding arrayEncoding;
 
         /**
          * Sets the name of this property.
@@ -684,6 +694,11 @@ public class ClientModelProperty implements ClientModelPropertyAccess {
             return this;
         }
 
+        public Builder arrayEncoding(ArrayEncoding arrayEncoding) {
+            this.arrayEncoding = arrayEncoding;
+            return this;
+        }
+
         /**
          * Creates a new instance of Builder.
          */
@@ -717,6 +732,7 @@ public class ClientModelProperty implements ClientModelPropertyAccess {
             this.isXmlText = property.isXmlText();
             this.xmlPrefix = property.getXmlPrefix();
             this.requiredForCreate = property.requiredForCreate;
+            this.arrayEncoding = property.getArrayEncoding();
         }
 
         public ClientModelProperty build() {
@@ -724,7 +740,7 @@ public class ClientModelProperty implements ClientModelPropertyAccess {
                 xmlNamespace, serializedName, isXmlWrapper, xmlListElementName, xmlListElementNamespace,
                 xmlListElementPrefix, wireType, clientType, isConstant, defaultValue, isReadOnly, mutabilities,
                 isRequired, headerCollectionPrefix, isAdditionalProperties, needsFlatten, clientFlatten,
-                polymorphicDiscriminator, isXmlText, xmlPrefix, requiredForCreate);
+                polymorphicDiscriminator, isXmlText, xmlPrefix, requiredForCreate, arrayEncoding);
         }
     }
 }

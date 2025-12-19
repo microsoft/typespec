@@ -9,6 +9,7 @@ import {
   OpenAPISchema3_2,
   Refable,
 } from "../../../../types.js";
+import { stringLiteral } from "../generators/common.js";
 import { TSValue, TypeSpecDecorator } from "../interfaces.js";
 
 const validLocations = ["header", "query", "path"];
@@ -101,6 +102,8 @@ export function normalizeObjectValueToTSValueExpression(value: any): string {
       .join(", ")}}`;
   } else if (Array.isArray(value)) {
     return `#[${value.map((v) => normalizeObjectValueToTSValueExpression(v)).join(", ")}]`;
+  } else if (typeof value === "string") {
+    return stringLiteral(value);
   } else return `${JSON.stringify(value)}`;
 }
 
