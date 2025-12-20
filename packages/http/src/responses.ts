@@ -1,7 +1,9 @@
 import {
+  compilerAssert,
   createDiagnosticCollector,
   Diagnostic,
   DiagnosticCollector,
+  DocContent,
   getDoc,
   getErrorsDoc,
   getReturnsDoc,
@@ -14,6 +16,14 @@ import {
   Program,
   Type,
 } from "@typespec/compiler";
+import {
+  IntersectionExpressionNode,
+  Node,
+  SyntaxKind,
+  TypeReferenceNode,
+  UnionExpressionNode,
+  UnionStatementNode,
+} from "@typespec/compiler/ast";
 import { $ } from "@typespec/compiler/typekit";
 import { getStatusCodeDescription, getStatusCodesWithDiagnostics } from "./decorators.js";
 import { HttpProperty } from "./http-property.js";
@@ -33,6 +43,8 @@ export function getResponsesForOperation(
   const responseType = operation.returnType;
   const responses = new ResponseIndex();
   const tk = $(program);
+  const inlineDocNodeTreeMap = generateInlineDocNodeTreeMap(program, operation);
+
   if (tk.union.is(responseType) && !tk.union.getDiscriminatedUnion(responseType)) {
     // Check if the union itself has a @doc to use as the response description
     const unionDescription = getDoc(program, responseType);
@@ -47,11 +59,20 @@ export function getResponsesForOperation(
         operation,
         responses,
         option.type,
+        inlineDocNodeTreeMap,
         unionDescription,
       );
     }
   } else {
-    processResponseType(program, diagnostics, operation, responses, responseType, undefined);
+    processResponseType(
+      program,
+      diagnostics,
+      operation,
+      responses,
+      responseType,
+      inlineDocNodeTreeMap,
+      undefined,
+    );
   }
 
   return diagnostics.wrap(responses.values());
@@ -90,6 +111,7 @@ function processResponseType(
   operation: Operation,
   responses: ResponseIndex,
   responseType: Type,
+  inlineDocNodeTreeMap: InlineDocNodeTreeMap,
   parentDescription?: string,
 ) {
   const tk = $(program);
@@ -105,12 +127,14 @@ function processResponseType(
       if (isNullType(option.type)) {
         continue;
       }
+
       processResponseType(
         program,
         diagnostics,
         operation,
         responses,
         option.type,
+        inlineDocNodeTreeMap,
         unionDescription,
       );
     }
@@ -157,6 +181,7 @@ function processResponseType(
         responseType,
         statusCode,
         metadata,
+        inlineDocNodeTreeMap,
         parentDescription,
       ),
       responses: [],
@@ -249,9 +274,19 @@ function getResponseDescription(
   responseType: Type,
   statusCode: HttpStatusCodes[number],
   metadata: HttpProperty[],
+  inlineDocNodeTreeMap: InlineDocNodeTreeMap,
   parentDescription?: string,
 ): string | undefined {
-  // If a parent union provided a description, use that first
+  // If an inline doc comment provided, use that first
+  const inlineDescription = getNearestInlineDescriptionFromOperationReturnTypeNode(
+    inlineDocNodeTreeMap,
+    responseType.node,
+  );
+  if (inlineDescription) {
+    return inlineDescription;
+  }
+
+  // If a parent union provided a description, use that second
   if (parentDescription) {
     return parentDescription;
   }
@@ -278,4 +313,204 @@ function getResponseDescription(
   }
 
   return getStatusCodeDescription(statusCode);
+}
+
+/**
+ * Maps nodes to their semantic parents for tracling inline doc comment inheritance.
+ * It close to the concept of Concrete Syntax Tree (CST).
+ *
+ * Unlike AST parent relationships which reflect syntax structure, this map tracks
+ * semantic relationships after type resolution to enable proper doc comment
+ * inheritance through aliases, unions, and other TypeSpec constructs.
+ *
+ * The key is a {@link Node}, and the value is its semantic parent {@link Node} or `null` if none exists.
+ * It means that is a root {@link Node} if the value is `null`.
+ */
+interface InlineDocNodeTreeMap extends WeakMap<Node, Node | null> {}
+
+/**
+ * Collect inline doc comments from response type node by traversing the tree.
+ * This operation should do only once per operation due to it can traverse
+ * by the given {@link Operation.returnType}'s node.
+ */
+function generateInlineDocNodeTreeMap(
+  program: Program,
+  operation: Operation,
+): InlineDocNodeTreeMap {
+  let node = operation.returnType.node;
+  // if the return type node of operation is a single type reference, which doesn't appear in AST
+  // about operation.returnType.node
+  // so we need to get the actual type reference node from operation signature's return type
+  if (
+    operation.node?.kind === SyntaxKind.OperationStatement &&
+    operation.node.signature.kind === SyntaxKind.OperationSignatureDeclaration
+  ) {
+    node = operation.node.signature.returnType;
+  }
+
+  const map: InlineDocNodeTreeMap = new WeakMap();
+  if (node?.kind === SyntaxKind.UnionExpression) {
+    traverseUnionExpression(program, map, node, null);
+  }
+  if (node?.kind === SyntaxKind.TypeReference) {
+    traverseTypeReference(program, map, node, null);
+  }
+  return map;
+}
+
+/**
+ * This function traverse up the tree from the given resolved response type node
+ * which is the bottom of the traversal.
+ * Return the nearest inline description from the {@link Operation.returnType}'s node.
+ */
+function getNearestInlineDescriptionFromOperationReturnTypeNode(
+  map: InlineDocNodeTreeMap,
+  node?: Node,
+  nearestNodeHasDoc?: Node,
+): string | null {
+  // this branch couldn't happen normally
+  if (!node) return null;
+  const parentNode = map.get(node);
+  const nodeText = getLastDocText(node);
+  // if no parent, stop traversing and return the description
+  if (!parentNode) {
+    // if root node has no description, return the description
+    // from nearest node which could have inline doc comment
+    if (!nodeText && nearestNodeHasDoc) {
+      return getLastDocText(nearestNodeHasDoc);
+    }
+    // no parent and no nearest node with doc, return the description
+    // from current node which could have inline doc comment
+    return nodeText;
+  }
+
+  const parentNodeText = getLastDocText(parentNode);
+  if (map.has(parentNode)) {
+    // if parent has no description and current node has description,
+    // keep current node as nearestNodeHasDoc which could have inline doc comment
+    if (!parentNodeText && nodeText) {
+      return getNearestInlineDescriptionFromOperationReturnTypeNode(map, parentNode, node);
+    }
+    // keep nearestNodeHasDoc as nearest node which could have inline doc comment
+    return getNearestInlineDescriptionFromOperationReturnTypeNode(
+      map,
+      parentNode,
+      nearestNodeHasDoc,
+    );
+  }
+  return null;
+}
+
+function traverseTypeReference(
+  program: Program,
+  map: InlineDocNodeTreeMap,
+  node: TypeReferenceNode,
+  parentNode: Node | null,
+): void {
+  map.set(node, parentNode);
+  const type = program.checker.getTypeForNode(node);
+  const ancestorNode = node;
+
+  if (type.node) {
+    const childNode = type.node;
+    const kind = childNode.kind;
+    if (kind === SyntaxKind.UnionExpression) {
+      traverseUnionExpression(program, map, childNode, ancestorNode);
+    }
+    if (kind === SyntaxKind.UnionStatement) {
+      traverseUnionStatement(program, map, childNode, ancestorNode);
+    }
+    if (kind === SyntaxKind.IntersectionExpression) {
+      traverseIntersectionExpression(program, map, childNode, ancestorNode);
+    }
+    if (kind === SyntaxKind.ModelStatement || kind === SyntaxKind.ModelExpression) {
+      map.set(childNode, ancestorNode);
+    }
+  }
+}
+
+function traverseUnionExpression(
+  program: Program,
+  map: InlineDocNodeTreeMap,
+  node: UnionExpressionNode,
+  parentNode: Node | null,
+): void {
+  for (const option of node.options) {
+    if (option.kind === SyntaxKind.TypeReference) {
+      traverseTypeReference(program, map, option, parentNode);
+    }
+    if (option.kind === SyntaxKind.IntersectionExpression) {
+      traverseIntersectionExpression(program, map, option, parentNode);
+    }
+    if (option.kind === SyntaxKind.ModelExpression) {
+      map.set(option, parentNode);
+    }
+  }
+}
+
+function traverseUnionStatement(
+  program: Program,
+  map: InlineDocNodeTreeMap,
+  node: UnionStatementNode,
+  parentNode: Node | null,
+) {
+  for (const option of node.options) {
+    map.set(option, parentNode);
+
+    if (option.kind === SyntaxKind.UnionVariant) {
+      if (option.value.kind === SyntaxKind.TypeReference) {
+        traverseTypeReference(program, map, option.value, parentNode);
+      }
+      if (option.value.kind === SyntaxKind.ModelExpression) {
+        map.set(option.value, parentNode);
+      }
+    }
+  }
+}
+
+function traverseIntersectionExpression(
+  program: Program,
+  map: InlineDocNodeTreeMap,
+  node: IntersectionExpressionNode,
+  parentNode: Node | null,
+): void {
+  map.set(node, parentNode);
+
+  for (const option of node.options) {
+    if (option.kind === SyntaxKind.UnionExpression) {
+      traverseUnionExpression(program, map, option, parentNode);
+    }
+    if (option.kind === SyntaxKind.TypeReference) {
+      traverseTypeReference(program, map, option, parentNode);
+    }
+  }
+}
+
+function getLastDocText(node: Node): string | null {
+  // the doc node isn't an inline doc comment when it belongs to a model statement
+  // this condition should be an allowlist for nodes which can have inline doc comments
+  const isAllowedNodeKind =
+    node.kind !== SyntaxKind.TypeReference &&
+    node.kind !== SyntaxKind.ModelExpression &&
+    node.kind !== SyntaxKind.IntersectionExpression;
+  if (isAllowedNodeKind) return null;
+  const docs = node.docs;
+  if (!docs || docs.length === 0) return null;
+  const lastDoc = docs[docs.length - 1];
+  return getDocContent(lastDoc.content);
+}
+
+/**
+ * same as {@link file://./../../compiler/src/core/checker.ts}
+ */
+function getDocContent(content: readonly DocContent[]) {
+  const docs = [];
+  for (const node of content) {
+    compilerAssert(
+      node.kind === SyntaxKind.DocText,
+      "No other doc content node kinds exist yet. Update this code appropriately when more are added.",
+    );
+    docs.push(node.text);
+  }
+  return docs.join("");
 }
