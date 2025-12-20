@@ -1,0 +1,15 @@
+[package]
+name = "compile-virtual-wasmtime"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[workspace]
+members = ["."]
+
+[dependencies]
+anyhow = "1"
+walkdir = "2"
+wasmtime = { version = "39", features = ["component-model"] }
+wasmtime-wasi = { version = "39" }
+wasmtime-wasi-http = "39"

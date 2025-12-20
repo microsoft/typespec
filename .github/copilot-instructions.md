@@ -121,3 +121,25 @@ TypeSpec is a language for defining cloud service APIs and shapes. This monorepo
 - [http-client-csharp Development](./instructions/http-client-csharp.instructions.md): Instructions for developing the C# HTTP client
 - [http-client-java Development](./instructions/http-client-java.instructions.md): Instructions for developing the TypeSpec library for Java client.
 - [TCGC Upgrade](./prompts/upgrade-tcgc.instructions.md): Instructions for TCGC version on emitters. Activate with: `tcgc upgrade <emitter-name> <new-version>`
+
+## WebAssembly Component Support
+
+TypeSpec includes experimental WebAssembly Component Model support in the `@typespec/compiler-wasm` package.
+
+### Building the WASM Component
+
+```bash
+cd packages/compiler-wasm
+pnpm build:wasm
+```
+
+This creates `build/typespec-compiler.wasm` suitable for embedding in WASI-based hosts.
+
+### Key Features
+
+- **Virtual Filesystem**: In-memory compilation without Node.js dependencies
+- **Component Model**: Standards-compliant WebAssembly component using jco
+- **WIT Interface**: Clean boundary for cross-language integration
+
+See [packages/compiler-wasm/README.md](../packages/compiler-wasm/README.md) for detailed usage and limitations.
+

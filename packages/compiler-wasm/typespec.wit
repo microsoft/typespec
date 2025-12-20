@@ -1,0 +1,83 @@
+// TypeSpec WebAssembly Component Interface
+// Version 0.1.0
+
+package typespec:component@0.1.0;
+
+interface types {
+  /// Represents a source file in memory
+  record source-file {
+    path: string,
+    contents: string,
+  }
+
+  /// Compilation options
+  record compile-options {
+    /// List of emitter names to run (e.g., "@typespec/openapi3")
+    emitters: list<string>,
+    /// Output directory path
+    output-dir: string,
+    /// Additional compiler arguments
+    arguments: list<tuple<string, string>>,
+  }
+
+  /// Diagnostic severity levels
+  enum severity {
+    error,
+    warning,
+    info,
+  }
+
+  /// A single diagnostic message
+  record diagnostic {
+    code: string,
+    message: string,
+    severity: severity,
+    file: string,
+    /// Byte offset start position in the file
+    start: u32,
+    /// Byte offset end position in the file
+    end: u32,
+  }
+
+  /// An emitted output file
+  record emitted-file {
+    path: string,
+    contents: string,
+  }
+
+  /// Result of compilation
+  record compile-result {
+    success: bool,
+    diagnostics: list<diagnostic>,
+    emitted: list<emitted-file>,
+  }
+}
+
+/// Main TypeSpec component world
+world typespec {
+  use types.{source-file, compile-options, compile-result};
+
+  /// Compile TypeSpec from in-memory source files
+  /// 
+  /// Parameters:
+  /// - files: List of source files (TypeSpec and imported files)
+  /// - entry: Path to the main entry file (must be in files list)
+  /// - options: Compilation options
+  export compile-virtual: func(
+    files: list<source-file>,
+    entry: string,
+    options: compile-options
+  ) -> compile-result;
+
+  /// Compile TypeSpec from a filesystem root
+  /// 
+  /// Parameters:
+  /// - root-path: Root directory containing the TypeSpec project
+  /// - entry: Relative path to the entry file from root
+  /// - options: Compilation options
+  export compile-root: func(
+    root-path: string,
+    entry: string,
+    options: compile-options
+  ) -> compile-result;
+}
