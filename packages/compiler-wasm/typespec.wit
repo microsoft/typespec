@@ -51,11 +51,29 @@ interface types {
     diagnostics: list<diagnostic>,
     emitted: list<emitted-file>,
   }
+
+  /// Result of listing interface declarations
+  record interface-list-result {
+    interfaces: list<string>,
+    diagnostics: list<diagnostic>,
+  }
+
+  /// Interface declaration details
+  record interface-info {
+    name: string,
+    operations: list<string>,
+  }
+
+  /// Result of listing interface declarations with operation names
+  record interface-details-result {
+    interfaces: list<interface-info>,
+    diagnostics: list<diagnostic>,
+  }
 }
 
 /// Main TypeSpec component world
 world typespec {
-  use types.{source-file, compile-options, compile-result};
+  use types.{source-file, compile-options, compile-result, interface-list-result, interface-details-result};
 
   /// Compile TypeSpec from in-memory source files
   /// 
@@ -80,4 +98,31 @@ world typespec {
     entry: string,
     options: compile-options
   ) -> compile-result;
+
+  /// List interface declarations by parsing TypeSpec files from an in-memory source set.
+  ///
+  /// Notes:
+  /// - This parses TypeSpec syntax and walks the AST; it does not require successful compilation.
+  /// - Only relative imports (e.g. "./foo.tsp", "../bar.tsp") are followed, and only if the
+  ///   imported files are present in the provided `files` list.
+  ///
+  /// Parameters:
+  /// - files: List of source files (TypeSpec and imported files)
+  /// - entry: Path to the main entry file (must be in files list)
+  export list-interfaces-virtual: func(
+    files: list<source-file>,
+    entry: string,
+  ) -> interface-list-result;
+
+  /// List interface declarations with their operation names by parsing TypeSpec files from an
+  /// in-memory source set.
+  ///
+  /// Notes:
+  /// - This parses TypeSpec syntax and walks the AST; it does not require successful compilation.
+  /// - Only relative imports (e.g. "./foo.tsp", "../bar.tsp") are followed, and only if the
+  ///   imported files are present in the provided `files` list.
+  export list-interfaces-details-virtual: func(
+    files: list<source-file>,
+    entry: string,
+  ) -> interface-details-result;
 }
