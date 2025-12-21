@@ -766,6 +766,85 @@ op foo(
         });
       });
     });
+
+    describe("inline doc comments", () => {
+      it("single inline expression", async () => {
+        await assertFormat({
+          code: `
+op foo(): /** inline doc comment */ { @statusCode _: 200; content: string; };`,
+          expected: `
+op foo():
+/** inline doc comment */
+{
+  @statusCode _: 200;
+  content: string;
+};`,
+        });
+      });
+
+      it("single model statement", async () => {
+        await assertFormat({
+          code: `
+model SuccessResponse {
+  @statusCode _: 200;
+  content: string;
+}
+op foo(): /** inline doc comment */
+SuccessResponse;`,
+          expected: `
+model SuccessResponse {
+  @statusCode _: 200;
+  content: string;
+}
+op foo():
+/** inline doc comment */
+SuccessResponse;`,
+        });
+      });
+
+      it("union expression", async () => {
+        await assertFormat({
+          code: `
+model Success201 { @statusCode _: 201; content: string; }
+model Success204 { @statusCode _: 204; content: string; }
+model Error400 { @statusCode _: 400; content: string; }
+
+op foo():
+/** 200 */
+{ @statusCode _: 200; content: string; } |
+/**
+ * 201
+ */
+Success201 | Success204 | Error400;`,
+          expected: `
+model Success201 {
+  @statusCode _: 201;
+  content: string;
+}
+model Success204 {
+  @statusCode _: 204;
+  content: string;
+}
+model Error400 {
+  @statusCode _: 400;
+  content: string;
+}
+
+op foo():
+  | /** 200 */
+    {
+      @statusCode _: 200;
+      content: string;
+    }
+  | /**
+     * 201
+     */
+    Success201
+  | Success204
+  | Error400;`,
+        });
+      });
+    });
   });
 
   describe("scalar", () => {
