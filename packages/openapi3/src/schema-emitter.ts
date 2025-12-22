@@ -632,7 +632,7 @@ export class OpenAPI3SchemaEmitterBase<
     let schema: any;
     if (union.options.envelope === "none") {
       const items = new ArrayBuilder();
-      
+
       // Add named variants to the oneOf array
       for (const variant of union.variants.values()) {
         items.push(this.emitter.emitTypeReference(variant));

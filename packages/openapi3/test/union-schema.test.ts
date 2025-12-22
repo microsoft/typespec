@@ -233,11 +233,8 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) =
 
       // For versions < 3.2, canidae should be in the mapping
       ok(res.components.schemas.Animal.discriminator, "expected discriminator");
-      deepStrictEqual(
-        res.components.schemas.Animal.discriminator.propertyName,
-        "taxonomic_family",
-      );
-      
+      deepStrictEqual(res.components.schemas.Animal.discriminator.propertyName, "taxonomic_family");
+
       // For versions 3.0 and 3.1, canidae should be in the mapping
       if (res.openapi === "3.0.0" || res.openapi === "3.1.0") {
         deepStrictEqual(res.components.schemas.Animal.discriminator.mapping, {
