@@ -217,15 +217,6 @@ public class ClientModelUtil {
     }
 
     /**
-     * @param codeModel the code model
-     * @return the class name of service client implementation.
-     */
-    public static String getClientImplementClassName(Client codeModel) {
-        String serviceClientInterfaceName = getClientInterfaceName(codeModel);
-        return getClientImplementClassName(serviceClientInterfaceName);
-    }
-
-    /**
      * @param serviceClientInterfaceName the interface name of service client
      * @return the class name of service client implementation.
      */

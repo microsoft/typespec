@@ -198,7 +198,14 @@ try {
   Copy-Item -Path node_modules/@typespec/http-specs/specs -Destination ./ -Recurse -Force
   Copy-Item -Path node_modules/@azure-tools/azure-http-specs/specs -Destination ./ -Recurse -Force
 
-  $job = (Get-ChildItem ./specs -Include "main.tsp","old.tsp" -File -Recurse) | ForEach-Object -Parallel $generateScript -ThrottleLimit $Parallelization -AsJob
+  $specFiles = Get-ChildItem ./specs -Include "main.tsp","old.tsp" -File -Recurse
+  $multiServiceSpec = Join-Path ./specs "azure/resource-manager/multi-service/client.tsp"
+  if (Test-Path $multiServiceSpec) {
+    # ensure multi-service client specs are processed even though they do not match the default filter
+    $specFiles += Get-Item $multiServiceSpec
+  }
+
+  $job = $specFiles | ForEach-Object -Parallel $generateScript -ThrottleLimit $Parallelization -AsJob
 
   $job | Wait-Job -Timeout 1200
   $job | Receive-Job
