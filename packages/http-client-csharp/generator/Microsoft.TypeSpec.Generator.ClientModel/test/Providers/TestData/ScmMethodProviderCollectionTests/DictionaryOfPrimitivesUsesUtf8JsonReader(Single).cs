@@ -9,10 +9,6 @@ while (jsonReader.Read())
     {
         break;
     }
-    if ((jsonReader.TokenType == global::System.Text.Json.JsonTokenType.StartObject))
-    {
-        continue;
-    }
     string propertyName = jsonReader.GetString();
     jsonReader.Read();
     value.Add(propertyName, jsonReader.GetSingle());
