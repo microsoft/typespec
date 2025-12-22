@@ -5,7 +5,7 @@
 # --------------------------------------------------------------------------
 import pytest
 from service.multiservice.aio import Combined
-from service.multiservice.models import VersionsA, VersionsB
+from service.multiservice.models import VersionsA
 
 
 @pytest.mark.asyncio

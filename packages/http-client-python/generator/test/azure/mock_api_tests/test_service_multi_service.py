@@ -4,7 +4,7 @@
 # license information.
 # --------------------------------------------------------------------------
 from service.multiservice import Combined
-from service.multiservice.models import VersionsA, VersionsB
+from service.multiservice.models import VersionsA
 
 
 def test_service_multi_service_foo():
