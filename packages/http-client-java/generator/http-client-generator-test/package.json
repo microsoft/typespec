@@ -15,7 +15,7 @@
     "@typespec/spector": "0.1.0-alpha.21",
     "@typespec/spec-api": "0.1.0-alpha.11",
     "@typespec/http-specs": "0.1.0-alpha.29",
-    "@azure-tools/azure-http-specs": "0.1.0-alpha.33",
+    "@azure-tools/azure-http-specs": "0.1.0-alpha.34",
     "@typespec/http-client-java": "file:../../typespec-http-client-java-0.6.1.tgz",
     "@typespec/http-client-java-tests": "file:"
   },
