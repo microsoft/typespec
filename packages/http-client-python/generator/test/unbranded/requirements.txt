@@ -14,6 +14,7 @@
 -e ./generated/parameters-basic
 -e ./generated/parameters-collection-format
 -e ./generated/parameters-path
+-e ./generated/parameters-query
 -e ./generated/parameters-spread
 -e ./generated/serialization-encoded-name-json
 -e ./generated/server-endpoint-not-defined
