@@ -35,22 +35,30 @@ async def move_to_root_client():
 
 
 @pytest.mark.asyncio
-async def test_move_method_parameter_to_client_blob_operations_get_blob(move_method_parameter_to_client: MoveMethodParameterToClient):
+async def test_move_method_parameter_to_client_blob_operations_get_blob(
+    move_method_parameter_to_client: MoveMethodParameterToClient,
+):
     await move_method_parameter_to_client.blob_operations.get_blob(container="testcontainer", blob="testblob.txt")
 
 
 @pytest.mark.asyncio
-async def test_move_to_existing_sub_client_user_operations_get_user(move_to_existing_sub_client: MoveToExistingSubClient):
+async def test_move_to_existing_sub_client_user_operations_get_user(
+    move_to_existing_sub_client: MoveToExistingSubClient,
+):
     await move_to_existing_sub_client.user_operations.get_user()
 
 
 @pytest.mark.asyncio
-async def test_move_to_existing_sub_client_admin_operations_delete_user(move_to_existing_sub_client: MoveToExistingSubClient):
+async def test_move_to_existing_sub_client_admin_operations_delete_user(
+    move_to_existing_sub_client: MoveToExistingSubClient,
+):
     await move_to_existing_sub_client.admin_operations.delete_user()
 
 
 @pytest.mark.asyncio
-async def test_move_to_existing_sub_client_admin_operations_get_admin_info(move_to_existing_sub_client: MoveToExistingSubClient):
+async def test_move_to_existing_sub_client_admin_operations_get_admin_info(
+    move_to_existing_sub_client: MoveToExistingSubClient,
+):
     await move_to_existing_sub_client.admin_operations.get_admin_info()
 
 
