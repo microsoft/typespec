@@ -1,2 +1,2 @@
 ﻿global::System.ClientModel.ClientResult result = this.GetScalar(cancellationToken.ToRequestOptions());
-return global::System.ClientModel.ClientResult.FromValue(result.GetRawResponse().Content.ToObjectFromJson<long>(), result.GetRawResponse());
+return global::System.ClientModel.ClientResult.FromValue(global::System.ClientModel.Primitives.ModelReaderWriter.Read<long>(result.GetRawResponse().Content, global::Sample.ModelSerializationExtensions.WireOptions, global::Sample.SampleContext.Default), result.GetRawResponse());
